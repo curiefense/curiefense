@@ -1,0 +1,20 @@
+module curielog
+
+go 1.14
+
+require (
+	github.com/envoyproxy/go-control-plane v0.9.5
+	github.com/gofrs/uuid v3.3.0+incompatible // indirect
+	github.com/golang/protobuf v1.4.2
+	github.com/hashicorp/logutils v1.0.0
+	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733 // indirect
+	github.com/jackc/pgx v3.6.2+incompatible
+	github.com/jackc/pgx/v4 v4.6.0
+	github.com/lib/pq v1.7.0 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	github.com/prometheus/client_golang v1.7.1
+	github.com/robteix/protoconv v1.0.0
+	github.com/shopspring/decimal v1.2.0 // indirect
+	google.golang.org/grpc v1.29.1
+	google.golang.org/protobuf v1.25.0
+)

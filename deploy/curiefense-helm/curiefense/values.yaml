@@ -1,0 +1,26 @@
+global:
+  images:
+    confserver: curiefense/confserver
+    curielogger: curiefense/curielogger
+    logdb: curiefense/logdb
+    redis: curiefense/redis
+    curielogserver: curiefense/curielogserver
+    uiserver: curiefense/uiserver
+    curiesync: curiefense/curiesync
+    grafana: curiefense/grafana
+    prometheus: curiefense/prometheus
+
+  storage:
+    # use the default storage class if null
+    storage_class_name: null
+    confserver_storage_size: '1Gi'
+    grafana_storage_size: '1Gi'
+    logdb_storage_size: '10Gi'
+    prometheus_storage_size: '1Gi'
+    redis_storage_size: '1Gi'
+
+  settings:
+    curieconf_manifest_url: 's3://curiefense-test01/prod/manifest.json'
+    curiefense_db_hostname: 'logdb'
+    # will be overridden if deploy.sh is used
+    docker_tag: 'latest'

@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: uiserver
+  name: uiserver
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: uiserver
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: uiserver
+    spec:
+      containers:
+      {{ if regexMatch ".*/.*:" .Values.global.images.uiserver }}
+      {{/* The image name contains a version tag (e.g. for tests), do not append docker_tag */}}
+      - image: {{ .Values.global.images.uiserver }}
+      {{ else }}
+      - image: {{ .Values.global.images.uiserver }}:{{ .Values.global.settings.docker_tag }}
+      {{ end }}
+        name: uiserver
+        ports:
+        - containerPort: 80
+          name: uiserver-http
+        livenessProbe:
+          httpGet:
+            path: /
+            port: uiserver-http
+        volumeMounts:
+        - mountPath: /run/secrets/uisslcrt
+          name: uisslcrt
+        - mountPath: /run/secrets/uisslkey
+          name: uisslkey
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+      - name: uisslcrt
+        secret:
+          items:
+          - key: uisslcrt
+            path: uisslcrt
+          secretName: uisslcrt
+      - name: uisslkey
+        secret:
+          items:
+          - key: uisslkey
+            path: uisslkey
+          secretName: uisslkey
+{{- if .Values.global.tolerations }}
+      tolerations:
+{{ toYaml .Values.global.tolerations | indent 8 }}
+{{- end }}

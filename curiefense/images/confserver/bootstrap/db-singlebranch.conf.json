@@ -1,0 +1,16 @@
+{
+    "buckets": [
+        {
+            "name": "prod",
+            "url": "s3://curiefense-test01/"
+        }
+    ],
+    "branch_buckets": [
+        {
+            "name": "master",
+            "buckets": [
+                "prod"
+            ]
+        }
+    ]
+}

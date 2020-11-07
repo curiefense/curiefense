@@ -1,0 +1,34 @@
+# Eclipse project files
+*.classpath*
+*.project*
+*.settings*
+
+*.tfplan
+.terraform
+terraform.tfstate.backup
+ipsec.secrets
+tfplatform
+Makefile
+.gitconfig*
+
+
+
+# Vim temporary files
+*.swp
+
+# Sublime text 2 sftp config files
+*sftp-config.json
+
+# Brackets remote ftp config file
+*.remotesettings
+
+# Ignore JRebel configuration files
+*rebel.xml
+*rebel-remote.xml
+
+.DS_Store
+
+# Intellij
+.idea/
+*.iml
+*.iws

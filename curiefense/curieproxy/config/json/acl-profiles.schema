@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "custom_signature": {
+      "description": "list of custom signature IDs",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "asncountryclass": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number",
+        "minValue": 1,
+        "maxValue": 1
+      }
+    },
+    "ip": {
+      "description": "list of lists",      
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/iprange"
+      }
+    },
+    "iprange": {
+      "description": "start and end addresses as list of integers",      
+      
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "aclpolicy": {
+      "type": "object",
+      "properties": {
+        "ip": {
+          "$ref": "#/definitions/ip"
+        },
+        "class": {
+          "$ref": "#/definitions/asncountryclass"
+        },
+        "company": {
+          "$ref": "#/definitions/asncountryclass"
+        },
+        "country": {
+          "$ref": "#/definitions/asncountryclass"
+        },
+        "custom_signature": {
+          "$ref": "#/definitions/custom_signature"
+        },
+        "action_id": {
+          "type": "string"
+        }
+      },
+      "required": ["ip","class","company","country","custom_signature","action_id"]
+    },
+    "aclprofile": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "allow": {"$ref": "#/definitions/aclpolicy"},
+        "allow_bot": {"$ref": "#/definitions/aclpolicy"},
+        "deny_bot": {"$ref": "#/definitions/aclpolicy"},
+        "bypass": {"$ref": "#/definitions/aclpolicy"},
+        "force_deny": {"$ref": "#/definitions/aclpolicy"},
+        "deny":{"$ref": "#/definitions/aclpolicy"}
+      },
+      "required": ["id", "name", "allow", "allow_bot", "deny_bot", "bypass", "force_deny", "deny"]
+    }
+  },
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/aclprofile"
+  }
+}

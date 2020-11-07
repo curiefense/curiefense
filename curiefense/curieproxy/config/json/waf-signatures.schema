@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "waf-signature": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "msg": {
+          "type": "string"
+        },
+        "operand": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "subcategory": {
+          "type": "string"
+        },
+
+        "severity": {
+          "type": "integer"
+        },
+
+        "certainity": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "msg",
+        "operand",
+        "category",
+        "subcategory",
+        "severity",
+        "certainity"
+      ]
+    }
+  },
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/waf-signature"
+  }
+}

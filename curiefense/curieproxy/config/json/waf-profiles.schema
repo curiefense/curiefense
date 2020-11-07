@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "waf-profile": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "ignore_alphanum": {
+          "type": "boolean"
+        },
+        "max_header_length": {
+          "type": "integer"
+        },
+        "max_cookie_length": {
+          "type": "integer"
+        },
+        "max_arg_length": {
+          "type": "integer"
+        },
+        "max_headers_count": {
+          "type": "integer"
+        },
+        "max_cookies_count": {
+          "type": "integer"
+        },
+        "max_args_count": {
+          "type": "integer"
+        },
+        "args": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "$ref": "#/definitions/waf-entry-match"
+            },
+            "regex": {
+              "$ref": "#/definitions/waf-entry-match"
+            }
+          },
+          "required": [
+            "names",
+            "regex"
+          ]
+        },
+        "headers": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "$ref": "#/definitions/waf-entry-match"
+            },
+            "regex": {
+              "$ref": "#/definitions/waf-entry-match"
+            }
+          },
+          "required": [
+            "names",
+            "regex"
+          ]
+        },
+        "cookies": {
+          "type": "object",
+          "properties": {
+            "names": {
+              "$ref": "#/definitions/waf-entry-match"
+            },
+            "regex": {
+              "$ref": "#/definitions/waf-entry-match"
+            }
+          },
+          "required": [
+            "names",
+            "regex"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "ignore_alphanum",
+        "max_header_length",
+        "max_cookie_length",
+        "max_arg_length",
+        "max_headers_count",
+        "max_cookies_count",
+        "max_args_count",
+        "args",
+        "headers",
+        "cookies"
+      ]
+    },
+    "waf-entry-match": {
+      "type": "object",
+      "properties": {
+        "reg": {
+          "type": "string"
+        },
+        "restrict": {
+          "type": "boolean"
+        },
+        "exclusions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  },
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/waf-profile"
+  }
+}

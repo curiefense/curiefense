@@ -1,0 +1,13 @@
+[
+  {
+    "id": "__default__",
+    "name": "default-acl",
+
+    "allow": [],
+    "allow_bot": [],
+    "deny_bot": [],
+    "bypass": [],
+    "force_deny":[],
+    "deny": []
+  }
+]

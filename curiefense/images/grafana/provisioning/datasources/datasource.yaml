@@ -1,0 +1,15 @@
+# config file version
+apiVersion: 1
+
+datasources:
+- name: Prometheus
+  type: prometheus
+  access: proxy
+  url: http://prometheus:9090
+  id: 1
+  tlsSkipVerify: true
+  isDefault: true
+  version: 1
+  editable: false
+  basicAuth: false
+

@@ -1,0 +1,4 @@
+gateways:
+  istio-ingressgateway:
+    waf:
+      enabled: true

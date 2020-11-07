@@ -1,0 +1,22 @@
+[package]
+name = "grasshopper"
+version = "0.1.0"
+authors = ["phil <phil@secdev.org>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mlua = { version = "0.4", features = ["lua51", "module"] }
+mlua_derive = "0.4"
+aes = "0.6.0"
+ofb = "0.4.0"
+base64 = "0.13.0"
+hex = "0.4.2"
+hex-literal = "0.2.0"
+aes-gcm-siv = "0.9.0"
+getrandom = "0.2"

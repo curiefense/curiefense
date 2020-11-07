@@ -1,0 +1,56 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Rate Limit",
+    "description": "Rate Limit rules",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique id"
+        },
+        "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Name of entity shown in UI"
+        },
+        "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Description of entity shown in UI"
+        },
+        "limit": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Threshold",
+            "description": "The threshold of requests allowed"
+        },
+        "ttl": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Time To Limit",
+            "description": "The time in which to limit the requests according to the threshold"
+        },
+        "action": {
+            "type": "object",
+            "title": "Limit Reached Action",
+            "description": "Action to take when receiving requests over the threshold"
+        },
+        "key": {
+            "type": "array",
+            "title": "Count By List",
+            "description": "Item describing how to count requests using attributes, arguments, cookies, or headers"
+        },
+        "exclude": {
+            "type": "object",
+            "title": "Excluded Requests",
+            "description": "Item describing requests to exclude from the rate limit rule using attributes, arguments, cookies, or headers"
+        },
+        "include": {
+            "type": "object",
+            "title": "Included Requests",
+            "description": "Item describing requests to include in the rate limit rule using attributes, arguments, cookies, or headers"
+        }
+    },
+    "required": [ "id", "name", "ttl", "key", "limit" ]
+}

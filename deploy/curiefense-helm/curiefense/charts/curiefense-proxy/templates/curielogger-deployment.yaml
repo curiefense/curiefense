@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: curielogger
+  name: curielogger
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: curielogger
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: curielogger
+    spec:
+      containers:
+      - env:
+        - name: CURIELOGGER_DBHOST
+          value: {{ .Values.global.settings.curiefense_db_hostname }}
+        - name: CURIELOGGER_DBUSER
+          valueFrom:
+            secretKeyRef:
+              name: curiefense-db-credentials
+              key: username
+        - name: CURIELOGGER_DBPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: curiefense-db-credentials
+              key: password
+        {{ if regexMatch ".*/.*:" .Values.global.images.curielogger }}
+        {{/* The image name contains a version tag (e.g. for tests), do not append docker_tag */}}
+        image: {{ .Values.global.images.curielogger }}
+        {{ else }}
+        image: {{ .Values.global.images.curielogger }}:{{ .Values.global.settings.docker_tag }}
+        {{ end }}
+        name: curielogger
+        ports:
+        - containerPort: 9001
+          name: logger-grpc
+        - containerPort: 2112
+          name: logger-p8s
+        livenessProbe:
+          tcpSocket:
+            port: logger-grpc
+      restartPolicy: Always
+      serviceAccountName: ""
+{{- if .Values.global.tolerations }}
+      tolerations:
+{{ toYaml .Values.global.tolerations | indent 8 }}
+{{- end }}

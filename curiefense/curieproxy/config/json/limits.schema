@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+      "limit-data": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "ttl": { "type": "string" },
+          "key": { "type": "string" },
+          "limit": { "type": "string" }
+        },
+        "required": [ "name", "ttl", "key", "limit" ]
+      },    
+    "limits": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "data": { "$ref": "#/definitions/limit-data" }
+      },
+      "required": [ "id", "data"]
+    }
+  },
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/limits"
+  }
+}

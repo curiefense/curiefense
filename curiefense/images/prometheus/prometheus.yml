@@ -1,0 +1,19 @@
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9090']
+  - job_name: 'envoy_scrape'
+    scrape_interval: 5s
+    metrics_path: /stats
+    params:
+      format: ['prometheus']
+    static_configs:
+      - targets: ['curiefense:8001']
+  - job_name: 'curiefense'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['curielogger:2112']

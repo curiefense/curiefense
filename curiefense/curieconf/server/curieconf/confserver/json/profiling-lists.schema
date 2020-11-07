@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Profiling List",
+  "description": "A list of profiled entities",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "Id",
+      "description": "Unique id"
+    },
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "description": "Name of entity shown in UI"
+    },
+    "active": {
+      "type": "boolean",
+      "title": "Active flag",
+      "description": ""
+    },
+    "mdate": {
+      "type": "string",
+      "title": "Last Modified Date",
+      "description": "Date of last modification"
+    },
+    "source": {
+      "type": "string",
+      "title": "List's Source",
+      "description": "URL to location for download or 'self' if self managed"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Description",
+      "description": "Description of entity shown in UI"
+    },
+    "entries_relation": {
+      "type": "string",
+      "title": "Entries Relationship",
+      "description": "Boolean relation between entries"
+    },
+    "tags": {
+      "type": "array",
+      "title": "Tags List",
+      "description": "Tags associations",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "entries": {
+      "type": "array",
+      "title": "Entries List",
+      "description": "List of entries pulled from the source",
+      "items": {
+        "type": "array",
+        "title": "Entry Description List",
+        "description": "Array must contain exactly 3 items describing the object. Where the first item contains the category, the second item contains the entry, and the last item contains annotation information"
+      },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "id",
+    "active",
+    "mdate",
+    "source",
+    "notes",
+    "entries_relation",
+    "tags",
+    "entries"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+    "buckets": [
+        {
+            "name": "prod",
+            "url": "s3://curiefense-test01/prod"
+        },
+        {
+            "name": "devops",
+            "url": "s3://curiefense-test01/devops"
+        }
+    ],
+    "branch_buckets": [
+        {
+            "name": "master",
+            "buckets": [
+                "prod"
+            ]
+        },
+        {
+            "name": "devops",
+            "buckets": [
+                "devops"
+            ]
+        }
+    ]
+}
