@@ -624,6 +624,8 @@ class PublishResource(Resource):
         conf = current_app.backend.configs_get(config, version)
         ok = True
         status = []
+        if type(request.json) is not list:
+            abort(400, "body must be a list")
         for bucket in request.json:
             logs = []
             try:
