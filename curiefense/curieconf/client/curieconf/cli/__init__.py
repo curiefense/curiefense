@@ -299,6 +299,24 @@ def delete(db:str, key:str):
 
 
 
+###############
+### PUBLISH ###
+###############
+
+tool = typer.Typer()
+
+@tool.command("publish")
+def publish(config:str, url:str, version:str = None):
+    body = [{
+        "name": "url from CLI",
+        "url": url
+    }]
+    if version is None:
+        output(state.api.tools.publish(config, body=body).body)
+    else:
+        output(state.api.tools.publish_version(config, version, body=body).body)
+
+
 
 ############
 ### SYNC ###
@@ -470,6 +488,7 @@ app.add_typer(docs, name="doc")
 app.add_typer(entries, name="entry")
 app.add_typer(db, name="db")
 app.add_typer(key, name="key")
+app.add_typer(tool, name="tool")
 app.add_typer(sync, name="sync")
 
 @app.callback()

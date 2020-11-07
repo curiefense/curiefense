@@ -82,6 +82,12 @@ class KeyResource(Resource):
         delete = DELETE("db/{}/k/{}"),
     )
 
+class ToolsResource(Resource):
+    actions = dict(
+        publish = PUT("tools/publish/{}/"),
+        publish_version = PUT("tools/publish/{}/v/{}/"),
+    )
+
 
 def get_api(api_root_url='http://localhost:5000/api/v1/', json_encode_body=True, **kargs):
     api = API(
@@ -97,5 +103,6 @@ def get_api(api_root_url='http://localhost:5000/api/v1/', json_encode_body=True,
     api.add_resource(resource_name = "entries", resource_class = EntriesResource)
     api.add_resource(resource_name = "db", resource_class = DBResource)
     api.add_resource(resource_name = "key", resource_class = KeyResource)
+    api.add_resource(resource_name = "tools", resource_class = ToolsResource)
 
     return api
