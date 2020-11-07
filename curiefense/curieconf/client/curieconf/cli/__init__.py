@@ -494,7 +494,7 @@ app.add_typer(sync, name="sync")
 @app.callback()
 def main_options(output:str=typer.Option("json", "--output", "-o",
                                          help="Output format: json, yaml"),
-                 baseurl:str=typer.Option("http://localhost:5000/api/v1/",
+                 baseurl:str=typer.Option(os.environ.get("CURIECONF_BASE_URL","http://localhost:5000/api/v1/"),
                                           "--base-url", "-u",
                                          help="Base url for API"),
 ):
