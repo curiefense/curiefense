@@ -32,17 +32,6 @@
               <div class="field is-grouped is-pulled-right">
 
                 <p class="control">
-                  <a class="button is-small"
-                     :class="{'is-loading': isDownloadLoading}"
-                     @click="downloadBranch($event)"
-                     title="Download Branch x">
-                    <span class="icon is-small">
-                      <i class="fas fa-download"></i>
-                    </span>
-                  </a>
-                </p>
-
-                <p class="control">
                   <span class="field has-addons">
                     <span class="control">
                       <a class="button is-small"
@@ -78,6 +67,18 @@
                     </span>
                   </span>
                 </p>
+
+                <p class="control">
+                  <a class="button is-small"
+                     :class="{'is-loading': isDownloadLoading}"
+                     @click="downloadBranch($event)"
+                     title="Download Branch x">
+                    <span class="icon is-small">
+                      <i class="fas fa-download"></i>
+                    </span>
+                  </a>
+                </p>
+
                 <p class="control">
                   <span class="field has-addons">
                     <span class="control">
