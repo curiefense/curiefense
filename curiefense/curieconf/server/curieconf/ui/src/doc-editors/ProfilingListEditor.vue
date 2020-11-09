@@ -154,9 +154,8 @@
 
 import _ from 'lodash'
 
-import axios from 'axios'
-import DatasetsUtils from '@/assets/DatasetsUtils.js'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput'
+import RequestsUtils from "@/assets/RequestsUtils";
 
 export default {
   name: 'ProfilingListEditor',
@@ -347,12 +346,9 @@ export default {
             })
       }
 
-      let apiroot = DatasetsUtils.ConfAPIRoot,
-          apiversion = DatasetsUtils.ConfAPIVersion,
-          url = this.selectedDoc.source;
+      let url = this.selectedDoc.source;
 
-
-      axios.get(`${apiroot}/${apiversion}/tools/fetch?url=${url}`).then(
+      RequestsUtils.sendRequest('GET',`tools/fetch?url=${url}`).then(
         (response) => {
 
           let data = response.data,

@@ -193,11 +193,10 @@
 
 <script>
 
-import axios from 'axios'
 import DatasetsUtils from '@/assets/DatasetsUtils.js'
 import Utils from '@/assets/Utils.js'
-import GitHistory from "@/components/GitHistory";
-import * as bulmaToast from "bulma-toast";
+import GitHistory from '@/components/GitHistory'
+import RequestsUtils from '@/assets/RequestsUtils'
 
 export default {
 
@@ -270,9 +269,9 @@ export default {
     },
 
     loadDBs() {
-      this.ax().then((response) => {
+      RequestsUtils.sendRequest('GET', 'db/').then((response) => {
         this.databases = response.data
-        console.log("Databases: ", this.databases)
+        console.log('Databases: ', this.databases)
         this.loadFirstDB()
       })
     },
@@ -289,7 +288,7 @@ export default {
     async loadDB(db) {
       this.selectedDB = db
       this.dbNameInput = this.selectedDB
-      this.selectedDBData = (await this.ax(axios.get, `${this.selectedDB}/`)).data
+      this.selectedDBData = (await RequestsUtils.sendRequest('GET', `db/${this.selectedDB}/`)).data
       this.initDBKeys(this.selectedDB)
     },
 
@@ -301,13 +300,11 @@ export default {
         data = {key: {}}
       }
 
-      return this.ax(axios.put, `${db}/`, data)
+      return RequestsUtils.sendRequest('PUT', `db/${db}/`, data, `Database [${db}] saved!`, `Failed saving database [${db}]!`)
           .then(() => {
-            this.successToast(`Database [${db}] saved!`)
             return true
           })
           .catch(() => {
-            this.failToast(`Failed saving database [${db}]!`)
             return false
           })
 
@@ -317,7 +314,7 @@ export default {
       this.loadDB(this.selectedDB)
     },
 
-    deleteDB(db) {
+    deleteDB(db, disableAnnouncementMessages) {
       if (!db) {
         db = this.selectedDB
       }
@@ -325,13 +322,13 @@ export default {
         return database === db
       })
       this.databases.splice(db_index, 1)
-      this.ax(axios.delete, `${db}/`)
-          .then(() => {
-            this.successToast(`Database [${db}] deleted!`)
-          })
-          .catch(() => {
-            this.failToast(`Failed deleting database [${db}]!`)
-          })
+      let successMessage
+      let failureMessage
+      if (!disableAnnouncementMessages) {
+        successMessage = `Database [${db}] deleted!`
+        failureMessage = `Failed deleting database [${db}]!`
+      }
+      RequestsUtils.sendRequest('DELETE', `db/${db}/`, null, successMessage, failureMessage)
       if (!this.databases.includes(this.selectedDB)) {
         this.loadFirstDB()
       }
@@ -354,13 +351,13 @@ export default {
     },
 
     downloadDB(event) {
-      let element = event.target;
-      while (element.nodeName !== "A")
+      let element = event.target
+      while (element.nodeName !== 'A')
         element = element.parentNode
 
-      let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.selectedDBData))
-      element.setAttribute("href", dataStr)
-      element.setAttribute("download", this.selectedDB + ".json")
+      let dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.selectedDBData))
+      element.setAttribute('href', dataStr)
+      element.setAttribute('download', this.selectedDB + '.json')
     },
 
     initDBKeys() {
@@ -387,13 +384,11 @@ export default {
       }
       doc = JSON.parse(doc)
 
-      return this.ax(axios.put, `${db}/k/${key}/`, doc)
+      return RequestsUtils.sendRequest('PUT', `db/${db}/k/${key}/`, doc, `Key [${key}] in database [${db}] saved!`, `Failed saving key [${key}] in database [${db}]!`)
           .then(() => {
-            this.successToast(`Key [${key}] in database [${db}] saved!`)
             return true
           })
           .catch(() => {
-            this.failToast(`Failed saving key [${key}] in database [${db}]!`)
             return false
           })
 
@@ -403,7 +398,7 @@ export default {
       this.loadKey(this.selectedKey)
     },
 
-    deleteKey(key) {
+    deleteKey(key, disableAnnouncementMessages) {
       const db = this.selectedDB
       if (!key) {
         key = this.selectedKey
@@ -412,13 +407,13 @@ export default {
         return k === key
       })
       this.keys.splice(key_index, 1)
-      this.ax(axios.delete, `${db}/k/${key}/`)
-          .then(() => {
-            this.successToast(`Key [${key}] in database [${db}] deleted!`)
-          })
-          .catch(() => {
-            this.failToast(`Failed deleting key [${key}] in database [${db}]!`)
-          })
+      let successMessage
+      let failureMessage
+      if (!disableAnnouncementMessages) {
+        successMessage = `Key [${key}] in database [${db}] deleted!`
+        failureMessage = `Failed deleting key [${key}] in database [${db}]!`
+      }
+      RequestsUtils.sendRequest('DELETE', `db/${db}/k/${key}/`, null, successMessage, failureMessage)
       if (!this.keys.includes(this.selectedKey)) {
         this.loadKey(this.keys[0])
       }
@@ -446,28 +441,28 @@ export default {
     },
 
     downloadKey(event) {
-      let element = event.target;
-      while (element.nodeName !== "A")
+      let element = event.target
+      while (element.nodeName !== 'A')
         element = element.parentNode
 
-      let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(this.document)
-      element.setAttribute("href", dataStr)
-      element.setAttribute("download", this.selectedKey + ".json")
+      let dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(this.document)
+      element.setAttribute('href', dataStr)
+      element.setAttribute('download', this.selectedKey + '.json')
     },
 
     async saveChanges() {
       // If DB name changed -> Save the data under the new name and remove the old database
       if (this.selectedDB !== this.dbNameInput) {
         const old_db = this.selectedDB
-        const old_data = (await this.ax(axios.get, `${old_db}/`)).data
+        const old_data = (await RequestsUtils.sendRequest('GET', `db/${old_db}/`)).data
         await this.addNewDB(this.dbNameInput, old_data)
-        this.deleteDB(old_db)
+        this.deleteDB(old_db, true)
       }
       // If key name changed -> Save the data under the new name and remove the old key from the database
       if (this.selectedKey !== this.keyNameInput) {
         const old_key = this.selectedKey
         await this.addNewKey(this.keyNameInput, this.document)
-        this.deleteKey(old_key)
+        this.deleteKey(old_key, true)
       } else {
         await this.saveKey(this.selectedDB, this.selectedKey, this.document)
         this.selectedDBData[this.selectedKey] = JSON.parse(this.document)
@@ -480,9 +475,9 @@ export default {
     },
 
     async loadGitLog() {
-      this.gitlogLoading = true;
-      const url_trail = `${this.selectedDB}/k/${this.selectedKey}/v/`
-      const response = await this.ax(axios.get, url_trail)
+      this.gitlogLoading = true
+      const url_trail = `db/${this.selectedDB}/k/${this.selectedKey}/v/`
+      const response = await RequestsUtils.sendRequest('GET', url_trail)
       this.gitLog = response.data
       this.gitlogLoading = false
     },
@@ -493,7 +488,7 @@ export default {
       const version_id = gitVersion.version
       const url_trail = `${db}/v/${version_id}/`
 
-      await this.ax(axios.put, `${url_trail}revert/`)
+      await RequestsUtils.sendRequest('PUT', `db/${url_trail}revert/`, null, `Database [${db}] restored to version [${version_id}]!`, `Failed restoring database [${db}] to version [${version_id}]!`)
       await this.loadDB(db)
       const oldSelectedKey = this.keys.find((key) => {
         return key === selectedKey
@@ -503,50 +498,6 @@ export default {
       }
       this.loadGitLog()
     },
-
-    ax(axios_method, urlTail, data) {
-      if (!axios_method) {
-        axios_method = axios.get
-      }
-      if (!urlTail) {
-        urlTail = ""
-      }
-
-      const apiroot = this.apiRoot
-      const apiversion = this.apiVersion
-      const apiurl = `${apiroot}/${apiversion}/db/${urlTail}`
-
-      if (axios_method) {
-        console.log("apiurl", apiurl)
-        if (data) {
-          return axios_method(apiurl, data)
-        }
-        return axios_method(apiurl)
-      }
-    },
-
-    toast(message, type) {
-      bulmaToast.toast(
-          {
-            message: message,
-            type: `is-light ${type}`,
-            position: 'bottom-left',
-            closeOnClick: true,
-            pauseOnHover: true,
-            duration: 3000,
-            opacity: 0.8,
-          }
-      )
-    },
-
-    successToast(message) {
-      this.toast(message, 'is-success')
-    },
-
-    failToast(message) {
-      this.toast(message, 'is-danger')
-    },
-
   },
 
   created() {

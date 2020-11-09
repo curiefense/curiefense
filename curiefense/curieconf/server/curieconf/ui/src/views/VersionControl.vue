@@ -130,11 +130,10 @@
 </template>
 <script>
 
-import axios from "axios";
-import DatasetsUtils from "@/assets/DatasetsUtils";
-import GitHistory from "@/components/GitHistory";
-import Utils from "@/assets/Utils";
-import * as bulmaToast from "bulma-toast";
+import DatasetsUtils from '@/assets/DatasetsUtils'
+import GitHistory from '@/components/GitHistory'
+import Utils from '@/assets/Utils'
+import RequestsUtils from '@/assets/RequestsUtils'
 
 export default {
 
@@ -173,7 +172,7 @@ export default {
     },
 
     branchNames() {
-      return this.ld.sortBy(this.ld.map(this.configs, "id"))
+      return this.ld.sortBy(this.ld.map(this.configs, 'id'))
     },
 
     isSelectedBranchForkNameValid() {
@@ -217,7 +216,7 @@ export default {
 
     async loadConfigs(active_branch) {
       // store configs
-      const response = await this.ax()
+      const response = await RequestsUtils.sendRequest('GET', 'configs/')
       let configs = response.data
       this.configs = configs
       if (!active_branch) {
@@ -229,16 +228,16 @@ export default {
         })
       }
       // counters
-      this.commits = this.ld.sum(this.ld.map(this.ld.map(configs, "logs"), (logs) => {
+      this.commits = this.ld.sum(this.ld.map(this.ld.map(configs, 'logs'), (logs) => {
         return this.ld.size(logs)
       }))
       this.branches = this.ld.size(configs)
-      console.log("config counters", this.branches, this.commits)
+      console.log('config counters', this.branches, this.commits)
     },
 
     async loadSelectedBranchData() {
       this.isDownloadLoading = true
-      this.selectedBranchData = (await this.ax(axios.get, `${this.selectedBranch}/`)).data
+      this.selectedBranchData = (await RequestsUtils.sendRequest('GET', `configs/${this.selectedBranch}/`)).data
       this.isDownloadLoading = false
     },
 
@@ -251,16 +250,16 @@ export default {
     },
 
     loadGitLog() {
-      this.gitlogLoading = true;
+      this.gitlogLoading = true
 
       let self = this,
           config = this.selectedBranch,
-          url_trail = `${config}/v/`;
+          url_trail = `configs/${config}/v/`
 
       if (config) {
-        this.ax(axios.get, url_trail).then((response) => {
+        RequestsUtils.sendRequest('GET', url_trail).then((response) => {
           this.gitLog = response.data
-          self.gitlogLoading = false;
+          self.gitlogLoading = false
         })
       }
 
@@ -270,23 +269,21 @@ export default {
       this.resetGitLog()
       const branch = this.selectedBranch
       const version_id = gitVersion.version
-      const url_trail = `${branch}/v/${version_id}/`
+      const url_trail = `configs/${branch}/v/${version_id}/`
 
-      await this.ax(axios.put, `${url_trail}revert/`)
+      await RequestsUtils.sendRequest('PUT', `${url_trail}revert/`, null, `Branch [${branch}] restored to version [${version_id}]!`, `Failed restoring branch [${branch}] to version [${version_id}]!`)
       this.loadGitLog()
     },
 
     async deleteBranch() {
       if (!this.isSelectedBranchDeleteNameValid) {
-        return;
+        return
       }
-      const isDeleted = await this.ax(axios.delete, `${this.selectedBranch}/`)
+      const isDeleted = await RequestsUtils.sendRequest('DELETE', `configs/${this.selectedBranch}/`, null, `Branch [${this.selectedBranch}] deleted successfully!`, `Failed deleting branch [${this.selectedBranch}]!`)
           .then(() => {
-            this.successToast(`Branch [${this.selectedBranch}] deleted successfully!`)
             return true
           })
           .catch(() => {
-            this.failToast(`Failed deleting branch [${this.selectedBranch}]!`)
             return false
           })
       if (isDeleted) {
@@ -297,20 +294,20 @@ export default {
 
     async forkBranch() {
       if (!this.isSelectedBranchForkNameValid) {
-        return;
+        return
       }
       let newBranchName = this.forkBranchName
-      const isSaved = await this.ax(axios.post, `${this.selectedBranch}/clone/${newBranchName}/`,
+      const isSaved = await RequestsUtils.sendRequest('POST', `configs/${this.selectedBranch}/clone/${newBranchName}/`,
           {
-            "id": "string",
-            "description": "string"
-          })
+            'id': 'string',
+            'description': 'string'
+          },
+          `Branch [${this.selectedBranch}] forked to [${this.forkBranchName}] successfully!`,
+          `Failed forking branch [${this.selectedBranch}] to [${this.forkBranchName}]!`)
           .then(() => {
-            this.successToast(`Branch [${this.selectedBranch}] forked to [${this.forkBranchName}] successfully!`)
             return true
           })
           .catch(() => {
-            this.failToast(`Failed forking branch [${this.selectedBranch}] to [${this.forkBranchName}]!`)
             return false
           })
       if (isSaved) {
@@ -323,56 +320,12 @@ export default {
       if (this.isDownloadLoading) {
         return
       }
-      let element = event.target;
-      while (element.nodeName !== "A")
+      let element = event.target
+      while (element.nodeName !== 'A')
         element = element.parentNode
-      let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.selectedBranchData));
-      element.setAttribute("href", dataStr);
-      element.setAttribute("download", this.selectedBranch + ".json");
-    },
-
-    ax(axios_method, urlTail, data) {
-      if (!axios_method) {
-        axios_method = axios.get;
-      }
-      if (!urlTail) {
-        urlTail = "";
-      }
-
-      let apiroot = this.apiRoot,
-          apiversion = this.apiVersion,
-          apiurl = `${apiroot}/${apiversion}/configs/${urlTail}`;
-
-      if (axios_method) {
-        console.log("apiurl", apiurl)
-        if (data) {
-          return axios_method(apiurl, data)
-        }
-
-        return axios_method(apiurl)
-      }
-    },
-
-    toast(message, type) {
-      bulmaToast.toast(
-          {
-            message: message,
-            type: `is-light ${type}`,
-            position: 'bottom-left',
-            closeOnClick: true,
-            pauseOnHover: true,
-            duration: 3000,
-            opacity: 0.8,
-          }
-      )
-    },
-
-    successToast(message) {
-      this.toast(message, 'is-success')
-    },
-
-    failToast(message) {
-      this.toast(message, 'is-danger')
+      let dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.selectedBranchData))
+      element.setAttribute('href', dataStr)
+      element.setAttribute('download', this.selectedBranch + '.json')
     },
 
   },

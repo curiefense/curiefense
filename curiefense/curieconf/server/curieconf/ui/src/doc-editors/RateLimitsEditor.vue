@@ -236,8 +236,7 @@ export default {
   name: 'RateLimits',
   props: {
     selectedDoc: Object,
-    apiPath: String,
-    additioanl_props: Array
+    apiPath: String
   },
   components: {
     LimitAction,

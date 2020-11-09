@@ -34,8 +34,8 @@
 
 <script>
 
-import DatasetsUtils from "@/assets/DatasetsUtils";
-import axios from "axios";
+import DatasetsUtils from '@/assets/DatasetsUtils'
+import RequestsUtils from '@/assets/RequestsUtils'
 
 export default {
   name: 'TagAutocompleteInput',
@@ -66,8 +66,8 @@ export default {
 
   mounted() {
     ['keyup', 'keydown', 'keypress', 'focus', 'blur'].map(event => {
-      this.$refs.tagInput.addEventListener(event, $event => this.$emit(event, $event));
-    });
+      this.$refs.tagInput.addEventListener(event, $event => this.$emit(event, $event))
+    })
     if (this.autoFocus) {
       this.$refs.tagInput.focus()
     }
@@ -115,7 +115,7 @@ export default {
         if (this.selectionType === 'multiple') {
           const tags = this.tag.split(' ')
           tags[tags.length - 1] = currentTag
-          this.tag = tags.join(' ');
+          this.tag = tags.join(' ')
         } else {
           this.tag = currentTag.trim()
         }
@@ -127,7 +127,7 @@ export default {
   methods: {
 
     loadAutocompleteSuggestions() {
-      this.ax(axios.get, `${this.db}/k/${this.key}/`)
+      RequestsUtils.sendRequest('GET', `db/${this.db}/k/${this.key}/`)
           .then(response => {
             this.tagsSuggestions = response.data?.tags || []
             this.tagsSuggestions.sort()
@@ -190,49 +190,28 @@ export default {
 
     createAutocompleteDBKey() {
       // if database doesn't exist, create it
-      this.ax(axios.get, `${this.db}/`)
+      RequestsUtils.sendRequest('GET', `db/${this.db}/`)
           .catch(() => {
-            this.ax(axios.post, `${this.db}`, {})
+            RequestsUtils.sendRequest('POST', `db/${this.db}`, {})
           })
       // if key doesn't exist, create it
-      this.ax(axios.get, `${this.db}/k/${this.key}/`)
+      RequestsUtils.sendRequest('GET', `db/${this.db}/k/${this.key}/`)
           .catch(() => {
-            this.ax(axios.put, `${this.db}/k/${this.key}/`, {})
+            RequestsUtils.sendRequest('PUT', `db/${this.db}/k/${this.key}/`, {})
           })
     },
 
     async addUnknownTagToDB(tag) {
-      const response = await this.ax(axios.get, `${this.db}/k/${this.key}/`)
+      const response = await RequestsUtils.sendRequest('GET', `db/${this.db}/k/${this.key}/`)
       const document = {...{tags: []}, ...response.data}
       document.tags.push(tag)
-      return this.ax(axios.put, `${this.db}/k/${this.key}/`, document)
+      return RequestsUtils.sendRequest('PUT', `db/${this.db}/k/${this.key}/`, document)
           .then(() => {
             console.log(`saved key [${this.key}] to database [${this.db}]`)
           })
           .catch(() => {
             console.log(`failed saving key [${this.key}] to database [${this.db}]`)
           })
-    },
-
-    ax(axios_method, urlTail, data) {
-      if (!axios_method) {
-        axios_method = axios.get
-      }
-      if (!urlTail) {
-        urlTail = ""
-      }
-
-      const apiroot = this.apiRoot
-      const apiversion = this.apiVersion
-      const apiurl = `${apiroot}/${apiversion}/db/${urlTail}`
-
-      if (axios_method) {
-        console.log("apiurl", apiurl)
-        if (data) {
-          return axios_method(apiurl, data)
-        }
-        return axios_method(apiurl)
-      }
     },
 
   },

@@ -1,5 +1,4 @@
 import ip6addr from 'ip6addr'
-import axios from "axios";
 
 const CIDRRanges={ "1":"32", "2":"31", "4":"30", "8":"29", "16":"28", "32":"27", "64":"26", "128":"25", "256":"24", "512":"23", "1024":"22", "2048":"21", "4096":"20", "8192":"19", "16384":"18", "32768":"17", "65536":"16", "131072":"15", "262144":"14", "524288":"13", "1048576":"12", "2097152":"11", "4194304":"10", "8388608":"9", "16777216":"8", "33554432":"7", "67108864":"6", "134217728":"5", "268435456":"4", "536870912":"3", "1073741824":"2", "2147483648":"1", "4294967296":"0"}
 const CIDRPatterns={ "32": RegExp("(\\d{1,3}\\.){3}\\d{1,3}/32"), "31": RegExp("(\\d{1,3}\\.){3}\\d{1,3}/31"), "30": RegExp("(\\d{1,3}\\.){3}\\d{1,3}/30"), "29": RegExp("(\\d{1,3}\\.){3}\\d{1,3}/29"), "28": RegExp("(\\d{1,3}\\.){3}\\d{1,3}/28"), "27": RegExp("(\\d{1,3}\\.){3}\\d{1,3}/27"), "26": RegExp("(\\d{1,3}\\.){3}\\d{1,3}/26"), "25": RegExp("(\\d{1,3}\\.){3}\\d{1,3}/25"), "24": RegExp("(\\d{1,3}\\.){2}\\d{1,3}\\.0/24"), "23": RegExp("(\\d{1,3}\\.){2}\\d{1,3}\\.0/23"), "22": RegExp("(\\d{1,3}\\.){2}\\d{1,3}\\.0/22"), "21": RegExp("(\\d{1,3}\\.){2}\\d{1,3}\\.0/21"), "20": RegExp("(\\d{1,3}\\.){2}\\d{1,3}\\.0/20"), "19": RegExp("(\\d{1,3}\\.){2}\\d{1,3}\\.0/19"), "18": RegExp("(\\d{1,3}\\.){2}\\d{1,3}\\.0/18"), "17": RegExp("(\\d{1,3}\\.){2}\\d{1,3}\\.0/17"), "16": RegExp("(\\d{1,3}\\.){2}0\\.0/16"), "15": RegExp("(\\d{1,3}\\.){2}0\\.0/15"), "14": RegExp("(\\d{1,3}\\.){2}0\\.0/14"), "13": RegExp("(\\d{1,3}\\.){2}0\\.0/13"), "12": RegExp("(\\d{1,3}\\.){2}0\\.0/12"), "11": RegExp("(\\d{1,3}\\.){2}0\\.0/11"), "10": RegExp("(\\d{1,3}\\.){2}0\\.0/10"), "9": RegExp("(\\d{1,3}\\.){2}0\\.0/9"), "8": RegExp("\\d{1,3}\\.0\\.0\\.0/8"), "7": RegExp("\\d{1,3}\\.0\\.0\\.0/7"), "6": RegExp("\\d{1,3}\\.0\\.0\\.0/6"), "5": RegExp("\\d{1,3}\\.0\\.0\\.0/5"), "4": RegExp("\\d{1,3}\\.0\\.0\\.0/4"), "3": RegExp("\\d{1,3}\\.0\\.0\\.0/3"), "2": RegExp("\\d{1,3}\\.0\\.0\\.0/2"), "1": RegExp("\\d{1,3}\\.0\\.0\\.0/1"), "0": RegExp("0\\.0\\.0\\.0/0") }
@@ -180,7 +179,7 @@ const NewDocEntryFactory = {
             "match": "/",
             "name": "default",
             "acl_profile": "__default__",
-            "waf_profile": "0543ea0c2caf",
+            "waf_profile": "__default__",
             "acl_active": true,
             "waf_active": true,
             "limit_ids": []
@@ -231,17 +230,6 @@ const LogsAPIVersion = "v1"
 
 const ACCESSLOG_COLUMNS_NAMES="rowid,ProtocolVersion,SampleRate,DownstreamRemoteAddress,DownstreamRemoteAddressPort,DownstreamLocalAddress,DownstreamLocalAddressPort,StartTime,TimeToLastRxByte,TimeToFirstUpstreamTxByte,TimeToLastUpstreamTxByte,TimeToFirstUpstreamRxByte,TimeToLastUpstreamRxByte,TimeToFirstDownstreamTxByte,TimeToLastDownstreamTxByte,UpstreamRemoteAddress,UpstreamRemoteAddressPort,UpstreamLocalAddress,UpstreamLocalAddressPort,UpstreamCluster,FailedLocalHealthcheck,NoHealthyUpstream,UpstreamRequestTimeout,LocalReset,UpstreamRemoteReset,UpstreamConnectionFailure,UpstreamConnectionTermination,UpstreamOverflow,NoRouteFound,DelayInjected,FaultInjected,RateLimited,UnauthorizedDetails,RateLimitServiceError,DownstreamConnectionTermination,UpstreamRetryLimitExceeded,StreamIdleTimeout,InvalidEnvoyRequestHeaders,DownstreamProtocolError,Curiefense,UpstreamTransportFailureReason,RouteName,DownstreamDirectRemoteAddress,DownstreamDirectRemoteAddressPort,TlsVersion,TlsCipherSuite,TlsSniHostname,LocalCertificateProperties,LocalCertificatePropertiesAltNames,PeerCertificateProperties,PeerCertificatePropertiesAltNames,TlsSessionId,RequestMethod,Scheme,Authority,Port,Path,UserAgent,Referer,ForwardedFor,RequestId,OriginalPath,RequestHeadersBytes,RequestBodyBytes,RequestHeaders,ResponseCode,ResponseHeadersBytes,ResponseBodyBytes,ResponseHeaders,ResponseTrailers,ResponseCodeDetails"
 
-function Analyze(action, parameters) {
-    const payload = {action, parameters}
-    const axios_method = axios.post
-    const urlTail = '/analyze/'
-    const apiurl = `${LogsAPIRoot}/${LogsAPIVersion}${urlTail}`
-
-    return axios_method(apiurl, payload)
-        .then((response) => {
-            return response
-        })
-}
 
 const ACCESSLOG_SQL = `SELECT * FROM (SELECT *, CAST(row_to_json(row) as text) as json_row  FROM logs row) rows`;
 const ACCESSLOG_SQL_SUFFIX = " ORDER BY StartTime DESC LIMIT 2048"
@@ -269,6 +257,5 @@ export default {
   LogsAPIVersion,
   ACCESSLOG_SQL,
   ACCESSLOG_SQL_SUFFIX,
-  ACCESSLOG_COLUMNS,
-  Analyze
+  ACCESSLOG_COLUMNS
 }
