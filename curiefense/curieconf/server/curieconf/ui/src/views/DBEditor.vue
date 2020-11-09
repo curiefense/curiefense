@@ -421,7 +421,7 @@ export default {
 
     async addNewKey(new_key, new_document) {
       if (!new_key) {
-        new_key = Utils.generateUniqueEntityName('ney key', this.keys)
+        new_key = Utils.generateUniqueEntityName('new key', this.keys)
       }
       if (!new_document) {
         new_document = '{}'
