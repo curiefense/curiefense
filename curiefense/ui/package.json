@@ -10,7 +10,7 @@
     "test-coverage:unit": "jest --collect-coverage"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bootstrap": "^4.5.0",
     "bulma": "^0.9.0",
     "bulma-toast": "^2.1.0",
