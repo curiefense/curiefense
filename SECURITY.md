@@ -1,6 +1,6 @@
 # Vulnerability Disclosure Process for Curiefense
 
-The Government of Canada is committed to protecting the security and integrity of the COVID Alert service and the information and data that it processes. COVID Alert has been built in the open to increase trust and confidence in the service, and to create more opportunities for others to help to improve the service.
+The Curiefense maintainers are committed to protecting the security and integrity of this project.
 
 ## Submitting a vulnerability you’ve found
 
@@ -37,5 +37,5 @@ When you choose to share your contact information with us, we commit to communic
 <br><br>
 
 <small>
-Adapted from <a href="https://github.com/cds-snc/covid-alert-documentation">COVID Alert documentation</a>.
+Adapted from <a href="https://github.com/cds-snc/covid-alert-documentation">COVID Alert documentation</a>
 </small>
