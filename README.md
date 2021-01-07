@@ -3,7 +3,7 @@
 	<br><br>
 </div>
 
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4576/badge)](https://bestpractices.coreinfrastructure.org/projects/4576) ![GitHub](https://img.shields.io/github/license/curiefense/curiefense)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4576/badge)](https://bestpractices.coreinfrastructure.org/projects/4576) [![GitHub](https://img.shields.io/github/license/curiefense/curiefense)](https://github.com/curiefense/curiefense/blob/master/LICENSE)
 
 ---
 
