@@ -69,7 +69,7 @@
                 </p>
 
                 <p class="control">
-                  <a class="button is-small"
+                  <a class="button is-small download-doc-button"
                      @click="downloadDoc"
                      title="Download Document">
                     <span class="icon is-small">

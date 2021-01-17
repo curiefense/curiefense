@@ -32,7 +32,7 @@
                 </p>
 
                 <p class="control">
-                  <a class="button is-small"
+                  <a class="button is-small download-database-button"
                      @click="downloadDB"
                      title="Download Database">
                     <span class="icon is-small">
@@ -93,7 +93,7 @@
                 </p>
 
                 <p class="control">
-                  <a class="button is-small"
+                  <a class="button is-small download-key-button"
                      @click="downloadKey"
                      title="Download Key">
                     <span class="icon is-small">
@@ -355,7 +355,7 @@ export default {
       this.setLoadingDocStatus(false)
     },
 
-    saveDB(db = this.selectedDB, data) {
+    saveDB(db, data) {
       if (!data) {
         data = {key: {}}
       }
@@ -422,7 +422,7 @@ export default {
       this.loadGitLog()
     },
 
-    saveKey(db = this.selectedDB, key = this.selectedKey, doc = this.document) {
+    saveKey(db, key, doc) {
       const parsedDoc = JSON.parse(doc)
 
       return RequestsUtils.sendRequest('PUT', `db/${db}/k/${key}/`, parsedDoc,  null,`Key [${key}] in database [${db}] saved!`, `Failed saving key [${key}] in database [${db}]!`)
@@ -480,7 +480,7 @@ export default {
     },
 
     downloadKey() {
-      Utils.downloadFile(this.selectedKey, 'json', this.document)
+      Utils.downloadFile(this.selectedKey, 'json', JSON.parse(this.document))
     },
 
     async saveChanges() {
@@ -520,6 +520,7 @@ export default {
 
       await RequestsUtils.sendRequest('PUT', `db/${url_trail}revert/`, null, null, `Database [${db}] restored to version [${version_id}]!`, `Failed restoring database [${db}] to version [${version_id}]!`)
       await this.loadDB(db)
+      // load last loaded key if still exists
       const oldSelectedKey = this.keys.find((key) => {
         return key === selectedKey
       })

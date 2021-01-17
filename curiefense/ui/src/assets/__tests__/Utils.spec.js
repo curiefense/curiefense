@@ -1,5 +1,5 @@
 import Utils from '@/assets/Utils'
-import {describe, test, expect, beforeEach} from '@jest/globals'
+import {beforeEach, describe, expect, test} from '@jest/globals'
 
 describe('Utils.js', () => {
 
@@ -72,7 +72,7 @@ describe('Utils.js', () => {
                 target: {
                     className: 'is-big is-bird is-yellow'
                 },
-                type: "input"
+                type: 'input'
             }
         })
 
@@ -126,6 +126,55 @@ describe('Utils.js', () => {
             expect(event.target.className).toContain('is-big')
             expect(event.target.className).toContain('is-bird')
             expect(event.target.className).toContain('is-yellow')
+        })
+    })
+
+    describe('downloadFile function', () => {
+        let fileName
+        let fileType
+        let data
+        beforeEach(() => {
+            fileName = 'test'
+            fileType = 'json'
+            data = {
+                'foo': 'bar'
+            }
+        })
+
+        test('should not throw errors if given valid input', (done) => {
+            try {
+                Utils.downloadFile(fileName, fileType, data)
+                done()
+            } catch (err) {
+                expect(err).not.toBeDefined()
+                done()
+            }
+        })
+
+        test('should not log errors if given valid input', (done) => {
+            const originalLog = console.log
+            const consoleOutput = []
+            console.log = output => consoleOutput.push(output)
+            Utils.downloadFile(fileName, fileType, data)
+            // allow all requests to finish
+            setImmediate(() => {
+                expect(consoleOutput).toEqual([])
+                console.log = originalLog
+                done()
+            })
+        })
+
+        test('should log message when receiving unknown file type', (done) => {
+            const originalLog = console.log
+            const consoleOutput = []
+            console.log = output => consoleOutput.push(output)
+            Utils.downloadFile(fileName, 'weird string', data)
+            // allow all requests to finish
+            setImmediate(() => {
+                expect(consoleOutput).toContain(`Unable to download file, unknown file type`)
+                console.log = originalLog
+                done()
+            })
         })
     })
 })

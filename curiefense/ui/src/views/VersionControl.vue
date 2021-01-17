@@ -77,14 +77,14 @@
                 </p>
 
                 <p class="control">
-                  <a class="button is-small"
-                     :class="{'is-loading': isDownloadLoading}"
-                     @click="downloadBranch($event)"
-                     title="Download Branch">
+                  <button class="button is-small download-branch-button"
+                          :class="{'is-loading': isDownloadLoading}"
+                          @click="downloadBranch($event)"
+                          title="Download Branch">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
                     </span>
-                  </a>
+                  </button>
                 </p>
 
                 <p class="control">
@@ -144,7 +144,7 @@ import DatasetsUtils from '@/assets/DatasetsUtils'
 import GitHistory from '@/components/GitHistory'
 import Utils from '@/assets/Utils'
 import RequestsUtils from '@/assets/RequestsUtils'
-import { mdiSourceBranch, mdiSourceCommit } from '@mdi/js'
+import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 
 export default {
 
@@ -263,16 +263,12 @@ export default {
     },
 
     async loadGitLog() {
-      let config = this.selectedBranch,
-          url_trail = `configs/${config}/v/`
-
-      if (config) {
-        return RequestsUtils.sendRequest('GET', url_trail).then((response) => {
-          this.gitLog = response.data
-          return response
-        })
-      }
-
+      const config = this.selectedBranch
+      const url_trail = `configs/${config}/v/`
+      return RequestsUtils.sendRequest('GET', url_trail).then((response) => {
+        this.gitLog = response.data
+        return response
+      })
     },
 
     async restoreGitVersion(gitVersion) {
@@ -317,10 +313,9 @@ export default {
     },
 
     downloadBranch() {
-      if (this.isDownloadLoading) {
-        return
+      if (!this.isDownloadLoading) {
+        Utils.downloadFile(this.selectedBranch, 'json', this.selectedBranchData)
       }
-      Utils.downloadFile(this.selectedBranch, 'json', this.selectedBranchData)
     },
 
   },

@@ -3,9 +3,10 @@ import {describe, test, expect, beforeEach, afterEach, jest} from '@jest/globals
 import {mount} from '@vue/test-utils'
 import GitHistory from '@/components/GitHistory'
 import Vue from 'vue'
+import axios from 'axios'
+import Utils from '@/assets/Utils'
 
 jest.mock('axios')
-import axios from 'axios'
 
 describe('VersionControl.vue', () => {
     let wrapper
@@ -145,6 +146,9 @@ describe('VersionControl.vue', () => {
         })
         wrapper = mount(VersionControl)
     })
+    afterEach(() => {
+        jest.clearAllMocks()
+    })
 
     test('should have a git history component', () => {
         const gitHistory = wrapper.findComponent(GitHistory)
@@ -209,6 +213,32 @@ describe('VersionControl.vue', () => {
         gitHistory.vm.$emit('restore-version', wantedVersion)
         await Vue.nextTick()
         expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/v/${wantedVersion.version}/revert/`)
+    })
+
+    test('should attempt to download branch when download button is clicked', async () => {
+        const wantedFileName = 'master'
+        const wantedFileType = 'json'
+        const wantedFileData = gitData[0]
+        const downloadFileSpy = jest.spyOn(Utils, 'downloadFile')
+        // force update because downloadFile is mocked after it is read to to be used as event handler
+        await wrapper.vm.$forceUpdate()
+        await Vue.nextTick()
+        const downloadBranchButton = wrapper.find('.download-branch-button')
+        downloadBranchButton.trigger('click')
+        await Vue.nextTick()
+        expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
+    })
+
+    test('should not attempt to download branch when download button is clicked while loading is true', async () => {
+        const downloadFileSpy = jest.spyOn(Utils, 'downloadFile')
+        // force update because downloadFile is mocked after it is read to to be used as event handler
+        await wrapper.vm.$forceUpdate()
+        await Vue.nextTick()
+        wrapper.vm.isDownloadLoading = true
+        const downloadBranchButton = wrapper.find('.download-branch-button')
+        downloadBranchButton.trigger('click')
+        await Vue.nextTick()
+        expect(downloadFileSpy).not.toHaveBeenCalled()
     })
 
     describe('fork branch', () => {

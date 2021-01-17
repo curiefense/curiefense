@@ -5,6 +5,7 @@ import GitHistory from '@/components/GitHistory'
 import Vue from 'vue'
 import axios from 'axios'
 import JSONEditor from 'jsoneditor'
+import Utils from '@/assets/Utils'
 
 jest.mock('axios')
 jest.mock('jsoneditor')
@@ -12,17 +13,19 @@ jest.mock('jsoneditor')
 describe('DBEditor.vue', () => {
     let wrapper
     let dbData
+    let publishInfoData
     let dbKeyLogs
     beforeEach(async () => {
+        publishInfoData = {
+            'buckets': [{'name': 'prod', 'url': 's3://curiefense-test01/prod'}, {
+                'name': 'devops',
+                'url': 's3://curiefense-test01/devops'
+            }],
+            'branch_buckets': [{'name': 'master', 'buckets': ['prod']}, {'name': 'devops', 'buckets': ['devops']}]
+        }
         dbData = {
-            'publishinfo': {
-                'buckets': [{'name': 'prod', 'url': 's3://curiefense-test01/prod'}, {
-                    'name': 'devops',
-                    'url': 's3://curiefense-test01/devops'
-                }],
-                'branch_buckets': [{'name': 'master', 'buckets': ['prod']}, {'name': 'devops', 'buckets': ['devops']}]
-            },
-            'autocomplete': {'tags': ['china', 'ukraine', 'internal', 'devops', 'google', 'yahoo', 'localhost', 'tor', 'bad-people', 'dev', 'test-tag', 'all', '', 'okay']}
+            'publishinfo': publishInfoData,
+            'tags': {'neutral': ['china', 'ukraine', 'internal', 'devops', 'google', 'yahoo', 'localhost', 'tor', 'bad-people', 'dev', 'test-tag', 'all', '', 'okay']}
         }
         dbKeyLogs = [{
             'author': 'Curiefense API',
@@ -132,13 +135,72 @@ describe('DBEditor.vue', () => {
         const wantedVersion = {
             version: 'b104d3dd17f790b75c4e067c44bb06b914902d78'
         }
-        let putSpy
         axios.put.mockImplementation(() => Promise.resolve())
-        putSpy = jest.spyOn(axios, 'put')
+        const putSpy = jest.spyOn(axios, 'put')
         const gitHistory = wrapper.findComponent(GitHistory)
         gitHistory.vm.$emit('restore-version', wantedVersion)
         await Vue.nextTick()
         expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/db/system/v/${wantedVersion.version}/revert/`)
+    })
+
+    test('should load last loaded key if still exists after restoring version', (done) => {
+        const restoredVersion = {
+            version: 'b104d3dd17f790b75c4e067c44bb06b914902d78'
+        }
+        const wantedKey = 'publishinfo'
+        wrapper.vm.selectedKey = wantedKey
+        axios.put.mockImplementation(() => Promise.resolve())
+        const gitHistory = wrapper.findComponent(GitHistory)
+        gitHistory.vm.$emit('restore-version', restoredVersion)
+        // allow all requests to finish
+        setImmediate(() => {
+            expect(wrapper.vm.selectedKey).toEqual(wantedKey)
+            done()
+        })
+    })
+
+    test('should load first key if key no longer exists after restoring version', (done) => {
+        const restoredVersion = {
+            version: 'b104d3dd17f790b75c4e067c44bb06b914902d78'
+        }
+        const wantedKey = 'publishinfo'
+        wrapper.vm.selectedKey = 'somekey'
+        axios.put.mockImplementation(() => Promise.resolve())
+        const gitHistory = wrapper.findComponent(GitHistory)
+        gitHistory.vm.$emit('restore-version', restoredVersion)
+        // allow all requests to finish
+        setImmediate(() => {
+            expect(wrapper.vm.selectedKey).toEqual(wantedKey)
+            done()
+        })
+    })
+
+    test('should attempt to download database when download button is clicked', async () => {
+        const wantedFileName = 'system'
+        const wantedFileType = 'json'
+        const wantedFileData = dbData
+        const downloadFileSpy = jest.spyOn(Utils, 'downloadFile')
+        // force update because downloadFile is mocked after it is read to to be used as event handler
+        await wrapper.vm.$forceUpdate()
+        await Vue.nextTick()
+        const downloadDatabaseButton = wrapper.find('.download-database-button')
+        downloadDatabaseButton.trigger('click')
+        await Vue.nextTick()
+        expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
+    })
+
+    test('should attempt to download key when download button is clicked', async () => {
+        const wantedFileName = 'publishinfo'
+        const wantedFileType = 'json'
+        const wantedFileData = publishInfoData
+        const downloadFileSpy = jest.spyOn(Utils, 'downloadFile')
+        // force update because downloadFile is mocked after it is read to to be used as event handler
+        await wrapper.vm.$forceUpdate()
+        await Vue.nextTick()
+        const downloadKeyButton = wrapper.find('.download-key-button')
+        downloadKeyButton.trigger('click')
+        await Vue.nextTick()
+        expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
     })
 
     describe('database action buttons', () => {

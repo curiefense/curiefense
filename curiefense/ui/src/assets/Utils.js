@@ -38,17 +38,13 @@ const downloadFile = (fileName, fileType, data) => {
     // Check if file type can be downloaded
     const recognizedDownloadFileTypes = ['json']
     if (!recognizedDownloadFileTypes.includes(fileType)) {
-        this.error('Unable to download file, unknown file type')
+        console.log('Unable to download file, unknown file type')
         return
     }
     // Create downloadable content based on file type
     let content = null
     if (fileType === 'json') {
         content = JSON.stringify(data)
-    }
-    if (content === null) {
-        this.error('Unable to download file, corrupted data received')
-        return
     }
     // Create anchor element with download data
     const blob = new Blob([content], {

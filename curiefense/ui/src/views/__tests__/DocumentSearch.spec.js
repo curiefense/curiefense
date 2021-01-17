@@ -314,6 +314,27 @@ describe('DocumentSearch.vue', () => {
         expect(numberOfFilteredDocs()).toEqual(8)
     })
 
+    test('should log message when receiving no configs from the server', (done) => {
+        const originalLog = console.log
+        let consoleOutput = []
+        const mockedLog = output => consoleOutput.push(output)
+        consoleOutput = []
+        console.log = mockedLog
+        axios.get.mockImplementation((path) => {
+            if (path === '/conf/api/v1/configs/') {
+                return Promise.reject()
+            }
+            return Promise.resolve({data: {}})
+        })
+        wrapper = shallowMount(DocumentSearch)
+        // allow all requests to finish
+        setImmediate(() => {
+            expect(consoleOutput).toContain(`Error while attempting to get configs`)
+            console.log = originalLog
+            done()
+        })
+    })
+
     describe('filters', () => {
         test('should filter correctly if filter changed after input', async () => {
             // switch filter type

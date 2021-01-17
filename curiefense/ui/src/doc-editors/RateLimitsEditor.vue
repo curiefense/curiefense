@@ -24,7 +24,7 @@
                   Description
                 </label>
                 <div class="control">
-                  <input class="input is-small"
+                  <input class="input is-small document-description"
                          type="text"
                          placeholder="New rate limit rule name"
                          v-model="selectedDoc.description">
@@ -35,7 +35,7 @@
                   Threshold
                 </label>
                 <div class="control">
-                  <input class="input is-small"
+                  <input class="input is-small document-limit"
                          type="text"
                          placeholder="New rate limit rule name"
                          v-model="selectedDoc.limit">
@@ -46,7 +46,7 @@
                   TTL
                 </label>
                 <div class="control seconds-suffix">
-                  <input class="input is-small"
+                  <input class="input is-small document-ttl"
                          type="text"
                          placeholder="New rate limit rule name"
                          v-model="selectedDoc.ttl">
@@ -65,11 +65,11 @@
                               :option="generateOption(option)"
                               :key="getOptionTextKey(option, idx)"/>
                 <a title="Add new option rule"
-                   class="is-text is-small is-size-7 ml-3"
+                   class="is-text is-small is-size-7 ml-3 add-key-button"
                    @click="addKey()">
                   New entry
                 </a>
-                <p class="has-text-danger is-size-7 ml-3 mt-3"
+                <p class="has-text-danger is-size-7 ml-3 mt-3 key-invalid"
                    v-if="!keysAreValid">
                   Count-by entries must be unique
                 </p>
@@ -239,9 +239,6 @@ export default {
     }
   },
   computed: {
-    isFormValid() {
-      return this.includesAreValid && this.excludesAreValid && this.keysAreValid
-    },
     eventOption: {
       get() {
         return this.generateOption(this.selectedDoc.pairwith)

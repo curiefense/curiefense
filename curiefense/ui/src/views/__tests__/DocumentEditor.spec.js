@@ -5,6 +5,7 @@ import GitHistory from '@/components/GitHistory'
 import Vue from 'vue'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import axios from 'axios'
+import Utils from '@/assets/Utils'
 
 jest.mock('axios')
 
@@ -900,6 +901,46 @@ describe('DocumentEditor.vue', () => {
         gitHistory.vm.$emit('restore-version', wantedVersion)
         await Vue.nextTick()
         expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/aclpolicies/v/${wantedVersion.version}/revert/`)
+    })
+
+    test('should log message when receiving no configs from the server', (done) => {
+        const originalLog = console.log
+        let consoleOutput = []
+        const mockedLog = output => consoleOutput.push(output)
+        consoleOutput = []
+        console.log = mockedLog
+        axios.get.mockImplementation((path) => {
+            if (path === '/conf/api/v1/configs/') {
+                return Promise.reject()
+            }
+            return Promise.resolve({data: {}})
+        })
+        wrapper = shallowMount(DocumentEditor, {
+            mocks: {
+                $route: mockRoute,
+                $router: mockRouter
+            }
+        })
+        // allow all requests to finish
+        setImmediate(() => {
+            expect(consoleOutput).toContain(`Error while attempting to get configs`)
+            console.log = originalLog
+            done()
+        })
+    })
+
+    test('should attempt to download document when download button is clicked', async () => {
+        const wantedFileName = 'aclpolicies'
+        const wantedFileType = 'json'
+        const wantedFileData = aclDocs
+        const downloadFileSpy = jest.spyOn(Utils, 'downloadFile')
+        // force update because downloadFile is mocked after it is read to to be used as event handler
+        await wrapper.vm.$forceUpdate()
+        await Vue.nextTick()
+        const downloadDocButton = wrapper.find('.download-doc-button')
+        downloadDocButton.trigger('click')
+        await Vue.nextTick()
+        expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
     })
 
     describe('no data', () => {

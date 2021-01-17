@@ -98,9 +98,9 @@ describe('FlowControlEditor.vue', () => {
             expect(actualValue).toEqual(wantedValue)
         })
 
-        test('should have limit action component with correct data', () => {
+        test('should have response action component with correct data', () => {
             const ResponseActionComponent = wrapper.findComponent(ResponseAction)
-            expect(ResponseActionComponent.vm.action).toEqual(docs[0].action)
+            expect(ResponseActionComponent.vm.objectWithAction.action).toEqual(docs[0].action)
         })
 
         test('should have correct notes in input', () => {

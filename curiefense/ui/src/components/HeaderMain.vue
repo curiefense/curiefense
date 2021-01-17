@@ -6,7 +6,7 @@
       </a>
     </div>
     <div class="version-box is-size-7 has-text-grey">
-      version: {{ version || '0.0.0' }}
+      client version: {{ version || '0.0.0' }}
     </div>
   </div>
 </template>
