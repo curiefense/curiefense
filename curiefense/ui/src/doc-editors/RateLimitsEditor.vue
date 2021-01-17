@@ -62,6 +62,7 @@
                               @change="updateKeyOption"
                               :removable="selectedDoc.key.length > 1"
                               :index="idx"
+                              :ignore-attributes="['tags']"
                               :option="generateOption(option)"
                               :key="getOptionTextKey(option, idx)"/>
                 <a title="Add new option rule"
@@ -79,6 +80,7 @@
                               label="Event"
                               :option.sync="eventOption"
                               :key="eventOption.type + selectedDoc.id"
+                              :ignore-attributes="['tags']"
                               @change="updateEvent"/>
               </div>
               <div>
@@ -133,10 +135,12 @@
                             <option value="asn">Provider</option>
                             <option value="uri">URI</option>
                             <option value="path">Path</option>
+                            <option value="tags">Tags</option>
                             <option value="query">Query</option>
                             <option value="method">Method</option>
                             <option value="company">Company</option>
                             <option value="country">Country</option>
+                            <option value="authority">Authority</option>
                           </select>
                         </div>
                         <div v-else class="control">

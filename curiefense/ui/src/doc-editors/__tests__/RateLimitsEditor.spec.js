@@ -49,7 +49,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(wrapper.find('.document-ttl').element.value).toEqual(docs[0].ttl)
         })
 
-        test('should have limit option component with correct count-by data', () => {
+        test('should have count-by limit option component with correct data', () => {
             const wantedType = Object.keys(docs[0].key[0])[0]
             const wantedValue = Object.values(docs[0].key[0])[0]
             const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
@@ -59,7 +59,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(actualValue).toEqual(wantedValue)
         })
 
-        test('should have limit option component with correct event data', () => {
+        test('should have event limit option component with correct data', () => {
             const wantedType = Object.keys(docs[0].pairwith)[0]
             const wantedValue = Object.values(docs[0].pairwith)[0]
             const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(1)
@@ -67,6 +67,20 @@ describe('RateLimitsEditor.vue', () => {
             const actualValue = limitOptionComponent.vm.option.key
             expect(actualType).toEqual(wantedType)
             expect(actualValue).toEqual(wantedValue)
+        })
+
+        test('should have count-by limit option component with correct ignored attributes', () => {
+            const wantedIgnoredAttributes = ['tags']
+            const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
+            const actualIgnoredAttributes = limitOptionComponent.vm.ignoreAttributes
+            expect(wantedIgnoredAttributes).toEqual(actualIgnoredAttributes)
+        })
+
+        test('should have event limit option component with correct ignored attributes', () => {
+            const wantedIgnoredAttributes = ['tags']
+            const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
+            const actualIgnoredAttributes = limitOptionComponent.vm.ignoreAttributes
+            expect(wantedIgnoredAttributes).toEqual(actualIgnoredAttributes)
         })
 
         test('should have response action component with correct data', () => {

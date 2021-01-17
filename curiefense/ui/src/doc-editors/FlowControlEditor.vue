@@ -134,11 +134,10 @@
                         Method
                       </td>
                       <td colspan="2">
-                        <div class="control has-icons-left is-fullwidth">
+                        <div class="control is-fullwidth">
                           <input class="input is-small method-entry-input"
                                  v-model="sequenceItem.method"
                                  @input="emitDocUpdate"/>
-                          <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
                         </div>
                       </td>
                       <td class="width-80px"></td>
@@ -151,11 +150,10 @@
                         Host
                       </td>
                       <td colspan="2">
-                        <div class="control has-icons-left is-fullwidth">
+                        <div class="control is-fullwidth">
                           <input class="input is-small host-entry-input"
                                  v-model="sequenceItem.headers.host"
                                  @input="emitDocUpdate"/>
-                          <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
                         </div>
                       </td>
                       <td class="width-80px"></td>
@@ -168,11 +166,10 @@
                         Path
                       </td>
                       <td colspan="2">
-                        <div class="control has-icons-left is-fullwidth">
+                        <div class="control is-fullwidth">
                           <input class="input is-small uri-entry-input"
                                  v-model="sequenceItem.uri"
                                  @input="emitDocUpdate"/>
-                          <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
                         </div>
                       </td>
                       <td class="width-80px"></td>

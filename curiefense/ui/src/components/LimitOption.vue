@@ -73,7 +73,8 @@ export default {
     useValue: Boolean,
     labelSeparatedLine: Boolean,
     wideColumns: Boolean,
-    disabledOptions: Array
+    disabledOptions: Array,
+    ignoreAttributes: Array,
   },
   data() {
     const {LimitRulesTypes, LimitAttributes} = DatasetsUtils
@@ -83,6 +84,9 @@ export default {
         key: 'self'
       }
     }
+    const attributes = this.ld.pickBy(LimitAttributes, (value, key) => {
+      return !this.ignoreAttributes || !this.ignoreAttributes.includes(key)
+    })
     Object.keys(LimitRulesTypes).forEach(ruleType => {
       const {type, key = '', value} = this.option || {}
       optionsData[ruleType] = {type, key, value}
@@ -90,7 +94,7 @@ export default {
     return {
       optionsData,
       options: LimitRulesTypes,
-      attributes: LimitAttributes,
+      attributes: attributes,
       type: this.option?.type || 'attrs'
     }
   },

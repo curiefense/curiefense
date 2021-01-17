@@ -848,6 +848,22 @@ describe('DocumentEditor.vue', () => {
         expect(postSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/aclpolicies/e/`, newDoc)
     })
 
+    test('should be able to add multiple new documents in a row with different IDs', async () => {
+        const newDocIDs = []
+        axios.post.mockImplementation((url, data) => {
+            newDocIDs.push(data.id)
+            return Promise.resolve()
+        })
+        const postSpy = jest.spyOn(axios, 'post')
+        const newDocumentButton = wrapper.find('.new-document-button')
+        newDocumentButton.trigger('click')
+        await Vue.nextTick()
+        newDocumentButton.trigger('click')
+        await Vue.nextTick()
+        expect(postSpy).toHaveBeenCalledTimes(2)
+        expect(newDocIDs[0]).not.toEqual(newDocIDs[1])
+    })
+
     test('should be able to delete a document', async () => {
         axios.delete.mockImplementation(() => Promise.resolve())
         const deleteSpy = jest.spyOn(axios, 'delete')
