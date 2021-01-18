@@ -4,7 +4,6 @@ import {mount, shallowMount} from '@vue/test-utils'
 import LimitOption from '@/components/LimitOption'
 import ResponseAction from '@/components/ResponseAction'
 import Vue from 'vue'
-import FlowControlEditor from '@/doc-editors/FlowControlEditor'
 
 describe('RateLimitsEditor.vue', () => {
     let docs
@@ -28,6 +27,7 @@ describe('RateLimitsEditor.vue', () => {
             }
         })
     })
+
     describe('form data', () => {
         test('should have correct ID displayed', () => {
             expect(wrapper.find('.document-id').text()).toEqual(docs[0].id)
@@ -92,18 +92,30 @@ describe('RateLimitsEditor.vue', () => {
             const includeOption1 = wrapper.findAllComponents(LimitOption).at(2)
             const wantedOption1Key = Object.keys(docs[0].include.attrs)[0]
             const wantedOption1Value = Object.values(docs[0].include.attrs)[0]
-            expect(includeOption1.props('option')).toEqual({"key": wantedOption1Key, "type": "attrs", "value": wantedOption1Value})
+            expect(includeOption1.props('option')).toEqual({
+                'key': wantedOption1Key,
+                'type': 'attrs',
+                'value': wantedOption1Value
+            })
             const includeOption2 = wrapper.findAllComponents(LimitOption).at(3)
             const wantedOption2Key = Object.keys(docs[0].include.attrs)[1]
             const wantedOption2Value = Object.values(docs[0].include.attrs)[1]
-            expect(includeOption2.props('option')).toEqual({"key": wantedOption2Key, "type": "attrs", "value": wantedOption2Value})
+            expect(includeOption2.props('option')).toEqual({
+                'key': wantedOption2Key,
+                'type': 'attrs',
+                'value': wantedOption2Value
+            })
         })
 
         test('should have correct exclude data in table', () => {
             const excludeOption1 = wrapper.findAllComponents(LimitOption).at(4)
             const wantedOption1Key = Object.keys(docs[0].exclude.args)[0]
             const wantedOption1Value = Object.values(docs[0].exclude.args)[0]
-            expect(excludeOption1.props('option')).toEqual({"key": wantedOption1Key, "type": "args", "value": wantedOption1Value})
+            expect(excludeOption1.props('option')).toEqual({
+                'key': wantedOption1Key,
+                'type': 'args',
+                'value': wantedOption1Value
+            })
         })
     })
 
@@ -123,7 +135,7 @@ describe('RateLimitsEditor.vue', () => {
 
         test('should handle key with no value', async () => {
             docs[0].key = [{'headers': null}]
-            wrapper = mount(FlowControlEditor, {
+            wrapper = mount(RateLimitsEditor, {
                 propsData: {
                     selectedDoc: docs[0],
                 }
@@ -176,12 +188,28 @@ describe('RateLimitsEditor.vue', () => {
             await Vue.nextTick()
             expect(wrapper.vm.selectedDoc.key[0]).toEqual(wantedResult)
         })
+
+        test('should handle selectedDoc with undefined key value', async (done) => {
+            try {
+                docs[0].key = [{'headers': null}, undefined]
+                wrapper = mount(RateLimitsEditor, {
+                    propsData: {
+                        selectedDoc: docs[0],
+                    }
+                })
+                await Vue.nextTick()
+                done()
+            } catch (err) {
+                expect(err).not.toBeDefined()
+                done()
+            }
+        })
     })
 
     describe('event', () => {
         test('should handle key with no value', async () => {
             docs[0].pairwith = {'self': null}
-            wrapper = mount(FlowControlEditor, {
+            wrapper = mount(RateLimitsEditor, {
                 propsData: {
                     selectedDoc: docs[0],
                 }
@@ -206,6 +234,234 @@ describe('RateLimitsEditor.vue', () => {
             limitOptionsComponent.vm.$emit('change', newOption, 0)
             await Vue.nextTick()
             expect(wrapper.vm.selectedDoc.pairwith).toEqual(wantedResult)
+        })
+
+        test('should handle selectedDoc without pairwith property', async (done) => {
+            try {
+                delete docs[0].pairwith
+                wrapper = mount(RateLimitsEditor, {
+                    propsData: {
+                        selectedDoc: docs[0],
+                    }
+                })
+                await Vue.nextTick()
+                done()
+            } catch (err) {
+                expect(err).not.toBeDefined()
+                done()
+            }
+        })
+    })
+
+    describe('include / exclude', () => {
+        const addEntry = async (includeExcludeIndex, typeIndex, keyIndex, value) => {
+            // open new entry row
+            const newButton = wrapper.find('.new-include-exclude-button')
+            newButton.trigger('click')
+            await Vue.nextTick()
+            // find new entry row
+            const newEntryRow = wrapper.find('.new-include-exclude-row')
+            // select include or exclude
+            const includeExcludeSelect = newEntryRow.find('.include-exclude-select')
+            includeExcludeSelect.findAll('option').at(includeExcludeIndex).setSelected()
+            await Vue.nextTick()
+            // select type
+            const typeSelect = newEntryRow.find('.type-select')
+            typeSelect.findAll('option').at(typeIndex).setSelected()
+            await Vue.nextTick()
+            // select key
+            const keySelect = newEntryRow.find('.key-select')
+            keySelect.findAll('option').at(keyIndex).setSelected()
+            await Vue.nextTick()
+            // insert value input
+            const valueInput = newEntryRow.find('.value-input')
+            valueInput.element.value = value
+            valueInput.trigger('input')
+            await Vue.nextTick()
+            // click add button
+            const addButton = newEntryRow.find('.add-button')
+            addButton.trigger('click')
+            await Vue.nextTick()
+        }
+        beforeEach(() => {
+            const emptyIncludeExclude = {headers: {}, cookies: {}, args: {}, attrs: {}}
+            docs[0].include = emptyIncludeExclude
+            docs[0].exclude = emptyIncludeExclude
+            wrapper = shallowMount(RateLimitsEditor, {
+                propsData: {
+                    selectedDoc: docs[0]
+                }
+            })
+        })
+
+        test('should handle adding include entry to doc with no include property', async (done) => {
+            try {
+                delete docs[0].include
+                wrapper = mount(RateLimitsEditor, {
+                    propsData: {
+                        selectedDoc: docs[0],
+                    }
+                })
+                await Vue.nextTick()
+                await addEntry(0, 0, 0, '10.0.0.1')
+                // ignore first 2 limit options, 0 is count by, 1 is event
+                const includeItem = wrapper.findAllComponents(LimitOption).at(2)
+                expect(includeItem.vm.label).toEqual('Include')
+                expect(includeItem.vm.option.type).toEqual('attrs')
+                expect(includeItem.vm.option.key).toEqual('ip')
+                expect(includeItem.vm.option.value).toEqual('10.0.0.1')
+                done()
+            } catch (err) {
+                expect(err).not.toBeDefined()
+                done()
+            }
+        })
+
+        test('should handle adding exclude entry to doc with no exclude property', async (done) => {
+            try {
+                delete docs[0].exclude
+                wrapper = mount(RateLimitsEditor, {
+                    propsData: {
+                        selectedDoc: docs[0],
+                    }
+                })
+                await Vue.nextTick()
+                await addEntry(1, 0, 0, '10.0.0.1')
+                // ignore first 2 limit options, 0 is count by, 1 is event
+                const includeItem = wrapper.findAllComponents(LimitOption).at(2)
+                expect(includeItem.vm.label).toEqual('Exclude')
+                expect(includeItem.vm.option.type).toEqual('attrs')
+                expect(includeItem.vm.option.key).toEqual('ip')
+                expect(includeItem.vm.option.value).toEqual('10.0.0.1')
+                done()
+            } catch (err) {
+                expect(err).not.toBeDefined()
+                done()
+            }
+        })
+
+        test('should have correct message when no entries exist', async () => {
+            const noEntriesMessage = wrapper.find('.no-include-exclude-message')
+            expect(noEntriesMessage.text()).toEqual('To limit this rule coverage add new entry')
+        })
+
+        test('should have correct text in new entry button', async () => {
+            const newButton = wrapper.find('.new-include-exclude-button')
+            expect(newButton.text()).toEqual('New entry')
+            newButton.trigger('click')
+            await Vue.nextTick()
+            expect(newButton.text()).toEqual('Cancel')
+            newButton.trigger('click')
+            await Vue.nextTick()
+            expect(newButton.text()).toEqual('New entry')
+        })
+
+        test('should show new entry row when new entry button is clicked', async () => {
+            const newButton = wrapper.find('.new-include-exclude-button')
+            newButton.trigger('click')
+            await Vue.nextTick()
+            const newEntryRow = wrapper.find('.new-include-exclude-row')
+            expect(newEntryRow.element).toBeDefined()
+        })
+
+        test('should change include entry when selectedDoc changes', async () => {
+            const newDoc = {...docs[0]}
+            newDoc.include = {headers: {}, cookies: {}, args: {}, attrs: {ip: '10.0.0.1'}}
+            wrapper.setProps({selectedDoc: newDoc})
+            await Vue.nextTick()
+            // ignore first 2 limit options, 0 is count by, 1 is event
+            const includeItem = wrapper.findAllComponents(LimitOption).at(2)
+            expect(includeItem.vm.label).toEqual('Include')
+            expect(includeItem.vm.option.type).toEqual('attrs')
+            expect(includeItem.vm.option.key).toEqual('ip')
+            expect(includeItem.vm.option.value).toEqual('10.0.0.1')
+        })
+
+        test('should change exclude entry when selectedDoc changes', async () => {
+            const newDoc = {...docs[0]}
+            newDoc.exclude = {headers: {}, cookies: {}, args: {}, attrs: {ip: '10.0.0.1'}}
+            wrapper.setProps({selectedDoc: newDoc})
+            await Vue.nextTick()
+            // ignore first 2 limit options, 0 is count by, 1 is event
+            const includeItem = wrapper.findAllComponents(LimitOption).at(2)
+            expect(includeItem.vm.label).toEqual('Exclude')
+            expect(includeItem.vm.option.type).toEqual('attrs')
+            expect(includeItem.vm.option.key).toEqual('ip')
+            expect(includeItem.vm.option.value).toEqual('10.0.0.1')
+        })
+
+        test('should be able to add include entry', async () => {
+            await addEntry(0, 0, 0, '10.0.0.1')
+            // ignore first 2 limit options, 0 is count by, 1 is event
+            const includeItem = wrapper.findAllComponents(LimitOption).at(2)
+            expect(includeItem.vm.label).toEqual('Include')
+            expect(includeItem.vm.option.type).toEqual('attrs')
+            expect(includeItem.vm.option.key).toEqual('ip')
+            expect(includeItem.vm.option.value).toEqual('10.0.0.1')
+        })
+
+        test('should be able to add exclude entry', async () => {
+            await addEntry(1, 0, 0, '10.0.0.1')
+            // ignore first 2 limit options, 0 is count by, 1 is event
+            const excludeItem = wrapper.findAllComponents(LimitOption).at(2)
+            expect(excludeItem.vm.label).toEqual('Exclude')
+            expect(excludeItem.vm.option.type).toEqual('attrs')
+            expect(excludeItem.vm.option.key).toEqual('ip')
+            expect(excludeItem.vm.option.value).toEqual('10.0.0.1')
+        })
+
+        test('should be able to remove include entry', async () => {
+            await addEntry(0, 0, 0, '10.0.0.1')
+            // ignore first 2 limit options, 0 is count by, 1 is event
+            const includeItem = wrapper.findAllComponents(LimitOption).at(2)
+            includeItem.vm.$emit('remove')
+            await Vue.nextTick()
+            expect(wrapper.findAllComponents(LimitOption).length).toEqual(2)
+        })
+
+        test('should be able to remove exclude entry', async () => {
+            await addEntry(1, 0, 0, '10.0.0.1')
+            // ignore first 2 limit options, 0 is count by, 1 is event
+            const excludeItem = wrapper.findAllComponents(LimitOption).at(2)
+            excludeItem.vm.$emit('remove')
+            await Vue.nextTick()
+            expect(wrapper.findAllComponents(LimitOption).length).toEqual(2)
+        })
+
+        test('should show duplicated include message when duplicated include entries exist', async () => {
+            await addEntry(0, 0, 0, '10.0.0.1')
+            await addEntry(0, 0, 0, '10.0.0.1')
+            const invalidMessage = wrapper.find('.include-invalid')
+            expect(invalidMessage.text()).toEqual('Include rule keys must be unique')
+        })
+
+        test('should show duplicated exclude message when duplicated exclude entries exist', async () => {
+            await addEntry(1, 0, 0, '10.0.0.1')
+            await addEntry(1, 0, 0, '10.0.0.1')
+            const invalidMessage = wrapper.find('.exclude-invalid')
+            expect(invalidMessage.text()).toEqual('Exclude rule keys must be unique')
+        })
+
+        test('should not show duplicated include message when duplicated entries issue resolved', async () => {
+            await addEntry(0, 0, 0, '10.0.0.1')
+            await addEntry(0, 0, 0, '10.0.0.1')
+            // ignore first 2 limit options, 0 is count by, 1 is event
+            const includeItem = wrapper.findAllComponents(LimitOption).at(2)
+            includeItem.vm.$emit('change', {key: 'asn', oldKey: 'ip', type: 'attrs', value: '10.0.0.1'}, 0)
+            await Vue.nextTick()
+            const invalidMessage = wrapper.find('.include-invalid')
+            expect(invalidMessage.element).not.toBeDefined()
+        })
+
+        test('should not show duplicated exclude message when duplicated entries issue resolved', async () => {
+            await addEntry(1, 0, 0, '10.0.0.1')
+            await addEntry(1, 0, 0, '10.0.0.1')
+            // ignore first 2 limit options, 0 is count by, 1 is event
+            const excludeItem = wrapper.findAllComponents(LimitOption).at(2)
+            excludeItem.vm.$emit('change', {key: 'asn', oldKey: 'ip', type: 'attrs', value: '10.0.0.1'}, 0)
+            await Vue.nextTick()
+            const invalidMessage = wrapper.find('.exclude-invalid')
+            expect(invalidMessage.element).not.toBeDefined()
         })
     })
 })

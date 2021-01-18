@@ -27,9 +27,12 @@
         <div class="content px-3 py-3 mx-0 my-0">
           <div class="field">
             <p class="control has-icons-left">
-              <input class="input is-small" type="text"
-                placeholder="matching domain(s) regex" required
-                v-model="selectedDoc.operand" readonly>
+              <input class="input is-small document-operand"
+                     type="text"
+                     placeholder="matching domain(s) regex"
+                     v-model="selectedDoc.operand"
+                     required
+                     readonly>
               <span class="icon is-small is-left has-text-grey">
                 <i class="fas fa-code"></i>
               </span>
@@ -39,28 +42,28 @@
             <div class="control">
               <div class="tags has-addons">
                 <span class="tag">severity</span>
-                <span class="tag has-text-info">{{ selectedDoc.severity }}</span>
+                <span class="tag has-text-info document-severity">{{ selectedDoc.severity }}</span>
               </div>
             </div>
 
             <div class="control">
               <div class="tags has-addons">
                 <span class="tag">certainty</span>
-                <span class="tag has-text-info">{{ selectedDoc.certainity }}</span>
+                <span class="tag has-text-info document-certainty">{{ selectedDoc.certainity }}</span>
               </div>
             </div>
 
             <div class="control">
               <div class="tags has-addons">
                 <span class="tag">category</span>
-                <span class="tag has-text-info">{{ selectedDoc.category }}</span>
+                <span class="tag has-text-info document-category">{{ selectedDoc.category }}</span>
               </div>
             </div>
 
             <div class="control">
               <div class="tags has-addons">
                 <span class="tag">subcategory</span>
-                <span class="tag has-text-info">{{ selectedDoc.subcategory }}</span>
+                <span class="tag has-text-info document-subcategory">{{ selectedDoc.subcategory }}</span>
               </div>
             </div>
 

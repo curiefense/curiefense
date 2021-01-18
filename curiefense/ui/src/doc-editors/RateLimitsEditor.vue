@@ -90,16 +90,18 @@
                 <hr>
                 <div class="columns mb-3">
                   <div class="column has-text-danger is-size-7">
-                    <p v-if="!includesAreValid">
+                    <p v-if="!includesAreValid"
+                       class="include-invalid">
                       Include rule keys must be unique
                     </p>
-                    <p v-if="!excludesAreValid">
+                    <p v-if="!excludesAreValid"
+                       class="exclude-invalid">
                       Exclude rule keys must be unique
                     </p>
                   </div>
                   <div class="column is-narrow">
                     <a title="Add new option rule"
-                       class="is-text is-small is-size-7"
+                       class="is-text is-small is-size-7 new-include-exclude-button"
                        @click="newIncludeOrExcludeEntry.visible = !newIncludeOrExcludeEntry.visible">
                       {{ newIncludeOrExcludeEntry.visible ? 'Cancel' : 'New entry' }}
                     </a>
@@ -107,11 +109,12 @@
                 </div>
                 <div>
                   <div v-if="newIncludeOrExcludeEntry.visible"
-                       class="new-entry-row has-background-warning-light">
+                       class="new-include-exclude-row has-background-warning-light">
                     <div class="columns">
                       <div class="column is-2">
                         <div class="control select is-small">
-                          <select v-model="newIncludeOrExcludeEntry.include">
+                          <select class="include-exclude-select"
+                                  v-model="newIncludeOrExcludeEntry.include">
                             <option :value="true">Include</option>
                             <option :value="false">Exclude</option>
                           </select>
@@ -119,7 +122,8 @@
                       </div>
                       <div class="column">
                         <div class="control select is-small is-fullwidth">
-                          <select v-model="newIncludeOrExcludeEntry.type">
+                          <select class="type-select"
+                                  v-model="newIncludeOrExcludeEntry.type">
                             <option value="attrs">Attribute</option>
                             <option value="args">Argument</option>
                             <option value="cookies">Cookie</option>
@@ -130,7 +134,8 @@
                       <div class="column">
                         <div v-if="newIncludeOrExcludeEntry.type === 'attrs'"
                              class="control select is-small is-fullwidth">
-                          <select v-model="newIncludeOrExcludeEntry.key">
+                          <select class="key-select"
+                                  v-model="newIncludeOrExcludeEntry.key">
                             <option value="ip">IP Address</option>
                             <option value="asn">Provider</option>
                             <option value="uri">URI</option>
@@ -146,7 +151,7 @@
                         <div v-else class="control">
                           <input v-model="newIncludeOrExcludeEntry.key"
                                  type="text"
-                                 class="input is-small">
+                                 class="input is-small key-input">
                         </div>
                       </div>
                       <div class="column">
@@ -159,25 +164,27 @@
                           <input v-show="newIncludeOrExcludeEntry.key !== 'tags'"
                                  v-model="newIncludeOrExcludeEntry.value"
                                  type="text"
-                                 class="input is-small">
+                                 class="input is-small value-input">
                           <span class="icon is-small is-left has-text-grey-light">
                       <i class="fa fa-code"></i>
                     </span>
                         </div>
                       </div>
                       <div class="column is-narrow">
-                        <button title="Add new entry" class="button is-light is-small" @click="addIncludeOrExclude">
+                        <button title="Add new entry"
+                                class="button is-light is-small add-button"
+                                @click="addIncludeOrExclude">
                           <span class="icon is-small"><i class="fas fa-plus"></i></span>
                         </button>
                       </div>
                     </div>
                   </div>
                   <div v-if="!includes.length && !excludes.length && !newIncludeOrExcludeEntry.visible">
-                    <p class="is-size-7 has-text-centered has-text-grey">
+                    <p class="is-size-7 has-text-centered has-text-grey no-include-exclude-message">
                       To limit this rule coverage add <a @click="newIncludeOrExcludeEntry.visible = true">new entry</a>
                     </p>
                   </div>
-                  <div class="group-include">
+                  <div class="group-include-exclude">
                     <limit-option v-for="(option, idx) in includes"
                                   @change="updateIncludeOption"
                                   @remove="removeIncludeOrExclude(idx, true)"
@@ -213,6 +220,7 @@
 import ResponseAction from '@/components/ResponseAction.vue'
 import LimitOption from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput'
+import DatasetsUtils from '@/assets/DatasetsUtils'
 
 export default {
   name: 'RateLimits',
@@ -254,17 +262,20 @@ export default {
   },
   methods: {
     getOptionTextKey(option, idx) {
+      if (!option) {
+        return ''
+      }
       const [type] = Object.keys(option)
       return `${this.selectedDoc.id}_${type}_${idx}`
     },
-    generateOption(data, optionType = null) {
+    generateOption(data) {
       if (!data) {
         return {}
       }
       const [firstObjectKey] = Object.keys(data)
-      const type = optionType ? optionType : firstObjectKey
-      const key = optionType ? firstObjectKey : (data[firstObjectKey] || null)
-      const value = optionType ? data[firstObjectKey] : null
+      const type = firstObjectKey
+      const key = data[firstObjectKey]
+      const value = null
       return {type, key, value}
     },
     addKey() {
@@ -277,7 +288,7 @@ export default {
       }
       this.checkKeysValidity()
     },
-    updateKeyOption(option, index = 0) {
+    updateKeyOption(option, index) {
       this.selectedDoc.key.splice(index, 1, {
         [option.type]: option.key
       })
@@ -285,12 +296,15 @@ export default {
     },
     checkKeysValidity() {
       const keysToCheck = this.ld.countBy(this.selectedDoc.key, item => {
+        if (!item) {
+          return ''
+        }
         const key = Object.keys(item)[0]
         return `${key}_${item[key]}`
       })
       this.keysAreValid = true
       for (const key of Object.keys(keysToCheck)) {
-        if (keysToCheck[key] > 1) {
+        if (keysToCheck[key] > 1 || keysToCheck[''] > 0) {
           this.keysAreValid = false
           break
         }
@@ -300,9 +314,9 @@ export default {
     addIncludeOrExclude() {
       const arr = this.newIncludeOrExcludeEntry.include ? this.includes : this.excludes
       const {
-        type = 'attrs',
-        key = 'ip',
-        value = ''
+        type,
+        key,
+        value
       } = this.newIncludeOrExcludeEntry
       arr.push({type, key, value})
       this.checkIncludeOrExcludeValidity(this.newIncludeOrExcludeEntry.include)
@@ -311,17 +325,17 @@ export default {
       this.newIncludeOrExcludeEntry.value = ''
       this.newIncludeOrExcludeEntry.visible = false
     },
-    updateIncludeOrExcludeOption(option, index = 0, include = true) {
+    updateIncludeOrExcludeOption(option, index, include) {
       const arr = include ? this.includes : this.excludes
       arr.splice(index, 1, option)
       this.checkIncludeOrExcludeValidity(include)
     },
-    removeIncludeOrExclude(index = 0, include = true) {
+    removeIncludeOrExclude(index, include) {
       const options = (include ? this.includes : this.excludes)
       options.splice(index, 1)
       this.checkIncludeOrExcludeValidity(include)
     },
-    checkIncludeOrExcludeValidity(include = true) {
+    checkIncludeOrExcludeValidity(include) {
       const docKey = include ? 'includesAreValid' : 'excludesAreValid'
       const arr = include ? this.includes : this.excludes
       const keysToCheck = this.ld.countBy(arr, item => `${item.type}_${item.key}`)
@@ -356,10 +370,10 @@ export default {
     updateEvent(option) {
       this.eventOption = {[option.type]: option.key}
     },
-    normalizeIncludesOrExcludes(value, include = true) {
+    normalizeIncludesOrExcludes(value, include) {
       // converting includes/excludes from component arrays to selectedDoc objects
       const includeOrExcludeKey = include ? 'include' : 'exclude'
-      const {LimitRulesTypes} = this.$root.dsutils
+      const LimitRulesTypes = DatasetsUtils.LimitRulesTypes
       if (!this.selectedDoc[includeOrExcludeKey]) {
         this.$set(this.selectedDoc, includeOrExcludeKey, {})
       }
