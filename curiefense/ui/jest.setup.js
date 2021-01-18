@@ -6,4 +6,4 @@ import axios from 'axios'
 import {jest} from '@jest/globals'
 Object.defineProperty(Vue.prototype, 'ld', { value: _ })
 Vue.use(VueAxios, axios)
-window.URL.createObjectURL = jest.fn()
+global.URL.createObjectURL = jest.fn()
