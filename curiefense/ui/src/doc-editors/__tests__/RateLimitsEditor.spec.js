@@ -428,21 +428,21 @@ describe('RateLimitsEditor.vue', () => {
             expect(wrapper.findAllComponents(LimitOption).length).toEqual(2)
         })
 
-        test.skip('should show duplicated include message when duplicated include entries exist', async () => {
+        test('should show duplicated include message when duplicated include entries exist', async () => {
             await addEntry(0, 0, 0, '10.0.0.1')
             await addEntry(0, 0, 0, '10.0.0.1')
             const invalidMessage = wrapper.find('.include-invalid')
             expect(invalidMessage.text()).toEqual('Include rule keys must be unique')
         })
 
-        test.skip('should show duplicated exclude message when duplicated exclude entries exist', async () => {
+        test('should show duplicated exclude message when duplicated exclude entries exist', async () => {
             await addEntry(1, 0, 0, '10.0.0.1')
             await addEntry(1, 0, 0, '10.0.0.1')
             const invalidMessage = wrapper.find('.exclude-invalid')
             expect(invalidMessage.text()).toEqual('Exclude rule keys must be unique')
         })
 
-        test.skip('should not show duplicated include message when duplicated entries issue resolved', async () => {
+        test('should not show duplicated include message when duplicated entries issue resolved', async () => {
             await addEntry(0, 0, 0, '10.0.0.1')
             await addEntry(0, 0, 0, '10.0.0.1')
             // ignore first 2 limit options, 0 is count by, 1 is event
@@ -453,7 +453,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(invalidMessage.element).not.toBeDefined()
         })
 
-        test.skip('should not show duplicated exclude message when duplicated entries issue resolved', async () => {
+        test('should not show duplicated exclude message when duplicated entries issue resolved', async () => {
             await addEntry(1, 0, 0, '10.0.0.1')
             await addEntry(1, 0, 0, '10.0.0.1')
             // ignore first 2 limit options, 0 is count by, 1 is event
