@@ -345,7 +345,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(noEntriesMessage.text()).toEqual('To limit this rule coverage add new entry')
         })
 
-        test.skip('should have correct text in new entry button', async () => {
+        test('should have correct text in new entry button', async () => {
             const newButton = wrapper.find('.new-include-exclude-button')
             expect(newButton.text()).toEqual('New entry')
             newButton.trigger('click')
@@ -356,7 +356,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(newButton.text()).toEqual('New entry')
         })
 
-        test.skip('should show new entry row when new entry button is clicked', async () => {
+        test('should show new entry row when new entry button is clicked', async () => {
             const newButton = wrapper.find('.new-include-exclude-button')
             newButton.trigger('click')
             await Vue.nextTick()
