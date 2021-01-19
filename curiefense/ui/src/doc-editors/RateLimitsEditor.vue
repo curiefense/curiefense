@@ -235,7 +235,6 @@ export default {
   },
   data() {
     return {
-      addInclude: true,
       includes: this.convertIncludesOrExcludes(this.selectedDoc.include),
       excludes: this.convertIncludesOrExcludes(this.selectedDoc.exclude),
       includesAreValid: true,
