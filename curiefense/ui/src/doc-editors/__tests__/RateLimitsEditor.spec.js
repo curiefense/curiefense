@@ -294,7 +294,7 @@ describe('RateLimitsEditor.vue', () => {
             })
         })
 
-        test('should handle adding include entry to doc with no include property', async (done) => {
+        test.skip('should handle adding include entry to doc with no include property', async (done) => {
             try {
                 delete docs[0].include
                 wrapper = mount(RateLimitsEditor, {
@@ -317,7 +317,7 @@ describe('RateLimitsEditor.vue', () => {
             }
         })
 
-        test('should handle adding exclude entry to doc with no exclude property', async (done) => {
+        test.skip('should handle adding exclude entry to doc with no exclude property', async (done) => {
             try {
                 delete docs[0].exclude
                 wrapper = mount(RateLimitsEditor, {
@@ -345,7 +345,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(noEntriesMessage.text()).toEqual('To limit this rule coverage add new entry')
         })
 
-        test('should have correct text in new entry button', async () => {
+        test.skip('should have correct text in new entry button', async () => {
             const newButton = wrapper.find('.new-include-exclude-button')
             expect(newButton.text()).toEqual('New entry')
             newButton.trigger('click')
@@ -356,7 +356,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(newButton.text()).toEqual('New entry')
         })
 
-        test('should show new entry row when new entry button is clicked', async () => {
+        test.skip('should show new entry row when new entry button is clicked', async () => {
             const newButton = wrapper.find('.new-include-exclude-button')
             newButton.trigger('click')
             await Vue.nextTick()
@@ -364,7 +364,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(newEntryRow.element).toBeDefined()
         })
 
-        test('should change include entry when selectedDoc changes', async () => {
+        test.skip('should change include entry when selectedDoc changes', async () => {
             const newDoc = {...docs[0]}
             newDoc.include = {headers: {}, cookies: {}, args: {}, attrs: {ip: '10.0.0.1'}}
             wrapper.setProps({selectedDoc: newDoc})
@@ -377,7 +377,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(includeItem.vm.option.value).toEqual('10.0.0.1')
         })
 
-        test('should change exclude entry when selectedDoc changes', async () => {
+        test.skip('should change exclude entry when selectedDoc changes', async () => {
             const newDoc = {...docs[0]}
             newDoc.exclude = {headers: {}, cookies: {}, args: {}, attrs: {ip: '10.0.0.1'}}
             wrapper.setProps({selectedDoc: newDoc})
@@ -390,7 +390,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(includeItem.vm.option.value).toEqual('10.0.0.1')
         })
 
-        test('should be able to add include entry', async () => {
+        test.skip('should be able to add include entry', async () => {
             await addEntry(0, 0, 0, '10.0.0.1')
             // ignore first 2 limit options, 0 is count by, 1 is event
             const includeItem = wrapper.findAllComponents(LimitOption).at(2)
@@ -400,7 +400,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(includeItem.vm.option.value).toEqual('10.0.0.1')
         })
 
-        test('should be able to add exclude entry', async () => {
+        test.skip('should be able to add exclude entry', async () => {
             await addEntry(1, 0, 0, '10.0.0.1')
             // ignore first 2 limit options, 0 is count by, 1 is event
             const excludeItem = wrapper.findAllComponents(LimitOption).at(2)
