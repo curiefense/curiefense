@@ -364,7 +364,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(newEntryRow.element).toBeDefined()
         })
 
-        test.skip('should change include entry when selectedDoc changes', async () => {
+        test('should change include entry when selectedDoc changes', async () => {
             const newDoc = {...docs[0]}
             newDoc.include = {headers: {}, cookies: {}, args: {}, attrs: {ip: '10.0.0.1'}}
             wrapper.setProps({selectedDoc: newDoc})
@@ -377,7 +377,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(includeItem.vm.option.value).toEqual('10.0.0.1')
         })
 
-        test.skip('should change exclude entry when selectedDoc changes', async () => {
+        test('should change exclude entry when selectedDoc changes', async () => {
             const newDoc = {...docs[0]}
             newDoc.exclude = {headers: {}, cookies: {}, args: {}, attrs: {ip: '10.0.0.1'}}
             wrapper.setProps({selectedDoc: newDoc})
