@@ -37,7 +37,6 @@
       "blocked": {
         "type": "boolean"
       },
-
       "block_reason": {
         "type": "object"
       },
