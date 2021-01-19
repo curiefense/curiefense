@@ -5,7 +5,7 @@ import LimitOption from '@/components/LimitOption'
 import ResponseAction from '@/components/ResponseAction'
 import Vue from 'vue'
 
-describe.skip('RateLimitsEditor.vue', () => {
+describe('RateLimitsEditor.vue', () => {
     let docs
     let wrapper
     beforeEach(() => {
