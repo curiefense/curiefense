@@ -2,7 +2,7 @@ import WAFSigsEditor from '@/doc-editors/WAFSigsEditor'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 import {shallowMount} from '@vue/test-utils'
 
-describe.skip('WAFSigsEditor.vue', () => {
+describe('WAFSigsEditor.vue', () => {
     let docs
     let wrapper
     beforeEach(() => {
