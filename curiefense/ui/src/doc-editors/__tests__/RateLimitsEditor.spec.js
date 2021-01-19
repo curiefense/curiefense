@@ -294,7 +294,7 @@ describe('RateLimitsEditor.vue', () => {
             })
         })
 
-        test('should handle adding include entry to doc with no include property', async (done) => {
+        test('should handle adding exclude entry to doc with no exclude property', async (done) => {
             try {
                 delete docs[0].exclude
                 wrapper = mount(RateLimitsEditor, {
@@ -304,6 +304,23 @@ describe('RateLimitsEditor.vue', () => {
                 })
                 await Vue.nextTick()
                 await addEntry(1, 0, 0, '10.0.0.1')
+                done()
+            } catch (err) {
+                expect(err).not.toBeDefined()
+                done()
+            }
+        })
+
+        test('should handle adding include entry to doc with no include property', async (done) => {
+            try {
+                delete docs[0].include
+                wrapper = mount(RateLimitsEditor, {
+                    propsData: {
+                        selectedDoc: docs[0],
+                    }
+                })
+                await Vue.nextTick()
+                await addEntry(0, 0, 0, '10.0.0.1')
                 done()
             } catch (err) {
                 expect(err).not.toBeDefined()
