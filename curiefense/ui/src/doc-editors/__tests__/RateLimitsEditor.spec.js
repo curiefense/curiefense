@@ -302,8 +302,6 @@ describe('RateLimitsEditor.vue', () => {
                         selectedDoc: docs[0],
                     }
                 })
-                await Vue.nextTick()
-                await addEntry(1, 0, 0, '10.0.0.1')
                 done()
             } catch (err) {
                 expect(err).not.toBeDefined()
@@ -319,8 +317,6 @@ describe('RateLimitsEditor.vue', () => {
                         selectedDoc: docs[0],
                     }
                 })
-                await Vue.nextTick()
-                await addEntry(0, 0, 0, '10.0.0.1')
                 done()
             } catch (err) {
                 expect(err).not.toBeDefined()
