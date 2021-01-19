@@ -5,7 +5,7 @@ import LimitOption from '@/components/LimitOption'
 import ResponseAction from '@/components/ResponseAction'
 import Vue from 'vue'
 
-describe.skip('RateLimitsEditor.vue', () => {
+describe('RateLimitsEditor.vue', () => {
     let docs
     let wrapper
     beforeEach(() => {
@@ -253,7 +253,7 @@ describe.skip('RateLimitsEditor.vue', () => {
         })
     })
 
-    describe('include / exclude', () => {
+    describe.skip('include / exclude', () => {
         const addEntry = async (includeExcludeIndex, typeIndex, keyIndex, value) => {
             // open new entry row
             const newButton = wrapper.find('.new-include-exclude-button')
