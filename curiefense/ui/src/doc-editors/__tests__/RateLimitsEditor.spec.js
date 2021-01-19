@@ -294,7 +294,7 @@ describe('RateLimitsEditor.vue', () => {
             })
         })
 
-        test('should handle adding include entry to doc with no include property', async (done) => {
+        test.skip('should handle adding include entry to doc with no include property', async (done) => {
             try {
                 delete docs[0].include
                 wrapper = mount(RateLimitsEditor, {
@@ -317,7 +317,7 @@ describe('RateLimitsEditor.vue', () => {
             }
         })
 
-        test('should handle adding exclude entry to doc with no exclude property', async (done) => {
+        test.skip('should handle adding exclude entry to doc with no exclude property', async (done) => {
             try {
                 delete docs[0].exclude
                 wrapper = mount(RateLimitsEditor, {
