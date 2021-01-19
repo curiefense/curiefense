@@ -24,6 +24,7 @@ data:
         hosts "#{ENV['ELASTICSEARCH_HOSTS']}"
         index_name "#{ENV['CURIEFENSE_ES_INDEX_NAME']}"
         include_timestamp true
+        suppress_type_name true
       </match>
     </label>
 {{- end }}
