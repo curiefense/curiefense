@@ -390,7 +390,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(includeItem.vm.option.value).toEqual('10.0.0.1')
         })
 
-        test.skip('should be able to add include entry', async () => {
+        test('should be able to add include entry', async () => {
             await addEntry(0, 0, 0, '10.0.0.1')
             // ignore first 2 limit options, 0 is count by, 1 is event
             const includeItem = wrapper.findAllComponents(LimitOption).at(2)
@@ -400,7 +400,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(includeItem.vm.option.value).toEqual('10.0.0.1')
         })
 
-        test.skip('should be able to add exclude entry', async () => {
+        test('should be able to add exclude entry', async () => {
             await addEntry(1, 0, 0, '10.0.0.1')
             // ignore first 2 limit options, 0 is count by, 1 is event
             const excludeItem = wrapper.findAllComponents(LimitOption).at(2)
@@ -410,7 +410,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(excludeItem.vm.option.value).toEqual('10.0.0.1')
         })
 
-        test.skip('should be able to remove include entry', async () => {
+        test('should be able to remove include entry', async () => {
             await addEntry(0, 0, 0, '10.0.0.1')
             // ignore first 2 limit options, 0 is count by, 1 is event
             const includeItem = wrapper.findAllComponents(LimitOption).at(2)
@@ -419,7 +419,7 @@ describe('RateLimitsEditor.vue', () => {
             expect(wrapper.findAllComponents(LimitOption).length).toEqual(2)
         })
 
-        test.skip('should be able to remove exclude entry', async () => {
+        test('should be able to remove exclude entry', async () => {
             await addEntry(1, 0, 0, '10.0.0.1')
             // ignore first 2 limit options, 0 is count by, 1 is event
             const excludeItem = wrapper.findAllComponents(LimitOption).at(2)
