@@ -7,7 +7,7 @@ import Vue from 'vue'
 jest.useFakeTimers()
 jest.mock('axios')
 
-describe('DocumentSearch.vue', () => {
+describe.skip('DocumentSearch.vue', () => {
     let wrapper
     let mockRouter
     let gitData
