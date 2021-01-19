@@ -100,9 +100,9 @@ export default {
                   // db exits, key does not exist -> create a key
                   RequestsUtils.sendRequest('PUT', `db/${this.db}/k/${this.key}/`, this.defaultKeyData)
                 })
-                .catch(async () => {
+                .catch(() => {
                   // db doest not exist, key does not exist -> create a db with key
-                  await RequestsUtils.sendRequest('POST', `db/${this.db}/`, this.defaultDatabaseData)
+                  RequestsUtils.sendRequest('POST', `db/${this.db}/`, this.defaultDatabaseData)
                 })
           })
     },
