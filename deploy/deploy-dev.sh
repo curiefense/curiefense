@@ -1,15 +1,16 @@
 #!/bin/bash
 #set -e
+
+BASEDIR="$(dirname "$(readlink -f "$0")")" 
+DATE="$(date --iso=m)"
+BRANCH=${BRANCH:-dev}
+
 # This script is used for running nightly tests
 # running e2e tests needs s3 credentials until https://github.com/curiefense/curiefense/issues/48 is fixed
 source "$BASEDIR/aws-secrets.txt"
 # aws-secrets.txt should contain:
 # export CURIE_S3_ACCESS_KEY=XXXXXXXXXXXXXXXXXXXX
 # export CURIE_S3_SECRET_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
-BASEDIR="$(dirname "$(readlink -f "$0")")" 
-DATE="$(date --iso=m)"
-BRANCH=${BRANCH:-dev}
 
 mkdir -p "$BASEDIR/test-reports/"
 
