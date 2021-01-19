@@ -289,7 +289,7 @@ describe('DocumentSearch.vue', () => {
         return wrapper.findAll('.result-row').length
     }
 
-    test.skip('should be able to switch branches through dropdown', (done) => {
+    test('should be able to switch branches through dropdown', (done) => {
         const branchSelection = wrapper.find('.branch-selection')
         branchSelection.trigger('click')
         const options = branchSelection.findAll('option')
