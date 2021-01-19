@@ -143,7 +143,7 @@ services:
       - CURIELOGGER_USES_LOGSTASH=1
       - CURIELOGGER_LOGSTASH_URL=http://logstash:5001/
       - CURIELOGGER_USES_FLUENTD=0
-      - CURIELOGGER_FLUENTD_URL=http://fluentd:9880/
+      - CURIELOGGER_FLUENTD_URL=http://fluentd:5001/
       - CURIELOGGER_KIBANA_HOST=kibana
       - CURIELOGGER_KIBANA_URL=http://kibana:5601/
       - CURIELOGGER_INITIALIZE_KIBANA_INDEX=true
@@ -177,7 +177,7 @@ services:
     image: "curiefense/prometheus:${DOCKER_TAG}"
     restart: always
     volumes:
-      -   persistent_prometheus:/var/run/prometheus
+      - persistent_prometheus:/var/run/prometheus
     ports:
       - 9090:9090
     networks:
@@ -249,9 +249,10 @@ services:
       # http input
       - 5001:5001
 
+  # uncomment this to replace logstash with fluentd
   # fluentd:
   #   container_name: fluentd
-  #   image: fluent/fluentd:v1.12.0-1.0
+  #   image: "curiefense/fluentd:${DOCKER_TAG}"
   #   restart: always
   #   volumes:
   #     - type: bind
