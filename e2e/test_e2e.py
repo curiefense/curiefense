@@ -401,7 +401,7 @@ def gen_rl_rules(authority):
         param_ext={"status": "124", "location": "/redirect/"},
     )
     add_rl_rule(
-        "action-ban-default",
+        "action-ban-503",
         action="ban", subaction="default", param_ext={"ttl": "10"},
         subaction_params={"action": {"type": "default", "params": {}}},
     )
@@ -411,7 +411,7 @@ def gen_rl_rules(authority):
         subaction_params={"action": {"type": "default", "params": {}}},
     )
     add_rl_rule(
-        "action-ban-monitor",
+        "action-ban-tagonly",
         action="ban", subaction="monitor", param_ext={"ttl": "10"},
         subaction_params={"action": {"type": "default", "params": {}}},
     )
