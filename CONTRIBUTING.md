@@ -1,16 +1,14 @@
-We welcome contributions from the community. Please read the following guidelines carefully to
-maximize the chances of your PR being merged.
+👋 Hey there fellow open source contributor! Please read the following guidelines below carefully to maximize the chances of your PR being merged. 🎉
 
-# Communication
+# 💬 Communication
 
-* **Before starting work on a major feature**, please reach out to us via [GitHub Discussions](https://github.com/curiefense/curiefense/discussions/categories/q-a)], [Twitter DM](https://twitter.com/curiefense),
-  or [email](community@curiefense.io. We will make sure no one else is already working on it and ask you to open a
+* ⚠️ **Before starting work on a major feature**, please reach out to us via [GitHub Discussions](https://github.com/curiefense/curiefense/discussions/categories/q-a), [Twitter DM](https://twitter.com/messages/compose?recipient_id=1321123258993938435),
+  or community@curiefense.io. We will make sure no one else is already working on it and ask you to open a
   GitHub issue.
 
 * Small patches and bug fixes don't need prior communication.
 
-
-# Submitting a Pull Request (PR)
+# 📑 Submitting a Pull Request (PR)
 
 * Fork the repo.
 
@@ -24,19 +22,21 @@ maximize the chances of your PR being merged.
   build. If your PR cannot have 100% coverage for some reason please clearly explain why when you
   open it.
 
-* Your PR title should be descriptive, and generally start with a subsystem name followed by a
-  colon. Examples:
-  * "docs: fix grammar error"
-  * "http conn man: add new feature"
+* Your PR title should be descriptive, Examples:
+  * `Bump axios from 0.19.2 to 0.21.1 in /curiefense/ui`
+  * `Create run-curieconf-client-tests.yml`
+  * `Add client unit tests`
+
+> 👉 ProTip: Check out [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/)
 
 * Your PR commit message will be used as the commit message when your PR is merged. You should
   update this field if your PR diverges during review.
 
-* When all of the tests are passing and all other conditions described herein are satisfied, a
-  maintainer will be assigned to review and merge the PR.
+* When all of the tests are passing and all other conditions described herein are satisfied, [a
+  maintainer](https://github.com/curiefense/curiefense/graphs/contributors) will be assigned to review and merge the PR.
 
+<br>
 
+---
 
---
-
-This was adapted from Envoy
+Adapted from [Envoy's CONTRIBUTING.md](https://github.com/envoyproxy/envoy/blob/main/CONTRIBUTING.md)
