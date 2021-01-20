@@ -304,7 +304,7 @@ def gen_rl_rules(authority):
                 "args": kwargs.get("excl_args", {}),
                 "attrs": kwargs.get("excl_attrs", {}),
             },
-            "key": kwargs.get("key", {"attrs": "ip"}),
+            "key": kwargs.get("key", [{"attrs": "ip"}]),
             "pairwith": kwargs.get("pairwith", {"self": "self"}),
         })
 
