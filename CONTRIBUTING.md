@@ -1,4 +1,4 @@
-👋 Hey there fellow open source contributor! Please read the following guidelines below carefully to maximize the chances of your PR being merged. 🎉
+👋 Hey there fellow open source contributor! Please read the following guidelines below carefully to maximize the chances of your PR being merged. ⤵️
 
 # 💬 Communication
 
@@ -24,10 +24,10 @@
 
 * Your PR title should be descriptive, Examples:
   * `Bump axios from 0.19.2 to 0.21.1 in /curiefense/ui`
-  * `Create run-curieconf-client-tests.yml`
-  * `Add client unit tests`
+  * `Add run-curieconf-client-tests.yml`
+  * `Update getting started documentation`
 
-> 👉 ProTip: Check out [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/)
+> 💡 ProTip: check out "[How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/)"
 
 * Your PR commit message will be used as the commit message when your PR is merged. You should
   update this field if your PR diverges during review.
