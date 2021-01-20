@@ -403,7 +403,8 @@ def gen_rl_rules(authority):
     add_rl_rule(
         "action-ban-503",
         action="ban", subaction="default", param_ext={"ttl": "10"},
-        subaction_params={"action": {"type": "default", "params": {}}},
+        excl_attrs={"tags": "allowlist"},
+        incl_attrs={"tags": "blocklist"},
     )
     add_rl_rule(
         "action-ban-challenge",
