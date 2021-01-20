@@ -119,16 +119,14 @@
                         <th class="has-text-centered">Mask?</th>
                         <th class="has-text-centered">Exclude Sig</th>
                         <th class="has-text-centered">
-                          <a
-                              v-show="newWAFLine !== tab"
-                              class="has-text-grey-dark is-small" title="Add new parameter"
-                              @click="newWAFLine = tab; newEntry = genNewEntry()">
+                          <a v-show="newWAFLine !== tab"
+                             class="has-text-grey-dark is-small" title="Add new parameter"
+                             @click="newWAFLine = tab; newEntry = {...defaultNewEntry}">
                             <span class="icon is-small"><i class="fas fa-plus"></i></span>
                           </a>
-                          <a
-                              v-show="newWAFLine === tab"
-                              class="has-text-grey-dark is-small" title="Cancel adding new parameter"
-                              @click="newWAFLine = null">
+                          <a v-show="newWAFLine === tab"
+                             class="has-text-grey-dark is-small" title="Cancel adding new parameter"
+                             @click="newWAFLine = null">
                             <span class="icon is-small"><i class="fas fa-minus"></i></span>
                           </a>
                         </th>
@@ -327,24 +325,22 @@ export default {
 
   data() {
     return {
-      'tab': 'args',
-      'newWAFLine': null,
-      'newEntry': null
-    }
-  },
-  computed: {},
-
-  methods: {
-    genNewEntry() {
-      return {
+      tab: 'args',
+      newWAFLine: null,
+      newEntry: null,
+      defaultNewEntry: {
         type: 'names',
         key: null,
         reg: null,
         restrict: false,
         mask: false,
         exclusions: null
-      }
-    },
+      },
+    }
+  },
+  computed: {},
+
+  methods: {
 
     addNewParameter() {
       let newEntry = this.ld.cloneDeep(this.newEntry)
