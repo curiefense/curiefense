@@ -145,6 +145,7 @@ services:
       - CURIELOGGER_USES_FLUENTD=0
       - CURIELOGGER_FLUENTD_URL=http://fluentd:9880/
       - CURIELOGGER_KIBANA_HOST=kibana
+      - CURIELOGGER_KIBANA_URL=http://kibana:5601/
       - CURIELOGGER_INITIALIZE_KIBANA_INDEX=true
     networks:
       - curiemesh
