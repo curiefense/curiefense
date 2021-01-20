@@ -153,10 +153,10 @@ function build_key(request_map, limit_set, url_map_name)
         end
     end
     key = string.format("%s%s%s", url_map_name, limit_set.id, key)
-    -- -- handle:logDebug(string.format("limit build_key -- key %s", key))
-    -- request_map.handle:logDebug(string.format("limit REQUEST KEY (%s)[%s]=='%s'", url_map_name, limit_set.id, key))
+    -- handle:logDebug(string.format("limit build_key -- key %s", key))
+    request_map.handle:logDebug(string.format("limit REQUEST KEY (%s)[%s]=='%s'", url_map_name, limit_set.id, key))
     local hashed_key = hashkey(key)
-    -- request_map.handle:logDebug(string.format("limit REQUEST KEY hashed (%s)", hashed_key))
+    request_map.handle:logDebug(string.format("limit REQUEST KEY hashed (%s)", hashed_key))
     return hashed_key
 end
 
@@ -199,9 +199,7 @@ function check_request(request_map, limit_set, url_map_name)
         local ban_key = gen_ban_key(key)
 
         if redis_is_banned(ban_key) then
-            -- request_map.handle:logDebug(string.format(
-            --     "redis-limit KEY is BANNED", pair_name, pair_value, pairing_value
-            -- ))
+            request_map.handle:logDebug(string.format("redis-limit KEY is BANNED", pair_name, pair_value, pairing_value))
 
             if limit_set.action and limit_set.action.params then
                 limit_react(request_map, limit_set.name, limit_set.action.params.action, ban_key, ttl)
@@ -210,9 +208,9 @@ function check_request(request_map, limit_set, url_map_name)
             end
         end
 
-        -- request_map.handle:logDebug(string.format("not banned key - going with standard limit check"))
+        request_map.handle:logDebug(string.format("not banned key - going with standard limit check"))
         local xert = redis_check_limit(request_map, key, limit, ttl, pairing_value)
-        -- request_map.handle:logDebug(string.format("redis_check_limit xert  came back with %s", xert))
+        request_map.handle:logDebug(string.format("redis_check_limit xert  came back with %s", xert))
         if xert == 503 then
             limit_react(request_map, limit_set.name, limit_set.action, key, ttl)
         end
