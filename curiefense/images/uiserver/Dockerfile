@@ -6,7 +6,7 @@ RUN npm install
 RUN npm run build
 
 
-FROM nginx:latest
+FROM nginx:1.19
 
 USER root
 RUN ln -sf /init/nginx.conf /etc/nginx/nginx.conf
