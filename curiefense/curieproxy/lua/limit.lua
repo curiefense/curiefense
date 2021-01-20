@@ -296,9 +296,13 @@ function redis_check_set(request_map, redis_conn, key, threshold, set_value, ttl
         end
     )
 
+    request_map.handle:logDebug("redis_check_set result: %s", json_encode(result))
+
     if type(result) == "table" then
         current = result[2]
         expire = result[3]
+
+        request_map.handle:logDebug("redis_check_set current: %s, expire %s", current, expire)
 
         if "userdata: NULL" == tostring(current) then
             current = 0
