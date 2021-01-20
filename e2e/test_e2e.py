@@ -384,7 +384,6 @@ def gen_rl_rules(authority):
     add_rl_rule("event-provider", pairwith={"attrs": "asn"})
     add_rl_rule("event-uri", pairwith={"attrs": "uri"})
     add_rl_rule("event-path", pairwith={"attrs": "path"})
-    add_rl_rule("event-tag", pairwith={"attrs": "tags"})
     add_rl_rule("event-query", pairwith={"attrs": "query"})
     add_rl_rule("event-method", pairwith={"attrs": "method"})
     add_rl_rule("event-company", pairwith={"attrs": "company"})
@@ -403,7 +402,7 @@ def gen_rl_rules(authority):
     )
     add_rl_rule(
         "action-ban-default",
-        action="ban", subaction="default", action_ext={"ttl": "10"},
+        action="ban", subaction="default", param_ext={"ttl": "10"},
         subaction_params={"action": {"type": "default", "params": {}}},
     )
     add_rl_rule(
@@ -420,7 +419,6 @@ def gen_rl_rules(authority):
         "action-ban-response",
         action="ban", subaction="response",
         param_ext={"status": 123, "ttl": "10", "content": "Content"},
-        subaction_ext={"content": "Response body"},
         subaction_params={"content": "Response body", "status": "123"},
     )
     add_rl_rule(
@@ -440,7 +438,7 @@ def gen_rl_rules(authority):
     add_rl_rule(
         "action-header", action="request_header",
         action_ext={"headers": "Header-Name"},
-        subaction_params={"headers": "foo: bar"}
+        param_ext={"headers": "foo: bar"}
     )
 
     RL_URLMAP = [
