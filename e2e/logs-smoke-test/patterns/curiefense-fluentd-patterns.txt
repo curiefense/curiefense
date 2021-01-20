@@ -14,6 +14,7 @@
 ^      hosts "http://elasticsearch:9200/"
 ^      index_name "curieaccesslog"
 ^      include_timestamp true
+^      suppress_type_name true
 ^    </match>
 ^  </label>
 ^</ROOT>
