@@ -671,7 +671,13 @@ describe('DocumentEditor.vue', () => {
             const branch = wrapper.vm.selectedBranch
             const docID = wrapper.vm.selectedDocID
             if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/`) {
-                return Promise.resolve({data: aclDocs})
+                return Promise.resolve({data: wrapper.vm.ld.map(aclDocs, i => wrapper.vm.ld.pick(i, 'id', 'name'))})
+            }
+            if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/__default__/`) {
+                return Promise.resolve({data: aclDocs[0]})
+            }
+            if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/5828321c37e0/`) {
+                return Promise.resolve({data: aclDocs[1]})
             }
             if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
                 return Promise.resolve({data: aclGitOldVersion})
@@ -680,19 +686,31 @@ describe('DocumentEditor.vue', () => {
                 return Promise.resolve({data: aclDocsLogs[0]})
             }
             if (path === `/conf/api/v1/configs/${branch}/d/tagrules/`) {
-                return Promise.resolve({data: profilingListDocs})
+                return Promise.resolve({data: wrapper.vm.ld.map(profilingListDocs, i => wrapper.vm.ld.pick(i, 'id', 'name'))})
+            }
+            if (path === `/conf/api/v1/configs/${branch}/d/tagrules/e/xlbp148c/`) {
+                return Promise.resolve({data: profilingListDocs[0]})
+            }
+            if (path === `/conf/api/v1/configs/${branch}/d/tagrules/e/07656fbe/`) {
+                return Promise.resolve({data: profilingListDocs[1]})
             }
             if (path === `/conf/api/v1/configs/${branch}/d/tagrules/e/${docID}/v/`) {
                 return Promise.resolve({data: profilingListDocsLogs[0]})
             }
             if (path === `/conf/api/v1/configs/${branch}/d/urlmaps/`) {
-                return Promise.resolve({data: urlMapsDocs})
+                return Promise.resolve({data: wrapper.vm.ld.map(urlMapsDocs, i => wrapper.vm.ld.pick(i, 'id', 'name'))})
+            }
+            if (path === `/conf/api/v1/configs/${branch}/d/urlmaps/e/__default__/`) {
+                return Promise.resolve({data: urlMapsDocs[0]})
             }
             if (path === `/conf/api/v1/configs/${branch}/d/urlmaps/e/${docID}/v/`) {
                 return Promise.resolve({data: urlMapsDocsLogs[0]})
             }
             if (path === `/conf/api/v1/configs/${branch}/d/flowcontrol/`) {
-                return Promise.resolve({data: flowControlDocs})
+                return Promise.resolve({data: wrapper.vm.ld.map(flowControlDocs, i => wrapper.vm.ld.pick(i, 'id', 'name'))})
+            }
+            if (path === `/conf/api/v1/configs/${branch}/d/flowcontrol/e/c03dabe4b9ca/`) {
+                return Promise.resolve({data: flowControlDocs[0]})
             }
             if (path === '/conf/api/v1/configs/master/v/') {
                 return Promise.resolve({data: gitData[0].logs})

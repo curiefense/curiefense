@@ -127,7 +127,7 @@
       <div class="content document-editor-wrapper"
            v-if="!loadingDocCounter && selectedBranch && selectedDocType && selectedDoc">
         <component
-            :is="currentEditorComponent.component"
+            :is="componentsMap[selectedDocType].component"
             :selectedBranch.sync="selectedBranch"
             :selectedDoc.sync="selectedDoc"
             :docs.sync="docs"
@@ -203,7 +203,7 @@ export default {
   },
   watch: {
     $route: {
-      handler: async function() {
+      handler: async function () {
         this.setLoadingDocStatus(true)
         await this.setSelectedDataFromRouteParams()
         this.setLoadingDocStatus(false)
@@ -267,14 +267,6 @@ export default {
       return this.ld.sortBy(this.ld.map(this.configs, 'id'))
     },
 
-    currentEditorComponent() {
-      if (this.selectedDocType) {
-        return this.componentsMap[this.selectedDocType]
-      } else {
-        return Object.values(this.componentsMap)[0]
-      }
-    },
-
     selectedDoc: {
       get() {
         return this.docs[this.selectedDocIndex]
@@ -317,18 +309,19 @@ export default {
         this.$router.push(currentRoute)
       }
     },
-    
+
     async setSelectedDataFromRouteParams() {
+      this.setLoadingDocStatus(true)
       this.selectedBranch = this.$route.params.branch || this.branchNames[0]
       const prevDocType = this.selectedDocType
-      console.log(this.selectedDocType)
       this.selectedDocType = this.$route.params.doc_type || Object.keys(this.componentsMap)[0]
-      console.log(this.selectedDocType)
       if (!prevDocType || prevDocType !== this.selectedDocType) {
         await this.loadDocs(this.selectedDocType)
       }
       this.selectedDocID = this.$route.params.doc_id || this.docIdNames[0][0]
+      await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()
+      this.setLoadingDocStatus(false)
       this.goToRoute()
     },
 
@@ -377,10 +370,21 @@ export default {
           })
     },
 
+    async loadSelectedDocData() {
+      this.setLoadingDocStatus(true)
+      // check if the selected doc only has id and name, if it does, attempt to load the rest of the document data
+      if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
+        this.selectedDoc = (await RequestsUtils.sendRequest('GET',
+            `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`)).data
+      }
+      this.setLoadingDocStatus(false)
+    },
+
     async loadDocs(doctype) {
       let branch = this.selectedBranch
       try {
-        const response = await RequestsUtils.sendRequest('GET', `configs/${branch}/d/${doctype}/`)
+        const response = await RequestsUtils.sendRequest('GET', `configs/${branch}/d/${doctype}/`,
+            {headers: {'x-fields': 'id, name'}})
         this.docs = response.data
       } catch (err) {
         console.log('Error while attempting to load documents')
@@ -390,6 +394,7 @@ export default {
       this.updateDocIdNames()
       if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
         this.selectedDocID = this.docIdNames[0][0]
+        await this.loadSelectedDocData()
         this.addMissingDefaultsToDoc()
       }
       this.loadGitLog()
@@ -442,6 +447,7 @@ export default {
       this.setLoadingDocStatus(true)
       if (docID) {
         this.selectedDocID = docID
+        await this.loadSelectedDocData()
         this.addMissingDefaultsToDoc()
       }
       this.loadGitLog()
@@ -511,6 +517,7 @@ export default {
             this.loadGitLog(true)
           })
       this.selectedDocID = this.docs[0].id
+      await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()
       this.resetGitLog()
       this.goToRoute()
@@ -554,8 +561,7 @@ export default {
       if (!this.selectedDoc) {
         return
       }
-      this.selectedDoc = {...this.newDoc(),...this.selectedDoc}
-      return this.selectedDoc
+      this.selectedDoc = {...this.newDoc(), ...this.selectedDoc}
     },
 
     referToVersionControl() {
