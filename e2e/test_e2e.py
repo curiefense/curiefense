@@ -265,12 +265,14 @@ def gen_rl_rules(authority):
     RL_RULES = []
     MAP_PATH = {}
 
-    def add_rl_rule(path, action_ext=None, subaction_ext=None, **kwargs):
+    def add_rl_rule(path, action_ext=None, subaction_ext=None, param_ext=None, **kwargs):
         rule_id = f"e2e1{len(RL_RULES):0>9}"
         if subaction_ext is None:
             subaction_ext = {}
         if action_ext is None:
             action_ext = {}
+        if param_ext is None:
+            param_ext = {}
         MAP_PATH[path] = rule_id
         RL_RULES.append({
             "id": rule_id,
@@ -285,7 +287,8 @@ def gen_rl_rules(authority):
                         "type": kwargs.get("subaction", "default"),
                         "params": kwargs.get("subaction_params", {}),
                         **subaction_ext
-                    }
+                    },
+                    **param_ext
                 },
                 **action_ext,
             },
@@ -392,48 +395,52 @@ def gen_rl_rules(authority):
     add_rl_rule("action-monitor", action="monitor")
     add_rl_rule(
         "action-response", action="response",
-        action_ext={"status": 123, "content": "Response body"},
+        param_ext={"status": 123, "content": "Response body"},
     )
     add_rl_rule(
         "action-redirect", action="redirect",
-        action_ext={"status": "124", "location": "/redirect/"},
+        param_ext={"status": "124", "location": "/redirect/"},
     )
     add_rl_rule(
         "action-ban-default",
-        action="ban", subaction="default", action_ext={"ttl": 10},
+        action="ban", subaction="default", action_ext={"ttl": "10"},
         subaction_params={"action": {"type": "default", "params": {}}},
     )
     add_rl_rule(
         "action-ban-challenge",
-        action="ban", subaction="challenge", action_ext={"ttl": 10},
+        action="ban", subaction="challenge", param_ext={"ttl": "10"},
         subaction_params={"action": {"type": "default", "params": {}}},
     )
     add_rl_rule(
         "action-ban-monitor",
-        action="ban", subaction="monitor", action_ext={"ttl": 10},
+        action="ban", subaction="monitor", param_ext={"ttl": "10"},
         subaction_params={"action": {"type": "default", "params": {}}},
     )
     add_rl_rule(
         "action-ban-response",
-        action="ban", subaction="response", action_ext={"ttl": 10},
-        subaction_ext={"status": 123, "content": "Response body"},
-        subaction_params={"action": {"type": "default", "params": {}}},
+        action="ban", subaction="response",
+        param_ext={"status": 123, "ttl": "10", "content": "Content"},
+        subaction_ext={"content": "Response body"},
+        subaction_params={"content": "Response body", "status": "123"},
     )
     add_rl_rule(
         "action-ban-redirect",
-        action="ban", subaction="redirect", action_ext={"ttl": 10},
-        subaction_ext={"status": "124", "location": "/redirect/"},
-        subaction_params={"action": {"type": "default", "params": {}}},
+        action="ban", subaction="redirect", param_ext={"ttl": "10"},
+        subaction_ext={"status": "124", "ttl": "10", "location": "/redirect/"},
+        subaction_params={"location": "/redirect", "status": "301",
+                          "action": {"type": "default", "params": {}}},
     )
     add_rl_rule(
         "action-ban-header",
-        action="ban", subaction="header", action_ext={"ttl": 10},
+        action="ban", subaction="request_header", param_ext={"ttl": "10"},
         subaction_ext={"headers": "Header-Name"},
-        subaction_params={"action": {"type": "default", "params": {}}},
+        subaction_params={"headers": "foo: bar",
+                          "action": {"type": "default", "params": {}}},
     )
     add_rl_rule(
-        "action-header", action="header",
+        "action-header", action="request_header",
         action_ext={"headers": "Header-Name"},
+        subaction_params={"headers": "foo: bar"}
     )
 
     RL_URLMAP = [
