@@ -41,7 +41,7 @@
         "type": "object"
       },
       "tags": {
-        "type": "keyword"
+        "type": "flattened"
       },
       "rxtimers": {
         "properties": {
