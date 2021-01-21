@@ -15,9 +15,9 @@ module.exports = {
     transformIgnorePatterns: ['<rootDir>/node_modules/'],
     coverageThreshold: {
         global: {
-            branches: 75,
-            functions: 75,
-            lines: 75
+            branches: 100,
+            functions: 100,
+            lines: 100
         }
     }
 };
