@@ -17,7 +17,7 @@ GITTAG="$(git describe --tag --long --dirty)"
 DOCKER_DIR_HASH="$(git rev-parse --short=12 HEAD:curiefense)"
 DOCKER_TAG="${DOCKER_TAG:-$GITTAG-$DOCKER_DIR_HASH}"
 
-if [ -n "$TESTIMG" ]; then
+if [ -n "$TESTING" ]; then
     IMAGES=("$TESTIMG")
     OTHER_IMAGES_DOCKER_TAG="$DOCKER_TAG"
     DOCKER_TAG="test"
