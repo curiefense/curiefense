@@ -1,5 +1,5 @@
 {
-  "index_patterns": ["INDEX_NAME"],
+  "index_patterns": ["INDEX_NAME*"],
   "priority": 200,
   "composed_of": [],
   "version": 1,

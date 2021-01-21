@@ -1,9 +1,9 @@
 #!/bin/bash
 
 INIT_DIR=${INIT_DIR:-/init}
-ES_PATTERN_PATH="api/saved_objects/index-pattern/curiefense"
 ES_INDEX_NAME=${CURIEFENSE_ES_INDEX_NAME:-curieaccesslog}
-USE_DATA_STREAMS=${USE_DATA_STREAM:-true}
+ES_PATTERN_PATH="api/saved_objects/index-pattern/${ES_INDEX_NAME}"
+USE_DATA_STREAMS=${USE_DATA_STREAMS:-true}
 
 CURL="curl --silent --write-out %{http_code}\n -H Content-Type:application/json --output /dev/null"
 
@@ -16,7 +16,7 @@ wait_for_es () {
 }
 
 define_es_lifecycle_policy () {
-	if $CURL "${ELASTICSEARCH_URL}_ilm/policy/curie_policy"|grep -q 200; then
+	if $CURL "${ELASTICSEARCH_URL}_ilm/policy/$ES_INDEX_NAME"|grep -q 200; then
 		echo "Elasticsearch lifecycle policy already exists."
 	else
 		if $CURL -X PUT "${ELASTICSEARCH_URL}_ilm/policy/$ES_INDEX_NAME" --data-binary @$INIT_DIR/es_lifecycle_policy.json|grep -q 200; then
@@ -83,7 +83,7 @@ create_kibana_index_pattern () {
 		echo "Kibana index already exists."
 	else
 		# Create the index pattern
-		if $CURL -X POST "$CURIELOGGER_KIBANA_URL$ES_PATTERN_PATH" -H 'kbn-xsrf: true' -d '{"attributes": {"title": "'"$ES_INDEX_NAME"'","timeFieldName": "timestamp"}}'|grep -q 200; then
+		if $CURL -X POST "$CURIELOGGER_KIBANA_URL$ES_PATTERN_PATH" -H 'kbn-xsrf: true' -d '{"attributes": {"title": "'"$ES_INDEX_NAME*"'","timeFieldName": "timestamp"}}'|grep -q 200; then
 
 			echo "Kibana index $ES_INDEX_NAME created."
 		else
