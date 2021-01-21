@@ -9,6 +9,11 @@
     "test:unit": "jest",
     "test-coverage:unit": "jest --collect-coverage"
   },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run test:unit"
+    }
+  },
   "dependencies": {
     "@mdi/font": "^5.8.55",
     "@mdi/js": "^5.8.55",
@@ -41,6 +46,7 @@
     "babel-jest": "^26.6.3",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
+    "husky": "^4.3.8",
     "jest": "^26.6.3",
     "sass": "^1.30.0",
     "sass-loader": "^10.1.0",

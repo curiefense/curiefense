@@ -12,5 +12,12 @@ module.exports = {
         '<rootDir>/**/*.spec.(js|jsx|ts|tsx)'
     ],
     setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-    transformIgnorePatterns: ['<rootDir>/node_modules/']
+    transformIgnorePatterns: ['<rootDir>/node_modules/'],
+    coverageThreshold: {
+        global: {
+            branches: 75,
+            functions: 75,
+            lines: 75
+        }
+    }
 };
