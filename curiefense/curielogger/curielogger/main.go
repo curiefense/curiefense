@@ -5,21 +5,23 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"google.golang.org/grpc"
+	"bufio"
+	"bytes"
+	"flag"
 	"log"
 	"net"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
-	"bytes"
 	"time"
-	"flag"
-	"bufio"
 
-	als "github.com/envoyproxy/go-control-plane/envoy/service/accesslog/v2"
+	"google.golang.org/grpc"
+
 	ald "github.com/envoyproxy/go-control-plane/envoy/data/accesslog/v2"
-//	ptypes "github.com/golang/protobuf/ptypes"
+	als "github.com/envoyproxy/go-control-plane/envoy/service/accesslog/v2"
+
+	//	ptypes "github.com/golang/protobuf/ptypes"
 	duration "github.com/golang/protobuf/ptypes/duration"
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 
@@ -34,11 +36,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	elasticsearch "github.com/elastic/go-elasticsearch/v7"
 	"errors"
+
+	elasticsearch "github.com/elastic/go-elasticsearch/v7"
 )
-
-
 
 //   ___ ___  __  __ __  __  ___  _  _
 //  / __/ _ \|  \/  |  \/  |/ _ \| \| |
@@ -46,71 +47,67 @@ import (
 //  \___\___/|_|  |_|_|  |_|\___/|_|\_|
 // COMMON
 
-
-
-
 type CurieProxyLog struct {
-	Headers		 map[string]string	`json:"headers"`
-	Cookies		 map[string]string	`json:"cookies"`
-	Arguments	 map[string]string	`json:"arguments"`
-	Attributes	 map[string]interface{}	`json:"attributes"`
-	Blocked		 bool			`json:"blocked"`
-	BlockReason	 map[string]interface{}	`json:"block_reason"`
-	Tags		 []string		`json:"tags"`
+	Headers     map[string]string      `json:"headers"`
+	Cookies     map[string]string      `json:"cookies"`
+	Arguments   map[string]string      `json:"arguments"`
+	Attributes  map[string]interface{} `json:"attributes"`
+	Blocked     bool                   `json:"blocked"`
+	BlockReason map[string]interface{} `json:"block_reason"`
+	Tags        []string               `json:"tags"`
 }
 
-
 type RXTimer struct {
-	FirstUpstreamByte float64	`json:"firstupstreambyte"`
-	LastUpstreamByte  float64	`json:"lastupstreambyte"`
-	LastByte          float64	`json:"lastbyte"`
+	FirstUpstreamByte float64 `json:"firstupstreambyte"`
+	LastUpstreamByte  float64 `json:"lastupstreambyte"`
+	LastByte          float64 `json:"lastbyte"`
 }
 
 type TXTimer struct {
-	FirstUpstreamByte   float64	`json:"firstupstreambyte"`
-	LastUpstreamByte    float64	`json:"lastupstreambyte"`
-	FirstDownstreamByte float64	`json:"firstdownstreambyte"`
-	LastDownstreamByte  float64	`json:"lastdownstreambyte"`
+	FirstUpstreamByte   float64 `json:"firstupstreambyte"`
+	LastUpstreamByte    float64 `json:"lastupstreambyte"`
+	FirstDownstreamByte float64 `json:"firstdownstreambyte"`
+	LastDownstreamByte  float64 `json:"lastdownstreambyte"`
 }
 
 type DownstreamData struct {
-	ConnectionTermination	 bool	`json:"connectiontermination"`
-	DirectRemoteAddress	 string	`json:"directremoteaddress"`
-	DirectRemoteAddressPort	 uint32	`json:"directremoteaddressport"`
-	LocalAddress		 string	`json:"localaddress"`
-	LocalAddressPort	 uint32	`json:"localaddressport"`
-	ProtocolError		 bool	`json:"protocolerror"`
-	RemoteAddress		 string	`json:"remoteaddress"`
-	RemoteAddressPort	 uint32	`json:"remoteaddressport"`
+	ConnectionTermination   bool   `json:"connectiontermination"`
+	DirectRemoteAddress     string `json:"directremoteaddress"`
+	DirectRemoteAddressPort uint32 `json:"directremoteaddressport"`
+	LocalAddress            string `json:"localaddress"`
+	LocalAddressPort        uint32 `json:"localaddressport"`
+	ProtocolError           bool   `json:"protocolerror"`
+	RemoteAddress           string `json:"remoteaddress"`
+	RemoteAddressPort       uint32 `json:"remoteaddressport"`
 }
 
 type UpstreamData struct {
-	Cluster			 string	`json:"cluster"`
-	ConnectionFailure	 bool	`json:"connectionfailure"`
-	ConnectionTermination	 bool	`json:"connectiontermination"`
-	LocalAddress		 string	`json:"localaddress,omitempty"`
-	LocalAddressPort	 uint32	`json:"localaddressport,omitempty"`
-	Overflow		 bool	`json:"overflow"`
-	RemoteAddress		 string	`json:"remoteaddress,omitempty"`
-	RemoteAddressPort	 uint32	`json:"remoteaddressport,omitempty"`
-	RemoteReset		 bool	`json:"remotereset"`
-	RequestTimeout		 bool	`json:"requesttimeout"`
-	RetryLimitExceeded	 bool	`json:"retrylimitexceeded"`
-	TransportFailureReason	 string	`json:"transportfailurereason"`
+	Cluster                string `json:"cluster"`
+	ConnectionFailure      bool   `json:"connectionfailure"`
+	ConnectionTermination  bool   `json:"connectiontermination"`
+	LocalAddress           string `json:"localaddress,omitempty"`
+	LocalAddressPort       uint32 `json:"localaddressport,omitempty"`
+	Overflow               bool   `json:"overflow"`
+	RemoteAddress          string `json:"remoteaddress,omitempty"`
+	RemoteAddressPort      uint32 `json:"remoteaddressport,omitempty"`
+	RemoteReset            bool   `json:"remotereset"`
+	RequestTimeout         bool   `json:"requesttimeout"`
+	RetryLimitExceeded     bool   `json:"retrylimitexceeded"`
+	TransportFailureReason string `json:"transportfailurereason"`
 }
 
 type CertificateData struct {
-	Properties		 string		`json:"properties"`
-	PropertiesAltNames	 []string	`json:"propertiesaltnames"`
+	Properties         string   `json:"properties"`
+	PropertiesAltNames []string `json:"propertiesaltnames"`
 }
 
 type TLSData struct {
-	LocalCertificate	 CertificateData	`json:"localcertificate"`
-	PeerCertificate		 CertificateData	`json:"peercertificate"`
-	CipherSuite		 string			`json:"ciphersuite"`
-	SessionId		 string			`json:"sessionid"`
-	SNIHostname		 string			`json:"snihostname"`
-	Version			 string			`json:"version"`
+	LocalCertificate CertificateData `json:"localcertificate"`
+	PeerCertificate  CertificateData `json:"peercertificate"`
+	CipherSuite      string          `json:"ciphersuite"`
+	SessionId        string          `json:"sessionid"`
+	SNIHostname      string          `json:"snihostname"`
+	Version          string          `json:"version"`
 }
 
 type NameValue struct {
@@ -119,72 +116,68 @@ type NameValue struct {
 }
 
 type RequestData struct {
-	BodyBytes	 uint64			`json:"bodybytes"`
-	HeadersBytes	 uint64			`json:"headersbytes"`
-	OriginalPath	 string			`json:"originalpath"`
-	Headers		 map[string]string	`json:"headers"`
-	Cookies		 map[string]string	`json:"cookies"`
-	Arguments	 map[string]string	`json:"arguments"`
-	Attributes	 map[string]interface{}	`json:"attributes"`
+	BodyBytes    uint64                 `json:"bodybytes"`
+	HeadersBytes uint64                 `json:"headersbytes"`
+	OriginalPath string                 `json:"originalpath"`
+	Headers      map[string]string      `json:"headers"`
+	Cookies      map[string]string      `json:"cookies"`
+	Arguments    map[string]string      `json:"arguments"`
+	Attributes   map[string]interface{} `json:"attributes"`
 }
 
 type ResponseData struct {
-	BodyBytes	 uint64			`json:"bodybytes"`
-	Code		 int			`json:"code"`
-	CodeDetails	 string			`json:"codedetails"`
-	Headers		 map[string]string	`json:"headers"`
-	HeadersBytes	 uint64			`json:"headersbytes"`
-	Trailers	 map[string]string	`json:"trailers"`
+	BodyBytes    uint64            `json:"bodybytes"`
+	Code         int               `json:"code"`
+	CodeDetails  string            `json:"codedetails"`
+	Headers      map[string]string `json:"headers"`
+	HeadersBytes uint64            `json:"headersbytes"`
+	Trailers     map[string]string `json:"trailers"`
 }
 
 type MetadataData struct {
-	DelayInjected			bool	`json:"delayinjected"`
-	FailedLocalHealthCheck		bool	`json:"failedlocalhealthcheck"`
-	FaultInjected			bool	`json:"faultinjected"`
-	InvalidEnvoyRequestHeaders	bool	`json:"invalidenvoyrequestheaders"`
-	LocalReset			bool	`json:"localreset"`
-	NoHealthyUpstream		bool	`json:"nohealthyupstream"`
-	NoRouteFound			bool	`json:"noroutefound"`
-	RateLimited			bool	`json:"ratelimited"`
-	RateLimitServiceError		bool	`json:"ratelimitserviceerror"`
-	RouteName			string	`json:"routename"`
-	SampleRate			float64	`json:"samplerate"`
-	StreamIdleTimeout		bool	`json:"streamidletimeout"`
-	UnauthorizedDetails		string	`json:"unauthorizeddetails"`
+	DelayInjected              bool    `json:"delayinjected"`
+	FailedLocalHealthCheck     bool    `json:"failedlocalhealthcheck"`
+	FaultInjected              bool    `json:"faultinjected"`
+	InvalidEnvoyRequestHeaders bool    `json:"invalidenvoyrequestheaders"`
+	LocalReset                 bool    `json:"localreset"`
+	NoHealthyUpstream          bool    `json:"nohealthyupstream"`
+	NoRouteFound               bool    `json:"noroutefound"`
+	RateLimited                bool    `json:"ratelimited"`
+	RateLimitServiceError      bool    `json:"ratelimitserviceerror"`
+	RouteName                  string  `json:"routename"`
+	SampleRate                 float64 `json:"samplerate"`
+	StreamIdleTimeout          bool    `json:"streamidletimeout"`
+	UnauthorizedDetails        string  `json:"unauthorizeddetails"`
 }
 
 type CuriefenseLog struct {
-	RequestId	 string		`json:"requestid"`
-	Timestamp	 string		`json:"timestamp"`
-	Scheme		 string		`json:"scheme"`
-	Authority	 string		`json:"authority"`
-	Port		 uint32		`json:"port"`
-	Method		 string		`json:"method"`
-	Path		 string		`json:"path"`
+	RequestId string `json:"requestid"`
+	Timestamp string `json:"timestamp"`
+	Scheme    string `json:"scheme"`
+	Authority string `json:"authority"`
+	Port      uint32 `json:"port"`
+	Method    string `json:"method"`
+	Path      string `json:"path"`
 
-	Blocked		 bool			`json:"blocked"`
-	BlockReason	 map[string]interface{}	`json:"block_reason"`
-	Tags		 []string		`json:"tags"`
+	Blocked     bool                   `json:"blocked"`
+	BlockReason map[string]interface{} `json:"block_reason"`
+	Tags        []string               `json:"tags"`
 
-	RXTimers	 RXTimer	`json:"timers"`
-	TXTimers	 TXTimer	`json:"timers"`
+	RXTimers RXTimer `json:"timers"`
+	TXTimers TXTimer `json:"timers"`
 
-	Upstream	 UpstreamData	`json:"upstream"`
-	Downstream	 DownstreamData	`json:"downstream"`
+	Upstream   UpstreamData   `json:"upstream"`
+	Downstream DownstreamData `json:"downstream"`
 
-	TLS		 TLSData	`json:"tls"`
-	Request		 RequestData    `json:"request"`
-	Response	 ResponseData	`json:"response"`
-	Metadata	 MetadataData	`json:"metadata"`
+	TLS      TLSData      `json:"tls"`
+	Request  RequestData  `json:"request"`
+	Response ResponseData `json:"response"`
+	Metadata MetadataData `json:"metadata"`
 }
 
-
-
-
-
 type LogEntry struct {
-	fullEntry *ald.HTTPAccessLogEntry
-	cfLog *CuriefenseLog
+	fullEntry     *ald.HTTPAccessLogEntry
+	cfLog         *CuriefenseLog
 	curieProxyLog *CurieProxyLog
 }
 
@@ -197,22 +190,20 @@ type Logger interface {
 }
 
 type logger struct {
-	name string
-	channel chan LogEntry
-	url string
+	name      string
+	channel   chan LogEntry
+	url       string
 	do_insert func(LogEntry) bool
 }
 
-
 func (l logger) SendEntry(e LogEntry) {
 	if len(l.channel) >= cap(l.channel) {
-		metric_dropped_log_entry.With(prometheus.Labels{"logger":l.name}).Inc()
+		metric_dropped_log_entry.With(prometheus.Labels{"logger": l.name}).Inc()
 		log.Printf("[WARNING] [%s] buffer full (%v/%v). Log entry dropped", l.name, len(l.channel), cap(l.channel))
 	} else {
 		l.channel <- e
 	}
 }
-
 
 func (l *logger) ConfigureFromEnv(name string, envVar string, channel_capacity int) error {
 	url, ok := os.LookupEnv(envVar)
@@ -235,10 +226,9 @@ func (l logger) Start() {
 		entry := l.GetLogEntry()
 		now := time.Now()
 		l.do_insert(entry)
-		metric_logger_latency.With(prometheus.Labels{"logger":l.name}).Observe(time.Since(now).Seconds())
+		metric_logger_latency.With(prometheus.Labels{"logger": l.name}).Observe(time.Since(now).Seconds())
 	}
 }
-
 
 func (l logger) GetLogEntry() LogEntry {
 	return <-l.channel
@@ -249,12 +239,9 @@ func (l logger) InsertEntry(e LogEntry) bool {
 	return false
 }
 
-
 type grpcServerParams struct {
 	loggers []Logger
 }
-
-
 
 //  ___ ___  ___  __  __ ___ _____ _  _ ___ _   _ ___
 // | _ \ _ \/ _ \|  \/  | __|_   _| || | __| | | / __|
@@ -331,7 +318,6 @@ var (
 	}, []string{"logger"})
 )
 
-
 /**** \\\ auto labeling /// ****/
 
 func isStaticTag(tag string) bool {
@@ -376,7 +362,7 @@ func extractTagByPrefix(prefix string, tags map[string]interface{}) string {
 
 func makeTagMap(tags []string) map[string]string {
 	res := make(map[string]string)
-	for _,k := range tags {
+	for _, k := range tags {
 		tspl := strings.Split(k, ":")
 		if len(tspl) == 2 {
 			res[tspl[0]] = tspl[1]
@@ -384,7 +370,6 @@ func makeTagMap(tags []string) map[string]string {
 	}
 	return res
 }
-
 
 func makeLabels(status_code int, method, path, upstream, blocked string, tags []string) prometheus.Labels {
 
@@ -417,7 +402,6 @@ func makeLabels(status_code int, method, path, upstream, blocked string, tags []
 		origin_status_class = fmt.Sprintf("origin_%s", class_label)
 	}
 
-
 	tm := makeTagMap(tags)
 
 	return prometheus.Labels{
@@ -441,11 +425,9 @@ func makeLabels(status_code int, method, path, upstream, blocked string, tags []
 	}
 }
 
-
 type promLogger struct {
 	logger
 }
-
 
 func (l promLogger) Start() {
 	log.Printf("[INFO]: Prometheus (%s) metrics updating routine started", l.name)
@@ -455,17 +437,17 @@ func (l promLogger) Start() {
 		log.Printf("[DEBUG] new log entry cflog=%v", *e.cfLog)
 		// **** Update prometheus metrics ****
 		metric_requests.Inc()
-		metric_request_bytes.Add(float64(e.cfLog.Request.HeadersBytes+e.cfLog.Request.BodyBytes))
-		metric_response_bytes.Add(float64(e.cfLog.Response.HeadersBytes+e.cfLog.Response.BodyBytes))
+		metric_request_bytes.Add(float64(e.cfLog.Request.HeadersBytes + e.cfLog.Request.BodyBytes))
+		metric_response_bytes.Add(float64(e.cfLog.Response.HeadersBytes + e.cfLog.Response.BodyBytes))
 
 		tags := e.cfLog.Tags
 		blocked := strconv.FormatBool(e.cfLog.Blocked)
 
-		labels := makeLabels(e.cfLog.Response.Code, e.cfLog.Method, e.cfLog.Path, 
+		labels := makeLabels(e.cfLog.Response.Code, e.cfLog.Method, e.cfLog.Path,
 			e.cfLog.Upstream.RemoteAddress, blocked, tags)
 		metric_session_details.With(labels).Inc()
 
-		for _,name := range tags {
+		for _, name := range tags {
 			if !isStaticTag(name) {
 				metric_requests_tags.WithLabelValues(name).Inc()
 			}
@@ -473,24 +455,17 @@ func (l promLogger) Start() {
 	}
 }
 
-
-
-
-
-
 //  ___  ___  ___ _____ ___ ___ ___ ___  ___  _
 // | _ \/ _ \/ __|_   _/ __| _ \ __/ __|/ _ \| |
 // |  _/ (_) \__ \ | || (_ |   / _|\__ \ (_) | |__
 // |_|  \___/|___/ |_| \___|_|_\___|___/\__\_\____|
 // POSTGRESQL
 
-
 type pgLogger struct {
 	logger
 	host string
-	db     *pgx.Conn
+	db   *pgx.Conn
 }
-
 
 func makeJsonb(v interface{}) *pgtype.JSON {
 	j, err := json.Marshal(v)
@@ -499,7 +474,6 @@ func makeJsonb(v interface{}) *pgtype.JSON {
 	}
 	return &pgtype.JSON{Bytes: j, Status: pgtype.Present}
 }
-
 
 func (l pgLogger) getDB() *pgx.Conn {
 	for l.db == nil || l.db.IsClosed() {
@@ -514,7 +488,6 @@ func (l pgLogger) getDB() *pgx.Conn {
 	}
 	return l.db
 }
-
 
 func (l *pgLogger) InsertEntry(e LogEntry) bool {
 	db := l.getDB() // needed to ensure db cnx is not closed and reopen it if needed
@@ -552,7 +525,6 @@ func (l *pgLogger) InsertEntry(e LogEntry) bool {
 	return true
 }
 
-
 //  ___ _      _   ___ _____ ___ ___ ___ ___   _   ___  ___ _  _
 // | __| |    /_\ / __|_   _|_ _/ __/ __| __| /_\ | _ \/ __| || |
 // | _|| |__ / _ \\__ \ | |  | | (__\__ \ _| / _ \|   / (__| __ |
@@ -561,13 +533,13 @@ func (l *pgLogger) InsertEntry(e LogEntry) bool {
 
 type esLogger struct {
 	logger
-	client     *elasticsearch.Client
+	client *elasticsearch.Client
 }
 
 func (l esLogger) getESClient() *elasticsearch.Client {
 	for l.client == nil {
 		cfg := elasticsearch.Config{
-			Addresses: []string{ l.url },
+			Addresses: []string{l.url},
 		}
 		conn, err := elasticsearch.NewClient(cfg)
 		if err == nil {
@@ -580,8 +552,6 @@ func (l esLogger) getESClient() *elasticsearch.Client {
 	}
 	return l.client
 }
-
-
 
 func (l *esLogger) InsertEntry(e LogEntry) bool {
 	log.Printf("[DEBUG] ES insertion!")
@@ -602,8 +572,6 @@ func (l *esLogger) InsertEntry(e LogEntry) bool {
 	return true
 }
 
-
-
 //  _    ___   ___ ___ _____ _   ___ _  _
 // | |  / _ \ / __/ __|_   _/_\ / __| || |
 // | |_| (_) | (_ \__ \ | |/ _ \\__ \ __ |
@@ -614,12 +582,11 @@ type logstashLogger struct {
 	logger
 }
 
-
 func (l *logstashLogger) InsertEntry(e LogEntry) bool {
 	log.Printf("[DEBUG] LogStash insertion!")
 	j, err := json.Marshal(e.cfLog)
 	if err == nil {
-		_, err := http.Post(l.url, "application/json",  bytes.NewReader(j))
+		_, err := http.Post(l.url, "application/json", bytes.NewReader(j))
 		if err != nil {
 			log.Printf("ERROR: could not POST log entry: %v", err)
 			return false
@@ -631,8 +598,6 @@ func (l *logstashLogger) InsertEntry(e LogEntry) bool {
 	return true
 }
 
-
-
 //  ___ _   _   _ ___ _  _ _____ ___
 // | __| | | | | | __| \| |_   _|   \
 // | _|| |_| |_| | _|| .` | | | | |) |
@@ -642,7 +607,6 @@ func (l *logstashLogger) InsertEntry(e LogEntry) bool {
 type fluentdLogger struct {
 	logger
 }
-
 
 func (l *fluentdLogger) InsertEntry(e LogEntry) bool {
 	log.Printf("[DEBUG] Fluentd insertion!")
@@ -658,18 +622,11 @@ func (l *fluentdLogger) InsertEntry(e LogEntry) bool {
 	return true
 }
 
-
-
-
-
 //   ___ ___ ___  ___     _   ___ ___ ___ ___ ___   _    ___   ___ ___
 //  / __| _ \ _ \/ __|   /_\ / __/ __| __/ __/ __| | |  / _ \ / __/ __|
 // | (_ |   /  _/ (__   / _ \ (_| (__| _|\__ \__ \ | |_| (_) | (_ \__ \
 //  \___|_|_\_|  \___| /_/ \_\___\___|___|___/___/ |____\___/ \___|___/
 // GRPC ACCESS LOGS
-
-
-
 
 func DurationToFloat(d *duration.Duration) float64 {
 	if d != nil {
@@ -690,8 +647,8 @@ func TimestampToRFC3339(d *timestamp.Timestamp) string {
 
 func MapToNameValue(m map[string]string) []NameValue {
 	var res []NameValue
-	for k,v := range m {
-		res = append(res, NameValue{k,v})
+	for k, v := range m {
+		res = append(res, NameValue{k, v})
 	}
 	return res
 }
@@ -751,97 +708,97 @@ func (s grpcServerParams) StreamAccessLogs(x als.AccessLogService_StreamAccessLo
 			// Create canonical curiefense log structure
 
 			cflog := CuriefenseLog{
-				RequestId: req.GetRequestId(),
-				Timestamp: TimestampToRFC3339(common.GetStartTime()),
-				Scheme: req.GetScheme(),
-				Authority: req.GetAuthority(),
-				Port: req.GetPort().GetValue(),
-				Method: req.GetRequestMethod().String(),
-				Path: req.GetPath(),
-				Blocked: curieProxyLog.Blocked,
+				RequestId:   req.GetRequestId(),
+				Timestamp:   TimestampToRFC3339(common.GetStartTime()),
+				Scheme:      req.GetScheme(),
+				Authority:   req.GetAuthority(),
+				Port:        req.GetPort().GetValue(),
+				Method:      req.GetRequestMethod().String(),
+				Path:        req.GetPath(),
+				Blocked:     curieProxyLog.Blocked,
 				BlockReason: curieProxyLog.BlockReason,
-				Tags: curieProxyLog.Tags,
+				Tags:        curieProxyLog.Tags,
 
 				RXTimers: RXTimer{
-						FirstUpstreamByte: DurationToFloat(common.GetTimeToFirstUpstreamRxByte()),
-						LastUpstreamByte: DurationToFloat(common.GetTimeToLastUpstreamRxByte()),
-						LastByte: DurationToFloat(common.GetTimeToLastRxByte()),
+					FirstUpstreamByte: DurationToFloat(common.GetTimeToFirstUpstreamRxByte()),
+					LastUpstreamByte:  DurationToFloat(common.GetTimeToLastUpstreamRxByte()),
+					LastByte:          DurationToFloat(common.GetTimeToLastRxByte()),
 				},
 				TXTimers: TXTimer{
-						FirstUpstreamByte: DurationToFloat(common.GetTimeToFirstUpstreamTxByte()),
-						LastUpstreamByte: DurationToFloat(common.GetTimeToLastUpstreamTxByte()),
-						FirstDownstreamByte: DurationToFloat(common.GetTimeToFirstDownstreamTxByte()),
-						LastDownstreamByte: DurationToFloat(common.GetTimeToLastDownstreamTxByte()),
+					FirstUpstreamByte:   DurationToFloat(common.GetTimeToFirstUpstreamTxByte()),
+					LastUpstreamByte:    DurationToFloat(common.GetTimeToLastUpstreamTxByte()),
+					FirstDownstreamByte: DurationToFloat(common.GetTimeToFirstDownstreamTxByte()),
+					LastDownstreamByte:  DurationToFloat(common.GetTimeToLastDownstreamTxByte()),
 				},
 				Downstream: DownstreamData{
-					ConnectionTermination: respflags.GetDownstreamConnectionTermination(),
-					DirectRemoteAddress: common.GetDownstreamDirectRemoteAddress().GetSocketAddress().GetAddress(),
+					ConnectionTermination:   respflags.GetDownstreamConnectionTermination(),
+					DirectRemoteAddress:     common.GetDownstreamDirectRemoteAddress().GetSocketAddress().GetAddress(),
 					DirectRemoteAddressPort: common.GetDownstreamDirectRemoteAddress().GetSocketAddress().GetPortValue(),
-					LocalAddress: common.GetDownstreamLocalAddress().GetSocketAddress().GetAddress(),
-					LocalAddressPort: common.GetDownstreamLocalAddress().GetSocketAddress().GetPortValue(),
-					ProtocolError: respflags.GetDownstreamProtocolError(),
-					RemoteAddress: common.GetDownstreamRemoteAddress().GetSocketAddress().GetAddress(),
-					RemoteAddressPort: common.GetDownstreamRemoteAddress().GetSocketAddress().GetPortValue(),
+					LocalAddress:            common.GetDownstreamLocalAddress().GetSocketAddress().GetAddress(),
+					LocalAddressPort:        common.GetDownstreamLocalAddress().GetSocketAddress().GetPortValue(),
+					ProtocolError:           respflags.GetDownstreamProtocolError(),
+					RemoteAddress:           common.GetDownstreamRemoteAddress().GetSocketAddress().GetAddress(),
+					RemoteAddressPort:       common.GetDownstreamRemoteAddress().GetSocketAddress().GetPortValue(),
 				},
 				Upstream: UpstreamData{
-					Cluster: common.GetUpstreamCluster(),
-					ConnectionFailure: respflags.GetUpstreamConnectionFailure(),
-					ConnectionTermination: respflags.GetUpstreamConnectionTermination(),
-					LocalAddress: common.GetUpstreamLocalAddress().GetSocketAddress().GetAddress(),
-					LocalAddressPort: common.GetUpstreamLocalAddress().GetSocketAddress().GetPortValue(),
-					Overflow: respflags.GetUpstreamOverflow(),
-					RemoteAddress: common.GetUpstreamRemoteAddress().GetSocketAddress().GetAddress(),
-					RemoteAddressPort: common.GetUpstreamRemoteAddress().GetSocketAddress().GetPortValue(),
-					RemoteReset: respflags.GetUpstreamRemoteReset(),
-					RequestTimeout: respflags.GetUpstreamRequestTimeout(),
-					RetryLimitExceeded: respflags.GetUpstreamRetryLimitExceeded(),
+					Cluster:                common.GetUpstreamCluster(),
+					ConnectionFailure:      respflags.GetUpstreamConnectionFailure(),
+					ConnectionTermination:  respflags.GetUpstreamConnectionTermination(),
+					LocalAddress:           common.GetUpstreamLocalAddress().GetSocketAddress().GetAddress(),
+					LocalAddressPort:       common.GetUpstreamLocalAddress().GetSocketAddress().GetPortValue(),
+					Overflow:               respflags.GetUpstreamOverflow(),
+					RemoteAddress:          common.GetUpstreamRemoteAddress().GetSocketAddress().GetAddress(),
+					RemoteAddressPort:      common.GetUpstreamRemoteAddress().GetSocketAddress().GetPortValue(),
+					RemoteReset:            respflags.GetUpstreamRemoteReset(),
+					RequestTimeout:         respflags.GetUpstreamRequestTimeout(),
+					RetryLimitExceeded:     respflags.GetUpstreamRetryLimitExceeded(),
 					TransportFailureReason: common.GetUpstreamTransportFailureReason(),
 				},
 				TLS: TLSData{
 					LocalCertificate: CertificateData{
-						Properties: tls.GetLocalCertificateProperties().GetSubject(),
+						Properties:         tls.GetLocalCertificateProperties().GetSubject(),
 						PropertiesAltNames: lan,
 					},
 					PeerCertificate: CertificateData{
-						Properties: tls.GetPeerCertificateProperties().GetSubject(),
+						Properties:         tls.GetPeerCertificateProperties().GetSubject(),
 						PropertiesAltNames: pan,
 					},
 					CipherSuite: tls.GetTlsCipherSuite().String(),
-					SessionId: tls.GetTlsSessionId(),
+					SessionId:   tls.GetTlsSessionId(),
 					SNIHostname: tls.GetTlsSniHostname(),
-					Version: tls.GetTlsVersion().String(),
+					Version:     tls.GetTlsVersion().String(),
 				},
 				Request: RequestData{
-					BodyBytes: req.GetRequestBodyBytes(),
+					BodyBytes:    req.GetRequestBodyBytes(),
 					HeadersBytes: req.GetRequestHeadersBytes(),
 					OriginalPath: req.GetOriginalPath(),
-					Headers: curieProxyLog.Headers,
-					Cookies: curieProxyLog.Cookies,
-					Arguments:  curieProxyLog.Arguments,
-					Attributes: curieProxyLog.Attributes,
+					Headers:      curieProxyLog.Headers,
+					Cookies:      curieProxyLog.Cookies,
+					Arguments:    curieProxyLog.Arguments,
+					Attributes:   curieProxyLog.Attributes,
 				},
 				Response: ResponseData{
-					BodyBytes: resp.GetResponseBodyBytes(),
-					Code: int(resp.GetResponseCode().GetValue()),
-					CodeDetails: resp.GetResponseCodeDetails(),
-					Headers: resp.GetResponseHeaders(),
+					BodyBytes:    resp.GetResponseBodyBytes(),
+					Code:         int(resp.GetResponseCode().GetValue()),
+					CodeDetails:  resp.GetResponseCodeDetails(),
+					Headers:      resp.GetResponseHeaders(),
 					HeadersBytes: resp.GetResponseHeadersBytes(),
-					Trailers: resp.GetResponseTrailers(),
+					Trailers:     resp.GetResponseTrailers(),
 				},
 				Metadata: MetadataData{
-					DelayInjected: respflags.GetDelayInjected(),
-					FailedLocalHealthCheck: respflags.GetFailedLocalHealthcheck(),
-					FaultInjected: respflags.GetFaultInjected(),
+					DelayInjected:              respflags.GetDelayInjected(),
+					FailedLocalHealthCheck:     respflags.GetFailedLocalHealthcheck(),
+					FaultInjected:              respflags.GetFaultInjected(),
 					InvalidEnvoyRequestHeaders: respflags.GetInvalidEnvoyRequestHeaders(),
-					LocalReset: respflags.GetLocalReset(),
-					NoHealthyUpstream: respflags.GetNoHealthyUpstream(),
-					NoRouteFound: respflags.GetNoRouteFound(),
-					RateLimited: respflags.GetRateLimited(),
-					RateLimitServiceError: respflags.GetRateLimitServiceError(),
-					RouteName: common.GetRouteName(),
-					SampleRate: common.GetSampleRate(),
-					StreamIdleTimeout: respflags.GetStreamIdleTimeout(),
-					UnauthorizedDetails: respflags.GetUnauthorizedDetails().GetReason().String(),
+					LocalReset:                 respflags.GetLocalReset(),
+					NoHealthyUpstream:          respflags.GetNoHealthyUpstream(),
+					NoRouteFound:               respflags.GetNoRouteFound(),
+					RateLimited:                respflags.GetRateLimited(),
+					RateLimitServiceError:      respflags.GetRateLimitServiceError(),
+					RouteName:                  common.GetRouteName(),
+					SampleRate:                 common.GetSampleRate(),
+					StreamIdleTimeout:          respflags.GetStreamIdleTimeout(),
+					UnauthorizedDetails:        respflags.GetUnauthorizedDetails().GetReason().String(),
 				},
 			}
 
@@ -851,12 +808,12 @@ func (s grpcServerParams) StreamAccessLogs(x als.AccessLogService_StreamAccessLo
 			log.Printf("[DEBUG] cflog=%v", cflog)
 
 			log_entry := LogEntry{
-				fullEntry:	entry,
-				cfLog:		&cflog,
-				curieProxyLog:  &curieProxyLog,
+				fullEntry:     entry,
+				cfLog:         &cflog,
+				curieProxyLog: &curieProxyLog,
 			}
 
-			for _,l := range s.loggers {
+			for _, l := range s.loggers {
 				l.SendEntry(log_entry)
 			}
 		}
@@ -864,16 +821,11 @@ func (s grpcServerParams) StreamAccessLogs(x als.AccessLogService_StreamAccessLo
 	return nil
 }
 
-
-
-
 //  __  __   _   ___ _  _
 // |  \/  | /_\ |_ _| \| |
 // | |\/| |/ _ \ | || .` |
 // |_|  |_/_/ \_\___|_|\_|
 // MAIN
-
-
 
 func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
@@ -886,7 +838,6 @@ func check_env_flag(env_var string) bool {
 	value, ok := os.LookupEnv(env_var)
 	return ok && value != "" && value != "0" && strings.ToLower(value) != "false"
 }
-
 
 func readPassword(filename string) string {
 	file, err := os.Open(filename)
@@ -923,20 +874,18 @@ func main() {
 		min_level = "ERROR"
 	}
 	filter := &logutils.LevelFilter{
-		Levels: []logutils.LogLevel{"DEBUG", "ERROR"},
+		Levels:   []logutils.LogLevel{"DEBUG", "ERROR"},
 		MinLevel: logutils.LogLevel(min_level),
-		Writer: os.Stderr,
+		Writer:   os.Stderr,
 	}
 	log.SetOutput(filter)
 
 	log.Printf("[INFO] Channel capacity set at %v", *channel_capacity)
 
-
 	// set up prometheus server
 	http.Handle("/metrics", promhttp.Handler())
 	log.Printf("Prometheus exporter listening on %v", prom_addr)
 	go http.ListenAndServe(prom_addr, nil)
-
 
 	////////////////////
 	// set up loggers //
@@ -945,8 +894,8 @@ func main() {
 	var loggers []Logger
 
 	// Prometheus
-	prom := promLogger{logger{name:"prometheus", channel: make(chan LogEntry, *channel_capacity)}}
-	prom.do_insert = prom.InsertEntry  // manual OOP :( thanks Go.
+	prom := promLogger{logger{name: "prometheus", channel: make(chan LogEntry, *channel_capacity)}}
+	prom.do_insert = prom.InsertEntry // manual OOP :( thanks Go.
 	loggers = append(loggers, &prom)
 
 	// PostgreSQL
@@ -972,15 +921,15 @@ func main() {
 			re := regexp.MustCompile(`host=([^ ]+)`)
 			host = re.FindStringSubmatch(db_url)[1]
 		}
-		pg := pgLogger{ logger:logger{name: "postgres", url:db_url, channel: make(chan LogEntry, *channel_capacity)} , host: host }
-		pg.do_insert = pg.InsertEntry  // manual OOP :( thanks Go.
+		pg := pgLogger{logger: logger{name: "postgres", url: db_url, channel: make(chan LogEntry, *channel_capacity)}, host: host}
+		pg.do_insert = pg.InsertEntry // manual OOP :( thanks Go.
 		loggers = append(loggers, &pg)
 	}
 
 	// ElasticSearch
 	if check_env_flag("CURIELOGGER_USES_ELASTICSEARCH") {
 		es := esLogger{}
-		es.do_insert = es.InsertEntry  // manual OOP :( thanks Go.
+		es.do_insert = es.InsertEntry // manual OOP :( thanks Go.
 		es.ConfigureFromEnv("ElasticSearch", "CURIELOGGER_ELASTICSEARCH_URL", *channel_capacity)
 		loggers = append(loggers, &es)
 	}
@@ -988,21 +937,20 @@ func main() {
 	// Logstash
 	if check_env_flag("CURIELOGGER_USES_LOGSTASH") {
 		ls := logstashLogger{}
-		ls.do_insert = ls.InsertEntry  // manual OOP :( thanks Go.
-		ls.ConfigureFromEnv("LogStash","CURIELOGGER_LOGSTASH_URL", *channel_capacity)
+		ls.do_insert = ls.InsertEntry // manual OOP :( thanks Go.
+		ls.ConfigureFromEnv("LogStash", "CURIELOGGER_LOGSTASH_URL", *channel_capacity)
 		loggers = append(loggers, &ls)
 	}
 
 	// Fluentd
 	if check_env_flag("CURIELOGGER_USES_FLUENTD") {
 		fd := fluentdLogger{}
-		fd.do_insert = fd.InsertEntry  // manual OOP :( thanks Go.
+		fd.do_insert = fd.InsertEntry // manual OOP :( thanks Go.
 		fd.ConfigureFromEnv("Fluentd", "CURIELOGGER_FLUENTD_URL", *channel_capacity)
 		loggers = append(loggers, &fd)
 	}
 
-
-	for _,l := range loggers {
+	for _, l := range loggers {
 		go l.Start()
 	}
 
@@ -1017,7 +965,7 @@ func main() {
 	log.Printf("GRPC server listening on %v", grpc_addr)
 	s := grpc.NewServer()
 
-	als.RegisterAccessLogServiceServer(s, &grpcServerParams{loggers:loggers})
+	als.RegisterAccessLogServiceServer(s, &grpcServerParams{loggers: loggers})
 	if err := s.Serve(sock); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
