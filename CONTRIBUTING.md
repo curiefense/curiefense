@@ -2,9 +2,7 @@
 
 # 💬 Communication
 
-* ⚠️ **Before starting work on a major feature**, please reach out to us via [GitHub Discussions](https://github.com/curiefense/curiefense/discussions/categories/q-a), [Twitter DM](https://twitter.com/messages/compose?recipient_id=1321123258993938435),
-  or community@curiefense.io. We will make sure no one else is already working on it and ask you to open a
-  GitHub issue.
+* ⚠️ **Before starting work on a major feature**, please reach out to us via [GitHub Issues](https://github.com/curiefense/curiefense/issues/new?assignees=&labels=&template=feature_request.md&title=) or [ Discussions](https://github.com/curiefense/curiefense/discussions/categories/q-a). We will make sure no one else is already working on it.
 
 * Small patches and bug fixes don't need prior communication.
 
@@ -15,8 +13,6 @@
 * Create your PR. 
 
 * Tests will automatically run for you.
-
-* We will **NOT** merge any PR that is not passing tests.
 
 * PRs are expected to have 100% test coverage for added code. This can be verified with a coverage
   build. If your PR cannot have 100% coverage for some reason please clearly explain why when you
