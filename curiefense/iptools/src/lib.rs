@@ -2,6 +2,8 @@
 extern crate mlua_derive;
 
 use mlua::prelude::*;
+use mlua_serde;
+
 use cidr::AnyIpCidr;
 use std::str::FromStr;
 use std::cmp::Ordering;
@@ -28,6 +30,7 @@ enum GeoIPError {
 
 
 struct GeoIP {
+    city_db: Option<maxminddb::Reader<Vec<u8>>>,
     country_db: Option<maxminddb::Reader<Vec<u8>>>,
     asn_db:    Option<maxminddb::Reader<Vec<u8>>>,
 }
@@ -36,8 +39,16 @@ struct GeoIP {
 impl GeoIP {
     fn new() -> GeoIP {
         GeoIP {
+            city_db: None,
             country_db: None,
             asn_db: None,
+        }
+    }
+
+    fn load_city(&mut self, pth: &std::path::Path) -> Result<(), GeoIPError> {
+        match maxminddb::Reader::open_readfile(pth) {
+            Ok(db) => { self.city_db = Some(db); Ok(()) },
+            Err(x) => Err(GeoIPError::MMError(x)),
         }
     }
 
@@ -111,6 +122,22 @@ impl GeoIP {
                 }
         }
     }
+
+    fn lookup_city(&self, ip_str: String) -> Result<Option<geoip2::City>, GeoIPError> {
+        match &self.city_db {
+            None => Err(GeoIPError::DBNotLoadedError),
+            Some(db) =>
+                match FromStr::from_str(&ip_str) {
+                    Err(x) => Err(GeoIPError::AddrParseError(x)),
+                    Ok(ip) => {
+                        match db.lookup(ip) {
+                            Err(x) => Err(GeoIPError::LookupError(x)),
+                            Ok(res) => Ok(res)
+                        }
+                    }
+                }
+        }
+    }
 }
 
 
@@ -132,6 +159,14 @@ impl mlua::UserData for GeoIP {
         methods.add_method_mut("load_country_db",
                                |_, this:&mut GeoIP, pth:String| {
                                    match this.load_country(std::path::Path::new(&pth)) {
+                                       Ok(_) => Ok(true),
+                                       Err(_) => Ok(false),
+                                   }
+                               }
+        );
+        methods.add_method_mut("load_city_db",
+                               |_, this:&mut GeoIP, pth:String| {
+                                   match this.load_city(std::path::Path::new(&pth)) {
                                        Ok(_) => Ok(true),
                                        Err(_) => Ok(false),
                                    }
@@ -161,6 +196,21 @@ impl mlua::UserData for GeoIP {
                                    _ => {}
                                }
                                Ok(mlua::MultiValue::from_vec(res))
+                           }
+        );
+        methods.add_method("lookup_city",
+                           |lua: &Lua, this:&GeoIP, value:String| {
+                               match this.lookup_city(value) {
+                                   Ok(Some(city)) => {
+                                       // Unlike for other lookup steps,
+                                       // we are returning the whole City object.
+                                       // We may want to do the same for Country
+                                       // and ASN lookups.
+                                       let value = mlua_serde::to_value(lua, &city).unwrap();
+                                        Ok(Some(value))
+                                   },
+                                   _ => { Ok(None) }
+                               }
                            }
         );
     }
