@@ -68,6 +68,7 @@
             </div>
             <div class="field">
               <response-action :object-with-action.sync="selectedDoc"
+                               ignore="ban"
                                label-separated-line
                                wide-columns
                                is-single-input-column/>

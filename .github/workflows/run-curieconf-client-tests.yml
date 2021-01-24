@@ -21,4 +21,4 @@ jobs:
       - name: Run unit tests
         run: |
           cd "$GITHUB_WORKSPACE/curiefense/ui"
-          npm run test-coverage:unit
+          npm run coverage
