@@ -33,13 +33,15 @@ local iptools = require ("iptools")
 local mmdb = iptools.new_geoipdb()
 
 mmdb:load_asn_db("/config/current/config/maxmind/GeoLite2-ASN.mmdb")
+mmdb:load_city_db("/config/current/config/maxmind/GeoLite2-City.mmdb")
 mmdb:load_country_db("/config/current/config/maxmind/GeoLite2-Country.mmdb")
 
 function ipinfo(ip, handle)
+    local city = mmdb:lookup_city(ip)
     local country, iso = mmdb:lookup_country(ip)
     local asn, org = mmdb:lookup_asn(ip)
     return {
-        country, asn, org, iso
+        city, country, iso, asn, org
     }
 end
 

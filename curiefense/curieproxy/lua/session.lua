@@ -115,7 +115,7 @@ function map_tags(request_map, urlmap_name, urlmapentry_name, acl_id, acl_name, 
         urlmap_name,
         urlmapentry_name,
         sfmt("ip:%s", request_map.attrs.ip),
-        sfmt("geo:%s", request_map.attrs.country),
+        sfmt("geo:%s", request_map.attrs.country.name),
         sfmt("asn:%s", request_map.attrs.asn)
     })
 

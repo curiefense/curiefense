@@ -15,11 +15,13 @@ DOCUMENTS_PATH = {
 BLOBS_PATH = {
     "geolite2asn": "config/maxmind/GeoLite2-ASN.mmdb",
     "geolite2country": "config/maxmind/GeoLite2-Country.mmdb",
+    "geolite2city": "config/maxmind/GeoLite2-City.mmdb",
 }
 
 BLOBS_BOOTSTRAP = {
     "geolite2asn"     : b"",
     "geolite2country" : b"",
+    "geolite2city" : b"",
 }
 
 def jblob2bytes(jblob):

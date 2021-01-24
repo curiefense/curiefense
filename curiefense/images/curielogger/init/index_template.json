@@ -110,6 +110,11 @@
         },
         "request": {
           "properties": {
+            "geo": {
+              "type": "geo_point",
+              "ignore_malformed": true,
+              "ignore_z_value": true
+            },
             "arguments": {
               "type": "flattened"
             },

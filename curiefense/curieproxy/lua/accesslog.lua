@@ -13,6 +13,7 @@ function log_request(request_map)
   -- handle is userData which is not serilizable
   local request_handle = request_map.handle
   local entries = {
+  	["geo"] 	= "geo",
   	["headers"] = "headers",
   	["cookies"] = "cookies",
   	["args"] 	= "arguments",

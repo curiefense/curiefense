@@ -50,6 +50,7 @@ import (
 type CurieProxyLog struct {
 	Headers     map[string]string      `json:"headers"`
 	Cookies     map[string]string      `json:"cookies"`
+	Geo         map[string]float64     `json:"geo"`
 	Arguments   map[string]string      `json:"arguments"`
 	Attributes  map[string]interface{} `json:"attributes"`
 	Blocked     bool                   `json:"blocked"`
@@ -122,6 +123,7 @@ type RequestData struct {
 	Headers      map[string]string      `json:"headers"`
 	Cookies      map[string]string      `json:"cookies"`
 	Arguments    map[string]string      `json:"arguments"`
+	Geo          map[string]float64     `json:"geo"`
 	Attributes   map[string]interface{} `json:"attributes"`
 }
 
@@ -664,7 +666,6 @@ func (s grpcServerParams) StreamAccessLogs(x als.AccessLogService_StreamAccessLo
 		for _, entry := range http_entries {
 
 			common := entry.GetCommonProperties()
-
 			// Decode curiefense metadata
 
 			curiefense_meta, got_meta := common.GetMetadata().GetFilterMetadata()["com.reblaze.curiefense"]
@@ -676,6 +677,7 @@ func (s grpcServerParams) StreamAccessLogs(x als.AccessLogService_StreamAccessLo
 			var curieProxyLog CurieProxyLog
 
 			cfm := curiefense_meta.GetFields()
+			log.Printf("%v", cfm)
 			if rqinfo_s, ok := cfm["request.info"]; ok {
 				curiefense_json_string := rqinfo_s.GetStringValue()
 				err := json.Unmarshal([]byte(curiefense_json_string), &curieProxyLog)
@@ -775,6 +777,7 @@ func (s grpcServerParams) StreamAccessLogs(x als.AccessLogService_StreamAccessLo
 					Headers:      curieProxyLog.Headers,
 					Cookies:      curieProxyLog.Cookies,
 					Arguments:    curieProxyLog.Arguments,
+					Geo:          curieProxyLog.Geo,
 					Attributes:   curieProxyLog.Attributes,
 				},
 				Response: ResponseData{
