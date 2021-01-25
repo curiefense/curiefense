@@ -9,7 +9,7 @@
         <li v-for="(menuItemDetails, menuItemKey) in sectionItems" :key="menuItemKey" class="section-item">
           <a v-if="menuItemDetails.external"
              :data-curie="menuItemKey"
-             :href="menuItemKey"
+             :href="menuItemDetails.url"
              target="_blank">
             {{ menuItemDetails.title }}
           </a>
@@ -37,16 +37,18 @@
 </template>
 
 <script>
+import RequestsUtils from '@/assets/RequestsUtils'
+
 export default {
   name: 'SideMenu',
   data() {
     const swaggerURL = `${location.protocol}//${location.hostname}:30000/api/v1/`
-    const kibanaURL = `${location.protocol}//${location.hostname}:5601/app/discover`
-    const grafanaURL = `${location.protocol}//${location.hostname}:30300/`
 
     return {
+      defaultKibanaURL: `${location.protocol}//${location.hostname}:5601/app/discover`,
+      defaultGrafanaURL: `${location.protocol}//${location.hostname}:30300/`,
       menuItems: {
-        Settings: {
+        settings: {
           '/config': {
             title: 'Policies & Rules',
             items: {
@@ -59,29 +61,33 @@ export default {
           '/publish': {
             title: 'Publish Changes'
           },
-          [swaggerURL]: {
+          'swagger': {
             title: 'API',
+            url: swaggerURL,
             external: true
           },
         },
-        Analytics: {
-          [kibanaURL]: {
+        analytics: {
+          'kibana': {
             title: 'Access Log (ELK)',
+            url: this.defaultKibanaURL,
             external: true
           },
-          [grafanaURL]: {
+          'grafana': {
             title: 'Grafana',
+            url: this.defaultGrafanaURL,
             external: true
-          },
+          }
         },
-        Git: {
+        git: {
           '/versioncontrol': {
             title: 'Version Control'
           },
         },
-        Docs: {
-          'https://docs.curiefense.io/': {
+        docs: {
+          'curiebook': {
             title: 'Curiebook',
+            url: 'https://docs.curiefense.io/',
             external: true
           },
         }
@@ -93,7 +99,26 @@ export default {
       return this.$route.path
     }
   },
-  methods: {},
+  methods: {
+    async loadLinksFromDB() {
+      const systemDBData = (await RequestsUtils.sendRequest('GET', `db/system/`)).data
+      const kibanaURL = systemDBData?.links?.kibaba_url ? systemDBData.links.kibaba_url : this.defaultKibanaURL
+      const grafanaURL = systemDBData?.links?.grafana_url ? systemDBData.links.grafana_url : this.defaultGrafanaURL
+      this.menuItems.analytics.kibana = {
+        title: 'Access Log (ELK)',
+        url: kibanaURL,
+        external: true
+      }
+      this.menuItems.analytics.grafana = {
+        title: 'Grafana',
+        url: grafanaURL,
+        external: true
+      }
+    }
+  },
+  mounted() {
+    this.loadLinksFromDB()
+  }
 }
 </script>
 <style scoped lang="scss">
