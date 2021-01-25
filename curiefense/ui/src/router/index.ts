@@ -6,7 +6,7 @@ import VueAxios from 'vue-axios'
 
 import _ from 'lodash'
 
-import DatasetsUtils from '@/assets/DatasetsUtils.js'
+import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import ip6addr from 'ip6addr'
 import MasterComponent from '@/views/MasterComponent.vue'
 import DocumentEditor from '@/views/DocumentEditor.vue'

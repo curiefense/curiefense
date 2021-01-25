@@ -181,8 +181,8 @@
 
 <script>
 
-import DatasetsUtils from '@/assets/DatasetsUtils.js'
-import Utils from '@/assets/Utils.js'
+import DatasetsUtils from '@/assets/DatasetsUtils.ts'
+import Utils from '@/assets/Utils.ts'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
 import WAFEditor from '@/doc-editors/WAFEditor.vue'
 import WAFSigsEditor from '@/doc-editors/WAFSigsEditor.vue'

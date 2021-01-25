@@ -6,7 +6,7 @@ import * as bulmaToast from 'bulma-toast'
 jest.mock('axios')
 import axios from 'axios'
 
-describe('RequestsUtils.js', () => {
+describe('RequestsUtils.ts', () => {
     let getSpy
     let putSpy
     let postSpy

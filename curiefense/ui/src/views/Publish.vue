@@ -116,7 +116,7 @@
 
 <script>
 
-import DatasetsUtils from '@/assets/DatasetsUtils.js'
+import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import RequestsUtils from '@/assets/RequestsUtils'
 import { mdiBucket } from '@mdi/js'
 

@@ -1,8 +1,8 @@
 module.exports = {
-    moduleFileExtensions: ['js', 'jsx', 'json', 'vue'],
+    moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'vue'],
     transform: {
         '^.+\\.vue$': 'vue-jest',
-        '^.+\\.(js|jsx)?$': 'babel-jest'
+        '^.+\\.[jt]sx?$': 'babel-jest'
     },
     moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
@@ -11,7 +11,7 @@ module.exports = {
     testMatch: [
         '<rootDir>/**/*.spec.(js|jsx|ts|tsx)'
     ],
-    setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+    setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
     transformIgnorePatterns: ['<rootDir>/node_modules/'],
     coverageThreshold: {
         global: {

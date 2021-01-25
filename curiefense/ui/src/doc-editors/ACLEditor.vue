@@ -76,7 +76,7 @@
 
 <script>
 
-import DatasetsUtils from '@/assets/DatasetsUtils.js'
+import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput'
 
 export default {

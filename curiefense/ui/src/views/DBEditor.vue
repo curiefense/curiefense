@@ -238,8 +238,8 @@
 
 <script>
 
-import DatasetsUtils from '@/assets/DatasetsUtils.js'
-import Utils from '@/assets/Utils.js'
+import DatasetsUtils from '@/assets/DatasetsUtils.ts'
+import Utils from '@/assets/Utils.ts'
 import GitHistory from '@/components/GitHistory'
 import RequestsUtils from '@/assets/RequestsUtils'
 import JSONEditor from 'jsoneditor'

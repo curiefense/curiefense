@@ -6,8 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "test": "jest",
-    "coverage": "jest --collect-coverage"
+    "coverage": "jest --collect-coverage",
+    "test": "jest"
   },
   "dependencies": {
     "@mdi/font": "^5.8.55",
@@ -22,8 +22,10 @@
     "lodash": "^4.17.20",
     "vue": "^2.6.11",
     "vue-axios": "^2.1.5",
+    "vue-class-component": "^7.2.3",
     "vue-cli": "^2.9.6",
     "vue-lodash": "^2.1.2",
+    "vue-property-decorator": "^9.1.2",
     "vue-router": "^3.3.2",
     "vuex": "^3.4.0"
   },
@@ -31,10 +33,14 @@
     "@babel/core": "^7.12.3",
     "@babel/preset-env": "^7.12.1",
     "@testing-library/jest-dom": "^5.11.5",
+    "@typescript-eslint/eslint-plugin": "^2.26.0",
+    "@typescript-eslint/parser": "^2.26.0",
     "@vue/cli-plugin-babel": "~4.3.0",
     "@vue/cli-plugin-eslint": "~4.3.0",
     "@vue/cli-plugin-router": "~4.3.0",
+    "@vue/cli-plugin-typescript": "^4.5.11",
     "@vue/cli-service": "~4.3.0",
+    "@vue/eslint-config-typescript": "^5.0.2",
     "@vue/test-utils": "^1.1.1",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.1.0",
@@ -44,6 +50,8 @@
     "jest": "^26.6.3",
     "sass": "^1.30.0",
     "sass-loader": "^10.1.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^3.9.7",
     "vue-jest": "^3.0.7",
     "vue-template-compiler": "^2.6.11",
     "webpack": "^4.44.2"
@@ -55,10 +63,11 @@
     },
     "extends": [
       "plugin:vue/essential",
-      "eslint:recommended"
+      "eslint:recommended",
+      "@vue/typescript"
     ],
     "parserOptions": {
-      "parser": "babel-eslint"
+      "parser": "@typescript-eslint/parser"
     },
     "rules": {}
   },
