@@ -15,18 +15,28 @@ function ipinfo(ip, handle)
     }
 end
 
+function inspect(t, level)
+    level = level or ""
+
+    for k, v in pairs(t) do
+        k = level .. "." .. k
+        if (type(v) == "table") then
+            inspect(v, k)
+        else
+            print(k, " ===> ", v)
+        end
+    end
+end
 
 
 a, b = mmdb:lookup_asn("89.160.20.128")
 print("ASN ===>", a, b)
 
-a, b = mmdb:lookup_country("89.160.20.128")
-print("country ===>", a, b)
+country = mmdb:lookup_country("89.160.20.128")
+
+print("Country")
+inspect(country, "country")
 
 city = mmdb:lookup_city("89.160.20.128")
--- print("city ===>", inspect(city))
-for k,v in pairs(city) do
-    for k2, v2 in pairs(v) do
-        print("city ",k,k2," ===> ", v2)
-    end
-end
+print("City")
+inspect(city, "city")

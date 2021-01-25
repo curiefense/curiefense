@@ -87,7 +87,7 @@ impl GeoIP {
                 }
         }
     }
-    fn lookup_country(&self, ip_str: String) -> Result<(Option<String>,Option<String>), GeoIPError> {
+    fn lookup_country(&self, ip_str: String) -> Result<Option<geoip2::Country>, GeoIPError> {
         match &self.country_db {
             None => Err(GeoIPError::DBNotLoadedError),
             Some(db) =>
@@ -96,27 +96,7 @@ impl GeoIP {
                     Ok(ip) => {
                         match db.lookup(ip) {
                             Err(x) => { Err(GeoIPError::LookupError(x)) },
-                            Ok(res) => {
-                                let country: geoip2::Country = res;
-                                let (iso_code,name) = match country.country {
-                                    None => (None,None),
-                                    Some(c) => {
-                                        let iso = match c.iso_code {
-                                            None => None,
-                                            Some(s) => Some(s.to_string()),
-                                        };
-                                        let name = match c.names {
-                                            None => None,
-                                            Some(names) => match names.get(&"en") {
-                                                None => None,
-                                                Some(n) => Some(n.to_string())
-                                            }
-                                        };
-                                        (iso,name)
-                                    }
-                                };
-                                Ok((iso_code,name))
-                            }
+                            Ok(res) => Ok(res)
                         }
                     }
                 }
@@ -187,15 +167,16 @@ impl mlua::UserData for GeoIP {
         );
         methods.add_method("lookup_country",
                            |lua: &Lua, this:&GeoIP, value:String| {
-                               let mut res = Vec::new();
                                match this.lookup_country(value) {
-                                   Ok((iso,name)) => {
-                                       res.push(iso.to_lua(lua).unwrap());
-                                       res.push(name.to_lua(lua).unwrap());
+                                   Ok(Some(country)) => {
+                                       // Unlike for other lookup steps,
+                                       // we are returning the whole City object.
+                                       // We may want to do the same for ASN the lookup.
+                                       let value = mlua_serde::to_value(lua, &country).unwrap();
+                                        Ok(Some(value))
                                    },
-                                   _ => {}
+                                   _ => { Ok(None) }
                                }
-                               Ok(mlua::MultiValue::from_vec(res))
                            }
         );
         methods.add_method("lookup_city",
@@ -204,8 +185,7 @@ impl mlua::UserData for GeoIP {
                                    Ok(Some(city)) => {
                                        // Unlike for other lookup steps,
                                        // we are returning the whole City object.
-                                       // We may want to do the same for Country
-                                       // and ASN lookups.
+                                       // We may want to do the same for ASN the lookup.
                                        let value = mlua_serde::to_value(lua, &city).unwrap();
                                         Ok(Some(value))
                                    },

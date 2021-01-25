@@ -134,18 +134,13 @@ function map_ip(headers, metadata, map)
     map.attrs.remote_addr = client_addr
     map.attrs.ipnum = ip_to_num(client_addr)
 
-    local city, country, iso, asn, company = unpack(ipinfo(client_addr, map.handle))
+    local city, country, asn, company = unpack(ipinfo(client_addr, map.handle))
 
+    map.attrs.city = {}
     map.attrs.country = {}
+    map.attrs.continent = {}
 
     if city then
-        map.attrs.city = {}
-
-        -- Use the data from the City database
-        -- if there was a match.
-        map.attrs.country.iso = city.country.iso_code
-        map.attrs.country.name = city.country.names.en
-
         map.attrs.city.name = city.city.names.en
         map.attrs.location = city.location
 
@@ -153,11 +148,17 @@ function map_ip(headers, metadata, map)
         -- expected by Elasticsearch's geo_ip field type
         map.geo.lat = city.location.latitude
         map.geo.lon = city.location.longitude
-    elseif country then
+    end
+
+    if country then
         -- We do this in case the City database
         -- didn't return any results for this ip
-        map.attrs.country.name = country
-        map.attrs.country.iso = iso
+        map.attrs.country.eu = country.country.is_in_european_union
+        map.attrs.country.name = country.country.names.en
+        map.attrs.country.iso = country.country.iso_code
+
+        map.attrs.continent.name = country.continent.names.en
+        map.attrs.continent.code = country.continent.code
     end
 
     if asn then
