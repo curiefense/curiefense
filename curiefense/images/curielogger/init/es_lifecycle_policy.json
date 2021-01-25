@@ -5,7 +5,7 @@
         "actions": {
           "rollover" : {
             "max_age": "1d",
-            "max_size": "100GB",
+            "max_size": "50GB",
             "max_docs": 10000000
           }
         }
