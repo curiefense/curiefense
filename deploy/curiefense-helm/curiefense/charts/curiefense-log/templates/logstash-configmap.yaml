@@ -18,6 +18,12 @@ data:
         elasticsearch {
             hosts => "{{ .Values.global.settings.curiefense_es_hosts }}"
             index => "${CURIEFENSE_ES_INDEX_NAME:curieaccesslog}"
+            # Action create is required for data streams which are,
+            # by definition, an append only type of index. Only
+            # a create op_type is supported when using data streams.
+            # This works fine under environments that don't use
+            # data streams.
+            action => "create"
         }
     }
 {{- end }}
