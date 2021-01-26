@@ -293,10 +293,6 @@ volumes:
 secrets:
   s3cfg:
     file: "curiesecrets/s3cfg"
-#  gc:
-#    file: "${CURIESECRETS}/gcloud"
-#  azr:
-#    file: "${CURIESECRETS}/azr"
 
   uisslcrt:
     file: "curiesecrets/uiserver_ssl/ui.crt"
