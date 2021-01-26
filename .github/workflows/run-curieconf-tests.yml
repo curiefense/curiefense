@@ -1,5 +1,5 @@
 name: Run curieconf Python tests
-on: [push, pull_request]
+on: [push, pull_request_target]
 
 jobs:
   build:
@@ -7,6 +7,12 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8]
+
+    # always run on push events, but only run on pull_request_target event when pull request pulls from fork repository
+    # for pull requests within the same repository, the push event is sufficient
+    if: >
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
 
     steps:
       - uses: actions/checkout@v2
