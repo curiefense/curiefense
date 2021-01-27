@@ -1,6 +1,6 @@
-import RequestsUtils from '@/assets/RequestsUtils'
+import RequestsUtils from '../../assets/RequestsUtils'
+import DatasetsUtils from '../../assets/DatasetsUtils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import DatasetsUtils from '@/assets/DatasetsUtils'
 import * as bulmaToast from 'bulma-toast'
 
 jest.mock('axios')
@@ -12,14 +12,10 @@ describe('RequestsUtils.ts', () => {
     let postSpy
     let deleteSpy
     beforeEach(() => {
-        getSpy = jest.spyOn(axios, 'get')
-        axios.get.mockImplementation(() => Promise.resolve())
-        putSpy = jest.spyOn(axios, 'put')
-        axios.put.mockImplementation(() => Promise.resolve())
-        postSpy = jest.spyOn(axios, 'post')
-        axios.post.mockImplementation(() => Promise.resolve())
-        deleteSpy = jest.spyOn(axios, 'delete')
-        axios.delete.mockImplementation(() => Promise.resolve())
+        getSpy = jest.spyOn(axios, 'get').mockImplementation(() => Promise.resolve())
+        putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
+        postSpy = jest.spyOn(axios, 'post').mockImplementation(() => Promise.resolve())
+        deleteSpy = jest.spyOn(axios, 'delete').mockImplementation(() => Promise.resolve())
     })
     afterEach(() => {
         jest.clearAllMocks()
@@ -125,9 +121,11 @@ describe('RequestsUtils.ts', () => {
                 const mockedToast = output => toastOutput.push(output)
                 beforeEach(() => {
                     toastOutput = []
+                    // @ts-ignore
                     bulmaToast.toast = mockedToast
                 })
                 afterEach(() => {
+                    // @ts-ignore
                     bulmaToast.toast = originalToast
                 })
 
@@ -156,7 +154,7 @@ describe('RequestsUtils.ts', () => {
                 })
 
                 test('should send failure toast when GET request is rejected', (done) => {
-                    axios.get.mockImplementationOnce(() => Promise.reject())
+                    (<jest.Mock>axios.get).mockImplementationOnce(() => Promise.reject())
                     requestFunc('GET', urlTrail, null, null, successMessage, failureMessage)
                         .catch(() => {
                             expect(toastOutput[0].message).toContain(failureMessage)
@@ -166,7 +164,7 @@ describe('RequestsUtils.ts', () => {
                 })
 
                 test('should send failure toast when PUT request is rejected', (done) => {
-                    axios.put.mockImplementationOnce(() => Promise.reject())
+                    (<jest.Mock>axios.put).mockImplementationOnce(() => Promise.reject())
                     requestFunc('PUT', urlTrail, dataObject, null, successMessage, failureMessage)
                         .catch(() => {
                             expect(toastOutput[0].message).toContain(failureMessage)
@@ -176,7 +174,7 @@ describe('RequestsUtils.ts', () => {
                 })
 
                 test('should send failure toast when POST request is rejected', (done) => {
-                    axios.post.mockImplementationOnce(() => Promise.reject())
+                    (<jest.Mock>axios.post).mockImplementationOnce(() => Promise.reject())
                     requestFunc('POST', urlTrail, dataObject, null, successMessage, failureMessage)
                         .catch(() => {
                             expect(toastOutput[0].message).toContain(failureMessage)
@@ -186,7 +184,7 @@ describe('RequestsUtils.ts', () => {
                 })
 
                 test('should send failure toast when DELETE request is rejected', (done) => {
-                    axios.delete.mockImplementationOnce(() => Promise.reject())
+                    (<jest.Mock>axios.delete).mockImplementationOnce(() => Promise.reject())
                     requestFunc('DELETE', urlTrail, null, null, successMessage, failureMessage)
                         .catch(() => {
                             expect(toastOutput[0].message).toContain(failureMessage)

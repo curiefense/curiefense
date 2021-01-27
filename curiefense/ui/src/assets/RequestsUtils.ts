@@ -1,23 +1,26 @@
-import axios from 'axios'
+import axios, {AxiosRequestConfig, AxiosResponse} from 'axios'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import * as bulmaToast from 'bulma-toast'
+import {ToastType} from 'bulma-toast'
+
+export type methodNames = 'GET' | 'PUT' | 'POST' | 'DELETE'
 
 const apiRoot = DatasetsUtils.ConfAPIRoot
 const apiVersion = DatasetsUtils.ConfAPIVersion
 const logsApiRoot = DatasetsUtils.LogsAPIRoot
 const logsApiVersion = DatasetsUtils.LogsAPIVersion
-const axiosMethodsMap = {
+const axiosMethodsMap: {[key in methodNames]: any} = {
     'GET': axios.get,
     'PUT': axios.put,
     'POST': axios.post,
     'DELETE': axios.delete,
 }
 
-function toast(message, type) {
+function toast(message: string, type: ToastType) {
     bulmaToast.toast(
         {
             message: message,
-            type: `is-light ${type}`,
+            type: <ToastType>`is-light ${type}`,
             position: 'bottom-left',
             closeOnClick: true,
             pauseOnHover: true,
@@ -27,21 +30,20 @@ function toast(message, type) {
     )
 }
 
-function successToast(message) {
+function successToast(message: string) {
     toast(message, 'is-success')
 }
 
-function failureToast(message) {
+function failureToast(message: string) {
     toast(message, 'is-danger')
 }
 
-function processRequest(methodName, apiUrl, data, config, successMessage, failureMessage) {
-
+function processRequest(methodName: methodNames, apiUrl: string, data: any, config: AxiosRequestConfig, successMessage: string, failureMessage: string) {
     // Get correct axios method
     if (!methodName) {
         methodName = 'GET'
     } else {
-        methodName = methodName.toUpperCase()
+        methodName = <methodNames>methodName.toUpperCase()
     }
     const axiosMethod = axiosMethodsMap[methodName]
     if (!axiosMethod) {
@@ -62,14 +64,14 @@ function processRequest(methodName, apiUrl, data, config, successMessage, failur
         request = axiosMethod(apiUrl)
     }
     request = request
-        .then((response) => {
+        .then((response: AxiosResponse) => {
             // Toast message
             if (successMessage) {
                 successToast(successMessage)
             }
             return response
         })
-        .catch((error) => {
+        .catch((error: Error) => {
             // Toast message
             if (failureMessage) {
                 failureToast(failureMessage)
@@ -79,12 +81,12 @@ function processRequest(methodName, apiUrl, data, config, successMessage, failur
     return request
 }
 
-function sendRequest(methodName, urlTail, data, config, successMessage, failureMessage) {
+function sendRequest(methodName: methodNames, urlTail: string, data: any, config: AxiosRequestConfig, successMessage: string, failureMessage: string) {
     const apiUrl = `${apiRoot}/${apiVersion}/${urlTail}`
     return processRequest(methodName, apiUrl, data, config, successMessage, failureMessage)
 }
 
-function sendLogsRequest(methodName, urlTail, data, config, successMessage, failureMessage) {
+function sendLogsRequest(methodName: methodNames, urlTail: string, data: any, config: AxiosRequestConfig, successMessage: string, failureMessage: string) {
     const apiUrl = `${logsApiRoot}/${logsApiVersion}/${urlTail}`
     return processRequest(methodName, apiUrl, data, config, successMessage, failureMessage)
 }

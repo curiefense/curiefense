@@ -138,15 +138,16 @@
     </div>
   </div>
 </template>
-<script>
 
+<script lang="ts">
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import GitHistory from '@/components/GitHistory'
 import Utils from '@/assets/Utils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
 
   name: 'VersionControl',
   props: {},
@@ -180,15 +181,15 @@ export default {
 
   computed: {
 
-    gitAPIPath() {
+    gitAPIPath(): string {
       return `${this.apiRoot}/${this.apiVersion}/configs/${this.selectedBranch}/v/`
     },
 
-    branchNames() {
+    branchNames(): string[] {
       return this.ld.sortBy(this.ld.map(this.configs, 'id'))
     },
 
-    isSelectedBranchForkNameValid() {
+    isSelectedBranchForkNameValid(): boolean {
       const newName = this.forkBranchName?.trim()
       const isBranchNameEmpty = newName === ''
       const isBranchNameContainsSpaces = newName.includes(' ')
@@ -196,7 +197,7 @@ export default {
       return !isBranchNameEmpty && !isBranchNameDuplicate && !isBranchNameContainsSpaces
     },
 
-    isSelectedBranchDeleteNameValid() {
+    isSelectedBranchDeleteNameValid(): boolean {
       const newName = this.deleteBranchName?.trim()
       return newName === this.selectedBranch
     },
@@ -205,7 +206,7 @@ export default {
 
   methods: {
 
-    resetGitLog() {
+    resetGitLog(): string {
       this.gitLog = []
     },
 
@@ -329,6 +330,5 @@ export default {
     this.loadGitLog()
   }
 
-}
-
+})
 </script>

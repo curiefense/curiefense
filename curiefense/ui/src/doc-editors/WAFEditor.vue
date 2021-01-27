@@ -144,10 +144,10 @@
                                     <div class="select is-small">
                                       <select v-model="newEntry.type">
                                         <option value="names">
-                                          {{ dsutils.Titles.names }}
+                                          {{ titles.names }}
                                         </option>
                                         <option value="regex">
-                                          {{ dsutils.Titles.regex }}
+                                          {{ titles.regex }}
                                         </option>
                                       </select>
                                     </div>
@@ -161,7 +161,7 @@
                                       <input required class="input is-small"
                                              type="text"
                                              v-model="newEntry.key"
-                                             :title="dsutils.Titles.names">
+                                             :title="titles.names">
                                     </div>
                                   </div>
                                 </div>
@@ -174,7 +174,7 @@
                             <input required class="input is-small"
                                    type="text"
                                    v-model="newEntry.reg"
-                                   :title="dsutils.Titles.regex"/>
+                                   :title="titles.regex"/>
                             <span class="icon is-small is-left has-text-grey">
                                   <i class="fas fa-code"></i>
                                 </span>
@@ -207,7 +207,7 @@
                           <div class="field">
                             <p class="control has-icons-left">
                               <input required class="input is-small" type="text" v-model="entry.key"
-                                     :title="dsutils.Titles.names">
+                                     :title="titles.names">
                               <span class="icon is-small is-left has-text-grey">
                                   <i class="fas fa-font"></i>
                                 </span>
@@ -216,7 +216,7 @@
                         <td>
                           <p class="control has-icons-left">
                             <input required class="input is-small" type="text" v-model="entry.reg"
-                                   :title="dsutils.Titles.regex"/>
+                                   :title="titles.regex"/>
                             <span class="icon is-small is-left has-text-grey">
                                   <i class="fas fa-code"></i>
                                 </span>
@@ -253,7 +253,7 @@
                           <div class="field">
                             <p class="control has-icons-left">
                               <input required class="input is-small" type="text" v-model="entry.key"
-                                     :title="dsutils.Titles.regex">
+                                     :title="titles.regex">
                               <span class="icon is-small is-left has-text-grey">
                                   <i class="fas fa-code"></i>
                                 </span>
@@ -263,7 +263,7 @@
                         <td>
                           <p class="control has-icons-left">
                             <input required class="input is-small" type="text" v-model="entry.reg"
-                                   :title="dsutils.Titles.regex"/>
+                                   :title="titles.regex"/>
                             <span class="icon is-small is-left has-text-grey">
                                   <i class="fas fa-code"></i>
                                 </span>
@@ -311,11 +311,12 @@
   </div>
 </template>
 
-<script>
-
+<script lang="ts">
+import DatasetsUtils from '@/assets/DatasetsUtils'
 import SerializedInput from '@/components/SerializedInput'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
   name: 'WAFEditor',
   components: {SerializedInput},
   props: {
@@ -328,6 +329,7 @@ export default {
       tab: 'args',
       newWAFLine: null,
       newEntry: null,
+      titles: DatasetsUtils.Titles,
       defaultNewEntry: {
         type: 'names',
         key: null,
@@ -384,5 +386,5 @@ export default {
       }
     }
   }
-}
+})
 </script>

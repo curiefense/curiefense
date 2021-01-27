@@ -17,16 +17,16 @@
   </div>
 </template>
 
-<script>
-
+<script lang="ts">
 import HeaderMain from '@/components/HeaderMain.vue'
 import SideMenu from '@/components/SideMenu.vue'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
   name: 'MasterComponent',
   components: {HeaderMain, SideMenu},
   methods: {}
-}
+})
 </script>
 <style type="text/css">
 html {

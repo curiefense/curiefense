@@ -106,15 +106,15 @@
   </div>
 </template>
 
-<script>
-
+<script lang="ts">
 import _ from 'lodash'
 import ResponseAction from '@/components/ResponseAction'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput'
 import RequestsUtils from '@/assets/RequestsUtils'
 import EntriesRelationList from '@/components/EntriesRelationList'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
   name: 'ProfilingListEditor',
 
   components: {
@@ -266,7 +266,7 @@ export default {
     },
   }
 
-}
+})
 </script>
 
 <style scoped>

@@ -322,12 +322,12 @@
     </div>
   </div>
 </template>
-<script>
-
+<script lang="ts">
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import RequestsUtils from '@/assets/RequestsUtils'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
   name: 'URLMapsEditor',
 
   props: {
@@ -543,7 +543,7 @@ export default {
   mounted() {
     this.wafacllimitProfileNames()
   }
-}
+})
 </script>
 <style type="text/css" scoped>
 

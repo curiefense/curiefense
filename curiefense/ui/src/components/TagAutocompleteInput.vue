@@ -16,13 +16,13 @@
 
 </template>
 
-<script>
-
+<script lang="ts">
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
 import AutocompleteInput from '@/components/AutocompleteInput'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
   name: 'TagAutocompleteInput',
 
   components: {
@@ -172,7 +172,7 @@ export default {
   created() {
     this.loadAutocompleteSuggestions()
   }
-}
+})
 </script>
 
 <style scoped lang="scss">

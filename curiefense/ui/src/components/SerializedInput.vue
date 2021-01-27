@@ -9,9 +9,10 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
   name: 'SerializedInput',
   props: {
     value: null,
@@ -49,5 +50,5 @@ export default {
       }
     }
   }
-}
+})
 </script>

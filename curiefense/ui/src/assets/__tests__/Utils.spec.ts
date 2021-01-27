@@ -1,4 +1,4 @@
-import Utils from '@/assets/Utils'
+import Utils from '../../assets/Utils'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 
 describe('Utils.ts', () => {

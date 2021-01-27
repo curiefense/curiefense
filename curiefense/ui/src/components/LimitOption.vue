@@ -58,10 +58,11 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import DatasetsUtils from '@/assets/DatasetsUtils'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
   name: 'LimitOption',
   props: {
     label: String,
@@ -142,7 +143,7 @@ export default {
       return (new RegExp('(args|cookies|headers)')).test(category)
     },
   }
-}
+})
 </script>
 <style scoped lang="scss">
 .wide-columns {

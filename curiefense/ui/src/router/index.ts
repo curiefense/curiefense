@@ -6,18 +6,16 @@ import VueAxios from 'vue-axios'
 
 import _ from 'lodash'
 
-import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import ip6addr from 'ip6addr'
 import MasterComponent from '@/views/MasterComponent.vue'
 import DocumentEditor from '@/views/DocumentEditor.vue'
 import DBEditor from '@/views/DBEditor.vue'
 import Publish from '@/views/Publish.vue'
 import AccessLog from '@/views/AccessLog.vue'
-import VersionControl from '@/views/VersionControl'
-import DocumentSearch from '@/views/DocumentSearch'
+import VersionControl from '@/views/VersionControl.vue'
+import DocumentSearch from '@/views/DocumentSearch.vue'
 
 Object.defineProperty(Vue.prototype, 'ld', {value: _})
-Object.defineProperty(Vue.prototype, 'dsutils', {value: DatasetsUtils})
 
 Vue.use(VueRouter)
 Vue.use(VueAxios, axios)

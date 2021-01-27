@@ -131,10 +131,10 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Vue from 'vue'
 
-export default {
+export default Vue.extend({
   name: 'EntriesRelationList',
 
   props: {
@@ -356,7 +356,7 @@ export default {
       this.emitRuleUpdate()
     },
   }
-}
+})
 </script>
 <style scoped lang="scss">
 

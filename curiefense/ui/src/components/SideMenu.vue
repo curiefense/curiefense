@@ -36,10 +36,11 @@
 
 </template>
 
-<script>
+<script lang="ts">
 import RequestsUtils from '@/assets/RequestsUtils'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
   name: 'SideMenu',
   data() {
     const swaggerURL = `${location.protocol}//${location.hostname}:30000/api/v1/`
@@ -119,7 +120,7 @@ export default {
   mounted() {
     this.loadLinksFromDB()
   }
-}
+})
 </script>
 <style scoped lang="scss">
 .menu-item {

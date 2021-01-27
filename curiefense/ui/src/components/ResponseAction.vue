@@ -113,10 +113,11 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import DatasetsUtils from '@/assets/DatasetsUtils'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
   name: 'ResponseAction',
   props: {
     objectWithAction: Object,
@@ -174,7 +175,7 @@ export default {
       this.normalizeAction()
     }
   }
-}
+})
 </script>
 <style scoped lang="scss">
 

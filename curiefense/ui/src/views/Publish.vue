@@ -114,13 +114,14 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import RequestsUtils from '@/assets/RequestsUtils'
-import { mdiBucket } from '@mdi/js'
+import {mdiBucket} from '@mdi/js'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
 
   name: 'Publish',
   props: {},
@@ -346,8 +347,7 @@ export default {
     this.loadPublishInfo()
   }
 
-}
-
+})
 </script>
 
 <style scoped>

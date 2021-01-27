@@ -74,12 +74,12 @@
   </div>
 </template>
 
-<script>
-
+<script lang="ts">
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
   name: 'ACLEditor',
 
   components: {
@@ -159,9 +159,7 @@ export default {
 
   },
 
-}
-
-
+})
 </script>
 
 <style scoped lang="scss">

@@ -216,13 +216,14 @@
   </section>
 </template>
 
-<script>
+<script lang="ts">
 import ResponseAction from '@/components/ResponseAction.vue'
 import LimitOption from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput'
 import DatasetsUtils from '@/assets/DatasetsUtils'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
   name: 'RateLimits',
   props: {
     selectedDoc: Object,
@@ -402,7 +403,7 @@ export default {
       this.normalizeIncludesOrExcludes(newValue, false)
     }
   }
-}
+})
 </script>
 
 <style scoped lang="scss">

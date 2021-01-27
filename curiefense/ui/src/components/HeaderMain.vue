@@ -11,11 +11,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 
 import {version} from '@/../package.json'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
 
   name: 'HeaderMain',
   data() {
@@ -24,7 +25,7 @@ export default {
     }
   }
 
-}
+})
 </script>
 
 <style scoped>

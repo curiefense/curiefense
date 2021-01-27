@@ -130,8 +130,7 @@
   </div>
 </template>
 
-<script>
-
+<script lang="ts">
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
 import WAFEditor from '@/doc-editors/WAFEditor.vue'
 import URLMapsEditor from '@/doc-editors/URLMapsEditor.vue'
@@ -139,8 +138,9 @@ import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import ProfilingListEditor from '@/doc-editors/ProfilingListEditor.vue'
 import FlowControlEditor from '@/doc-editors/FlowControlEditor'
 import RequestsUtils from '@/assets/RequestsUtils'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
 
   name: 'DocumentSearch',
   props: {},
@@ -453,8 +453,7 @@ export default {
     this.setLoadingStatus(false)
   }
 
-}
-
+})
 </script>
 <style scoped>
 .vertical-scroll {

@@ -1,6 +1,6 @@
 // Validates an input based on given validator (Function / Boolean) and adds necessary classes if input is invalid
-const validateInput = (event, validator) => {
-    let className = event.target.className
+const validateInput = (event: Event, validator: Function | boolean) => {
+    let className = (<HTMLElement>event.target)?.className
     let isValid
     className = className.replace(' has-text-danger has-background-danger-light', '')
     if (typeof validator === 'function') {
@@ -11,11 +11,11 @@ const validateInput = (event, validator) => {
     if (!isValid) {
         className += ' has-text-danger has-background-danger-light'
     }
-    event.target.className = className
+    (<HTMLElement>event.target).className = className
 }
 
 // Generates a unique name in a given entities list
-const generateUniqueEntityName = (originalName, entitiesList, isCopy, divider = ' ') => {
+const generateUniqueEntityName = (originalName: string, entitiesList: string[], isCopy?: boolean, divider = ' ') => {
     if (!originalName) {
         originalName = `new${divider}entity`
     }
@@ -34,7 +34,7 @@ const generateUniqueEntityName = (originalName, entitiesList, isCopy, divider = 
 
 // Download data as file
 
-const downloadFile = (fileName, fileType, data) => {
+const downloadFile = (fileName: string, fileType: string, data: any) => {
     // Check if file type can be downloaded
     const recognizedDownloadFileTypes = ['json']
     if (!recognizedDownloadFileTypes.includes(fileType)) {
@@ -42,7 +42,7 @@ const downloadFile = (fileName, fileType, data) => {
         return
     }
     // Create downloadable content based on file type
-    let content = null
+    let content: BlobPart = ''
     if (fileType === 'json') {
         content = JSON.stringify(data)
     }

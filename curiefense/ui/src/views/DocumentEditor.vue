@@ -179,8 +179,7 @@
   </div>
 </template>
 
-<script>
-
+<script lang="ts">
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import Utils from '@/assets/Utils.ts'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
@@ -193,8 +192,9 @@ import FlowControlEditor from '@/doc-editors/FlowControlEditor'
 import GitHistory from '@/components/GitHistory.vue'
 import RequestsUtils from '@/assets/RequestsUtils'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
 
   name: 'DocumentEditor',
   props: {},
@@ -586,8 +586,7 @@ export default {
     this.setLoadingDocStatus(false)
   }
 
-}
-
+})
 </script>
 <style scoped>
 .no-data-wrapper {

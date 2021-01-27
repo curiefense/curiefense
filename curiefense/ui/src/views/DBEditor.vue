@@ -236,15 +236,15 @@
   </div>
 </template>
 
-<script>
-
+<script lang="ts">
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import Utils from '@/assets/Utils.ts'
 import GitHistory from '@/components/GitHistory'
 import RequestsUtils from '@/assets/RequestsUtils'
 import JSONEditor from 'jsoneditor'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
 
   name: 'DBEditor',
   props: {},
@@ -579,8 +579,7 @@ export default {
     this.loadDBs()
   }
 
-}
-
+})
 </script>
 <style scoped lang="scss">
 

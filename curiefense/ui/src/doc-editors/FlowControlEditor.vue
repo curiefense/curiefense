@@ -271,14 +271,14 @@
   </div>
 </template>
 
-<script>
-
+<script lang="ts">
 import ResponseAction from '@/components/ResponseAction'
 import LimitOption from '@/components/LimitOption'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput'
 import DatasetsUtils from '@/assets/DatasetsUtils'
+import Vue from 'vue'
 
-export default {
+export default Vue.extend({
   name: 'FlowControl',
 
   props: {
@@ -473,7 +473,7 @@ export default {
       this.emitDocUpdate()
     }
   },
-}
+})
 </script>
 
 <style scoped lang="scss">
