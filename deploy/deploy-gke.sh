@@ -92,15 +92,15 @@ run_fortio () {
 		NODE_IP=$(kubectl get nodes -o json|jq '.items[0].status.addresses[]|select(.type=="ExternalIP").address'|tr -d '"')
 		FORTIO_URL="http://$NODE_IP:30100/fortio/"
 		JAEGER_URL="http://$NODE_IP:30686/jaeger/api/"
-		# pre-heat
-		curl -s "http://$NODE_IP:30081/ratings/preheat" > /dev/null
-		# wait for fortio to become reachable
+		echo "Waiting for fortio to become reachable..."
 		for i in $(seq 1 30); do
 			if curl --silent --fail "$FORTIO_URL" >/dev/null; then
 			    break
 			fi
 			sleep 1
 		done
+		echo "Pre-heat request"
+		curl -s "http://$NODE_IP:30081/ratings/preheat" > /dev/null
 	fi
 
 	# target: http://istio-ingressgateway.istio-system/ratings/invalid-$tag -- JSON response
