@@ -14,6 +14,7 @@ Curiefense is a new application security platform, which protects sites, service
 * [Quick Start Guide](https://docs.curiefense.io/installation/getting-started-with-curiefense)
 * [Official documentation](https://docs.curiefense.io)
 * [FAQ](https://www.curiefense.io/faq)
+* [Contribute to our docs](https://github.com/curiefense/curiefense-gitbook)
 
 ## Contact
 
