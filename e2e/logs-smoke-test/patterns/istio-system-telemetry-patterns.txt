@@ -9,3 +9,27 @@
 ^\[Envoy \(Epoch 0\)\] \[[^]]+\]\[\S+\]\[warning\]\[config\] \[\S+\] Listener connection limit runtime key envoy.resource_limits.listener.\S*.connection_limit is empty. There are currently no limitations on the number of accepted connections for listener \S*.
 ^\[Envoy \(Epoch 0\)\] \[[^]]+\]\[\S+\]\[warning\]\[main\] \[\S+\] there is no configured limit to the number of allowed active connections. Set a limit via the runtime key overload.global_downstream_max_connections
 ^\S+T\S+Z	warn	Missing JWT token, can't use in process SDS ./var/run/secrets/tokens/istio-tokenstat ./var/run/secrets/tokens/istio-token: no such file or directory
+^\S+T\S+Z	warn	Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work.
+^Istio Mixer: \S+\.\S+.\S+-\S+-\S+
+Starting gRPC server on port 9091
+^Mixer started with
+^MaxMessageSize:  \S+
+^MaxConcurrentStreams:  \S+
+^APIWorkerPoolSize:  \S+
+^AdapterWorkerPoolSize:  \S+
+^APIPort:  \S+
+^APIAddress:  unix:///sock/mixer.socket
+^MonitoringPort:  \S+
+^EnableProfiling:  true
+^SingleThreaded:  false
+^NumCheckCacheEntries:  \S+
+^ConfigStoreURL:  mcp://istio-galley.istio-system.svc:9901
+^CertificateFile:  /etc/certs/cert-chain.pem
+^KeyFile:  /etc/certs/key.pem
+^CACertificateFile:  /etc/certs/root-cert.pem
+^ConfigDefaultNamespace:  istio-system
+^ConfigWaitTimeout:  \S+
+^LoggingOptions: log.Options\{OutputPaths:\[\]string\{"stdout"\}, ErrorOutputPaths:\[\]string\{"stderr"\}, RotateOutputPath:"", RotationMaxSize:\S+, RotationMaxAge:\S+, RotationMaxBackups:\S+, JSONEncoding:false, LogGrpc:true, outputLevels:"default:info", logCallers:"", stackTraceLevels:"default:none"\}
+^TracingOptions: tracing.Options\{ZipkinURL:"http://zipkin.istio-system:9411/api/v1/spans", JaegerURL:"", LogTraceSpans:false, SamplingRate:0\}
+^IntrospectionOptions: ctrlz.Options\{Port:\S+, Address:"localhost"\}
+^LoadSheddingOptions: loadshedding.Options\{Mode:2, AverageLatencyThreshold:\S+, SamplesPerSecond:\S+, SampleHalfLife:\S+, LatencyEnforcementThreshold:\S+, MaxRequestsPerSecond:\S+, BurstSize:\S+\}

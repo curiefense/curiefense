@@ -10,8 +10,8 @@ for ns in curiefense istio-system; do
 
 		PATTERNFILE="patterns/$ns-$app-patterns.txt"
 		if [ ! -f "$PATTERNFILE" ]; then
-			echo "Error: pattern file missing: $PATTERNFILE"
-			exit 1
+			echo "Warning: pattern file missing: $PATTERNFILE, skipping checks for this pod"
+			continue
 		fi
 		kubectl logs -n "$ns" "$pod" --all-containers |grep -vEf "patterns/$ns-$app-patterns.txt" > log-$ns-$app.log
 	done
