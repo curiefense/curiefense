@@ -10,7 +10,6 @@ CURL="curl --silent --write-out %{http_code}\n -H Content-Type:application/json 
 wait_for_es () {
 	if $CURL -X GET "${ELASTICSEARCH_URL}_cluster/health?wait_for_status=yellow&timeout=10s"|grep -qv 200; then
 		sleep 5
-        echo $ELASTICSEARCH_URL
 		wait_for_es
 	fi
 }
