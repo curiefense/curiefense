@@ -37,6 +37,10 @@ spec:
         - name: logstash-config
           mountPath: "/usr/share/logstash/pipeline"
           readOnly: true
+        - name: logstash-config
+          mountPath: "/usr/share/logstash/config/pipelines.yml"
+          subPath: pipelines.yml
+          readOnly: true
         resources:
           limits:
             memory: "500Mi"
@@ -48,9 +52,6 @@ spec:
       - name: logstash-config
         configMap:
           name: logstash-configmap
-          items:
-            - key: logstash.conf
-              path: logstash.conf
       restartPolicy: Always
       serviceAccountName: ""
 {{- if .Values.global.tolerations }}

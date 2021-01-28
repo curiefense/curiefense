@@ -8,24 +8,84 @@ metadata:
   name: logstash-configmap
   namespace: {{ .Release.Namespace }}
 data:
-  logstash.conf: |-
+  pipelines.yml: |-
+    - pipeline.id: input
+      path.config: "/usr/share/logstash/pipeline/{input,*-filters}.conf"
+
+    - pipeline.id: curieaccesslog
+      path.config: "/usr/share/logstash/pipeline/curieaccesslog.conf"
+      #queue.type: persisted
+
+    - pipeline.id: curiemetrics
+      path.config: "/usr/share/logstash/pipeline/curiemetrics.conf"
+      #queue.type: persisted
+
+  input.conf: |-
     input {
+        tcp {
+            port => 5000
+        }
+
         http {
             port => 5001
         }
     }
+
     output {
-        elasticsearch {
-            hosts => "{{ .Values.global.settings.curiefense_es_hosts }}"
-            index => "${CURIEFENSE_ES_INDEX_NAME:curieaccesslog}"
-            # Action create is required for data streams which are,
-            # by definition, an append only type of index. Only
-            # a create op_type is supported when using data streams.
-            # This works fine under environments that don't use
-            # data streams.
-            action => "create"
+        if "curieaccesslog" in [tags] {
+          pipeline { send_to => curieaccesslog }
+        }
+
+        if "curiemetrics" in [tags] {
+          pipeline { send_to => curiemetrics }
         }
     }
+
+
+  curieaccesslog.conf: |-
+    input {
+      # This is the only input that should be declared here.
+      # New inputs should be declared in the main inputs section..
+      pipeline {
+        address => curieaccesslog
+      }
+    }
+
+    output {
+      elasticsearch {
+        hosts => "elasticsearch:9200"
+        index => "${CURIEFENSE_INDEX_NAME:curieaccesslog}"
+        # Action create is required for data streams which are,
+        # by definition, an append only type of index. Only
+        # a create op_type is supported when using data streams.
+        # This works fine under environments that don't use
+        # data streams.
+        action => "create"
+      }
+    }
+
+  curieaccessmetrics.conf: |-
+    input {
+      # This is the only input that should be declared here.
+      # New inputs should be declared in the main inputs section..
+      pipeline {
+        address => curiemetrics
+      }
+    }
+
+    output {
+      elasticsearch {
+        hosts => "elasticsearch:9200"
+        index => "${CURIEFENSE_METRICS_INDEX_NAME:curiemetrics}"
+        # Action create is required for data streams which are,
+        # by definition, an append only type of index. Only
+        # a create op_type is supported when using data streams.
+        # This works fine under environments that don't use
+        # data streams.
+        action => "create"
+      }
+    }
+
 {{- end }}
 {{- end }}
 {{- end }}
