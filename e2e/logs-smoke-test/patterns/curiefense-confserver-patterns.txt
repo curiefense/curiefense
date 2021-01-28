@@ -1,8 +1,16 @@
 ^Config already present in /config/confdb, exiting
-^Configuration of bucket s3://curiefense-test01/prod successful
-^Trying to request export to bucket s3://curiefense-test01/prod...
-^Export to bucket s3://curiefense-test01/prod successful
-^Trying to configure bucket s3://curiefense-test01/prod...
+^Configuration of bucket \S+ successful
+^Trying to request export to bucket \S+
+^Export to bucket \S+ successful
+^Trying to configure bucket \S+\.\.\.
+^Checking for script in /app/prestart.sh
+^Running script /app/prestart.sh
+^Enumerating objects: \S+ done.
+^Counting objects: .* done.
+^Delta compression using up to \S+ threads
+^Compressing objects: .* done.
+^Writing objects: .* done.
+^Total \S+ \(delta \S+\), reused \S+ \(delta \S+\)
 ^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "(PUT|GET|POST|DELETE) /api/v1/\S* HTTP/1.[01]" 200 .*
 ^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "GET / HTTP/1.[01]" 404 .*
 ^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "GET /favicon.ico HTTP/1.[01]" 404 .*
@@ -11,7 +19,7 @@
 ^\[uWSGI\] getting INI configuration from /app/uwsgi.ini
 ^\[uWSGI\] getting INI configuration from /etc/uwsgi/uwsgi.ini
 ^;uWSGI instance configuration
-^\[uwsgi\]$
+^\[uwsgi\]\s*$
 ^cheaper = 2
 ^ini = /app/uwsgi.ini
 ^module = main
@@ -30,7 +38,7 @@
 ^\*+ Starting uWSGI \S+ \(64bit\) on \[\S+ \S+\s+\S+ \S+ \S+\] \*+
 ^compiled with version: 8.3.0 on \S+ \S+ \S+ \S+:\S+:\S+
 ^os: Linux-\s+ #S+ \S+ \S+ \S+ \S+ \S+ \S+
-^nodename: confserver-0
+^nodename: \S+
 ^machine: x86_64
 ^clock source: unix
 ^pcre jit disabled
@@ -53,7 +61,7 @@
 ^your mercy for graceful operations on workers is 60 seconds
 ^mapped \S+ bytes \S+ KB\) for \S+ cores
 ^\*+ Operational MODE: preforking \*+
-^WSGI app 0 \(mountpoint=''\) ready in 1 seconds on interpreter \S+ pid: \S+ \(default app\)
+^WSGI app 0 \(mountpoint=''\) ready in \S+ seconds on interpreter \S+ pid: \S+ \(default app\)
 ^\*+ uWSGI is running in multiple interpreter mode \*+
 ^spawned uWSGI master process \(pid: \S+
 ^spawned uWSGI worker \S+ \(pid: \S+ cores: \S+
@@ -83,3 +91,9 @@
 ^To /config/confdb
 ^ \* \[new branch\]      \S+ -> \S+
 ^os: Linux-\S+ \S+ \S+ PREEMPT \S+ \S+ \S+ \S+ \S+ \S+
+^\S+-\S+-\S+ \S+:\S+:\S+,\S+ INFO
+^\S+-\S+-\S+ \S+:\S+:\S+,\S+ CRIT Server 'unix_http_server' running without any HTTP authentication checking
+^Gracefully killing worker \S+ \(pid: \S+\)...
+^worker \S+ buried after \S+ seconds
+^goodbye to uWSGI.$
+^\S+ \S+ \S+ \S+:\S+:\S+ \S+ - graceful shutdown triggered...$

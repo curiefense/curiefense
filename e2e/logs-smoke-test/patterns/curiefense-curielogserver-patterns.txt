@@ -22,7 +22,7 @@
 ^\*+ Starting uWSGI 2.0.18 \(64bit\) on \[\S+ \S+ +\S+ \S+ \S+\] \*+
 ^compiled with version: 8.3.0 on \S+ \S+ \S+ \S+:\S+:\S+
 ^os: Linux-5.4.0-1024-gcp #24-Ubuntu SMP Sat Sep \S+ \S+:\S+:\S+ \S+ \S+
-^nodename: curielogserver-\S+
+^nodename: \S+
 ^machine: x86_64
 ^clock source: unix
 ^pcre jit disabled
@@ -31,7 +31,6 @@
 ^detected binary path: /usr/local/bin/uwsgi
 ^compiled with version: \S+ on \S+ \S+ \S+ \S+
 ^os: Linux-\S+ \S+ SMP \S+ \S+ \S+ \S+ \S+ \S+
-^nodename: curielogserver-dfc65f948-2cxcl
 ^machine: x86_64
 ^clock source: unix
 ^pcre jit disabled
@@ -63,3 +62,10 @@
 ^\S+ \S+ +\S+ \S+ \S+ - uwsgi_response_writev_headers_and_body_do\(\): Broken pipe \[core/writer.c line 306\] during GET /api/v1/ \S+
 ^OSError: write error
 ^\[pid: \S+|app: \S+|req: \S+/\S+\] \S+ \(\) \{\S+ vars in \S+ bytes\} [[^]]+] (GET|PUT|DELETE|POST) /api/v1/\S* => generated \S+ bytes in \S+ msecs (HTTP/1.[01] 200)
+^\S+-\S+-\S+ \S+:\S+:\S+,\S+ INFO
+^Checking for script in /app/prestart.sh
+^Running script /app/prestart.sh
+^Gracefully killing worker \S+ \(pid: \S+\)...
+^worker \S+ buried after \S+ seconds
+^goodbye to uWSGI.$
+^\S+ \S+ \S+ \S+:\S+:\S+ \S+ - graceful shutdown triggered...$

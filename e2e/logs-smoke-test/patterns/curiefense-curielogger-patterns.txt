@@ -10,3 +10,6 @@
 ^Elastic index and alias created.
 ^Kibana at http://kibana:5601/ is not reachable yet, waiting 5s...
 ^Kibana index curieaccesslog created.
+^Elastic index template created
+^Using datastreams, no need for initial index.
+^Elastic index template already exists.

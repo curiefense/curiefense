@@ -25,6 +25,7 @@
 ^waiting for server to start....\S+ \S+ \S+ \S+ LOG:  starting PostgreSQL \S+ on x86_64-pc-linux-musl, compiled by gcc \S+ \S+ \S+ 64-bit
 ^\S+ \S+ \S+ \S+ LOG:  starting PostgreSQL \S+ on x86_64-pc-linux-musl, compiled by gcc \S+ \S+ \S+ 64-bit
 ^waiting for server to shut down....\S+ \S+ \S+ \S+ LOG:  aborting any active transactions
+^\S+ \S+ \S+ \S+ LOG:  aborting any active transactions
 ^\S+ \S+ \S+ \S+ LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.\S+"
 ^\S+ \S+ \S+ \S+ LOG:  database system was shut down at \S+ \S+ \S+
 ^\S+ \S+ \S+ \S+ LOG:  database system is ready to accept connections
@@ -34,6 +35,7 @@
 ^\S+ \S+ \S+ \S+ LOG:  database system is shut down
 ^server stopped
 ^PostgreSQL init process complete; ready for start up.
+^PostgreSQL Database directory appears to contain a database; Skipping initialization
 ^\S+ \S+ \S+ \S+ LOG:  starting PostgreSQL 13.0 on x86_64-pc-linux-musl, compiled by gcc \S+ \S+ \S+ 64-bit
 ^\S+ \S+ \S+ \S+ LOG:  listening on IPv4 address "0.0.0.0", port 5432
 ^\S+ \S+ \S+ \S+ LOG:  listening on IPv6 address "::", port 5432

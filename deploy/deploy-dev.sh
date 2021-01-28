@@ -83,7 +83,7 @@ pytest --log-level INFO --base-protected-url http://$IP:30081 --base-conf-url ht
 
 echo "-- Look for unknown or abnormal log messages --"
 cd "$BASEDIR/curiefense/e2e/logs-smoke-test/"
-./checklogs.sh
+./checklogs-helm.sh
 grep . *log
 
 
