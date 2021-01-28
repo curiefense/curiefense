@@ -1,7 +1,7 @@
 #!/bin/bash
 
 BASEDIR="$(dirname "$(readlink -f "$0")")"
-rm -f "$BASEDIR/log*.log"
+rm -f "$BASEDIR/"log*.log
 
 for ns in curiefense istio-system; do
 	PODAPPS=$(kubectl get pods -n $ns -o go-template='{{range .items}} {{ .metadata.labels.app | or (index .metadata.labels "app.kubernetes.io/name")}}!{{.metadata.name}} {{end}}')
