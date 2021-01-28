@@ -1,13 +1,11 @@
 use regex::RegexSet;
 
-
 #[derive(Debug)]
 pub struct SigSet {
-    regex_set : Option<regex::RegexSet>,
-    regex_list : Vec<String>,
+    regex_set: Option<regex::RegexSet>,
+    regex_list: Vec<String>,
     id_list: Vec<String>,
 }
-
 
 #[derive(Debug)]
 pub enum SigSetError {
@@ -35,7 +33,7 @@ impl SigSet {
         }
     }
 
-    pub fn add(&mut self, regex: String, id: String) -> Result<(),SigSetError> {
+    pub fn add(&mut self, regex: String, id: String) -> Result<(), SigSetError> {
         match &self.regex_set {
             Some(_) => Err(SigSetError::RegexSetAlreadyCompiled),
             None => {
@@ -46,16 +44,16 @@ impl SigSet {
         }
     }
 
-    pub fn compile(&mut self) -> Result<(),SigSetError> {
+    pub fn compile(&mut self) -> Result<(), SigSetError> {
         match &self.regex_set {
             Some(_) => Err(SigSetError::RegexSetAlreadyCompiled),
             None => match RegexSet::new(&self.regex_list) {
-                    Ok(res) => {
-                        self.regex_set = Some(res);
-                        Ok(())
-                    },
+                Ok(res) => {
+                    self.regex_set = Some(res);
+                    Ok(())
+                }
                 Err(x) => Err(SigSetError::RegexCompileError(x)),
-            }
+            },
         }
     }
 
@@ -65,31 +63,28 @@ impl SigSet {
         self.id_list = Vec::new();
     }
 
-    pub fn is_match(&self, s: &String) -> Result<bool,SigSetError> {
+    pub fn is_match(&self, s: &String) -> Result<bool, SigSetError> {
         match &self.regex_set {
             None => Err(SigSetError::RegexSetNotCompiled),
-            Some(rs) => {
-                Ok(rs.is_match(s))
-            }
+            Some(rs) => Ok(rs.is_match(s)),
         }
     }
 
-    pub fn is_match_id(&self, s: &String) -> Result<Option<&String>,SigSetError> {
+    pub fn is_match_id(&self, s: &String) -> Result<Option<&String>, SigSetError> {
         match &self.regex_set {
             None => Err(SigSetError::RegexSetNotCompiled),
             Some(rs) => {
                 let matches: Vec<_> = rs.matches(&s).into_iter().collect();
                 if matches.is_empty() {
                     Ok(None)
-                }
-                else {
+                } else {
                     Ok(Some(&self.id_list[matches[0]]))
                 }
             }
         }
     }
 
-    pub fn is_match_ids(&self, s: &String) -> Result<Vec<&String>,SigSetError> {
+    pub fn is_match_ids(&self, s: &String) -> Result<Vec<&String>, SigSetError> {
         match &self.regex_set {
             None => Err(SigSetError::RegexSetNotCompiled),
             Some(rs) => {
@@ -100,17 +95,50 @@ impl SigSet {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    macro_rules! s { ( $e:expr ) => ( ($e).to_string() ) }
-    macro_rules! testT { ( $e:expr ) => { let r = ($e); println!("expect True: {:?}", r); assert!(r.unwrap()) } }
-    macro_rules! testF { ( $e:expr ) => { let r = ($e); println!("expect False: {:?}", r); assert!(!r.unwrap()) } }
-    macro_rules! testOk { ( $e:expr ) => { let r = ($e); println!("expect Ok: {:?}", r); assert!(r.is_ok()) } }
-    macro_rules! testErr { ( $e:expr ) => { let r = ($e); println!("expect Err: {:?}", r); assert!(r.is_err()) } }
-    macro_rules! testEq { ( $e:expr , $f:expr ) => { let r = ($e); println!("expect ${:?}: {:?}", ($f), r); assert!(r.unwrap() == ($f)) } }
+    macro_rules! s {
+        ( $e:expr ) => {
+            ($e).to_string()
+        };
+    }
+    macro_rules! testT {
+        ( $e:expr ) => {
+            let r = ($e);
+            println!("expect True: {:?}", r);
+            assert!(r.unwrap())
+        };
+    }
+    macro_rules! testF {
+        ( $e:expr ) => {
+            let r = ($e);
+            println!("expect False: {:?}", r);
+            assert!(!r.unwrap())
+        };
+    }
+    macro_rules! testOk {
+        ( $e:expr ) => {
+            let r = ($e);
+            println!("expect Ok: {:?}", r);
+            assert!(r.is_ok())
+        };
+    }
+    macro_rules! testErr {
+        ( $e:expr ) => {
+            let r = ($e);
+            println!("expect Err: {:?}", r);
+            assert!(r.is_err())
+        };
+    }
+    macro_rules! testEq {
+        ( $e:expr , $f:expr ) => {
+            let r = ($e);
+            println!("expect ${:?}: {:?}", ($f), r);
+            assert!(r.unwrap() == ($f))
+        };
+    }
 
     #[test]
     fn test_add() {
@@ -200,9 +228,10 @@ mod tests {
         testOk!(ss.add(s!("^C+$"), s!("only Cs")));
         testOk!(ss.compile());
 
-        testEq!(ss.is_match_ids(&s!("AAAAA")),  vec!["starts with As"]);
-        testEq!(ss.is_match_ids(&s!("AAAAABBBB")),  vec!["starts with As", "ends with Bs"]);
+        testEq!(ss.is_match_ids(&s!("AAAAA")), vec!["starts with As"]);
+        testEq!(
+            ss.is_match_ids(&s!("AAAAABBBB")),
+            vec!["starts with As", "ends with Bs"]
+        );
     }
-
-
 }
