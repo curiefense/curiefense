@@ -1,0 +1,48 @@
+name: Run curiefense Rust tests
+on: [push, pull_request_target]
+
+jobs:
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+
+    # always run on push events, but only run on pull_request_target event when pull request pulls from fork repository
+    # for pull requests within the same repository, the push event is sufficient
+    if: >
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt
+
+      - name: Run cargo fmt
+        working-directory: ./curiefense/iptools
+        run: 'cargo fmt --all -- --check'
+
+      - name: Run lua test
+        working-directory: ./curiefense/iptools
+        run: |
+          # TODO: Find a way to simplify this
+          sudo apt-get update
+          sudo apt-get -qq -y --no-install-recommends install jq luarocks libpcre2-dev libgeoip-dev python gcc g++ make unzip libhyperscan4 libhyperscan-dev
+          sudo luarocks install lrexlib-pcre2
+          sudo luarocks install lua-cjson
+          sudo luarocks install lua-resty-string
+          sudo luarocks install luafilesystem
+          sudo luarocks install luasocket
+          sudo luarocks install redis-lua
+          sudo luarocks install compat53
+          sudo luarocks install mmdblua
+          sudo luarocks install luaipc
+          sudo luarocks install lua-resty-injection
+          make test
+
