@@ -1,8 +1,28 @@
-* @tzuryby @xavier-rbz @phil777
+#                                   @tzuryby, project lead: 11/07/2020
 
-/curiefense/curielogger @flaper87
-/deploy/curiefense-helm @xavier-rbz
+*                                   @tzuryby @xavier-rbz @phil777
+
+/curiefense/                        @xavier-rbz @phil777 @tzuryby
+/curiefense/curieconf/              @xavier-rbz @phil777
+/curiefense/curielogger/            @flaper87
+/curiefense/curielogserver/         @xavier-rbz
+/curiefense/curieproxy/             @xavier-rbz @Aviv-Galmidi
+/curiefense/curietasker/            @phil777
+/curiefense/images/                 @xavier-rbz
+/curiefense/iptools/                @tzuryby @phil777 @flaper87
+/curiefense/ui/                     @xavier-rbz
+
+/e2e/                               @xavier-rbz
+/e2e/latency/                       @xavier-rbz
+/e2e/logs-smoke-test/               @xavier-rbz
+
+/deploy/                            @xavier-rbz
+/deploy/compose/                    @xavier-rbz @tzuryby
+/deploy/curiefense-helm/            @xavier-rbz
+/deploy/istio-helm/                 @xavier-rbz
 
 # By language
 
-*.rs @phil777 @flaper87
+*.rs                                @phil777 @flaper87
+*.sh                                @xavier-rbz
+*.py                                @xavier-rbz
