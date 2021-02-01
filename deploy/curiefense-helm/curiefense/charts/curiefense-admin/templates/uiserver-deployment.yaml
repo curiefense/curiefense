@@ -18,13 +18,18 @@ spec:
         app.kubernetes.io/name: uiserver
     spec:
       containers:
+      - name: uiserver
+      {{- if eq .Values.global.settings.curiefense_logdb_type "elasticsearch" }}
+        env:
+        - name: "CURIELOGSERVER_DISABLED"
+          value: "yes"
+      {{- end }}
       {{ if regexMatch ".*/.*:" .Values.global.images.uiserver }}
       {{/* The image name contains a version tag (e.g. for tests), do not append docker_tag */}}
-      - image: {{ .Values.global.images.uiserver }}
+        image: {{ .Values.global.images.uiserver }}
       {{ else }}
-      - image: {{ .Values.global.images.uiserver }}:{{ .Values.global.settings.docker_tag }}
+        image: {{ .Values.global.images.uiserver }}:{{ .Values.global.settings.docker_tag }}
       {{ end }}
-        name: uiserver
         ports:
         - containerPort: 80
           name: uiserver-http
