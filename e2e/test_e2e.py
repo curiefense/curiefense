@@ -135,26 +135,34 @@ IP6_2 = "0000:0000:0000:0000:0000:0000:0000:0002"
 
 
 class UIHelper():
-    def __init__(self, base_url):
+    def __init__(self, base_url, es_url):
         self._base_url = base_url
+        self._es_url = es_url + '/_search'
 
     def check_log_pattern(self, pattern):
-        data = {
-            "statement": ("SELECT Path FROM logs "
-                          "ORDER BY StartTime DESC LIMIT 1024"),
-            "parameters": []
-        }
-        res = requests.post(self._base_url + "/logs/api/v1/exec/", json=data)
-        for log in res.json():
-            if pattern in log[0]:
-                return True
+        if self._es_url is False:
+            data = {
+                "statement": ("SELECT Path FROM logs "
+                              "ORDER BY StartTime DESC LIMIT 1024"),
+                "parameters": []
+            }
+            res = requests.post(self._base_url + "/logs/api/v1/exec/", json=data)
+            for log in res.json():
+                if pattern in log[0]:
+                    return True
+        else:
+            data = {"query": {"bool": {"must": {"match": {"path": pattern}}}}}
+            res = requests.get(self._es_url, json=data)
+            nbhits = res.json()["hits"]["total"]["value"]
+            return nbhits == 1
         return False
 
 
 @pytest.fixture(scope="session")
 def ui(request):
     url = request.config.getoption("--base-ui-url").rstrip("/")
-    return UIHelper(url)
+    es_url = request.config.getoption("--elasticsearch-url").rstrip("/")
+    return UIHelper(url, es_url)
 
 
 class ACLHelper:
@@ -199,7 +207,7 @@ class TestLogs:
         test_pattern = "/test" + "".join([
             random.choice(string.ascii_lowercase) for i in range(20)])
         assert(target.is_reachable(test_pattern))
-        time.sleep(1)
+        time.sleep(10)
         assert ui.check_log_pattern(test_pattern)
 
 

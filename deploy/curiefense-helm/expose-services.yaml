@@ -107,3 +107,22 @@ spec:
     app.kubernetes.io/name: kibana
   type: NodePort
   externalTrafficPolicy: "Local"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: es-nodeport
+  name: es-nodeport
+  namespace: curiefense
+spec:
+  ports:
+  - name: 30200-9200
+    nodePort: 30200
+    port: 9200
+    protocol: TCP
+    targetPort: 9200
+  selector:
+    app.kubernetes.io/name: elasticsearch
+  type: NodePort
+  externalTrafficPolicy: "Local"
