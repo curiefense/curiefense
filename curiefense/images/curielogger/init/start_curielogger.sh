@@ -82,7 +82,7 @@ create_kibana_index_pattern () {
 		echo "Kibana index already exists."
 	else
 		# Create the index pattern
-		if $CURL -X POST "$CURIELOGGER_KIBANA_URL$ES_PATTERN_PATH" -H 'kbn-xsrf: true' -d '{"attributes": {"title": "'"$ES_INDEX_NAME*"'","timeFieldName": "timestamp"}}'|grep -q 200; then
+		if $CURL -X POST "$CURIELOGGER_KIBANA_URL$ES_PATTERN_PATH" -H 'kbn-xsrf: true' -d '{"attributes": {"title": "'"$ES_INDEX_NAME*"'","timeFieldName": "@timestamp"}}'|grep -q 200; then
 
 			echo "Kibana index $ES_INDEX_NAME created."
 		else

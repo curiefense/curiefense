@@ -179,13 +179,10 @@
         "scheme": {
           "type": "keyword"
         },
-        "starttime": {
-          "type": "date_nanos"
-        },
         "tags": {
           "type": "keyword"
         },
-        "timestamp": {
+        "@timestamp": {
           "type": "date_nanos"
         },
         "tls": {
