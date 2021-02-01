@@ -64,7 +64,7 @@ data:
       }
     }
 
-  curieaccessmetrics.conf: |-
+  curiemetrics.conf: |-
     input {
       # This is the only input that should be declared here.
       # New inputs should be declared in the main inputs section..
