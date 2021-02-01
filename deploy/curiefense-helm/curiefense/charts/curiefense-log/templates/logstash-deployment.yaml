@@ -54,7 +54,7 @@ spec:
           readOnly: true
         resources:
           limits:
-            memory: "500Mi"
+            memory: "1Gi"
             cpu: "900m"
           requests:
             memory: "20Mi"
