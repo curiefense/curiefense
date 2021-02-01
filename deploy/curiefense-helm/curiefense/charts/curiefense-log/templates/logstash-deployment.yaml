@@ -35,8 +35,17 @@ spec:
         imagePullPolicy: {{ .Values.global.imagePullPolicy }}
         volumeMounts:
         - name: logstash-config
-          mountPath: "/usr/share/logstash/pipeline"
+          mountPath: "/usr/share/logstash/pipeline/curieaccessmetrics.conf"
           readOnly: true
+          subPath: curieaccessmetrics.conf
+        - name: logstash-config
+          mountPath: "/usr/share/logstash/pipeline/curieaccesslog.conf"
+          readOnly: true
+          subPath: curieaccesslog.conf
+        - name: logstash-config
+          mountPath: "/usr/share/logstash/pipeline/input.conf"
+          readOnly: true
+          subPath: input.conf
         - name: logstash-config
           mountPath: "/usr/share/logstash/config/pipelines.yml"
           subPath: pipelines.yml
