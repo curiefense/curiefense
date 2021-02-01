@@ -3,5 +3,4 @@
 # ./deploy.sh -f curiefense/use-es.yaml
 global:
   settings:
-    curiefense_logdb_type: 'elasticsearch'
-    curiefense_es_forwarder: 'logstash'
+    curiefense_logdb_type: 'postgres'
