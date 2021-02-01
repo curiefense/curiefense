@@ -18,7 +18,7 @@ define_es_lifecycle_policy () {
 	if $CURL "${ELASTICSEARCH_URL}_ilm/policy/$ES_INDEX_NAME"|grep -q 200; then
 		echo "Elasticsearch lifecycle policy already exists."
 	else
-		if $CURL -X PUT "${ELASTICSEARCH_URL}_ilm/policy/$ES_INDEX_NAME" --data-binary @$INIT_DIR/es_lifecycle_policy.json|grep -q 200; then
+		if $CURL -X PUT "${ELASTICSEARCH_URL}_ilm/policy/$ES_INDEX_NAME" --data-binary "@$INIT_DIR/es_lifecycle_policy.json"|grep -q 200; then
 			echo "Elasticsearch lifecycle policy defined."
 		else
 			echo "Elasticsearch lifecycle policy creation failed, retrying."
@@ -32,12 +32,11 @@ define_es_index_template() {
 	if $CURL "${ELASTICSEARCH_URL}_index_template/$ES_INDEX_NAME"|grep -q 200; then
 		echo "Elastic index template already exists."
 	else
-        if [[ "$USE_DATA_STREAMS" == "true" ]];
-        then
-            DATA_STREAMS='"data_stream": {},'
-        fi
+		if [[ "$USE_DATA_STREAMS" == "true" ]]; then
+			DATA_STREAMS='"data_stream": {},'
+		fi
 
-		if sed -e "s/INDEX_NAME/$ES_INDEX_NAME/" -e "s/DATA_STREAMS/$DATA_STREAMS/" $INIT_DIR/index_template.json|$CURL -X PUT -d @- "${ELASTICSEARCH_URL}_index_template/$ES_INDEX_NAME"|grep -q 200; then
+		if sed -e "s/INDEX_NAME/$ES_INDEX_NAME/" -e "s/DATA_STREAMS/$DATA_STREAMS/" "$INIT_DIR/index_template.json"|$CURL -X PUT -d @- "${ELASTICSEARCH_URL}_index_template/$ES_INDEX_NAME"|grep -q 200; then
 			echo "Elastic index template created"
 		else
 			echo "Elastic index template creation failed, retrying."
@@ -49,14 +48,14 @@ define_es_index_template() {
 }
 
 define_es_initial_index () {
-    if [[ "$USE_DATA_STREAMS" == "true" ]]; then
+	if [[ "$USE_DATA_STREAMS" == "true" ]]; then
 		echo "Using datastreams, no need for initial index."
-        return
-    fi
+		return
+	fi
 	if $CURL "$ELASTICSEARCH_URL$ES_INDEX_NAME-000001"|grep -q 200; then
 		echo "Elastic index already exists."
 	else
-		if sed "s/INDEX_NAME/$ES_INDEX_NAME/" $INIT_DIR/es_index.json|$CURL -X PUT -d @- "$ELASTICSEARCH_URL$ES_INDEX_NAME-000001"|grep -q 200; then
+		if sed "s/INDEX_NAME/$ES_INDEX_NAME/" "$INIT_DIR/es_index.json"|$CURL -X PUT -d @- "$ELASTICSEARCH_URL$ES_INDEX_NAME-000001"|grep -q 200; then
 			echo "Elastic index and alias created."
 		else
 			echo "Elastic index and alias creation failed, retrying."
