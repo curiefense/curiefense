@@ -6,7 +6,7 @@
 
 * Small patches and bug fixes don't need prior communication.
 
-# 📑 Contributing with maintenance
+# 📑 Contributing With Maintenance
 
 One important fact of curiefense is that you don't have to be "a maintainer" to
 be able to contribute with reviews, triaging, or any other maintenance task.
@@ -17,16 +17,16 @@ Please, do join the rest of the team in triaging issues, reviewing PRs, and
 providing any feedback that would help making the community stronger, and
 processes easier for everyone.
 
-# 📑 Contributing with code
+# 👩‍💻 Contributing With Code
 
-Curiefense follows a very simple process that is referred to as the [Github
+Curiefense follows a very simple process that is referred to as the [GitHub
 Flow](https://guides.github.com/introduction/flow/). The goal for this flow is
 to provide the least amount of steps and friction to contribute to curiefense.
 Here is the flow described in bullet points:
 
-1. Fork the repo.
+1. Fork the repo
 1. Create a branch
-1. Create your PR.
+1. Create your PR
 
 
 At this point, you will see the following happening on your PR:
