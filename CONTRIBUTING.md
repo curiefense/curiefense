@@ -6,13 +6,39 @@
 
 * Small patches and bug fixes don't need prior communication.
 
-# 📑 Submitting a Pull Request (PR)
+# 📑 Contributing with maintenance
 
-* Fork the repo.
+One important fact of curiefense is that you don't have to be "a maintainer" to
+be able to contribute with reviews, triaging, or any other maintenance task.
+The curiefense community welcomes everyone willing to help with reviews,
+testing open PRs, and providing feedback of any sort.
 
-* Create your PR. 
+Please, do join the rest of the team in triaging issues, reviewing PRs, and
+providing any feedback that would help making the community stronger, and
+processes easier for everyone.
+
+# 📑 Contributing with code
+
+Curiefense follows a very simple process that is referred to as the [Github
+Flow](https://guides.github.com/introduction/flow/). The goal for this flow is
+to provide the least amount of steps and friction to contribute to curiefense.
+Here is the flow described in bullet points:
+
+1. Fork the repo.
+1. Create a branch
+1. Create your PR.
+
+
+At this point, you will see the following happening on your PR:
 
 * Tests will automatically run for you.
+
+* Reviewers will be assigned to the PR either automatically or by one of the
+  curiefense maintainers.
+
+In order to make interaction simpler, save some time, and don't waste precious
+CPU cycles, it is important that the following things are checked before
+reviewers start looking at the PRs:
 
 * PRs are expected to have 100% test coverage for added code. This can be verified with a coverage
   build. If your PR cannot have 100% coverage for some reason please clearly explain why when you
