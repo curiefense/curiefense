@@ -7,7 +7,6 @@ import (
 
 	"bufio"
 	"bytes"
-	"flag"
 	"log"
 	"net"
 	"os"
@@ -20,6 +19,8 @@ import (
 
 	ald "github.com/envoyproxy/go-control-plane/envoy/data/accesslog/v2"
 	als "github.com/envoyproxy/go-control-plane/envoy/service/accesslog/v2"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 
 	//	ptypes "github.com/golang/protobuf/ptypes"
 	duration "github.com/golang/protobuf/ptypes/duration"
@@ -184,6 +185,7 @@ type LogEntry struct {
 }
 
 type Logger interface {
+	Configure(name string, channel_capacity int) error
 	ConfigureFromEnv(name string, envVar string, channel_capacity int) error
 	Start()
 	GetLogEntry() LogEntry
@@ -207,19 +209,23 @@ func (l logger) SendEntry(e LogEntry) {
 	}
 }
 
-func (l *logger) ConfigureFromEnv(name string, envVar string, channel_capacity int) error {
-	url, ok := os.LookupEnv(envVar)
-	if !ok {
-		return errors.New(fmt.Sprintf("Did not find %s in environment", envVar))
-	}
+func (l *logger) Configure(name string, channel_capacity int) error {
 	ch := make(chan LogEntry, channel_capacity)
 	l.name = name
-	l.url = url
 	l.channel = ch
 	if l.do_insert == nil {
 		l.do_insert = l.InsertEntry
 	}
 	return nil
+}
+
+func (l *logger) ConfigureFromEnv(name string, envVar string, channel_capacity int) error {
+	url, ok := os.LookupEnv(envVar)
+	if !ok {
+		return errors.New(fmt.Sprintf("Did not find %s in environment", envVar))
+	}
+	l.url = url
+	return l.Configure(name, channel_capacity)
 }
 
 func (l logger) Start() {
@@ -580,15 +586,21 @@ func (l *esLogger) InsertEntry(e LogEntry) bool {
 // |____\___/ \___|___/ |_/_/ \_\___/_||_|
 // LOGSTASH
 
+type LogstashConfig struct {
+	Enabled bool   `mapstructure:"enabled"`
+	Url     string `mapstructure:"url"`
+}
+
 type logstashLogger struct {
 	logger
+	config LogstashConfig
 }
 
 func (l *logstashLogger) InsertEntry(e LogEntry) bool {
 	log.Printf("[DEBUG] LogStash insertion!")
 	j, err := json.Marshal(e.cfLog)
 	if err == nil {
-		_, err := http.Post(l.url, "application/json", bytes.NewReader(j))
+		_, err := http.Post(l.config.Url, "application/json", bytes.NewReader(j))
 		if err != nil {
 			log.Printf("ERROR: could not POST log entry: %v", err)
 			return false
@@ -864,26 +876,27 @@ var (
 func main() {
 	log.Print("Starting curielogger v0.3-dev1")
 
-	var debug_mode = flag.Bool("d", false, "Debug mode")
-	var channel_capacity = flag.Int("b", 65536, "log channel capacity")
+	pflag.String("log_level", "info", "Debug mode")
+	pflag.Int("channel_capacity", 65536, "log channel capacity")
 
-	flag.Parse()
+	pflag.Parse()
+	viper.BindPFlags(pflag.CommandLine)
+
+	config, err := LoadConfig()
+	if err != nil {
+		log.Fatal("cannot load config:", err)
+	}
 
 	// configure log level
-	var min_level string
-	if *debug_mode {
-		min_level = "DEBUG"
-	} else {
-		min_level = "ERROR"
-	}
 	filter := &logutils.LevelFilter{
-		Levels:   []logutils.LogLevel{"DEBUG", "ERROR"},
-		MinLevel: logutils.LogLevel(min_level),
+		Levels:   []logutils.LogLevel{"DEBUG", "INFO", "ERROR"},
+		MinLevel: logutils.LogLevel(strings.ToUpper(config.LogLevel)),
 		Writer:   os.Stderr,
 	}
 	log.SetOutput(filter)
 
-	log.Printf("[INFO] Channel capacity set at %v", *channel_capacity)
+	log.Printf("[INFO] Log level set at %v", config.LogLevel)
+	log.Printf("[INFO] Channel capacity set at %v", config.ChannelCapacity)
 
 	// set up prometheus server
 	http.Handle("/metrics", promhttp.Handler())
@@ -897,7 +910,7 @@ func main() {
 	var loggers []Logger
 
 	// Prometheus
-	prom := promLogger{logger{name: "prometheus", channel: make(chan LogEntry, *channel_capacity)}}
+	prom := promLogger{logger{name: "prometheus", channel: make(chan LogEntry, config.ChannelCapacity)}}
 	prom.do_insert = prom.InsertEntry // manual OOP :( thanks Go.
 	loggers = append(loggers, &prom)
 
@@ -924,7 +937,7 @@ func main() {
 			re := regexp.MustCompile(`host=([^ ]+)`)
 			host = re.FindStringSubmatch(db_url)[1]
 		}
-		pg := pgLogger{logger: logger{name: "postgres", url: db_url, channel: make(chan LogEntry, *channel_capacity)}, host: host}
+		pg := pgLogger{logger: logger{name: "postgres", url: db_url, channel: make(chan LogEntry, config.ChannelCapacity)}, host: host}
 		pg.do_insert = pg.InsertEntry // manual OOP :( thanks Go.
 		loggers = append(loggers, &pg)
 	}
@@ -933,15 +946,16 @@ func main() {
 	if check_env_flag("CURIELOGGER_USES_ELASTICSEARCH") {
 		es := esLogger{}
 		es.do_insert = es.InsertEntry // manual OOP :( thanks Go.
-		es.ConfigureFromEnv("ElasticSearch", "CURIELOGGER_ELASTICSEARCH_URL", *channel_capacity)
+		es.ConfigureFromEnv("ElasticSearch", "CURIELOGGER_ELASTICSEARCH_URL", config.ChannelCapacity)
 		loggers = append(loggers, &es)
 	}
 
 	// Logstash
-	if check_env_flag("CURIELOGGER_USES_LOGSTASH") {
-		ls := logstashLogger{}
+	if config.Outputs.Logstash.Enabled {
+		log.Printf("[DEBUG] Logstash enabled with URL: %s", config.Outputs.Logstash.Url)
+		ls := logstashLogger{config: config.Outputs.Logstash}
 		ls.do_insert = ls.InsertEntry // manual OOP :( thanks Go.
-		ls.ConfigureFromEnv("LogStash", "CURIELOGGER_LOGSTASH_URL", *channel_capacity)
+		ls.Configure("LogStash", config.ChannelCapacity)
 		loggers = append(loggers, &ls)
 	}
 
@@ -949,7 +963,7 @@ func main() {
 	if check_env_flag("CURIELOGGER_USES_FLUENTD") {
 		fd := fluentdLogger{}
 		fd.do_insert = fd.InsertEntry // manual OOP :( thanks Go.
-		fd.ConfigureFromEnv("Fluentd", "CURIELOGGER_FLUENTD_URL", *channel_capacity)
+		fd.ConfigureFromEnv("Fluentd", "CURIELOGGER_FLUENTD_URL", config.ChannelCapacity)
 		loggers = append(loggers, &fd)
 	}
 

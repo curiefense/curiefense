@@ -1,0 +1,5 @@
+log_level: debug
+outputs:
+  logstash:
+      enabled: false
+      url: "http://logstash:5001/"
