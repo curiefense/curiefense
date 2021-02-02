@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/spf13/viper"
+	"gopkg.in/dealancer/validate.v2"
 )
 
 type Config struct {
@@ -31,5 +32,10 @@ func LoadConfig() (config Config, err error) {
 	}
 
 	err = viper.Unmarshal(&config)
+	if err != nil {
+		return
+	}
+
+	err = validate.Validate(&config)
 	return
 }
