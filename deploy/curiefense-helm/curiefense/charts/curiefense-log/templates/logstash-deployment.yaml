@@ -34,6 +34,7 @@ spec:
         livenessProbe:
           tcpSocket:
             port: logstash-http
+          initialDelaySeconds: 30
         imagePullPolicy: {{ .Values.global.imagePullPolicy }}
         volumeMounts:
         - name: logstash-config
