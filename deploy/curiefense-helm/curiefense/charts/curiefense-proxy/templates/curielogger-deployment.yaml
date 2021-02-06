@@ -49,6 +49,8 @@ spec:
           value: "true"
         - name: CURIELOGGER_FLUENTD_URL
           value: "{{ .Values.global.settings.curiefense_fluentd_url }}"
+        - name: USE_DATA_STREAMS
+          value: "false"
 {{- end }}
         - name: CURIELOGGER_KIBANA_URL
           value: "{{ .Values.global.settings.curiefense_kibana_url }}"
