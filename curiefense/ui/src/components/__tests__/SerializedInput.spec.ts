@@ -1,6 +1,6 @@
 import SerializedInput from '@/components/SerializedInput.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
-import {mount, shallowMount, Wrapper} from '@vue/test-utils'
+import {mount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 
 describe('SerializedInput.vue', () => {
@@ -63,9 +63,10 @@ describe('SerializedInput.vue', () => {
     const mockedLog = (output: string) => consoleOutput.push(output)
     consoleOutput = []
     console.log = mockedLog
-    wrapper = shallowMount(SerializedInput, {
+    wrapper = mount(SerializedInput, {
       propsData: {
         value: value,
+        placeholder: placeholder,
         getFunction: null,
         setFunction: setFunction,
       },
@@ -84,9 +85,10 @@ describe('SerializedInput.vue', () => {
     const mockedLog = (output: string) => consoleOutput.push(output)
     consoleOutput = []
     console.log = mockedLog
-    wrapper = shallowMount(SerializedInput, {
+    wrapper = mount(SerializedInput, {
       propsData: {
         value: value,
+        placeholder: placeholder,
         getFunction: getFunction,
         setFunction: null,
       },
