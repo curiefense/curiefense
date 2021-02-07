@@ -57,7 +57,7 @@ describe('SerializedInput.vue', () => {
     expect(wrapper.emitted('blur')[0]).toEqual([wantedValue])
   })
 
-  test.skip('should log message when trying to process data and getFunction is not a function', (done) => {
+  test('should log message when trying to process data and getFunction is not a function', (done) => {
     const originalLog = console.log
     let consoleOutput: string[] = []
     const mockedLog = (output: string) => consoleOutput.push(output)
@@ -66,6 +66,7 @@ describe('SerializedInput.vue', () => {
     wrapper = shallowMount(SerializedInput, {
       propsData: {
         value: value,
+        getFunction: null,
         setFunction: setFunction,
       },
     })
@@ -77,7 +78,7 @@ describe('SerializedInput.vue', () => {
     })
   })
 
-  test.skip('should log message when trying to process data and setFunction is not a function', async (done) => {
+  test('should log message when trying to process data and setFunction is not a function', async (done) => {
     const originalLog = console.log
     let consoleOutput: string[] = []
     const mockedLog = (output: string) => consoleOutput.push(output)
@@ -87,6 +88,7 @@ describe('SerializedInput.vue', () => {
       propsData: {
         value: value,
         getFunction: getFunction,
+        setFunction: null,
       },
     })
     await Vue.nextTick()
