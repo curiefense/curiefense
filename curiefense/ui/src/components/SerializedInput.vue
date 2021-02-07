@@ -35,19 +35,11 @@ export default Vue.extend({
   },
   methods: {
     updateValue: function(newValue: string) {
-      if (typeof this.setFunction === 'function') {
-        const result = this.setFunction(newValue)
-        this.$emit('blur', result)
-      } else {
-        console.log('SerializedInput setFunction prop provided is not a function!')
-      }
+      const result = this.setFunction(newValue)
+      this.$emit('blur', result)
     },
     formatValue: function() {
-      if (typeof this.getFunction === 'function') {
-        this.formattedValue = this.getFunction(this.value)
-      } else {
-        console.log('SerializedInput getFunction prop provided is not a function!')
-      }
+      this.formattedValue = this.getFunction(this.value)
     },
   },
 })
