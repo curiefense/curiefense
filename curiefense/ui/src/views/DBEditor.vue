@@ -515,24 +515,25 @@ export default Vue.extend({
         return
       }
       this.isSaveDocLoading = true
-      // If database name changed -> Save the data under the new name and remove the old database
-      if (this.selectedDatabase !== this.databaseNameInput) {
+      if (this.selectedDatabase === this.databaseNameInput && this.selectedKey === this.keyNameInput) {
+        // If database name and key name did not change - save normally
+        await this.saveKey(this.selectedDatabase, this.selectedKey, this.document)
+        this.selectedDatabaseData[this.selectedKey] = JSON.parse(this.document)
+      } else if (this.selectedDatabase !== this.databaseNameInput) {
+        // If database name changed -> Save the data under the new name and remove the old database
         const oldDatabase = this.selectedDatabase
         const oldDataResponse = await RequestsUtils.sendRequest('GET', `db/${oldDatabase}/`)
-        const oldData = oldDataResponse.data
-        await this.addNewDatabase(this.databaseNameInput, oldData)
+        const data = oldDataResponse.data
+        const oldKey = this.selectedKey
+        delete data[oldKey]
+        data[this.keyNameInput] = JSON.parse(this.document)
+        await this.addNewDatabase(this.databaseNameInput, data)
         await this.deleteDatabase(oldDatabase, true)
-      }
-      // If key name changed -> Save the data under the new name and remove the old key from the database
-      console.log(this.selectedKey)
-      console.log(this.keyNameInput)
-      if (this.selectedKey !== this.keyNameInput) {
+      } else if (this.selectedKey !== this.keyNameInput) {
+        // If key name changed -> Save the data under the new name and remove the old key from the database
         const oldKey = this.selectedKey
         await this.addNewKey(this.keyNameInput, this.document)
         await this.deleteKey(oldKey, true)
-      } else {
-        await this.saveKey(this.selectedDatabase, this.selectedKey, this.document)
-        this.selectedDatabaseData[this.selectedKey] = JSON.parse(this.document)
       }
       await this.loadGitLog()
       this.isSaveDocLoading = false

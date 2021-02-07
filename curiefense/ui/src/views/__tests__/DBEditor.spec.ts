@@ -343,19 +343,23 @@ describe('DBEditor.vue', () => {
 
     test('should be able to save database changes even if database name changes', async (done) => {
       const databaseNameInput = wrapper.find('.database-name-input')
+      const key = 'key_name'
+      const doc = {
+        buckets: {},
+        foo: 'bar',
+      }
+      const wantedResult = {
+        [key]: doc,
+      }
       // @ts-ignore
       databaseNameInput.element.value = 'newDB'
       databaseNameInput.trigger('input')
       await Vue.nextTick()
       const keyNameInput = wrapper.find('.key-name-input')
       // @ts-ignore
-      keyNameInput.element.value = 'key_name'
+      keyNameInput.element.value = key
       keyNameInput.trigger('input')
       await Vue.nextTick()
-      const doc = {
-        buckets: {},
-        foo: 'bar',
-      }
       // @ts-ignore
       wrapper.vm.document = JSON.stringify(doc)
       await Vue.nextTick()
@@ -364,7 +368,7 @@ describe('DBEditor.vue', () => {
       await Vue.nextTick()
       // allow all requests to finish
       setImmediate(() => {
-        expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/db/newDB/k/key_name/`, doc)
+        expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/db/newDB/`, wantedResult)
         done()
       })
     })
