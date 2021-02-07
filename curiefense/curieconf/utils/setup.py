@@ -12,8 +12,7 @@ setup(
 
     install_requires=[
         "wheel",
-        "azure==4.0.0",  # fix to force azure version before cloudstorage[microsoft]
-        "cloudstorage [amazon, google, local, microsoft, minio, rackspace]",
+        "cloudstorage [amazon, google, local]",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
