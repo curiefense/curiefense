@@ -3,7 +3,7 @@ import {beforeEach, describe, expect, test} from '@jest/globals'
 import {mount, shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 
-describe.skip('SerializedInput.vue', () => {
+describe('SerializedInput.vue', () => {
   let wrapper: Wrapper<Vue>
   let value: any
   let placeholder: string
@@ -57,7 +57,7 @@ describe.skip('SerializedInput.vue', () => {
     expect(wrapper.emitted('blur')[0]).toEqual([wantedValue])
   })
 
-  test('should log message when trying to process data and getFunction is not a function', (done) => {
+  test.skip('should log message when trying to process data and getFunction is not a function', (done) => {
     const originalLog = console.log
     let consoleOutput: string[] = []
     const mockedLog = (output: string) => consoleOutput.push(output)
@@ -77,7 +77,7 @@ describe.skip('SerializedInput.vue', () => {
     })
   })
 
-  test('should log message when trying to process data and setFunction is not a function', async (done) => {
+  test.skip('should log message when trying to process data and setFunction is not a function', async (done) => {
     const originalLog = console.log
     let consoleOutput: string[] = []
     const mockedLog = (output: string) => consoleOutput.push(output)
