@@ -44,6 +44,7 @@ global:
     curiefense_es_index_name: 'curieaccesslog'
     # docker_tag will be overridden by deploy.sh
     docker_tag: 'latest'
+    redis_port: 6379
 
   requests:
     cpu:

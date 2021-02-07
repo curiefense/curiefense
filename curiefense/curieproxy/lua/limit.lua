@@ -32,7 +32,11 @@ function redis_connection()
     if hostname == nil then
         hostname = "redis"
     end
-    return redis.connect(hostname, 6379)
+    port = os.getenv("REDIS_PORT")
+    if port == nil then
+        port = 6379
+    end
+    return redis.connect(hostname, port)
 end
 
 function should_exclude(request_map, limit_set)

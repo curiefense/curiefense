@@ -7,8 +7,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   ports:
-  - name: "6379"
-    port: 6379
+  - name: "redis-tcp"
+    port: {{ .Values.global.settings.redis_port }}
     targetPort: 6379
   selector:
     app.kubernetes.io/name: redis

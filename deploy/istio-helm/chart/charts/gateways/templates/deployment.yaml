@@ -398,6 +398,8 @@ spec:
           {{- if $spec.waf.enabled }}
           - name: REDIS_HOST
             value: "{{ $.Values.global.proxy.redis_host }}"
+          - name: REDIS_PORT
+            value: "{{ $.Values.global.proxy.redis_port }}"
           {{- end }}
           volumeMounts:
           {{- if $spec.waf.enabled }}
