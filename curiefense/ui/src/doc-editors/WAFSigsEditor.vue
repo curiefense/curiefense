@@ -15,6 +15,7 @@
                   </label>
                   <div class="control">
                     <input class="input is-small document-name"
+                           title="Document name"
                            placeholder="Document name"
                            v-model="localDoc.name"
                            readonly/>
@@ -30,6 +31,7 @@
             <p class="control has-icons-left">
               <input class="input is-small document-operand"
                      type="text"
+                     title="Match"
                      placeholder="matching domain(s) regex"
                      v-model="localDoc.operand"
                      required

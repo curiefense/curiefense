@@ -14,6 +14,7 @@
                 </label>
                 <div class="control">
                   <input class="input is-small document-name"
+                         title="Document name"
                          placeholder="Document name"
                          @change="emitDocUpdate"
                          v-model="localDoc.name"/>
@@ -52,45 +53,45 @@
                 <th></th>
               </tr>
               </thead>
-              <tbody v-for="(map_entry, idx) in localDoc.map" :key="idx">
+              <tbody v-for="(mapEntry, idx) in localDoc.map" :key="idx">
               <tr @click="changeSelectedMapEntry(idx)"
                   class="has-row-clickable"
-                  :class=" map_entry_index === idx ? 'has-background-light borderless' : ''">
+                  :class=" mapEntryIndex === idx ? 'has-background-light borderless' : ''">
                 <td class="is-size-7 width-50px has-text-right has-text-grey-light">
                   {{ idx + 1 }}
                 </td>
                 <td class="is-size-7">
-                  {{ map_entry.name }}
+                  {{ mapEntry.name }}
                 </td>
                 <td class="is-size-7 width-360px ellipsis"
                     colspan="2"
-                    :title="map_entry.match">
-                  {{ map_entry.match }}
+                    :title="mapEntry.match">
+                  {{ mapEntry.match }}
                 </td>
                 <td class="is-size-7 "
-                    :class=" map_entry.waf_active ? 'has-text-success' : 'has-text-danger' "
-                    :title=" map_entry.waf_active ? 'Active mode' : 'Learning mode' ">
-                  {{ wafProfileName(map_entry.waf_profile) ? wafProfileName(map_entry.waf_profile)[1] : '' }}
+                    :class=" mapEntry.waf_active ? 'has-text-success' : 'has-text-danger' "
+                    :title=" mapEntry.waf_active ? 'Active mode' : 'Learning mode' ">
+                  {{ wafProfileName(mapEntry.waf_profile) ? wafProfileName(mapEntry.waf_profile)[1] : '' }}
                 </td>
                 <td class="is-size-7 has-text-success"
-                    :class=" map_entry.acl_active ? 'has-text-success' : 'has-text-danger' "
-                    :title=" map_entry.acl_active ? 'Active mode' : 'Learning mode' ">
-                  {{ aclProfileName(map_entry.acl_profile) ? aclProfileName(map_entry.acl_profile)[1] : '' }}
+                    :class=" mapEntry.acl_active ? 'has-text-success' : 'has-text-danger' "
+                    :title=" mapEntry.acl_active ? 'Active mode' : 'Learning mode' ">
+                  {{ aclProfileName(mapEntry.acl_profile) ? aclProfileName(mapEntry.acl_profile)[1] : '' }}
                 </td>
                 <td class="is-size-7"
-                    v-if="map_entry.limit_ids">
-                  {{ map_entry.limit_ids.length }}
+                    v-if="mapEntry.limit_ids">
+                  {{ mapEntry.limit_ids.length }}
                 </td>
                 <td class="is-size-7"
-                    :rowspan="map_entry_index === idx ? '2' : '1'">
+                    :rowspan="mapEntryIndex === idx ? '2' : '1'">
                   <a class="has-text-grey"
                      title="more details">
-                    {{ map_entry_index === idx ? 'close' : 'expand' }}
+                    {{ mapEntryIndex === idx ? 'close' : 'expand' }}
                   </a>
                 </td>
               </tr>
-              <tr v-if="map_entry_index === idx"
-                  :class=" map_entry_index === idx ? 'has-background-light borderless' : ''"
+              <tr v-if="mapEntryIndex === idx"
+                  :class=" mapEntryIndex === idx ? 'has-background-light borderless' : ''"
                   class="expanded">
                 <td colspan="10">
                   <div class="card">
@@ -103,8 +104,12 @@
                                 Name
                               </label>
                               <div class="control">
-                                <input class="input is-small" type="text" ref="profileName"
-                                       v-model="map_entry.name" required>
+                                <input class="input is-small"
+                                       type="text"
+                                       ref="profileName"
+                                       title="Name"
+                                       v-model="mapEntry.name"
+                                       required>
                               </div>
                             </div>
                             <div class="field">
@@ -113,11 +118,12 @@
                               </label>
                               <div class="control">
                                 <input class="input is-small" type="text"
+                                       title="Match"
                                        placeholder="matching domain(s) regex"
                                        required
-                                       :disabled="map_entry.match === '__default__'"
-                                       :readonly="map_entry.match === '__default__'"
-                                       v-model="map_entry.match">
+                                       :disabled="mapEntry.match === '__default__'"
+                                       :readonly="mapEntry.match === '__default__'"
+                                       v-model="mapEntry.match">
                               </div>
                             </div>
                             <hr/>
@@ -142,52 +148,55 @@
                                     Timeframe
                                   </th>
                                   <th class="has-text-centered is-size-7 width-60px">
-                                    <a v-if="limitRuleNames && map_entry.limit_ids && limitRuleNames.length > map_entry.limit_ids.length"
+                                    <a v-if="limitRuleNames && mapEntry.limit_ids &&
+                                             limitRuleNames.length > mapEntry.limit_ids.length"
                                        class="has-text-grey-dark is-small"
                                        title="Add new"
-                                       @click="limitNewEntryMode_map_entry_id = map_entry.key">
+                                       @click="limitNewEntryModeMapEntryId = mapEntry.key">
                                       <span class="icon is-small"><i class="fas fa-plus"></i></span>
                                     </a>
                                   </th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr v-for="(limitIds, idx) in map_entry.limit_ids"
-                                    :key="limitIds"
-                                    :class="{ 'highlighted': rateLimitAnalyzed ? rateLimitAnalyzed.id === limitIds : false }">
+                                <tr v-for="(limitId, idx) in mapEntry.limit_ids"
+                                    :key="limitId"
+                                    :class="{ 'highlighted': rateLimitAnalyzed ?
+                                              rateLimitAnalyzed.id === limitId : false }">
                                   <td class="is-size-7">
                                     <a class="has-text-grey-dark is-small"
                                        title="Analyze recommended rate limit values"
-                                       @click="calcRateLimitRecommendation(map_entry, limitDetails(limitIds))">
+                                       @click="calcRateLimitRecommendation(mapEntry, limitDetails(limitId))">
                                       <span class="icon is-small"><i class="fas fa-chart-line"></i></span>
                                     </a>
                                   </td>
-                                  <td class="is-size-7" v-if="limitDetails(limitIds)">
-                                    {{ limitDetails(limitIds).name }}
+                                  <td class="is-size-7" v-if="limitDetails(limitId)">
+                                    {{ limitDetails(limitId).name }}
                                   </td>
-                                  <td class="is-size-7" v-if="limitDetails(limitIds)">
-                                    {{ limitDetails(limitIds).description }}
+                                  <td class="is-size-7" v-if="limitDetails(limitId)">
+                                    {{ limitDetails(limitId).description }}
                                   </td>
-                                  <td class="is-size-7" v-if="limitDetails(limitIds)">
-                                    {{ limitDetails(limitIds).limit }}
+                                  <td class="is-size-7" v-if="limitDetails(limitId)">
+                                    {{ limitDetails(limitId).limit }}
                                   </td>
-                                  <td class="is-size-7" v-if="limitDetails(limitIds)">
-                                    {{ limitDetails(limitIds).ttl }}
+                                  <td class="is-size-7" v-if="limitDetails(limitId)">
+                                    {{ limitDetails(limitId).ttl }}
                                   </td>
                                   <td class="has-text-centered is-size-7 width-60px">
                                     <a class="is-small has-text-grey" title="remove entry"
-                                       @click="map_entry.limit_ids.splice(idx,1)">
+                                       @click="mapEntry.limit_ids.splice(idx,1)">
                                       remove
                                     </a>
                                   </td>
                                 </tr>
-                                <tr v-if="limitNewEntryMode(map_entry.key)">
+                                <tr v-if="limitNewEntryMode(mapEntry.key)">
                                   <td colspan="4">
                                     <div class="control is-expanded">
                                       <div class="select is-small is-size-7 is-fullwidth">
                                         <select class="select is-small"
-                                                v-model="limit_mapEntry_id">
-                                          <option v-for="rule in newLimitRules(map_entry.limit_ids)" :key="rule.id"
+                                                title="Rate limit ID"
+                                                v-model="limitMapEntryId">
+                                          <option v-for="rule in newLimitRules(mapEntry.limit_ids)" :key="rule.id"
                                                   :value="rule.id">{{ rule.name + ' ' + rule.description }}
                                           </option>
                                         </select>
@@ -196,16 +205,18 @@
                                   </td>
                                   <td class="has-text-centered is-size-7 width-60px">
                                     <a class="is-small has-text-grey" title="Add this entry"
-                                       @click="map_entry.limit_ids.push(limit_mapEntry_id); limitNewEntryMode_map_entry_id = null">
+                                       @click="mapEntry.limit_ids.push(limitMapEntryId);
+                                               limitNewEntryModeMapEntryId = null">
                                       add
                                     </a>
                                   </td>
                                 </tr>
-                                <tr v-if="map_entry.limit_ids && map_entry.limit_ids.length === 0 ">
+                                <tr v-if="mapEntry.limit_ids && mapEntry.limit_ids.length === 0 ">
                                   <td colspan="5">
                                     <p class="is-size-7 has-text-grey has-text-centered">
-                                      To attach an existing rule, click <a title="Add New"
-                                                                           @click="limitNewEntryMode_map_entry_id = map_entry.key">here</a>.
+                                      To attach an existing rule, click
+                                      <a title="Add New"
+                                         @click="limitNewEntryModeMapEntryId = mapEntry.key">here</a>.
                                       <br/>
                                       To create a new rate-limit rule, click <a @click="referToRateLimit">here</a>.
                                     </p>
@@ -216,21 +227,24 @@
                             </div>
                             <div class="content is-size-7 has-text-grey">
                               <span v-if="rateLimitRecommendationStatus === 'info' || !rateLimitAnalyzed">
-                                Click on the icon next to a rate limit rule to analyze it and calculate recommended threshold.
+                                Click on the icon next to a rate limit rule to analyze it
+                                and calculate recommended threshold.
                               </span>
                               <span v-if="rateLimitRecommendationStatus === 'recommend' && rateLimitAnalyzed">
-                                Recommended rate limit threshold based on data from the last seven days is <b>{{
-                                  rateLimitRecommendation
-                                }}</b>.
+                                Recommended rate limit threshold based on data from the last seven days is
+                                <b>{{ rateLimitRecommendation }}</b>.
                                 <span v-if="rateLimitAnalyzed.limit === rateLimitRecommendation">
                                   <br/>
                                   You are currently using the recommended threshold for this rule.
                                 </span>
                                 <span v-else>
-                                  Click <a title="Apply Recommended Rate Limit" @click="applyRateLimitRecommendation">here</a> to apply.
+                                  Click
+                                  <a title="Apply Recommended Rate Limit" @click="applyRateLimitRecommendation">here</a>
+                                  to apply.
                                   <br/>
                                   <span v-if="isRateLimitReferencedElsewhere(rateLimitAnalyzed.id, mapEntryAnalyzed)">
-                                    Please notice! There are other URL map entries using this rate limit rule, this action will create a copy of the rate limit rule.
+                                    Please notice! There are other URL map entries using this rate limit rule,
+                                    this action will create a copy of the rate limit rule.
                                   </span>
                                   <span v-else>
                                     Please notice! This action will modify the rate limit rule itself.
@@ -242,7 +256,8 @@
                               </span>
                               <span v-if="rateLimitRecommendationStatus === 'error'"
                                     class="has-text-danger has-background-danger-light">
-                                Encountered an error while trying to analyze recommended rate limit, please try again later.
+                                Encountered an error while trying to analyze recommended rate limit,
+                                please try again later.
                               </span>
                               <span v-if="rateLimitRecommendationStatus === 'loading'">
                                 <button class="button is-outlined is-text is-small is-loading"
@@ -255,7 +270,8 @@
                               <label class="label is-small">WAF Profile</label>
                               <div class="control is-expanded">
                                 <div class="select is-fullwidth is-small">
-                                  <select v-model="map_entry.waf_profile">
+                                  <select v-model="mapEntry.waf_profile"
+                                          title="WAF profile">
                                     <option v-for="waf in wafProfileNames"
                                             :value="waf[0]"
                                             :key="waf[0]">
@@ -268,7 +284,7 @@
                             <div class="field">
                               <label class="checkbox is-size-7">
                                 <input type="checkbox"
-                                       v-model="map_entry.waf_active">
+                                       v-model="mapEntry.waf_active">
                                 Active Mode
                               </label>
                             </div>
@@ -279,7 +295,8 @@
                               </label>
                               <div class="control is-expanded">
                                 <div class="select is-fullwidth is-small">
-                                  <select v-model="map_entry.acl_profile">
+                                  <select v-model="mapEntry.acl_profile"
+                                          title="ACL profile">
                                     <option v-for="acl in aclProfileNames" :value="acl[0]" :key="acl[0]">
                                       {{ acl[1] }}
                                     </option>
@@ -289,7 +306,7 @@
                             </div>
                             <div class="field">
                               <label class="checkbox is-size-7">
-                                <input type="checkbox" v-model="map_entry.acl_active">
+                                <input type="checkbox" v-model="mapEntry.acl_active">
                                 Active Mode
                               </label>
                             </div>
@@ -297,7 +314,7 @@
                             <div class="field">
                               <button title="Create new profile based on this one"
                                       class="button is-small is-pulled-left is-light"
-                                      @click="addNewProfile(map_entry, idx)">
+                                      @click="addNewProfile(mapEntry, idx)">
                                 <span class="icon"><i class="fas fa-code-branch"></i></span>
                                 <span>
                                 Fork profile
@@ -306,7 +323,7 @@
                               <button title="Delete this profile"
                                       class="button is-small is-pulled-right is-danger is-light"
                                       @click="localDoc.map.splice(idx, 1); emitDocUpdate"
-                                      v-if="map_entry.name !== 'default'">
+                                      v-if="mapEntry.name !== 'default'">
                                 delete
                               </button>
                             </div>
@@ -351,15 +368,15 @@ export default (Vue as VueConstructor<Vue & {
 
   data() {
     return {
-      map_entry_index: -1,
+      mapEntryIndex: -1,
 
       // for URLMap drop downs
       wafProfileNames: [],
       aclProfileNames: [],
-      limitRuleNames: [],
+      limitRuleNames: [] as RateLimit[],
 
-      limitNewEntryMode_map_entry_id: null,
-      limit_mapEntry_id: null,
+      limitNewEntryModeMapEntryId: null,
+      limitMapEntryId: null,
 
       upstreams: [],
 
@@ -378,36 +395,36 @@ export default (Vue as VueConstructor<Vue & {
   },
 
   methods: {
-    emitDocUpdate() {
+    emitDocUpdate(): void {
       this.$emit('update:selectedDoc', this.localDoc)
     },
 
-    aclProfileName(id: string) {
+    aclProfileName(id: string): string[] {
       return _.find(this.aclProfileNames, (profile) => {
-        return profile[0] === id
+        return profile.id === id
       })
     },
 
-    wafProfileName(id: string) {
+    wafProfileName(id: string): string[] {
       return _.find(this.wafProfileNames, (profile) => {
-        return profile[0] === id
+        return profile.id === id
       })
     },
 
-    newLimitRules(limitIds: string[]) {
+    newLimitRules(limitIds: string[]): RateLimit[] {
       return _.filter(this.limitRuleNames, (rule) => {
         return _.indexOf(limitIds, rule.id) === -1
       })
     },
 
-    limitDetails(limitIds: string[]) {
+    limitDetails(limitId: string): RateLimit {
       return _.find(this.limitRuleNames, (rule) => {
-        return rule.id === limitIds
+        return rule.id === limitId
       })
     },
 
-    limitNewEntryMode(id: string) {
-      return this.limitNewEntryMode_map_entry_id === id
+    limitNewEntryMode(id: string): boolean {
+      return this.limitNewEntryModeMapEntryId === id
     },
 
     addNewProfile(map: URLMapEntryMatch, idx: number) {
@@ -426,7 +443,7 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     changeSelectedMapEntry(index: number) {
-      this.map_entry_index = (this.map_entry_index === index ? -1 : index)
+      this.mapEntryIndex = (this.mapEntryIndex === index ? -1 : index)
       this.clearRateLimitRecommendation()
     },
 
@@ -491,7 +508,8 @@ export default (Vue as VueConstructor<Vue & {
         // ID is referenced, copy rate limit
         recommendedRateLimit.name = 'copy of ' + recommendedRateLimit.name
         recommendedRateLimit.id = DatasetsUtils.convertToUUID2()
-        RequestsUtils.sendRequest('POST', `configs/${this.selectedBranch}/d/ratelimits/e/${recommendedRateLimit.id}`).then(() => {
+        RequestsUtils.sendRequest('POST',
+            `configs/${this.selectedBranch}/d/ratelimits/e/${recommendedRateLimit.id}`).then(() => {
           _.remove(this.mapEntryAnalyzed.limit_ids, (id) => {
             return id === this.rateLimitAnalyzed.id
           })
@@ -526,7 +544,8 @@ export default (Vue as VueConstructor<Vue & {
     wafacllimitProfileNames() {
       const branch = this.selectedBranch
 
-      RequestsUtils.sendRequest('GET', `configs/${branch}/d/wafpolicies/`).then((response: AxiosResponse<WAFPolicy[]>) => {
+      RequestsUtils.sendRequest('GET',
+          `configs/${branch}/d/wafpolicies/`).then((response: AxiosResponse<WAFPolicy[]>) => {
         this.wafProfileNames = _.sortBy(_.map(response.data, (entity) => {
           return [entity.id, entity.name]
         }), (e) => {
@@ -534,7 +553,8 @@ export default (Vue as VueConstructor<Vue & {
         })
       })
 
-      RequestsUtils.sendRequest('GET', `configs/${branch}/d/aclpolicies/`).then((response: AxiosResponse<ACLPolicy[]>) => {
+      RequestsUtils.sendRequest('GET',
+          `configs/${branch}/d/aclpolicies/`).then((response: AxiosResponse<ACLPolicy[]>) => {
         this.aclProfileNames = _.sortBy(_.map(response.data, (entity) => {
           return [entity.id, entity.name]
         }), (e) => {
@@ -542,7 +562,8 @@ export default (Vue as VueConstructor<Vue & {
         })
       })
 
-      RequestsUtils.sendRequest('GET', `configs/${branch}/d/ratelimits/`).then((response: AxiosResponse<RateLimit[]>) => {
+      RequestsUtils.sendRequest('GET',
+          `configs/${branch}/d/ratelimits/`).then((response: AxiosResponse<RateLimit[]>) => {
         this.limitRuleNames = response.data
       })
     },

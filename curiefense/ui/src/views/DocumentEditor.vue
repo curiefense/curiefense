@@ -278,11 +278,13 @@ export default Vue.extend({
   computed: {
 
     documentAPIPath(): string {
-      return `${this.apiRoot}/${this.apiVersion}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
+      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
     },
 
     gitAPIPath(): string {
-      return `${this.apiRoot}/${this.apiVersion}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/v/`
+      const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
+      return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/v/`
     },
 
     branchNames(): string[] {

@@ -30,8 +30,14 @@
                     'is-12': !labelDisplayedInline && isSingleInputColumn,
                     'pl-0': wideColumns && !labelDisplayedInline && !isSingleInputColumn}">
         <div class="control select is-fullwidth is-small" v-if="localAction">
-          <select v-model="localAction.type" @change="emitActionUpdate">
-            <option v-for="(value, id) in options" :value="id" :key="id">{{ value.title }}</option>
+          <select v-model="localAction.type"
+                  title="Action type"
+                  @change="emitActionUpdate">
+            <option v-for="(value, id) in options"
+                    :value="id"
+                    :key="id">
+              {{ value.title }}
+            </option>
           </select>
         </div>
       </div>
@@ -39,7 +45,8 @@
            class="column is-2 pt-0">
       </div>
       <div
-          v-if="localAction && (localAction.type === 'response' || localAction.type === 'redirect' || localAction.type === 'ban' || localAction.type === 'request_header')"
+          v-if="localAction && (localAction.type === 'response' || localAction.type === 'redirect' ||
+                localAction.type === 'ban' || localAction.type === 'request_header')"
           class="column"
           :class="{'is-5': labelDisplayedInline && !isSingleInputColumn,
                     'is-6': !labelDisplayedInline && !isSingleInputColumn,
@@ -53,6 +60,7 @@
               type="text"
               v-model="localAction.params.status"
               @change="emitActionUpdate"
+              title="Status code"
               placeholder="Status code">
           <input
               v-if="localAction && localAction.type === 'ban'"
@@ -60,6 +68,7 @@
               type="text"
               v-model="localAction.params.ttl"
               @change="emitActionUpdate"
+              title="Duration"
               placeholder="Duration">
           <input
               v-if="localAction && localAction.type === 'request_header'"
@@ -67,6 +76,7 @@
               type="text"
               v-model="localAction.params.headers"
               @change="emitActionUpdate"
+              title="Header"
               placeholder="Header">
         </p>
       </div>
@@ -89,6 +99,7 @@
                         @change="emitActionUpdate"
                         class="textarea is-small"
                         rows="2"
+                        title="Response body"
                         placeholder="Response body">
               </textarea>
           </div>
@@ -99,6 +110,7 @@
                      type="text"
                      v-model="localAction.params.location"
                      @change="emitActionUpdate"
+                     title="Location"
                      placeholder="Location">
             </p>
           </div>

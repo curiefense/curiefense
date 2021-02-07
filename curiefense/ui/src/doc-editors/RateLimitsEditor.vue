@@ -15,6 +15,7 @@
                 </label>
                 <div class="control">
                   <input class="input is-small document-name"
+                         title="Document name"
                          placeholder="Document name"
                          @change="emitDocUpdate"
                          v-model="localDoc.name"/>
@@ -27,6 +28,7 @@
                 <div class="control">
                   <input class="input is-small document-description"
                          type="text"
+                         title="New rate limit rule name"
                          placeholder="New rate limit rule name"
                          @change="emitDocUpdate"
                          v-model="localDoc.description">
@@ -39,7 +41,8 @@
                 <div class="control">
                   <input class="input is-small document-limit"
                          type="text"
-                         placeholder="New rate limit rule name"
+                         title="New rate limit threshold"
+                         placeholder="New rate limit threshold"
                          @change="emitDocUpdate"
                          v-model="localDoc.limit">
                 </div>
@@ -51,7 +54,8 @@
                 <div class="control seconds-suffix">
                   <input class="input is-small document-ttl"
                          type="text"
-                         placeholder="New rate limit rule name"
+                         title="New rate limit duration"
+                         placeholder="New rate limit duration"
                          @change="emitDocUpdate"
                          v-model="localDoc.ttl">
                 </div>
@@ -119,6 +123,7 @@
                       <div class="column is-2">
                         <div class="control select is-small">
                           <select class="include-exclude-select"
+                                  title="Include or Exclude"
                                   v-model="newIncludeOrExcludeEntry.include">
                             <option :value="true">Include</option>
                             <option :value="false">Exclude</option>
@@ -128,6 +133,7 @@
                       <div class="column">
                         <div class="control select is-small is-fullwidth">
                           <select class="type-select"
+                                  title="Type"
                                   v-model="newIncludeOrExcludeEntry.type">
                             <option value="attrs">Attribute</option>
                             <option value="args">Argument</option>
@@ -140,6 +146,7 @@
                         <div v-if="newIncludeOrExcludeEntry.type === 'attrs'"
                              class="control select is-small is-fullwidth">
                           <select class="key-select"
+                                  title="Key"
                                   v-model="newIncludeOrExcludeEntry.key">
                             <option value="ip">IP Address</option>
                             <option value="asn">Provider</option>
@@ -155,6 +162,7 @@
                         </div>
                         <div v-else class="control">
                           <input v-model="newIncludeOrExcludeEntry.key"
+                                 title="Key"
                                  type="text"
                                  class="input is-small key-input">
                         </div>
@@ -169,6 +177,7 @@
                           <input v-show="newIncludeOrExcludeEntry.key !== 'tags'"
                                  v-model="newIncludeOrExcludeEntry.value"
                                  type="text"
+                                 title="Value"
                                  class="input is-small value-input">
                           <span class="icon is-small is-left has-text-grey-light">
                       <i class="fa fa-code"></i>

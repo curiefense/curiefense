@@ -2,7 +2,7 @@
   <div class="container">
     <div class="navbar-brand">
       <a class="navbar-item">
-        <img src="../assets/logo.png" class="logo">
+        <img src="../assets/logo.png" class="logo" alt="logo">
       </a>
     </div>
     <div class="version-box is-size-7 has-text-grey">

@@ -5,6 +5,7 @@
            class="serialized-input input is-small"
            v-model="formattedValue"
            @blur="updateValue($event.target.value)"
+           :title="placeholder"
            :placeholder="placeholder"/>
   </div>
 </template>

@@ -17,6 +17,7 @@ declare module CuriefenseClient {
     reg: string
     restrict: boolean
     mask: boolean
+    type: NamesRegexType
     exclusions: { [key: string]: number }
   }
 

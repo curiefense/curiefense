@@ -15,6 +15,7 @@
                   </label>
                   <div class="control">
                     <input class="input is-small document-name"
+                           title="Document name"
                            placeholder="Document name"
                            @change="emitDocUpdate"
                            v-model="localDoc.name"/>
@@ -43,6 +44,7 @@
                          class="input is-small max-header-length-input"
                          type="number"
                          @change="emitDocUpdate"
+                         title="Max header length"
                          v-model.number="localDoc.max_header_length"/>
                 </td>
                 <td>
@@ -50,6 +52,7 @@
                          class="input is-small max-cookie-length-input"
                          type="number"
                          @change="emitDocUpdate"
+                         title="Max cookie length"
                          v-model.number="localDoc.max_cookie_length"/>
                 </td>
                 <td>
@@ -57,6 +60,7 @@
                          class="input is-small max-arg-length-input"
                          type="number"
                          @change="emitDocUpdate"
+                         title="Max argument length"
                          v-model.number="localDoc.max_arg_length"/>
                 </td>
               </tr>
@@ -67,6 +71,7 @@
                          class="input is-small max-headers-count-input"
                          type="number"
                          @change="emitDocUpdate"
+                         title="Max headers count"
                          v-model.number="localDoc.max_headers_count"/>
                 </td>
                 <td>
@@ -74,6 +79,7 @@
                          class="input is-small max-cookies-count-input"
                          type="number"
                          @change="emitDocUpdate"
+                         title="Max cookies count"
                          v-model.number="localDoc.max_cookies_count"/>
                 </td>
                 <td>
@@ -81,6 +87,7 @@
                          class="input is-small max-args-count-input"
                          type="number"
                          @change="emitDocUpdate"
+                         title="Max arguments count"
                          v-model.number="localDoc.max_args_count"/>
                 </td>
               </tr>
@@ -152,7 +159,8 @@
                                 <div class="field">
                                   <div class="control ">
                                     <div class="select is-small">
-                                      <select v-model="newEntry.type">
+                                      <select v-model="newEntry.type"
+                                              title="Type">
                                         <option value="names">
                                           {{ titles.names }}
                                         </option>
@@ -332,7 +340,7 @@ import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import SerializedInput from '@/components/SerializedInput.vue'
 import Vue from 'vue'
-import {ArgsCookiesHeadersType, NamesRegexType, WAFPolicy} from '@/types'
+import {ArgsCookiesHeadersType, NamesRegexType, WAFEntryMatch, WAFPolicy} from '@/types'
 
 export default Vue.extend({
   name: 'WAFEditor',
@@ -343,19 +351,20 @@ export default Vue.extend({
   },
 
   data() {
+    const defaultNewEntry: WAFEntryMatch = {
+      type: 'names',
+      key: '',
+      reg: '',
+      restrict: false,
+      mask: false,
+      exclusions: null,
+    }
     return {
       tab: 'args' as ArgsCookiesHeadersType,
-      newWAFLine: null,
-      newEntry: null,
+      newWAFLine: null as ArgsCookiesHeadersType,
+      newEntry: defaultNewEntry,
       titles: DatasetsUtils.Titles,
-      defaultNewEntry: {
-        type: 'names',
-        key: null,
-        reg: null,
-        restrict: false,
-        mask: false,
-        exclusions: null,
-      },
+      defaultNewEntry: defaultNewEntry,
     }
   },
 
@@ -374,7 +383,7 @@ export default Vue.extend({
       const newEntry = _.cloneDeep(this.newEntry)
       this.newEntry = this.newWAFLine = null
       const type: NamesRegexType = newEntry.type
-      delete newEntry.type;
+      delete newEntry.type
       this.localDoc[this.tab][type].unshift(newEntry)
       this.emitDocUpdate()
     },
@@ -403,7 +412,7 @@ export default Vue.extend({
       let rowKey = elem.dataset.curie
       while (elem) {
         if (rowKey) {
-          const [tab, type, idx] = rowKey.split('-');
+          const [tab, type, idx] = rowKey.split('-')
           this.localDoc[tab as ArgsCookiesHeadersType][type as NamesRegexType].splice(Number(idx), 1)
           this.emitDocUpdate()
           break

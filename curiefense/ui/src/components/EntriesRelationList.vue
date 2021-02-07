@@ -60,7 +60,9 @@
                 <tr v-if="newEntrySectionIndex === section_idx && editable" class="new-entry-row">
                   <td class="is-size-7" colspan="2">
                     <div class="select is-small is-fullwidth">
-                      <select v-model="newEntryCategory" class="select new-entry-type-selection">
+                      <select v-model="newEntryCategory"
+                              title="New entry category"
+                              class="select new-entry-type-selection">
                         <option v-for="(entryType, category) in listEntryTypes" :key="category" :value="category">
                           {{ entryType.title }}
                         </option>
@@ -71,11 +73,13 @@
                     <div v-if="isCategoryArgsCookiesHeaders(newEntryCategory)"
                          class="control has-icons-left is-fullwidth new-entry-name">
                       <input class="input is-small new-entry-name-input"
+                             title="Name"
                              placeholder="Name"
                              v-model="newEntryItem.firstAttr"/>
                       <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
                     </div>
                     <textarea v-else
+                              title="Entries"
                               v-model="newEntryItem.firstAttr"
                               placeholder="One entry per line, use '#' for annotation"
                               class="textarea is-small is-fullwidth new-entry-textarea"
@@ -158,9 +162,10 @@ export default Vue.extend({
         const isRelationValid = ['OR', 'AND'].includes(value.relation.toUpperCase())
         const isListInvalid = value.sections.find((section: TagRuleSection) => {
           const isSectionRelationInvalid = !(['OR', 'AND'].includes(value.relation.toUpperCase()))
-          const isSectionsEntriesInvalid = !section.entries || !section.entries.find || section.entries.find((entry: TagRuleSectionEntry) => {
-            return (!entry || !entry.length || entry.length < 2 || entry.length > 3)
-          })
+          const isSectionsEntriesInvalid = !section.entries || !section.entries.find ||
+              section.entries.find((entry: TagRuleSectionEntry) => {
+                return (!entry || !entry.length || entry.length < 2 || entry.length > 3)
+              })
           return isSectionRelationInvalid || isSectionsEntriesInvalid
         })
         return isRelationValid && !isListInvalid

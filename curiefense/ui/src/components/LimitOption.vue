@@ -14,11 +14,11 @@
       </div>
       <div class="column">
         <div class="control select is-small is-fullwidth">
-          <select v-model="selectedType">
+          <select v-model="selectedType"
+                  title="Type">
             <option v-if="useDefaultSelf" value="self">HTTP request</option>
-            <option v-for="(value, id) in options" :selected="value === selectedType" :value="id" :key="id">{{
-                value
-              }}
+            <option v-for="(value, id) in options" :selected="value === selectedType" :value="id" :key="id">
+              {{ value }}
             </option>
           </select>
         </div>
@@ -27,12 +27,16 @@
         <div v-if="isCategoryArgsCookiesHeaders(selectedType)"
              :class="{control: true, 'is-fullwidth': true}"
              class="has-icons-left">
-          <input type="text" v-model="selectedKey" class="input is-small">
+          <input type="text"
+                 title="Key"
+                 v-model="selectedKey"
+                 class="input is-small">
           <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
         </div>
         <div class="control select is-small is-fullwidth" v-if="selectedType === 'attrs'">
           <div class="select is-fullwidth">
-            <select v-model="selectedKey">
+            <select v-model="selectedKey"
+                    title="Key">
               <option v-for="(value, id) in attributes" :value="id" :key="id">{{ value }}</option>
             </select>
           </div>
@@ -40,14 +44,18 @@
       </div>
       <div class="column" v-if="useValue">
         <div class="control has-icons-left is-fullwidth">
-          <input type="text" v-model="selectedValue" class="input is-small">
+          <input type="text"
+                 title="Value"
+                 v-model="selectedValue"
+                 class="input is-small">
           <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
         </div>
       </div>
       <div class="column is-narrow"
            v-if="!!showRemove">
         <button
-            :class="['button', 'is-light', 'is-small', 'remove-icon', 'is-small', removable ? 'has-text-grey' : 'has-text-grey-light', removable ? '' : 'is-disabled']"
+            :class="['button', 'is-light', 'is-small', 'remove-icon', 'is-small',
+                    removable ? 'has-text-grey' : 'has-text-grey-light is-disabled']"
             :disabled="!removable"
             title="click to remove"
             @click="$emit('remove', index)">
@@ -88,7 +96,7 @@ export default Vue.extend({
   },
   data() {
     const {LimitRulesTypes, LimitAttributes} = DatasetsUtils
-    const optionsData: {[key: string]: OptionObject} = {
+    const optionsData: { [key: string]: OptionObject } = {
       self: {
         type: 'self',
         key: 'self',
@@ -122,7 +130,7 @@ export default Vue.extend({
         return this.selectedOption.key
       },
       set: function(value: string): void {
-        this.selectedOption.oldKey = this.selectedOption.key;
+        this.selectedOption.oldKey = this.selectedOption.key
         this.selectedOption.key = value
       },
     },
@@ -131,7 +139,7 @@ export default Vue.extend({
         return this.selectedOption.type
       },
       set: function(value: LimitRuleType): void {
-        this.type = value;
+        this.type = value
         this.selectedOption.type = value
       },
     },
