@@ -57,7 +57,7 @@ describe('SerializedInput.vue', () => {
     expect(wrapper.emitted('blur')[0]).toEqual([wantedValue])
   })
 
-  test('should log message when trying to process data and getFunction is not a function', (done) => {
+  test.skip('should log message when trying to process data and getFunction is not a function', (done) => {
     const originalLog = console.log
     let consoleOutput: string[] = []
     const mockedLog = (output: string) => consoleOutput.push(output)
