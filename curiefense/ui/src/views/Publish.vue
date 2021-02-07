@@ -8,8 +8,14 @@
               <div class="field is-grouped">
                 <div class="control">
                   <div class="select is-small">
-                    <select v-model="selectedBranchName" @change="switchBranch">
-                      <option v-for="name in branchNames" :key="name" :value="name">{{ name }}</option>
+                    <select v-model="selectedBranchName"
+                            title="Switch branch"
+                            @change="switchBranch">
+                      <option v-for="name in branchNames"
+                              :key="name"
+                              :value="name">
+                        {{ name }}
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -49,11 +55,10 @@
             <p class="title is-6 is-expanded">Version History</p>
             <table class="table" v-if="gitLog && gitLog.length > 0">
               <tbody>
-              <tr
-                  @click="selectCommit(commit)"
+              <tr @click="selectCommit(commit)"
                   v-for="commit in commitLines"
                   :key="commit.version"
-                  :class="vesionRowClass(commit.version)">
+                  :class="getVersionRowClass(commit.version)">
                 <td class="is-size-7">
                   {{ commit.date }} {{ commit.version }}
                   <br/>
@@ -82,7 +87,7 @@
               <tr
                   v-for="bucket in buckets"
                   :key="bucket.name"
-                  :class="bucketRowCLass(bucket.name)"
+                  :class="getBucketRowClass(bucket.name)"
                   @click="bucketNameClicked(bucket.name)">
                 <td class="is-size-7">
                   <span class="icon is-small is-vcentered">
@@ -115,112 +120,103 @@
 </template>
 
 <script lang="ts">
-
+import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
-import RequestsUtils from '@/assets/RequestsUtils'
+import RequestsUtils from '@/assets/RequestsUtils.ts'
 import {mdiBucket} from '@mdi/js'
 import Vue from 'vue'
+import {Branch, Commit} from '@/types'
+import {AxiosResponse} from 'axios'
 
 export default Vue.extend({
-
   name: 'Publish',
   props: {},
-
   components: {},
-
   data() {
     return {
       mdiBucketPath: mdiBucket,
-
       configs: [],
-
       gitLog: [],
       expanded: false,
       init_max_rows: 5,
-
       publishMode: false,
-
       commits: 0,
       branches: 0,
       selectedBranchName: null,
-
       // db/system info
-      publishinfo: {buckets: [], branch_buckets: []},
-
+      publishInfo: {buckets: [], branch_buckets: []},
       // reent commit or user clicks
       selectedCommit: null,
       // branch's buckets by default + plus user clicks
       selectedBucketNames: [],
-
       // buckets which are within an ongoing publish operation
       publishedBuckets: [],
-
       apiRoot: DatasetsUtils.ConfAPIRoot,
       apiVersion: DatasetsUtils.ConfAPIVersion,
       titles: DatasetsUtils.Titles,
-
     }
   },
   computed: {
-    buckets() {
-
+    buckets(): any[] {
       if (!this.publishMode) {
-        return this.publishinfo.buckets
+        return this.publishInfo.buckets
       }
       return this.publishedBuckets
-
     },
 
-    commitLines() {
-      if (this.expanded)
+    commitLines(): Commit[] {
+      if (this.expanded) {
         return this.gitLog
+      }
 
       return this.gitLog.slice(0, this.init_max_rows)
     },
 
-    gitAPIPath() {
+    gitAPIPath(): string {
       return `${this.apiRoot}/${this.apiVersion}/configs/v/`
     },
 
-    branchNames() {
-      return this.ld.sortBy(this.ld.map(this.configs, 'id'))
+    branchNames(): string[] {
+      return _.sortBy(_.map(this.configs, 'id'))
     },
 
-    selectedBranch() {
-      if (!this.selectedBranchName)
-        return {}
+    selectedBranch(): Branch {
+      if (!this.selectedBranchName) {
+        return {} as Branch
+      }
 
-      let idx = this.ld.findIndex(this.configs, (conf) => {
+      const idx = _.findIndex(this.configs, (conf) => {
         return conf.id === this.selectedBranchName
       })
 
-      if (idx > -1)
+      if (idx > -1) {
         return this.configs[idx]
+      }
 
       return this.configs[0]
-    }
+    },
 
   },
 
   methods: {
-    selectCommit(commit) {
+    selectCommit(commit: Commit) {
       this.selectedCommit = commit.version
       this.publishMode = false
-      console.log('this.publishinfo.buckets', this.publishinfo.buckets)
+      console.log('publish info buckets', this.publishInfo.buckets)
     },
 
-    bucketRowCLass(bucketname) {
-      let classNames = []
+    getBucketRowClass(bucketName: string) {
+      const classNames = []
       if (!this.publishMode) {
-        if (this.bucketWithinList(bucketname)) {
+        if (this.bucketWithinList(bucketName)) {
           classNames.push('has-background-warning-light')
         }
         return classNames.join(' ')
       }
     },
 
-    vesionRowClass(version) {
-      let classNames = []
+    getVersionRowClass(version: string) {
+      const classNames = []
       if (version === this.selectedCommit) {
         classNames.push('has-background-warning-light')
         classNames.push('marked')
@@ -232,20 +228,21 @@ export default Vue.extend({
       this.publishMode = false
       this.setGitLog()
       this.setDefaultBuckets()
-      console.log('this.publishinfo.buckets', this.publishinfo.buckets)
+      console.log('publish info buckets', this.publishInfo.buckets)
     },
 
     setDefaultBuckets() {
       this.selectedBucketNames = []
-      if (this.publishinfo.branch_buckets.length > 0) {
-        let bucketList = this.ld.find(this.publishinfo.branch_buckets, (list) => {
+      if (this.publishInfo.branch_buckets.length > 0) {
+        const bucketList = _.find(this.publishInfo.branch_buckets, (list) => {
           return list.name === this.selectedBranchName
         })
-        if (bucketList)
-          this.selectedBucketNames = this.ld.cloneDeep(bucketList.buckets)
+        if (bucketList) {
+          this.selectedBucketNames = _.cloneDeep(bucketList.buckets)
+        }
       }
 
-      console.log('this.publishinfo', this.publishinfo)
+      console.log('publish info', this.publishInfo)
     },
 
     setGitLog() {
@@ -255,25 +252,23 @@ export default Vue.extend({
       } else {
         this.gitLog = []
       }
-
     },
 
     loadPublishInfo() {
-      RequestsUtils.sendRequest('GET', `db/system/k/publishinfo/`)
-          .then((response) => {
-            this.publishinfo = response.data
-            this.setDefaultBuckets()
-          })
+      RequestsUtils.sendRequest('GET', `db/system/k/publishinfo/`).then((response: AxiosResponse) => {
+        this.publishInfo = response.data
+        this.setDefaultBuckets()
+      })
     },
 
-    bucketWithinList(name) {
-      return this.ld.indexOf(this.selectedBucketNames, name) > -1
+    bucketWithinList(name: string) {
+      return _.indexOf(this.selectedBucketNames, name) > -1
     },
 
-    bucketNameClicked(name) {
-      let idx = this.ld.indexOf(this.selectedBucketNames, name)
-      if (idx > -1) {
-        this.selectedBucketNames.splice(idx, 1)
+    bucketNameClicked(name: string) {
+      const index = _.indexOf(this.selectedBucketNames, name)
+      if (index > -1) {
+        this.selectedBucketNames.splice(index, 1)
       } else {
         this.selectedBucketNames.push(name)
       }
@@ -281,61 +276,61 @@ export default Vue.extend({
 
     loadConfigs() {
       // store configs
-      RequestsUtils.sendRequest('GET', 'configs/').then((response) => {
-        let configs = response.data
+      RequestsUtils.sendRequest('GET', 'configs/').then((response: AxiosResponse<Branch[]>) => {
+        const configs = response.data
         this.configs = configs
         // pick first branch name as selected
         this.selectedBranchName = this.branchNames[0]
 
         // counters
-        this.commits = this.ld.sum(this.ld.map(this.ld.map(configs, 'logs'), (logs) => {
-          return this.ld.size(logs)
+        this.commits = _.sum(_.map(_.map(configs, 'logs'), (logs) => {
+          return _.size(logs)
         }))
-        this.branches = this.ld.size(configs)
+        this.branches = _.size(configs)
         this.switchBranch()
-
       })
     },
 
-    publish(event) {
+    publish(event: Event) {
       this.publishMode = true
-
-      let node = event.target
-
-      while (node.nodeName !== 'BUTTON')
-        node = node.parentNode
-
+      let node = event.target as HTMLElement
+      while (node.nodeName !== 'BUTTON') {
+        node = node.parentNode as HTMLElement
+      }
       node.classList.add('is-loading')
-
-      this.publishedBuckets = this.ld.cloneDeep(this.ld.filter(this.publishinfo.buckets, (bucket) => {
-        return this.ld.indexOf(this.selectedBucketNames, bucket.name) > -1
+      this.publishedBuckets = _.cloneDeep(_.filter(this.publishInfo.buckets, (bucket) => {
+        return _.indexOf(this.selectedBucketNames, bucket.name) > -1
       }))
 
-      RequestsUtils.sendRequest('PUT', `/tools/publish/${this.selectedBranchName}/v/${this.selectedCommit}/`, this.buckets, null, `Published successfully!`, `Failed publishing!`)
-          .then((response) => {
-            this.parsePublishResults(response.data, node)
-          })
-          .catch((error) => {
-            console.error(error)
-            node.classList.remove('is-loading')
-          })
+      RequestsUtils.sendRequest('PUT',
+          `/tools/publish/${this.selectedBranchName}/v/${this.selectedCommit}/`,
+          this.buckets,
+          null,
+          `Published successfully!`,
+          `Failed publishing!`,
+      ).then((response: AxiosResponse) => {
+        this.parsePublishResults(response.data, node)
+      }).catch((error: Error) => {
+        console.error(error)
+        node.classList.remove('is-loading')
+      })
     },
 
-    parsePublishResults(data, node) {
+    parsePublishResults(data: any, node: HTMLElement) {
       node.classList.remove('is-loading')
-      this.ld.each(data.status, (response) => {
+      _.each(data.status, (response) => {
         console.log('response', response)
-        console.log('this.publishedBuckets', this.publishedBuckets)
+        console.log('published buckets', this.publishedBuckets)
 
-        let idx = this.ld.findIndex(this.publishedBuckets, (entry) => {
+        const index = _.findIndex(this.publishedBuckets, (entry) => {
           return entry.name === response.name
         })
-        if (idx > -1)
-          this.publishedBuckets[idx].publishStatus = response
-
+        if (index > -1) {
+          this.publishedBuckets[index].publishStatus = response
+        }
       })
 
-      let tempList = this.ld.cloneDeep(this.publishedBuckets)
+      const tempList = _.cloneDeep(this.publishedBuckets)
       this.publishedBuckets = []
       this.publishedBuckets = tempList
     },
@@ -345,7 +340,7 @@ export default Vue.extend({
   created() {
     this.loadConfigs()
     this.loadPublishInfo()
-  }
+  },
 
 })
 </script>

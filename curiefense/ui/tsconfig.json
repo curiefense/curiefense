@@ -10,13 +10,14 @@
     "esModuleInterop": true,
     "strictNullChecks": false,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
       "webpack-env"
     ],
     "typeRoots": [
-      "./types",
+      "./src/types",
       "./node_modules/@types"
     ],
     "paths": {
@@ -34,11 +35,11 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx"
+    "src/**/*.vue"
   ],
   "exclude": [
+    "src/**/*.js",
+    "src/types/**",
     "node_modules"
   ]
 }

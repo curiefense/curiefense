@@ -10,13 +10,14 @@
                   Name
                   <span class="has-text-grey is-pulled-right document-id"
                         title="Document id">
-                    {{ selectedDoc.id }}
+                    {{ localDoc.id }}
                   </span>
                 </label>
                 <div class="control">
                   <input class="input is-small document-name"
                          placeholder="Document name"
-                         v-model="selectedDoc.name"/>
+                         @change="emitDocUpdate"
+                         v-model="localDoc.name"/>
                 </div>
               </div>
               <div class="field">
@@ -27,7 +28,8 @@
                   <input class="input is-small document-description"
                          type="text"
                          placeholder="New rate limit rule name"
-                         v-model="selectedDoc.description">
+                         @change="emitDocUpdate"
+                         v-model="localDoc.description">
                 </div>
               </div>
               <div class="field">
@@ -38,7 +40,8 @@
                   <input class="input is-small document-limit"
                          type="text"
                          placeholder="New rate limit rule name"
-                         v-model="selectedDoc.limit">
+                         @change="emitDocUpdate"
+                         v-model="localDoc.limit">
                 </div>
               </div>
               <div class="field">
@@ -49,22 +52,23 @@
                   <input class="input is-small document-ttl"
                          type="text"
                          placeholder="New rate limit rule name"
-                         v-model="selectedDoc.ttl">
+                         @change="emitDocUpdate"
+                         v-model="localDoc.ttl">
                 </div>
               </div>
             </div>
             <div class="column is-8">
               <div class="group-key mb-3">
-                <limit-option v-for="(option, idx) in selectedDoc.key"
-                              :label="idx === 0 ? 'Count by' : ' '"
+                <limit-option v-for="(option, index) in localDoc.key"
+                              :label="index === 0 ? 'Count by' : ' '"
                               show-remove
-                              @remove="removeKey(idx)"
+                              @remove="removeKey(index)"
                               @change="updateKeyOption"
-                              :removable="selectedDoc.key.length > 1"
-                              :index="idx"
+                              :removable="localDoc.key.length > 1"
+                              :index="index"
                               :ignore-attributes="['tags']"
                               :option="generateOption(option)"
-                              :key="getOptionTextKey(option, idx)"/>
+                              :key="getOptionTextKey(option, index)"/>
                 <a title="Add new option rule"
                    class="is-text is-small is-size-7 ml-3 add-key-button"
                    @click="addKey()">
@@ -79,12 +83,13 @@
                 <limit-option use-default-self
                               label="Event"
                               :option.sync="eventOption"
-                              :key="eventOption.type + selectedDoc.id"
+                              :key="eventOption.type + localDoc.id"
                               :ignore-attributes="['tags']"
                               @change="updateEvent"/>
               </div>
-              <div>
-                <response-action :object-with-action.sync="selectedDoc"/>
+              <div class="field">
+                <response-action :action.sync="localDoc.action"
+                                 @update:action="emitDocUpdate"/>
               </div>
               <div>
                 <hr>
@@ -185,22 +190,22 @@
                     </p>
                   </div>
                   <div class="group-include-exclude">
-                    <limit-option v-for="(option, idx) in includes"
+                    <limit-option v-for="(option, index) in includes"
                                   @change="updateIncludeOption"
-                                  @remove="removeIncludeOrExclude(idx, true)"
-                                  :index="idx"
+                                  @remove="removeIncludeOrExclude(index, true)"
+                                  :index="index"
                                   :option="option"
-                                  :key="`${option.type}_${option.key}_${idx}_inc`"
+                                  :key="`${option.type}_${option.key}_${index}_inc`"
                                   label="Include"
                                   use-value
                                   show-remove
                                   removable/>
-                    <limit-option v-for="(option, idx) in excludes"
+                    <limit-option v-for="(option, index) in excludes"
                                   @change="updateExcludeOption"
-                                  @remove="removeIncludeOrExclude(idx, false)"
-                                  :index="idx"
+                                  @remove="removeIncludeOrExclude(index, false)"
+                                  :index="index"
                                   :option="option"
-                                  :key="`${option.type}_${option.key}_${idx}_exc`"
+                                  :key="`${option.type}_${option.key}_${index}_exc`"
                                   label="Exclude"
                                   use-value
                                   show-remove
@@ -217,27 +222,29 @@
 </template>
 
 <script lang="ts">
+import _ from 'lodash'
+import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import ResponseAction from '@/components/ResponseAction.vue'
-import LimitOption from '@/components/LimitOption.vue'
-import TagAutocompleteInput from '@/components/TagAutocompleteInput'
-import DatasetsUtils from '@/assets/DatasetsUtils'
+import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
+import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import Vue from 'vue'
+import {LimitOptionType, LimitRuleType, RateLimit} from '@/types'
 
 export default Vue.extend({
   name: 'RateLimits',
   props: {
     selectedDoc: Object,
-    apiPath: String
+    apiPath: String,
   },
   components: {
     ResponseAction,
     LimitOption,
-    TagAutocompleteInput
+    TagAutocompleteInput,
   },
   data() {
     return {
-      includes: this.convertIncludesOrExcludes(this.selectedDoc.include),
-      excludes: this.convertIncludesOrExcludes(this.selectedDoc.exclude),
+      includes: [],
+      excludes: [],
       includesAreValid: true,
       excludesAreValid: true,
       keysAreValid: true,
@@ -246,56 +253,72 @@ export default Vue.extend({
         include: true,
         type: 'attrs',
         key: 'ip',
-        value: ''
-      }
+        value: '',
+      },
     }
   },
   computed: {
+    localDoc(): RateLimit {
+      return JSON.parse(JSON.stringify(this.selectedDoc))
+    },
+
     eventOption: {
-      get() {
-        return this.generateOption(this.selectedDoc.pairwith)
+      get: function(): LimitOptionType {
+        return this.generateOption(this.localDoc.pairwith)
       },
-      set(value) {
-        this.$set(this.selectedDoc, 'pairwith', value)
-      }
-    }
+      set: function(value: RateLimit['pairwith']): void {
+        this.localDoc.pairwith = value
+        this.emitDocUpdate()
+      },
+    },
   },
   methods: {
-    getOptionTextKey(option, idx) {
+    emitDocUpdate() {
+      this.$emit('update:selectedDoc', this.localDoc)
+    },
+
+    getOptionTextKey(option: LimitOptionType, index: number) {
       if (!option) {
         return ''
       }
       const [type] = Object.keys(option)
-      return `${this.selectedDoc.id}_${type}_${idx}`
+      return `${this.localDoc.id}_${type}_${index}`
     },
-    generateOption(data) {
+
+    generateOption(data: LimitOptionType): OptionObject {
       if (!data) {
         return {}
       }
       const [firstObjectKey] = Object.keys(data)
-      const type = firstObjectKey
+      const type = firstObjectKey as LimitRuleType
       const key = data[firstObjectKey]
-      const value = null
-      return {type, key, value}
+      return {type, key, value: null}
     },
+
     addKey() {
-      this.selectedDoc.key.push({attrs: 'ip'})
+      this.localDoc.key.push({attrs: 'ip'})
+      this.emitDocUpdate()
       this.checkKeysValidity()
     },
-    removeKey(idx) {
-      if (this.selectedDoc.key.length > 1) {
-        this.selectedDoc.key.splice(idx, 1)
+
+    removeKey(index: number) {
+      if (this.localDoc.key.length > 1) {
+        this.localDoc.key.splice(index, 1)
       }
+      this.emitDocUpdate()
       this.checkKeysValidity()
     },
-    updateKeyOption(option, index) {
-      this.selectedDoc.key.splice(index, 1, {
-        [option.type]: option.key
+
+    updateKeyOption(option: OptionObject, index: number) {
+      this.localDoc.key.splice(index, 1, {
+        [option.type]: option.key,
       })
+      this.emitDocUpdate()
       this.checkKeysValidity()
     },
+
     checkKeysValidity() {
-      const keysToCheck = this.ld.countBy(this.selectedDoc.key, item => {
+      const keysToCheck = _.countBy(this.localDoc.key, (item) => {
         if (!item) {
           return ''
         }
@@ -311,12 +334,13 @@ export default Vue.extend({
       }
       return this.keysAreValid
     },
+
     addIncludeOrExclude() {
       const arr = this.newIncludeOrExcludeEntry.include ? this.includes : this.excludes
       const {
         type,
         key,
-        value
+        value,
       } = this.newIncludeOrExcludeEntry
       arr.push({type, key, value})
       this.checkIncludeOrExcludeValidity(this.newIncludeOrExcludeEntry.include)
@@ -325,20 +349,23 @@ export default Vue.extend({
       this.newIncludeOrExcludeEntry.value = ''
       this.newIncludeOrExcludeEntry.visible = false
     },
-    updateIncludeOrExcludeOption(option, index, include) {
+
+    updateIncludeOrExcludeOption(option: OptionObject, index: number, include: boolean) {
       const arr = include ? this.includes : this.excludes
       arr.splice(index, 1, option)
       this.checkIncludeOrExcludeValidity(include)
     },
-    removeIncludeOrExclude(index, include) {
+
+    removeIncludeOrExclude(index: number, include: boolean) {
       const options = (include ? this.includes : this.excludes)
       options.splice(index, 1)
       this.checkIncludeOrExcludeValidity(include)
     },
-    checkIncludeOrExcludeValidity(include) {
+
+    checkIncludeOrExcludeValidity(include: boolean) {
       const docKey = include ? 'includesAreValid' : 'excludesAreValid'
       const arr = include ? this.includes : this.excludes
-      const keysToCheck = this.ld.countBy(arr, item => `${item.type}_${item.key}`)
+      const keysToCheck = _.countBy(arr, (item) => `${item.type}_${item.key}`)
       this[docKey] = true
       for (const key of Object.keys(keysToCheck)) {
         if (keysToCheck[key] > 1) {
@@ -348,42 +375,50 @@ export default Vue.extend({
       }
       return this[docKey]
     },
-    updateIncludeOption(option, index) {
+
+    updateIncludeOption(option: OptionObject, index: number) {
       this.updateIncludeOrExcludeOption(option, index, true)
     },
-    updateExcludeOption(option, index) {
+
+    updateExcludeOption(option: OptionObject, index: number) {
       this.updateIncludeOrExcludeOption(option, index, false)
     },
-    convertIncludesOrExcludes(obj) {
+
+    convertIncludesOrExcludes(obj: RateLimit['include'] | RateLimit['exclude']) {
       if (!obj) {
         return []
       }
       return Object.keys(obj).reduce((acc, type) => {
-        const options = Object.keys(obj[type]).map(key => ({
+        const options = Object.keys(obj[type as LimitRuleType]).map((key) => ({
           type,
           key,
-          value: obj[type][key]
+          value: obj[type as LimitRuleType][key],
         }))
         return [...acc, ...options]
       }, [])
     },
-    updateEvent(option) {
+
+    updateEvent(option: OptionObject) {
       this.eventOption = {[option.type]: option.key}
     },
-    normalizeIncludesOrExcludes(value, include) {
+
+    normalizeIncludesOrExcludes(value: OptionObject[], include: boolean) {
       // converting includes/excludes from component arrays to selectedDoc objects
       const includeOrExcludeKey = include ? 'include' : 'exclude'
       const LimitRulesTypes = DatasetsUtils.LimitRulesTypes
-      if (!this.selectedDoc[includeOrExcludeKey]) {
-        this.$set(this.selectedDoc, includeOrExcludeKey, {})
+      if (!this.localDoc[includeOrExcludeKey]) {
+        this.$set(this.localDoc, includeOrExcludeKey, {})
       }
-      Object.keys(LimitRulesTypes).forEach(t => {
-        this.$set(this.selectedDoc[includeOrExcludeKey], t, {})
+      Object.keys(LimitRulesTypes).forEach((t) => {
+        this.$set(this.localDoc[includeOrExcludeKey], t, {})
       })
-      value.forEach(el => {
-        this.$set(this.selectedDoc[includeOrExcludeKey][el.type], el.key, el.value)
+      value.forEach((el: OptionObject) => {
+        this.$set(this.localDoc[includeOrExcludeKey][el.type], el.key, el.value)
       })
-    }
+      if (!_.isEqual(this.localDoc, this.selectedDoc)) {
+        this.emitDocUpdate()
+      }
+    },
   },
   mounted() {
     this.checkKeysValidity()
@@ -391,18 +426,22 @@ export default Vue.extend({
     this.checkIncludeOrExcludeValidity(false)
   },
   watch: {
-    selectedDoc(newValue) {
-      this.includes = this.convertIncludesOrExcludes(newValue.include)
-      this.excludes = this.convertIncludesOrExcludes(newValue.exclude)
-      this.$forceUpdate()
+    selectedDoc: {
+      handler: function(newValue) {
+        this.includes = this.convertIncludesOrExcludes(newValue.include)
+        this.excludes = this.convertIncludesOrExcludes(newValue.exclude)
+        this.$forceUpdate()
+      },
+      immediate: true,
+      deep: true,
     },
     includes(newValue) {
       this.normalizeIncludesOrExcludes(newValue, true)
     },
     excludes(newValue) {
       this.normalizeIncludesOrExcludes(newValue, false)
-    }
-  }
+    },
+  },
 })
 </script>
 

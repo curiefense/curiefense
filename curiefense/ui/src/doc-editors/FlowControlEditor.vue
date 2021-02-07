@@ -8,20 +8,23 @@
               <label class="label is-small">
                 Name
                 <span class="has-text-grey is-pulled-right document-id" title="Flow control id">
-                    {{ selectedDoc.id }}
+                    {{ localDoc.id }}
                   </span>
               </label>
               <div class="control">
                 <input class="input is-small document-name"
+                       title="Flow control name"
                        placeholder="Flow control name"
-                       v-model="selectedDoc.name"/>
+                       @change="emitDocUpdate"
+                       v-model="localDoc.name"/>
               </div>
             </div>
             <div class="field">
               <label class="checkbox is-size-7">
                 <input type="checkbox"
                        class="document-active"
-                       v-model="selectedDoc.active">
+                       @change="emitDocUpdate"
+                       v-model="localDoc.active">
                 Active
               </label>
             </div>
@@ -30,22 +33,26 @@
                 TTL
               </label>
               <div class="control seconds-suffix">
-                <input class="input is-small document-ttl" type="text" placeholder="New rate limit rule name"
-                       v-model="selectedDoc.ttl">
+                <input class="input is-small document-ttl"
+                       type="text"
+                       title="New rate limit rule name"
+                       placeholder="New rate limit rule name"
+                       @change="emitDocUpdate"
+                       v-model="localDoc.ttl">
               </div>
             </div>
             <div class="field">
-              <limit-option v-for="(option, idx) in selectedDoc.key"
+              <limit-option v-for="(option, index) in localDoc.key"
                             label-separated-line
                             wide-columns
-                            :label="idx === 0 ? 'Count by' : ''"
+                            :label="index === 0 ? 'Count by' : ''"
                             show-remove
-                            @remove="removeKey(idx)"
+                            @remove="removeKey(index)"
                             @change="updateKeyOption"
-                            :removable="selectedDoc.key.length > 1"
-                            :index="idx"
+                            :removable="localDoc.key.length > 1"
+                            :index="index"
                             :option="generateOption(option)"
-                            :key="getOptionTextKey(option, idx)"/>
+                            :key="getOptionTextKey(option, index)"/>
               <a title="Add new option rule"
                  class="is-text is-small is-size-7 ml-3 add-key-button"
                  @click="addKey()">
@@ -57,15 +64,18 @@
               </p>
             </div>
             <div class="field">
-              <response-action :object-with-action.sync="selectedDoc"
-                            label-separated-line
-                            wide-columns/>
+              <response-action :action.sync="localDoc.action"
+                               @update:action="emitDocUpdate"
+                               label-separated-line
+                               wide-columns/>
             </div>
             <div class="field">
               <label class="label is-small">Notes</label>
               <div class="control">
                 <textarea class="is-small textarea document-notes"
-                          v-model="selectedDoc.notes"
+                          title="Notes"
+                          @change="emitDocUpdate"
+                          v-model="localDoc.notes"
                           rows="2">
                 </textarea>
               </div>
@@ -82,7 +92,7 @@
                     :class="`bar-${filter}`"/>
                 <table class="table is-narrow is-fullwidth">
                   <tbody>
-                  <tr v-for="(tag, tagIndex) in selectedDoc[filter]"
+                  <tr v-for="(tag, tagIndex) in localDoc[filter]"
                       :key="tagIndex">
                     <td class="tag-cell"
                         :class=" duplicateTags[tag] ? 'has-text-danger' : '' ">
@@ -136,6 +146,7 @@
                       <td colspan="2">
                         <div class="control is-fullwidth">
                           <input class="input is-small method-entry-input"
+                                 title="Method"
                                  v-model="sequenceItem.method"
                                  @input="emitDocUpdate"/>
                         </div>
@@ -143,7 +154,8 @@
                       <td class="width-80px"></td>
                     </tr>
                     <tr class="sequence-entry-row host-entry-row">
-                      <td class="is-size-7 width-50px has-text-centered is-vcentered has-text-grey-light has-text-weight-medium sequence-entries-relation">
+                      <td class="is-size-7 width-50px has-text-centered is-vcentered has-text-grey-light
+                                 has-text-weight-medium sequence-entries-relation">
                         AND
                       </td>
                       <td class="width-80px is-vcentered">
@@ -152,6 +164,7 @@
                       <td colspan="2">
                         <div class="control is-fullwidth">
                           <input class="input is-small host-entry-input"
+                                 title="Host"
                                  v-model="sequenceItem.headers.host"
                                  @input="emitDocUpdate"/>
                         </div>
@@ -159,7 +172,8 @@
                       <td class="width-80px"></td>
                     </tr>
                     <tr class="sequence-entry-row uri-entry-row">
-                      <td class="is-size-7 width-50px has-text-centered is-vcentered has-text-grey-light has-text-weight-medium sequence-entries-relation">
+                      <td class="is-size-7 width-50px has-text-centered is-vcentered has-text-grey-light
+                                 has-text-weight-medium sequence-entries-relation">
                         AND
                       </td>
                       <td class="width-80px is-vcentered">
@@ -168,6 +182,7 @@
                       <td colspan="2">
                         <div class="control is-fullwidth">
                           <input class="input is-small uri-entry-input"
+                                 title="Path"
                                  v-model="sequenceItem.uri"
                                  @input="emitDocUpdate"/>
                         </div>
@@ -177,7 +192,8 @@
                     <tr v-for="(sequenceEntry, sequenceEntryIndex) in sequenceItemEntries(sequenceIndex)"
                         :key="sequenceEntryIndex"
                         class="sequence-entry-row">
-                      <td class="is-size-7 width-50px has-text-centered is-vcentered has-text-grey-light has-text-weight-medium sequence-entries-relation">
+                      <td class="is-size-7 width-50px has-text-centered is-vcentered has-text-grey-light
+                                 has-text-weight-medium sequence-entries-relation">
                         AND
                       </td>
                       <td class="width-80px is-vcentered">
@@ -215,7 +231,9 @@
                     <tr v-if="newEntrySectionIndex === sequenceIndex" class="new-entry-row">
                       <td class="is-size-7" colspan="2">
                         <div class="select is-small is-fullwidth">
-                          <select v-model="newEntryType" class="select new-entry-type-selection">
+                          <select v-model="newEntryType"
+                                  title="New entry type"
+                                  class="select new-entry-type-selection">
                             <option v-for="(entryType, category) in listEntryTypes" :key="category" :value="category">
                               {{ entryType.title }}
                             </option>
@@ -225,6 +243,7 @@
                       <td class="is-size-7 width-100px">
                         <div class="control has-icons-left is-fullwidth new-entry-name">
                           <input class="input is-small new-entry-name-input"
+                                 title="Name"
                                  placeholder="Name"
                                  v-model="newEntryItem.name"/>
                           <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
@@ -233,6 +252,7 @@
                       <td class="is-size-7">
                         <div class="control has-icons-left is-fullwidth new-entry-value">
                           <input class="input is-small new-entry-value-input"
+                                 title="Value"
                                  placeholder="Value"
                                  v-model="newEntryItem.value"/>
                           <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
@@ -272,29 +292,32 @@
 </template>
 
 <script lang="ts">
-import ResponseAction from '@/components/ResponseAction'
-import LimitOption from '@/components/LimitOption'
-import TagAutocompleteInput from '@/components/TagAutocompleteInput'
-import DatasetsUtils from '@/assets/DatasetsUtils'
+import _ from 'lodash'
+import ResponseAction from '@/components/ResponseAction.vue'
+import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
+import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
+import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import Vue from 'vue'
+import {ArgsCookiesHeadersType, FlowControl, IncludeExcludeType, LimitOptionType, LimitRuleType} from '@/types'
+import {Dictionary} from 'vue-router/types/router'
 
 export default Vue.extend({
   name: 'FlowControl',
 
   props: {
     selectedDoc: Object,
-    apiPath: String
+    apiPath: String,
   },
 
   components: {
     ResponseAction,
     LimitOption,
-    TagAutocompleteInput
+    TagAutocompleteInput,
   },
 
   data() {
     return {
-      filters: ['include', 'exclude'],
+      filters: ['include', 'exclude'] as IncludeExcludeType[],
       addNewTagColName: null,
       titles: DatasetsUtils.Titles,
       defaultSequenceItem: {
@@ -302,9 +325,9 @@ export default Vue.extend({
         'uri': '/',
         'cookies': {},
         'headers': {
-          'host': 'www.example.com'
+          'host': 'www.example.com',
         },
-        'args': {}
+        'args': {},
       },
       listEntryTypes: {
         'headers': {'title': 'Header', 'pair': true},
@@ -313,68 +336,70 @@ export default Vue.extend({
       },
       keysAreValid: true,
       newEntrySectionIndex: -1,
-      newEntryType: 'args',
+      newEntryType: 'args' as ArgsCookiesHeadersType,
       newEntryItem: {
         name: '',
-        value: ''
-      }
+        value: '',
+      },
     }
   },
 
   computed: {
-    localDoc() {
+    localDoc(): FlowControl {
       return JSON.parse(JSON.stringify(this.selectedDoc))
     },
 
-    duplicateTags() {
-      let doc = this.selectedDoc
-      let allTags = this.ld.concat(doc['include'], doc['exclude'])
-      let dupTags = this.ld.filter(allTags, (val, i, iteratee) => this.ld.includes(iteratee, val, i + 1))
-      return this.ld.fromPairs(this.ld.zip(dupTags, dupTags))
+    duplicateTags(): Dictionary<string> {
+      const doc = this.localDoc
+      const allTags = _.concat(doc['include'], doc['exclude'])
+      const dupTags = _.filter(allTags, (val, i, iteratee) => _.includes(iteratee, val, i + 1))
+      return _.fromPairs(_.zip(dupTags, dupTags))
     },
   },
 
   methods: {
     emitDocUpdate() {
-      this.$emit('update', this.localDoc)
+      this.$emit('update:selectedDoc', this.localDoc)
     },
 
     // Key
 
-    getOptionTextKey(option, idx) {
+    getOptionTextKey(option: LimitOptionType, index: number) {
       const [type] = Object.keys(option)
-      return `${this.selectedDoc.id}_${type}_${idx}`
+      return `${this.localDoc.id}_${type}_${index}`
     },
 
-    generateOption(data) {
+    generateOption(data: LimitOptionType): OptionObject {
       const [firstObjectKey] = Object.keys(data)
-      const type = firstObjectKey
+      const type = firstObjectKey as LimitRuleType
       const key = (data[firstObjectKey] || null)
-      const value = null
-      return {type, key, value}
+      return {type, key, value: null}
     },
 
     addKey() {
-      this.selectedDoc.key.push({attrs: 'ip'})
+      this.localDoc.key.push({attrs: 'ip'})
+      this.emitDocUpdate()
       this.checkKeysValidity()
     },
 
-    removeKey(idx) {
-      if (this.selectedDoc.key.length > 1) {
-        this.selectedDoc.key.splice(idx, 1)
+    removeKey(index: number) {
+      if (this.localDoc.key.length > 1) {
+        this.localDoc.key.splice(index, 1)
       }
+      this.emitDocUpdate()
       this.checkKeysValidity()
     },
 
-    updateKeyOption(option, index) {
-      this.selectedDoc.key.splice(index, 1, {
-        [option.type]: option.key
+    updateKeyOption(option: OptionObject, index: number) {
+      this.localDoc.key.splice(index, 1, {
+        [option.type]: option.key,
       })
+      this.emitDocUpdate()
       this.checkKeysValidity()
     },
 
     checkKeysValidity() {
-      const keysToCheck = this.ld.countBy(this.selectedDoc.key, item => {
+      const keysToCheck = _.countBy(this.localDoc.key, (item) => {
         const key = Object.keys(item)[0]
         return `${key}_${item[key]}`
       })
@@ -390,16 +415,16 @@ export default Vue.extend({
 
     // Sequence
 
-    setNewEntryIndex(index) {
+    setNewEntryIndex(index: number) {
       this.newEntryItem = {
         name: '',
-        value: ''
+        value: '',
       }
       this.newEntryType = 'args'
       this.newEntrySectionIndex = index
     },
 
-    sequenceItemEntries(sequenceIndex) {
+    sequenceItemEntries(sequenceIndex: number) {
       const sequenceItem = this.localDoc.sequence[sequenceIndex]
       const headersEntries = Object.entries(sequenceItem.headers)
       const cookiesEntries = Object.entries(sequenceItem.cookies)
@@ -428,23 +453,24 @@ export default Vue.extend({
       this.emitDocUpdate()
     },
 
-    removeSequenceItem(sequenceIndex) {
+    removeSequenceItem(sequenceIndex: number) {
       this.localDoc.sequence.splice(sequenceIndex, 1)
       this.emitDocUpdate()
     },
 
-    addSequenceItemEntry(sequenceIndex) {
+    addSequenceItemEntry(sequenceIndex: number) {
       const sequenceItem = this.localDoc.sequence[sequenceIndex]
       const newEntryName = this.newEntryItem.name.trim().toLowerCase()
       const newEntryValue = this.newEntryItem.value.trim().toLowerCase()
-      if (newEntryName && newEntryValue && !Object.prototype.hasOwnProperty.call(sequenceItem[this.newEntryType], newEntryName)) {
+      if (newEntryName && newEntryValue &&
+          !Object.prototype.hasOwnProperty.call(sequenceItem[this.newEntryType], newEntryName)) {
         sequenceItem[this.newEntryType][newEntryName] = newEntryValue
       }
       this.setNewEntryIndex(-1)
       this.emitDocUpdate()
     },
 
-    removeSequenceItemEntry(sequenceIndex, type, key) {
+    removeSequenceItemEntry(sequenceIndex: number, type: ArgsCookiesHeadersType, key: any) {
       const sequenceItem = this.localDoc.sequence[sequenceIndex]
       delete sequenceItem[type][key]
       this.emitDocUpdate()
@@ -452,14 +478,14 @@ export default Vue.extend({
 
     // Tags filters
 
-    addNewTag(filter, entry) {
+    addNewTag(section: IncludeExcludeType, entry: string) {
       if (entry && entry.length > 2) {
-        this.localDoc[filter].push(entry)
+        this.localDoc[section].push(entry)
         this.emitDocUpdate()
       }
     },
 
-    openTagInput(section) {
+    openTagInput(section: IncludeExcludeType) {
       this.addNewTagColName = section
     },
 
@@ -467,11 +493,11 @@ export default Vue.extend({
       this.addNewTagColName = null
     },
 
-    removeTag(section, idx) {
-      this.localDoc[section].splice(idx, 1)
+    removeTag(section: IncludeExcludeType, index: number) {
+      this.localDoc[section].splice(index, 1)
       this.addNewTagColName = null
       this.emitDocUpdate()
-    }
+    },
   },
 })
 </script>

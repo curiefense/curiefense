@@ -16,7 +16,8 @@
                   <div class="control">
                     <input class="input is-small document-name"
                            placeholder="Document name"
-                           v-model="selectedDoc.name"/>
+                           v-model="localDoc.name"
+                           readonly/>
                   </div>
                 </div>
               </div>
@@ -30,7 +31,7 @@
               <input class="input is-small document-operand"
                      type="text"
                      placeholder="matching domain(s) regex"
-                     v-model="selectedDoc.operand"
+                     v-model="localDoc.operand"
                      required
                      readonly>
               <span class="icon is-small is-left has-text-grey">
@@ -76,11 +77,17 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import {WAFSignature} from '@/types'
 
 export default Vue.extend({
   name: 'WAFSigsEditor',
   props: {
-    selectedDoc: Object
-  }
+    selectedDoc: Object,
+  },
+  computed: {
+    localDoc(): WAFSignature {
+      return JSON.parse(JSON.stringify(this.selectedDoc))
+    },
+  },
 })
 </script>

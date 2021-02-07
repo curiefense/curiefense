@@ -21,9 +21,9 @@ export default Vue.extend({
   name: 'HeaderMain',
   data() {
     return {
-      version: version
+      version: version,
     }
-  }
+  },
 
 })
 </script>

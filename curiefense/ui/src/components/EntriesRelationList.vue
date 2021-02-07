@@ -6,32 +6,35 @@
           <div class="tile is-parent is-vertical">
             <div class="tile is-child box is-primary section"
                  v-for="(section, section_idx) in localRule.sections" :key="section_idx">
-              <div class="has-text-centered relation-selection-wrapper" v-if="localRule.sections.length > 1 && section_idx > 0">
+              <div class="has-text-centered relation-selection-wrapper"
+                   v-if="localRule.sections.length > 1 && section_idx > 0">
                   <span class="tag has-text-weight-semibold">
                     {{ localRule.relation }}
                   </span>
               </div>
               <table class="table is-narrow entries-table mb-0">
                 <tbody>
-                <tr v-for="(entry,entry_idx) in sectionsCurrentPage[section_idx]" :key="entry_idx" class="entry-row">
+                <tr v-for="(entry,entryIndex) in sectionsCurrentPage[section_idx]" :key="entryIndex" class="entry-row">
                   <td class="is-size-7 width-50px has-text-centered has-text-weight-medium">
-                      <span v-if="((entry_idx + 1) + ((sectionsCurrentPageIndex[section_idx] - 1) * rowsPerPage)) !== 1"
-                            class="is-small pointer section-relation-toggle"
-                            @click="toggleSectionRelation(section)">
+                      <span
+                          v-if="((entryIndex + 1) + ((sectionsCurrentPageIndex[section_idx] - 1) * rowsPerPage)) !== 1"
+                          class="is-small pointer section-relation-toggle"
+                          @click="toggleSectionRelation(section)">
                         {{ section.relation }}
                       </span>
                   </td>
                   <td class="is-size-7 entry-category has-text-weight-medium width-100px">
                     {{ listEntryTypes[entry[0]].title }}
                   </td>
-                  <td :title="dualCell(entry[1])" class="is-size-7 entry-value width-250px ellipsis"><span v-html="dualCell(entry[1])"></span></td>
+                  <td :title="dualCell(entry[1])" class="is-size-7 entry-value width-250px ellipsis"><span
+                      v-html="dualCell(entry[1])"></span></td>
                   <td :title="entry[2]" class="is-size-7 entry-annotation width-250px ellipsis">
                     {{ entry[2] ? entry[2].substr(0, 60) : '' }}
                   </td>
                   <td class="is-size-7 width-80px">
                     <a v-if="editable"
                        class="is-small has-text-grey remove-entry-button" title="remove entry"
-                       @click="removeEntry(section, section_idx, entry_idx)">
+                       @click="removeEntry(section, section_idx, entryIndex)">
                       remove
                     </a>
                   </td>
@@ -132,7 +135,9 @@
 </template>
 
 <script lang="ts">
+import _ from 'lodash'
 import Vue from 'vue'
+import {Category, Relation, TagRule, TagRuleSection, TagRuleSectionEntry} from '@/types'
 
 export default Vue.extend({
   name: 'EntriesRelationList',
@@ -143,7 +148,7 @@ export default Vue.extend({
       default: () => {
         return {
           relation: 'OR',
-          sections: []
+          sections: [] as TagRuleSection[],
         }
       },
       validator(value) {
@@ -151,15 +156,15 @@ export default Vue.extend({
           return false
         }
         const isRelationValid = ['OR', 'AND'].includes(value.relation.toUpperCase())
-        const isListInvalid = value.sections.find((section) => {
+        const isListInvalid = value.sections.find((section: TagRuleSection) => {
           const isSectionRelationInvalid = !(['OR', 'AND'].includes(value.relation.toUpperCase()))
-          const isSectionsEntriesInvalid = !section.entries || !section.entries.find || section.entries.find((entry) => {
+          const isSectionsEntriesInvalid = !section.entries || !section.entries.find || section.entries.find((entry: TagRuleSectionEntry) => {
             return (!entry || !entry.length || entry.length < 2 || entry.length > 3)
           })
           return isSectionRelationInvalid || isSectionsEntriesInvalid
         })
         return isRelationValid && !isListInvalid
-      }
+      },
     },
     editable: Boolean,
   },
@@ -182,7 +187,7 @@ export default Vue.extend({
       },
       newEntrySectionIndex: -1,
       // newEntryCategory - start with most common category - IP
-      newEntryCategory: 'ip',
+      newEntryCategory: 'ip' as Category,
       // For headers, args, cookies:
       //   firstAttr = name
       //   secondAttr = value
@@ -191,41 +196,42 @@ export default Vue.extend({
       //   secondAttr = single annotation
       newEntryItem: {
         firstAttr: '',
-        secondAttr: ''
-      }
+        secondAttr: '',
+      },
     }
   },
 
   computed: {
 
-    rowsPerPage() {
+    rowsPerPage(): number {
       // no pagination for multiple sections
       return this.localRule.sections.length > 1 ? 1000 * 1000 : 20
     },
 
-    sectionsCurrentPage() {
-      let pages = []
+    sectionsCurrentPage(): TagRuleSectionEntry[][] {
+      const pages = []
       for (let i = 0; i < this.localRule.sections.length; i++) {
         const section = this.localRule.sections[i]
         if (this.sectionTotalEntries(section) !== 0) {
-          pages[i] = section.entries
-          pages[i] = this.ld.slice(pages[i], (this.sectionsCurrentPageIndex[i] - 1) * this.rowsPerPage, this.rowsPerPage * this.sectionsCurrentPageIndex[i])
+          pages[i] = _.slice(section.entries,
+              (this.sectionsCurrentPageIndex[i] - 1) * this.rowsPerPage,
+              this.rowsPerPage * this.sectionsCurrentPageIndex[i])
         }
       }
       return pages
     },
 
-    localRule() {
-      return JSON.parse(JSON.stringify(this.rule))
+    localRule(): TagRule['rule'] {
+      return JSON.parse(JSON.stringify(this.rule || {}))
     },
   },
 
   watch: {
     rule: {
-      handler: function () {
+      handler: function() {
         this.sectionsCurrentPageIndex = []
         for (let i = 0; i < this.localRule.sections.length; i++) {
-          let section = this.localRule.sections[i]
+          const section = this.localRule.sections[i]
           Vue.set(this.sectionsCurrentPageIndex, i, 1)
           if (this.sectionContainsSameCategoryItems(section)) {
             section.relation = 'OR'
@@ -233,12 +239,12 @@ export default Vue.extend({
         }
       },
       immediate: true,
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
-    isCategoryArgsCookiesHeaders(category) {
+    isCategoryArgsCookiesHeaders(category: Category) {
       return (new RegExp('(args|cookies|headers)')).test(category)
     },
 
@@ -246,14 +252,14 @@ export default Vue.extend({
       this.$emit('update', this.localRule)
     },
 
-    sectionContainsSameCategoryItems(section) {
-      const countedCategories = this.ld.countBy(section.entries, (entry) => {
+    sectionContainsSameCategoryItems(section: TagRuleSection) {
+      const countedCategories = _.countBy(section.entries, (entry) => {
         return this.listEntryTypes[entry[0]].title
       })
       const categoriesKeys = Object.keys(this.listEntryTypes)
       for (let i = 0; i < categoriesKeys.length; i++) {
-        let categoryKey = categoriesKeys[i]
-        let category = this.listEntryTypes[categoryKey]
+        const categoryKey = categoriesKeys[i] as Category
+        const category = this.listEntryTypes[categoryKey]
         if (this.isCategoryArgsCookiesHeaders(categoryKey)) {
           break
         }
@@ -264,7 +270,7 @@ export default Vue.extend({
       return false
     },
 
-    toggleSectionRelation(section) {
+    toggleSectionRelation(section: TagRuleSection) {
       if (this.sectionContainsSameCategoryItems(section)) {
         return
       }
@@ -272,32 +278,32 @@ export default Vue.extend({
       this.emitRuleUpdate()
     },
 
-    setNewEntryIndex(index) {
+    setNewEntryIndex(index: number) {
       this.newEntryItem = {
         firstAttr: '',
-        secondAttr: ''
+        secondAttr: '',
       }
       this.newEntryCategory = 'ip'
       this.newEntrySectionIndex = index
     },
 
-    totalPages(section) {
+    totalPages(section: TagRuleSection) {
       return Math.ceil(this.sectionTotalEntries(section) / this.rowsPerPage)
     },
 
-    sectionTotalEntries(section) {
+    sectionTotalEntries(section: TagRuleSection) {
       return section?.entries?.length || 0
     },
 
-    dualCell(cell) {
-      if (this.ld.isArray(cell)) {
+    dualCell(cell: TagRuleSectionEntry[1]) {
+      if (_.isArray(cell)) {
         return `${cell[0]}: ${cell[1]}`
       } else {
         return cell
       }
     },
 
-    navigate(section, sectionIndex, pageNum) {
+    navigate(section: TagRuleSection, sectionIndex: number, pageNum: number) {
       if (pageNum >= 1 && pageNum <= this.totalPages(section)) {
         Vue.set(this.sectionsCurrentPageIndex, sectionIndex, pageNum)
       }
@@ -305,8 +311,8 @@ export default Vue.extend({
 
     addSection() {
       const newSection = {
-        relation: 'OR',
-        entries: []
+        relation: 'OR' as Relation,
+        entries: [] as TagRuleSectionEntry[],
       }
       this.localRule.sections.push(newSection)
       // Vue.set(this.sectionsCurrentPageIndex, this.localRule.sections.length - 1, 1)
@@ -314,13 +320,13 @@ export default Vue.extend({
       this.emitRuleUpdate()
     },
 
-    removeSection(sectionIndex) {
+    removeSection(sectionIndex: number) {
       this.localRule.sections.splice(sectionIndex, 1)
       this.sectionsCurrentPageIndex.splice(sectionIndex, 1)
       this.emitRuleUpdate()
     },
 
-    addEntry(section) {
+    addEntry(section: TagRuleSection) {
       // args cookies or headers
       if (this.isCategoryArgsCookiesHeaders(this.newEntryCategory)) {
         const newEntryName = this.newEntryItem.firstAttr.trim().toLowerCase()
@@ -328,11 +334,9 @@ export default Vue.extend({
         if (newEntryName && newEntryValue) {
           section.entries.push([this.newEntryCategory, [newEntryName, newEntryValue]])
         }
-      }
-      // every other entry type
-      else {
+      } else { // every other entry type
         const generalAnnotation = this.newEntryItem.secondAttr.trim()
-        this.ld.each(this.newEntryItem.firstAttr.split('\n'), (line) => {
+        _.each(this.newEntryItem.firstAttr.split('\n'), (line) => {
           let [entry, annotation] = line.trim().split('#')
           entry = entry.trim()
           annotation = annotation ? annotation.trim() : generalAnnotation
@@ -347,15 +351,15 @@ export default Vue.extend({
       this.emitRuleUpdate()
     },
 
-    removeEntry(section, sectionIndex, entry_idx) {
-      let pointer = ((this.sectionsCurrentPageIndex[sectionIndex] - 1) * this.rowsPerPage) + entry_idx
+    removeEntry(section: TagRuleSection, sectionIndex: number, entryIndex: number) {
+      const pointer = ((this.sectionsCurrentPageIndex[sectionIndex] - 1) * this.rowsPerPage) + entryIndex
       section.entries.splice(pointer, 1)
       if (section.entries.length === 0) {
         this.removeSection(sectionIndex)
       }
       this.emitRuleUpdate()
     },
-  }
+  },
 })
 </script>
 <style scoped lang="scss">

@@ -29,8 +29,8 @@
                     'is-10': labelDisplayedInline && isSingleInputColumn,
                     'is-12': !labelDisplayedInline && isSingleInputColumn,
                     'pl-0': wideColumns && !labelDisplayedInline && !isSingleInputColumn}">
-        <div class="control select is-fullwidth is-small" v-if="action">
-          <select v-model="action.type">
+        <div class="control select is-fullwidth is-small" v-if="localAction">
+          <select v-model="localAction.type" @change="emitActionUpdate">
             <option v-for="(value, id) in options" :value="id" :key="id">{{ value.title }}</option>
           </select>
         </div>
@@ -39,7 +39,7 @@
            class="column is-2 pt-0">
       </div>
       <div
-          v-if="action && (action.type === 'response' || action.type === 'redirect' || action.type === 'ban' || action.type === 'request_header')"
+          v-if="localAction && (localAction.type === 'response' || localAction.type === 'redirect' || localAction.type === 'ban' || localAction.type === 'request_header')"
           class="column"
           :class="{'is-5': labelDisplayedInline && !isSingleInputColumn,
                     'is-6': !labelDisplayedInline && !isSingleInputColumn,
@@ -48,22 +48,25 @@
                     'pr-0': wideColumns && !isSingleInputColumn}">
         <p class="control is-fullwidth">
           <input
-              v-if="action && (action.type === 'response' || action.type === 'redirect')"
+              v-if="localAction && (localAction.type === 'response' || localAction.type === 'redirect')"
               class="input is-small"
               type="text"
-              v-model="action.params.status"
+              v-model="localAction.params.status"
+              @change="emitActionUpdate"
               placeholder="Status code">
           <input
-              v-if="action && action.type === 'ban'"
+              v-if="localAction && localAction.type === 'ban'"
               class="input is-small"
               type="text"
-              v-model="action.params.ttl"
+              v-model="localAction.params.ttl"
+              @change="emitActionUpdate"
               placeholder="Duration">
           <input
-              v-if="action && action.type === 'request_header'"
+              v-if="localAction && localAction.type === 'request_header'"
               class="input is-small"
               type="text"
-              v-model="action.params.headers"
+              v-model="localAction.params.headers"
+              @change="emitActionUpdate"
               placeholder="Header">
         </p>
       </div>
@@ -74,56 +77,59 @@
       2) no label
       12
       -->
-      <template v-if="action && (action.type === 'response' || action.type === 'redirect')">
+      <template v-if="localAction && (localAction.type === 'response' || localAction.type === 'redirect')">
         <div v-if="labelDisplayedInline"
              class="column is-2 pt-0">
         </div>
         <div class="column pt-0"
              :class="{'is-10': labelDisplayedInline, 'is-12': !labelDisplayedInline}">
-          <div v-if="action.type === 'response'"
+          <div v-if="localAction.type === 'response'"
                class="control is-fullwidth">
-              <textarea
-                  v-model="action.params.content"
-                  class="textarea is-small"
-                  rows="2"
-                  placeholder="Response body">
+              <textarea v-model="localAction.params.content"
+                        @change="emitActionUpdate"
+                        class="textarea is-small"
+                        rows="2"
+                        placeholder="Response body">
               </textarea>
           </div>
-          <div v-if="action.type === 'redirect'"
+          <div v-if="localAction.type === 'redirect'"
                class="control is-fullwidth">
             <p>
-              <input
-                  class="input is-small"
-                  type="text"
-                  v-model="action.params.location"
-                  placeholder="Location">
+              <input class="input is-small"
+                     type="text"
+                     v-model="localAction.params.location"
+                     @change="emitActionUpdate"
+                     placeholder="Location">
             </p>
           </div>
         </div>
       </template>
     </div>
-    <div class="content" v-if="action && action.type === 'ban' && action.params.action">
-      <response-action :object-with-action.sync="action.params"
+    <div class="content" v-if="localAction && localAction.type === 'ban' && localAction.params.action">
+      <response-action :action.sync="localAction.params.action"
                        :label-separated-line="labelSeparatedLine"
                        :wide-columns="wideColumns"
                        :is-single-input-column="isSingleInputColumn"
                        :ignore="['ban']"
+                       @update:action="emitActionUpdate"
                        label="Ban action"/>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import DatasetsUtils from '@/assets/DatasetsUtils'
-import Vue from 'vue'
+import _ from 'lodash'
+import DatasetsUtils from '@/assets/DatasetsUtils.ts'
+import Vue, {PropType} from 'vue'
+import {ResponseActionType} from '@/types'
 
 export default Vue.extend({
   name: 'ResponseAction',
   props: {
-    objectWithAction: Object,
+    action: Object as PropType<ResponseActionType>,
     label: {
       type: String,
-      default: 'Action'
+      default: 'Action',
     },
     ignore: Array,
     labelSeparatedLine: Boolean,
@@ -133,48 +139,54 @@ export default Vue.extend({
 
   data() {
     return {
-      options: this.ld.pickBy({...DatasetsUtils.ResponseActions}, (value, key) => {
+      options: _.pickBy({...DatasetsUtils.ResponseActions}, (value, key) => {
         return !this.ignore || !this.ignore.includes(key)
-      })
+      }),
     }
   },
   computed: {
-    labelDisplayedInline() {
-      return !this.labelSeparatedLine && this.label
+    localAction(): ResponseActionType {
+      return JSON.parse(JSON.stringify(this.action || {}))
     },
-    action: {
-      get() {
-        return this.objectWithAction?.action
-      },
-      set(newAction) {
-        this.$set(this.objectWithAction, 'action', newAction)
-      }
+
+    labelDisplayedInline(): boolean {
+      return !this.labelSeparatedLine && !!this.label
     },
-  },
-  mounted() {
-    this.normalizeAction()
   },
   methods: {
+    emitActionUpdate() {
+      this.$emit('update:action', this.localAction)
+    },
+
     normalizeAction() {
       // adding necessary fields to action field
-      this.action = {
+      const normalizedAction: ResponseActionType = {
         ...{
           params: {
             action: {
               type: 'default',
-              params: {}
-            }
-          }
+              params: {},
+            },
+          },
         },
-        ...this.action
+        ...this.localAction,
+      }
+      this.localAction.type = normalizedAction.type
+      this.localAction.params = normalizedAction.params
+      if (!_.isEqual(this.localAction, this.action)) {
+        this.emitActionUpdate()
       }
     },
   },
   watch: {
-    objectWithAction() {
-      this.normalizeAction()
-    }
-  }
+    action: {
+      handler: function() {
+        this.normalizeAction()
+      },
+      immediate: true,
+      deep: true,
+    },
+  },
 })
 </script>
 <style scoped lang="scss">

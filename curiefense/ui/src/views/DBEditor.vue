@@ -9,12 +9,13 @@
                 <div class="control">
                   <div class="select is-small">
                     <select class="database-selection"
-                            v-model="selectedDB"
-                            @change="switchDB">
-                      <option v-for="db in databases"
-                              :key="db"
-                              :value="db">
-                        {{ db }}
+                            title="Switch database"
+                            v-model="selectedDatabase"
+                            @change="switchDatabase">
+                      <option v-for="database in databases"
+                              :key="database"
+                              :value="database">
+                        {{ database }}
                       </option>
                     </select>
                   </div>
@@ -22,9 +23,9 @@
 
                 <p class="control">
                   <button class="button is-small fork-database-button"
-                          :class="{'is-loading': isForkDBLoading}"
-                          @click="forkDB"
-                          title="Duplicate Database">
+                          :class="{'is-loading': isForkDatabaseLoading}"
+                          @click="forkDatabase"
+                          title="Duplicate database">
                     <span class="icon is-small">
                       <i class="fas fa-clone"></i>
                     </span>
@@ -33,8 +34,8 @@
 
                 <p class="control">
                   <a class="button is-small download-database-button"
-                     @click="downloadDB"
-                     title="Download Database">
+                     @click="downloadDatabase"
+                     title="Download database">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
                     </span>
@@ -43,9 +44,9 @@
 
                 <p class="control">
                   <button class="button is-small new-database-button"
-                          :class="{'is-loading': isNewDBLoading}"
-                          @click="addNewDB()"
-                          title="Add New Database">
+                          :class="{'is-loading': isNewDatabaseLoading}"
+                          @click="addNewDatabase()"
+                          title="Add new database">
                     <span class="icon is-small">
                       <i class="fas fa-plus"></i>
                     </span>
@@ -54,10 +55,10 @@
 
                 <p class="control">
                   <button class="button is-small has-text-danger delete-database-button"
-                          :class="{'is-loading': isDeleteDBLoading}"
-                          @click="deleteDB()"
-                          title="Delete Database"
-                          :disabled="selectedDB === defaultDBName || databases.length <= 1">
+                          :class="{'is-loading': isDeleteDatabaseLoading}"
+                          @click="deleteDatabase()"
+                          title="Delete database"
+                          :disabled="selectedDatabase === defaultDatabaseName || databases.length <= 1">
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
                     </span>
@@ -70,6 +71,7 @@
                 <div class="control">
                   <div class="select is-small">
                     <select class="key-selection"
+                            title="Switch key"
                             v-model="selectedKey"
                             @change="switchKey">
                       <option v-for="key in keys"
@@ -130,7 +132,8 @@
                           :class="{'is-loading': isDeleteKeyLoading}"
                           @click="deleteKey()"
                           title="Delete Key"
-                          :disabled="(selectedDB === defaultDBName && selectedKey === defaultKeyName) || keys.length <= 1">
+                          :disabled="(selectedDatabase === defaultDatabaseName && selectedKey === defaultKeyName)
+                                     || keys.length <= 1">
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
                     </span>
@@ -146,7 +149,7 @@
       <hr/>
 
       <div class="content"
-           v-if="selectedDB && selectedKey">
+           v-if="selectedDatabase && selectedKey">
         <div class="card">
           <div class="card-content">
             <div class="content">
@@ -154,11 +157,12 @@
                 <label class="label">Database</label>
                 <div class="control">
                   <input class="input is-small is-fullwidth database-name-input"
-                         @input="validateInput($event, isSelectedDBNewNameValid)"
+                         title="Database name"
+                         @input="validateInput($event, isSelectedDatabaseNewNameValid)"
                          type="text"
                          placeholder="Database name"
-                         v-model="dbNameInput"
-                         :disabled="selectedDB === defaultDBName">
+                         v-model="databaseNameInput"
+                         :disabled="selectedDatabase === defaultDatabaseName">
                 </div>
               </div>
             </div>
@@ -168,11 +172,12 @@
                 <label class="label">Key</label>
                 <div class="control">
                   <input class="input is-small is-fullwidth key-name-input"
+                         title="Key name"
                          @input="validateInput($event, isSelectedKeyNewNameValid)"
                          type="text"
                          placeholder="Key name"
                          v-model="keyNameInput"
-                         :disabled="selectedDB === defaultDBName && selectedKey === defaultKeyName">
+                         :disabled="selectedDatabase === defaultDatabaseName && selectedKey === defaultKeyName">
                 </div>
               </div>
             </div>
@@ -188,6 +193,7 @@
                   <textarea
                       v-else
                       @input="validateInput($event, isNewDocumentValid)"
+                      title="Document"
                       rows="20"
                       class="is-family-monospace textarea document-input"
                       v-model="document">
@@ -198,8 +204,8 @@
           </div>
         </div>
         <hr/>
-        <git-history :gitLog.sync="gitLog"
-                     :apiPath.sync="gitAPIPath"
+        <git-history :gitLog="gitLog"
+                     :apiPath="gitAPIPath"
                      @restore-version="restoreGitVersion"></git-history>
       </div>
 
@@ -215,14 +221,14 @@
           No data found!
           <div>
             <!--display correct message by priority (Database -> Key)-->
-            <span v-if="!selectedDB">
+            <span v-if="!selectedDatabase">
               Missing database. To create a new one, click
               <a title="Add New"
-                 @click="addNewDB()">
+                 @click="addNewDatabase()">
                 here
               </a>
             </span>
-            <span v-if="selectedDB && !selectedKey">
+            <span v-if="selectedDatabase && !selectedKey">
               Missing key. To create a new one, click
               <a title="Add New"
                  @click="addNewKey()">
@@ -237,32 +243,35 @@
 </template>
 
 <script lang="ts">
+import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
+import RequestsUtils from '@/assets/RequestsUtils.ts'
 import Utils from '@/assets/Utils.ts'
-import GitHistory from '@/components/GitHistory'
-import RequestsUtils from '@/assets/RequestsUtils'
+import GitHistory from '@/components/GitHistory.vue'
 import JSONEditor from 'jsoneditor'
 import Vue from 'vue'
+import {Commit} from '@/types'
+import {AxiosResponse} from 'axios'
 
 export default Vue.extend({
 
   name: 'DBEditor',
   props: {},
   components: {
-    GitHistory
+    GitHistory,
   },
   data() {
     return {
       databases: [],
-      selectedDB: null,
-      dbNameInput: '',
-      defaultDBName: 'system',
+      selectedDatabase: null,
+      databaseNameInput: '',
+      defaultDatabaseName: 'system',
 
       // Loading indicators
       loadingDocCounter: 0,
-      isForkDBLoading: false,
-      isNewDBLoading: false,
-      isDeleteDBLoading: false,
+      isForkDatabaseLoading: false,
+      isNewDatabaseLoading: false,
+      isDeleteDatabaseLoading: false,
       isForkKeyLoading: false,
       isNewKeyLoading: false,
       isDeleteKeyLoading: false,
@@ -277,10 +286,10 @@ export default Vue.extend({
       keyNameInput: '',
       defaultKeyName: 'publishinfo',
 
-      selectedDBData: null,
+      selectedDatabaseData: null,
       document: null,
 
-      gitLog: [],
+      gitLog: [] as Commit[],
 
       apiRoot: DatasetsUtils.ConfAPIRoot,
       apiVersion: DatasetsUtils.ConfAPIVersion,
@@ -288,29 +297,29 @@ export default Vue.extend({
   },
   computed: {
 
-    gitAPIPath() {
-      return `${this.apiRoot}/${this.apiVersion}/db/${this.selectedDB}/k/${this.selectedKey}/v/`
+    gitAPIPath(): string {
+      return `${this.apiRoot}/${this.apiVersion}/db/${this.selectedDatabase}/k/${this.selectedKey}/v/`
     },
 
-    isFormValid() {
-      return this.isSelectedDBNewNameValid && this.isSelectedKeyNewNameValid && this.isNewDocumentValid
+    isFormValid(): boolean {
+      return this.isSelectedDatabaseNewNameValid && this.isSelectedKeyNewNameValid && this.isNewDocumentValid
     },
 
-    isSelectedDBNewNameValid() {
-      const newName = this.dbNameInput?.trim()
-      const isDBNameEmpty = newName === ''
-      const isDBNameDuplicate = this.databases.includes(newName) ? this.selectedDB !== newName : false
-      return !isDBNameEmpty && !isDBNameDuplicate
+    isSelectedDatabaseNewNameValid(): boolean {
+      const newName = this.databaseNameInput?.trim()
+      const isDatabaseNameEmpty = newName === ''
+      const isDatabaseNameDuplicate = this.databases.includes(newName) ? this.selectedDatabase !== newName : false
+      return !isDatabaseNameEmpty && !isDatabaseNameDuplicate
     },
 
-    isSelectedKeyNewNameValid() {
+    isSelectedKeyNewNameValid(): boolean {
       const newName = this.keyNameInput?.trim()
       const isKeyNameEmpty = newName === ''
       const isKeyNameDuplicate = this.keys.includes(newName) ? this.selectedKey !== newName : false
       return !isKeyNameEmpty && !isKeyNameDuplicate
     },
 
-    isNewDocumentValid() {
+    isNewDocumentValid(): boolean {
       try {
         JSON.parse(this.document)
       } catch {
@@ -323,203 +332,231 @@ export default Vue.extend({
 
   methods: {
 
-    validateInput(event, validator) {
+    validateInput(event: Event, validator: Function | boolean) {
       Utils.validateInput(event, validator)
     },
 
-    async loadDBs() {
+    async loadDatabases() {
       this.setLoadingDocStatus(true)
-      await RequestsUtils.sendRequest('GET', 'db/').then((response) => {
+      await RequestsUtils.sendRequest('GET', 'db/').then((response: AxiosResponse<string[]>) => {
         this.databases = response.data
         console.log('Databases: ', this.databases)
-        this.loadFirstDB()
+        this.loadFirstDatabase()
       })
       this.setLoadingDocStatus(false)
     },
 
-    loadFirstDB() {
-      const db = this.databases[0]
-      if (db) {
-        this.loadDB(db)
+    loadFirstDatabase() {
+      const database = this.databases[0]
+      if (database) {
+        this.loadDatabase(database)
       } else {
         console.log(`failed loading database, none are present!`)
       }
     },
 
-    async loadDB(db) {
+    async loadDatabase(database: string) {
       this.setLoadingDocStatus(true)
-      this.selectedDB = db
-      this.dbNameInput = this.selectedDB
-      this.selectedDBData = (await RequestsUtils.sendRequest('GET', `db/${this.selectedDB}/`)).data
-      this.initDBKeys(this.selectedDB)
+      this.selectedDatabase = database
+      this.databaseNameInput = this.selectedDatabase
+      this.selectedDatabaseData = (await RequestsUtils.sendRequest('GET', `db/${this.selectedDatabase}/`)).data
+      this.initDatabaseKeys()
       this.setLoadingDocStatus(false)
     },
 
-    saveDB(db, data) {
+    saveDatabase(database: string, data: { [key: string]: any }) {
       if (!data) {
         data = {key: {}}
       }
 
-      return RequestsUtils.sendRequest('PUT', `db/${db}/`, data, null, `Database [${db}] saved!`, `Failed saving database [${db}]!`)
+      return RequestsUtils.sendRequest('PUT',
+          `db/${database}/`,
+          data, null,
+          `Database [${database}] saved!`,
+          `Failed saving database [${database}]!`)
     },
 
-    switchDB() {
-      this.loadDB(this.selectedDB)
+    switchDatabase() {
+      this.loadDatabase(this.selectedDatabase)
     },
 
-    async deleteDB(db = this.selectedDB, disableAnnouncementMessages) {
-      this.isDeleteDBLoading = true
-      const db_index = this.ld.findIndex(this.databases, (database) => {
-        return database === db
+    async deleteDatabase(database?: string, disableAnnouncementMessages?: boolean) {
+      this.isDeleteDatabaseLoading = true
+      if (!database) {
+        database = this.selectedDatabase
+      }
+      const databaseIndex = _.findIndex(this.databases, (db) => {
+        return db === database
       })
-      this.databases.splice(db_index, 1)
+      this.databases.splice(databaseIndex, 1)
       let successMessage
       let failureMessage
       if (!disableAnnouncementMessages) {
-        successMessage = `Database [${db}] deleted!`
-        failureMessage = `Failed deleting database [${db}]!`
+        successMessage = `Database [${database}] deleted!`
+        failureMessage = `Failed deleting database [${database}]!`
       }
-      await RequestsUtils.sendRequest('DELETE', `db/${db}/`, null, null, successMessage, failureMessage)
-      if (!this.databases.includes(this.selectedDB)) {
-        this.loadFirstDB()
+      await RequestsUtils.sendRequest('DELETE', `db/${database}/`, null, null, successMessage, failureMessage)
+      if (!this.databases.includes(this.selectedDatabase)) {
+        this.loadFirstDatabase()
       }
-      this.isDeleteDBLoading = false
+      this.isDeleteDatabaseLoading = false
     },
 
-    async addNewDB(new_db, data) {
-      this.isNewDBLoading = true
-      if (!new_db) {
-        new_db = Utils.generateUniqueEntityName('new database', this.databases)
+    async addNewDatabase(newDatabase?: string, data?: { [key: string]: any }) {
+      this.isNewDatabaseLoading = true
+      if (!newDatabase) {
+        newDatabase = Utils.generateUniqueEntityName('new database', this.databases)
       }
-      await this.saveDB(new_db, data).then(() => {
-        this.loadDB(new_db)
-        this.databases.unshift(new_db)
+      await this.saveDatabase(newDatabase, data).then(() => {
+        this.loadDatabase(newDatabase)
+        this.databases.unshift(newDatabase)
       })
-      this.isNewDBLoading = false
+      this.isNewDatabaseLoading = false
     },
 
-    async forkDB() {
-      this.isForkDBLoading = true
-      const new_db = Utils.generateUniqueEntityName(this.selectedDB, this.databases, true)
-      await this.addNewDB(new_db, this.selectedDBData)
-      this.isForkDBLoading = false
+    async forkDatabase() {
+      this.isForkDatabaseLoading = true
+      const newDatabase = Utils.generateUniqueEntityName(this.selectedDatabase, this.databases, true)
+      await this.addNewDatabase(newDatabase, this.selectedDatabaseData)
+      this.isForkDatabaseLoading = false
     },
 
-    downloadDB() {
-      Utils.downloadFile(this.selectedDB, 'json', this.selectedDBData)
+    downloadDatabase() {
+      Utils.downloadFile(this.selectedDatabase, 'json', this.selectedDatabaseData)
     },
 
-    initDBKeys() {
-      this.keys = Object.keys(this.selectedDBData)
+    initDatabaseKeys() {
+      this.keys = Object.keys(this.selectedDatabaseData)
       this.loadKey(this.keys[0])
     },
 
-    loadKey(key) {
+    loadKey(key: string) {
       this.selectedKey = key
       this.keyNameInput = this.selectedKey
-      this.document = JSON.stringify(this.selectedDBData[key])
-      this.editor?.set(this.selectedDBData[key])
+      this.document = JSON.stringify(this.selectedDatabaseData[key])
+      this.editor?.set(this.selectedDatabaseData[key])
       this.loadGitLog()
     },
 
-    saveKey(db, key, doc) {
+    saveKey(database: string, key: string, doc: string) {
+      if (!doc) {
+        return
+      }
       const parsedDoc = JSON.parse(doc)
 
-      return RequestsUtils.sendRequest('PUT', `db/${db}/k/${key}/`, parsedDoc,  null,`Key [${key}] in database [${db}] saved!`, `Failed saving key [${key}] in database [${db}]!`)
+      return RequestsUtils.sendRequest('PUT',
+          `db/${database}/k/${key}/`,
+          parsedDoc,
+          null,
+          `Key [${key}] in database [${database}] saved!`,
+          `Failed saving key [${key}] in database [${database}]!`)
     },
 
     switchKey() {
       this.loadKey(this.selectedKey)
     },
 
-    async deleteKey(key, disableAnnouncementMessages) {
+    async deleteKey(key?: string, disableAnnouncementMessages?: boolean) {
       this.isDeleteKeyLoading = true
-      const db = this.selectedDB
+      const database = this.selectedDatabase
       if (!key) {
         key = this.selectedKey
       }
-      const key_index = this.ld.findIndex(this.keys, (k) => {
+      const keyIndex = _.findIndex(this.keys, (k) => {
         return k === key
       })
-      this.keys.splice(key_index, 1)
+      this.keys.splice(keyIndex, 1)
       let successMessage
       let failureMessage
       if (!disableAnnouncementMessages) {
-        successMessage = `Key [${key}] in database [${db}] deleted!`
-        failureMessage = `Failed deleting key [${key}] in database [${db}]!`
+        successMessage = `Key [${key}] in database [${database}] deleted!`
+        failureMessage = `Failed deleting key [${key}] in database [${database}]!`
       }
-      await RequestsUtils.sendRequest('DELETE', `db/${db}/k/${key}/`, null, null, successMessage, failureMessage)
+      await RequestsUtils.sendRequest('DELETE', `db/${database}/k/${key}/`, null, null, successMessage, failureMessage)
       if (!this.keys.includes(this.selectedKey)) {
         this.loadKey(this.keys[0])
       }
       this.isDeleteKeyLoading = false
     },
 
-    async addNewKey(new_key, new_document) {
+    async addNewKey(newKey?: string, newDocument?: string) {
       this.isNewKeyLoading = true
-      if (!new_key) {
-        new_key = Utils.generateUniqueEntityName('new key', this.keys)
+      if (!newKey) {
+        newKey = Utils.generateUniqueEntityName('new key', this.keys)
       }
-      if (!new_document) {
-        new_document = '{}'
+      if (!newDocument) {
+        newDocument = '{}'
       }
-      await this.saveKey(this.selectedDB, new_key, new_document).then(() => {
-        this.selectedDBData[new_key] = JSON.parse(new_document)
-        this.loadKey(new_key)
-        this.keys.unshift(new_key)
+      await this.saveKey(this.selectedDatabase, newKey, newDocument).then(() => {
+        this.selectedDatabaseData[newKey] = JSON.parse(newDocument)
+        this.loadKey(newKey)
+        this.keys.unshift(newKey)
       })
       this.isNewKeyLoading = false
     },
 
     async forkKey() {
       this.isForkKeyLoading = true
-      const new_key = Utils.generateUniqueEntityName(this.selectedKey, this.keys, true)
-      const new_document = this.ld.cloneDeep(this.document)
-      await this.addNewKey(new_key, new_document)
+      const newKey = Utils.generateUniqueEntityName(this.selectedKey, this.keys, true)
+      const newDocument = _.cloneDeep(this.document)
+      await this.addNewKey(newKey, newDocument)
       this.isForkKeyLoading = false
     },
 
     downloadKey() {
+      if (!this.document) {
+        return
+      }
       Utils.downloadFile(this.selectedKey, 'json', JSON.parse(this.document))
     },
 
     async saveChanges() {
+      if (!this.document) {
+        return
+      }
       this.isSaveDocLoading = true
-      // If DB name changed -> Save the data under the new name and remove the old database
-      if (this.selectedDB !== this.dbNameInput) {
-        const old_db = this.selectedDB
-        const old_data_response = await RequestsUtils.sendRequest('GET', `db/${old_db}/`)
-        const old_data = old_data_response.data
-        await this.addNewDB(this.dbNameInput, old_data)
-        this.deleteDB(old_db, true)
+      // If database name changed -> Save the data under the new name and remove the old database
+      if (this.selectedDatabase !== this.databaseNameInput) {
+        const oldDatabase = this.selectedDatabase
+        const oldDataResponse = await RequestsUtils.sendRequest('GET', `db/${oldDatabase}/`)
+        const oldData = oldDataResponse.data
+        await this.addNewDatabase(this.databaseNameInput, oldData)
+        await this.deleteDatabase(oldDatabase, true)
       }
       // If key name changed -> Save the data under the new name and remove the old key from the database
+      console.log(this.selectedKey)
+      console.log(this.keyNameInput)
       if (this.selectedKey !== this.keyNameInput) {
-        const old_key = this.selectedKey
+        const oldKey = this.selectedKey
         await this.addNewKey(this.keyNameInput, this.document)
-        this.deleteKey(old_key, true)
+        await this.deleteKey(oldKey, true)
       } else {
-        await this.saveKey(this.selectedDB, this.selectedKey, this.document)
-        this.selectedDBData[this.selectedKey] = JSON.parse(this.document)
+        await this.saveKey(this.selectedDatabase, this.selectedKey, this.document)
+        this.selectedDatabaseData[this.selectedKey] = JSON.parse(this.document)
       }
       await this.loadGitLog()
       this.isSaveDocLoading = false
     },
 
     async loadGitLog() {
-      const url_trail = `db/${this.selectedDB}/k/${this.selectedKey}/v/`
-      const response = await RequestsUtils.sendRequest('GET', url_trail)
+      const urlTrail = `db/${this.selectedDatabase}/k/${this.selectedKey}/v/`
+      const response = await RequestsUtils.sendRequest('GET', urlTrail)
       this.gitLog = response.data
     },
 
-    async restoreGitVersion(gitVersion) {
-      const db = this.selectedDB
+    async restoreGitVersion(gitVersion: Commit) {
+      const database = this.selectedDatabase
       const selectedKey = this.selectedKey
-      const version_id = gitVersion.version
-      const url_trail = `${db}/v/${version_id}/`
+      const versionId = gitVersion.version
+      const urlTrail = `${database}/v/${versionId}/`
 
-      await RequestsUtils.sendRequest('PUT', `db/${url_trail}revert/`, null, null, `Database [${db}] restored to version [${version_id}]!`, `Failed restoring database [${db}] to version [${version_id}]!`)
-      await this.loadDB(db)
+      await RequestsUtils.sendRequest('PUT',
+          `db/${urlTrail}revert/`,
+          null,
+          null,
+          `Database [${database}] restored to version [${versionId}]!`,
+          `Failed restoring database [${database}] to version [${versionId}]!`)
+      await this.loadDatabase(database)
       // load last loaded key if still exists
       const oldSelectedKey = this.keys.find((key) => {
         return key === selectedKey
@@ -527,11 +564,12 @@ export default Vue.extend({
       if (oldSelectedKey) {
         this.loadKey(oldSelectedKey)
       }
-      this.loadGitLog()
+      await this.loadGitLog()
     },
 
-    // Collect every request to display a loading indicator, the loading indicator will be displayed as long as at least one request is still active (counter > 0)
-    setLoadingDocStatus(isLoading) {
+    // Collect every request to display a loading indicator
+    // The loading indicator will be displayed as long as at least one request is still active (counter > 0)
+    setLoadingDocStatus(isLoading: boolean) {
       if (isLoading) {
         this.loadingDocCounter++
       } else {
@@ -544,7 +582,7 @@ export default Vue.extend({
       const editorLoaderInterval = setInterval(() => {
         try {
           const container = document.getElementById('editor')
-          this.editor = new JSONEditor(container,{
+          this.editor = new JSONEditor(container, {
             modes: ['code', 'tree'],
             onChange: () => {
               try {
@@ -552,7 +590,7 @@ export default Vue.extend({
               } catch (err) {
                 // editor.get will throw an error when attempting to get an invalid json
               }
-            }
+            },
           }, JSON.parse(this.document))
           this.isJsonEditor = true
           console.log('Successfully loaded json editor')
@@ -576,8 +614,8 @@ export default Vue.extend({
   },
 
   created() {
-    this.loadDBs()
-  }
+    this.loadDatabases()
+  },
 
 })
 </script>
@@ -611,6 +649,7 @@ export default Vue.extend({
     }
   }
 }
+
 ::v-deep .jsoneditor-contextmenu {
   z-index: 5;
 }

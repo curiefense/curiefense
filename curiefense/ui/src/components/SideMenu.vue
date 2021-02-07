@@ -37,68 +37,70 @@
 </template>
 
 <script lang="ts">
-import RequestsUtils from '@/assets/RequestsUtils'
+import RequestsUtils from '@/assets/RequestsUtils.ts'
 import Vue from 'vue'
 
 export default Vue.extend({
   name: 'SideMenu',
   data() {
     const swaggerURL = `${location.protocol}//${location.hostname}:30000/api/v1/`
+    const kibanaURL = `${location.protocol}//${location.hostname}:5601/app/discover`
+    const grafanaURL = `${location.protocol}//${location.hostname}:30300/`
 
     return {
-      defaultKibanaURL: `${location.protocol}//${location.hostname}:5601/app/discover`,
-      defaultGrafanaURL: `${location.protocol}//${location.hostname}:30300/`,
+      defaultKibanaURL: kibanaURL,
+      defaultGrafanaURL: grafanaURL,
       menuItems: {
         settings: {
           '/config': {
             title: 'Policies & Rules',
             items: {
-              '/search': {'title': 'Search'}
-            }
+              '/search': {'title': 'Search'},
+            },
           },
           '/db': {
-            title: 'System DB'
+            title: 'System DB',
           },
           '/publish': {
-            title: 'Publish Changes'
+            title: 'Publish Changes',
           },
           'swagger': {
             title: 'API',
             url: swaggerURL,
-            external: true
+            external: true,
           },
         },
         analytics: {
           'kibana': {
             title: 'Access Log (ELK)',
-            url: this.defaultKibanaURL,
-            external: true
+            url: kibanaURL,
+            external: true,
           },
           'grafana': {
             title: 'Grafana',
-            url: this.defaultGrafanaURL,
-            external: true
-          }
+            url: grafanaURL,
+            external: true,
+          },
         },
         git: {
           '/versioncontrol': {
-            title: 'Version Control'
+            title: 'Version Control',
           },
         },
         docs: {
           'curiebook': {
             title: 'Curiebook',
             url: 'https://docs.curiefense.io/',
-            external: true
+            external: true,
           },
-        }
-      }
+        },
+      },
     }
   },
   computed: {
     currentRoutePath() {
       return this.$route.path
-    }
+    },
   },
   methods: {
     async loadLinksFromDB() {
@@ -108,18 +110,18 @@ export default Vue.extend({
       this.menuItems.analytics.kibana = {
         title: 'Access Log (ELK)',
         url: kibanaURL,
-        external: true
+        external: true,
       }
       this.menuItems.analytics.grafana = {
         title: 'Grafana',
         url: grafanaURL,
-        external: true
+        external: true,
       }
-    }
+    },
   },
   mounted() {
     this.loadLinksFromDB()
-  }
+  },
 })
 </script>
 <style scoped lang="scss">

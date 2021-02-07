@@ -27,7 +27,8 @@
           <div class="field is-grouped">
             <div class="control">
               <div class="select is-small">
-                <select v-model="log_filter_interval">
+                <select v-model="logFilterInterval"
+                        title="Filter interval">
                   <option value="30 minutes">Last 30 minutes</option>
                   <option value="60 minutes">Last hour</option>
                   <option value="3 hours">Last 3 hours</option>
@@ -39,10 +40,10 @@
               </div>
             </div>
             <p class="control has-icons-right is-small is-expanded is-fullwidth">
-              <input
-                  class="input is-small"
-                  placeholder="123.45.87.219, Verizon, POST, /login"
-                  v-model="log_filter_input">
+              <input class="input is-small"
+                     title="Filter input"
+                     placeholder="123.45.87.219, Verizon, POST, /login"
+                     v-model="logFilterInput">
             </p>
             <p class="control">
               <button class="button is-small" @click="buildQuery">
@@ -62,9 +63,9 @@
                 <div class="control">
                   <table class="table is-narrow is-fullwidth">
                     <tbody v-for="(row, idx) in rows" :key="idx" class="data-entry-wrapper">
-                    <tr @click="row_entry_idx = (row_entry_idx === idx ? -1 : idx)"
+                    <tr @click="rowEntryIndex = (rowEntryIndex === idx ? -1 : idx)"
                         class="has-row-clickable"
-                        :class="[row_entry_idx === idx ? ' has-background-white-bis' : '']">
+                        :class="[rowEntryIndex === idx ? ' has-background-white-bis' : '']">
                       <td class="is-size-7 has-text-centered" :class="statuscode_class(row.responsecode)">
                         {{ row.responsecode }}
                       </td>
@@ -86,15 +87,15 @@
                       </td>
                       <td v-else class="is-size-7">terminated</td>
                       <td class="is-size-7 width-150px">{{ isodate(row.starttime) }}</td>
-                      <td class="is-size-7" :rowspan="row_entry_idx === idx ? '2' : '1'">
+                      <td class="is-size-7" :rowspan="rowEntryIndex === idx ? '2' : '1'">
                         <a class="has-text-grey" title="more details">
-                          {{ row_entry_idx === idx ? 'close' : 'expand' }}
+                          {{ rowEntryIndex === idx ? 'close' : 'expand' }}
                         </a>
                       </td>
 
                     </tr>
                     <tr
-                        v-if="row_entry_idx === idx"
+                        v-if="rowEntryIndex === idx"
                         class="expanded borderless has-background-white-bis">
                       <td colspan="12" class="px-3 py-3">
                         <!--  TOP TILE -->
@@ -131,7 +132,10 @@
                                   </span>
                                 </label>
                                 <br/>
-                                <pre class="is-size-7 is-family-code has-background-danger-light overflow-anywhere is-fullwidth">{{ break_reason(row.curiefense.attrs.block_reason) }}</pre>
+                                <pre class="is-size-7 is-family-code has-background-danger-light
+                                            overflow-anywhere is-fullwidth">
+                                  {{ break_reason(row.curiefense.attrs.block_reason) }}
+                                </pre>
                               </div>
                             </article>
                           </div>
@@ -194,14 +198,23 @@
                                               <span>TTLB TX: {{ subNum10(row.timetolastupstreamrxbyte) }}</span>
                                             </section>
                                             <section class="is-size-7" v-if="row.upstreamremoteaddress">
-                                              <span>Remote: {{ row.upstreamremoteaddress }}:{{ row.upstreamremoteaddressport }}</span>
+                                              <span>
+                                                Remote: {{ row.upstreamremoteaddress }}:{{
+                                                  row.upstreamremoteaddressport
+                                                }}
+                                              </span>
                                             </section>
                                             <section class="is-size-7" v-if="row.upstreamlocaladdress">
-                                              <span>Local: {{ row.upstreamlocaladdress }}:{{ row.upstreamlocaladdressport }}</span>
+                                              <span>
+                                                Local: {{ row.upstreamlocaladdress }}:{{ row.upstreamlocaladdressport }}
+                                              </span>
                                             </section>
                                             <section class="is-size-7" v-if="row.upstreamcluster">
                                               <span>Cluster: {{ row.upstreamcluster }}</span></section>
-                                            <section class="is-size-7" v-if="row.upstreamtransportfailurereason"><span>Failure: {{ row.upstreamtransportfailurereason }}</span>
+                                            <section class="is-size-7" v-if="row.upstreamtransportfailurereason">
+                                              <span>
+                                                Failure: {{ row.upstreamtransportfailurereason }}
+                                              </span>
                                             </section>
                                             <section class="is-size-7" v-if="row.routename">
                                               <span>Route Name: {{ row.routename }}</span></section>
@@ -215,13 +228,19 @@
                                               <span>TTLB TX: {{ subNum10(row.timetolastdownstreamtxbyte) }}</span>
                                             </section>
                                             <section class="is-size-7">
-                                              <span>Remote: {{ row.downstreamremoteaddress }}:{{ row.downstreamremoteaddressport }}</span>
+                                              <span>Remote: {{
+                                                  row.downstreamremoteaddress
+                                                }}:{{ row.downstreamremoteaddressport }}</span>
                                             </section>
                                             <section class="is-size-7">
-                                              <span>Local: {{ row.downstreamlocaladdress }}:{{ row.downstreamlocaladdressport }}</span>
+                                              <span>Local: {{
+                                                  row.downstreamlocaladdress
+                                                }}:{{ row.downstreamlocaladdressport }}</span>
                                             </section>
                                             <section class="is-size-7">
-                                              <span>Direct: {{ row.downstreamdirectremoteaddress }}:{{ row.downstreamdirectremoteaddressport }}</span>
+                                              <span>Direct: {{
+                                                  row.downstreamdirectremoteaddress
+                                                }}:{{ row.downstreamdirectremoteaddressport }}</span>
                                             </section>
                                             <section class="is-size-7">
                                               <span>Status code: {{ row.responsecodedetails }}</span></section>
@@ -237,7 +256,9 @@
                                             <section class="is-size-7">
                                               <span>SNI Hostname: {{ row.tlssnihostname }}</span></section>
                                             <section class="is-size-7"><span
-                                                :title="row.tlssessionid">Session Id: {{ row.tlssessionid.substr(0, 12) }}</span>
+                                                :title="row.tlssessionid">Session Id: {{
+                                                row.tlssessionid.substr(0, 12)
+                                              }}</span>
                                             </section>
                                           </div>
                                         </div>
@@ -293,9 +314,10 @@
   </div>
 </template>
 <script lang="ts">
+import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
-import RequestsUtils from '@/assets/RequestsUtils'
-import Utils from '@/assets/Utils'
+import RequestsUtils from '@/assets/RequestsUtils.ts'
+import Utils from '@/assets/Utils.ts'
 import Vue from 'vue'
 
 export default Vue.extend({
@@ -310,13 +332,13 @@ export default Vue.extend({
 
       loading: false,
 
-      dbrows: [],
-      row_entry_idx: -1,
+      databaseRows: [],
+      rowEntryIndex: -1,
 
-      log_filter_input: '',
-      log_filter_interval: '30 minutes',
-      log_filter_criteria: '',
-      log_filter_sql: `${DatasetsUtils.ACCESSLOG_SQL} ${DatasetsUtils.ACCESSLOG_SQL_SUFFIX}`,
+      logFilterInput: '',
+      logFilterInterval: '30 minutes',
+      logFilterCriteria: '',
+      logFilterSQL: `${DatasetsUtils.ACCESSLOG_SQL} ${DatasetsUtils.ACCESSLOG_SQL_SUFFIX}`,
 
       apiRoot: DatasetsUtils.LogsAPIRoot,
       apiVersion: DatasetsUtils.LogsAPIVersion,
@@ -326,97 +348,98 @@ export default Vue.extend({
   },
 
   computed: {
-    rows() {
-      return this.ld.filter(this.dbrows, (row) => {
+    rows(): any[] {
+      return _.filter(this.databaseRows, (row) => {
         return row.curiefense.attrs
       })
-    }
+    },
   },
 
   methods: {
 
     buildQuery() {
-      this.log_filter_criteria = `WHERE (starttime > now() - interval '${this.log_filter_interval}')`
+      this.logFilterCriteria = `WHERE (starttime > now() - interval '${this.logFilterInterval}')`
 
-      if (this.log_filter_input.trim().length > 0) {
-        let dynamic_filter = this.ld.join(this.ld.map(this.log_filter_input.split(', '), (val) => {
+      if (this.logFilterInput.trim().length > 0) {
+        const dynamicFilter = _.join(_.map(this.logFilterInput.split(', '), (val) => {
           return `json_row ~ '${val}'`
         }), ' AND ')
-        this.log_filter_criteria += ` AND (${dynamic_filter})`
+        this.logFilterCriteria += ` AND (${dynamicFilter})`
       }
 
-      this.log_filter_sql = `${DatasetsUtils.ACCESSLOG_SQL} ${this.log_filter_criteria} ${DatasetsUtils.ACCESSLOG_SQL_SUFFIX}`
+      this.logFilterSQL =
+          `${DatasetsUtils.ACCESSLOG_SQL} ${this.logFilterCriteria} ${DatasetsUtils.ACCESSLOG_SQL_SUFFIX}`
       this.loadDatabases()
     },
 
-    fulluri(row) {
-      let [scheme, authority, path] = [
+    fulluri(row: any) {
+      const [scheme, authority, path] = [
         row.curiefense.headers['x-forwarded-proto'],
         row.curiefense.attrs.authority,
-        row.curiefense.attrs.path
+        row.curiefense.attrs.path,
       ]
 
       return `${scheme}://${authority}${path}`
     },
 
-    suburi(row) {
-      let [scheme, authority, path] = [
+    suburi(row: any) {
+      const [scheme, authority, path] = [
         row.curiefense.headers['x-forwarded-proto'],
         row.curiefense.attrs.authority,
-        row.curiefense.attrs.path
+        row.curiefense.attrs.path,
       ]
 
       return `${scheme}://${authority}${path}`.substring(0, 58)
     },
 
-    subNum10(num) {
+    subNum10(num: number) {
       return num.toString().substring(0, 10)
     },
 
-    break_reason(reason) {
+    break_reason(reason: string) {
       const width = 16
       const spacer = ' '.repeat(width)
       console.log(reason)
-      return this.ld.map(reason, (value, key) => {
+      return _.map(reason, (value, key) => {
         return `${key}${spacer}:`.substring(0, width) + value
       }).join('\n')
     },
 
-    statuscode_class(code) {
+    statuscode_class(code: number) {
       if (code < 400) return 'has-text-primary-dark'
       if (code < 500) return 'has-text-danger-dark '
       if (code < 1000) return 'has-text-danger-dark has-background-danger-light '
     },
-    isempty(obj) {
-      return this.ld.isEmpty(obj)
+
+    isempty(obj: any) {
+      return _.isEmpty(obj)
     },
-    isodate(timestamp) {
+
+    isodate(timestamp: any) {
       return (new Date(timestamp)).toISOString().substr(0, 19)
     },
 
-    tags(tags_dict) {
-      return this.ld.sortBy(this.ld.keys(tags_dict))
+    tags(tagsDict: any) {
+      return _.sortBy(_.keys(tagsDict))
     },
 
     loadDatabases() {
       this.loading = true
       console.log('loadDatabases')
-      let payload = {
-        statement: this.log_filter_sql,
-        parameters: []
+      const payload = {
+        statement: this.logFilterSQL,
+        parameters: [] as any[],
       }
 
-      RequestsUtils.sendLogsRequest('POST', 'exec/', payload)
-          .then((response) => {
-            this.loading = false
-            let rows = response.data
-            this.dbrows = this.ld.map(rows, (row) => {
-              return JSON.parse(row.slice(-1))
-            })
-          })
-          .catch(() => {
-            this.loading = false
-          })
+      RequestsUtils.sendLogsRequest('POST', 'exec/', payload).then((response: any) => {
+        this.loading = false
+        const rows = response.data
+        this.databaseRows = _.map(rows, (row) => {
+          return JSON.parse(row.slice(-1))
+        })
+      }).catch(() => {
+        this.loading = false
+      })
     },
 
     downloadDoc() {
@@ -428,7 +451,7 @@ export default Vue.extend({
   mounted() {
     this.loading = true
     this.buildQuery()
-  }
+  },
 
 })
 </script>

@@ -9,6 +9,7 @@
                 <div class="control">
                   <div class="select is-small">
                     <select v-model="selectedBranch"
+                            title="Switch branch"
                             @change="switchBranch"
                             class="branch-selection">
                       <option v-for="name in branchNames"
@@ -22,6 +23,7 @@
                 <div class="control">
                   <div class="select is-small">
                     <select v-model="selectedSearchType"
+                            title="Switch search type"
                             class="search-type-selection">
                       <option v-for="(searchType, propertyName) in searchTypeMap"
                               :key="propertyName"
@@ -33,6 +35,7 @@
                 </div>
                 <div class="control has-icons-left">
                   <input class="input is-small search-input"
+                         title="Search"
                          placeholder="Search"
                          v-model="searchValue"/>
                   <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-search"></i></span>
@@ -131,14 +134,34 @@
 </template>
 
 <script lang="ts">
+import _ from 'lodash'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
 import WAFEditor from '@/doc-editors/WAFEditor.vue'
 import URLMapsEditor from '@/doc-editors/URLMapsEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import ProfilingListEditor from '@/doc-editors/ProfilingListEditor.vue'
-import FlowControlEditor from '@/doc-editors/FlowControlEditor'
-import RequestsUtils from '@/assets/RequestsUtils'
-import Vue from 'vue'
+import FlowControlEditor from '@/doc-editors/FlowControlEditor.vue'
+import RequestsUtils from '@/assets/RequestsUtils.ts'
+import Vue, {VueConstructor} from 'vue'
+import {Document, DocumentType, URLMapEntryMatch} from '@/types'
+import DatasetsUtils from '@/assets/DatasetsUtils'
+
+type SearchDocument = Document & {
+  docType: DocumentType
+  notes: string
+  description: string
+  tags: string
+  connections: string[]
+  connectedACL: string[]
+  connectedWAF: string[]
+  connectedRateLimits: string[]
+  connectedURLMaps: string[]
+  map: URLMapEntryMatch[]
+}
+
+type ReferencesMap = {
+  [key: string]: string[]
+}
 
 export default Vue.extend({
 
@@ -146,6 +169,103 @@ export default Vue.extend({
   props: {},
   components: {},
   data() {
+    const titles = DatasetsUtils.Titles
+    // Order is important
+    // We load [urlmaps] before [aclpolicies, wafpolicies, ratelimits] so we can pull all references correctly
+    const componentsMap: {
+      [key in DocumentType]?: {
+        component: VueConstructor
+        title: typeof titles[key]
+        fields: string
+      }
+    } = {
+      'urlmaps': {
+        component: URLMapsEditor,
+        title: titles['urlmaps'],
+        fields: 'id, name, map',
+      },
+      'aclpolicies': {
+        component: ACLEditor,
+        title: titles['aclpolicies'],
+        fields: 'id, name, allow, allow_bot, deny_bot, bypass, deny, enforce_deny',
+      },
+      'flowcontrol': {
+        component: FlowControlEditor,
+        title: titles['flowcontrol'],
+        fields: 'id, name, notes, include, exclude',
+      },
+      'tagrules': {
+        component: ProfilingListEditor,
+        title: titles['tagrules'],
+        fields: 'id, name, notes, tags',
+      },
+      'ratelimits': {
+        component: RateLimitsEditor,
+        title: titles['ratelimits'],
+        fields: 'id, name, description',
+      },
+      'wafpolicies': {
+        component: WAFEditor,
+        title: titles['wafpolicies'],
+        fields: 'id, name',
+      },
+    }
+
+    const searchTypeMap: {
+      [key: string]: {
+        title: string
+        filter: Function
+      }
+    } = {
+      all: {
+        title: 'All',
+        filter: (doc: SearchDocument): boolean => {
+          const isFoundDocType = searchTypeMap['doctype'].filter(doc)
+          const isFoundID = searchTypeMap['id'].filter(doc)
+          const isFoundName = searchTypeMap['name'].filter(doc)
+          const isFoundDescription = searchTypeMap['description'].filter(doc)
+          const isFoundTags = searchTypeMap['tags'].filter(doc)
+          const isFoundConnections = searchTypeMap['connections'].filter(doc)
+          return isFoundDocType || isFoundID || isFoundName || isFoundDescription || isFoundTags || isFoundConnections
+        },
+      },
+      doctype: {
+        title: 'Document Type',
+        filter: (doc: SearchDocument): boolean => {
+          return (this as any).searchValueRegex.test(componentsMap[doc.docType].title)
+        },
+      },
+      id: {
+        title: 'ID',
+        filter: (doc: SearchDocument): boolean => {
+          return (this as any).searchValueRegex.test(doc.id)
+        },
+      },
+      name: {
+        title: 'Name',
+        filter: (doc: SearchDocument): boolean => {
+          return (this as any).searchValueRegex.test(doc.name)
+        },
+      },
+      description: {
+        title: 'Description',
+        filter: (doc: SearchDocument): boolean => {
+          return (this as any).searchValueRegex.test(doc.notes || doc.description)
+        },
+      },
+      tags: {
+        title: 'Tags',
+        filter: (doc: SearchDocument): boolean => {
+          return (this as any).searchValueRegex.test(doc.tags)
+        },
+      },
+      connections: {
+        title: 'Connections',
+        filter: (doc: SearchDocument): boolean => {
+          return (this as any).searchValueRegex.test(doc.connections)
+        },
+      },
+    }
     return {
       configs: [],
       docs: [],
@@ -156,110 +276,29 @@ export default Vue.extend({
       rowOverIndex: null,
       loadingCounter: 0,
 
-      searchTypeMap: {
-        'all': {
-          title: 'All',
-          filter: (doc) => {
-            const isFoundDocType = this.searchTypeMap['doctype'].filter(doc)
-            const isFoundID = this.searchTypeMap['id'].filter(doc)
-            const isFoundName = this.searchTypeMap['name'].filter(doc)
-            const isFoundDescription = this.searchTypeMap['description'].filter(doc)
-            const isFoundTags = this.searchTypeMap['tags'].filter(doc)
-            const isFoundConnections = this.searchTypeMap['connections'].filter(doc)
-            return isFoundDocType || isFoundID || isFoundName || isFoundDescription || isFoundTags || isFoundConnections
-          }
-        },
-        'doctype': {
-          title: 'Document Type',
-          filter: (doc) => {
-            return this.searchValueRegex.test(this.componentsMap[doc.docType].title)
-          }
-        },
-        'id': {
-          title: 'ID',
-          filter: (doc) => {
-            return this.searchValueRegex.test(doc.id)
-          }
-        },
-        'name': {
-          title: 'Name',
-          filter: (doc) => {
-            return this.searchValueRegex.test(doc.name)
-          }
-        },
-        'description': {
-          title: 'Description',
-          filter: (doc) => {
-            return this.searchValueRegex.test(doc.notes || doc.description)
-          }
-        },
-        'tags': {
-          title: 'Tags',
-          filter: (doc) => {
-            return this.searchValueRegex.test(doc.tags)
-          }
-        },
-        'connections': {
-          title: 'Connections',
-          filter: (doc) => {
-            return this.searchValueRegex.test(doc.connections)
-          }
-        }
-      },
+      searchTypeMap: searchTypeMap,
 
-      // Order is important, we load [urlmaps] before [aclpolicies, wafpolicies, ratelimits] so we can pull all references correctly
-      componentsMap: {
-        'urlmaps': {
-          component: URLMapsEditor,
-          title: 'URL Maps',
-          fields: 'id, name, map'
-        },
-        'aclpolicies': {
-          component: ACLEditor,
-          title: 'ACL Policies',
-          fields: 'id, name, allow, allow_bot, deny_bot, bypass, deny, enforce_deny'
-        },
-        'flowcontrol': {
-          component: FlowControlEditor,
-          title: 'Flow Control',
-          fields: 'id, name, notes, include, exclude'
-        },
-        'tagrules': {
-          component: ProfilingListEditor,
-          title: 'Tag Rules',
-          fields: 'id, name, notes, tags'
-        },
-        'ratelimits': {
-          component: RateLimitsEditor,
-          title: 'Rate Limits',
-          fields: 'id, name, description'
-        },
-        'wafpolicies': {
-          component: WAFEditor,
-          title: 'WAF Policies',
-          fields: 'id, name'
-        }
-      },
+      componentsMap: componentsMap,
 
       // Referenced IDs of [aclpolicies, wafpolicies, ratelimits] in [urlmaps]
-      referencedACL: {},
-      referencedWAF: {},
-      referencedLimit: {},
+      referencedACL: {} as ReferencesMap,
+      referencedWAF: {} as ReferencesMap,
+      referencedLimit: {} as ReferencesMap,
     }
   },
   computed: {
 
-    branchNames() {
-      return this.ld.sortBy(this.ld.map(this.configs, 'id'))
+    branchNames(): string[] {
+      return _.sortBy(_.map(this.configs, 'id'))
     },
 
-    filteredDocs() {
+    filteredDocs(): SearchDocument[] {
       return this.docs.filter((doc) => {
         return this.searchTypeMap[this.selectedSearchType].filter(doc, this.searchValue)
       })
     },
 
-    searchValueRegex() {
+    searchValueRegex(): RegExp {
       return new RegExp(this.searchValue, 'gi')
     },
 
@@ -281,14 +320,14 @@ export default Vue.extend({
       this.configs = configs
       // pick first branch name as selected
       this.selectedBranch = this.branchNames[0]
-      this.loadDocs()
+      await this.loadDocs()
     },
 
     async loadDocs() {
       const docTypes = Object.keys(this.componentsMap)
       for (let i = 0; i < docTypes.length; i++) {
-        let doctype = docTypes[i]
-        let branch = this.selectedBranch
+        const doctype: DocumentType = docTypes[i] as DocumentType
+        const branch = this.selectedBranch
         try {
           const response = await RequestsUtils.sendRequest('GET',
               `configs/${branch}/d/${doctype}/`, null,
@@ -304,7 +343,14 @@ export default Vue.extend({
               const denyBotTags = doc.deny_bot.filter(Boolean).join(', ').toLowerCase()
               const allowTags = doc.allow.filter(Boolean).join(', ').toLowerCase()
               const denyTags = doc.deny.filter(Boolean).join(', ').toLowerCase()
-              doc.tags = [forceDenyTags, bypassTags, allowBotTags, denyBotTags, allowTags, denyTags].filter(Boolean).join(', ')
+              doc.tags = [
+                forceDenyTags,
+                bypassTags,
+                allowBotTags,
+                denyBotTags,
+                allowTags,
+                denyTags,
+              ].filter(Boolean).join(', ')
             }
             if (doctype === 'flowcontrol') {
               const includeTags = doc.include.filter(Boolean).join(', ').toLowerCase()
@@ -337,7 +383,7 @@ export default Vue.extend({
       }
     },
 
-    buildURLMapConnections(doc) {
+    buildURLMapConnections(doc: SearchDocument) {
       const connectedACL = []
       const connectedWAF = []
       const connectedRateLimits = []
@@ -355,15 +401,15 @@ export default Vue.extend({
       doc.connections = [].concat(connectedACL, connectedWAF, connectedRateLimits)
     },
 
-    buildWafAclLimitConnections(doc, referencedArray) {
-      if (!referencedArray[doc.id] || referencedArray[doc.id].length === 0) {
+    buildWafAclLimitConnections(doc: SearchDocument, referencesMap: ReferencesMap) {
+      if (!referencesMap[doc.id] || referencesMap[doc.id].length === 0) {
         return
       }
-      doc.connectedURLMaps = referencedArray[doc.id]
-      doc.connections = referencedArray[doc.id]
+      doc.connectedURLMaps = referencesMap[doc.id]
+      doc.connections = referencesMap[doc.id]
     },
 
-    saveWafAclLimitConnections(doc) {
+    saveWafAclLimitConnections(doc: SearchDocument) {
       for (let i = 0; i < doc.map.length; i++) {
         const map = doc.map[i]
         // initialize array if needed
@@ -380,7 +426,7 @@ export default Vue.extend({
         this.referencedWAF[map.waf_profile].push(doc.id)
         for (let j = 0; j < map.limit_ids.length; j++) {
           // initialize array if needed
-          if (!this.referencedLimit[map.limit_ids] || this.referencedLimit[map.limit_ids].length === 0) {
+          if (!this.referencedLimit[map.limit_ids[j]] || this.referencedLimit[map.limit_ids[j]].length === 0) {
             this.referencedLimit[map.limit_ids[j]] = []
           }
           // add map id to referenced rate limit
@@ -389,32 +435,36 @@ export default Vue.extend({
       }
     },
 
-    highlightSearchValue(text) {
+    highlightSearchValue(text: string) {
       if (!this.searchValue) {
         return text
       }
-      return text && text.replace(this.searchValueRegex, (str) => {
+      return text && text.replace(this.searchValueRegex, (str: string) => {
         return `<mark>${str}</mark>`
       })
     },
 
-    connectionsDisplayText(doc) {
+    connectionsDisplayText(doc: SearchDocument) {
       let connections = ''
       if (doc.connectedACL && doc.connectedACL.length > 0) {
-        const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedACL.join('<br>'))
-        connections = connections.concat(`<b>${this.componentsMap['aclpolicies'].title}:</b><br>${highlightedConnectedEntities}<br>`)
+        const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedACL.join('<br/>'))
+        connections = connections.concat(
+            `<b>${this.componentsMap['aclpolicies'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
       }
       if (doc.connectedWAF && doc.connectedWAF.length > 0) {
-        const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedWAF.join('<br>'))
-        connections = connections.concat(`<b>${this.componentsMap['wafpolicies'].title}:</b><br>${highlightedConnectedEntities}<br>`)
+        const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedWAF.join('<br/>'))
+        connections = connections.concat(
+            `<b>${this.componentsMap['wafpolicies'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
       }
       if (doc.connectedRateLimits && doc.connectedRateLimits.length > 0) {
-        const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedRateLimits.join('<br>'))
-        connections = connections.concat(`<b>${this.componentsMap['ratelimits'].title}:</b><br>${highlightedConnectedEntities}<br>`)
+        const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedRateLimits.join('<br/>'))
+        connections = connections.concat(
+            `<b>${this.componentsMap['ratelimits'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
       }
       if (doc.connectedURLMaps && doc.connectedURLMaps.length > 0) {
-        const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedURLMaps.join('<br>'))
-        connections = connections.concat(`<b>${this.componentsMap['urlmaps'].title}:</b><br>${highlightedConnectedEntities}<br>`)
+        const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedURLMaps.join('<br/>'))
+        connections = connections.concat(
+            `<b>${this.componentsMap['urlmaps'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
       }
       return connections
     },
@@ -423,13 +473,14 @@ export default Vue.extend({
       await this.loadDocs()
     },
 
-    goToDocument(doc) {
+    goToDocument(doc: SearchDocument) {
       const docRoute = `/config/${this.selectedBranch}/${doc.docType}/${doc.id}`
       this.$router.push(docRoute)
     },
 
-    // Collect every request to display a loading indicator, the loading indicator will be displayed as long as at least one request is still active (counter > 0)
-    setLoadingStatus(isLoading) {
+    // Collect every request to display a loading indicator
+    // The loading indicator will be displayed as long as at least one request is still active (counter > 0)
+    setLoadingStatus(isLoading: boolean) {
       if (isLoading) {
         this.loadingCounter++
       } else {
@@ -441,7 +492,7 @@ export default Vue.extend({
       this.rowOverIndex = null
     },
 
-    mouseOver(index) {
+    mouseOver(index: number) {
       this.rowOverIndex = index
     },
 
@@ -451,7 +502,7 @@ export default Vue.extend({
     this.setLoadingStatus(true)
     await this.loadConfigs()
     this.setLoadingStatus(false)
-  }
+  },
 
 })
 </script>

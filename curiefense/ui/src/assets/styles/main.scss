@@ -151,3 +151,12 @@ $color-light: hsl(0, 0%, 96%);
     max-height: 12rem;
   }
 }
+
+.card {
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.18);
+  margin-bottom: 2rem;
+}
+
+.card .content {
+  font-size: 14px;
+}

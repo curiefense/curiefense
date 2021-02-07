@@ -25,7 +25,7 @@ import Vue from 'vue'
 export default Vue.extend({
   name: 'MasterComponent',
   components: {HeaderMain, SideMenu},
-  methods: {}
+  methods: {},
 })
 </script>
 <style type="text/css">
@@ -42,15 +42,6 @@ nav.navbar {
   width: 100%;
   height: 100%;
   margin-left: 0;
-}
-
-.card {
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.18);
-  margin-bottom: 2rem;
-}
-
-.card .content {
-  font-size: 14px;
 }
 
 </style>

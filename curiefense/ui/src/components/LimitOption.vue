@@ -59,14 +59,23 @@
 </template>
 
 <script lang="ts">
-import DatasetsUtils from '@/assets/DatasetsUtils'
-import Vue from 'vue'
+import _ from 'lodash'
+import DatasetsUtils from '@/assets/DatasetsUtils.ts'
+import Vue, {PropType} from 'vue'
+import {Category, LimitRuleType} from '@/types'
+
+export type OptionObject = {
+  type?: LimitRuleType
+  key?: string
+  value?: string
+  oldKey?: string
+}
 
 export default Vue.extend({
   name: 'LimitOption',
   props: {
     label: String,
-    option: Object,
+    option: Object as PropType<OptionObject>,
     index: Number,
     removable: Boolean,
     showRemove: Boolean,
@@ -79,16 +88,16 @@ export default Vue.extend({
   },
   data() {
     const {LimitRulesTypes, LimitAttributes} = DatasetsUtils
-    const optionsData = {
+    const optionsData: {[key: string]: OptionObject} = {
       self: {
         type: 'self',
-        key: 'self'
-      }
+        key: 'self',
+      },
     }
-    const attributes = this.ld.pickBy(LimitAttributes, (value, key) => {
+    const attributes = _.pickBy(LimitAttributes, (value, key) => {
       return !this.ignoreAttributes || !this.ignoreAttributes.includes(key)
     })
-    Object.keys(LimitRulesTypes).forEach(ruleType => {
+    Object.keys(LimitRulesTypes).forEach((ruleType) => {
       const {type, key = '', value} = this.option || {}
       optionsData[ruleType] = {type, key, value}
     })
@@ -96,53 +105,53 @@ export default Vue.extend({
       optionsData,
       options: LimitRulesTypes,
       attributes: attributes,
-      type: this.option?.type || 'attrs'
+      type: this.option?.type || 'attrs',
     }
   },
   computed: {
     selectedValue: {
-      get() {
+      get: function(): string {
         return this.selectedOption.value
       },
-      set(value) {
+      set: function(value: string): void {
         this.selectedOption.value = value
       },
     },
     selectedKey: {
-      get() {
+      get: function(): string {
         return this.selectedOption.key
       },
-      set(value) {
-        this.selectedOption.oldKey = this.selectedOption.key
+      set: function(value: string): void {
+        this.selectedOption.oldKey = this.selectedOption.key;
         this.selectedOption.key = value
       },
     },
     selectedType: {
-      get() {
+      get: function(): string {
         return this.selectedOption.type
       },
-      set(value) {
-        this.type = value
+      set: function(value: LimitRuleType): void {
+        this.type = value;
         this.selectedOption.type = value
       },
     },
     selectedOption: {
-      get() {
+      get: function(): OptionObject {
         return this.optionsData[this.type]
       },
-      set(value) {
+      set: function(value: OptionObject): void {
         this.optionsData[this.type] = value
-      }
-    }
+      },
+    },
   },
   updated() {
     this.$emit('change', {...this.selectedOption}, this.index)
   },
   methods: {
-    isCategoryArgsCookiesHeaders(category) {
+    isCategoryArgsCookiesHeaders(category: Category) {
       return (new RegExp('(args|cookies|headers)')).test(category)
     },
-  }
+  },
 })
 </script>
 <style scoped lang="scss">

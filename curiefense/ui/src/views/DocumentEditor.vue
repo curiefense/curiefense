@@ -8,16 +8,28 @@
               <div class="field is-grouped">
                 <div class="control">
                   <div class="select is-small">
-                    <select v-model="selectedBranch" @change="switchBranch()" class="branch-selection">
-                      <option v-for="name in branchNames" :key="name" :value="name">{{ name }}</option>
+                    <select v-model="selectedBranch"
+                            title="Switch branch"
+                            @change="switchBranch()"
+                            class="branch-selection">
+                      <option v-for="name in branchNames"
+                              :key="name"
+                              :value="name">
+                        {{ name }}
+                      </option>
                     </select>
                   </div>
                 </div>
                 <div class="control">
                   <div class="select is-small">
-                    <select v-model="selectedDocType" @change="switchDocType()" class="doc-type-selection">
-                      <option v-for="(component, propertyName) in componentsMap" :key="propertyName"
-                              :value="propertyName">{{ component.title }}
+                    <select v-model="selectedDocType"
+                            title="Switch document type"
+                            @change="switchDocType()"
+                            class="doc-type-selection">
+                      <option v-for="(component, propertyName) in componentsMap"
+                              :key="propertyName"
+                              :value="propertyName">
+                        {{ component.title }}
                       </option>
                     </select>
                   </div>
@@ -49,8 +61,15 @@
               <div class="field is-grouped is-pulled-right">
                 <div class="control">
                   <div class="select is-small">
-                    <select v-model="selectedDocID" @change="switchDocID()" class="doc-selection">
-                      <option v-for="pair in docIdNames" :key="pair[0]" :value="pair[0]">{{ pair[1] }}</option>
+                    <select v-model="selectedDocID"
+                            title="Switch document ID"
+                            @change="switchDocID()"
+                            class="doc-selection">
+                      <option v-for="pair in docIdNames"
+                              :key="pair[0]"
+                              :value="pair[0]">
+                        {{ pair[1] }}
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -60,7 +79,7 @@
                   <button class="button is-small fork-document-button"
                           :class="{'is-loading': isForkLoading}"
                           @click="forkDoc"
-                          title="Duplicate Document"
+                          title="Duplicate document"
                           :disabled="!selectedDoc">
                     <span class="icon is-small">
                       <i class="fas fa-clone"></i>
@@ -71,7 +90,7 @@
                 <p class="control">
                   <a class="button is-small download-doc-button"
                      @click="downloadDoc"
-                     title="Download Document">
+                     title="Download document">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
                     </span>
@@ -84,7 +103,7 @@
                   <button class="button is-small new-document-button"
                           :class="{'is-loading': isNewLoading}"
                           @click="addNewDoc()"
-                          title="Add New Document">
+                          title="Add new document">
                     <span class="icon is-small">
                       <i class="fas fa-plus"></i>
                     </span>
@@ -108,8 +127,9 @@
                   <button class="button is-small has-text-danger delete-document-button"
                           :class="{'is-loading': isDeleteLoading}"
                           @click="deleteDoc"
-                          title="Delete Document"
-                          :disabled="selectedDoc && (selectedDoc.id === '__default__' || isDocReferenced || docs.length <= 1)">
+                          title="Delete document"
+                          :disabled="selectedDoc &&
+                                     (selectedDoc.id === '__default__' || isDocReferenced || docs.length <= 1)">
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
                     </span>
@@ -133,13 +153,12 @@
             :docs.sync="docs"
             :apiPath="documentAPIPath"
             @switch-doc-type="switchDocType"
-            @update="selectedDoc = $event"
             ref="currentComponent">
         </component>
         <hr/>
         <git-history v-if="selectedDocID"
-                     :gitLog.sync="gitLog"
-                     :apiPath.sync="gitAPIPath"
+                     :gitLog="gitLog"
+                     :apiPath="gitAPIPath"
                      @restore-version="restoreGitVersion"></git-history>
       </div>
 
@@ -157,7 +176,7 @@
             <!--display correct message by priority (Branch -> Document type -> Document)-->
             <span v-if="!branchNames.includes(selectedBranch)">
               Missing branch. To be redirected to Version Control page where you will be able to create a new one, click
-              <a title="Add New"
+              <a title="Add new"
                  @click="referToVersionControl()">
                 here
               </a>
@@ -167,7 +186,7 @@
             </span>
             <span v-else-if="!docIdNames.find((docIdName) => docIdName.includes(selectedDoc))">
               Missing document. To create a new one, click
-              <a title="Add New"
+              <a title="Add new"
                  @click="addNewDoc()">
                 here
               </a>
@@ -180,7 +199,9 @@
 </template>
 
 <script lang="ts">
+import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
+import RequestsUtils, {MethodNames} from '@/assets/RequestsUtils.ts'
 import Utils from '@/assets/Utils.ts'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
 import WAFEditor from '@/doc-editors/WAFEditor.vue'
@@ -188,27 +209,28 @@ import WAFSigsEditor from '@/doc-editors/WAFSigsEditor.vue'
 import URLMapsEditor from '@/doc-editors/URLMapsEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import ProfilingListEditor from '@/doc-editors/ProfilingListEditor.vue'
-import FlowControlEditor from '@/doc-editors/FlowControlEditor'
+import FlowControlEditor from '@/doc-editors/FlowControlEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
-import RequestsUtils from '@/assets/RequestsUtils'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import Vue from 'vue'
+import {Document, DocumentType, Commit} from '@/types'
+import {AxiosResponse} from 'axios'
 
 export default Vue.extend({
 
   name: 'DocumentEditor',
   props: {},
   components: {
-    GitHistory
+    GitHistory,
   },
   watch: {
     $route: {
-      handler: async function () {
+      handler: async function() {
         this.setLoadingDocStatus(true)
         await this.setSelectedDataFromRouteParams()
         this.setLoadingDocStatus(false)
-      }
-    }
+      },
+    },
   },
   data() {
     return {
@@ -223,13 +245,13 @@ export default Vue.extend({
       isSaveLoading: false,
       isDeleteLoading: false,
 
-      // To prevent deletion of docs referenced by URLmaps
+      // To prevent deletion of docs referenced by URL maps
       referencedIDsACL: [],
       referencedIDsWAF: [],
       referencedIDsLimits: [],
 
       selectedBranch: null,
-      selectedDocType: null,
+      selectedDocType: null as DocumentType,
 
       docs: [],
       docIdNames: [],
@@ -255,44 +277,44 @@ export default Vue.extend({
   },
   computed: {
 
-    documentAPIPath() {
+    documentAPIPath(): string {
       return `${this.apiRoot}/${this.apiVersion}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
     },
 
-    gitAPIPath() {
+    gitAPIPath(): string {
       return `${this.apiRoot}/${this.apiVersion}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/v/`
     },
 
-    branchNames() {
-      return this.ld.sortBy(this.ld.map(this.configs, 'id'))
+    branchNames(): string[] {
+      return _.sortBy(_.map(this.configs, 'id'))
     },
 
     selectedDoc: {
-      get() {
+      get(): Document {
         return this.docs[this.selectedDocIndex]
       },
-      set(newDoc) {
+      set(newDoc): void {
         this.$set(this.docs, this.selectedDocIndex, newDoc)
-      }
+      },
     },
 
-    selectedDocIndex() {
+    selectedDocIndex(): number {
       if (this.selectedDocID) {
-        return this.ld.findIndex(this.docs, (doc) => {
+        return _.findIndex(this.docs, (doc) => {
           return doc.id === this.selectedDocID
         })
       }
       return 0
     },
 
-    isDocReferenced() {
+    isDocReferenced(): boolean {
       if (this.selectedDocType === 'aclpolicies') {
         return this.referencedIDsACL.includes(this.selectedDocID)
       }
       if (this.selectedDocType === 'wafpolicies') {
         return this.referencedIDsWAF.includes(this.selectedDocID)
       }
-      if (this.selectedDocType === 'limits') {
+      if (this.selectedDocType === 'ratelimits') {
         return this.referencedIDsLimits.includes(this.selectedDocID)
       }
       return false
@@ -314,7 +336,7 @@ export default Vue.extend({
       this.setLoadingDocStatus(true)
       this.selectedBranch = this.$route.params.branch || this.branchNames[0]
       const prevDocType = this.selectedDocType
-      this.selectedDocType = this.$route.params.doc_type || Object.keys(this.componentsMap)[0]
+      this.selectedDocType = (this.$route.params.doc_type || Object.keys(this.componentsMap)[0]) as DocumentType
       if (!prevDocType || prevDocType !== this.selectedDocType) {
         await this.loadDocs(this.selectedDocType)
       }
@@ -329,12 +351,12 @@ export default Vue.extend({
       this.gitLog = []
     },
 
-    newDoc() {
-      let factory = DatasetsUtils.NewDocEntryFactory[this.selectedDocType]
+    newDoc(): Document {
+      const factory = DatasetsUtils.NewDocEntryFactory[this.selectedDocType]
       return factory && factory()
     },
 
-    async loadConfigs(counter_only) {
+    async loadConfigs(counterOnly?: boolean) {
       // store configs
       let configs
       try {
@@ -344,30 +366,25 @@ export default Vue.extend({
         console.log('Error while attempting to get configs')
         console.log(err)
       }
-      if (!counter_only) {
+      if (!counterOnly) {
         console.log('loaded configs: ', configs)
         this.configs = configs
       }
       // counters
-      this.commits = this.ld.sum(this.ld.map(this.ld.map(configs, 'logs'), (logs) => {
-        return this.ld.size(logs)
+      this.commits = _.sum(_.map(_.map(configs, 'logs'), (logs) => {
+        return _.size(logs)
       }))
-      this.branches = this.ld.size(configs)
+      this.branches = _.size(configs)
       console.log('config counters', this.branches, this.commits)
     },
 
     async initDocTypes() {
-      let doctype = this.selectedDocType = Object.keys(this.componentsMap)[0]
+      const doctype = this.selectedDocType = Object.keys(this.componentsMap)[0] as DocumentType
       await this.loadDocs(doctype)
     },
 
     updateDocIdNames() {
-      this.docIdNames = this.ld.sortBy(this.ld.map(this.docs, (doc) => {
-            return [doc.id, doc.name]
-          }),
-          (entry) => {
-            return entry[1]
-          })
+      this.docIdNames = _.sortBy(_.map(this.docs, (doc) => [doc.id, doc.name]), (entry) => entry[1])
     },
 
     async loadSelectedDocData() {
@@ -380,11 +397,11 @@ export default Vue.extend({
       this.setLoadingDocStatus(false)
     },
 
-    async loadDocs(doctype) {
-      let branch = this.selectedBranch
+    async loadDocs(doctype: DocumentType) {
+      const branch = this.selectedBranch
       try {
-        const response = await RequestsUtils.sendRequest('GET', `configs/${branch}/d/${doctype}/`,
-            {headers: {'x-fields': 'id, name'}})
+        const response = await RequestsUtils.sendRequest('GET',
+            `configs/${branch}/d/${doctype}/`, {headers: {'x-fields': 'id, name'}})
         this.docs = response.data
       } catch (err) {
         console.log('Error while attempting to load documents')
@@ -400,14 +417,14 @@ export default Vue.extend({
       this.loadGitLog()
     },
 
-    loadGitLog(interaction) {
-      let config = this.selectedBranch,
-          document_ = this.selectedDocType,
-          entry = this.selectedDocID,
-          url_trail = `configs/${config}/d/${document_}/e/${entry}/v/`
+    loadGitLog(interaction?: boolean) {
+      const config = this.selectedBranch
+      const document_ = this.selectedDocType
+      const entry = this.selectedDocID
+      const urlTrail = `configs/${config}/d/${document_}/e/${entry}/v/`
 
       if (config && document_ && entry) {
-        RequestsUtils.sendRequest('GET', url_trail).then((response) => {
+        RequestsUtils.sendRequest('GET', urlTrail).then((response: AxiosResponse<Commit[]>) => {
           this.gitLog = response.data
           if (interaction) {
             this.loadConfigs(true)
@@ -416,19 +433,19 @@ export default Vue.extend({
       }
     },
 
-    async switchBranch(branch) {
+    async switchBranch(branch?: string) {
       this.setLoadingDocStatus(true)
       if (branch) {
         this.selectedBranch = branch
       }
       this.resetGitLog()
       await this.initDocTypes()
-      this.loadReferencedDocsIDs()
+      await this.loadReferencedDocsIDs()
       this.goToRoute()
       this.setLoadingDocStatus(false)
     },
 
-    async switchDocType(docType) {
+    async switchDocType(docType?: DocumentType) {
       this.setLoadingDocStatus(true)
       if (!docType) {
         docType = this.selectedDocType
@@ -443,7 +460,7 @@ export default Vue.extend({
       this.setLoadingDocStatus(false)
     },
 
-    async switchDocID(docID) {
+    async switchDocID(docID?: string) {
       this.setLoadingDocStatus(true)
       if (docID) {
         this.selectedDocID = docID
@@ -462,15 +479,15 @@ export default Vue.extend({
     async forkDoc() {
       this.setLoadingDocStatus(true)
       this.isForkLoading = true
-      let docToAdd = this.ld.cloneDeep(this.selectedDoc)
+      const docToAdd = _.cloneDeep(this.selectedDoc) as Document
       docToAdd.name = 'copy of ' + docToAdd.name
-      docToAdd.id = DatasetsUtils.UUID2()
+      docToAdd.id = DatasetsUtils.convertToUUID2()
       await this.addNewDoc(docToAdd)
       this.isForkLoading = false
       this.setLoadingDocStatus(false)
     },
 
-    async addNewDoc(docToAdd) {
+    async addNewDoc(docToAdd?: Document) {
       this.setLoadingDocStatus(true)
       this.isNewLoading = true
       if (!docToAdd) {
@@ -485,25 +502,27 @@ export default Vue.extend({
       this.setLoadingDocStatus(false)
     },
 
-    async saveChanges(methodName) {
+    async saveChanges(methodName?: MethodNames) {
       this.isSaveLoading = true
       if (!methodName) {
         methodName = 'PUT'
       }
-      let url_trail = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
-      if (methodName !== 'POST')
-        url_trail += `${this.selectedDocID}/`
+      let urlTrail = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
+      if (methodName !== 'POST') {
+        urlTrail += `${this.selectedDocID}/`
+      }
       const doc = this.selectedDoc
 
-      await RequestsUtils.sendRequest(methodName, url_trail, doc, null, 'Changes saved!', 'Failed while saving changes!')
-          .then(() => {
-            this.updateDocIdNames()
-            this.loadGitLog(true)
-            // If the saved doc was a urlmap, refresh the referenced IDs lists
-            if (this.selectedDocType === 'urlmaps') {
-              this.loadReferencedDocsIDs()
-            }
-          })
+      await RequestsUtils.sendRequest(methodName, urlTrail, doc, null,
+          'Changes saved!', 'Failed while saving changes!',
+      ).then(() => {
+        this.updateDocIdNames()
+        this.loadGitLog(true)
+        // If the saved doc was a url map, refresh the referenced IDs lists
+        if (this.selectedDocType === 'urlmaps') {
+          this.loadReferencedDocsIDs()
+        }
+      })
       this.isSaveLoading = false
     },
 
@@ -511,11 +530,13 @@ export default Vue.extend({
       this.setLoadingDocStatus(true)
       this.isDeleteLoading = true
       this.docs.splice(this.selectedDocIndex, 1)
-      await RequestsUtils.sendRequest('DELETE', `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`, null, null, 'Document deleted!', 'Failed while deleting document!')
-          .then(() => {
-            this.updateDocIdNames()
-            this.loadGitLog(true)
-          })
+      await RequestsUtils.sendRequest('DELETE',
+          `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
+          null, null, 'Document deleted!', 'Failed while deleting document!',
+      ).then(() => {
+        this.updateDocIdNames()
+        this.loadGitLog(true)
+      })
       this.selectedDocID = this.docs[0].id
       await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()
@@ -528,30 +549,35 @@ export default Vue.extend({
     async loadReferencedDocsIDs() {
       const response = await RequestsUtils.sendRequest('GET', `configs/${this.selectedBranch}/d/urlmaps/`)
       const docs = response.data
-      const referencedACL = []
-      const referencedWAF = []
-      const referencedLimit = []
-      this.ld.forEach(docs, (doc) => {
-        this.ld.forEach(doc.map, (mapEntry) => {
+      const referencedACL: string[] = []
+      const referencedWAF: string[] = []
+      const referencedLimit: string[] = []
+      _.forEach(docs, (doc) => {
+        _.forEach(doc.map, (mapEntry) => {
           referencedACL.push(mapEntry['acl_profile'])
           referencedWAF.push(mapEntry['waf_profile'])
           referencedLimit.push(mapEntry['limit_ids'])
         })
       })
-      this.referencedIDsACL = this.ld.uniq(referencedACL)
-      this.referencedIDsWAF = this.ld.uniq(referencedWAF)
-      this.referencedIDsLimits = this.ld.uniq(this.ld.flatten(referencedLimit))
+      this.referencedIDsACL = _.uniq(referencedACL)
+      this.referencedIDsWAF = _.uniq(referencedWAF)
+      this.referencedIDsLimits = _.uniq(_.flatten(referencedLimit))
     },
 
-    async restoreGitVersion(gitVersion) {
+    async restoreGitVersion(gitVersion: Commit) {
       const branch = this.selectedBranch
-      const doctype = this.selectedDocType
+      const doctype: DocumentType = this.selectedDocType
       const docTitle = this.componentsMap[doctype].title
-      const version_id = gitVersion.version
-      const url_trail = `configs/${branch}/d/${doctype}/v/${version_id}/`
+      const versionId = gitVersion.version
+      const urlTrail = `configs/${branch}/d/${doctype}/v/${versionId}/`
 
-      await RequestsUtils.sendRequest('PUT', `${url_trail}revert/`, null, null, `Document [${docTitle}] restored to version [${version_id}]!`, `Failed restoring document [${docTitle}] to version [${version_id}]!`)
-      const response = await RequestsUtils.sendRequest('GET', url_trail)
+      await RequestsUtils.sendRequest('PUT',
+          `${urlTrail}revert/`,
+          null,
+          null,
+          `Document [${docTitle}] restored to version [${versionId}]!`,
+          `Failed restoring document [${docTitle}] to version [${versionId}]!`)
+      const response = await RequestsUtils.sendRequest('GET', urlTrail)
       this.docs = response.data
       this.updateDocIdNames()
       this.loadGitLog()
@@ -561,15 +587,16 @@ export default Vue.extend({
       if (!this.selectedDoc) {
         return
       }
-      this.selectedDoc = {...this.newDoc(), ...this.selectedDoc}
+      this.selectedDoc = {...this.newDoc(), ...this.selectedDoc as {}}
     },
 
     referToVersionControl() {
       this.$router.push('/versioncontrol')
     },
 
-    // Collect every request to display a loading indicator, the loading indicator will be displayed as long as at least one request is still active (counter > 0)
-    setLoadingDocStatus(isLoading) {
+    // Collect every request to display a loading indicator
+    // The loading indicator will be displayed as long as at least one request is still active (counter > 0)
+    setLoadingDocStatus(isLoading: boolean) {
       if (isLoading) {
         this.loadingDocCounter++
       } else {
@@ -584,7 +611,7 @@ export default Vue.extend({
     this.setSelectedDataFromRouteParams()
     this.loadReferencedDocsIDs()
     this.setLoadingDocStatus(false)
-  }
+  },
 
 })
 </script>

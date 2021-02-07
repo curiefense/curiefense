@@ -9,13 +9,14 @@
                 <label class="label is-small">
                   Name
                   <span class="has-text-grey is-pulled-right document-id" title="Document id">
-                    {{ selectedDoc.id }}
+                    {{ localDoc.id }}
                   </span>
                 </label>
                 <div class="control">
                   <input class="input is-small document-name"
                          placeholder="Document name"
-                         v-model="selectedDoc.name"/>
+                         @change="emitDocUpdate"
+                         v-model="localDoc.name"/>
                 </div>
               </div>
               <div class="field">
@@ -26,7 +27,8 @@
                   <input type="text"
                          class="input is-small"
                          placeholder="(api|service).company.(io|com)"
-                         v-model="selectedDoc.match"
+                         @change="emitDocUpdate"
+                         v-model="localDoc.match"
                          title="Enter a regex to match hosts headers (domain names)">
                   <span class="icon is-small is-left has-text-grey"><i class="fas fa-code"></i></span>
                 </div>
@@ -46,11 +48,11 @@
                     class="fas fa-sort-alpha-down"></i></span></th>
                 <th class="is-size-7">WAF</th>
                 <th class="is-size-7">ACL</th>
-                <th class="is-size-7" title="Rate Limit">RL</th>
+                <th class="is-size-7" title="Rate limit">RL</th>
                 <th></th>
               </tr>
               </thead>
-              <tbody v-for="(map_entry, idx) in selectedDoc.map" :key="idx">
+              <tbody v-for="(map_entry, idx) in localDoc.map" :key="idx">
               <tr @click="changeSelectedMapEntry(idx)"
                   class="has-row-clickable"
                   :class=" map_entry_index === idx ? 'has-background-light borderless' : ''">
@@ -68,12 +70,12 @@
                 <td class="is-size-7 "
                     :class=" map_entry.waf_active ? 'has-text-success' : 'has-text-danger' "
                     :title=" map_entry.waf_active ? 'Active mode' : 'Learning mode' ">
-                  {{ waf_profile_name(map_entry.waf_profile) ? waf_profile_name(map_entry.waf_profile)[1] : '' }}
+                  {{ wafProfileName(map_entry.waf_profile) ? wafProfileName(map_entry.waf_profile)[1] : '' }}
                 </td>
                 <td class="is-size-7 has-text-success"
                     :class=" map_entry.acl_active ? 'has-text-success' : 'has-text-danger' "
                     :title=" map_entry.acl_active ? 'Active mode' : 'Learning mode' ">
-                  {{ acl_profile_name(map_entry.acl_profile) ? acl_profile_name(map_entry.acl_profile)[1] : '' }}
+                  {{ aclProfileName(map_entry.acl_profile) ? aclProfileName(map_entry.acl_profile)[1] : '' }}
                 </td>
                 <td class="is-size-7"
                     v-if="map_entry.limit_ids">
@@ -101,7 +103,7 @@
                                 Name
                               </label>
                               <div class="control">
-                                <input class="input is-small" type="text" ref="profile_name"
+                                <input class="input is-small" type="text" ref="profileName"
                                        v-model="map_entry.name" required>
                               </div>
                             </div>
@@ -141,34 +143,36 @@
                                   </th>
                                   <th class="has-text-centered is-size-7 width-60px">
                                     <a v-if="limitRuleNames && map_entry.limit_ids && limitRuleNames.length > map_entry.limit_ids.length"
-                                       class="has-text-grey-dark is-small" title="Add New"
-                                       @click="limit_new_entry_mode_map_entry_id = map_entry.key">
+                                       class="has-text-grey-dark is-small"
+                                       title="Add new"
+                                       @click="limitNewEntryMode_map_entry_id = map_entry.key">
                                       <span class="icon is-small"><i class="fas fa-plus"></i></span>
                                     </a>
                                   </th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr v-for="(limit_id, idx) in map_entry.limit_ids"
-                                    :key="limit_id"
-                                    :class="{ 'highlighted': rateLimitAnalyzed ? rateLimitAnalyzed.id === limit_id : false }">
+                                <tr v-for="(limitIds, idx) in map_entry.limit_ids"
+                                    :key="limitIds"
+                                    :class="{ 'highlighted': rateLimitAnalyzed ? rateLimitAnalyzed.id === limitIds : false }">
                                   <td class="is-size-7">
-                                    <a class="has-text-grey-dark is-small" title="Analyze Recommended Rate Limit Values"
-                                       @click="calcRateLimitRecommendation(map_entry, limit_details(limit_id))">
+                                    <a class="has-text-grey-dark is-small"
+                                       title="Analyze recommended rate limit values"
+                                       @click="calcRateLimitRecommendation(map_entry, limitDetails(limitIds))">
                                       <span class="icon is-small"><i class="fas fa-chart-line"></i></span>
                                     </a>
                                   </td>
-                                  <td class="is-size-7" v-if="limit_details(limit_id)">
-                                    {{ limit_details(limit_id).name }}
+                                  <td class="is-size-7" v-if="limitDetails(limitIds)">
+                                    {{ limitDetails(limitIds).name }}
                                   </td>
-                                  <td class="is-size-7" v-if="limit_details(limit_id)">
-                                    {{ limit_details(limit_id).description }}
+                                  <td class="is-size-7" v-if="limitDetails(limitIds)">
+                                    {{ limitDetails(limitIds).description }}
                                   </td>
-                                  <td class="is-size-7" v-if="limit_details(limit_id)">
-                                    {{ limit_details(limit_id).limit }}
+                                  <td class="is-size-7" v-if="limitDetails(limitIds)">
+                                    {{ limitDetails(limitIds).limit }}
                                   </td>
-                                  <td class="is-size-7" v-if="limit_details(limit_id)">
-                                    {{ limit_details(limit_id).ttl }}
+                                  <td class="is-size-7" v-if="limitDetails(limitIds)">
+                                    {{ limitDetails(limitIds).ttl }}
                                   </td>
                                   <td class="has-text-centered is-size-7 width-60px">
                                     <a class="is-small has-text-grey" title="remove entry"
@@ -177,12 +181,12 @@
                                     </a>
                                   </td>
                                 </tr>
-                                <tr v-if="limit_new_entry_mode(map_entry.key)">
+                                <tr v-if="limitNewEntryMode(map_entry.key)">
                                   <td colspan="4">
                                     <div class="control is-expanded">
                                       <div class="select is-small is-size-7 is-fullwidth">
                                         <select class="select is-small"
-                                                v-model="limit_new_entry_id">
+                                                v-model="limit_mapEntry_id">
                                           <option v-for="rule in newLimitRules(map_entry.limit_ids)" :key="rule.id"
                                                   :value="rule.id">{{ rule.name + ' ' + rule.description }}
                                           </option>
@@ -192,7 +196,7 @@
                                   </td>
                                   <td class="has-text-centered is-size-7 width-60px">
                                     <a class="is-small has-text-grey" title="Add this entry"
-                                       @click="map_entry.limit_ids.push(limit_new_entry_id); limit_new_entry_mode_map_entry_id = null">
+                                       @click="map_entry.limit_ids.push(limit_mapEntry_id); limitNewEntryMode_map_entry_id = null">
                                       add
                                     </a>
                                   </td>
@@ -201,7 +205,7 @@
                                   <td colspan="5">
                                     <p class="is-size-7 has-text-grey has-text-centered">
                                       To attach an existing rule, click <a title="Add New"
-                                                                           @click="limit_new_entry_mode_map_entry_id = map_entry.key">here</a>.
+                                                                           @click="limitNewEntryMode_map_entry_id = map_entry.key">here</a>.
                                       <br/>
                                       To create a new rate-limit rule, click <a @click="referToRateLimit">here</a>.
                                     </p>
@@ -301,7 +305,7 @@
                               </button>
                               <button title="Delete this profile"
                                       class="button is-small is-pulled-right is-danger is-light"
-                                      @click="selectedDoc.map.splice(idx, 1)"
+                                      @click="localDoc.map.splice(idx, 1); emitDocUpdate"
                                       v-if="map_entry.name !== 'default'">
                                 delete
                               </button>
@@ -323,18 +327,25 @@
   </div>
 </template>
 <script lang="ts">
+import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
-import RequestsUtils from '@/assets/RequestsUtils'
-import Vue from 'vue'
+import RequestsUtils from '@/assets/RequestsUtils.ts'
+import Vue, {VueConstructor} from 'vue'
+import {ACLPolicy, LimitRuleType, RateLimit, URLMap, URLMapEntryMatch, WAFPolicy} from '@/types'
+import {AxiosResponse} from 'axios'
 
-export default Vue.extend({
+export default (Vue as VueConstructor<Vue & {
+  $refs: {
+    profileName: InstanceType<typeof HTMLInputElement>
+  }
+}>).extend({
   name: 'URLMapsEditor',
 
   props: {
     selectedDoc: Object,
     selectedBranch: String,
     docs: Array,
-    apiPath: String
+    apiPath: String,
   },
 
 
@@ -347,8 +358,8 @@ export default Vue.extend({
       aclProfileNames: [],
       limitRuleNames: [],
 
-      limit_new_entry_mode_map_entry_id: null,
-      limit_new_entry_id: null,
+      limitNewEntryMode_map_entry_id: null,
+      limit_mapEntry_id: null,
 
       upstreams: [],
 
@@ -360,43 +371,53 @@ export default Vue.extend({
     }
   },
 
+  computed: {
+    localDoc(): URLMap {
+      return JSON.parse(JSON.stringify(this.selectedDoc))
+    },
+  },
+
   methods: {
+    emitDocUpdate() {
+      this.$emit('update:selectedDoc', this.localDoc)
+    },
 
-    acl_profile_name(id) {
-      return this.ld.find(this.aclProfileNames, (profile) => {
+    aclProfileName(id: string) {
+      return _.find(this.aclProfileNames, (profile) => {
         return profile[0] === id
       })
     },
-    waf_profile_name(id) {
-      return this.ld.find(this.wafProfileNames, (profile) => {
+
+    wafProfileName(id: string) {
+      return _.find(this.wafProfileNames, (profile) => {
         return profile[0] === id
       })
     },
 
-    newLimitRules(limit_ids) {
-      return this.ld.filter(this.limitRuleNames, (rule) => {
-        return this.ld.indexOf(limit_ids, rule.id) === -1
+    newLimitRules(limitIds: string[]) {
+      return _.filter(this.limitRuleNames, (rule) => {
+        return _.indexOf(limitIds, rule.id) === -1
       })
     },
 
-    limit_details(limit_id) {
-      return this.ld.find(this.limitRuleNames, (rule) => {
-        return rule.id === limit_id
+    limitDetails(limitIds: string[]) {
+      return _.find(this.limitRuleNames, (rule) => {
+        return rule.id === limitIds
       })
     },
 
-    limit_new_entry_mode(id) {
-      return this.limit_new_entry_mode_map_entry_id === id
+    limitNewEntryMode(id: string) {
+      return this.limitNewEntryMode_map_entry_id === id
     },
 
-    addNewProfile(map, idx) {
-      let new_entry = this.ld.cloneDeep(map)
-      new_entry.name = 'New Security Profile'
-      new_entry.match = '/new/path/to/match/profile'
-      new_entry.isnew = true
+    addNewProfile(map: URLMapEntryMatch, idx: number) {
+      const mapEntry = _.cloneDeep(map)
+      mapEntry.name = 'New Security Profile'
+      mapEntry.match = '/new/path/to/match/profile'
 
-      this.selectedDoc.map.splice(idx, 0, new_entry)
-      let element = this.$refs.profile_name[0]
+      this.localDoc.map.splice(idx, 0, mapEntry)
+      this.emitDocUpdate()
+      const element = this.$refs.profileName
       element.focus()
       // Pushing the select action to the end of queue in order for the new profile to be rendered beforehand
       setTimeout(() => {
@@ -404,14 +425,14 @@ export default Vue.extend({
       }, 0)
     },
 
-    changeSelectedMapEntry(index) {
+    changeSelectedMapEntry(index: number) {
       this.map_entry_index = (this.map_entry_index === index ? -1 : index)
       this.clearRateLimitRecommendation()
     },
 
-    formatRateLimitAnalysisData(obj) {
-      const mappedData = this.ld.flatMap(Object.keys(obj), (key) => {
-        return this.ld.map(Object.keys(obj[key]), (innerKey) => {
+    formatRateLimitAnalysisData(obj: RateLimit['include'] | RateLimit['exclude']) {
+      const mappedData = _.flatMapDeep(Object.keys(obj), (key: LimitRuleType) => {
+        return _.map(Object.keys(obj[key]), (innerKey) => {
           if (innerKey === 'tags') {
             return [`'${key}'`, `'${innerKey}'`, `'${obj[key][innerKey]}' = '1'`]
           } else {
@@ -419,8 +440,8 @@ export default Vue.extend({
           }
         })
       })
-      return this.ld.remove(mappedData, (item) => {
-        return item !== ''
+      return _.remove(mappedData, (item) => {
+        return item
       })
     },
 
@@ -430,58 +451,52 @@ export default Vue.extend({
       this.mapEntryAnalyzed = null
     },
 
-    calcRateLimitRecommendation(mapEntry, rateLimit) {
+    calcRateLimitRecommendation(mapEntry: URLMapEntryMatch, rateLimit: RateLimit) {
       this.rateLimitRecommendationStatus = 'loading'
       this.rateLimitAnalyzed = rateLimit
       this.mapEntryAnalyzed = mapEntry
       const formattedIncludeData = this.formatRateLimitAnalysisData(rateLimit.include)
       const formattedExcludeData = this.formatRateLimitAnalysisData(rateLimit.exclude)
-      const formattedKeyData = this.ld.map(Object.values(rateLimit.key), (key) => {
+      const formattedKeyData = _.map(Object.values(rateLimit.key), (key) => {
         const innerKey = Object.keys(key)[0]
         return [`'${innerKey}'`, `'${key[innerKey]}'`]
       })
-      RequestsUtils.sendLogsRequest(
-          'POST',
-          'analyze/',
-          {
-            action: 'rate-limit-recommendation',
-            parameters: {
-              urlmap: this.selectedDoc.id,
-              mapentry: mapEntry.name,
-              timeframe: parseInt(rateLimit.ttl),
-              include: formattedIncludeData,
-              exclude: formattedExcludeData,
-              key: formattedKeyData,
-            }
-          }
-      )
-          .then(response => {
-            if (!response.data || !response.data[0] || response.data[0].length === 0) {
-              this.rateLimitRecommendationStatus = 'empty'
-            } else {
-              this.rateLimitRecommendationStatus = 'recommend'
-              this.rateLimitRecommendation = `${response.data[0].splice(-1)}`
-            }
-          })
-          .catch(() => {
-            this.rateLimitRecommendationStatus = 'error'
-          })
+      const data = {
+        action: 'rate-limit-recommendation',
+        parameters: {
+          urlmap: this.localDoc.id,
+          mapentry: mapEntry.name,
+          timeframe: parseInt(rateLimit.ttl),
+          include: formattedIncludeData,
+          exclude: formattedExcludeData,
+          key: formattedKeyData,
+        },
+      }
+      RequestsUtils.sendLogsRequest('POST', 'analyze/', data).then((response: AxiosResponse) => {
+        if (!response.data || !response.data[0] || response.data[0].length === 0) {
+          this.rateLimitRecommendationStatus = 'empty'
+        } else {
+          this.rateLimitRecommendationStatus = 'recommend'
+          this.rateLimitRecommendation = `${response.data[0].splice(-1)}`
+        }
+      }).catch(() => {
+        this.rateLimitRecommendationStatus = 'error'
+      })
     },
 
     applyRateLimitRecommendation() {
-      const recommendedRateLimit = this.ld.cloneDeep(this.rateLimitAnalyzed)
+      const recommendedRateLimit = _.cloneDeep(this.rateLimitAnalyzed)
       recommendedRateLimit.limit = this.rateLimitRecommendation
       if (this.isRateLimitReferencedElsewhere(this.rateLimitAnalyzed.id, this.mapEntryAnalyzed)) {
         // ID is referenced, copy rate limit
         recommendedRateLimit.name = 'copy of ' + recommendedRateLimit.name
-        recommendedRateLimit.id = DatasetsUtils.UUID2()
-        RequestsUtils.sendRequest('POST', `configs/${this.selectedBranch}/d/ratelimits/e/${recommendedRateLimit.id}`)
-            .then(() => {
-              this.ld.remove(this.mapEntryAnalyzed.limit_ids, (id) => {
-                return id === this.rateLimitAnalyzed.id
-              })
-              this.mapEntryAnalyzed.limit_ids.push(recommendedRateLimit.id)
-            })
+        recommendedRateLimit.id = DatasetsUtils.convertToUUID2()
+        RequestsUtils.sendRequest('POST', `configs/${this.selectedBranch}/d/ratelimits/e/${recommendedRateLimit.id}`).then(() => {
+          _.remove(this.mapEntryAnalyzed.limit_ids, (id) => {
+            return id === this.rateLimitAnalyzed.id
+          })
+          this.mapEntryAnalyzed.limit_ids.push(recommendedRateLimit.id)
+        })
         this.clearRateLimitRecommendation()
       } else {
         // ID is not referenced, edit rate limit
@@ -490,9 +505,9 @@ export default Vue.extend({
       }
     },
 
-    isRateLimitReferencedElsewhere(rateLimitID, mapEntry) {
-      let referencedIDs = this.ld.reduce(this.docs, (referencedIDs, doc) => {
-        referencedIDs.push(this.ld.reduce(doc.map, (entryReferencedIDs, entry) => {
+    isRateLimitReferencedElsewhere(rateLimitID: string, mapEntry: URLMapEntryMatch) {
+      let referencedIDs = _.reduce(this.docs, (referencedIDs, doc) => {
+        referencedIDs.push(_.reduce((doc as URLMap).map, (entryReferencedIDs, entry: URLMapEntryMatch) => {
           if (entry !== mapEntry) {
             entryReferencedIDs.push(entry.limit_ids)
           }
@@ -500,7 +515,7 @@ export default Vue.extend({
         }, []))
         return referencedIDs
       }, [])
-      referencedIDs = this.ld.uniq(this.ld.flattenDeep(referencedIDs))
+      referencedIDs = _.uniq(_.flattenDeep(referencedIDs))
       return referencedIDs.includes(rateLimitID)
     },
 
@@ -509,25 +524,25 @@ export default Vue.extend({
     },
 
     wafacllimitProfileNames() {
-      let branch = this.selectedBranch
+      const branch = this.selectedBranch
 
-      RequestsUtils.sendRequest('GET', `configs/${branch}/d/wafpolicies/`).then((response) => {
-        this.wafProfileNames = this.ld.sortBy(this.ld.map(response.data, (entity) => {
+      RequestsUtils.sendRequest('GET', `configs/${branch}/d/wafpolicies/`).then((response: AxiosResponse<WAFPolicy[]>) => {
+        this.wafProfileNames = _.sortBy(_.map(response.data, (entity) => {
           return [entity.id, entity.name]
         }), (e) => {
           return e[1]
         })
       })
 
-      RequestsUtils.sendRequest('GET', `configs/${branch}/d/aclpolicies/`).then((response) => {
-        this.aclProfileNames = this.ld.sortBy(this.ld.map(response.data, (entity) => {
+      RequestsUtils.sendRequest('GET', `configs/${branch}/d/aclpolicies/`).then((response: AxiosResponse<ACLPolicy[]>) => {
+        this.aclProfileNames = _.sortBy(_.map(response.data, (entity) => {
           return [entity.id, entity.name]
         }), (e) => {
           return e[1]
         })
       })
 
-      RequestsUtils.sendRequest('GET', `configs/${branch}/d/ratelimits/`).then((response) => {
+      RequestsUtils.sendRequest('GET', `configs/${branch}/d/ratelimits/`).then((response: AxiosResponse<RateLimit[]>) => {
         this.limitRuleNames = response.data
       })
     },
@@ -537,12 +552,12 @@ export default Vue.extend({
   watch: {
     selectedDoc() {
       this.wafacllimitProfileNames()
-    }
+    },
   },
 
   mounted() {
     this.wafacllimitProfileNames()
-  }
+  },
 })
 </script>
 <style type="text/css" scoped>

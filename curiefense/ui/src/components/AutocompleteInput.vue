@@ -4,6 +4,7 @@
        :class="{'is-active': suggestionsVisible}">
     <div class="dropdown-trigger">
       <input v-model="autocompleteValue"
+             title="Value"
              type="text"
              class="autocomplete-input input is-small"
              aria-haspopup="true"
@@ -35,19 +36,30 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, {PropType, VueConstructor} from 'vue'
 
-export default Vue.extend({
+export type AutocompleteSuggestion = {
+  prefix: string
+  value: string
+}
+
+export type AutocompleteInputEvents = 'keyup' | 'keydown' | 'keypress' | 'focus' | 'blur'
+
+export default (Vue as VueConstructor<Vue & {
+  $refs: {
+    autocompleteInput: InstanceType<typeof HTMLInputElement>
+  }
+}>).extend({
   name: 'AutocompleteInput',
 
   props: {
     initialValue: {
       type: String,
-      default: ''
+      default: '',
     },
     suggestions: {
-      type: Array,
-      default: () => []
+      type: Array as PropType<AutocompleteSuggestion[]>,
+      default: (): AutocompleteSuggestion[] => [],
     },
     clearInputAfterSelection: Boolean,
     autoFocus: Boolean,
@@ -59,22 +71,26 @@ export default Vue.extend({
         }
         return ['single', 'multiple'].includes(val.toLowerCase())
       },
-      default: 'single'
-    }
+      default: 'single',
+    },
   },
 
   watch: {
-    initialValue: function (newVal) {
+    initialValue: function(newVal) {
       if (this.autocompleteValue !== newVal) {
         this.autocompleteValue = newVal
         this.closeDropdown()
       }
-    }
+    },
   },
 
   mounted() {
-    ['keyup', 'keydown', 'keypress', 'focus', 'blur'].map(event => {
-      this.$refs.autocompleteInput.addEventListener(event, $event => this.$emit(event, $event))
+    const events: AutocompleteInputEvents[] = ['keyup', 'keydown', 'keypress', 'focus', 'blur']
+    events.map((event) => {
+      this.$refs.autocompleteInput.addEventListener(event,
+          ($event: Event): void => {
+            this.$emit(event, $event)
+          })
     })
     if (this.autoFocus) {
       this.$refs.autocompleteInput.focus()
@@ -92,18 +108,18 @@ export default Vue.extend({
   computed: {
 
     // Filtering the suggestions based on the input
-    matches() {
-      return this.suggestions?.filter((str) => {
-        return str.value.toLowerCase().includes(this.currentValue.toLowerCase())
+    matches(): AutocompleteSuggestion[] {
+      return this.suggestions?.filter((suggestion: AutocompleteSuggestion) => {
+        return suggestion.value.toLowerCase().includes(this.currentValue.toLowerCase())
       })
     },
 
-    suggestionsVisible() {
+    suggestionsVisible(): boolean {
       return this.currentValue !== '' && this.matches?.length !== 0 && this.open
     },
 
     currentValue: {
-      get: function () {
+      get: function(): string {
         let currentValue
         if (this?.selectionType.toLowerCase() === 'multiple') {
           const values = this.autocompleteValue.split(' ')
@@ -113,15 +129,15 @@ export default Vue.extend({
         }
         return currentValue
       },
-      set: function (currentValue) {
+      set: function(currentValue: string) {
         if (this.selectionType.toLowerCase() === 'multiple') {
           const values = this.autocompleteValue.split(' ')
-          values[values.length - 1] = currentValue
+          values[values.length - 1] = currentValue;
           this.autocompleteValue = values.join(' ')
         } else {
-          this.autocompleteValue = currentValue.trim()
+          this.autocompleteValue = (currentValue as any).trim()
         }
-      }
+      },
     },
 
   },
@@ -140,11 +156,11 @@ export default Vue.extend({
       this.$emit('value-submitted', this.autocompleteValue)
     },
 
-    closeDropdown() {
+    closeDropdown(): void {
       this.open = false
     },
 
-    suggestionClick(index) {
+    suggestionClick(index: number) {
       this.focusedSuggestionIndex = index
       this.selectValue()
     },
@@ -155,7 +171,7 @@ export default Vue.extend({
       }
       this.valueSubmitted()
       this.valueChanged()
-      this.focusedSuggestionIndex = -1
+      this.focusedSuggestionIndex = -1;
       this.$refs.autocompleteInput.focus()
       this.open = false
       if (this.clearInputAfterSelection) {
@@ -164,20 +180,22 @@ export default Vue.extend({
     },
 
     focusPreviousSuggestion() {
-      if (this.focusedSuggestionIndex > -1)
+      if (this.focusedSuggestionIndex > -1) {
         this.focusedSuggestionIndex--
+      }
     },
 
     focusNextSuggestion() {
-      if (this.focusedSuggestionIndex < this.matches.length - 1)
+      if (this.focusedSuggestionIndex < this.matches.length - 1) {
         this.focusedSuggestionIndex++
+      }
     },
 
-    isSuggestionFocused(index) {
+    isSuggestionFocused(index: number) {
       return index === this.focusedSuggestionIndex
     },
 
-  }
+  },
 })
 </script>
 

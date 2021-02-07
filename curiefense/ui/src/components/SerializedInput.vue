@@ -18,23 +18,23 @@ export default Vue.extend({
     value: null,
     placeholder: String,
     getFunction: Function,
-    setFunction: Function
+    setFunction: Function,
   },
   data() {
     return {
-      formattedValue: ''
+      formattedValue: '',
     }
   },
   watch: {
-    value: function () {
+    value: function() {
       this.formatValue()
-    }
+    },
   },
-  mounted: function () {
+  mounted: function() {
     this.formatValue()
   },
   methods: {
-    updateValue: function (newValue) {
+    updateValue: function(newValue: string) {
       if (typeof this.setFunction === 'function') {
         const result = this.setFunction(newValue)
         this.$emit('blur', result)
@@ -42,13 +42,13 @@ export default Vue.extend({
         console.log('SerializedInput setFunction prop provided is not a function!')
       }
     },
-    formatValue: function () {
+    formatValue: function() {
       if (typeof this.getFunction === 'function') {
         this.formattedValue = this.getFunction(this.value)
       } else {
         console.log('SerializedInput getFunction prop provided is not a function!')
       }
-    }
-  }
+    },
+  },
 })
 </script>

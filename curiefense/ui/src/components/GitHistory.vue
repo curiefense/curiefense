@@ -39,7 +39,9 @@
               <td class="is-size-7 is-vcentered py-3">{{ commit.email }}</td>
               <td class="is-size-7 is-vcentered restore-cell">
                 <p class="control has-text-centered" v-if="commitOverIndex === index">
-                  <a class="button is-small restore-button" @click="restoreVersion(commit)" title="Restore Version">
+                  <a class="button is-small restore-button"
+                     @click="restoreVersion(commit)"
+                     title="Restore version">
                     <span class="icon is-small">
                       <i class="fas fa-history"></i>
                     </span>
@@ -67,14 +69,15 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, {PropType} from 'vue'
+import {Commit} from '@/types'
 
 export default Vue.extend({
   name: 'GitHistory',
 
   props: {
-    gitLog: Array,
-    apiPath: String
+    gitLog: Array as PropType<Commit[]>,
+    apiPath: String,
   },
 
   components: {},
@@ -88,16 +91,17 @@ export default Vue.extend({
   },
 
   computed: {
-    commits() {
-      if (this.expanded)
+    commits(): Commit[] {
+      if (this.expanded) {
         return this.gitLog
+      }
 
       return this.gitLog.slice(0, this.init_max_rows)
-    }
+    },
   },
 
   methods: {
-    restoreVersion(commit) {
+    restoreVersion(commit: Commit) {
       this.$emit('restore-version', commit)
     },
 
@@ -105,7 +109,7 @@ export default Vue.extend({
       this.commitOverIndex = null
     },
 
-    mouseOver(index) {
+    mouseOver(index: number) {
       this.commitOverIndex = index
     },
   },
@@ -115,7 +119,7 @@ export default Vue.extend({
   },
 
   created() {
-  }
+  },
 })
 </script>
 <style scoped>
