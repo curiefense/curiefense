@@ -132,7 +132,7 @@ export default (Vue as VueConstructor<Vue & {
       set: function(currentValue: string) {
         if (this.selectionType.toLowerCase() === 'multiple') {
           const values = this.autocompleteValue.split(' ')
-          values[values.length - 1] = currentValue;
+          values[values.length - 1] = currentValue
           this.autocompleteValue = values.join(' ')
         } else {
           this.autocompleteValue = (currentValue as any).trim()
@@ -171,7 +171,7 @@ export default (Vue as VueConstructor<Vue & {
       }
       this.valueSubmitted()
       this.valueChanged()
-      this.focusedSuggestionIndex = -1;
+      this.focusedSuggestionIndex = -1
       this.$refs.autocompleteInput.focus()
       this.open = false
       if (this.clearInputAfterSelection) {
@@ -200,7 +200,9 @@ export default (Vue as VueConstructor<Vue & {
 </script>
 
 <style scoped>
-.dropdown, .dropdown-trigger, .dropdown-menu {
-  width: 100%
+.dropdown,
+.dropdown-trigger,
+.dropdown-menu {
+  width: 100%;
 }
 </style>

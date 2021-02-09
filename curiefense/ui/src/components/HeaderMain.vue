@@ -37,4 +37,9 @@ export default Vue.extend({
 .version-box {
   align-self: center;
 }
+
+.logo {
+  max-height: 42px;
+  min-height: 42px;
+}
 </style>

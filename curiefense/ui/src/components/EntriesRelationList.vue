@@ -373,7 +373,7 @@ export default Vue.extend({
 }
 
 .relation-selection-wrapper {
-  margin-top: -1.5rem
+  margin-top: -1.5rem;
 }
 
 .sections-wrapper {

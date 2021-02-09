@@ -124,22 +124,12 @@ export default Vue.extend({
 </script>
 <style scoped>
 
-table.is-borderless td, table.is-borderless th {
-  border: 0;
-}
-
-table.inner-table td, table.inner-table th {
-  border: 0;
-  padding-left: 0;
-  padding-right: 0;
-}
-
 .version-history-title {
   line-height: 30px;
 }
 
 .restore-cell {
-  width: 50px
+  width: 50px;
 }
 
 </style>
