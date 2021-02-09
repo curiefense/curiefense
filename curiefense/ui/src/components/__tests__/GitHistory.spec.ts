@@ -88,7 +88,8 @@ describe('GitHistory.vue', () => {
   })
 
   describe('log table rendering', () => {
-    test('should only render five rows in addition to header and footer if the log has more than 5 rows of data', () => {
+    test('should only render five rows in addition to header and footer' +
+      'if the log has more than 5 rows of data', () => {
       expect(wrapper.findAll('tr').length).toEqual(7)
     })
 
@@ -97,12 +98,14 @@ describe('GitHistory.vue', () => {
       expect(wrapper.findAll('tr').length).toEqual(9)
     })
 
-    test('should render footer with expand message if table is not expanded and more than five items are present', () => {
+    test('should render footer with expand message' +
+      'if table is not expanded and more than five items are present', () => {
       const lastRow = wrapper.findAll('tr').at(wrapper.findAll('tr').length - 1)
       expect(lastRow.text()).toEqual('View More')
     })
 
-    test('should render footer with collapse message if table is expanded and more than five items are present', async () => {
+    test('should render footer with collapse message' +
+      'if table is expanded and more than five items are present', async () => {
       await wrapper.setData({expanded: true})
       const lastRow = wrapper.findAll('tr').at(wrapper.findAll('tr').length - 1)
       expect(lastRow.text()).toEqual('View Less')

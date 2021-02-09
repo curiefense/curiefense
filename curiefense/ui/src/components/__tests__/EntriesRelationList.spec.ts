@@ -449,7 +449,8 @@ describe('EntriesRelationList.vue', () => {
       expect((wrapper.vm as any).rule.sections[0].entries[3]).toEqual(['ip', '127.0.0.1', 'localhost'])
     })
 
-    test('should add multiple new entries with general annotation from input when confirm button is clicked', async () => {
+    test('should add multiple new entries with general' +
+      'annotation from input when confirm button is clicked', async () => {
       const component = wrapper.findComponent(EntriesRelationList)
       const addEntryButton = component.find('.add-entry-button')
       addEntryButton.trigger('click')
@@ -489,7 +490,8 @@ describe('EntriesRelationList.vue', () => {
       expect((wrapper.vm as any).rule.sections[0].entries[2]).toEqual(['headers', ['something', 'right']])
     })
 
-    test('should not add new entries from multi-line input when confirm button is clicked if has too few arguments', async () => {
+    test('should not add new entries from multi-line' +
+      'input when confirm button is clicked if has too few arguments', async () => {
       const component = wrapper.findComponent(EntriesRelationList)
       const addEntryButton = component.find('.add-entry-button')
       addEntryButton.trigger('click')

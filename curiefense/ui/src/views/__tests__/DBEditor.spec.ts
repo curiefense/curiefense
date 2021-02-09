@@ -420,7 +420,8 @@ describe('DBEditor.vue', () => {
       }, 300)
     })
 
-    test('should not be able to save key changes if document is an invalid json when not using json editor', async () => {
+    test('should not be able to save key changes' +
+      'if document is an invalid json when not using json editor', async () => {
       (wrapper.vm as any).editor = null;
       (wrapper.vm as any).isJsonEditor = false
       await Vue.nextTick()

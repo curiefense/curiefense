@@ -93,7 +93,8 @@ describe('TagAutocompleteInput.vue', () => {
     expect(spy).not.toHaveBeenCalledWith('db/system/k/tags')
   })
 
-  test('should send request to add tag neutral list in DB if unknown tag selected - selectionType single', async (done) => {
+  test('should send request to add tag neutral list in DB' +
+    'if unknown tag selected - selectionType single', async (done) => {
     wrapper = mount(TagAutocompleteInput, {
       propsData: {
         selectionType: 'single',
@@ -111,7 +112,8 @@ describe('TagAutocompleteInput.vue', () => {
     Vue.nextTick()
   })
 
-  test('should send request to add tag neutral list in DB if unknown tag selected - selectionType multiple', async (done) => {
+  test('should send request to add tag neutral list in DB' +
+    'if unknown tag selected - selectionType multiple', async (done) => {
     wrapper = mount(TagAutocompleteInput, {
       propsData: {
         selectionType: 'multiple',
