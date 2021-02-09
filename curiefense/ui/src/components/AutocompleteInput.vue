@@ -199,7 +199,7 @@ export default (Vue as VueConstructor<Vue & {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .dropdown,
 .dropdown-trigger,
 .dropdown-menu {

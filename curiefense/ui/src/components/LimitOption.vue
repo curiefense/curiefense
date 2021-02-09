@@ -164,12 +164,12 @@ export default Vue.extend({
 </script>
 <style scoped lang="scss">
 .wide-columns {
-  & .column:first-child {
-    padding-left: 0
+  .column:first-child {
+    padding-left: 0;
   }
 
-  & .column:last-child {
-    padding-right: 0
+  .column:last-child {
+    padding-right: 0;
   }
 }
 </style>

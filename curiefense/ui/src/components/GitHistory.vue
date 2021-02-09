@@ -122,7 +122,7 @@ export default Vue.extend({
   },
 })
 </script>
-<style scoped>
+<style scoped lang="scss">
 
 .version-history-title {
   line-height: 30px;

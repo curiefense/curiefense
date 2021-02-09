@@ -455,38 +455,38 @@ export default Vue.extend({
 
 })
 </script>
-<style type="text/css" scoped>
+<style scoped lang="scss">
 
-tr.has-row-clickable > td {
+.has-row-clickable > td {
   cursor: pointer;
 }
 
-.content table tbody tr:last-child td {
-  border-bottom-width: 1px;
-}
-
-.content table tbody tr.borderless:last-child td {
+.borderless > td {
   border-bottom-width: 0;
-}
-
-tr.borderless > td {
   padding-top: 8px;
-  border-bottom-width: 0;
 }
 
-tr.expanded > td {
+.expanded > td {
   padding-bottom: 20px;
 }
 
-section.tag2 {
-  padding: .21em .75em .25em;
-  margin-bottom: 4px;
-  vertical-align: middle;
+.tag2 {
   line-height: 1.5;
+  margin-bottom: 4px;
+  padding: 0.21em 0.75em 0.25em;
+  vertical-align: middle;
 }
 
 .data-entry-wrapper {
-  border-bottom: 1px solid lightgray;
+  border-bottom: 1px solid hsl(0, 0%, 83%);
+}
+
+tr:last-child > td {
+  border-bottom-width: 1px;
+}
+
+.borderless:last-child > td {
+  border-bottom-width: 0;
 }
 
 </style>

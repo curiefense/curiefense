@@ -209,17 +209,17 @@ export default Vue.extend({
 
 .wide-columns {
   // 12 (full width)
-  & .column.is-12 {
+  .column.is-12 {
     padding-left: 0;
     padding-right: 0;
   }
 
   // 2-10 (full width)
-  & .column.is-2 {
+  .column.is-2 {
     padding-left: 0;
   }
 
-  & .column.is-10 {
+  .column.is-10 {
     padding-right: 0;
   }
 }

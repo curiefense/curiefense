@@ -345,12 +345,8 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
-tr[haserror='true'] {
-  color: red;
-}
-
+<style scoped lang="scss">
 .marked {
-  font-weight: 400
+  font-weight: 400;
 }
 </style>

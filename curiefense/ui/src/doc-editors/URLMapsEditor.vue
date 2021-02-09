@@ -581,36 +581,32 @@ export default (Vue as VueConstructor<Vue & {
   },
 })
 </script>
-<style type="text/css" scoped>
+<style scoped lang="scss">
 
-.content table tbody tr:last-child td {
-  border-bottom-width: 1px;
-}
-
-tr.has-row-clickable > td {
-  cursor: pointer
-}
-
-tr.borderless > td {
-  padding-top: 8px;
+.has-row-clickable > td {
   cursor: pointer;
+}
+
+.borderless > td {
   border-bottom-width: 0;
+  cursor: pointer;
+  padding-top: 8px;
 }
 
-.content table tbody tr.borderless:last-child td {
-  border-bottom-width: 0;
-}
-
-tr.expanded > td {
-  padding-bottom: 20px;
-}
-
-tr.expanded > td {
+.expanded > td {
   padding-bottom: 20px;
 }
 
 .highlighted {
   background: #fafafa;
+}
+
+tr:last-child > td {
+  border-bottom-width: 1px;
+}
+
+.borderless:last-child > td {
+  border-bottom-width: 0;
 }
 
 </style>

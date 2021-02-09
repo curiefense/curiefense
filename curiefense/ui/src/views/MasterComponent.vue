@@ -28,20 +28,20 @@ export default Vue.extend({
   methods: {},
 })
 </script>
-<style type="text/css">
+<style scoped lang="scss">
 html {
-  background: #ECF0F3;
+  background: hsl(206, 23%, 94%);
 }
 
-nav.navbar {
+.navbar {
   border-top: 4px solid #276cda;
   margin-bottom: 1rem;
 }
 
 .columns {
-  width: 100%;
   height: 100%;
   margin-left: 0;
+  width: 100%;
 }
 
 </style>

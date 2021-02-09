@@ -32,7 +32,7 @@
               <label class="label is-small has-text-left form-label">
                 TTL
               </label>
-              <div class="control seconds-suffix">
+              <div class="control suffix seconds-suffix">
                 <input class="input is-small document-ttl"
                        type="text"
                        title="New rate limit rule name"
@@ -504,57 +504,60 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 
-@import 'src/assets/styles/main.scss';
-@import 'node_modules/bulma/sass/utilities/_all.sass';
+@import 'node_modules/bulma/sass/utilities/initial-variables.sass';
+@import 'node_modules/bulma/sass/utilities/functions.sass';
+@import 'node_modules/bulma/sass/utilities/derived-variables.sass';
+@import 'node_modules/bulma/sass/utilities/mixins.sass';
 @import 'node_modules/bulma/sass/helpers/color.sass';
 @import 'node_modules/bulma/sass/helpers/typography.sass';
 
 .bar {
-  margin: 1rem 0 0.5rem 0;
+  margin: 1rem 0 0.5rem;
 }
 
 .bar-include {
-  @extend .has-background-success
+  @extend .has-background-success;
 }
 
 .bar-exclude {
-  @extend .has-background-danger
+  @extend .has-background-danger;
 }
 
 .sequence-entries {
-  margin-bottom: 0.75rem
+  margin-bottom: 0.75rem;
 }
 
 .sequence-entries-relation {
-  margin-bottom: 1rem
-}
-
-.sequence-entries-table .select, .sequence-entries-table select {
-  width: 100%
-}
-
-.relation-wrapper {
-  text-align: center;
   margin-bottom: 1rem;
 }
 
-.relation-wrapper:before {
+.sequence-entries-table .select,
+.sequence-entries-table select {
+  width: 100%;
+}
+
+.relation-wrapper {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.relation-wrapper::before {
+  background: hsl(0, 0%, 0%);
+  border-top: 1px solid hsl(0, 0%, 0%);
   content: '';
+  left: 0;
   position: absolute;
   top: 50%;
-  left: 0;
-  border-top: 1px solid black;
-  background: black;
-  width: 100%;
   transform: translateY(-50%);
+  width: 100%;
 }
 
 .filter-column:first-of-type {
-  padding-left: 0
+  padding-left: 0;
 }
 
 .filter-column:last-of-type {
-  padding-right: 0
+  padding-right: 0;
 }
 
 .seconds-suffix {
@@ -565,12 +568,11 @@ export default Vue.extend({
 
 .seconds-suffix::after {
   @extend .is-size-7;
-  @extend .suffix;
   content: 'seconds';
 }
 
 ::v-deep .tag-input {
-  font-size: 0.58rem
+  font-size: 0.58rem;
 }
 
 </style>

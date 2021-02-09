@@ -51,7 +51,7 @@
                 <label class="label is-small">
                   TTL
                 </label>
-                <div class="control seconds-suffix">
+                <div class="control suffix seconds-suffix">
                   <input class="input is-small document-ttl"
                          type="text"
                          title="New rate limit duration"
@@ -456,21 +456,14 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 
-@import 'src/assets/styles/main.scss';
+@import 'node_modules/bulma/sass/utilities/initial-variables.sass';
+@import 'node_modules/bulma/sass/utilities/functions.sass';
+@import 'node_modules/bulma/sass/utilities/derived-variables.sass';
+@import 'node_modules/bulma/sass/utilities/mixins.sass';
 @import 'node_modules/bulma/sass/helpers/typography.sass';
 
 .form-label {
   padding-top: 0.25rem;
-}
-
-table.is-borderless td, table.is-borderless th {
-  border: 0;
-}
-
-table.inner-table td, table.inner-table th {
-  border: 0;
-  padding-left: 0;
-  padding-right: 0;
 }
 
 .seconds-suffix {
@@ -481,7 +474,6 @@ table.inner-table td, table.inner-table th {
 
 .seconds-suffix::after {
   @extend .is-size-7;
-  @extend .suffix;
   content: 'seconds';
 }
 

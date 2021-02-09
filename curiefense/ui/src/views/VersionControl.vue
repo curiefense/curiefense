@@ -344,3 +344,5 @@ export default Vue.extend({
 
 })
 </script>
+<style scoped lang="scss">
+</style>

@@ -129,7 +129,7 @@ export default Vue.extend({
   margin-top: 1.5rem;
 
   &:first-child {
-    margin-top: 0
+    margin-top: 0;
   }
 }
 
@@ -139,20 +139,23 @@ export default Vue.extend({
   margin-bottom: 0;
 }
 
-.menu-list a {
-  color: #0f1d38;
-  font-size: 14px;
-  font-weight: 700;
+.menu-list {
+  a {
+    color: #0f1d38;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  a:hover {
+    background-color: transparent;
+    color: #276cda;
+  }
+
+  .is-active {
+    background-color: transparent;
+    color: #276cda;
+    font-weight: 700;
+  }
 }
 
-.menu-list a:hover {
-  background-color: transparent;
-  color: #276cda;
-}
-
-.menu-list a.is-active {
-  background-color: transparent;
-  color: #276cda;
-  font-weight: 700;
-}
 </style>

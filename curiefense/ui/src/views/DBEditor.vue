@@ -188,7 +188,7 @@
                 <div class="control">
 
                   <div v-if="isJsonEditor"
-                       id="editor">
+                       class="editor">
                   </div>
                   <textarea
                       v-else
@@ -582,7 +582,7 @@ export default Vue.extend({
       let failedCounter = 0
       const editorLoaderInterval = setInterval(() => {
         try {
-          const container = document.getElementById('editor')
+          const container = document.getElementsByClassName('editor')[0]
           this.editor = new JSONEditor(container, {
             modes: ['code', 'tree'],
             onChange: () => {
@@ -622,32 +622,30 @@ export default Vue.extend({
 </script>
 <style scoped lang="scss">
 
-@import 'node_modules/bulma/sass/utilities/_all.sass';
+@import 'node_modules/bulma/sass/utilities/initial-variables.sass';
+@import 'node_modules/bulma/sass/utilities/functions.sass';
+@import 'node_modules/bulma/sass/utilities/derived-variables.sass';
 @import 'node_modules/bulma/sass/helpers/color.sass';
 
-#editor {
-  width: 100%;
+.editor {
   height: 500px;
+  width: 100%;
 }
 
 //Design for the json editor
 ::v-deep .jsoneditor-menu {
   @extend .has-background-grey-light;
 
-  & > button, & > .jsoneditor-modes > button {
+  button {
     float: none;
   }
 
-  & .jsoneditor-contextmenu .jsoneditor-menu {
+  .jsoneditor-menu {
     @extend .has-background-white;
+  }
 
-    & > li > button.jsoneditor-type-modes {
-
-    }
-
-    & > li > button.jsoneditor-selected {
-      @extend .has-background-grey;
-    }
+  .jsoneditor-selected {
+    @extend .has-background-grey;
   }
 }
 

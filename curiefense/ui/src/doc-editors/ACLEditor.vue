@@ -179,35 +179,37 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 
-@import 'node_modules/bulma/sass/utilities/_all.sass';
+@import 'node_modules/bulma/sass/utilities/initial-variables.sass';
+@import 'node_modules/bulma/sass/utilities/functions.sass';
+@import 'node_modules/bulma/sass/utilities/derived-variables.sass';
 @import 'node_modules/bulma/sass/helpers/color.sass';
 
 .bar {
-  margin: 1rem 0 0.5rem 0;
+  margin: 1rem 0 0.5rem;
 }
 
 .bar-force-deny {
-  @extend .has-background-danger
+  @extend .has-background-danger;
 }
 
 .bar-deny-bot {
-  @extend .has-background-danger
+  @extend .has-background-danger;
 }
 
 .bar-deny {
-  @extend .has-background-danger
+  @extend .has-background-danger;
 }
 
 .bar-bypass {
-  @extend .has-background-success
+  @extend .has-background-success;
 }
 
 .bar-allow {
-  @extend .has-background-info
+  @extend .has-background-info;
 }
 
 .bar-allow-bot {
-  @extend .has-background-info
+  @extend .has-background-info;
 }
 
 .tag-crossed {
@@ -216,6 +218,6 @@ export default Vue.extend({
 }
 
 ::v-deep .tag-input {
-  font-size: 0.58rem
+  font-size: 0.58rem;
 }
 </style>

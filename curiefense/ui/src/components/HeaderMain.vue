@@ -28,7 +28,7 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .container {
   display: flex;
   justify-content: space-between;

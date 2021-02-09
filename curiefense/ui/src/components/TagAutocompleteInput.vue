@@ -174,20 +174,21 @@ export default Vue.extend({
   },
 })
 </script>
-
 <style scoped lang="scss">
 
-@import 'node_modules/bulma/sass/utilities/_all.sass';
+@import 'node_modules/bulma/sass/utilities/initial-variables.sass';
+@import 'node_modules/bulma/sass/utilities/functions.sass';
+@import 'node_modules/bulma/sass/utilities/derived-variables.sass';
 @import 'node_modules/bulma/sass/helpers/color.sass';
 
 ::v-deep .dot {
   @extend .has-background-info;
-  height: 0.5rem;
-  width: 0.5rem;
-  margin-right: 0.25rem;
-  margin-left: -0.25rem;
   border-radius: 50%;
   display: inline-block;
+  height: 0.5rem;
+  margin-left: -0.25rem;
+  margin-right: 0.25rem;
+  width: 0.5rem;
 }
 
 ::v-deep .dot.legitimate {
