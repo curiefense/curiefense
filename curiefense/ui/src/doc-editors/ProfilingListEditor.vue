@@ -81,7 +81,6 @@
                                :ignore="['ban']"
                                @update:action="emitDocUpdate"
                                label-separated-line
-                               wide-columns
                                is-single-input-column/>
             </div>
             <div class="field">

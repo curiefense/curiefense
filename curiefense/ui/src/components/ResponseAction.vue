@@ -4,8 +4,7 @@
            class="label is-small is-size-7 has-text-left form-label">
       {{ label }}
     </label>
-    <div class="columns mb-0 is-multiline"
-         :class="{'wide-columns': wideColumns}">
+    <div class="columns mb-0 is-multiline">
       <!--
       Available options:
       1) label, no single input column
@@ -27,8 +26,7 @@
            :class="{'is-5': labelDisplayedInline && !isSingleInputColumn,
                     'is-6': !labelDisplayedInline && !isSingleInputColumn,
                     'is-10': labelDisplayedInline && isSingleInputColumn,
-                    'is-12': !labelDisplayedInline && isSingleInputColumn,
-                    'pl-0': wideColumns && !labelDisplayedInline && !isSingleInputColumn}">
+                    'is-12': !labelDisplayedInline && isSingleInputColumn}">
         <div class="control select is-fullwidth is-small" v-if="localAction">
           <select v-model="localAction.type"
                   title="Action type"
@@ -51,8 +49,7 @@
           :class="{'is-5': labelDisplayedInline && !isSingleInputColumn,
                     'is-6': !labelDisplayedInline && !isSingleInputColumn,
                     'is-10 pt-0': labelDisplayedInline && isSingleInputColumn,
-                    'is-12 pt-0': !labelDisplayedInline && isSingleInputColumn,
-                    'pr-0': wideColumns && !isSingleInputColumn}">
+                    'is-12 pt-0': !labelDisplayedInline && isSingleInputColumn}">
         <p class="control is-fullwidth">
           <input
               v-if="localAction && (localAction.type === 'response' || localAction.type === 'redirect')"
@@ -120,7 +117,6 @@
     <div class="content" v-if="localAction && localAction.type === 'ban' && localAction.params.action">
       <response-action :action.sync="localAction.params.action"
                        :label-separated-line="labelSeparatedLine"
-                       :wide-columns="wideColumns"
                        :is-single-input-column="isSingleInputColumn"
                        :ignore="['ban']"
                        @update:action="emitActionUpdate"
@@ -145,7 +141,6 @@ export default Vue.extend({
     },
     ignore: Array,
     labelSeparatedLine: Boolean,
-    wideColumns: Boolean,
     isSingleInputColumn: Boolean,
   },
 
@@ -205,23 +200,6 @@ export default Vue.extend({
 
 .response-actions .column.additional {
   padding-top: 0;
-}
-
-.wide-columns {
-  // 12 (full width)
-  .column.is-12 {
-    padding-left: 0;
-    padding-right: 0;
-  }
-
-  // 2-10 (full width)
-  .column.is-2 {
-    padding-left: 0;
-  }
-
-  .column.is-10 {
-    padding-right: 0;
-  }
 }
 
 </style>

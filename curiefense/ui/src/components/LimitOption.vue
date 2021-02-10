@@ -4,8 +4,7 @@
            class="label is-small is-size-7 has-text-left">
       {{ label }}
     </label>
-    <div class="columns mb-0"
-         :class="{'wide-columns': wideColumns}">
+    <div class="columns mb-0">
       <div v-if="!labelSeparatedLine && label"
            class="column is-2">
         <label class="label is-small is-size-7">
@@ -90,7 +89,6 @@ export default Vue.extend({
     useDefaultSelf: Boolean,
     useValue: Boolean,
     labelSeparatedLine: Boolean,
-    wideColumns: Boolean,
     disabledOptions: Array,
     ignoreAttributes: Array,
   },
@@ -162,14 +160,3 @@ export default Vue.extend({
   },
 })
 </script>
-<style scoped lang="scss">
-.wide-columns {
-  .column:first-child {
-    padding-left: 0;
-  }
-
-  .column:last-child {
-    padding-right: 0;
-  }
-}
-</style>

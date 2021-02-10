@@ -105,6 +105,7 @@
                               </label>
                               <div class="control">
                                 <input class="input is-small"
+                                       @change="emitDocUpdate"
                                        type="text"
                                        ref="profileName"
                                        title="Name"
@@ -118,6 +119,7 @@
                               </label>
                               <div class="control">
                                 <input class="input is-small" type="text"
+                                       @change="emitDocUpdate"
                                        title="Match"
                                        placeholder="matching domain(s) regex"
                                        required
@@ -184,7 +186,8 @@
                                   </td>
                                   <td class="has-text-centered is-size-7 width-60px">
                                     <a class="is-small has-text-grey" title="remove entry"
-                                       @click="mapEntry.limit_ids.splice(idx,1)">
+                                       @click="mapEntry.limit_ids.splice(idx,1);
+                                               emitDocUpdate()">
                                       remove
                                     </a>
                                   </td>
@@ -206,7 +209,8 @@
                                   <td class="has-text-centered is-size-7 width-60px">
                                     <a class="is-small has-text-grey" title="Add this entry"
                                        @click="mapEntry.limit_ids.push(limitMapEntryId);
-                                               limitNewEntryModeMapEntryId = null">
+                                               limitNewEntryModeMapEntryId = null;
+                                               emitDocUpdate()">
                                       add
                                     </a>
                                   </td>
@@ -271,6 +275,7 @@
                               <div class="control is-expanded">
                                 <div class="select is-fullwidth is-small">
                                   <select v-model="mapEntry.waf_profile"
+                                          @change="emitDocUpdate"
                                           title="WAF profile">
                                     <option v-for="waf in wafProfileNames"
                                             :value="waf[0]"
@@ -284,6 +289,7 @@
                             <div class="field">
                               <label class="checkbox is-size-7">
                                 <input type="checkbox"
+                                       @change="emitDocUpdate"
                                        v-model="mapEntry.waf_active">
                                 Active Mode
                               </label>
@@ -296,6 +302,7 @@
                               <div class="control is-expanded">
                                 <div class="select is-fullwidth is-small">
                                   <select v-model="mapEntry.acl_profile"
+                                          @change="emitDocUpdate"
                                           title="ACL profile">
                                     <option v-for="acl in aclProfileNames" :value="acl[0]" :key="acl[0]">
                                       {{ acl[1] }}
@@ -306,7 +313,9 @@
                             </div>
                             <div class="field">
                               <label class="checkbox is-size-7">
-                                <input type="checkbox" v-model="mapEntry.acl_active">
+                                <input type="checkbox"
+                                       @change="emitDocUpdate"
+                                       v-model="mapEntry.acl_active">
                                 Active Mode
                               </label>
                             </div>

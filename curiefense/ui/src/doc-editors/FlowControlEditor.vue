@@ -44,7 +44,6 @@
             <div class="field">
               <limit-option v-for="(option, index) in localDoc.key"
                             label-separated-line
-                            wide-columns
                             :label="index === 0 ? 'Count by' : ''"
                             show-remove
                             @remove="removeKey(index)"
@@ -66,8 +65,7 @@
             <div class="field">
               <response-action :action.sync="localDoc.action"
                                @update:action="emitDocUpdate"
-                               label-separated-line
-                               wide-columns/>
+                               label-separated-line/>
             </div>
             <div class="field">
               <label class="label is-small">Notes</label>
