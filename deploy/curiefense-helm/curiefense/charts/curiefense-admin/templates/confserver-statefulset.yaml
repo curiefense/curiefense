@@ -96,6 +96,10 @@ spec:
         - mountPath: /run/secrets/gs
           name: gs
 {{- end }}
+{{- if eq .Values.global.settings.curiefense_bucket_type "local-bucket" }}
+        - mountPath: /bucket
+          name: local-bucket
+{{- end }}
         - mountPath: /config
           name: persistent-confdb
         imagePullPolicy: {{ .Values.global.imagePullPolicy }}
@@ -125,6 +129,12 @@ spec:
           - key: gs.json
             path: gs.json
           secretName: gs
+{{- end }}
+{{- if eq .Values.global.settings.curiefense_bucket_type "local-bucket" }}
+      - name: local-bucket
+        hostPath:
+          path: /bucket
+          type: DirectoryOrCreate
 {{- end }}
       - name: uwsgi-socket
         emptyDir: {}

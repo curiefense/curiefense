@@ -1,0 +1,36 @@
+global:
+  imagePullPolicy: IfNotPresent
+  requests:
+    cpu:
+      curielogger: "1m"
+      redis: "1m"
+      logstash: "1m"
+      kibana: "1m"
+      logdb: "1m"
+      uiserver: "1m"
+      confserver-init: "1m"
+      confserver-nginx: "1m"
+      confserver-uwsgi: "1m"
+      curietasker: "1m"
+      prometheus: "1m"
+      grafana: "1m"
+      curielogserver-nginx: "1m"
+      curielogserver-uwsgi: "1m"
+      elasticsearch: "1m"
+
+  storage:
+    confserver_storage_size: '1Gi'
+    elasticsearch_storage_size: '4Gi'
+    redis_storage_size: '500Mi'
+
+  enable:
+    # set to false to disable parts of this deployment, ex. if you prefer to use your own versions
+    grafana: false
+    prometheus: false
+    # postgres database to store logs. Can be replaced with AWS Aurora
+    logdb: false
+    kibana: false
+    fluentd: false
+    logstash: true
+    elasticsearch: true
+

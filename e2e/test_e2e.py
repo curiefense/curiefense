@@ -43,7 +43,8 @@ class CliHelper():
         if inputjson:
             indata = json.dumps(inputjson).encode("utf-8")
         p = subprocess.run(cmd, shell=False, input=indata, check=True,
-                           capture_output=True)
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE)
         if p.stdout:
             logging.debug("CLI output: %s", p.stdout)
             try:

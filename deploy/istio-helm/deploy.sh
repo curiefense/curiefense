@@ -16,14 +16,28 @@ if ! kubectl api-resources|grep -q config.istio.io; then
     sleep 5
 fi
 
+
+if ! kubectl get namespaces|grep -q istio-system; then
+	kubectl create namespace istio-system
+    echo "istio-system namespace created"
+fi
+
 PARAMS=()
 
 if [ -n "$NOPULL" ]; then
     PARAMS+=("--set" "global.imagePullPolicy=Never")
 fi
 
-helm upgrade --install --namespace istio-system --reuse-values --debug \
+helm upgrade --install --namespace istio-system --reuse-values --wait \
+    --timeout "10m" \
     -f chart/custom/enable-waf-ingress.yaml \
     --set "global.proxy.gw_image=curiefense/curieproxy-istio:$DOCKER_TAG" \
     --set "global.proxy.curiesync_image=curiefense/curiesync:$DOCKER_TAG" \
     "${PARAMS[@]}" "$@" istio-cf chart/
+
+if [[ $? -ne 0 ]];
+then
+    echo "istio deployment failure... "
+    kubectl --namespace istio-system describe pods
+    # TODO(flaper87): Print logs from failed PODs
+fi

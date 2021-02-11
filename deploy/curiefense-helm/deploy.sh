@@ -22,6 +22,18 @@ else
     echo "Deploying version $DOCKER_TAG for all images"
 fi
 
-helm upgrade --install --namespace curiefense --reuse-values --atomic --debug \
+if ! kubectl get namespaces|grep -q curiefense; then
+	kubectl create namespace curiefense
+    echo "curiefense namespace created"
+fi
+
+helm upgrade --install --namespace curiefense --reuse-values --timeout "10m" --wait \
     --set "global.settings.docker_tag=$DOCKER_TAG" \
     "${PARAMS[@]}" "$@" curiefense curiefense/
+
+if [[ $? -ne 0 ]];
+then
+    echo "curiefense deployment failure... "
+    kubectl --namespace curiefense describe pods
+    # TODO(flaper87): Print logs from failed PODs
+fi
