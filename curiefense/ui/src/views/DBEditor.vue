@@ -582,7 +582,7 @@ export default Vue.extend({
       let failedCounter = 0
       const editorLoaderInterval = setInterval(() => {
         try {
-          const container = document.getElementsByClassName('editor')[0]
+          const container = document.getElementsByClassName('editor')[0] as HTMLElement
           this.editor = new JSONEditor(container, {
             modes: ['code', 'tree'],
             onChange: () => {

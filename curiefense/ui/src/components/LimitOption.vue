@@ -57,7 +57,7 @@
                     removable ? 'has-text-grey' : 'has-text-grey-light is-disabled']"
             :disabled="!removable"
             title="click to remove"
-            @click="$emit('remove', index)">
+            @click="$emit('remove')">
           <span class="icon is-small"><i class="fas fa-trash fa-xs"></i></span>
         </button>
       </div>
@@ -69,7 +69,7 @@
 import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import Vue, {PropType} from 'vue'
-import {Category, LimitRuleType} from '@/types'
+import {LimitRuleType} from '@/types'
 
 export type OptionObject = {
   type?: LimitRuleType
@@ -83,14 +83,32 @@ export default Vue.extend({
   props: {
     label: String,
     option: Object as PropType<OptionObject>,
-    index: Number,
-    removable: Boolean,
-    showRemove: Boolean,
-    useDefaultSelf: Boolean,
-    useValue: Boolean,
-    labelSeparatedLine: Boolean,
-    disabledOptions: Array,
-    ignoreAttributes: Array,
+    removable: {
+      type: Boolean,
+      default: false,
+    },
+    showRemove: {
+      type: Boolean,
+      default: false,
+    },
+    useDefaultSelf: {
+      type: Boolean,
+      default: false,
+    },
+    useValue: {
+      type: Boolean,
+      default: false,
+    },
+    labelSeparatedLine: {
+      type: Boolean,
+      default: false,
+    },
+    ignoreAttributes: {
+      type: Array,
+      default: () => {
+        return [] as string[]
+      },
+    },
   },
   data() {
     const {LimitRulesTypes, LimitAttributes} = DatasetsUtils
@@ -133,7 +151,7 @@ export default Vue.extend({
       },
     },
     selectedType: {
-      get: function(): string {
+      get: function(): LimitRuleType {
         return this.selectedOption.type
       },
       set: function(value: LimitRuleType): void {
@@ -151,11 +169,11 @@ export default Vue.extend({
     },
   },
   updated() {
-    this.$emit('change', {...this.selectedOption}, this.index)
+    this.$emit('change', {...this.selectedOption})
   },
   methods: {
-    isCategoryArgsCookiesHeaders(category: Category) {
-      return (new RegExp('(args|cookies|headers)')).test(category)
+    isCategoryArgsCookiesHeaders(limitRuleType: LimitRuleType) {
+      return (new RegExp('(args|cookies|headers)')).test(limitRuleType)
     },
   },
 })

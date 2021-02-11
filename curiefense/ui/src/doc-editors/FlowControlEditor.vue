@@ -328,9 +328,9 @@ export default Vue.extend({
         'args': {},
       },
       listEntryTypes: {
-        'headers': {'title': 'Header', 'pair': true},
-        'args': {'title': 'Argument', 'pair': true},
-        'cookies': {'title': 'Cookie', 'pair': true},
+        'headers': {title: 'Header', pair: true},
+        'args': {title: 'Argument', pair: true},
+        'cookies': {title: 'Cookie', pair: true},
       },
       keysAreValid: true,
       newEntrySectionIndex: -1,

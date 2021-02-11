@@ -139,9 +139,20 @@ export default Vue.extend({
       type: String,
       default: 'Action',
     },
-    ignore: Array,
-    labelSeparatedLine: Boolean,
-    isSingleInputColumn: Boolean,
+    ignore: {
+      type: Array,
+      default: () => {
+        return [] as string[]
+      },
+    },
+    labelSeparatedLine: {
+      type: Boolean,
+      default: false,
+    },
+    isSingleInputColumn: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   data() {

@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "version": "1.2.19",
+  "version": "1.2.20",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -10,7 +10,8 @@
     "lint:style": "stylelint 'src/**/*.scss' --syntax scss && stylelint 'src/**/*.vue'",
     "lint:style:fix": "stylelint 'src/**/*.scss' --syntax scss --fix && stylelint 'src/**/*.vue' --fix",
     "lint:js": "eslint . --ext .js,.ts,.vue",
-    "lint:js:fix": "eslint . --ext .js,.ts,.vue --fix"
+    "lint:js:fix": "eslint . --ext .js,.ts,.vue --fix",
+    "lint:ts": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
     "@mdi/font": "^5.8.55",
@@ -23,9 +24,9 @@
     "ip6addr": "^0.2.3",
     "jsoneditor": "^9.1.7",
     "lodash": "^4.17.20",
-    "vue": "^2.6.11",
+    "vue": "^2.6.12",
     "vue-axios": "^2.1.5",
-    "vue-class-component": "^7.2.3",
+    "vue-class-component": "^7.2.6",
     "vue-cli": "^2.9.6",
     "vue-lodash": "^2.1.2",
     "vue-property-decorator": "^9.1.2",
@@ -69,12 +70,12 @@
     "ts-node": "^9.1.1",
     "typescript": "^3.9.7",
     "vue-jest": "^3.0.7",
-    "vue-template-compiler": "^2.6.11",
+    "vue-template-compiler": "^2.6.12",
     "webpack": "^4.44.2"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run lint:js:fix && npm run lint:style:fix"
+      "pre-commit": "npm run lint:ts && npm run lint:js:fix && npm run lint:style:fix"
     }
   },
   "browserslist": [

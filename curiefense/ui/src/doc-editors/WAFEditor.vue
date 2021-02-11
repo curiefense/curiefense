@@ -138,7 +138,7 @@
                         <th class="has-text-centered">
                           <a v-show="newWAFLine !== tab"
                              class="has-text-grey-dark is-small" title="Add new parameter"
-                             @click="newWAFLine = tab; newEntry = {...defaultNewEntry}">
+                             @click="openAddNewParameter(tab)">
                             <span class="icon is-small"><i class="fas fa-plus"></i></span>
                           </a>
                           <a v-show="newWAFLine === tab"
@@ -377,6 +377,11 @@ export default Vue.extend({
   methods: {
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
+    },
+
+    openAddNewParameter(tab: ArgsCookiesHeadersType) {
+      this.newWAFLine = tab
+      this.newEntry = {...this.defaultNewEntry}
     },
 
     addNewParameter() {

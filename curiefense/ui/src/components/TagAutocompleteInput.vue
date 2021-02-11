@@ -20,7 +20,7 @@
 import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import RequestsUtils from '@/assets/RequestsUtils.ts'
-import AutocompleteInput, {AutocompleteInputEvents} from '@/components/AutocompleteInput.vue'
+import AutocompleteInput, {AutocompleteInputEvents, AutocompleteSuggestion} from '@/components/AutocompleteInput.vue'
 import Vue from 'vue'
 import {AxiosResponse} from 'axios'
 import {TagsDatabaseDocument} from '@/types'
@@ -37,8 +37,14 @@ export default Vue.extend({
       type: String,
       default: '',
     },
-    clearInputAfterSelection: Boolean,
-    autoFocus: Boolean,
+    clearInputAfterSelection: {
+      type: Boolean,
+      default: false,
+    },
+    autoFocus: {
+      type: Boolean,
+      default: false,
+    },
     selectionType: {
       type: String,
       validator(val) {
@@ -60,7 +66,7 @@ export default Vue.extend({
     return {
       tag: this.initialTag,
       open: false,
-      tagsSuggestions: [],
+      tagsSuggestions: [] as AutocompleteSuggestion[],
       focusedSuggestionIndex: -1,
       db: 'system',
       key: 'tags',
@@ -128,8 +134,8 @@ export default Vue.extend({
           value: item,
         }
       })
-      this.tagsSuggestions = [].concat(legitimateTags, maliciousTags, neutralTags)
-      this.tagsSuggestions = _.sortBy(this.tagsSuggestions, 'value')
+      this.tagsSuggestions = [].concat(legitimateTags, maliciousTags, neutralTags) as AutocompleteSuggestion[]
+      this.tagsSuggestions = _.sortBy(this.tagsSuggestions, 'value') as AutocompleteSuggestion[]
     },
 
     bubbleEvent(eventName: AutocompleteInputEvents, event: Event) {

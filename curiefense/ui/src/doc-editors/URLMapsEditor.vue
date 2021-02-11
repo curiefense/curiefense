@@ -154,7 +154,7 @@
                                              limitRuleNames.length > mapEntry.limit_ids.length"
                                        class="has-text-grey-dark is-small"
                                        title="Add new"
-                                       @click="limitNewEntryModeMapEntryId = mapEntry.key">
+                                       @click="limitNewEntryModeMapEntryId = idx">
                                       <span class="icon is-small"><i class="fas fa-plus"></i></span>
                                     </a>
                                   </th>
@@ -186,13 +186,12 @@
                                   </td>
                                   <td class="has-text-centered is-size-7 width-60px">
                                     <a class="is-small has-text-grey" title="remove entry"
-                                       @click="mapEntry.limit_ids.splice(idx,1);
-                                               emitDocUpdate()">
+                                       @click="removeLimitEntry(mapEntry, idx)">
                                       remove
                                     </a>
                                   </td>
                                 </tr>
-                                <tr v-if="limitNewEntryMode(mapEntry.key)">
+                                <tr v-if="limitNewEntryMode(idx)">
                                   <td colspan="4">
                                     <div class="control is-expanded">
                                       <div class="select is-small is-size-7 is-fullwidth">
@@ -208,9 +207,7 @@
                                   </td>
                                   <td class="has-text-centered is-size-7 width-60px">
                                     <a class="is-small has-text-grey" title="Add this entry"
-                                       @click="mapEntry.limit_ids.push(limitMapEntryId);
-                                               limitNewEntryModeMapEntryId = null;
-                                               emitDocUpdate()">
+                                       @click="addLimitEntry(mapEntry, limitMapEntryId)">
                                       add
                                     </a>
                                   </td>
@@ -220,7 +217,7 @@
                                     <p class="is-size-7 has-text-grey has-text-centered">
                                       To attach an existing rule, click
                                       <a title="Add New"
-                                         @click="limitNewEntryModeMapEntryId = mapEntry.key">here</a>.
+                                         @click="limitNewEntryModeMapEntryId = idx">here</a>.
                                       <br/>
                                       To create a new rate-limit rule, click <a @click="referToRateLimit">here</a>.
                                     </p>
@@ -331,7 +328,7 @@
                               </button>
                               <button title="Delete this profile"
                                       class="button is-small is-pulled-right is-danger is-light"
-                                      @click="localDoc.map.splice(idx, 1); emitDocUpdate"
+                                      @click="removeMapEntry(idx)"
                                       v-if="mapEntry.name !== 'default'">
                                 delete
                               </button>
@@ -432,7 +429,7 @@ export default (Vue as VueConstructor<Vue & {
       })
     },
 
-    limitNewEntryMode(id: string): boolean {
+    limitNewEntryMode(id: number): boolean {
       return this.limitNewEntryModeMapEntryId === id
     },
 
@@ -577,6 +574,21 @@ export default (Vue as VueConstructor<Vue & {
       })
     },
 
+    addLimitEntry(mapEntry: URLMapEntryMatch, id: string) {
+      mapEntry.limit_ids.push(id)
+      this.limitNewEntryModeMapEntryId = null
+      this.emitDocUpdate()
+    },
+
+    removeLimitEntry(mapEntry: URLMapEntryMatch, index: number) {
+      mapEntry.limit_ids.splice(index, 1)
+      this.emitDocUpdate()
+    },
+
+    removeMapEntry(index: number) {
+      this.localDoc.map.splice(index, 1)
+      this.emitDocUpdate()
+    },
   },
 
   watch: {

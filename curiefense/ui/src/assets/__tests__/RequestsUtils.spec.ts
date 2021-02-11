@@ -117,17 +117,15 @@ describe('RequestsUtils.ts', () => {
         const successMessageClass = 'is-success'
         const failureMessage = 'oops, something went wrong'
         const failureMessageClass = 'is-danger'
-        const originalToast = bulmaToast.toast
         let toastOutput: Options[] = []
-        const mockedToast = (output: Options) => toastOutput.push(output)
         beforeEach(() => {
           toastOutput = []
-          // @ts-ignore
-          bulmaToast.toast = mockedToast
+          jest.spyOn(bulmaToast, 'toast').mockImplementation((output: Options) => {
+            toastOutput.push(output)
+          })
         })
         afterEach(() => {
-          // @ts-ignore
-          bulmaToast.toast = originalToast
+          jest.clearAllMocks()
         })
 
         test('should send success toast when GET request returns successfully', async () => {

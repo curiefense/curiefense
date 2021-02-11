@@ -1,5 +1,5 @@
 // Add in the top of the file
-const StyleLintPlugin = require('stylelint-webpack-plugin');
+const StyleLintPlugin = require('stylelint-webpack-plugin')
 
 module.exports = {
   devServer: {
@@ -15,10 +15,12 @@ module.exports = {
       },
     },
   },
-  plugins: [
-    new StyleLintPlugin({
-      files: 'src/**/*.{vue,scss}',
-    }),
-  ],
+  configureWebpack: {
+    plugins: [
+      new StyleLintPlugin({
+        files: 'src/**/*.{vue,scss}',
+      }),
+    ],
+  },
 }
 

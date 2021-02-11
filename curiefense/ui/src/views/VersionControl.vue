@@ -87,7 +87,7 @@
                 <p class="control">
                   <button class="button is-small download-branch-button"
                           :class="{'is-loading': isDownloadLoading}"
-                          @click="downloadBranch($event)"
+                          @click="downloadBranch()"
                           title="Download branch">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>

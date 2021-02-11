@@ -128,8 +128,7 @@
                           :class="{'is-loading': isDeleteLoading}"
                           @click="deleteDoc"
                           title="Delete document"
-                          :disabled="selectedDoc &&
-                                     (selectedDoc.id === '__default__' || isDocReferenced || docs.length <= 1)">
+                          :disabled="selectedDocNotDeletable">
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
                     </span>
@@ -213,7 +212,7 @@ import FlowControlEditor from '@/doc-editors/FlowControlEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import Vue from 'vue'
-import {Commit, Document, DocumentType} from '@/types'
+import {BasicDocument, Commit, Document, DocumentType} from '@/types'
 import {AxiosResponse} from 'axios'
 
 export default Vue.extend({
@@ -298,6 +297,13 @@ export default Vue.extend({
       set(newDoc): void {
         this.$set(this.docs, this.selectedDocIndex, newDoc)
       },
+    },
+
+    selectedDocNotDeletable(): boolean {
+      return !this.selectedDoc ||
+          (this.selectedDoc as BasicDocument).id === '__default__' ||
+          this.isDocReferenced ||
+          this.docs.length <= 1
     },
 
     selectedDocIndex(): number {

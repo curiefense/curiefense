@@ -40,6 +40,15 @@
 import RequestsUtils from '@/assets/RequestsUtils.ts'
 import Vue from 'vue'
 
+type menuItem = {
+  title: string
+  url?: string
+  external?: boolean
+  items?: {
+    [key: string]: menuItem
+  }
+}
+
 export default Vue.extend({
   name: 'SideMenu',
   data() {
@@ -55,7 +64,7 @@ export default Vue.extend({
           '/config': {
             title: 'Policies & Rules',
             items: {
-              '/search': {'title': 'Search'},
+              '/search': {title: 'Search'},
             },
           },
           '/db': {
@@ -94,6 +103,10 @@ export default Vue.extend({
             external: true,
           },
         },
+      } as {
+        [key: string]: {
+          [key: string]: menuItem
+        }
       },
     }
   },

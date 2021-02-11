@@ -67,9 +67,8 @@
                               :label="index === 0 ? 'Count by' : ' '"
                               show-remove
                               @remove="removeKey(index)"
-                              @change="updateKeyOption"
+                              @change="updateKeyOption($event, index)"
                               :removable="localDoc.key.length > 1"
-                              :index="index"
                               :ignore-attributes="['tags']"
                               :option="generateOption(option)"
                               :key="getOptionTextKey(option, index)"/>
@@ -200,9 +199,8 @@
                   </div>
                   <div class="group-include-exclude">
                     <limit-option v-for="(option, index) in includes"
-                                  @change="updateIncludeOption"
+                                  @change="updateIncludeOption($event, index)"
                                   @remove="removeIncludeOrExclude(index, true)"
-                                  :index="index"
                                   :option="option"
                                   :key="`${option.type}_${option.key}_${index}_inc`"
                                   label="Include"
@@ -210,9 +208,8 @@
                                   show-remove
                                   removable/>
                     <limit-option v-for="(option, index) in excludes"
-                                  @change="updateExcludeOption"
+                                  @change="updateExcludeOption($event, index)"
                                   @remove="removeIncludeOrExclude(index, false)"
-                                  :index="index"
                                   :option="option"
                                   :key="`${option.type}_${option.key}_${index}_exc`"
                                   label="Exclude"
