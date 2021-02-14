@@ -377,8 +377,8 @@ export default (Vue as VueConstructor<Vue & {
       mapEntryIndex: -1,
 
       // for URLMap drop downs
-      wafProfileNames: [],
-      aclProfileNames: [],
+      wafProfileNames: [] as [string, string][],
+      aclProfileNames: [] as [string, string][],
       limitRuleNames: [] as RateLimit[],
 
       limitNewEntryModeMapEntryId: null,
@@ -405,15 +405,15 @@ export default (Vue as VueConstructor<Vue & {
       this.$emit('update:selectedDoc', this.localDoc)
     },
 
-    aclProfileName(id: string): string[] {
+    aclProfileName(id: string): [string, string] {
       return _.find(this.aclProfileNames, (profile) => {
-        return profile.id === id
+        return profile[0] === id
       })
     },
 
-    wafProfileName(id: string): string[] {
+    wafProfileName(id: string): [string, string] {
       return _.find(this.wafProfileNames, (profile) => {
-        return profile.id === id
+        return profile[0] === id
       })
     },
 
@@ -592,13 +592,13 @@ export default (Vue as VueConstructor<Vue & {
   },
 
   watch: {
-    selectedDoc() {
-      this.wafacllimitProfileNames()
+    selectedDoc: {
+      handler: function() {
+        this.wafacllimitProfileNames()
+      },
+      immediate: true,
+      deep: true,
     },
-  },
-
-  mounted() {
-    this.wafacllimitProfileNames()
   },
 })
 </script>
