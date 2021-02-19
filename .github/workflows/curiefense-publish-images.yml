@@ -1,7 +1,7 @@
-name: Build docker images on pull request
+name: Publish docker images on push
 
 on:
-  pull_request:
+  push:
     branches:
       - main
     paths:
@@ -18,5 +18,7 @@ jobs:
 
       - name: Build and push the images
         run: |
+            docker login -u "${{ secrets.DOCKER_HUB_USER }}" -p "${{ secrets.DOCKER_HUB_PASSWORD }}"
             pushd curiefense/images
-            ./build-docker-images.sh
+            export DOCKER_TAG=$(echo ${GITHUB_REF#refs/heads/})
+            PUSH=1 ./build-docker-images.sh
