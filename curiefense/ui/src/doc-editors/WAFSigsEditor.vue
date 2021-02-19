@@ -80,6 +80,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import {WAFSignature} from '@/types'
+import _ from 'lodash'
 
 export default Vue.extend({
   name: 'WAFSigsEditor',
@@ -88,7 +89,7 @@ export default Vue.extend({
   },
   computed: {
     localDoc(): WAFSignature {
-      return JSON.parse(JSON.stringify(this.selectedDoc))
+      return _.cloneDeep(this.selectedDoc)
     },
   },
 })

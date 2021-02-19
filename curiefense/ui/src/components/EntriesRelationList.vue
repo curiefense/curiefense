@@ -227,7 +227,7 @@ export default Vue.extend({
     },
 
     localRule(): TagRule['rule'] {
-      return JSON.parse(JSON.stringify(this.rule || {}))
+      return _.cloneDeep(this.rule)
     },
   },
 

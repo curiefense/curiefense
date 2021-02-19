@@ -68,7 +68,7 @@ export default Vue.extend({
             },
           },
           '/db': {
-            title: 'System DB',
+            title: 'Databases',
           },
           '/publish': {
             title: 'Publish Changes',

@@ -370,7 +370,7 @@ export default Vue.extend({
 
   computed: {
     localDoc(): WAFPolicy {
-      return JSON.parse(JSON.stringify(this.selectedDoc))
+      return _.cloneDeep(this.selectedDoc)
     },
   },
 

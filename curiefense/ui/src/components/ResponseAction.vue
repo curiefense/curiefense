@@ -175,7 +175,7 @@ export default Vue.extend({
   },
   computed: {
     localAction(): ResponseActionType {
-      return JSON.parse(JSON.stringify(this.action || {}))
+      return _.cloneDeep(this.action)
     },
 
     labelDisplayedInline(): boolean {
@@ -186,31 +186,39 @@ export default Vue.extend({
     emitActionUpdate() {
       this.$emit('update:action', this.localAction)
     },
-
-    normalizeAction() {
-      // adding necessary fields to action field
-      const normalizedAction: ResponseActionType = {
-        ...{
-          params: {
-            action: {
-              type: 'default',
-              params: {},
-            },
-          },
-        },
-        ...this.localAction,
-      }
-      this.localAction.type = normalizedAction.type
-      this.localAction.params = normalizedAction.params
-      if (!_.isEqual(this.localAction, this.action)) {
-        this.emitActionUpdate()
-      }
-    },
   },
   watch: {
     action: {
-      handler: function() {
-        this.normalizeAction()
+      handler: function(value) {
+        if (!value) {
+          this.$emit('update:action', {
+            type: 'default',
+            params: {
+              action: {
+                type: 'default',
+                params: {},
+              },
+            },
+          })
+          return
+        }
+        // adding necessary fields to action field
+        const normalizedAction: ResponseActionType = {
+          ...{
+            params: {
+              action: {
+                type: 'default',
+                params: {},
+              },
+            },
+          },
+          ...this.localAction,
+        }
+        this.localAction.type = normalizedAction.type
+        this.localAction.params = normalizedAction.params
+        if (!_.isEqual(this.localAction, this.action)) {
+          this.emitActionUpdate()
+        }
       },
       immediate: true,
       deep: true,

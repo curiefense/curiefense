@@ -427,11 +427,11 @@ export default Vue.extend({
 
     loadGitLog(interaction?: boolean) {
       const config = this.selectedBranch
-      const document_ = this.selectedDocType
+      const document = this.selectedDocType
       const entry = this.selectedDocID
-      const urlTrail = `configs/${config}/d/${document_}/e/${entry}/v/`
+      const urlTrail = `configs/${config}/d/${document}/e/${entry}/v/`
 
-      if (config && document_ && entry) {
+      if (config && document && entry) {
         RequestsUtils.sendRequest('GET', urlTrail).then((response: AxiosResponse<Commit[]>) => {
           this.gitLog = response.data
           if (interaction) {
@@ -585,10 +585,7 @@ export default Vue.extend({
           null,
           `Document [${docTitle}] restored to version [${versionId}]!`,
           `Failed restoring document [${docTitle}] to version [${versionId}]!`)
-      const response = await RequestsUtils.sendRequest('GET', urlTrail)
-      this.docs = response.data
-      this.updateDocIdNames()
-      this.loadGitLog()
+      await this.loadDocs(this.selectedDocType)
     },
 
     addMissingDefaultsToDoc() {

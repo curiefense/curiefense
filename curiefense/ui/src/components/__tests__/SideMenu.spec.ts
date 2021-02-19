@@ -46,7 +46,7 @@ describe('SideMenu.vue', () => {
   test('should render all Configuration menu items', () => {
     const wantedInternalMenuItems = [
       {path: '/config', title: 'Policies & Rules'},
-      {path: '/db', title: 'System DB'},
+      {path: '/db', title: 'Databases'},
       {path: '/publish', title: 'Publish Changes'},
       {path: `${location.protocol}//${location.hostname}:30000/api/v1/`, title: 'API', external: true},
     ]

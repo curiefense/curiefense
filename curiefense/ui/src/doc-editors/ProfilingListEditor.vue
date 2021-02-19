@@ -167,17 +167,16 @@ export default Vue.extend({
         }
         return ''
       },
-      set: function(): void {
-        _.debounce((tags: any) => {
-          (this as any).localDoc.tags = _.map(tags.split(' '), (tag) => {
-            return tag.trim()
-          })
-        }, 500)
+      set: function(tags: string): void {
+        this.localDoc.tags = _.map(tags.split(' '), (tag) => {
+          return tag.trim()
+        })
+        this.emitDocUpdate()
       },
     },
 
     localDoc(): TagRule {
-      return JSON.parse(JSON.stringify(this.selectedDoc))
+      return _.cloneDeep(this.selectedDoc)
     },
 
     localDocTotalEntries(): number {
