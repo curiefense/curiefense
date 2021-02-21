@@ -374,7 +374,7 @@ import {AxiosResponse} from 'axios'
 
 export default (Vue as VueConstructor<Vue & {
   $refs: {
-    profileName: InstanceType<typeof HTMLInputElement>
+    profileName: HTMLInputElement[]
   }
 }>).extend({
   name: 'URLMapsEditor',
@@ -455,12 +455,12 @@ export default (Vue as VueConstructor<Vue & {
 
       this.localDoc.map.splice(idx, 0, mapEntry)
       this.emitDocUpdate()
-      const element = this.$refs.profileName
-      element.focus()
+      const element = this.$refs.profileName[0]
       // Pushing the select action to the end of queue in order for the new profile to be rendered beforehand
-      setTimeout(() => {
+      setImmediate(() => {
         element.select()
-      }, 0)
+        element.focus()
+      })
     },
 
     changeSelectedMapEntry(index: number) {

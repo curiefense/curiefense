@@ -49,7 +49,7 @@ export type AutocompleteInputEvents = 'keyup' | 'keydown' | 'keypress' | 'focus'
 
 export default (Vue as VueConstructor<Vue & {
   $refs: {
-    autocompleteInput: InstanceType<typeof HTMLInputElement>
+    autocompleteInput: HTMLInputElement
   }
 }>).extend({
   name: 'AutocompleteInput',
@@ -176,6 +176,12 @@ export default (Vue as VueConstructor<Vue & {
       this.clearInputBlurredTimeout()
       this.focusedSuggestionIndex = index
       this.selectValue()
+      if (this.autoFocus) {
+        // Putting the focus at the end of the queue so the suggestion focus event would finish beforehand
+        setImmediate(() => {
+          this.$refs.autocompleteInput.focus()
+        })
+      }
     },
 
     async selectValue(skipFocus?: boolean) {

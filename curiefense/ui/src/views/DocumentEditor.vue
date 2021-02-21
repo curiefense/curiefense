@@ -419,6 +419,7 @@ export default Vue.extend({
         this.docs = response.data
         // After we load the basic data (id and name) we can async load the full data
         this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${doctype}`)
+        this.cancelSource = axios.CancelToken.source()
         RequestsUtils.sendRequest('GET',
             `configs/${branch}/d/${doctype}/`,
             null,

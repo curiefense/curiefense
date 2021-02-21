@@ -59,9 +59,9 @@
               @change="emitActionUpdate"
               title="Status code"
               placeholder="Status code">
-          <span class="suffix seconds-suffix">
+          <span v-if="localAction && localAction.type === 'ban'"
+                class="suffix seconds-suffix">
             <input
-                v-if="localAction && localAction.type === 'ban'"
                 class="input is-small"
                 type="text"
                 v-model="localAction.params.ttl"

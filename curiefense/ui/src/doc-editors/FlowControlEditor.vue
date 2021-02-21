@@ -34,11 +34,11 @@
               </label>
               <div class="control suffix seconds-suffix">
                 <input class="input is-small document-ttl"
-                       type="text"
+                       type="number"
                        title="New rate limit rule name"
                        placeholder="New rate limit rule name"
                        @change="emitDocUpdate"
-                       v-model="localDoc.ttl">
+                       v-model.number="localDoc.ttl">
               </div>
             </div>
             <div class="field">
