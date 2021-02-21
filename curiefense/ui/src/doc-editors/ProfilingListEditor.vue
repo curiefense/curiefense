@@ -35,15 +35,20 @@
             </div>
             <div class="field">
 
-              <div class="control" v-if="editable">
+              <div class="control"
+                   v-if="editable">
                 <label class="label is-small">Sections Relation</label>
-                <div class="tags has-addons">
-                  <span class="tag pointer"
+                <div class="tags has-addons mb-0"
+                     tabindex="0"
+                     @keypress.space.prevent
+                     @keypress.space="toggleRuleRelation()"
+                     @keypress.enter="toggleRuleRelation()">
+                  <span class="tag pointer mb-0"
                         :class="localDoc.rule.relation === 'AND' ? 'is-info xis-light is-selected' : ''"
                         @click="setRuleRelation('AND')">
                     AND
                   </span>
-                  <span class="tag pointer"
+                  <span class="tag pointer mb-0"
                         :class="localDoc.rule.relation === 'OR' ? 'is-info xis-light is-selected' : ''"
                         @click="setRuleRelation('OR')">
                     OR
@@ -63,7 +68,11 @@
             <div class="field">
               <a v-if="localDoc && localDoc.source && localDoc.source.indexOf('http') === 0"
                  class="is-small has-text-grey is-size-7 is-pulled-right"
-                 @click="fetchList">
+                 tabindex="0"
+                 @click="fetchList"
+                 @keypress.space.prevent
+                 @keypress.space="fetchList"
+                 @keypress.enter="fetchList">
                 update now
               </a>
               <label class="label is-small">Source</label>
@@ -206,6 +215,10 @@ export default Vue.extend({
       this.emitDocUpdate()
     },
 
+    toggleRuleRelation(): void {
+      this.localDoc.rule.relation === 'AND' ? this.setRuleRelation('OR') : this.setRuleRelation('AND')
+    },
+
     removeAllSections() {
       this.localDoc.rule.sections.splice(0, this.localDoc.rule.sections.length)
       this.emitDocUpdate()
@@ -235,7 +248,15 @@ export default Vue.extend({
       // try every node / element of String type with the regex.
       const objectParser = (data: any, store: TagRuleSectionEntry[]) => {
         _.each(data, (item) => {
-          if (_.isArray(item) || _.isObject(item)) {
+          if (_.isArray(item) && (item.length === 2 || item.length === 3)) {
+            if (_.isString(item[0]) && (item[0].toLowerCase() === 'ip' || item[0].toLowerCase() === 'asn') &&
+                _.isString(item[1]) && singleIP.test(item[1])) {
+              const annotation = (item[2] && _.isString(item[2])) ? item[2] : null
+              store.push([item[0].toLowerCase() as Category, item[1], annotation])
+            } else {
+              objectParser(item, store)
+            }
+          } else if (_.isObject(item)) {
             objectParser(item, store)
           }
           if (_.isString(item)) {
@@ -292,4 +313,10 @@ export default Vue.extend({
 .pointer {
   cursor: pointer;
 }
+
+.tags {
+  display: inline-block;
+  line-height: 0;
+}
+
 </style>

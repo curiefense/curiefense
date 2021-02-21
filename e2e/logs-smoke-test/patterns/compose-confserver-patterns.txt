@@ -1,0 +1,1 @@
+curiefense-confserver-patterns.txt

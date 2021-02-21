@@ -34,6 +34,16 @@
                     </select>
                   </div>
                 </div>
+                <p class="control">
+                  <button class="button is-small download-doc-button"
+                          :class="{'is-loading': isDownloadLoading}"
+                          @click="downloadDoc"
+                          title="Download document">
+                    <span class="icon is-small">
+                      <i class="fas fa-download"></i>
+                    </span>
+                  </button>
+                </p>
                 <div class="control">
                   <span class="icon is-small is-vcentered">
                     <svg :width="24"
@@ -42,7 +52,9 @@
                       <path :d="mdiSourceBranchPath"/>
                     </svg>
                   </span>
-                  <span class="is-size-7 git-branches">{{ branches }} branches</span>
+                  <span class="is-size-7 git-branches">
+                    {{ branches }} branch<span v-if="branches !== 1">es</span>
+                  </span>
                 </div>
                 <div class="control">
                   <span class="icon is-small is-vcentered">
@@ -52,7 +64,9 @@
                       <path :d="mdiSourceCommitPath"/>
                     </svg>
                   </span>
-                  <span class="is-size-7 git-commits">{{ commits }} commits</span>
+                  <span class="is-size-7 git-commits">
+                    {{ commits }} commit<span v-if="commits !== 1">s</span>
+                  </span>
                 </div>
               </div>
             </div>
@@ -85,17 +99,6 @@
                       <i class="fas fa-clone"></i>
                     </span>
                   </button>
-                </p>
-
-                <p class="control">
-                  <a class="button is-small download-doc-button"
-                     @click="downloadDoc"
-                     title="Download document">
-                    <span class="icon is-small">
-                      <i class="fas fa-download"></i>
-                    </span>
-
-                  </a>
                 </p>
 
                 <p class="control"
@@ -213,7 +216,7 @@ import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import Vue from 'vue'
 import {BasicDocument, Commit, Document, DocumentType} from '@/types'
-import {AxiosResponse} from 'axios'
+import axios, {AxiosResponse} from 'axios'
 
 export default Vue.extend({
 
@@ -255,6 +258,8 @@ export default Vue.extend({
       docs: [],
       docIdNames: [],
       selectedDocID: null,
+      cancelSource: axios.CancelToken.source(),
+      isDownloadLoading: false,
 
       gitLog: [],
       commits: 0,
@@ -406,11 +411,21 @@ export default Vue.extend({
     },
 
     async loadDocs(doctype: DocumentType) {
+      this.isDownloadLoading = true
       const branch = this.selectedBranch
       try {
         const response = await RequestsUtils.sendRequest('GET',
             `configs/${branch}/d/${doctype}/`, {headers: {'x-fields': 'id, name'}})
         this.docs = response.data
+        // After we load the basic data (id and name) we can async load the full data
+        this.cancelSource.cancel(`Operation cancelled and restarted for a new document type ${doctype}`)
+        RequestsUtils.sendRequest('GET',
+            `configs/${branch}/d/${doctype}/`,
+            null,
+            {cancelToken: this.cancelSource.token}).then((response: AxiosResponse) => {
+          this.docs = response.data
+          this.isDownloadLoading = false
+        })
       } catch (err) {
         console.log('Error while attempting to load documents')
         console.log(err)
@@ -481,7 +496,9 @@ export default Vue.extend({
     },
 
     downloadDoc() {
-      Utils.downloadFile(this.selectedDocType, 'json', this.docs)
+      if (!this.isDownloadLoading) {
+        Utils.downloadFile(this.selectedDocType, 'json', this.docs)
+      }
     },
 
     async forkDoc() {

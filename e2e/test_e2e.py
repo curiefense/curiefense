@@ -140,7 +140,7 @@ class UIHelper():
         self._es_url = es_url + '/_search'
 
     def check_log_pattern(self, pattern):
-        if self._es_url is False:
+        if self._es_url == '/_search':
             data = {
                 "statement": ("SELECT Path FROM logs "
                               "ORDER BY StartTime DESC LIMIT 1024"),

@@ -103,13 +103,13 @@
             </td>
             <td class="is-size-7 width-50px">
               <p class="control has-text-centered" v-if="rowOverIndex === index">
-                <a class="button is-small go-to-link-button"
+                <button class="button is-small go-to-link-button"
                    @click="goToDocument(doc)"
                    title="Go to document">
                     <span class="icon is-small">
                       <i class="fas fa-link"></i>
                     </span>
-                </a>
+                </button>
               </p>
             </td>
           </tr>

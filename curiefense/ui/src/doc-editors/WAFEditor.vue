@@ -117,9 +117,33 @@
                   <td>
                     <div class="tabs is-centered">
                       <ul>
-                        <li :class=" tab === 'headers' ? 'is-active' : '' "><a @click='tab="headers"'>Headers</a></li>
-                        <li :class=" tab === 'cookies' ? 'is-active' : '' "><a @click='tab="cookies"'>Cookies</a></li>
-                        <li :class=" tab === 'args' ? 'is-active' : '' "><a @click='tab="args"'>Arguments</a></li>
+                        <li :class=" tab === 'headers' ? 'is-active' : '' ">
+                          <a tabindex="0"
+                             @click='tab="headers"'
+                             @keypress.space.prevent
+                             @keypress.space='tab="headers"'
+                             @keypress.enter='tab="headers"'>
+                            Headers
+                          </a>
+                        </li>
+                        <li :class=" tab === 'cookies' ? 'is-active' : '' ">
+                          <a tabindex="0"
+                             @click='tab="cookies"'
+                             @keypress.space.prevent
+                             @keypress.space='tab="cookies"'
+                             @keypress.enter='tab="cookies"'>
+                            Cookies
+                          </a>
+                        </li>
+                        <li :class=" tab === 'args' ? 'is-active' : '' ">
+                          <a tabindex="0"
+                             @click='tab="args"'
+                             @keypress.space.prevent
+                             @keypress.space='tab="args"'
+                             @keypress.enter='tab="args"'>
+                            Arguments
+                          </a>
+                        </li>
                       </ul>
                     </div>
                   </td>
@@ -138,12 +162,20 @@
                         <th class="has-text-centered">
                           <a v-show="newWAFLine !== tab"
                              class="has-text-grey-dark is-small" title="Add new parameter"
-                             @click="openAddNewParameter(tab)">
+                             tabindex="0"
+                             @click="openAddNewParameter(tab)"
+                             @keypress.space.prevent
+                             @keypress.space="openAddNewParameter(tab)"
+                             @keypress.enter="openAddNewParameter(tab)">
                             <span class="icon is-small"><i class="fas fa-plus"></i></span>
                           </a>
                           <a v-show="newWAFLine === tab"
                              class="has-text-grey-dark is-small" title="Cancel adding new parameter"
-                             @click="newWAFLine = null">
+                             tabindex="0"
+                             @click="newWAFLine = null"
+                             @keypress.space.prevent
+                             @keypress.space="newWAFLine = null"
+                             @keypress.enter="newWAFLine = null">
                             <span class="icon is-small"><i class="fas fa-minus"></i></span>
                           </a>
                         </th>

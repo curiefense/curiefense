@@ -51,7 +51,7 @@ import (
 type CurieProxyLog struct {
 	Headers     map[string]string      `json:"headers"`
 	Cookies     map[string]string      `json:"cookies"`
-	Geo         map[string]float64     `json:"geo"`
+	Geo         map[string]interface{} `json:"geo"`
 	Arguments   map[string]string      `json:"arguments"`
 	Attributes  map[string]interface{} `json:"attributes"`
 	Blocked     bool                   `json:"blocked"`
@@ -124,7 +124,7 @@ type RequestData struct {
 	Headers      map[string]string      `json:"headers"`
 	Cookies      map[string]string      `json:"cookies"`
 	Arguments    map[string]string      `json:"arguments"`
-	Geo          map[string]float64     `json:"geo"`
+	Geo          map[string]interface{} `json:"geo"`
 	Attributes   map[string]interface{} `json:"attributes"`
 }
 
@@ -598,6 +598,7 @@ type logstashLogger struct {
 
 func (l *logstashLogger) InsertEntry(e LogEntry) bool {
 	log.Printf("[DEBUG] LogStash insertion!")
+	e.cfLog.Tags = append(e.cfLog.Tags, "curieaccesslog")
 	j, err := json.Marshal(e.cfLog)
 	if err == nil {
 		_, err := http.Post(l.config.Url, "application/json", bytes.NewReader(j))

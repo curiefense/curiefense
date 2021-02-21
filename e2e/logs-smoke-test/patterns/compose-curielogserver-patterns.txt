@@ -1,0 +1,1 @@
+curiefense-curielogserver-patterns.txt

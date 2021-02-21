@@ -74,7 +74,11 @@
                               :key="getOptionTextKey(option, index)"/>
                 <a title="Add new option rule"
                    class="is-text is-small is-size-7 ml-3 add-key-button"
-                   @click="addKey()">
+                   tabindex="0"
+                   @click="addKey()"
+                   @keypress.space.prevent
+                   @keypress.space="addKey()"
+                   @keypress.enter="addKey()">
                   New entry
                 </a>
                 <p class="has-text-danger is-size-7 ml-3 mt-3 key-invalid"
@@ -110,7 +114,11 @@
                   <div class="column is-narrow">
                     <a title="Add new option rule"
                        class="is-text is-small is-size-7 new-include-exclude-button"
-                       @click="newIncludeOrExcludeEntry.visible = !newIncludeOrExcludeEntry.visible">
+                       tabindex="0"
+                       @click="toggleNewIncludeExcludeEntryVisibility()"
+                       @keypress.space.prevent
+                       @keypress.space="toggleNewIncludeExcludeEntryVisibility()"
+                       @keypress.enter="toggleNewIncludeExcludeEntryVisibility()">
                       {{ newIncludeOrExcludeEntry.visible ? 'Cancel' : 'New entry' }}
                     </a>
                   </div>
@@ -424,6 +432,10 @@ export default Vue.extend({
       if (!_.isEqual(this.localDoc, this.selectedDoc)) {
         this.emitDocUpdate()
       }
+    },
+
+    toggleNewIncludeExcludeEntryVisibility() {
+      this.newIncludeOrExcludeEntry.visible = !this.newIncludeOrExcludeEntry.visible
     },
   },
   mounted() {

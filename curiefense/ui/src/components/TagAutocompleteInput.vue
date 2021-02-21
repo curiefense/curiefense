@@ -7,6 +7,7 @@
       :auto-focus="autoFocus"
       :selection-type="selectionType"
       :minimum-value-length="minimumTagLength"
+      :title="inputTitle"
       @value-changed="tagChanged"
       @value-submitted="tagSubmitted"
       @keyup="bubbleEvent('keyup', $event)"
@@ -96,6 +97,10 @@ export default Vue.extend({
       return currentTag
     },
 
+    inputTitle(): string {
+      return this.selectionType.toLowerCase() === 'multiple' ? 'Tags separated by spaces' : 'Tag'
+    },
+
   },
 
   methods: {
@@ -161,7 +166,7 @@ export default Vue.extend({
       this.tag = newTag
       // if submitting a tag we don't recognize -> add it to the DB
       if (!this.tagsSuggestions.find((suggestion) => {
-        return suggestion.value === this.currentTag.toLowerCase()
+        return suggestion.value.toLowerCase() === this.currentTag.toLowerCase()
       })) {
         this.addUnknownTagsToDB([this.currentTag])
       }

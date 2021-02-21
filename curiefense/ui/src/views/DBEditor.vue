@@ -33,13 +33,13 @@
                 </p>
 
                 <p class="control">
-                  <a class="button is-small download-database-button"
+                  <button class="button is-small download-database-button"
                      @click="downloadDatabase"
                      title="Download database">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
                     </span>
-                  </a>
+                  </button>
                 </p>
 
                 <p class="control">
@@ -95,13 +95,13 @@
                 </p>
 
                 <p class="control">
-                  <a class="button is-small download-key-button"
+                  <button class="button is-small download-key-button"
                      @click="downloadKey"
                      title="Download Key">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
                     </span>
-                  </a>
+                  </button>
                 </p>
 
                 <p class="control">
@@ -223,14 +223,14 @@
             <!--display correct message by priority (Database -> Key)-->
             <span v-if="!selectedDatabase">
               Missing database. To create a new one, click
-              <a title="Add New"
+              <a title="Add new"
                  @click="addNewDatabase()">
                 here
               </a>
             </span>
             <span v-if="selectedDatabase && !selectedKey">
               Missing key. To create a new one, click
-              <a title="Add New"
+              <a title="Add new"
                  @click="addNewKey()">
                 here
               </a>

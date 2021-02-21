@@ -95,11 +95,11 @@ function map_args(map)
         map.attrs.path = path
         map.attrs.query = query
         local url_args = {}
-        
+
         if query then
             url_args = parse_query(query)
         end
-        
+
         for name, value in pairs(url_args) do
             map.args[name] = value
         end
@@ -156,34 +156,34 @@ function map_ip(headers, metadata, map)
 
     local city, country, asn, company = unpack(ipinfo(client_addr, map.handle))
 
-    map.attrs.city = {}
-    map.attrs.country = {}
-    map.attrs.continent = {}
+    map.geo.city = {}
+    map.geo.country = {}
+    map.geo.location = {}
+    map.geo.continent = {}
 
     if city then
-        map.attrs.city.name = city.city.names.en
-        map.attrs.location = city.location
+        map.geo.city.name = city.city.names.en
 
         -- Use lat and lon to match the key names
         -- expected by Elasticsearch's geo_ip field type
-        map.geo.lat = city.location.latitude
-        map.geo.lon = city.location.longitude
+        map.geo.location.lat = city.location.latitude
+        map.geo.location.lon = city.location.longitude
     end
 
     if country then
         -- We do this in case the City database
         -- didn't return any results for this ip
-        map.attrs.country.eu = country.country.is_in_european_union
-        map.attrs.country.name = country.country.names.en
-        map.attrs.country.iso = country.country.iso_code
+        map.geo.country.eu = country.country.is_in_european_union
+        map.geo.country.name = country.country.names.en
+        map.geo.country.iso = country.country.iso_code
 
-        map.attrs.continent.name = country.continent.names.en
-        map.attrs.continent.code = country.continent.code
+        map.geo.continent.name = country.continent.names.en
+        map.geo.continent.code = country.continent.code
     end
 
     if asn then
-        map.attrs.asn = tostring(asn)
-        map.attrs.company = company
+        map.geo.asn = tostring(asn)
+        map.geo.company = company
     end
 
 end

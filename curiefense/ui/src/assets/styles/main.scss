@@ -165,3 +165,8 @@ $color-light: hsl(0, 0%, 96%);
 .card .content {
   font-size: 14px;
 }
+
+.button.is-light.is-focused,
+.button.is-light:focus {
+  border-color: #3273dc;
+}

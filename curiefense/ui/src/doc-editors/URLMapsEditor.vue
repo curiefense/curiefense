@@ -117,15 +117,18 @@
                               <label class="label is-small">
                                 Match
                               </label>
-                              <div class="control">
+                              <div class="control has-icons-left">
                                 <input class="input is-small" type="text"
                                        @change="emitDocUpdate"
-                                       title="Match"
+                                       title="Match regex"
                                        placeholder="matching domain(s) regex"
                                        required
                                        :disabled="mapEntry.match === '__default__'"
                                        :readonly="mapEntry.match === '__default__'"
                                        v-model="mapEntry.match">
+                                <span class="icon is-small is-left has-text-grey">
+                                  <i class="fas fa-code"></i>
+                                </span>
                               </div>
                             </div>
                             <hr/>
@@ -154,7 +157,11 @@
                                              limitRuleNames.length > mapEntry.limit_ids.length"
                                        class="has-text-grey-dark is-small"
                                        title="Add new"
-                                       @click="limitNewEntryModeMapEntryId = idx">
+                                       tabindex="0"
+                                       @click="limitNewEntryModeMapEntryId = idx"
+                                       @keypress.space.prevent
+                                       @keypress.space="limitNewEntryModeMapEntryId = idx"
+                                       @keypress.enter="limitNewEntryModeMapEntryId = idx">
                                       <span class="icon is-small"><i class="fas fa-plus"></i></span>
                                     </a>
                                   </th>
@@ -185,8 +192,12 @@
                                     {{ limitDetails(limitId).ttl }}
                                   </td>
                                   <td class="has-text-centered is-size-7 width-60px">
-                                    <a class="is-small has-text-grey" title="remove entry"
-                                       @click="removeLimitEntry(mapEntry, idx)">
+                                    <a class="is-small has-text-grey" title="Remove entry"
+                                       tabindex="0"
+                                       @click="removeLimitEntry(mapEntry, idx)"
+                                       @keypress.space.prevent
+                                       @keypress.space="removeLimitEntry(mapEntry, idx)"
+                                       @keypress.enter="removeLimitEntry(mapEntry, idx)">
                                       remove
                                     </a>
                                   </td>
@@ -207,7 +218,11 @@
                                   </td>
                                   <td class="has-text-centered is-size-7 width-60px">
                                     <a class="is-small has-text-grey" title="Add this entry"
-                                       @click="addLimitEntry(mapEntry, limitMapEntryId)">
+                                       tabindex="0"
+                                       @click="addLimitEntry(mapEntry, limitMapEntryId)"
+                                       @keypress.space.prevent
+                                       @keypress.space="addLimitEntry(mapEntry, limitMapEntryId)"
+                                       @keypress.enter="addLimitEntry(mapEntry, limitMapEntryId)">
                                       add
                                     </a>
                                   </td>

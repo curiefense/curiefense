@@ -94,7 +94,7 @@ def get_api(api_root_url='http://localhost:5000/api/v1/', json_encode_body=True,
     api = API(
         api_root_url = api_root_url,
         json_encode_body = json_encode_body,
-        timeout=20,
+        timeout=60,
         **kargs
     )
 

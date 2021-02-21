@@ -28,7 +28,9 @@
                       <path :d="mdiSourceBranchPath"/>
                     </svg>
                   </span>
-                  <span class="is-size-7 git-branches">{{ branches }} branches</span>
+                  <span class="is-size-7 git-branches">
+                    {{ branches }} branch<span v-if="branches !== 1">es</span>
+                  </span>
                 </div>
                 <div class="control">
                   <span class="icon is-small is-vcentered">
@@ -38,7 +40,9 @@
                       <path :d="mdiSourceCommitPath"/>
                     </svg>
                   </span>
-                  <span class="is-size-7 git-commits">{{ commits }} commits</span>
+                  <span class="is-size-7 git-commits">
+                    {{ commits }} commit<span v-if="commits !== 1">s</span>
+                  </span>
                 </div>
               </div>
             </div>
@@ -49,12 +53,12 @@
                 <p class="control">
                   <span class="field has-addons">
                     <span class="control">
-                      <a class="button is-small fork-branch-toggle"
+                      <button class="button is-small fork-branch-toggle"
                          @click="toggleBranchFork()">
                         <span class="icon is-small">
                           <i class="fas fa-code-branch"></i>
                         </span>
-                      </a>
+                      </button>
                     </span>
                     <span class="control is-expanded"
                           v-if="forkBranchInputOpen">
@@ -66,20 +70,21 @@
                              type="text">
                     </span>
                     <span class="control" v-if="forkBranchInputOpen">
-                      <a class="button is-danger is-small fork-branch-cancel" @click="toggleBranchFork">
+                      <button class="button is-danger is-small fork-branch-cancel"
+                              @click="toggleBranchFork">
                         <span class="icon is-small">
                           <i class="fas fa-times"></i>
                         </span>
-                      </a>
+                      </button>
                     </span>
                     <span class="control" v-if="forkBranchInputOpen">
-                      <a class="button is-primary is-small fork-branch-confirm"
+                      <button class="button is-primary is-small fork-branch-confirm"
                          @click="forkBranch"
                          :disabled="!isSelectedBranchForkNameValid">
                         <span class="icon is-small">
                           <i class="fas fa-check"></i>
                         </span>
-                      </a>
+                      </button>
                     </span>
                   </span>
                 </p>
@@ -98,12 +103,12 @@
                 <p class="control">
                   <span class="field has-addons">
                     <span class="control">
-                      <a class="button is-small has-text-danger delete-branch-toggle"
+                      <button class="button is-small has-text-danger delete-branch-toggle"
                          @click="toggleBranchDelete()">
                         <span class="icon is-small">
                           <i class="fas fa-trash"></i>
                         </span>
-                      </a>
+                      </button>
                     </span>
                     <span class="control is-expanded"
                           v-if="deleteBranchInputOpen">
@@ -114,21 +119,21 @@
                              type="text">
                     </span>
                     <span class="control" v-if="deleteBranchInputOpen">
-                      <a class="button is-danger is-small delete-branch-cancel"
+                      <button class="button is-danger is-small delete-branch-cancel"
                          @click="toggleBranchDelete">
                         <span class="icon is-small">
                           <i class="fas fa-times"></i>
                         </span>
-                      </a>
+                      </button>
                     </span>
                     <span class="control" v-if="deleteBranchInputOpen">
-                      <a class="button is-primary is-small delete-branch-confirm"
+                      <button class="button is-primary is-small delete-branch-confirm"
                          @click="deleteBranch"
                          :disabled="!isSelectedBranchDeleteNameValid">
                         <span class="icon is-small">
                           <i class="fas fa-check"></i>
                         </span>
-                      </a>
+                      </button>
                     </span>
                   </span>
                 </p>

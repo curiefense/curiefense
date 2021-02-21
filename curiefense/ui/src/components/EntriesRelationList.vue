@@ -5,19 +5,19 @@
         <div class="tile">
           <div class="tile is-parent is-vertical">
             <div class="tile is-child box is-primary section"
-                 v-for="(section, section_idx) in localRule.sections" :key="section_idx">
+                 v-for="(section, sectionIndex) in localRule.sections" :key="sectionIndex">
               <div class="has-text-centered relation-selection-wrapper"
-                   v-if="localRule.sections.length > 1 && section_idx > 0">
+                   v-if="localRule.sections.length > 1 && sectionIndex > 0">
                   <span class="tag has-text-weight-semibold">
                     {{ localRule.relation }}
                   </span>
               </div>
               <table class="table is-narrow entries-table mb-0">
                 <tbody>
-                <tr v-for="(entry,entryIndex) in sectionsCurrentPage[section_idx]" :key="entryIndex" class="entry-row">
+                <tr v-for="(entry,entryIndex) in sectionsCurrentPage[sectionIndex]" :key="entryIndex" class="entry-row">
                   <td class="is-size-7 width-50px has-text-centered has-text-weight-medium">
                       <span
-                          v-if="((entryIndex + 1) + ((sectionsCurrentPageIndex[section_idx] - 1) * rowsPerPage)) !== 1"
+                          v-if="((entryIndex + 1) + ((sectionsCurrentPageIndex[sectionIndex] - 1) * rowsPerPage)) !== 1"
                           class="is-small pointer section-relation-toggle"
                           @click="toggleSectionRelation(section)">
                         {{ section.relation }}
@@ -33,23 +33,35 @@
                   </td>
                   <td class="is-size-7 width-80px">
                     <a v-if="editable"
+                       tabindex="0"
                        class="is-small has-text-grey remove-entry-button" title="remove entry"
-                       @click="removeEntry(section, section_idx, entryIndex)">
+                       @click="removeEntry(section, sectionIndex, entryIndex)"
+                       @keypress.space.prevent
+                       @keypress.space="removeEntry(section, sectionIndex, entryIndex)"
+                       @keypress.enter="removeEntry(section, sectionIndex, entryIndex)">
                       remove
                     </a>
                   </td>
                 </tr>
-                <tr v-if="newEntrySectionIndex !== section_idx && editable">
+                <tr v-if="newEntrySectionIndex !== sectionIndex && editable">
                   <td>
                     <a class="is-size-7 has-text-grey-lighter add-button add-entry-button"
                        title="add new row"
-                       @click="setNewEntryIndex(section_idx)">
+                       tabindex="0"
+                       @click="setNewEntryIndex(sectionIndex)"
+                       @keypress.space.prevent
+                       @keypress.space="setNewEntryIndex(sectionIndex)"
+                       @keypress.enter="setNewEntryIndex(sectionIndex)">
                       <i class="fas fa-plus"></i>
                     </a>
                     &nbsp;&middot;&nbsp;
                     <a class="is-size-7 has-text-grey-lighter remove-button remove-section-button"
                        title="remove entire section"
-                       @click="removeSection(section_idx)">
+                       tabindex="0"
+                       @click="removeSection(sectionIndex)"
+                       @keypress.space.prevent
+                       @keypress.space="removeSection(sectionIndex)"
+                       @keypress.enter="removeSection(sectionIndex)">
                       <i class="fas fa-trash"></i>
                     </a>
                   </td>
@@ -57,7 +69,7 @@
                   </td>
 
                 </tr>
-                <tr v-if="newEntrySectionIndex === section_idx && editable" class="new-entry-row">
+                <tr v-if="newEntrySectionIndex === sectionIndex && editable" class="new-entry-row">
                   <td class="is-size-7" colspan="2">
                     <div class="select is-small is-fullwidth">
                       <select v-model="newEntryCategory"
@@ -97,25 +109,47 @@
                   <td class="is-size-7 width-80px">
                     <a class="is-size-7 has-text-grey add-button confirm-add-entry-button"
                        title="add new row"
-                       @click="addEntry(section)"><i class="fas fa-check"></i> Add</a>
+                       tabindex="0"
+                       @click="addEntry(section)"
+                       @keypress.space.prevent
+                       @keypress.space="addEntry(section)"
+                       @keypress.enter="addEntry(section)">
+                      <i class="fas fa-check"></i> Add
+                    </a>
                     <br/>
                     <a class="is-size-7 has-text-grey remove-button"
                        title="cancel add new row"
-                       @click="setNewEntryIndex(-1)"><i class="fas fa-times"></i> Cancel</a>
+                       tabindex="0"
+                       @click="setNewEntryIndex(-1)"
+                       @keypress.space.prevent
+                       @keypress.space="setNewEntryIndex(-1)"
+                       @keypress.enter="setNewEntryIndex(-1)">
+                      <i class="fas fa-times"></i> Cancel
+                    </a>
                   </td>
                 </tr>
 
                 <tr v-if="totalPages(section) > 1">
                   <td colspan="5">
                     <nav aria-label="pagination" class="pagination is-small" role="navigation">
-                      <a :disabled="sectionsCurrentPageIndex[section_idx] === 1"
+                      <a :disabled="sectionsCurrentPageIndex[sectionIndex] === 1"
                          class="is-pulled-left pagination-previous"
-                         @click="navigate(section, section_idx, sectionsCurrentPageIndex[section_idx] - 1)">Previous
-                        Page</a>
-                      <a :disabled="sectionsCurrentPageIndex[section_idx] === totalPages(section)"
+                         tabindex="0"
+                         @click="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] - 1)"
+                         @keypress.space.prevent
+                         @keypress.space="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] - 1)"
+                         @keypress.enter="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] - 1)">
+                        Previous page
+                      </a>
+                      <a :disabled="sectionsCurrentPageIndex[sectionIndex] === totalPages(section)"
                          class="is-pulled-right pagination-next"
-                         @click="navigate(section, section_idx, sectionsCurrentPageIndex[section_idx] + 1)">Next
-                        page</a>
+                         tabindex="0"
+                         @click="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] + 1)"
+                         @keypress.space.prevent
+                         @keypress.space="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] + 1)"
+                         @keypress.enter="navigate(section, sectionIndex, sectionsCurrentPageIndex[sectionIndex] + 1)">
+                        Next page
+                      </a>
                     </nav>
                   </td>
                 </tr>

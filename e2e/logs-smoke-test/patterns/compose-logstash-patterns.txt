@@ -1,0 +1,1 @@
+curiefense-logstash-patterns.txt

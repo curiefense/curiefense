@@ -1,0 +1,22 @@
+---
+# use this to set all cpu requests values to 1m -- to run on a test machine
+# having few CPUs
+global:
+  requests:
+    cpu:
+      curielogger: "1m"
+      redis: "1m"
+      logstash: "1m"
+      kibana: "1m"
+      logdb: "1m"
+      uiserver: "1m"
+      confserver-init: "1m"
+      confserver-nginx: "1m"
+      confserver-uwsgi: "1m"
+      curietasker: "1m"
+      prometheus: "1m"
+      grafana: "1m"
+      curielogserver-nginx: "1m"
+      curielogserver-uwsgi: "1m"
+      elasticsearch: "1m"
+

@@ -15,4 +15,4 @@ def pytest_addoption(parser):
                      default="http://localhost:30080")
     parser.addoption("--elasticsearch-url",
                      help="Elasticsearch URL (ex. http://localhost:9200)",
-                     default=False)
+                     default="")

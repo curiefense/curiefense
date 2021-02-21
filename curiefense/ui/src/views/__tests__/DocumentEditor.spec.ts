@@ -665,14 +665,23 @@ describe('DocumentEditor.vue', () => {
         'id': 'c03dabe4b9ca',
       },
     ]
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
+    jest.spyOn(axios.CancelToken, 'source').mockImplementation(() => {
+      return {
+        token: null,
+        cancel: () => {},
+      }
+    })
+    jest.spyOn(axios, 'get').mockImplementation((path, config) => {
       if (path === '/conf/api/v1/configs/') {
         return Promise.resolve({data: gitData})
       }
       const branch = (wrapper.vm as any).selectedBranch
       const docID = (wrapper.vm as any).selectedDocID
       if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/`) {
-        return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
+        if (config && config.headers && config.headers['x-fields'] === 'id, name') {
+          return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
+        }
+        return Promise.resolve({data: aclDocs})
       }
       if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/__default__/`) {
         return Promise.resolve({data: aclDocs[0]})
@@ -687,7 +696,10 @@ describe('DocumentEditor.vue', () => {
         return Promise.resolve({data: aclDocsLogs[0]})
       }
       if (path === `/conf/api/v1/configs/${branch}/d/tagrules/`) {
-        return Promise.resolve({data: _.map(profilingListDocs, (i) => _.pick(i, 'id', 'name'))})
+        if (config && config.headers && config.headers['x-fields'] === 'id, name') {
+          return Promise.resolve({data: _.map(profilingListDocs, (i) => _.pick(i, 'id', 'name'))})
+        }
+        return Promise.resolve({data: profilingListDocs})
       }
       if (path === `/conf/api/v1/configs/${branch}/d/tagrules/e/xlbp148c/`) {
         return Promise.resolve({data: profilingListDocs[0]})
@@ -699,7 +711,10 @@ describe('DocumentEditor.vue', () => {
         return Promise.resolve({data: profilingListDocsLogs[0]})
       }
       if (path === `/conf/api/v1/configs/${branch}/d/urlmaps/`) {
-        return Promise.resolve({data: _.map(urlMapsDocs, (i) => _.pick(i, 'id', 'name'))})
+        if (config && config.headers && config.headers['x-fields'] === 'id, name') {
+          return Promise.resolve({data: _.map(urlMapsDocs, (i) => _.pick(i, 'id', 'name'))})
+        }
+        return Promise.resolve({data: urlMapsDocs})
       }
       if (path === `/conf/api/v1/configs/${branch}/d/urlmaps/e/__default__/`) {
         return Promise.resolve({data: urlMapsDocs[0]})
@@ -708,7 +723,10 @@ describe('DocumentEditor.vue', () => {
         return Promise.resolve({data: urlMapsDocsLogs[0]})
       }
       if (path === `/conf/api/v1/configs/${branch}/d/flowcontrol/`) {
-        return Promise.resolve({data: _.map(flowControlDocs, (i) => _.pick(i, 'id', 'name'))})
+        if (config && config.headers && config.headers['x-fields'] === 'id, name') {
+          return Promise.resolve({data: _.map(flowControlDocs, (i) => _.pick(i, 'id', 'name'))})
+        }
+        return Promise.resolve({data: flowControlDocs})
       }
       if (path === `/conf/api/v1/configs/${branch}/d/flowcontrol/e/c03dabe4b9ca/`) {
         return Promise.resolve({data: flowControlDocs[0]})
@@ -751,14 +769,148 @@ describe('DocumentEditor.vue', () => {
     expect(gitHistory).toBeTruthy()
   })
 
-  test('should display correct amount of branches', () => {
-    const gitBranches = wrapper.find('.git-branches')
-    expect(gitBranches.text()).toContain('2 branches')
+  test('should display correct zero amount of branches', (done) => {
+    gitData = []
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v1/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = shallowMount(DocumentEditor, {
+      mocks: {
+        $route: mockRoute,
+        $router: mockRouter,
+      },
+    })
+    // allow all requests to finish
+    setImmediate(() => {
+      const gitBranches = wrapper.find('.git-branches')
+      expect(gitBranches.text()).toEqual('0 branches')
+      done()
+    })
   })
 
-  test('should display correct amount of commits', () => {
+  test('should display correct zero amount of commits', (done) => {
+    gitData = []
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v1/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = shallowMount(DocumentEditor, {
+      mocks: {
+        $route: mockRoute,
+        $router: mockRouter,
+      },
+    })
+    // allow all requests to finish
+    setImmediate(() => {
+      const gitCommits = wrapper.find('.git-commits')
+      expect(gitCommits.text()).toEqual('0 commits')
+      done()
+    })
+  })
+
+  test('should display correct singular amount of branches', (done) => {
+    gitData = [
+      {
+        'id': 'master',
+        'description': 'Update entry [__default__] of document [aclpolicies]',
+        'date': '2020-11-10T15:49:17+02:00',
+        'logs': [{
+          'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+          'date': '2020-11-10T15:49:17+02:00',
+          'parents': [
+            'fc47a6cd9d7f254dd97875a04b87165cc484e075',
+          ],
+          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'email': 'curiefense@reblaze.com',
+          'author': 'Curiefense API',
+        }],
+        'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+      },
+    ]
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v1/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      if (path === '/conf/api/v1/configs/master/') {
+        return Promise.resolve({data: gitData[0]})
+      }
+      if (path === '/conf/api/v1/configs/master/v/') {
+        return Promise.resolve({data: gitData[0].logs})
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = shallowMount(DocumentEditor, {
+      mocks: {
+        $route: mockRoute,
+        $router: mockRouter,
+      },
+    })
+    // allow all requests to finish
+    setImmediate(() => {
+      const gitBranches = wrapper.find('.git-branches')
+      expect(gitBranches.text()).toEqual('1 branch')
+      done()
+    })
+  })
+
+  test('should display correct singular amount of commits', (done) => {
+    gitData = [
+      {
+        'id': 'master',
+        'description': 'Update entry [__default__] of document [aclpolicies]',
+        'date': '2020-11-10T15:49:17+02:00',
+        'logs': [{
+          'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+          'date': '2020-11-10T15:49:17+02:00',
+          'parents': [
+            'fc47a6cd9d7f254dd97875a04b87165cc484e075',
+          ],
+          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'email': 'curiefense@reblaze.com',
+          'author': 'Curiefense API',
+        }],
+        'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+      },
+    ]
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v1/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      if (path === '/conf/api/v1/configs/master/') {
+        return Promise.resolve({data: gitData[0]})
+      }
+      if (path === '/conf/api/v1/configs/master/v/') {
+        return Promise.resolve({data: gitData[0].logs})
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = shallowMount(DocumentEditor, {
+      mocks: {
+        $route: mockRoute,
+        $router: mockRouter,
+      },
+    })
+    // allow all requests to finish
+    setImmediate(() => {
+      const gitCommits = wrapper.find('.git-commits')
+      expect(gitCommits.text()).toEqual('1 commit')
+      done()
+    })
+  })
+
+  test('should display correct plural amount of branches', () => {
+    const gitBranches = wrapper.find('.git-branches')
+    expect(gitBranches.text()).toEqual('2 branches')
+  })
+
+  test('should display correct plural amount of commits', () => {
     const gitCommits = wrapper.find('.git-commits')
-    expect(gitCommits.text()).toContain('10 commits')
+    expect(gitCommits.text()).toEqual('10 commits')
   })
 
   test('should be able to switch branches through dropdown', (done) => {
@@ -955,6 +1107,53 @@ describe('DocumentEditor.vue', () => {
       console.log = originalLog
       done()
     })
+  })
+
+  test('should not attempt to download document when download button is clicked' +
+    'if the full docs data was not loaded yet', async () => {
+    jest.spyOn(axios, 'get').mockImplementation((path, config) => {
+      if (path === '/conf/api/v1/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      const branch = (wrapper.vm as any).selectedBranch
+      const docID = (wrapper.vm as any).selectedDocID
+      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/`) {
+        if (config && config.headers && config.headers['x-fields'] === 'id, name') {
+          return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
+        }
+        setTimeout(() => {
+          return Promise.resolve({data: aclDocs})
+        }, 5000)
+      }
+      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/__default__/`) {
+        return Promise.resolve({data: aclDocs[0]})
+      }
+      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/5828321c37e0/`) {
+        return Promise.resolve({data: aclDocs[1]})
+      }
+      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
+        return Promise.resolve({data: aclGitOldVersion})
+      }
+      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/${docID}/v/`) {
+        return Promise.resolve({data: aclDocsLogs[0]})
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = shallowMount(DocumentEditor, {
+      mocks: {
+        $route: mockRoute,
+        $router: mockRouter,
+      },
+    })
+    await Vue.nextTick()
+    const downloadFileSpy = jest.spyOn(Utils, 'downloadFile')
+    // force update because downloadFile is mocked after it is read to to be used as event handler
+    await (wrapper.vm as any).$forceUpdate()
+    await Vue.nextTick()
+    const downloadDocButton = wrapper.find('.download-doc-button')
+    downloadDocButton.trigger('click')
+    await Vue.nextTick()
+    expect(downloadFileSpy).not.toHaveBeenCalled()
   })
 
   test('should attempt to download document when download button is clicked', async () => {

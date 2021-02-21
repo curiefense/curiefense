@@ -39,7 +39,11 @@ const processRequest = (methodName: MethodNames, apiUrl: string, data: any, conf
       request = axiosMethod(apiUrl, data)
     }
   } else {
-    request = axiosMethod(apiUrl)
+    if (config) {
+      request = axiosMethod(apiUrl, config)
+    } else {
+      request = axiosMethod(apiUrl)
+    }
   }
   request = request.then((response: AxiosResponse) => {
     // Toast message

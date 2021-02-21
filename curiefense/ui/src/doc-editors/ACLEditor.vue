@@ -41,8 +41,12 @@
                 </td>
                 <td class="is-size-7 width-20px">
                   <a title="remove entry"
+                     tabindex="0"
                      class="is-small has-text-grey remove-entry-button"
-                     @click="removeTag(operation, idx)">
+                     @click="removeTag(operation, idx)"
+                     @keypress.space.prevent
+                     @keypress.space="removeTag(operation, idx)"
+                     @keypress.enter="removeTag(operation, idx)">
                     &ndash;
                   </a>
                 </td>
@@ -60,8 +64,12 @@
                 </td>
                 <td class="is-size-7 width-20px">
                   <a title="add new entry"
+                     tabindex="0"
                      class="is-size-7 width-20px is-small has-text-grey add-new-entry-button"
-                     @click="openTagInput(operation)">
+                     @click="openTagInput(operation)"
+                     @keypress.space.prevent
+                     @keypress.space="openTagInput(operation)"
+                     @keypress.enter="openTagInput(operation)">
                     +
                   </a>
                 </td>

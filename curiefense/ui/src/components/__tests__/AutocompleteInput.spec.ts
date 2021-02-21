@@ -3,6 +3,8 @@ import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
+import * as bulmaToast from 'bulma-toast'
+import {Options} from 'bulma-toast'
 
 jest.mock('axios')
 
@@ -147,6 +149,35 @@ describe('AutocompleteInput.vue', () => {
     expect((input.element as any).value).toEqual('')
   })
 
+  test('should emit selected value on input blur event', (done) => {
+    wrapper.setProps({clearInputAfterSelection: true})
+    const input = wrapper.find('.autocomplete-input');
+    (input.element as any).value = 'value'
+    input.trigger('input')
+    wrapper.setData({focusedSuggestionIndex: 2})
+    input.trigger('blur')
+    setImmediate(() => {
+      expect(wrapper.emitted('value-submitted')).toBeTruthy()
+      expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-2'])
+      done()
+    })
+  })
+
+  test('should emit selected value on input blur event with the correct clicked suggestion', (done) => {
+    wrapper.setProps({clearInputAfterSelection: true})
+    const input = wrapper.find('.autocomplete-input');
+    (input.element as any).value = 'value'
+    input.trigger('input')
+    const dropdownItems = wrapper.findAll('.dropdown-item')
+    input.trigger('blur')
+    dropdownItems.at(1).trigger('mousedown')
+    setImmediate(() => {
+      expect(wrapper.emitted('value-submitted')).toBeTruthy()
+      expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-1'])
+      done()
+    })
+  })
+
   describe('keyboard control', () => {
     let input: any
     let dropdownItems: any
@@ -235,6 +266,16 @@ describe('AutocompleteInput.vue', () => {
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
     })
 
+    test('should not select input value when input is empty', async () => {
+      wrapper.setProps({minimumValueLength: 3})
+      await Vue.nextTick();
+      (input.element as HTMLInputElement).value = ''
+      input.trigger('input')
+      input.trigger('keydown.enter')
+      await Vue.nextTick()
+      expect(wrapper.emitted('value-submitted')).toBeFalsy()
+    })
+
     test('should not select input value when input is shorter than the minimumValueLength prop', async () => {
       wrapper.setProps({minimumValueLength: 3})
       await Vue.nextTick();
@@ -245,6 +286,41 @@ describe('AutocompleteInput.vue', () => {
       expect(wrapper.emitted('value-submitted')).toBeFalsy()
     })
 
+    test('should not display a failure toast after selecting input value when input is empty', async () => {
+      const toastOutput: Options[] = []
+      jest.spyOn(bulmaToast, 'toast').mockImplementation((output: Options) => {
+        toastOutput.push(output)
+      })
+      wrapper.setProps({minimumValueLength: 3})
+      await Vue.nextTick();
+      (input.element as HTMLInputElement).value = ''
+      input.trigger('input')
+      input.trigger('keydown.enter')
+      await Vue.nextTick()
+      expect(toastOutput.length).toEqual(0)
+      jest.clearAllMocks()
+    })
+
+    test('should display a failure toast after selecting' +
+      'input value when input is shorter than the minimumValueLength prop', async () => {
+      const selectedValue = 't'
+      const failureMessage = `Selected tag [${selectedValue}] is invalid! Tags must be at least three characters long.`
+      const failureMessageClass = 'is-danger'
+      const toastOutput: Options[] = []
+      jest.spyOn(bulmaToast, 'toast').mockImplementation((output: Options) => {
+        toastOutput.push(output)
+      })
+      wrapper.setProps({minimumValueLength: 3})
+      await Vue.nextTick();
+      (input.element as HTMLInputElement).value = selectedValue
+      input.trigger('input')
+      input.trigger('keydown.enter')
+      await Vue.nextTick()
+      expect(toastOutput[0].message).toContain(failureMessage)
+      expect(toastOutput[0].type).toContain(failureMessageClass)
+      jest.clearAllMocks()
+    })
+
     test('should emit selected value when space is pressed', async () => {
       wrapper.setData({focusedSuggestionIndex: 2})
       input.trigger('keydown.space')
@@ -253,13 +329,13 @@ describe('AutocompleteInput.vue', () => {
     })
 
     test('should select suggestion when clicked', async () => {
-      dropdownItems.at(1).trigger('click')
+      dropdownItems.at(1).trigger('mousedown')
       await Vue.nextTick()
       expect((input.element as any).value).toEqual('test-value-1')
     })
 
     test('should emit selected value when clicked', async () => {
-      dropdownItems.at(1).trigger('click')
+      dropdownItems.at(1).trigger('mousedown')
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
       expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-1'])
     })

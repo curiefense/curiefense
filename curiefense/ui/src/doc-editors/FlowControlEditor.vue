@@ -54,7 +54,11 @@
                             :key="getOptionTextKey(option, index)"/>
               <a title="Add new option rule"
                  class="is-text is-small is-size-7 ml-3 add-key-button"
-                 @click="addKey()">
+                 tabindex="0"
+                 @click="addKey()"
+                 @keypress.space.prevent
+                 @keypress.space="addKey()"
+                 @keypress.enter="addKey()">
                 New entry
               </a>
               <p class="has-text-danger is-size-7 ml-3 mt-3 key-invalid"
@@ -99,7 +103,11 @@
                     <td class="is-size-7 width-20px">
                       <a title="remove entry"
                          class="is-small has-text-grey remove-filter-entry-button"
-                         @click="removeTag(filter, tagIndex)">
+                         tabindex="0"
+                         @click="removeTag(filter, tagIndex)"
+                         @keypress.space.prevent
+                         @keypress.space="removeTag(filter, tagIndex)"
+                         @keypress.enter="removeTag(filter, tagIndex)">
                         &ndash;
                       </a>
                     </td>
@@ -118,7 +126,11 @@
                     <td class="is-size-7 width-20px">
                       <a title="add new entry"
                          class="is-size-7 width-20px is-small has-text-grey add-new-filter-entry-button"
-                         @click="openTagInput(filter)">
+                         tabindex="0"
+                         @click="openTagInput(filter)"
+                         @keypress.space.prevent
+                         @keypress.space="openTagInput(filter)"
+                         @keypress.enter="openTagInput(filter)">
                         +
                       </a>
                     </td>
@@ -206,7 +218,14 @@
                       <td class="width-80px">
                         <a class="is-small has-text-grey remove-entry-button"
                            title="Remove sequence entry"
-                           @click="removeSequenceItemEntry(sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])">
+                           tabindex="0"
+                           @click="removeSequenceItemEntry(
+                               sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])"
+                           @keypress.space.prevent
+                           @keypress.space="removeSequenceItemEntry(
+                               sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])"
+                           @keypress.enter="removeSequenceItemEntry(
+                               sequenceIndex, sequenceEntry[0], sequenceEntry[1][0])">
                           remove
                         </a>
                       </td>
@@ -215,12 +234,20 @@
                       <td>
                         <a class="is-size-7 has-text-grey-lighter add-button add-entry-button"
                            title="add new row"
-                           @click="setNewEntryIndex(sequenceIndex)">
+                           tabindex="0"
+                           @click="setNewEntryIndex(sequenceIndex)"
+                           @keypress.space.prevent
+                           @keypress.space="setNewEntryIndex(sequenceIndex)"
+                           @keypress.enter="setNewEntryIndex(sequenceIndex)">
                           <i class="fas fa-plus"></i></a>
                         &nbsp;&middot;&nbsp;
                         <a class="is-size-7 has-text-grey-lighter remove-button remove-section-button"
                            title="remove entire section"
-                           @click="removeSequenceItem(sequenceIndex)">
+                           tabindex="0"
+                           @click="removeSequenceItem(sequenceIndex)"
+                           @keypress.space.prevent
+                           @keypress.space="removeSequenceItem(sequenceIndex)"
+                           @keypress.enter="removeSequenceItem(sequenceIndex)">
                           <i class="fas fa-trash"></i></a>
                       </td>
                       <td colspan="4">
@@ -259,11 +286,23 @@
                       <td class="is-size-7 width-80px">
                         <a class="is-size-7 has-text-grey add-button confirm-add-entry-button"
                            title="add new row"
-                           @click="addSequenceItemEntry(sequenceIndex)"><i class="fas fa-check"></i> Add</a>
+                           tabindex="0"
+                           @click="addSequenceItemEntry(sequenceIndex)"
+                           @keypress.space.prevent
+                           @keypress.space="addSequenceItemEntry(sequenceIndex)"
+                           @keypress.enter="addSequenceItemEntry(sequenceIndex)">
+                          <i class="fas fa-check"></i> Add
+                        </a>
                         <br/>
                         <a class="is-size-7 has-text-grey remove-button"
                            title="cancel add new row"
-                           @click="setNewEntryIndex(-1)"><i class="fas fa-times"></i> Cancel</a>
+                           tabindex="0"
+                           @click="setNewEntryIndex(-1)"
+                           @keypress.space.prevent
+                           @keypress.space="setNewEntryIndex(-1)"
+                           @keypress.enter="setNewEntryIndex(-1)">
+                          <i class="fas fa-times"></i> Cancel
+                        </a>
                       </td>
                     </tr>
                     </tbody>

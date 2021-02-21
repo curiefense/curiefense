@@ -155,14 +155,128 @@ describe('VersionControl.vue', () => {
     expect(gitHistory).toBeTruthy()
   })
 
-  test('should display correct amount of branches', () => {
-    const gitBranches = wrapper.find('.git-branches')
-    expect(gitBranches.text()).toContain('2 branches')
+  test('should display correct zero amount of branches', (done) => {
+    gitData = []
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v1/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = mount(VersionControl)
+    // allow all requests to finish
+    setImmediate(() => {
+      const gitBranches = wrapper.find('.git-branches')
+      expect(gitBranches.text()).toEqual('0 branches')
+      done()
+    })
   })
 
-  test('should display correct amount of commits', () => {
+  test('should display correct zero amount of commits', (done) => {
+    gitData = []
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v1/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = mount(VersionControl)
+    // allow all requests to finish
+    setImmediate(() => {
+      const gitCommits = wrapper.find('.git-commits')
+      expect(gitCommits.text()).toEqual('0 commits')
+      done()
+    })
+  })
+
+  test('should display correct singular amount of branches', (done) => {
+    gitData = [
+      {
+        'id': 'master',
+        'description': 'Update entry [__default__] of document [aclpolicies]',
+        'date': '2020-11-10T15:49:17+02:00',
+        'logs': [{
+          'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+          'date': '2020-11-10T15:49:17+02:00',
+          'parents': [
+            'fc47a6cd9d7f254dd97875a04b87165cc484e075',
+          ],
+          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'email': 'curiefense@reblaze.com',
+          'author': 'Curiefense API',
+        }],
+        'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+      },
+    ]
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v1/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      if (path === '/conf/api/v1/configs/master/') {
+        return Promise.resolve({data: gitData[0]})
+      }
+      if (path === '/conf/api/v1/configs/master/v/') {
+        return Promise.resolve({data: gitData[0].logs})
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = mount(VersionControl)
+    // allow all requests to finish
+    setImmediate(() => {
+      const gitBranches = wrapper.find('.git-branches')
+      expect(gitBranches.text()).toEqual('1 branch')
+      done()
+    })
+  })
+
+  test('should display correct singular amount of commits', (done) => {
+    gitData = [
+      {
+        'id': 'master',
+        'description': 'Update entry [__default__] of document [aclpolicies]',
+        'date': '2020-11-10T15:49:17+02:00',
+        'logs': [{
+          'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+          'date': '2020-11-10T15:49:17+02:00',
+          'parents': [
+            'fc47a6cd9d7f254dd97875a04b87165cc484e075',
+          ],
+          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'email': 'curiefense@reblaze.com',
+          'author': 'Curiefense API',
+        }],
+        'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+      },
+    ]
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      if (path === '/conf/api/v1/configs/') {
+        return Promise.resolve({data: gitData})
+      }
+      if (path === '/conf/api/v1/configs/master/') {
+        return Promise.resolve({data: gitData[0]})
+      }
+      if (path === '/conf/api/v1/configs/master/v/') {
+        return Promise.resolve({data: gitData[0].logs})
+      }
+      return Promise.resolve({data: []})
+    })
+    wrapper = mount(VersionControl)
+    // allow all requests to finish
+    setImmediate(() => {
+      const gitCommits = wrapper.find('.git-commits')
+      expect(gitCommits.text()).toEqual('1 commit')
+      done()
+    })
+  })
+
+  test('should display correct plural amount of branches', () => {
+    const gitBranches = wrapper.find('.git-branches')
+    expect(gitBranches.text()).toEqual('2 branches')
+  })
+
+  test('should display correct plural amount of commits', () => {
     const gitCommits = wrapper.find('.git-commits')
-    expect(gitCommits.text()).toContain('10 commits')
+    expect(gitCommits.text()).toEqual('10 commits')
   })
 
   test('should be able to switch branches through dropdown', (done) => {

@@ -39,13 +39,14 @@
               <td class="is-size-7 is-vcentered py-3">{{ commit.email }}</td>
               <td class="is-size-7 is-vcentered restore-cell">
                 <p class="control has-text-centered" v-if="commitOverIndex === index">
-                  <a class="button is-small restore-button"
+                  <button class="button is-small restore-button"
                      @click="restoreVersion(commit)"
+                     tabindex="1"
                      title="Restore version">
                     <span class="icon is-small">
                       <i class="fas fa-history"></i>
                     </span>
-                  </a>
+                  </button>
                 </p>
               </td>
             </tr>

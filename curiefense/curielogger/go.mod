@@ -21,4 +21,5 @@ require (
 	github.com/spf13/viper v1.7.1
 	google.golang.org/grpc v1.29.1
 	google.golang.org/protobuf v1.25.0 // indirect
+	gopkg.in/dealancer/validate.v2 v2.1.0
 )
