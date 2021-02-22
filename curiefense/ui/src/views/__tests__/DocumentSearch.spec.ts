@@ -162,6 +162,24 @@ describe('DocumentSearch.vue', () => {
             'waf_active': false,
             'limit_ids': ['f971e92459e2'],
           },
+          {
+            'name': 'name',
+            'match': '/foo',
+            'acl_profile': '__default__',
+            'acl_active': false,
+            'waf_profile': '__default__',
+            'waf_active': false,
+            'limit_ids': ['f971e92459e2'],
+          },
+          {
+            'name': 'name',
+            'match': '/foo',
+            'acl_profile': '__default__',
+            'acl_active': false,
+            'waf_profile': '__default__',
+            'waf_active': false,
+            'limit_ids': ['f971e92459e2'],
+          },
         ],
       },
     ]
@@ -332,6 +350,35 @@ describe('DocumentSearch.vue', () => {
       console.log = originalLog
       done()
     })
+  })
+
+  test('should not display duplicated values in connections even if connected twice', async () => {
+    const wantedIDsACL = ['5828321c37e0', '__default__']
+    const wantedIDsWAF = ['__default__']
+    const wantedIDsRateLimit = ['f971e92459e2']
+    // switch filter type to url map
+    const searchTypeSelection = wrapper.find('.search-type-selection')
+    searchTypeSelection.trigger('click')
+    const options = searchTypeSelection.findAll('option')
+    options.at(1).setSelected()
+    await Vue.nextTick()
+    const searchInput = wrapper.find('.search-input');
+    (searchInput.element as any).value = 'url map'
+    searchInput.trigger('input')
+    await Vue.nextTick()
+
+    // Get connections cell
+    const connectionsCell = wrapper.find('.doc-connections-cell')
+    const doc = (wrapper.vm as any).filteredDocs[0]
+
+    // check that url map exists without duplicated connections
+    expect(isItemInFilteredDocs(urlMapsDocs[0], 'urlmaps')).toBeTruthy()
+    expect(connectionsCell.text()).toContain(`ACL Policies:${wantedIDsACL.join('')}`)
+    expect(connectionsCell.text()).toContain(`WAF Policies:${wantedIDsWAF.join('')}`)
+    expect(connectionsCell.text()).toContain(`Rate Limits:${wantedIDsRateLimit.join('')}`)
+    expect(doc.connectedACL).toEqual(wantedIDsACL)
+    expect(doc.connectedWAF).toEqual(wantedIDsWAF)
+    expect(doc.connectedRateLimits).toEqual(wantedIDsRateLimit)
   })
 
   describe('filters', () => {

@@ -384,15 +384,21 @@ export default Vue.extend({
     },
 
     buildURLMapConnections(doc: SearchDocument) {
-      const connectedACL = []
-      const connectedWAF = []
-      const connectedRateLimits = []
+      const connectedACL: string[] = []
+      const connectedWAF: string[] = []
+      const connectedRateLimits: string[] = []
       for (let i = 0; i < doc.map.length; i++) {
         const map = doc.map[i]
-        connectedACL.push(map.acl_profile)
-        connectedWAF.push(map.waf_profile)
+        if (!connectedACL.includes(map.acl_profile)) {
+          connectedACL.push(map.acl_profile)
+        }
+        if (!connectedWAF.includes(map.waf_profile)) {
+          connectedWAF.push(map.waf_profile)
+        }
         for (let j = 0; j < map.limit_ids.length; j++) {
-          connectedRateLimits.push(map.limit_ids[j])
+          if (!connectedRateLimits.includes(map.limit_ids[j])) {
+            connectedRateLimits.push(map.limit_ids[j])
+          }
         }
       }
       doc.connectedACL = connectedACL

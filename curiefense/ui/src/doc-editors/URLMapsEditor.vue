@@ -283,12 +283,12 @@
                           </div>
                           <div class="column is-4">
                             <div class="field">
-                              <label class="label is-small">WAF Profile</label>
+                              <label class="label is-small">WAF Policy</label>
                               <div class="control is-expanded">
                                 <div class="select is-fullwidth is-small">
                                   <select v-model="mapEntry.waf_profile"
                                           @change="emitDocUpdate"
-                                          title="WAF profile">
+                                          title="WAF policy">
                                     <option v-for="waf in wafProfileNames"
                                             :value="waf[0]"
                                             :key="waf[0]">
@@ -309,13 +309,13 @@
                             <hr/>
                             <div class="field">
                               <label class="label is-small">
-                                ACL Profile
+                                ACL Policy
                               </label>
                               <div class="control is-expanded">
                                 <div class="select is-fullwidth is-small">
                                   <select v-model="mapEntry.acl_profile"
                                           @change="emitDocUpdate"
-                                          title="ACL profile">
+                                          title="ACL policy">
                                     <option v-for="acl in aclProfileNames" :value="acl[0]" :key="acl[0]">
                                       {{ acl[1] }}
                                     </option>
@@ -333,7 +333,7 @@
                             </div>
                             <hr/>
                             <div class="field">
-                              <button title="Create new profile based on this one"
+                              <button title="Create a new profile based on this one"
                                       class="button is-small is-pulled-left is-light"
                                       @click="addNewProfile(mapEntry, idx)">
                                 <span class="icon"><i class="fas fa-code-branch"></i></span>

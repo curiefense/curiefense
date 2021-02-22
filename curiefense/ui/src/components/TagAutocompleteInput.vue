@@ -98,7 +98,7 @@ export default Vue.extend({
     },
 
     inputTitle(): string {
-      return this.selectionType.toLowerCase() === 'multiple' ? 'Tags separated by spaces' : 'Tag'
+      return this.selectionType.toLowerCase() === 'multiple' ? 'Space separated tags' : 'Tag'
     },
 
   },

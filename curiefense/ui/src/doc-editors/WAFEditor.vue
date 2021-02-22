@@ -158,7 +158,7 @@
                         <th class="has-text-centered">Matching Value</th>
                         <th class="has-text-centered">Restrict?</th>
                         <th class="has-text-centered">Mask?</th>
-                        <th class="has-text-centered">Exclude Sig</th>
+                        <th class="has-text-centered">Exclude WAF Rule</th>
                         <th class="has-text-centered">
                           <a v-show="newWAFLine !== tab"
                              class="has-text-grey-dark is-small" title="Add new parameter"
@@ -241,9 +241,12 @@
                           </label>
                         </td>
                         <td>
-                          <serialized-input :placeholder="'comma separated sig IDs'" :value="newEntry.exclusions"
-                                            :get-function="unpackExclusions" :set-function="packExclusions"
-                                            @blur="newEntry.exclusions = $event"></serialized-input>
+                          <serialized-input placeholder="Space separated rule IDs"
+                                            :value="newEntry.exclusions"
+                                            :get-function="unpackExclusions"
+                                            :set-function="packExclusions"
+                                            @blur="newEntry.exclusions = $event">
+                          </serialized-input>
                         </td>
                         <td class="has-text-centered">
                           <button title="Add new parameter" class="button is-light is-small" @click="addNewParameter">
@@ -286,8 +289,10 @@
                           </label>
                         </td>
                         <td>
-                          <serialized-input :placeholder="'comma separated sig IDs'" :value="entry.exclusions"
-                                            :get-function="unpackExclusions" :set-function="packExclusions"
+                          <serialized-input placeholder="Space separated rule IDs"
+                                            :value="entry.exclusions"
+                                            :get-function="unpackExclusions"
+                                            :set-function="packExclusions"
                                             @blur="entry.exclusions = $event">
                           </serialized-input>
                         </td>
@@ -337,8 +342,10 @@
                           </label>
                         </td>
                         <td>
-                          <serialized-input :placeholder="'comma separated sig IDs'" :value="entry.exclusions"
-                                            :get-function="unpackExclusions" :set-function="packExclusions"
+                          <serialized-input placeholder="Space separated rule IDs"
+                                            :value="entry.exclusions"
+                                            :get-function="unpackExclusions"
+                                            :set-function="packExclusions"
                                             @blur="entry.exclusions = $event">
                           </serialized-input>
                         </td>
@@ -431,13 +438,13 @@ export default Vue.extend({
         return ret
       }
 
-      return _.fromPairs(_.map(exclusions.split(','), (ex) => {
+      return _.fromPairs(_.map(exclusions.split(' '), (ex) => {
         return [ex.trim(), 1]
       }))
     },
 
     unpackExclusions(exclusions: string[]) {
-      return _.keys(exclusions).join(', ')
+      return _.keys(exclusions).join(' ')
     },
 
     genRowKey(tab: string, type: string, idx: number) {
