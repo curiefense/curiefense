@@ -1,0 +1,12 @@
+name: "Run luacheck on Lua code"
+on: [push]
+jobs:
+  luacheck:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: install luacheck
+        run: sudo apt-get -y --no-install-recommends install lua-check
+      - name: run luacheck
+        run: shopt -s globstar; luacheck **/*.lua
