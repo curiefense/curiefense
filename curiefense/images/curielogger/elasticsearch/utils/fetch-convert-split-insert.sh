@@ -17,7 +17,7 @@ wd="/home/tzury/bqmigrate"
 timespamp=$(date -d "1 hour ago" "+%Y%m%dT%H36")
 logger fetch-convert-split-push $wd $planets $timestamp
 
-cd $wd
+cd $wd || exit 1
 
 for planet in "$@";
 do

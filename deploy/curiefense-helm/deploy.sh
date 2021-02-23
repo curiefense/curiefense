@@ -22,4 +22,6 @@ else
     echo "Deploying version $DOCKER_TAG for all images"
 fi
 
-helm upgrade --install --namespace curiefense --reuse-values --atomic --debug --set "global.settings.docker_tag=$DOCKER_TAG" ${PARAMS[@]} $@ curiefense curiefense/
+helm upgrade --install --namespace curiefense --reuse-values --atomic --debug \
+    --set "global.settings.docker_tag=$DOCKER_TAG" \
+    "${PARAMS[@]}" "$@" curiefense curiefense/

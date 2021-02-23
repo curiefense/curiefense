@@ -16,12 +16,14 @@ if echo "$CURIE_BUCKET_LINK" | grep -Eq ':///?[^/]*/prod/manifest.json' ; then
 	# case 1: user has kept the "scheme://authority/prod/manifest.json" structure
 	# keep only "scheme://authority/", remove the path
 	REQUEST_TEMPLATE="/bootstrap/db.conf.json"
-	REPL_BUCKET="$(echo $CURIE_BUCKET_LINK|sed 's!\(\S\+\:///\?[^/]\+/\).*!\1!')"
+	# shellcheck disable=SC2001
+	REPL_BUCKET="$(echo "$CURIE_BUCKET_LINK"|sed 's!\(\S\+\:///\?[^/]\+/\).*!\1!')"
 	BUCKET="${REPL_BUCKET}prod"
 else
 	# user has made another choice, do a single branch only
 	REQUEST_TEMPLATE="/bootstrap/db-singlebranch.conf.json"
-	REPL_BUCKET="$(echo $CURIE_BUCKET_LINK|sed 's!\(\S\+\://.*/\).*$!\1!')"
+	# shellcheck disable=SC2001
+	REPL_BUCKET="$(echo "$CURIE_BUCKET_LINK"|sed 's!\(\S\+\://.*/\).*$!\1!')"
 	BUCKET="$REPL_BUCKET"
 fi
 
@@ -35,7 +37,7 @@ until [ "$RETRIES" -ge 10 ]
 do
 	echo "Trying to configure bucket $BUCKET..."
 	sleep 5
-	if cat "$REQUEST_TEMPLATE" |sed "s/s3.*\//$ESCAPED_REPL_BUCKET/" | curl --silent --show-error --fail -X PUT "$URL" -H  "accept: application/json" -H  "Content-Type: application/json" -d @-; then
+	if sed "s/s3.*\//$ESCAPED_REPL_BUCKET/" "$REQUEST_TEMPLATE" | curl --silent --show-error --fail -X PUT "$URL" -H  "accept: application/json" -H  "Content-Type: application/json" -d @-; then
 		STATUS=0
 		break
 	fi

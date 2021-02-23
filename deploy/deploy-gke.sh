@@ -7,9 +7,9 @@
 
 BASEDIR="$(dirname "$(readlink -f "$0")")" 
 if [ -z "$KUBECONFIG" ]; then
-    KUBECONFIG="$(readlink -f $(mktemp kubeconfig.XXXXX))"
-    export KUBECONFIG
-    echo "KUBECONFIG is set to $KUBECONFIG"
+	KUBECONFIG="$(readlink -f "$(mktemp kubeconfig.XXXXX)")"
+	export KUBECONFIG
+	echo "KUBECONFIG is set to $KUBECONFIG"
 fi
 CLUSTER_NAME="${CLUSTER_NAME:-curiefense-perftest-gks}"
 S3CFG_PATH=${S3CFG_PATH:-~/s3cfg.yaml}
@@ -33,8 +33,11 @@ install_helm () {
 	kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
 	helm init --service-account tiller
 	echo "Waiting for tiller to become ready"
-	for i in $(seq 1 30); do
-		kubectl get pods -n kube-system -l app=helm|grep -q Running && break || sleep 2
+	for _ in $(seq 1 30); do
+		if kubectl get pods -n kube-system -l app=helm|grep -q Running; then
+			break
+		fi
+		sleep 2
 	done
 }
 
@@ -53,10 +56,10 @@ deploy_curiefense () {
 		kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.8/samples/addons/jaeger.yaml
 		kubectl apply -f "$BASEDIR/../e2e/latency/jaeger-service.yml"
 	fi
-	cd "$BASEDIR/istio-helm/"
+	cd "$BASEDIR/istio-helm/" || exit 1
 	./deploy.sh --set 'global.tracer.zipkin.address=zipkin.istio-system:9411' --set 'gateways.istio-ingressgateway.autoscaleMax=1'
 	sleep 5
-	cd "$BASEDIR/curiefense-helm/"
+	cd "$BASEDIR/curiefense-helm/" || exit 1
 	./deploy.sh
 	kubectl apply -f "$BASEDIR/curiefense-helm/expose-services.yaml"
 }
@@ -66,7 +69,7 @@ deploy_bookinfo () {
 	kubectl create namespace bookinfo
 	kubectl label namespace bookinfo istio-injection=enabled
 	if [ ! -d "$BASEDIR/istio-1.5.10/" ]; then
-		cd "$BASEDIR"
+		cd "$BASEDIR" || exit 1
 		wget 'https://github.com/istio/istio/releases/download/1.5.10/istio-1.5.10-linux.tar.gz'
 		tar -xf 'istio-1.5.10-linux.tar.gz'
 	fi
@@ -93,9 +96,9 @@ run_fortio () {
 		FORTIO_URL="http://$NODE_IP:30100/fortio/"
 		JAEGER_URL="http://$NODE_IP:30686/jaeger/api/"
 		echo "Waiting for fortio to become reachable..."
-		for i in $(seq 1 30); do
+		for _ in $(seq 1 30); do
 			if curl --silent --fail "$FORTIO_URL" >/dev/null; then
-			    break
+				break
 			fi
 			sleep 1
 		done
@@ -114,29 +117,29 @@ run_fortio () {
 }
 
 perftest () {
-    RESULTS_DIR=${RESULTS_DIR:-$BASEDIR/../e2e/latency/results/$DATE}
-    mkdir -p "$RESULTS_DIR/with_cf"
-    TESTID=$((RANDOM*10000))
-    for CONNECTIONS in 10 70 125 250 500; do
+	RESULTS_DIR=${RESULTS_DIR:-$BASEDIR/../e2e/latency/results/$DATE}
+	mkdir -p "$RESULTS_DIR/with_cf"
+	TESTID=$((RANDOM*10000))
+	for CONNECTIONS in 10 70 125 250 500; do
 	for QPS in 50 250 500 1000; do
-	    run_fortio "$CONNECTIONS" "$QPS" 30 "$TESTID" "$RESULTS_DIR/with_cf"
-	    TESTID=$((TESTID+1))
+		run_fortio "$CONNECTIONS" "$QPS" 30 "$TESTID" "$RESULTS_DIR/with_cf"
+		TESTID=$((TESTID+1))
 	done
-    done
-
-    mkdir -p "$RESULTS_DIR/without_cf"
-    kubectl delete -n istio-system envoyfilter curiefense-access-logs-filter
-    kubectl delete -n istio-system envoyfilter curiefense-lua-filter
-    for CONNECTIONS in 10 70 125 250 500; do
-	for QPS in 50 250 500 1000; do
-	    run_fortio "$CONNECTIONS" "$QPS" 30 "$TESTID" "$RESULTS_DIR/without_cf"
-	    TESTID=$((TESTID+1))
 	done
-    done
 
-    export RESULTS_DIR
-    jupyter nbconvert --execute "$BASEDIR/../e2e/latency/Curiefense performance report.ipynb" --to html --template classic
-    mv "$BASEDIR/../e2e/latency/Curiefense performance report.html" "$BASEDIR/../e2e/latency/Curiefense performance report-$VERSION-$DATE.html"
+	mkdir -p "$RESULTS_DIR/without_cf"
+	kubectl delete -n istio-system envoyfilter curiefense-access-logs-filter
+	kubectl delete -n istio-system envoyfilter curiefense-lua-filter
+	for CONNECTIONS in 10 70 125 250 500; do
+		for QPS in 50 250 500 1000; do
+			run_fortio "$CONNECTIONS" "$QPS" 30 "$TESTID" "$RESULTS_DIR/without_cf"
+			TESTID=$((TESTID+1))
+		done
+	done
+
+	export RESULTS_DIR
+	jupyter nbconvert --execute "$BASEDIR/../e2e/latency/Curiefense performance report.ipynb" --to html --template classic
+	mv "$BASEDIR/../e2e/latency/Curiefense performance report.html" "$BASEDIR/../e2e/latency/Curiefense performance report-$VERSION-$DATE.html"
 }
 
 
@@ -147,25 +150,25 @@ cleanup () {
 }
 
 while [[ "$#" -gt 0 ]]; do
-    case $1 in
-        -c|--create-cluster) create="y"; shift ;;
-        -i|--install-helm) helm="y"; shift ;;
-        -d|--deploy-curiefense) curiefense="y"; shift ;;
-        -b|--deploy-bookinfo) bookinfo="y"; shift ;;
-        -j|--deploy-jaeger) jaeger="y"; shift ;;
-        -f|--deploy-fortio) fortio="y"; shift ;;
-        -p|--perf-test) perftest="y"; shift ;;
-        -C|--cleanup) cleanup="y"; shift ;;
-        -t|--test-cycle) all="y"; shift ;;
-        *) echo "Unknown parameter passed: $1"; exit 1 ;;
-    esac
+	case $1 in
+		-c|--create-cluster) create="y"; shift ;;
+		-i|--install-helm) helm="y"; shift ;;
+		-d|--deploy-curiefense) curiefense="y"; shift ;;
+		-b|--deploy-bookinfo) bookinfo="y"; shift ;;
+		-j|--deploy-jaeger) jaeger="y"; shift ;;
+		-f|--deploy-fortio) fortio="y"; shift ;;
+		-p|--perf-test) perftest="y"; shift ;;
+		-C|--cleanup) cleanup="y"; shift ;;
+		-t|--test-cycle) all="y"; shift ;;
+		*) echo "Unknown parameter passed: $1"; exit 1 ;;
+	esac
 done
 
 if [ "$create" = "y" ] || [ "$all" = "y" ]; then
-    create_cluster
+	create_cluster
 fi
 if [ "$helm" = "y" ] || [ "$all" = "y" ]; then
-    install_helm
+	install_helm
 fi
 if [ "$curiefense" = "y" ] || [ "$all" = "y" ]; then
 	deploy_curiefense

@@ -1,5 +1,6 @@
 #!/bin/bash
 #set -e
+# shellcheck disable=SC1090
 
 BASEDIR="$(dirname "$(readlink -f "$0")")" 
 DATE="$(date --iso=m)"
@@ -16,16 +17,15 @@ mkdir -p "$BASEDIR/test-reports/"
 
 echo "-- Update git repo --"
 rm -rf "$BASEDIR/curiefense"
-cd "$BASEDIR"
+cd "$BASEDIR" || exit 1
 git clone https://github.com/curiefense/curiefense -b "$BRANCH"
-cd curiefense
+cd curiefense || exit 1
 git pull
 
 echo "-- Build images --"
-eval $(minikube docker-env)
-cd "$BASEDIR/curiefense/curiefense/images/"
-./build-docker-images.sh
-if [ $? -ne 0 ]; then
+eval "$(minikube docker-env)"
+cd "$BASEDIR/curiefense/curiefense/images/" || exit 1
+if ! ./build-docker-images.sh; then
 	echo "Image build failed"
 	exit 1;
 fi
@@ -44,11 +44,11 @@ for i in persistent-confdb-confserver-0 persistent-grafana-grafana-0 persistent-
 	fi
 done
 
-cd "$BASEDIR/curiefense"
+cd "$BASEDIR/curiefense" || exit 1
 VERSION=$(git rev-parse --short=12 HEAD)
 
 echo "-- Deploy istio --"
-cd "$BASEDIR/curiefense/deploy/istio-helm/"
+cd "$BASEDIR/curiefense/deploy/istio-helm/" || exit 1
 NOPULL=1 ./deploy.sh
 sleep 10
 # reduce cpu requests for istio components so that this fits on a 4-CPU node
@@ -59,7 +59,7 @@ sleep 5
 kubectl delete -n istio-system pods -l istio-mixer-type=telemetry
 
 echo "-- Deploy curiefense --"
-cd "$BASEDIR/curiefense/deploy/curiefense-helm/"
+cd "$BASEDIR/curiefense/deploy/curiefense-helm/" || exit 1
 NOPULL=1 ./deploy.sh
 
 echo "-- Install curieconfctl --"
@@ -68,22 +68,22 @@ python3 -m venv "$BASEDIR/venv"
 source "$BASEDIR/venv/bin/activate"
 pip install requests pytest pytest-html wheel
 
-cd "$BASEDIR/curiefense/curiefense/curieconf/utils"
+cd "$BASEDIR/curiefense/curiefense/curieconf/utils" || exit 1
 pip install -e .
 
-cd "$BASEDIR/curiefense/curiefense/curieconf/client"
+cd "$BASEDIR/curiefense/curiefense/curieconf/client" || exit 1
 pip install -e .
 
 
 echo "-- Run e2e tests --"
-cd "$BASEDIR/curiefense/e2e/"
+cd "$BASEDIR/curiefense/e2e/" || exit 1
 IP=172.17.0.2
 pytest --log-level INFO --base-protected-url http://$IP:30081 --base-conf-url http://$IP:30000/api/v1/ --base-ui-url http://$IP:30080 --html="$BASEDIR/test-reports/test-report-$BRANCH-$DATE-$VERSION.html" --self-contained-html .
 
 
 echo "-- Look for unknown or abnormal log messages --"
-cd "$BASEDIR/curiefense/e2e/logs-smoke-test/"
+cd "$BASEDIR/curiefense/e2e/logs-smoke-test/" || exit 1
 ./checklogs-helm.sh
-grep . *log
+grep . ./*log
 
 

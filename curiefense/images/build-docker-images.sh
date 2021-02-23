@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Change directory to this script's location
-cd "${0%/*}"
+cd "${0%/*}" || exit 1
 
 # Parameters should be passed as environment variables.
 # By default, builds and tags images locally, without pushing
@@ -28,7 +28,7 @@ else
 fi
 
 echo "-------"
-echo "Building images: ${IMAGES[@]}"
+echo "Building images: " "${IMAGES[@]}"
 echo "with tag       : $DOCKER_TAG"
 echo "-------"
 
@@ -37,6 +37,7 @@ for image in "${IMAGES[@]}"
 do
         IMG=${REPO}/$image
         echo "=================== $IMG:$DOCKER_TAG ====================="
+        # shellcheck disable=SC2086
         if tar -C "$image" -czh . | docker build -t "$IMG:$DOCKER_TAG" ${BUILD_OPT} -; then
             STB="ok"
             if [ -n "$PUSH" ]; then

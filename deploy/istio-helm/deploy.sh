@@ -26,4 +26,4 @@ helm upgrade --install --namespace istio-system --reuse-values --debug \
     -f chart/custom/enable-waf-ingress.yaml \
     --set "global.proxy.gw_image=curiefense/curieproxy-istio:$DOCKER_TAG" \
     --set "global.proxy.curiesync_image=curiefense/curiesync:$DOCKER_TAG" \
-    ${PARAMS[@]} $@ istio-cf chart/
+    "${PARAMS[@]}" "$@" istio-cf chart/

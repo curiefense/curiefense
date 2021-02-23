@@ -35,7 +35,7 @@ if [ "$RUN_MODE" = "COPY_BOOTSTRAP" ]; then
 fi
 
 
-if [ "$RUN_MODE" = "PERIODIC_SYNC" -o -z "$RUN_MODE" ]; then
+if [ "$RUN_MODE" = "PERIODIC_SYNC" ] || [ -z "$RUN_MODE" ]; then
     info "Synchronizing conf every $PERIOD seconds"
     while :;
     do
