@@ -1,0 +1,12 @@
+name: "Run Shellcheck on Shell code"
+on: [push]
+jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: install shellcheck
+        run: sudo apt install -y --no-install-recommends shellcheck
+      - name: run shellcheck
+        run: shopt -s globstar; shellcheck **/*.sh
