@@ -118,7 +118,8 @@
                   <button class="button is-small save-document-button"
                           :class="{'is-loading': isSaveLoading}"
                           @click="saveChanges()"
-                          title="Save changes">
+                          title="Save changes"
+                          :disabled="isDocumentInvalid">
                     <span class="icon is-small">
                       <i class="fas fa-save"></i>
                     </span>
@@ -155,6 +156,7 @@
             :docs.sync="docs"
             :apiPath="documentAPIPath"
             @switch-doc-type="switchDocType"
+            @form-invalid="isDocumentInvalid = $event"
             ref="currentComponent">
         </component>
         <hr/>
@@ -215,7 +217,7 @@ import FlowControlEditor from '@/doc-editors/FlowControlEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import Vue from 'vue'
-import {BasicDocument, Commit, Document, DocumentType} from '@/types'
+import {BasicDocument, Commit, Document, DocumentType, URLMap} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
 export default Vue.extend({
@@ -260,6 +262,7 @@ export default Vue.extend({
       selectedDocID: null,
       cancelSource: axios.CancelToken.source(),
       isDownloadLoading: false,
+      isDocumentInvalid: false,
 
       gitLog: [],
       commits: 0,
@@ -505,9 +508,14 @@ export default Vue.extend({
     async forkDoc() {
       this.setLoadingDocStatus(true)
       this.isForkLoading = true
-      const docToAdd = _.cloneDeep(this.selectedDoc) as Document
+      let docToAdd = _.cloneDeep(this.selectedDoc) as Document
       docToAdd.name = 'copy of ' + docToAdd.name
       docToAdd.id = DatasetsUtils.generateUUID2()
+      // A special check for urlmaps as we would want to change the domain name to be unique
+      if (this.selectedDocType === 'urlmaps') {
+        docToAdd = docToAdd as URLMap
+        docToAdd.match = `${docToAdd.id}.${docToAdd.match}`
+      }
       await this.addNewDoc(docToAdd)
       this.isForkLoading = false
       this.setLoadingDocStatus(false)

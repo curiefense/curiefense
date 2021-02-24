@@ -181,6 +181,7 @@ m_document_mask = api.model('Mask for document', {
     "bypass": fields.List(fields.String()),
     "deny": fields.List(fields.String()),
     "force_deny": fields.List(fields.String()),
+    "match": fields.String(),
     '*': fields.Wildcard(fields.Raw()),
 })
 

@@ -124,10 +124,11 @@ const newDocEntryFactory: { [key: string]: Function } = {
   },
 
   urlmaps(): URLMap {
+    const id = generateUUID2()
     return {
-      'id': generateUUID2(),
+      'id': id,
       'name': 'New URL Map',
-      'match': '__default__',
+      'match': `${id}.example.com`,
       'map': [
         {
           'match': '/',

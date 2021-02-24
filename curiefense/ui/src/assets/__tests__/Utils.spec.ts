@@ -128,6 +128,42 @@ describe('Utils.ts', () => {
     })
   })
 
+  describe('clearInputValidationClasses function', () => {
+    let event: any
+    let validator
+    const invalidValidator = () => {
+      return false
+    }
+    beforeEach(() => {
+      event = {
+        target: {
+          className: 'is-big is-bird is-yellow',
+        },
+        type: 'input',
+      }
+    })
+
+    test('should remove classes from valid input element', async () => {
+      validator = invalidValidator
+      Utils.validateInput(event, validator)
+      Utils.clearInputValidationClasses(event.target as HTMLInputElement)
+      expect(event.target.className).not.toContain('has-text-danger')
+      expect(event.target.className).not.toContain('has-background-danger-light')
+    })
+
+    test('should not remove unrelated classes while validating', async () => {
+      validator = invalidValidator()
+      Utils.validateInput(event, validator)
+      expect(event.target.className).toContain('is-big')
+      expect(event.target.className).toContain('is-bird')
+      expect(event.target.className).toContain('is-yellow')
+      Utils.clearInputValidationClasses(event.target as HTMLInputElement)
+      expect(event.target.className).toContain('is-big')
+      expect(event.target.className).toContain('is-bird')
+      expect(event.target.className).toContain('is-yellow')
+    })
+  })
+
   describe('downloadFile function', () => {
     let fileName: string
     let fileType: string
