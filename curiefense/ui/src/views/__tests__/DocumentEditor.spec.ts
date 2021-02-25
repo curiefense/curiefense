@@ -925,6 +925,40 @@ describe('DocumentEditor.vue', () => {
     })
   })
 
+  test('should not switch doc type when switching branches', async (done) => {
+    const docTypeSelection = wrapper.find('.doc-type-selection')
+    docTypeSelection.trigger('click')
+    const docTypeOptions = docTypeSelection.findAll('option')
+    docTypeOptions.at(2).setSelected()
+    await Vue.nextTick()
+    const branchSelection = wrapper.find('.branch-selection')
+    branchSelection.trigger('click')
+    const branchOptions = branchSelection.findAll('option')
+    branchOptions.at(1).setSelected()
+    // allow all requests to finish
+    setImmediate(() => {
+      expect((docTypeSelection.element as any).selectedIndex).toEqual(2)
+      done()
+    })
+  })
+
+  test('should not switch selected doc when switching branches', async (done) => {
+    const docSelection = wrapper.find('.doc-selection')
+    docSelection.trigger('click')
+    const docOptions = docSelection.findAll('option')
+    docOptions.at(1).setSelected()
+    await Vue.nextTick()
+    const branchSelection = wrapper.find('.branch-selection')
+    branchSelection.trigger('click')
+    const branchOptions = branchSelection.findAll('option')
+    branchOptions.at(1).setSelected()
+    // allow all requests to finish
+    setImmediate(() => {
+      expect((docSelection.element as any).selectedIndex).toEqual(1)
+      done()
+    })
+  })
+
   test('should be able to switch doc types through dropdown', (done) => {
     const docTypeSelection = wrapper.find('.doc-type-selection')
     docTypeSelection.trigger('click')

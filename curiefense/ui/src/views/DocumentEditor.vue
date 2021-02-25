@@ -258,7 +258,7 @@ export default Vue.extend({
       selectedDocType: null as DocumentType,
 
       docs: [],
-      docIdNames: [],
+      docIdNames: [] as [Document['id'], Document['name']][],
       selectedDocID: null,
       cancelSource: axios.CancelToken.source(),
       isDownloadLoading: false,
@@ -394,9 +394,11 @@ export default Vue.extend({
       console.log('config counters', this.branches, this.commits)
     },
 
-    async initDocTypes() {
-      const doctype = this.selectedDocType = Object.keys(this.componentsMap)[0] as DocumentType
-      await this.loadDocs(doctype)
+    async initDocTypes(skipDocSelection?: boolean) {
+      if (!skipDocSelection) {
+        this.selectedDocType = Object.keys(this.componentsMap)[0] as DocumentType
+      }
+      await this.loadDocs(this.selectedDocType, skipDocSelection)
     },
 
     updateDocIdNames() {
@@ -413,7 +415,7 @@ export default Vue.extend({
       this.setLoadingDocStatus(false)
     },
 
-    async loadDocs(doctype: DocumentType) {
+    async loadDocs(doctype: DocumentType, skipDocSelection?: boolean) {
       this.isDownloadLoading = true
       const branch = this.selectedBranch
       try {
@@ -437,7 +439,11 @@ export default Vue.extend({
       }
       this.updateDocIdNames()
       if (this.docIdNames && this.docIdNames.length && this.docIdNames[0].length) {
-        this.selectedDocID = this.docIdNames[0][0]
+        if (!skipDocSelection || !_.find(this.docIdNames, (idName: [Document['id'], Document['name']]) => {
+          return idName[0] === this.selectedDocID
+        })) {
+          this.selectedDocID = this.docIdNames[0][0]
+        }
         await this.loadSelectedDocData()
         this.addMissingDefaultsToDoc()
       }
@@ -466,7 +472,7 @@ export default Vue.extend({
         this.selectedBranch = branch
       }
       this.resetGitLog()
-      await this.initDocTypes()
+      await this.initDocTypes(true)
       await this.loadReferencedDocsIDs()
       this.goToRoute()
       this.setLoadingDocStatus(false)
@@ -482,7 +488,7 @@ export default Vue.extend({
       this.docs = []
       this.selectedDocID = null
       this.resetGitLog()
-      await this.loadDocs(docType)
+      await this.loadDocs(docType, true)
       this.goToRoute()
       this.setLoadingDocStatus(false)
     },
@@ -611,7 +617,7 @@ export default Vue.extend({
           null,
           `Document [${docTitle}] restored to version [${versionId}]!`,
           `Failed restoring document [${docTitle}] to version [${versionId}]!`)
-      await this.loadDocs(this.selectedDocType)
+      await this.loadDocs(this.selectedDocType, true)
     },
 
     addMissingDefaultsToDoc() {
