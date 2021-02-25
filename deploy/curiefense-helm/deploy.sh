@@ -27,7 +27,7 @@ if ! kubectl get namespaces|grep -q curiefense; then
     echo "curiefense namespace created"
 fi
 
-helm upgrade --install --namespace curiefense --reuse-values --timeout "10m" --wait \
+helm upgrade --install --namespace curiefense --reuse-values --timeout "600" --wait \
     --set "global.settings.docker_tag=$DOCKER_TAG" \
     "${PARAMS[@]}" "$@" curiefense curiefense/
 

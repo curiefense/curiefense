@@ -29,7 +29,7 @@ if [ -n "$NOPULL" ]; then
 fi
 
 helm upgrade --install --namespace istio-system --reuse-values --wait \
-    --timeout "10m" \
+    --timeout "600" \
     -f chart/custom/enable-waf-ingress.yaml \
     --set "global.proxy.gw_image=curiefense/curieproxy-istio:$DOCKER_TAG" \
     --set "global.proxy.curiesync_image=curiefense/curiesync:$DOCKER_TAG" \
