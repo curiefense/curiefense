@@ -54,6 +54,9 @@ spec:
             memory: "200Mi"
             cpu: {{ .Values.global.requests.cpu.elasticsearch }}
       restartPolicy: Always
+      securityContext:
+        fsGroup: 65531
+        runAsUser: 1000
       serviceAccountName: ""
 {{- if .Values.global.tolerations }}
       tolerations:
