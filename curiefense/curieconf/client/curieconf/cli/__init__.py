@@ -321,6 +321,10 @@ tool = typer.Typer()
 
 @tool.command("publish")
 def publish(config:str, url:str, version:str = None):
+    """
+    Request the API server to publish a given config version to a cloud bucket
+    URL
+    """
     body = [{
         "name": "url from CLI",
         "url": url
@@ -341,7 +345,10 @@ sync = typer.Typer()
 
 @sync.command()
 def export(config: str, url: str):
-    """Export a given config version from API server to a cloud bucket URL"""
+    """
+    Download a given config version from API server, then export it to a cloud
+    bucket URL
+    """
     conf = state.api.configs.get(config).body
     cloud.export(conf, url, prnt=typer.echo)
 

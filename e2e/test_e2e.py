@@ -6,11 +6,10 @@
 # (cd ../curiefense/curieconf/client ; pip3 install .)
 #
 # To run this with minikube (does not support IPv6):
-# pytest --base-protected-url http://$(minikube ip):30081 --base-conf-url http://$(minikube ip):30000/api/v1/ --base-ui-url http://$(minikube ip):30080 .
+# pytest --base-protected-url http://$(minikube ip):30081 --base-conf-url http://$(minikube ip):30000/api/v1/ --base-ui-url http://$(minikube ip):30080 --elasticsearch-url http://$IP:30200 .
 #
 # To run this with docker-compose:
-# Wait until https://github.com/curiefense/curiefense/issues/48 is fixed
-# pytest --base-protected-url http://localhost:30081/ --base-conf-url http://localhost:30000/api/v1/ --base-ui-url http://localhost:30080 .
+# pytest --base-protected-url http://localhost:30081/ --base-conf-url http://localhost:30000/api/v1/ --base-ui-url http://localhost:30080 --elasticsearch-url http://localhost:9200 .
 
 # TODO add Flow Control tests
 
@@ -81,7 +80,7 @@ class CliHelper():
         for b in buckets["buckets"]:
             if b["name"] == "prod":
                 url = b["url"]
-        self.call(f"sync export master {url}")
+        self.call(f"tool publish master {url}")
         time.sleep(20)
 
 
