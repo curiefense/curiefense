@@ -49,6 +49,8 @@ spec:
           value: "true"
         - name: CURIELOGGER_FLUENTD_URL
           value: "{{ .Values.global.settings.curiefense_fluentd_url }}"
+        - name: CURIELOGGER_OUTPUTS_LOGSTASH_ENABLED
+          value: "false"
         - name: USE_DATA_STREAMS
           value: "false"
 {{- end }}
@@ -58,6 +60,9 @@ spec:
         - name: CURIELOGGER_INITIALIZE_KIBANA_INDEX
           value: "true"
 {{- end }}
+{{- else }}
+        - name: CURIELOGGER_OUTPUTS_LOGSTASH_ENABLED
+          value: "false"
 {{- end }}
         {{ if regexMatch ".*/.*:" .Values.global.images.curielogger }}
         {{/* The image name contains a version tag (e.g. for tests), do not append docker_tag */}}
