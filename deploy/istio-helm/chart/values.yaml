@@ -159,7 +159,8 @@ global:
     # typically "redis.$curiefense_namespace", can be changed to use an external redis instance
     redis_host: "redis.curiefense"
     redis_port: 6379
-    # valid values: true  = pull initial config from bucket then start gateway
+    xff_trusted_hops: 1
+    # valid values: true  = pull initial config from bucket then start gateway 
     #               false = start gateway with a bootstrap config without waiting for the config from the bucket
     initial_curieconf_pull: true
 

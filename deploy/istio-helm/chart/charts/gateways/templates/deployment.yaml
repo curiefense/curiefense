@@ -404,6 +404,8 @@ spec:
             value: "{{ $.Values.global.proxy.redis_host }}"
           - name: REDIS_PORT
             value: "{{ $.Values.global.proxy.redis_port }}"
+          - name: XFF_TRUSTED_HOPS
+            value: "{{ $.Values.global.proxy.xff_trusted_hops }}"
           {{- end }}
           volumeMounts:
           {{- if $spec.waf.enabled }}
