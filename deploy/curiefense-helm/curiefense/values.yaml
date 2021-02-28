@@ -5,7 +5,6 @@ global:
     curielogger: curiefense/curielogger
     curietasker: curiefense/curietasker
     redis: curiefense/redis
-    curielogserver: curiefense/curielogserver
     uiserver: curiefense/uiserver
     curiesync: curiefense/curiesync
     grafana: curiefense/grafana
@@ -57,8 +56,6 @@ global:
       curietasker: "100m"
       prometheus: "100m"
       grafana: "20m"
-      curielogserver_nginx: "10m"
-      curielogserver_uwsgi: "10m"
       elasticsearch: "1"
 
   enable:

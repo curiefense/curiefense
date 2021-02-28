@@ -13,8 +13,6 @@ global:
       curietasker: "1m"
       prometheus: "1m"
       grafana: "1m"
-      curielogserver-nginx: "1m"
-      curielogserver-uwsgi: "1m"
       elasticsearch: "1m"
 
   storage:
