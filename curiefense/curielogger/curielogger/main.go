@@ -840,6 +840,7 @@ func main() {
 			log.Printf("[DEBUG] Elasticsearch enabled with URL: %s", output.Elasticsearch.Url)
 			es := ElasticsearchLogger{config: output.Elasticsearch}
 			go configRetry(&es)
+			loggers = append(loggers, &es)
 		}
 
 		// Logstash
@@ -847,6 +848,7 @@ func main() {
 			log.Printf("[DEBUG] Logstash enabled with URL: %s", output.Logstash.Url)
 			ls := logstashLogger{config: output.Logstash}
 			go configRetry(&ls)
+			loggers = append(loggers, &ls)
 		}
 
 	}
