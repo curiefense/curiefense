@@ -14,5 +14,5 @@ if [ -n "$CURIELOGGER_WAIT_FOR_ES" ]; then
 	wait_for_es
 fi
 
-cd /init
+cd /init || exit 1
 /bin/curielogger
