@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   e2e-docker-compose:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         python-version: [3.8]
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Interact with the cluster
+      - name: Run tests
         run: |
             export BASEDIR=$(git rev-parse --show-toplevel)
             export VERSION=$(git rev-parse --short=12 HEAD)
@@ -41,7 +41,25 @@ jobs:
             echo "-- Run e2e tests --"
             pushd e2e
 
-            # TODO(flaper87): Work on enabling full e2e
-            # tests.
             IP=127.0.0.1
-            pytest --log-level INFO --base-protected-url http://$IP:30081 --base-conf-url http://$IP:30000/api/v1/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --html="$BASEDIR/test-reports/test-report-$BRANCH-$DATE-$VERSION.html" --self-contained-html .
+            pytest --log-level INFO --base-protected-url http://$IP:30081 --base-conf-url http://$IP:30000/api/v1/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --junit-xml pytest.xml .
+
+      - name: Publish Unit Test Results
+        # TODO implement https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories
+        uses: EnricoMi/publish-unit-test-result-action@ea8720de4a2e723f8204d44fc0178744cf401c1a
+        if: always()
+        with:
+          files: e2e/pytest.xml
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          check_name: E2E Test Results on docker-compose
+          comment_title: E2E Test Statistics
+          hide_comments: all but latest
+          comment_on_pr: true
+          report_individual_runs: true
+          deduplicate_classes_by_file_name: false
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@e448a9b857ee2131e752b06002bf0e093c65e571
+        with:
+          path: e2e/pytest.xml

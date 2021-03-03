@@ -22,23 +22,18 @@ pushd curiefense/images || exit
 ./build-docker-images.sh
 popd || exit
 
-# curieconfctl will try to write to this
-# path during the tests. This is currently
-# not configurable.
-mkdir -p "$WORKDIR/bucket"
-chmod 777 "$WORKDIR/bucket"
-
-cat <<EOF > $WORKDIR/ci-env
+cat <<EOF > "$WORKDIR/ci-env"
+XFF_TRUSTED_HOPS=2
 ENVOY_UID=0
 DOCKER_TAG=$DOCKER_TAG
 
-CURIE_BUCKET_LINK=file://$WORKDIR/bucket/prod/manifest.json
+CURIE_BUCKET_LINK=file:///bucket/prod/manifest.json
 EOF
 
-cat $WORKDIR/ci-env
+cat "$WORKDIR/ci-env"
 
 pushd deploy/compose || exit
-dcoker-compose up -d --env-file "$WORKDIR/ci-env"
+docker-compose --env-file "$WORKDIR/ci-env" up -d
 
 # Some debug information
 docker-compose top
