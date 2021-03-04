@@ -35,6 +35,13 @@ cat "$WORKDIR/ci-env"
 pushd deploy/compose || exit
 docker-compose --env-file "$WORKDIR/ci-env" up -d
 
+# Will figure out a way to wait for the services to come up
+sleep 60
+
 # Some debug information
 docker-compose top
 docker-compose logs
+docker-compose ps
+popd
+
+#./e2e/logs-smoke-test/checklogs-compose.sh
