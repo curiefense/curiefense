@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"strings"
 	"time"
@@ -20,322 +22,6 @@ import (
 // ELASTICSEARCH
 
 const (
-	INDEX_TEMPLATE = `
-{
-  "index_patterns": ["{{.AccessLogIndexName}}*"],
-  "priority": 200,
-  "composed_of": [],
-  "version": 1,
-  {{if .UseDataStream}}"data_stream": {},{{end}}
-  "_meta": {
-    "description": "Curiefense's index template "
-  },
-  "template": {
-    "settings": {
-      "index": {
-        "lifecycle": {
-          "name": "{{.AccessLogIndexName}}",
-          "rollover_alias": "{{.AccessLogIndexName}}"
-        }
-      }
-    },
-    "mappings": {
-      "dynamic_templates": [],
-      "properties": {
-        "authority": {
-          "type": "keyword"
-        },
-        "block_reason": {
-          "type": "object"
-        },
-        "blocked": {
-          "type": "boolean"
-        },
-        "downstream": {
-          "properties": {
-            "connectiontermination": {
-              "type": "boolean"
-            },
-            "directremoteaddress": {
-              "type": "ip"
-            },
-            "directremoteaddressport": {
-              "type": "integer"
-            },
-            "localaddress": {
-              "type": "ip"
-            },
-            "localaddressport": {
-              "type": "integer"
-            },
-            "protocolerror": {
-              "type": "boolean"
-            },
-            "remoteaddress": {
-              "type": "ip"
-            },
-            "remoteaddressport": {
-              "type": "integer"
-            }
-          }
-        },
-        "metadata": {
-          "properties": {
-            "delayinjected": {
-              "type": "boolean"
-            },
-            "failedlocalhealthcheck": {
-              "type": "boolean"
-            },
-            "faultinjected": {
-              "type": "boolean"
-            },
-            "invalidenvoyrequestheaders": {
-              "type": "boolean"
-            },
-            "localreset": {
-              "type": "boolean"
-            },
-            "nohealthyupstream": {
-              "type": "boolean"
-            },
-            "noroutefound": {
-              "type": "boolean"
-            },
-            "ratelimited": {
-              "type": "boolean"
-            },
-            "ratelimitserviceerror": {
-              "type": "boolean"
-            },
-            "routename": {
-              "type": "keyword"
-            },
-            "samplerate": {
-              "type": "float"
-            },
-            "streamidletimeout": {
-              "type": "boolean"
-            },
-            "unauthorizeddetails": {
-              "type": "keyword"
-            }
-          }
-        },
-        "method": {
-          "type": "keyword"
-        },
-        "path": {
-          "type": "keyword"
-        },
-        "port": {
-          "type": "integer"
-        },
-        "request": {
-          "properties": {
-            "geo": {
-              "type": "object",
-              "properties": {
-                "location": {
-                  "type": "geo_point",
-                  "ignore_malformed": true,
-                  "ignore_z_value": true
-                }
-              }
-            },
-            "arguments": {
-              "type": "flattened"
-            },
-            "attributes": {
-              "type": "flattened"
-            },
-            "bodybytes": {
-              "type": "integer"
-            },
-            "cookies": {
-              "type": "flattened"
-            },
-            "headers": {
-              "type": "flattened"
-            },
-            "headersbytes": {
-              "type": "integer"
-            },
-            "originalpath": {
-              "type": "keyword"
-            }
-          }
-        },
-        "requestid": {
-          "type": "keyword"
-        },
-        "response": {
-          "properties": {
-            "bodybytes": {
-              "type": "integer"
-            },
-            "code": {
-              "type": "integer"
-            },
-            "codedetails": {
-              "type": "keyword"
-            },
-            "headers": {
-              "type": "keyword"
-            },
-            "headersbytes": {
-              "type": "integer"
-            },
-            "trailers": {
-              "type": "keyword"
-            }
-          }
-        },
-        "rxtimers": {
-          "properties": {
-            "firstupstreambyte": {
-              "type": "float"
-            },
-            "lastbyte": {
-              "type": "float"
-            },
-            "lastupstreambyte": {
-              "type": "float"
-            }
-          }
-        },
-        "scheme": {
-          "type": "keyword"
-        },
-        "tags": {
-          "type": "keyword"
-        },
-        "@timestamp": {
-          "type": "date_nanos"
-        },
-        "tls": {
-          "properties": {
-            "ciphersuite": {
-              "type": "keyword"
-            },
-            "sessionid": {
-              "type": "keyword"
-            },
-            "snihostname": {
-              "type": "keyword"
-            },
-            "version": {
-              "type": "keyword"
-            }
-          }
-        },
-        "txtimers": {
-          "properties": {
-            "firstdownstreambyte": {
-              "type": "float"
-            },
-            "firstupstreambyte": {
-              "type": "float"
-            },
-            "lastdownstreambyte": {
-              "type": "float"
-            },
-            "lastupstreambyte": {
-              "type": "float"
-            }
-          }
-        },
-        "upstream": {
-          "properties": {
-            "cluster": {
-              "type": "keyword"
-            },
-            "connectionfailure": {
-              "type": "boolean"
-            },
-            "connectiontermination": {
-              "type": "boolean"
-            },
-            "localaddress": {
-              "type": "ip"
-            },
-            "localaddressport": {
-              "type": "integer"
-            },
-            "overflow": {
-              "type": "boolean"
-            },
-            "remoteaddress": {
-              "type": "ip"
-            },
-            "remoteaddressport": {
-              "type": "integer"
-            },
-            "remotereset": {
-              "type": "boolean"
-            },
-            "requesttimeout": {
-              "type": "boolean"
-            },
-            "retrylimitexceeded": {
-              "type": "boolean"
-            },
-            "transportfailurereason": {
-              "type": "keyword"
-            }
-          }
-        }
-      }
-    },
-    "aliases": {}
-  }
-}}
-
-`
-
-	ILM_POLICY = `
-{
-  "policy": {
-    "phases": {
-      "hot": {
-        "actions": {
-          "rollover" : {
-            "max_age": "1d",
-            "max_size": "50GB",
-            "max_docs": 10000000
-          }
-        }
-      },
-      "delete": {
-        "min_age": "7d",
-        "actions": {
-          "delete": {}
-        }
-      }
-    }
-  }
-}
-	`
-
-	INDEX_SETTINGS = `
-{
-  "aliases": {
-    "{{.AccessLogIndexName}}": {
-      "is_write_index": true
-    }
-  }
-}
-	`
-
-	KIBANA_INDEX_PATTERN = `
-{
-  "attributes": {
-    "timeFieldName": "@timestamp",
-    "title": "{{.AccessLogIndexName}}*"
-  }
-}
-	`
-
 	METRICS_ES_PREFIX   = "curiemetrics"
 	ACCESSLOG_ES_PREFIX = "curieaccesslog"
 )
@@ -375,26 +61,39 @@ func (l ElasticsearchLogger) getESClient() *elasticsearch.Client {
 
 func (l *ElasticsearchLogger) ConfigureKibana() {
 
-	var ktpl bytes.Buffer
-	gTpl := template.Must(template.New("it").Parse(KIBANA_INDEX_PATTERN))
+	var body, ktpl bytes.Buffer
+	var fw io.Writer
+	var err error
+	res, _ := getResource("files/kibana/dashboard.ndjson")
+	gTpl := template.Must(template.New("it").Parse(string(res)))
 	gTpl.Execute(&ktpl, l.config)
 
-	body := bytes.NewReader(ktpl.Bytes())
+	mwriter := multipart.NewWriter(&body)
+	if fw, err = mwriter.CreateFormFile("file", "dashboard.ndjson"); err != nil {
+		log.Printf("[ERROR] Error creating writer: %v", err)
+		return
+	}
+	if _, err := io.Copy(fw, bytes.NewReader(ktpl.Bytes())); err != nil {
+		log.Printf("[ERROR] Error with io.Copy: %v", err)
+		return
+	}
+	mwriter.Close()
 
 	log.Printf("[DEBUG]: configuring kibana")
-	kbUrl := fmt.Sprintf("%s/api/saved_objects/index-pattern/%s*", l.config.KibanaUrl, l.config.AccessLogIndexName)
+	kbUrl := fmt.Sprintf("%s/api/saved_objects/_import?overwrite=true", l.config.KibanaUrl)
 
 	client := http.Client{
 		Timeout: time.Duration(5 * time.Second),
 	}
 
-	req, err := http.NewRequest("POST", kbUrl, body)
+	bReader := bytes.NewReader(body.Bytes())
+	req, err := http.NewRequest("POST", kbUrl, bReader)
 
 	if err != nil {
 		return
 	}
 
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", mwriter.FormDataContentType())
 	req.Header.Set("kbn-xsrf", "true")
 
 	for i := 0; i < 60; i++ {
@@ -403,18 +102,19 @@ func (l *ElasticsearchLogger) ConfigureKibana() {
 
 		if rst != nil {
 			if rst.StatusCode == 200 {
-				log.Printf("[INFO]: kibana index pattern created %s", kbUrl)
+				log.Printf("[DEBUG]: kibana dashboard imported %s", kbUrl)
 				break
 			}
 
 			if rst.StatusCode == 409 {
-				log.Printf("[INFO]: kibana index pattern already exists %s", kbUrl)
+				log.Printf("[DEBUG]: kibana index pattern already exists %s", kbUrl)
 				break
 			}
 		}
 
-		log.Printf("[ERROR]: kibana index pattern creation failed (retrying in 5s) %s %v %v", kbUrl, err, rst)
+		log.Printf("[ERROR]: kibana index pattern creation failed (retrying in 5s) %s %v %v %v", kbUrl, err, req, rst)
 		time.Sleep(5 * time.Second)
+		bReader.Seek(0, 0)
 	}
 }
 
@@ -453,7 +153,8 @@ func (l *ElasticsearchLogger) Configure(channel_capacity int) error {
 		log.Printf("[DEBUG] creating / overwriting elasticsearch ilm policy %s for %s\n", l.config.AccessLogIndexName, l.config.Url)
 
 		var iTpl bytes.Buffer
-		gTpl := template.Must(template.New("it").Parse(ILM_POLICY))
+		res, _ := getResource("files/kibana/ilm_policy.json")
+		gTpl := template.Must(template.New("it").Parse(string(res)))
 		gTpl.Execute(&iTpl, l.config)
 
 		body := client.ILM.PutLifecycle.WithBody(bytes.NewReader(iTpl.Bytes()))
@@ -481,7 +182,8 @@ func (l *ElasticsearchLogger) Configure(channel_capacity int) error {
 	if l.config.Overwrite || tplExists.IsError() {
 		log.Printf("[DEBUG] creating / overwriting elasticsearch index template %s for %s\n", ACCESSLOG_ES_PREFIX, l.config.Url)
 		var iTpl bytes.Buffer
-		gTpl := template.Must(template.New("it").Parse(INDEX_TEMPLATE))
+		res, _ := getResource("files/kibana/es_index_template.json")
+		gTpl := template.Must(template.New("it").Parse(string(res)))
 		gTpl.Execute(&iTpl, l.config)
 
 		resp, err := client.Indices.PutIndexTemplate(l.config.AccessLogIndexName, bytes.NewReader(iTpl.Bytes()))
@@ -513,7 +215,8 @@ func (l *ElasticsearchLogger) Configure(channel_capacity int) error {
 		}
 
 		var iTpl bytes.Buffer
-		gTpl := template.Must(template.New("it").Parse(INDEX_SETTINGS))
+		res, _ := getResource("files/kibana/index_settings.json")
+		gTpl := template.Must(template.New("it").Parse(string(res)))
 		gTpl.Execute(&iTpl, l.config)
 
 		resp, err := client.Indices.Create(indexName, client.Indices.Create.WithBody(bytes.NewReader(iTpl.Bytes())))
