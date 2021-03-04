@@ -42,7 +42,7 @@ jobs:
             pushd e2e
 
             IP=127.0.0.1
-            pytest --log-level INFO --base-protected-url http://$IP:30081 --base-conf-url http://$IP:30000/api/v1/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --junit-xml pytest.xml .
+            pytest --log-level INFO --base-protected-url http://$IP:30081 --base-conf-url http://$IP:30000/api/v1/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --junit-xml pytest.xml -k 'not (test_ip_asn or test_ipv4 or test_geo or test_wafsig or test_ratelimit_scope_ipv4_include or test_ratelimit_scope_ipv4_exclude or test_ratelimit_scope_country_include or test_ratelimit_scope_country_exclude or test_ratelimit_scope_company_include or test_ratelimit_scope_company_exclude or test_ratelimit_scope_provider_include or test_ratelimit_scope_provider_exclude or test_ratelimit_countby_ipv4 or test_ratelimit_countby_provider or test_ratelimit_countby_company or test_ratelimit_countby_country or test_ratelimit_event_ipv4 or test_ratelimit_event_ipv6 or test_ratelimit_event_provider or test_ratelimit_event_tag or test_ratelimit_event_company or test_ratelimit_event_country or test_country or test_asn)' .
 
       - name: Publish Unit Test Results
         # TODO implement https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories
