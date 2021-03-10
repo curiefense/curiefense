@@ -156,11 +156,11 @@ describe('AutocompleteInput.vue', () => {
     input.trigger('input')
     wrapper.setData({focusedSuggestionIndex: 2})
     input.trigger('blur')
-    setImmediate(() => {
+    setTimeout(() => {
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
       expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-2'])
       done()
-    })
+    }, 0)
   })
 
   test('should emit selected value on input blur event with the correct clicked suggestion', (done) => {
@@ -171,11 +171,25 @@ describe('AutocompleteInput.vue', () => {
     const dropdownItems = wrapper.findAll('.dropdown-item')
     input.trigger('blur')
     dropdownItems.at(1).trigger('mousedown')
-    setImmediate(() => {
+    setTimeout(() => {
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
       expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-1'])
       done()
-    })
+    }, 0)
+  })
+
+  test('should not emit selected value on input blur event if destroyed before finishing', async (done) => {
+    wrapper.setProps({clearInputAfterSelection: true})
+    const input = wrapper.find('.autocomplete-input');
+    (input.element as HTMLInputElement).value = 'value'
+    input.trigger('input')
+    input.trigger('blur')
+    wrapper.destroy()
+    await Vue.nextTick()
+    setTimeout(() => {
+      expect(wrapper.emitted('value-submitted')).toBeFalsy()
+      done()
+    }, 0)
   })
 
   test('should auto focus on the autocomplete input after suggestion clicked' +
@@ -199,10 +213,10 @@ describe('AutocompleteInput.vue', () => {
     const dropdownItems = wrapper.findAll('.dropdown-item')
     dropdownItems.at(1).trigger('mousedown')
     await Vue.nextTick()
-    setImmediate(() => {
+    setTimeout(() => {
       expect(input.element).toBe(document.activeElement)
       done()
-    })
+    }, 0)
   })
 
   test('should not auto focus on the autocomplete input after suggestion clicked' +
@@ -226,10 +240,10 @@ describe('AutocompleteInput.vue', () => {
     const dropdownItems = wrapper.findAll('.dropdown-item')
     dropdownItems.at(1).trigger('mousedown')
     await Vue.nextTick()
-    setImmediate(() => {
+    setTimeout(() => {
       expect(input.element).not.toBe(document.activeElement)
       done()
-    })
+    }, 0)
   })
 
   describe('keyboard control', () => {

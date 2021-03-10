@@ -401,58 +401,117 @@ describe('LimitOption.vue', () => {
       })
     })
 
-    describe('no option prop', () => {
-      beforeEach(async () => {
-        wrapper = mount(LimitOption, {
-          propsData: {
-            option: undefined,
-            useValue: true,
-          },
+    describe('option prop', () => {
+      describe('semi-given options prop', () => {
+        beforeEach(async () => {
+          wrapper = mount(LimitOption, {
+            propsData: {
+              option: {
+                oldKey: '',
+              },
+              useValue: true,
+            },
+          })
+          await Vue.nextTick()
+          const selection = wrapper.find('.option-type-selection')
+          const options = selection.findAll('option')
+          options.at(2).setSelected()
+          await wrapper.vm.$forceUpdate()
         })
-        await Vue.nextTick()
-        const selection = wrapper.find('.option-type-selection')
-        const options = selection.findAll('option')
-        options.at(2).setSelected()
-        await wrapper.vm.$forceUpdate()
+
+        test('should emit type change correctly', () => {
+          const wantedEmit = {
+            type: 'args',
+            key: '',
+            value: undefined as string,
+          }
+          expect(wrapper.emitted('change')).toBeTruthy()
+          expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
+        })
+
+        test('should emit key change correctly', async () => {
+          const wantedKeyValue = 'foo'
+          const wantedEmit = {
+            type: 'args',
+            key: wantedKeyValue,
+            oldKey: '',
+            value: undefined as string,
+          }
+          const input = wrapper.find('.option-key-input')
+          input.setValue(wantedKeyValue)
+          await Vue.nextTick()
+          expect(wrapper.emitted('change')).toBeTruthy()
+          expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
+        })
+
+        test('should emit value change correctly', async () => {
+          const wantedValue = 'bar'
+          const wantedEmit = {
+            type: 'args',
+            key: '',
+            value: wantedValue,
+          }
+          const input = wrapper.find('.option-value-input')
+          input.setValue(wantedValue)
+          await Vue.nextTick()
+          expect(wrapper.emitted('change')).toBeTruthy()
+          expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
+        })
       })
 
-      test('should emit type change correctly', () => {
-        const wantedEmit = {
-          type: 'args',
-          key: '',
-          value: undefined as string,
-        }
-        expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
-      })
+      describe('no options prop', () => {
+        beforeEach(async () => {
+          wrapper = mount(LimitOption, {
+            propsData: {
+              option: undefined,
+              useValue: true,
+            },
+          })
+          await Vue.nextTick()
+          const selection = wrapper.find('.option-type-selection')
+          const options = selection.findAll('option')
+          options.at(2).setSelected()
+          await wrapper.vm.$forceUpdate()
+        })
 
-      test('should emit key change correctly', async () => {
-        const wantedKeyValue = 'foo'
-        const wantedEmit = {
-          type: 'args',
-          key: wantedKeyValue,
-          oldKey: '',
-          value: undefined as string,
-        }
-        const input = wrapper.find('.option-key-input')
-        input.setValue(wantedKeyValue)
-        await Vue.nextTick()
-        expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
-      })
+        test('should emit type change correctly', () => {
+          const wantedEmit = {
+            type: 'args',
+            key: '',
+            value: undefined as string,
+          }
+          expect(wrapper.emitted('change')).toBeTruthy()
+          expect(wrapper.emitted('change')[0]).toEqual([wantedEmit])
+        })
 
-      test('should emit value change correctly', async () => {
-        const wantedValue = 'bar'
-        const wantedEmit = {
-          type: 'args',
-          key: '',
-          value: wantedValue,
-        }
-        const input = wrapper.find('.option-value-input')
-        input.setValue(wantedValue)
-        await Vue.nextTick()
-        expect(wrapper.emitted('change')).toBeTruthy()
-        expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
+        test('should emit key change correctly', async () => {
+          const wantedKeyValue = 'foo'
+          const wantedEmit = {
+            type: 'args',
+            key: wantedKeyValue,
+            oldKey: '',
+            value: undefined as string,
+          }
+          const input = wrapper.find('.option-key-input')
+          input.setValue(wantedKeyValue)
+          await Vue.nextTick()
+          expect(wrapper.emitted('change')).toBeTruthy()
+          expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
+        })
+
+        test('should emit value change correctly', async () => {
+          const wantedValue = 'bar'
+          const wantedEmit = {
+            type: 'args',
+            key: '',
+            value: wantedValue,
+          }
+          const input = wrapper.find('.option-value-input')
+          input.setValue(wantedValue)
+          await Vue.nextTick()
+          expect(wrapper.emitted('change')).toBeTruthy()
+          expect(wrapper.emitted('change')[1]).toEqual([wantedEmit])
+        })
       })
     })
 

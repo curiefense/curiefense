@@ -4,8 +4,8 @@ import {mount, Wrapper} from '@vue/test-utils'
 import axios from 'axios'
 import Vue from 'vue'
 import {Branch} from '@/types'
-import {Options} from 'bulma-toast'
 import * as bulmaToast from 'bulma-toast'
+import {Options} from 'bulma-toast'
 
 jest.mock('axios')
 
@@ -343,6 +343,7 @@ describe('Publish.vue', () => {
     let publishButton: Wrapper<Vue>
     let putSpy: any
     beforeEach(() => {
+      jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve({data: {}}))
       publishButton = wrapper.find('.publish-button')
       putSpy = jest.spyOn(axios, 'put')
     })
@@ -535,11 +536,17 @@ describe('Publish.vue', () => {
     let failureMessage: string
     let failureMessageClass: string
     let toastOutput: Options[]
+    let originalError: any
     beforeEach(async () => {
       publishButton = wrapper.find('.publish-button')
       jest.spyOn(axios, 'put').mockImplementation(() => {
         return Promise.reject(new Error())
       })
+      originalError = console.error
+      let consoleOutput: string[] = []
+      const mockedError = (output: string) => consoleOutput.push(output)
+      consoleOutput = []
+      console.error = mockedError
       failureMessage =
         `Failed publishing branch ${publishInfoData.buckets[0].name} version ${gitData[0].logs[0].version}!`
       failureMessageClass = 'is-danger'
@@ -549,6 +556,9 @@ describe('Publish.vue', () => {
       })
       publishButton.trigger('click')
       await Vue.nextTick()
+    })
+    afterEach(() => {
+      console.error = originalError
     })
 
     test('should only contain buckets which were in the publish request', async () => {

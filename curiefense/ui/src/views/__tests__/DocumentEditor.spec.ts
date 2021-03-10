@@ -1424,7 +1424,7 @@ describe('DocumentEditor.vue', () => {
         },
       })
       await Vue.nextTick()
-      const downloadFileSpy = jest.spyOn(Utils, 'downloadFile')
+      const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {})
       // force update because downloadFile is mocked after it is read to to be used as event handler
       await (wrapper.vm as any).$forceUpdate()
       await Vue.nextTick()
@@ -1438,7 +1438,7 @@ describe('DocumentEditor.vue', () => {
       const wantedFileName = 'aclpolicies'
       const wantedFileType = 'json'
       const wantedFileData = aclDocs
-      const downloadFileSpy = jest.spyOn(Utils, 'downloadFile')
+      const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {})
       // force update because downloadFile is mocked after it is read to to be used as event handler
       await (wrapper.vm as any).$forceUpdate()
       await Vue.nextTick()

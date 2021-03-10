@@ -1,5 +1,8 @@
 import Utils from '../../assets/Utils'
-import {beforeEach, describe, expect, test} from '@jest/globals'
+import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
+import * as bulmaToast from 'bulma-toast'
+import {Options} from 'bulma-toast'
+import axios from 'axios'
 
 describe('Utils.ts', () => {
   describe('generateUniqueEntityName function', () => {
@@ -174,6 +177,14 @@ describe('Utils.ts', () => {
       data = {
         'foo': 'bar',
       }
+      // This line makes it so the new <a> tag is not really an <a> tag and would not try to link to anything
+      // @ts-ignore
+      document.createElement = () => {
+        return {
+          click: () => {
+          },
+        }
+      }
     })
 
     test('should not throw errors if given valid input', (done) => {
@@ -210,6 +221,36 @@ describe('Utils.ts', () => {
         console.log = originalLog
         done()
       })
+    })
+  })
+
+  describe('toast function', () => {
+    const successMessage = 'yay we did it!'
+    const successMessageClass = 'is-success'
+    const failureMessage = 'oops, something went wrong'
+    const failureMessageClass = 'is-danger'
+    let toastOutput: Options[] = []
+    beforeEach(() => {
+      toastOutput = []
+      jest.spyOn(bulmaToast, 'toast').mockImplementation((output: Options) => {
+        toastOutput.push(output)
+      })
+    })
+    afterEach(() => {
+      jest.clearAllMocks()
+    })
+
+    test('should send success toast', () => {
+      Utils.successToast(successMessage)
+      expect(toastOutput[0].message).toContain(successMessage)
+      expect(toastOutput[0].type).toContain(successMessageClass)
+    })
+
+    test('should send failure toast', () => {
+      jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.reject(new Error()))
+      Utils.failureToast(failureMessage)
+      expect(toastOutput[0].message).toContain(failureMessage)
+      expect(toastOutput[0].type).toContain(failureMessageClass)
     })
   })
 })

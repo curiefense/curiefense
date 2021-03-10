@@ -227,10 +227,12 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     inputBlurred() {
-      // If the blur is due to a suggestion click, we want to cancel and skip this selection
-      this.inputBlurredTimeout = setImmediate(() => {
+      // We would like to cancel and skip the selection if one of the following occoured:
+      // * The blur is due to a suggestion click
+      // * The component is destroyed before we finish selecting
+      this.inputBlurredTimeout = setTimeout(() => {
         this.selectValue(true)
-      })
+      }, 0)
     },
 
     clearInputBlurredTimeout() {

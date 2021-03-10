@@ -355,14 +355,20 @@ describe('VersionControl.vue', () => {
 
   describe('fork branch', () => {
     let postSpy: any
+    let originalError: any
     beforeEach(async () => {
-      postSpy = jest.spyOn(axios, 'post')
-      postSpy.mockImplementation(() => Promise.resolve())
+      originalError = console.error
+      let consoleOutput: string[] = []
+      const mockedError = (output: string) => consoleOutput.push(output)
+      consoleOutput = []
+      console.error = mockedError
+      postSpy = jest.spyOn(axios, 'post').mockImplementation(() => Promise.resolve({data: {}}))
       const forkBranchIcon = wrapper.find('.fork-branch-toggle')
       forkBranchIcon.trigger('click')
       await Vue.nextTick()
     })
     afterEach(() => {
+      console.error = originalError
       jest.clearAllMocks()
     })
 
@@ -454,14 +460,20 @@ describe('VersionControl.vue', () => {
 
   describe('delete branch', () => {
     let deleteSpy: any
+    let originalError: any
     beforeEach(async () => {
-      deleteSpy = jest.spyOn(axios, 'delete')
-      deleteSpy.mockImplementation(() => Promise.resolve())
+      originalError = console.error
+      let consoleOutput: string[] = []
+      const mockedError = (output: string) => consoleOutput.push(output)
+      consoleOutput = []
+      console.error = mockedError
+      deleteSpy = jest.spyOn(axios, 'delete').mockImplementation(() => Promise.resolve())
       const deleteBranchIcon = wrapper.find('.delete-branch-toggle')
       deleteBranchIcon.trigger('click')
       await Vue.nextTick()
     })
     afterEach(() => {
+      console.error = originalError
       jest.clearAllMocks()
     })
 
@@ -526,10 +538,10 @@ describe('VersionControl.vue', () => {
 
     test('should be visible if delete failed', async () => {
       deleteSpy.mockImplementation(() => Promise.reject(new Error()))
-      const newBranchName = 'new_branch'
+      const currentBranchName = (wrapper.vm as any).selectedBranch
       let deleteBranchNameInput = wrapper.find('.delete-branch-input')
       const deleteBranchSaveButton = wrapper.find('.delete-branch-confirm')
-      deleteBranchNameInput.setValue(newBranchName)
+      deleteBranchNameInput.setValue(currentBranchName)
       await Vue.nextTick()
       deleteBranchSaveButton.trigger('click')
       await Vue.nextTick()

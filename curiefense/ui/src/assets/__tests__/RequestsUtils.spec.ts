@@ -50,10 +50,16 @@ describe('RequestsUtils.ts', () => {
           expect(deleteSpy).toHaveBeenCalledWith(apiUrl)
         })
 
-        test('should send POST request correctly with header config', async () => {
+        test('should send POST request correctly with header config and data', async () => {
           const config = {headers: {'x-fields': 'name'}}
           await requestFunc('POST', urlTrail, dataObject, config)
           expect(postSpy).toHaveBeenCalledWith(apiUrl, dataObject, config)
+        })
+
+        test('should send POST request correctly with header config without data', async () => {
+          const config = {headers: {'x-fields': 'name'}}
+          await requestFunc('POST', urlTrail, null, config)
+          expect(postSpy).toHaveBeenCalledWith(apiUrl, config)
         })
 
         test('should send GET request correctly when method name is not capitalized', async () => {
@@ -127,6 +133,11 @@ describe('RequestsUtils.ts', () => {
           jest.clearAllMocks()
         })
 
+        test('should not send success toast when GET request is rejected if not set', async () => {
+          await requestFunc('GET', urlTrail, null, null, null, failureMessage)
+          expect(toastOutput.length).toEqual(0)
+        })
+
         test('should send success toast when GET request returns successfully', async () => {
           await requestFunc('GET', urlTrail, null, null, successMessage, failureMessage)
           expect(toastOutput[0].message).toContain(successMessage)
@@ -149,6 +160,14 @@ describe('RequestsUtils.ts', () => {
           await requestFunc('DELETE', urlTrail, null, null, successMessage, failureMessage)
           expect(toastOutput[0].message).toContain(successMessage)
           expect(toastOutput[0].type).toContain(successMessageClass)
+        })
+
+        test('should not send failure toast when GET request is rejected if not set', (done) => {
+          jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.reject(new Error()))
+          requestFunc('GET', urlTrail, null, null, successMessage, null).catch(() => {
+            expect(toastOutput.length).toEqual(0)
+            done()
+          })
         })
 
         test('should send failure toast when GET request is rejected', (done) => {

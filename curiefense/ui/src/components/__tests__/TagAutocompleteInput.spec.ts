@@ -31,6 +31,8 @@ describe('TagAutocompleteInput.vue', () => {
       },
     }
     jest.spyOn(axios, 'get').mockImplementation(() => Promise.resolve(tagsData))
+    jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
+    jest.spyOn(axios, 'post').mockImplementation(() => Promise.resolve())
     wrapper = mount(TagAutocompleteInput, {
       propsData: {
         autoFocus: true,

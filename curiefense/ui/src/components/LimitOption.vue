@@ -105,7 +105,7 @@ export default Vue.extend({
       type: Object as PropType<OptionObject>,
       default: (): OptionObject => {
         return {
-          type: 'headers' as OptionObject['type'],
+          type: 'attrs' as OptionObject['type'],
           key: '',
         } as OptionObject
       },
