@@ -42,6 +42,6 @@ sleep 60
 docker-compose top
 docker-compose logs
 docker-compose ps
-popd
+popd || exit
 
 #./e2e/logs-smoke-test/checklogs-compose.sh
