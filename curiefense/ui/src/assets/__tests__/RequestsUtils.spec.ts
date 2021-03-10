@@ -193,8 +193,4 @@ describe('RequestsUtils.ts', () => {
   const sendRequestBaseUrl = `${RequestsUtils.confAPIRoot}/${RequestsUtils.confAPIVersion}/`
   const sendRequestUrlTrail = 'configs/master/'
   buildFuncDescribe(RequestsUtils.sendRequest, sendRequestBaseUrl, sendRequestUrlTrail)
-
-  const sendLogsRequestBaseUrl = `${RequestsUtils.logsAPIRoot}/${RequestsUtils.logsAPIVersion}/`
-  const sendLogsRequestUrlTrail = 'exec/'
-  buildFuncDescribe(RequestsUtils.sendLogsRequest, sendLogsRequestBaseUrl, sendLogsRequestUrlTrail)
 })

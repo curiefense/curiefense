@@ -358,6 +358,7 @@ export default Vue.extend({
         await this.loadDocs(this.selectedDocType)
       }
       this.selectedDocID = this.$route.params.doc_id || this.docIdNames[0][0]
+      this.isDocumentInvalid = false
       await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()
       this.setLoadingDocStatus(false)

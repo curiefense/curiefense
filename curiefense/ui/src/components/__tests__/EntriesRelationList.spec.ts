@@ -512,7 +512,7 @@ describe('EntriesRelationList.vue', () => {
       expect(sectionRelationToggle.text()).toEqual('OR')
     })
 
-    test.skip('should not set section relation to `OR` if no more than one item of same category added', async () => {
+    test('should not set section relation to `OR` if no more than one item of same category added', async () => {
       const newRuleData = JSON.parse(JSON.stringify(ruleData))
       newRuleData.sections[0].entries = [
         [
@@ -523,10 +523,8 @@ describe('EntriesRelationList.vue', () => {
       wrapper.setProps({rule: newRuleData})
       await Vue.nextTick()
       const component = wrapper.findComponent(EntriesRelationList)
-      // set relation to AND
+      // check relation is AND
       const sectionRelationToggle = component.findAll('.section-relation-toggle').at(0)
-      sectionRelationToggle.trigger('click')
-      await Vue.nextTick()
       expect(sectionRelationToggle.text()).toEqual('AND')
       // open new entry row
       const addEntryButton = component.find('.add-entry-button')
@@ -540,7 +538,7 @@ describe('EntriesRelationList.vue', () => {
       const confirmAddEntryButton = component.find('.confirm-add-entry-button')
       confirmAddEntryButton.trigger('click')
       await Vue.nextTick()
-      // check
+      // check relation is still AND
       expect(sectionRelationToggle.text()).toEqual('AND')
     })
 
