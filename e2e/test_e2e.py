@@ -283,7 +283,7 @@ class TestACL:
         assert target.is_reachable("/")
 
     def test_geo(self, acl, target):
-        acl.reset_and_set_acl({"deny": "geo:us"})
+        acl.reset_and_set_acl({"deny": "geo:united-states"})
         assert not target.is_reachable("/acl-geo", srcip=IP4_US)
         assert target.is_reachable("/acl-geo", srcip=IP4_JP)
         assert target.is_reachable("/")
@@ -1085,7 +1085,7 @@ TEST_TAGRULES = {
                     ["uri", "/e2e-tagrules-uri", "annotation"],
                     ["ip", IP6_1, "annotation"],
                     ["ip", IP4_US, "annotation"],
-                    ["country", "jp", "annotation"],
+                    ["country", "JP", "annotation"],
                     ["asn", "13335", "annotation"],
                 ],
             },
@@ -1183,7 +1183,7 @@ class TestTagRules:
 
     def test_asn(self, target, tagrules_config, active):
         # ASN 13335
-        assert target.is_reachable("/tag-asn", srcip="1.1.1.1") is not active
+        assert target.is_reachable("/tag-asn", srcip=IP4_CLOUDFLARE) is not active
 
     def test_and(self, target, tagrules_config, active):
         assert (

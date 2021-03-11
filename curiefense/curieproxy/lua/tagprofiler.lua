@@ -26,6 +26,28 @@ function match_singles(request_map, list_entry)
       return entry_match
     end
 
+    -- pattern matching for country
+    if entry_key == 'country' then
+      local value = request_map.geo.country.iso
+      if value then
+        entry_match = list_entries[request_map.geo.country.iso]
+        if entry_match then
+          return entry_match
+        end
+      end
+    end
+
+    -- pattern matching for ASN
+    if entry_key == 'asn' then
+      local value = request_map.geo.asn
+      if value then
+        entry_match = list_entries[request_map.geo.asn]
+        if entry_match then
+          return entry_match
+        end
+      end
+    end
+
     -- pattern matching for all but ip or ASN.
     if entry_key ~= 'ip' and entry_key ~= 'asn' then
       for pattern, annotation in pairs(list_entries) do
