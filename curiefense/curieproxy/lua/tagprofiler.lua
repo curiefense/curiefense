@@ -30,7 +30,7 @@ function match_singles(request_map, list_entry)
     if entry_key == 'country' then
       local value = request_map.geo.country.iso
       if value then
-        entry_match = list_entries[request_map.geo.country.iso]
+        entry_match = list_entries[value]
         if entry_match then
           return entry_match
         end
@@ -41,7 +41,7 @@ function match_singles(request_map, list_entry)
     if entry_key == 'asn' then
       local value = request_map.geo.asn
       if value then
-        entry_match = list_entries[request_map.geo.asn]
+        entry_match = list_entries[value]
         if entry_match then
           return entry_match
         end
