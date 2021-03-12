@@ -1,9 +1,18 @@
 # Roadmap
 
-## Version: 1.1.0
 
-Timeline: TBD
-Status: In-progress 👩‍💻
+## Version: 1.4.0
+
+Timeline: TBA
+Status: In progress 👩‍💻
+
+### Features:
+* TBA
+
+## Version: 1.3.0
+
+Timeline: Mar 2021
+Status: Completed ✅
 
 ### Features:
 * Search page for policies and rules
