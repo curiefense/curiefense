@@ -438,9 +438,6 @@ export default Vue.extend({
     },
 
     saveKey(database: string, key: string, doc: string) {
-      if (!doc) {
-        return
-      }
       const parsedDoc = JSON.parse(doc)
 
       return RequestsUtils.sendRequest('PUT',
@@ -510,9 +507,6 @@ export default Vue.extend({
     },
 
     async saveChanges() {
-      if (!this.document) {
-        return
-      }
       this.isSaveDocLoading = true
       if (this.selectedDatabase === this.databaseNameInput && this.selectedKey === this.keyNameInput) {
         // If database name and key name did not change - save normally
@@ -528,7 +522,7 @@ export default Vue.extend({
         data[this.keyNameInput] = JSON.parse(this.document)
         await this.addNewDatabase(this.databaseNameInput, data)
         await this.deleteDatabase(oldDatabase, true)
-      } else if (this.selectedKey !== this.keyNameInput) {
+      } else {
         // If key name changed -> Save the data under the new name and remove the old key from the database
         const oldKey = this.selectedKey
         await this.addNewKey(this.keyNameInput, this.document)

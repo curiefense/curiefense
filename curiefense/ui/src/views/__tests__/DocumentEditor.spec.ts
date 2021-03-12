@@ -7,6 +7,7 @@ import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import _ from 'lodash'
+import {ACLPolicy, Branch, Commit, FlowControl, RateLimit, TagRule, URLMap, WAFPolicy} from '@/types'
 
 jest.mock('axios')
 
@@ -14,15 +15,17 @@ describe('DocumentEditor.vue', () => {
   let wrapper: Wrapper<Vue>
   let mockRoute: any
   let mockRouter: any
-  let gitData: any[]
-  let aclDocs: any[]
-  let aclDocsLogs: any[]
-  let aclGitOldVersion: any[]
-  let profilingListDocs: any[]
-  let profilingListDocsLogs: any[]
-  let urlMapsDocs: any[]
-  let urlMapsDocsLogs: any[]
-  let flowControlDocs: any[]
+  let gitData: Branch[]
+  let aclDocs: ACLPolicy[]
+  let aclDocsLogs: Commit[][]
+  let aclGitOldVersion: ACLPolicy[]
+  let profilingListDocs: TagRule[]
+  let profilingListDocsLogs: Commit[][]
+  let urlMapsDocs: URLMap[]
+  let urlMapsDocsLogs: Commit[][]
+  let flowControlDocs: FlowControl[]
+  let wafDocs: WAFPolicy[]
+  let rateLimitsDocs: RateLimit[]
   beforeEach((done) => {
     gitData = [
       {
@@ -507,78 +510,37 @@ describe('DocumentEditor.vue', () => {
         'mdate': '2020-05-23T00:04:41',
         'notes': 'Tag API Requests',
         'active': true,
-        'entries_relation': 'OR',
-        'tags': [
-          'api',
-        ],
-        'entries': [
-          [
-            'headers',
-            [
-              'content-type',
-              '.*/(json|xml)',
-            ],
-            'content type',
-          ],
-          [
-            'headers',
-            [
-              'host',
-              '.?ap[ip]\\.',
-            ],
-            'app or api in domain name',
-          ],
-          [
-            'method',
-            '(POST|PUT|DELETE|PATCH)',
-            'Methods',
-          ],
-          [
-            'path',
-            '/api/',
-            'api path',
-          ],
-          [
-            'uri',
-            '/.+\\.json',
-            'URI JSON extention',
-          ],
-        ],
-      },
-      {
+        'tags': ['api'],
+        'action': {
+          'type': 'monitor',
+          'params': {},
+        },
+        'rule': {
+          'relation': 'OR',
+          'sections': [
+            {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
+            {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
+            {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]}],
+        },
+      }, {
         'id': '07656fbe',
         'name': 'devop internal demo',
         'source': 'self-managed',
         'mdate': '2020-05-23T00:04:41',
         'notes': 'this is my own list',
         'active': false,
-        'entries_relation': 'OR',
-        'tags': [
-          'internal',
-          'devops',
-        ],
-        'entries': [
-          [
-            'ip',
-            '12.34.56.78/32',
-            'testers',
-          ],
-          [
-            'ip',
-            '98.76.54.0/24',
-            'monitoring',
-          ],
-          [
-            'ip',
-            '!5.4.3.2/32',
-            'old monitoring',
-          ],
-          [
-            'path',
-            '/test/app/status',
-            'monitoring path',
-          ],
-        ],
+        'tags': ['internal', 'devops'],
+        'action': {
+          'type': 'monitor',
+          'params': {},
+        },
+        'rule': {
+          'relation': 'OR',
+          'sections': [
+            {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
+            {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
+            {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]}],
+        },
       },
     ]
     profilingListDocsLogs = [
@@ -606,7 +568,7 @@ describe('DocumentEditor.vue', () => {
             'match': '/',
             'acl_profile': '5828321c37e0',
             'acl_active': false,
-            'waf_profile': '__default__',
+            'waf_profile': '009e846e819e',
             'waf_active': false,
             'limit_ids': [],
           },
@@ -629,6 +591,8 @@ describe('DocumentEditor.vue', () => {
     ]
     flowControlDocs = [
       {
+        'active': true,
+        'notes': '',
         'exclude': [],
         'include': ['all'],
         'name': 'flow control',
@@ -665,10 +629,37 @@ describe('DocumentEditor.vue', () => {
         'id': 'c03dabe4b9ca',
       },
     ]
+    wafDocs = [{
+      'id': '009e846e819e',
+      'name': 'waf',
+      'ignore_alphanum': true,
+      'max_header_length': 1024,
+      'max_cookie_length': 2048,
+      'max_arg_length': 1536,
+      'max_headers_count': 36,
+      'max_cookies_count': 42,
+      'max_args_count': 512,
+      'args': {'names': [], 'regex': []},
+      'headers': {'names': [], 'regex': []},
+      'cookies': {'names': [], 'regex': []},
+    }]
+    rateLimitsDocs = [{
+      'id': 'f971e92459e2',
+      'name': 'Rate Limit Example Rule 5/60',
+      'description': '5 requests per minute',
+      'ttl': '60',
+      'limit': '5',
+      'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
+      'include': {headers: {}, cookies: {}, args: {}, attrs: {ip: '10.0.0.1', path: 'localhost'}},
+      'exclude': {headers: {}, cookies: {}, args: {foo: 'bar'}, attrs: {}},
+      'key': [{'attrs': 'ip'}],
+      'pairwith': {'self': 'self'},
+    }]
     jest.spyOn(axios.CancelToken, 'source').mockImplementation(() => {
       return {
         token: null,
-        cancel: () => {},
+        cancel: () => {
+        },
       }
     })
     jest.spyOn(axios, 'get').mockImplementation((path, config) => {
@@ -731,6 +722,24 @@ describe('DocumentEditor.vue', () => {
       if (path === `/conf/api/v1/configs/${branch}/d/flowcontrol/e/c03dabe4b9ca/`) {
         return Promise.resolve({data: flowControlDocs[0]})
       }
+      if (path === `/conf/api/v1/configs/${branch}/d/wafpolicies/`) {
+        if (config && config.headers && config.headers['x-fields'] === 'id, name') {
+          return Promise.resolve({data: _.map(wafDocs, (i) => _.pick(i, 'id', 'name'))})
+        }
+        return Promise.resolve({data: wafDocs})
+      }
+      if (path === `/conf/api/v1/configs/${branch}/d/wafpolicies/e/009e846e819e/`) {
+        return Promise.resolve({data: wafDocs[0]})
+      }
+      if (path === `/conf/api/v1/configs/${branch}/d/ratelimits/`) {
+        if (config && config.headers && config.headers['x-fields'] === 'id, name') {
+          return Promise.resolve({data: _.map(rateLimitsDocs, (i) => _.pick(i, 'id', 'name'))})
+        }
+        return Promise.resolve({data: rateLimitsDocs})
+      }
+      if (path === `/conf/api/v1/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
+        return Promise.resolve({data: rateLimitsDocs[0]})
+      }
       if (path === '/conf/api/v1/configs/master/v/') {
         return Promise.resolve({data: gitData[0].logs})
       }
@@ -745,6 +754,7 @@ describe('DocumentEditor.vue', () => {
         doc_type: 'aclpolicies',
         doc_id: '__default__',
       },
+      path: `/config/master/aclpolicies/__default__`,
     }
     mockRouter = {
       push: jest.fn(),
@@ -767,342 +777,6 @@ describe('DocumentEditor.vue', () => {
   test('should have a git history component', () => {
     const gitHistory = wrapper.findComponent(GitHistory)
     expect(gitHistory).toBeTruthy()
-  })
-
-  test('should display correct zero amount of branches', (done) => {
-    gitData = []
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/configs/') {
-        return Promise.resolve({data: gitData})
-      }
-      return Promise.resolve({data: []})
-    })
-    wrapper = shallowMount(DocumentEditor, {
-      mocks: {
-        $route: mockRoute,
-        $router: mockRouter,
-      },
-    })
-    // allow all requests to finish
-    setImmediate(() => {
-      const gitBranches = wrapper.find('.git-branches')
-      expect(gitBranches.text()).toEqual('0 branches')
-      done()
-    })
-  })
-
-  test('should display correct zero amount of commits', (done) => {
-    gitData = []
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/configs/') {
-        return Promise.resolve({data: gitData})
-      }
-      return Promise.resolve({data: []})
-    })
-    wrapper = shallowMount(DocumentEditor, {
-      mocks: {
-        $route: mockRoute,
-        $router: mockRouter,
-      },
-    })
-    // allow all requests to finish
-    setImmediate(() => {
-      const gitCommits = wrapper.find('.git-commits')
-      expect(gitCommits.text()).toEqual('0 commits')
-      done()
-    })
-  })
-
-  test('should display correct singular amount of branches', (done) => {
-    gitData = [
-      {
-        'id': 'master',
-        'description': 'Update entry [__default__] of document [aclpolicies]',
-        'date': '2020-11-10T15:49:17+02:00',
-        'logs': [{
-          'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
-          'date': '2020-11-10T15:49:17+02:00',
-          'parents': [
-            'fc47a6cd9d7f254dd97875a04b87165cc484e075',
-          ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
-          'email': 'curiefense@reblaze.com',
-          'author': 'Curiefense API',
-        }],
-        'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
-      },
-    ]
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/configs/') {
-        return Promise.resolve({data: gitData})
-      }
-      if (path === '/conf/api/v1/configs/master/') {
-        return Promise.resolve({data: gitData[0]})
-      }
-      if (path === '/conf/api/v1/configs/master/v/') {
-        return Promise.resolve({data: gitData[0].logs})
-      }
-      return Promise.resolve({data: []})
-    })
-    wrapper = shallowMount(DocumentEditor, {
-      mocks: {
-        $route: mockRoute,
-        $router: mockRouter,
-      },
-    })
-    // allow all requests to finish
-    setImmediate(() => {
-      const gitBranches = wrapper.find('.git-branches')
-      expect(gitBranches.text()).toEqual('1 branch')
-      done()
-    })
-  })
-
-  test('should display correct singular amount of commits', (done) => {
-    gitData = [
-      {
-        'id': 'master',
-        'description': 'Update entry [__default__] of document [aclpolicies]',
-        'date': '2020-11-10T15:49:17+02:00',
-        'logs': [{
-          'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
-          'date': '2020-11-10T15:49:17+02:00',
-          'parents': [
-            'fc47a6cd9d7f254dd97875a04b87165cc484e075',
-          ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
-          'email': 'curiefense@reblaze.com',
-          'author': 'Curiefense API',
-        }],
-        'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
-      },
-    ]
-    jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/configs/') {
-        return Promise.resolve({data: gitData})
-      }
-      if (path === '/conf/api/v1/configs/master/') {
-        return Promise.resolve({data: gitData[0]})
-      }
-      if (path === '/conf/api/v1/configs/master/v/') {
-        return Promise.resolve({data: gitData[0].logs})
-      }
-      return Promise.resolve({data: []})
-    })
-    wrapper = shallowMount(DocumentEditor, {
-      mocks: {
-        $route: mockRoute,
-        $router: mockRouter,
-      },
-    })
-    // allow all requests to finish
-    setImmediate(() => {
-      const gitCommits = wrapper.find('.git-commits')
-      expect(gitCommits.text()).toEqual('1 commit')
-      done()
-    })
-  })
-
-  test('should display correct plural amount of branches', () => {
-    const gitBranches = wrapper.find('.git-branches')
-    expect(gitBranches.text()).toEqual('2 branches')
-  })
-
-  test('should display correct plural amount of commits', () => {
-    const gitCommits = wrapper.find('.git-commits')
-    expect(gitCommits.text()).toEqual('10 commits')
-  })
-
-  test('should be able to switch branches through dropdown', (done) => {
-    const branchSelection = wrapper.find('.branch-selection')
-    branchSelection.trigger('click')
-    const options = branchSelection.findAll('option')
-    options.at(1).setSelected()
-    // allow all requests to finish
-    setImmediate(() => {
-      expect((branchSelection.element as any).selectedIndex).toEqual(1)
-      done()
-    })
-  })
-
-  test('should not switch doc type when switching branches', async (done) => {
-    const docTypeSelection = wrapper.find('.doc-type-selection')
-    docTypeSelection.trigger('click')
-    const docTypeOptions = docTypeSelection.findAll('option')
-    docTypeOptions.at(2).setSelected()
-    await Vue.nextTick()
-    const branchSelection = wrapper.find('.branch-selection')
-    branchSelection.trigger('click')
-    const branchOptions = branchSelection.findAll('option')
-    branchOptions.at(1).setSelected()
-    // allow all requests to finish
-    setImmediate(() => {
-      expect((docTypeSelection.element as any).selectedIndex).toEqual(2)
-      done()
-    })
-  })
-
-  test('should not switch selected doc when switching branches', async (done) => {
-    const docSelection = wrapper.find('.doc-selection')
-    docSelection.trigger('click')
-    const docOptions = docSelection.findAll('option')
-    docOptions.at(1).setSelected()
-    await Vue.nextTick()
-    const branchSelection = wrapper.find('.branch-selection')
-    branchSelection.trigger('click')
-    const branchOptions = branchSelection.findAll('option')
-    branchOptions.at(1).setSelected()
-    // allow all requests to finish
-    setImmediate(() => {
-      expect((docSelection.element as any).selectedIndex).toEqual(1)
-      done()
-    })
-  })
-
-  test('should be able to switch doc types through dropdown', (done) => {
-    const docTypeSelection = wrapper.find('.doc-type-selection')
-    docTypeSelection.trigger('click')
-    const options = docTypeSelection.findAll('option')
-    options.at(2).setSelected()
-    // allow all requests to finish
-    setImmediate(() => {
-      expect((docTypeSelection.element as any).selectedIndex).toEqual(2)
-      done()
-    })
-  })
-
-  test('should be able to switch docs through dropdown', (done) => {
-    // switch to profiling lists
-    const docTypeSelection = wrapper.find('.doc-type-selection')
-    docTypeSelection.trigger('click')
-    const docTypeOptions = docTypeSelection.findAll('option')
-    docTypeOptions.at(2).setSelected()
-    // allow all requests to finish
-    setImmediate(() => {
-      // switch to a different document
-      const docSelection = wrapper.find('.doc-selection')
-      docSelection.trigger('click')
-      const options = docSelection.findAll('option')
-      options.at(1).setSelected()
-      // allow all requests to finish
-      setImmediate(() => {
-        expect((docSelection.element as any).selectedIndex).toEqual(1)
-        done()
-      })
-    })
-  })
-
-  test('should refresh referenced IDs lists after saving url map entity', (done) => {
-    // switch to url map entity type
-    const docTypeSelection = wrapper.find('.doc-type-selection')
-    docTypeSelection.trigger('click')
-    const options = docTypeSelection.findAll('option')
-    options.at(4).setSelected()
-    // allow all requests to finish
-    setImmediate(async () => {
-      const doc = (wrapper.vm as any).selectedDoc
-      doc.name = `${doc.name} changed`
-      jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
-      const getSpy = jest.spyOn(axios, 'get')
-      const saveDocumentButton = wrapper.find('.save-document-button')
-      saveDocumentButton.trigger('click')
-      await Vue.nextTick()
-      expect(getSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/urlmaps/`)
-      done()
-    })
-  })
-
-  test('should be able to save document changes', async () => {
-    const doc = (wrapper.vm as any).selectedDoc
-    doc.name = `${doc.name} changed`
-    const putSpy = jest.spyOn(axios, 'put')
-    putSpy.mockImplementation(() => Promise.resolve())
-    const saveDocumentButton = wrapper.find('.save-document-button')
-    saveDocumentButton.trigger('click')
-    await Vue.nextTick()
-    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/aclpolicies/e/${doc.id}/`, doc)
-  })
-
-  test('should be able to fork document', async () => {
-    const originalDoc = (wrapper.vm as any).selectedDoc
-    const forkedDoc = {...originalDoc}
-    forkedDoc.id = expect.any(String)
-    forkedDoc.name = `copy of ${forkedDoc.name}`
-    const postSpy = jest.spyOn(axios, 'post')
-    postSpy.mockImplementation(() => Promise.resolve())
-    await Vue.nextTick()
-    const forkDocumentButton = wrapper.find('.fork-document-button')
-    forkDocumentButton.trigger('click')
-    await Vue.nextTick()
-    expect(postSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/aclpolicies/e/`, forkedDoc)
-  })
-
-  test('should be able to add a new document', async () => {
-    const newDoc = DatasetsUtils.newDocEntryFactory.aclpolicies();
-    (newDoc.id as any) = expect.any(String)
-    const postSpy = jest.spyOn(axios, 'post')
-    postSpy.mockImplementation(() => Promise.resolve())
-    const newDocumentButton = wrapper.find('.new-document-button')
-    newDocumentButton.trigger('click')
-    await Vue.nextTick()
-    expect(postSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/aclpolicies/e/`, newDoc)
-  })
-
-  test('should be able to add multiple new documents in a row with different IDs', async () => {
-    const newDocIDs: string[] = []
-    const postSpy = jest.spyOn(axios, 'post')
-    postSpy.mockImplementation((url, data) => {
-      newDocIDs.push(data.id)
-      return Promise.resolve()
-    })
-    const newDocumentButton = wrapper.find('.new-document-button')
-    newDocumentButton.trigger('click')
-    await Vue.nextTick()
-    newDocumentButton.trigger('click')
-    await Vue.nextTick()
-    expect(postSpy).toHaveBeenCalledTimes(2)
-    expect(newDocIDs[0]).not.toEqual(newDocIDs[1])
-  })
-
-  test('should be able to delete a document', async () => {
-    const deleteSpy = jest.spyOn(axios, 'delete')
-    deleteSpy.mockImplementation(() => Promise.resolve())
-    // create new document so we can delete it
-    const newDocumentButton = wrapper.find('.new-document-button')
-    newDocumentButton.trigger('click')
-    await Vue.nextTick()
-    const docID = (wrapper.vm as any).selectedDocID
-    const deleteDocumentButton = wrapper.find('.delete-document-button')
-    deleteDocumentButton.trigger('click')
-    await Vue.nextTick()
-    expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/aclpolicies/e/${docID}/`)
-  })
-
-  test('should not be able to delete a document if its id is __default__', async () => {
-    const deleteSpy = jest.spyOn(axios, 'delete')
-    deleteSpy.mockImplementation(() => Promise.resolve());
-    (wrapper.vm as any).selectedDocID = '__default__'
-    await Vue.nextTick()
-    const deleteDocumentButton = wrapper.find('.delete-document-button')
-    deleteDocumentButton.trigger('click')
-    await Vue.nextTick()
-    expect(deleteSpy).not.toHaveBeenCalled()
-  })
-
-  test('should not be able to delete a document if it is referenced by a url map', async () => {
-    // switch to a different document
-    const docSelection = wrapper.find('.doc-selection')
-    docSelection.trigger('click')
-    const options = docSelection.findAll('option')
-    options.at(1).setSelected()
-    await Vue.nextTick()
-    const deleteSpy = jest.spyOn(axios, 'delete')
-    deleteSpy.mockImplementation(() => Promise.resolve());
-    (wrapper.vm as any).selectedDoc.id = '__default__'
-    const deleteDocumentButton = wrapper.find('.delete-document-button')
-    deleteDocumentButton.trigger('click')
-    await Vue.nextTick()
-    expect(deleteSpy).not.toHaveBeenCalled()
   })
 
   test('should send API request to restore to the correct version', async () => {
@@ -1143,35 +817,22 @@ describe('DocumentEditor.vue', () => {
     })
   })
 
-  test('should not attempt to download document when download button is clicked' +
-    'if the full docs data was not loaded yet', async () => {
-    jest.spyOn(axios, 'get').mockImplementation((path, config) => {
+  test('should log message when receiving no documents from the server', (done) => {
+    const originalLog = console.log
+    let consoleOutput: string[] = []
+    const mockedLog = (output: string) => consoleOutput.push(output)
+    consoleOutput = []
+    console.log = mockedLog
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === '/conf/api/v1/configs/') {
         return Promise.resolve({data: gitData})
       }
       const branch = (wrapper.vm as any).selectedBranch
-      const docID = (wrapper.vm as any).selectedDocID
-      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/`) {
-        if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
-        }
-        setTimeout(() => {
-          return Promise.resolve({data: aclDocs})
-        }, 5000)
+      const doctype = (wrapper.vm as any).selectedDocType
+      if (path === `/conf/api/v1/configs/${branch}/d/${doctype}/`) {
+        return Promise.reject(new Error())
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/__default__/`) {
-        return Promise.resolve({data: aclDocs[0]})
-      }
-      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/5828321c37e0/`) {
-        return Promise.resolve({data: aclDocs[1]})
-      }
-      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
-        return Promise.resolve({data: aclGitOldVersion})
-      }
-      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/${docID}/v/`) {
-        return Promise.resolve({data: aclDocsLogs[0]})
-      }
-      return Promise.resolve({data: []})
+      return Promise.resolve({data: {}})
     })
     wrapper = shallowMount(DocumentEditor, {
       mocks: {
@@ -1179,29 +840,613 @@ describe('DocumentEditor.vue', () => {
         $router: mockRouter,
       },
     })
-    await Vue.nextTick()
-    const downloadFileSpy = jest.spyOn(Utils, 'downloadFile')
-    // force update because downloadFile is mocked after it is read to to be used as event handler
-    await (wrapper.vm as any).$forceUpdate()
-    await Vue.nextTick()
-    const downloadDocButton = wrapper.find('.download-doc-button')
-    downloadDocButton.trigger('click')
-    await Vue.nextTick()
-    expect(downloadFileSpy).not.toHaveBeenCalled()
+    // allow all requests to finish
+    setImmediate(() => {
+      expect(consoleOutput).toContain(`Error while attempting to load documents`)
+      console.log = originalLog
+      done()
+    })
   })
 
-  test('should attempt to download document when download button is clicked', async () => {
-    const wantedFileName = 'aclpolicies'
-    const wantedFileType = 'json'
-    const wantedFileData = aclDocs
-    const downloadFileSpy = jest.spyOn(Utils, 'downloadFile')
-    // force update because downloadFile is mocked after it is read to to be used as event handler
-    await (wrapper.vm as any).$forceUpdate()
-    await Vue.nextTick()
-    const downloadDocButton = wrapper.find('.download-doc-button')
-    downloadDocButton.trigger('click')
-    await Vue.nextTick()
-    expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
+  describe('route change', () => {
+    test('should not load a different path from route when it does not change', async (done) => {
+      const routeChangeSpy = jest.spyOn(mockRouter, 'push')
+      mockRoute.params = {
+        branch: 'master',
+        doc_type: 'aclpolicies',
+        doc_id: '__default__',
+      }
+      // allow all requests to finish
+      setImmediate(() => {
+        expect(routeChangeSpy).not.toHaveBeenCalled()
+        done()
+      })
+    })
+
+    test('should load correct branch from route when changes', async (done) => {
+      mockRoute.params = {
+        branch: 'zzz_branch',
+        doc_type: 'tagrules',
+        doc_id: '07656fbe',
+      }
+      // allow all requests to finish
+      setImmediate(() => {
+        const branchSelection = wrapper.find('.branch-selection')
+        expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
+        done()
+      })
+    })
+
+    test('should load correct document type from route when changes', async (done) => {
+      mockRoute.params = {
+        branch: 'zzz_branch',
+        doc_type: 'tagrules',
+        doc_id: '07656fbe',
+      }
+      // allow all requests to finish
+      setImmediate(() => {
+        const docTypeSelection = wrapper.find('.doc-type-selection')
+        expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(2)
+        done()
+      })
+    })
+
+    test('should load correct document id from route when changes', async (done) => {
+      mockRoute.params = {
+        branch: 'zzz_branch',
+        doc_type: 'tagrules',
+        doc_id: '07656fbe',
+      }
+      // allow all requests to finish
+      setImmediate(() => {
+        const docSelection = wrapper.find('.doc-selection')
+        expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
+        done()
+      })
+    })
+
+    test('should load correct branch from route without changing document type or id', async (done) => {
+      mockRoute.params = {
+        branch: 'zzz_branch',
+        doc_type: 'aclpolicies',
+        doc_id: '__default__',
+      }
+      // allow all requests to finish
+      setImmediate(() => {
+        const branchSelection = wrapper.find('.branch-selection')
+        expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
+        const docTypeSelection = wrapper.find('.doc-type-selection')
+        expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
+        const docSelection = wrapper.find('.doc-selection')
+        expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
+        done()
+      })
+    })
+
+    test('should load correct document type from route without changing branch or document id', async (done) => {
+      mockRoute.params = {
+        branch: 'master',
+        doc_type: 'urlmaps',
+        doc_id: '__default__',
+      }
+      // allow all requests to finish
+      setImmediate(() => {
+        const branchSelection = wrapper.find('.branch-selection')
+        expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
+        const docTypeSelection = wrapper.find('.doc-type-selection')
+        expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(4)
+        const docSelection = wrapper.find('.doc-selection')
+        expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
+        done()
+      })
+    })
+
+    test('should load correct document id from route without changing branch or document type', async (done) => {
+      mockRoute.params = {
+        branch: 'master',
+        doc_type: 'aclpolicies',
+        doc_id: '5828321c37e0',
+      }
+      // allow all requests to finish
+      setImmediate(() => {
+        const branchSelection = wrapper.find('.branch-selection')
+        expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
+        const docTypeSelection = wrapper.find('.doc-type-selection')
+        expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
+        const docSelection = wrapper.find('.doc-selection')
+        expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
+        done()
+      })
+    })
+
+    test('should load correct default branch if non existent in route params', async (done) => {
+      mockRoute.params = {}
+      // allow all requests to finish
+      setImmediate(() => {
+        const branchSelection = wrapper.find('.branch-selection')
+        expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
+        done()
+      })
+    })
+
+    test('should load correct default document type if non existent in route params', async (done) => {
+      mockRoute.params = {}
+      // allow all requests to finish
+      setImmediate(() => {
+        const docTypeSelection = wrapper.find('.doc-type-selection')
+        expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
+        done()
+      })
+    })
+
+    test('should load correct default document id if non existent in route params', async (done) => {
+      mockRoute.params = {}
+      // allow all requests to finish
+      setImmediate(() => {
+        const docSelection = wrapper.find('.doc-selection')
+        expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
+        done()
+      })
+    })
+  })
+
+  describe('branches and commits display', () => {
+    test('should display correct zero amount of branches', (done) => {
+      gitData = []
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v1/configs/') {
+          return Promise.resolve({data: gitData})
+        }
+        return Promise.resolve({data: []})
+      })
+      wrapper = shallowMount(DocumentEditor, {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
+      })
+      // allow all requests to finish
+      setImmediate(() => {
+        const gitBranches = wrapper.find('.git-branches')
+        expect(gitBranches.text()).toEqual('0 branches')
+        done()
+      })
+    })
+
+    test('should display correct zero amount of commits', (done) => {
+      gitData = []
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v1/configs/') {
+          return Promise.resolve({data: gitData})
+        }
+        return Promise.resolve({data: []})
+      })
+      wrapper = shallowMount(DocumentEditor, {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
+      })
+      // allow all requests to finish
+      setImmediate(() => {
+        const gitCommits = wrapper.find('.git-commits')
+        expect(gitCommits.text()).toEqual('0 commits')
+        done()
+      })
+    })
+
+    test('should display correct singular amount of branches', (done) => {
+      gitData = [
+        {
+          'id': 'master',
+          'description': 'Update entry [__default__] of document [aclpolicies]',
+          'date': '2020-11-10T15:49:17+02:00',
+          'logs': [{
+            'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+            'date': '2020-11-10T15:49:17+02:00',
+            'parents': [
+              'fc47a6cd9d7f254dd97875a04b87165cc484e075',
+            ],
+            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'email': 'curiefense@reblaze.com',
+            'author': 'Curiefense API',
+          }],
+          'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+        },
+      ]
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v1/configs/') {
+          return Promise.resolve({data: gitData})
+        }
+        if (path === '/conf/api/v1/configs/master/') {
+          return Promise.resolve({data: gitData[0]})
+        }
+        if (path === '/conf/api/v1/configs/master/v/') {
+          return Promise.resolve({data: gitData[0].logs})
+        }
+        return Promise.resolve({data: []})
+      })
+      wrapper = shallowMount(DocumentEditor, {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
+      })
+      // allow all requests to finish
+      setImmediate(() => {
+        const gitBranches = wrapper.find('.git-branches')
+        expect(gitBranches.text()).toEqual('1 branch')
+        done()
+      })
+    })
+
+    test('should display correct singular amount of commits', (done) => {
+      gitData = [
+        {
+          'id': 'master',
+          'description': 'Update entry [__default__] of document [aclpolicies]',
+          'date': '2020-11-10T15:49:17+02:00',
+          'logs': [{
+            'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+            'date': '2020-11-10T15:49:17+02:00',
+            'parents': [
+              'fc47a6cd9d7f254dd97875a04b87165cc484e075',
+            ],
+            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'email': 'curiefense@reblaze.com',
+            'author': 'Curiefense API',
+          }],
+          'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+        },
+      ]
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v1/configs/') {
+          return Promise.resolve({data: gitData})
+        }
+        if (path === '/conf/api/v1/configs/master/') {
+          return Promise.resolve({data: gitData[0]})
+        }
+        if (path === '/conf/api/v1/configs/master/v/') {
+          return Promise.resolve({data: gitData[0].logs})
+        }
+        return Promise.resolve({data: []})
+      })
+      wrapper = shallowMount(DocumentEditor, {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
+      })
+      // allow all requests to finish
+      setImmediate(() => {
+        const gitCommits = wrapper.find('.git-commits')
+        expect(gitCommits.text()).toEqual('1 commit')
+        done()
+      })
+    })
+
+    test('should display correct plural amount of branches', () => {
+      const gitBranches = wrapper.find('.git-branches')
+      expect(gitBranches.text()).toEqual('2 branches')
+    })
+
+    test('should display correct plural amount of commits', () => {
+      const gitCommits = wrapper.find('.git-commits')
+      expect(gitCommits.text()).toEqual('10 commits')
+    })
+  })
+
+  describe('dropdowns', () => {
+    test('should be able to switch branches through dropdown', (done) => {
+      const branchSelection = wrapper.find('.branch-selection')
+      branchSelection.trigger('click')
+      const options = branchSelection.findAll('option')
+      options.at(1).setSelected()
+      // allow all requests to finish
+      setImmediate(() => {
+        expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
+        done()
+      })
+    })
+
+    test('should not switch doc type when switching branches', async (done) => {
+      const docTypeSelection = wrapper.find('.doc-type-selection')
+      docTypeSelection.trigger('click')
+      const docTypeOptions = docTypeSelection.findAll('option')
+      docTypeOptions.at(2).setSelected()
+      await Vue.nextTick()
+      const branchSelection = wrapper.find('.branch-selection')
+      branchSelection.trigger('click')
+      const branchOptions = branchSelection.findAll('option')
+      branchOptions.at(1).setSelected()
+      // allow all requests to finish
+      setImmediate(() => {
+        expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(2)
+        done()
+      })
+    })
+
+    test('should not switch selected doc when switching branches', async (done) => {
+      const docSelection = wrapper.find('.doc-selection')
+      docSelection.trigger('click')
+      const docOptions = docSelection.findAll('option')
+      docOptions.at(1).setSelected()
+      await Vue.nextTick()
+      const branchSelection = wrapper.find('.branch-selection')
+      branchSelection.trigger('click')
+      const branchOptions = branchSelection.findAll('option')
+      branchOptions.at(1).setSelected()
+      // allow all requests to finish
+      setImmediate(() => {
+        expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
+        done()
+      })
+    })
+
+    test('should be able to switch doc types through dropdown', (done) => {
+      const docTypeSelection = wrapper.find('.doc-type-selection')
+      docTypeSelection.trigger('click')
+      const options = docTypeSelection.findAll('option')
+      options.at(2).setSelected()
+      // allow all requests to finish
+      setImmediate(() => {
+        expect((docTypeSelection.element as HTMLSelectElement).selectedIndex).toEqual(2)
+        done()
+      })
+    })
+
+    test('should be able to switch docs through dropdown', (done) => {
+      // switch to profiling lists
+      const docTypeSelection = wrapper.find('.doc-type-selection')
+      docTypeSelection.trigger('click')
+      const docTypeOptions = docTypeSelection.findAll('option')
+      docTypeOptions.at(2).setSelected()
+      // allow all requests to finish
+      setImmediate(() => {
+        // switch to a different document
+        const docSelection = wrapper.find('.doc-selection')
+        docSelection.trigger('click')
+        const options = docSelection.findAll('option')
+        options.at(1).setSelected()
+        // allow all requests to finish
+        setImmediate(() => {
+          expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
+          done()
+        })
+      })
+    })
+  })
+
+  describe('buttons', () => {
+    test('should refresh referenced IDs lists after saving url map entity', (done) => {
+      // switch to url map entity type
+      const docTypeSelection = wrapper.find('.doc-type-selection')
+      docTypeSelection.trigger('click')
+      const options = docTypeSelection.findAll('option')
+      options.at(4).setSelected()
+      // allow all requests to finish
+      setImmediate(async () => {
+        const doc = (wrapper.vm as any).selectedDoc
+        doc.name = `${doc.name} changed`
+        jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
+        const getSpy = jest.spyOn(axios, 'get')
+        const saveDocumentButton = wrapper.find('.save-document-button')
+        saveDocumentButton.trigger('click')
+        await Vue.nextTick()
+        expect(getSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/urlmaps/`)
+        done()
+      })
+    })
+
+    test('should be able to save document changes', async () => {
+      const doc = (wrapper.vm as any).selectedDoc
+      doc.name = `${doc.name} changed`
+      const putSpy = jest.spyOn(axios, 'put')
+      putSpy.mockImplementation(() => Promise.resolve())
+      const saveDocumentButton = wrapper.find('.save-document-button')
+      saveDocumentButton.trigger('click')
+      await Vue.nextTick()
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/aclpolicies/e/${doc.id}/`, doc)
+    })
+
+    test('should be able to fork document', async () => {
+      const originalDoc = (wrapper.vm as any).selectedDoc
+      const forkedDoc = {...originalDoc}
+      forkedDoc.id = expect.any(String)
+      forkedDoc.name = `copy of ${forkedDoc.name}`
+      const postSpy = jest.spyOn(axios, 'post')
+      postSpy.mockImplementation(() => Promise.resolve())
+      const forkDocumentButton = wrapper.find('.fork-document-button')
+      forkDocumentButton.trigger('click')
+      await Vue.nextTick()
+      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/aclpolicies/e/`, forkedDoc)
+    })
+
+    test('should change url map match when forking url map document', (done) => {
+      // switching to url maps
+      const docTypeSelection = wrapper.find('.doc-type-selection')
+      docTypeSelection.trigger('click')
+      const options = docTypeSelection.findAll('option')
+      options.at(4).setSelected()
+      // allow all requests to finish
+      setImmediate(async () => {
+        const originalDoc = (wrapper.vm as any).selectedDoc
+        const forkedDoc = {...originalDoc}
+        forkedDoc.id = expect.any(String)
+        forkedDoc.name = `copy of ${forkedDoc.name}`
+        forkedDoc.match = expect.stringContaining(`.${forkedDoc.match}`)
+        const postSpy = jest.spyOn(axios, 'post')
+        postSpy.mockImplementation(() => Promise.resolve())
+        const forkDocumentButton = wrapper.find('.fork-document-button')
+        forkDocumentButton.trigger('click')
+        await Vue.nextTick()
+        expect(postSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/urlmaps/e/`, forkedDoc)
+        done()
+      })
+    })
+
+    test('should be able to add a new document', async () => {
+      const newDoc = DatasetsUtils.newDocEntryFactory.aclpolicies()
+      newDoc.id = expect.any(String)
+      const postSpy = jest.spyOn(axios, 'post')
+      postSpy.mockImplementation(() => Promise.resolve())
+      const newDocumentButton = wrapper.find('.new-document-button')
+      newDocumentButton.trigger('click')
+      await Vue.nextTick()
+      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/aclpolicies/e/`, newDoc)
+    })
+
+    test('should be able to add multiple new documents in a row with different IDs', async () => {
+      const newDocIDs: string[] = []
+      const postSpy = jest.spyOn(axios, 'post')
+      postSpy.mockImplementation((url, data) => {
+        newDocIDs.push(data.id)
+        return Promise.resolve()
+      })
+      const newDocumentButton = wrapper.find('.new-document-button')
+      newDocumentButton.trigger('click')
+      await Vue.nextTick()
+      newDocumentButton.trigger('click')
+      await Vue.nextTick()
+      expect(postSpy).toHaveBeenCalledTimes(2)
+      expect(newDocIDs[0]).not.toEqual(newDocIDs[1])
+    })
+
+    test('should be able to delete a document', async () => {
+      const deleteSpy = jest.spyOn(axios, 'delete')
+      deleteSpy.mockImplementation(() => Promise.resolve())
+      // create new document so we can delete it
+      const newDocumentButton = wrapper.find('.new-document-button')
+      newDocumentButton.trigger('click')
+      await Vue.nextTick()
+      const docID = (wrapper.vm as any).selectedDocID
+      const deleteDocumentButton = wrapper.find('.delete-document-button')
+      deleteDocumentButton.trigger('click')
+      await Vue.nextTick()
+      expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/aclpolicies/e/${docID}/`)
+    })
+
+    test('should not be able to delete a document if its id is __default__', async () => {
+      const deleteSpy = jest.spyOn(axios, 'delete')
+      deleteSpy.mockImplementation(() => Promise.resolve());
+      (wrapper.vm as any).selectedDocID = '__default__'
+      await Vue.nextTick()
+      const deleteDocumentButton = wrapper.find('.delete-document-button')
+      deleteDocumentButton.trigger('click')
+      await Vue.nextTick()
+      expect(deleteSpy).not.toHaveBeenCalled()
+    })
+
+    test('should not be able to delete an ACL Policy document if it is referenced by a url map', async () => {
+      // switch to a different document
+      const docSelection = wrapper.find('.doc-selection')
+      docSelection.trigger('click')
+      const options = docSelection.findAll('option')
+      options.at(1).setSelected()
+      await Vue.nextTick()
+      const deleteSpy = jest.spyOn(axios, 'delete')
+      deleteSpy.mockImplementation(() => Promise.resolve());
+      (wrapper.vm as any).selectedDoc.id = '__default__'
+      const deleteDocumentButton = wrapper.find('.delete-document-button')
+      deleteDocumentButton.trigger('click')
+      await Vue.nextTick()
+      expect(deleteSpy).not.toHaveBeenCalled()
+    })
+
+    test('should not be able to delete an WAF Policy document if it is referenced by a url map', async () => {
+      // switch to WAF Policies
+      const docTypeSelection = wrapper.find('.doc-type-selection')
+      docTypeSelection.trigger('click')
+      const docTypeOptions = docTypeSelection.findAll('option')
+      docTypeOptions.at(5).setSelected()
+      await Vue.nextTick()
+      await Vue.nextTick()
+      const deleteSpy = jest.spyOn(axios, 'delete')
+      deleteSpy.mockImplementation(() => Promise.resolve());
+      (wrapper.vm as any).selectedDoc.id = '009e846e819e'
+      const deleteDocumentButton = wrapper.find('.delete-document-button')
+      deleteDocumentButton.trigger('click')
+      await Vue.nextTick()
+      expect(deleteSpy).not.toHaveBeenCalled()
+    })
+
+    test('should not be able to delete a Rate Limit document if it is referenced by a url map', async () => {
+      // switch to Rate Limits
+      const docTypeSelection = wrapper.find('.doc-type-selection')
+      docTypeSelection.trigger('click')
+      const docTypeOptions = docTypeSelection.findAll('option')
+      docTypeOptions.at(3).setSelected()
+      await Vue.nextTick()
+      await Vue.nextTick()
+      const deleteSpy = jest.spyOn(axios, 'delete')
+      deleteSpy.mockImplementation(() => Promise.resolve());
+      (wrapper.vm as any).selectedDoc.id = 'f971e92459e2'
+      const deleteDocumentButton = wrapper.find('.delete-document-button')
+      deleteDocumentButton.trigger('click')
+      await Vue.nextTick()
+      expect(deleteSpy).not.toHaveBeenCalled()
+    })
+
+    test('should not attempt to download document when download button is clicked' +
+      ' if the full docs data was not loaded yet', async () => {
+      jest.spyOn(axios, 'get').mockImplementation((path, config) => {
+        if (path === '/conf/api/v1/configs/') {
+          return Promise.resolve({data: gitData})
+        }
+        const branch = (wrapper.vm as any).selectedBranch
+        const docID = (wrapper.vm as any).selectedDocID
+        if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/`) {
+          if (config && config.headers && config.headers['x-fields'] === 'id, name') {
+            return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
+          }
+          setTimeout(() => {
+            return Promise.resolve({data: aclDocs})
+          }, 5000)
+        }
+        if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/__default__/`) {
+          return Promise.resolve({data: aclDocs[0]})
+        }
+        if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/5828321c37e0/`) {
+          return Promise.resolve({data: aclDocs[1]})
+        }
+        if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
+          return Promise.resolve({data: aclGitOldVersion})
+        }
+        if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/${docID}/v/`) {
+          return Promise.resolve({data: aclDocsLogs[0]})
+        }
+        return Promise.resolve({data: []})
+      })
+      wrapper = shallowMount(DocumentEditor, {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
+      })
+      await Vue.nextTick()
+      const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {})
+      // force update because downloadFile is mocked after it is read to to be used as event handler
+      await (wrapper.vm as any).$forceUpdate()
+      await Vue.nextTick()
+      const downloadDocButton = wrapper.find('.download-doc-button')
+      downloadDocButton.trigger('click')
+      await Vue.nextTick()
+      expect(downloadFileSpy).not.toHaveBeenCalled()
+    })
+
+    test('should attempt to download document when download button is clicked', async () => {
+      const wantedFileName = 'aclpolicies'
+      const wantedFileType = 'json'
+      const wantedFileData = aclDocs
+      const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {})
+      // force update because downloadFile is mocked after it is read to to be used as event handler
+      await (wrapper.vm as any).$forceUpdate()
+      await Vue.nextTick()
+      const downloadDocButton = wrapper.find('.download-doc-button')
+      downloadDocButton.trigger('click')
+      await Vue.nextTick()
+      expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
+    })
   })
 
   describe('no data', () => {
@@ -1225,6 +1470,31 @@ describe('DocumentEditor.vue', () => {
         expect(noDataMessage.text().toLowerCase()).toContain('no data found!')
         expect(noDataMessage.text().toLowerCase()).toContain('missing branch.')
         done()
+      })
+    })
+
+    test('should display link to version control when there is no branch data', (done) => {
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === '/conf/api/v1/configs/') {
+          return Promise.resolve({data: []})
+        }
+        return Promise.resolve({data: []})
+      })
+      wrapper = shallowMount(DocumentEditor, {
+        mocks: {
+          $route: mockRoute,
+          $router: mockRouter,
+        },
+      })
+      // allow all requests to finish
+      setImmediate(async () => {
+        jest.spyOn(mockRouter, 'push').mockImplementation((path) => {
+          expect(path).toEqual('/versioncontrol')
+          done()
+        })
+        const button = wrapper.find('.version-control-referral-button')
+        button.trigger('click')
+        await Vue.nextTick()
       })
     })
 

@@ -9,7 +9,8 @@
                 <div class="field">
                   <label class="label is-small">
                     Name
-                    <span class="has-text-grey is-pulled-right document-id" title="Document id">
+                    <span class="has-text-grey is-pulled-right document-id"
+                          title="Document id">
                     {{ localDoc.id }}
                   </span>
                   </label>
@@ -99,6 +100,7 @@
               <div class="card-content">
                 <label class="checkbox">
                   <input type="checkbox"
+                         class="ignore-alphanumeric-input"
                          @change="emitDocUpdate"
                          v-model="localDoc.ignore_alphanum"/>
                   Ignore Alphanumeric input
@@ -117,7 +119,8 @@
                   <td>
                     <div class="tabs is-centered">
                       <ul>
-                        <li :class=" tab === 'headers' ? 'is-active' : '' ">
+                        <li :class=" tab === 'headers' ? 'is-active' : '' "
+                            class="headers-tab">
                           <a tabindex="0"
                              @click='tab="headers"'
                              @keypress.space.prevent
@@ -126,7 +129,8 @@
                             Headers
                           </a>
                         </li>
-                        <li :class=" tab === 'cookies' ? 'is-active' : '' ">
+                        <li :class=" tab === 'cookies' ? 'is-active' : '' "
+                            class="cookies-tab">
                           <a tabindex="0"
                              @click='tab="cookies"'
                              @keypress.space.prevent
@@ -135,7 +139,8 @@
                             Cookies
                           </a>
                         </li>
-                        <li :class=" tab === 'args' ? 'is-active' : '' ">
+                        <li :class=" tab === 'args' ? 'is-active' : '' "
+                            class="args-tab">
                           <a tabindex="0"
                              @click='tab="args"'
                              @keypress.space.prevent
@@ -161,7 +166,8 @@
                         <th class="has-text-centered">Exclude WAF Rule</th>
                         <th class="has-text-centered">
                           <a v-show="newWAFLine !== tab"
-                             class="has-text-grey-dark is-small" title="Add new parameter"
+                             class="has-text-grey-dark is-small new-parameter-button"
+                             title="Add new parameter"
                              tabindex="0"
                              @click="openAddNewParameter(tab)"
                              @keypress.space.prevent
@@ -183,15 +189,16 @@
                       </thead>
                       <tbody>
                       <tr v-if="newWAFLine === tab"
-                          class="has-background-warning-light">
+                          class="has-background-warning-light new-parameter-row">
                         <td class="px-0 py-0">
                           <table class="table is-fullwidth has-background-warning-light">
                             <tr>
                               <td class="is-fullwidth">
                                 <div class="field">
-                                  <div class="control ">
+                                  <div class="control">
                                     <div class="select is-small">
                                       <select v-model="newEntry.type"
+                                              class="new-entry-type"
                                               title="Type">
                                         <option value="names">
                                           {{ titles.names }}
@@ -208,7 +215,8 @@
                                 <div class="field">
                                   <div class="control">
                                     <div>
-                                      <input required class="input is-small"
+                                      <input required
+                                             class="input is-small new-entry-key"
                                              type="text"
                                              v-model="newEntry.key"
                                              :title="titles.names"/>
@@ -221,7 +229,8 @@
                         </td>
                         <td>
                           <p class="control has-icons-left">
-                            <input required class="input is-small"
+                            <input required
+                                   class="input is-small new-entry-reg"
                                    type="text"
                                    v-model="newEntry.reg"
                                    :title="titles.regex"/>
@@ -232,34 +241,43 @@
                         </td>
                         <td class="has-text-centered">
                           <label class="checkbox">
-                            <input type="checkbox" v-model="newEntry.restrict"/>
+                            <input type="checkbox"
+                                   class="new-entry-restrict"
+                                   v-model="newEntry.restrict"/>
                           </label>
                         </td>
                         <td class="has-text-centered">
                           <label class="checkbox">
-                            <input type="checkbox" v-model="newEntry.mask"/>
+                            <input type="checkbox"
+                                   class="new-entry-mask"
+                                   v-model="newEntry.mask"/>
                           </label>
                         </td>
                         <td>
                           <serialized-input placeholder="Space separated rule IDs"
-                                            :value="newEntry.exclusions"
+                                            class="new-entry-exclusions"
+                                            :value.sync="newEntry.exclusions"
                                             :get-function="unpackExclusions"
-                                            :set-function="packExclusions"
-                                            @blur="newEntry.exclusions = $event">
+                                            :set-function="packExclusions">
                           </serialized-input>
                         </td>
                         <td class="has-text-centered">
-                          <button title="Add new parameter" class="button is-light is-small" @click="addNewParameter">
+                          <button title="Add new parameter"
+                                  class="button is-light is-small confirm-add-new-parameter"
+                                  @click="addNewParameter">
                             <span class="icon is-small"><i class="fas fa-plus fa-xs"></i></span>
                           </button>
                         </td>
 
                       </tr>
-                      <tr v-for="(entry, idx) in localDoc[tab].names" :key="genRowKey(tab, 'names', idx)">
+                      <tr v-for="(entry, idx) in localDoc[tab].names"
+                          class="entry-row"
+                          :key="genRowKey(tab, 'names', idx)">
                         <td>
                           <div class="field">
                             <p class="control has-icons-left">
-                              <input required class="input is-small"
+                              <input required
+                                     class="input is-small entry-key"
                                      type="text"
                                      @change="emitDocUpdate"
                                      v-model="entry.key"
@@ -271,7 +289,11 @@
                           </div>
                         <td>
                           <p class="control has-icons-left">
-                            <input required class="input is-small" type="text" v-model="entry.reg"
+                            <input required
+                                   class="input is-small entry-reg"
+                                   type="text"
+                                   @change="emitDocUpdate"
+                                   v-model="entry.reg"
                                    :title="titles.regex"/>
                             <span class="icon is-small is-left has-text-grey">
                               <i class="fas fa-code"></i>
@@ -280,38 +302,48 @@
                         </td>
                         <td class="has-text-centered">
                           <label class="checkbox">
-                            <input type="checkbox" :checked="entry.restrict"/>
+                            <input type="checkbox"
+                                   class="entry-restrict"
+                                   @change="emitDocUpdate"
+                                   v-model="entry.restrict"/>
                           </label>
                         </td>
                         <td class="has-text-centered">
                           <label class="checkbox">
-                            <input type="checkbox" v-model="entry.mask"/>
+                            <input type="checkbox"
+                                   class="entry-mask"
+                                   @change="emitDocUpdate"
+                                   v-model="entry.mask"/>
                           </label>
                         </td>
                         <td>
                           <serialized-input placeholder="Space separated rule IDs"
-                                            :value="entry.exclusions"
+                                            class="entry-exclusions"
+                                            @update:value="emitDocUpdate"
+                                            :value.sync="entry.exclusions"
                                             :get-function="unpackExclusions"
-                                            :set-function="packExclusions"
-                                            @blur="entry.exclusions = $event">
+                                            :set-function="packExclusions">
                           </serialized-input>
                         </td>
                         <td class="has-text-centered">
                           <button title="Delete entry"
                                   :data-curie="genRowKey(tab, 'names', idx)"
-                                  @click="deleteWAFRow"
-                                  class="button is-light is-small">
+                                  @click="deleteEntryRow(tab, 'names', idx)"
+                                  class="button is-light is-small remove-entry-button">
                               <span class="icon is-small">
                                 <i class="fas fa-trash fa-xs"></i>
                               </span>
                           </button>
                         </td>
                       </tr>
-                      <tr v-for="(entry, idx) in localDoc[tab].regex" :key="genRowKey(tab, 'regex', idx)">
+                      <tr v-for="(entry, idx) in localDoc[tab].regex"
+                          class="entry-row"
+                          :key="genRowKey(tab, 'regex', idx)">
                         <td>
                           <div class="field">
                             <p class="control has-icons-left">
-                              <input required class="input is-small"
+                              <input required
+                                     class="input is-small entry-key"
                                      type="text"
                                      @change="emitDocUpdate"
                                      v-model="entry.key"
@@ -324,7 +356,11 @@
                         </td>
                         <td>
                           <p class="control has-icons-left">
-                            <input required class="input is-small" type="text" v-model="entry.reg"
+                            <input required
+                                   class="input is-small entry-reg"
+                                   type="text"
+                                   @change="emitDocUpdate"
+                                   v-model="entry.reg"
                                    :title="titles.regex"/>
                             <span class="icon is-small is-left has-text-grey">
                                   <i class="fas fa-code"></i>
@@ -333,26 +369,34 @@
                         </td>
                         <td class="has-text-centered">
                           <label class="checkbox">
-                            <input type="checkbox" :checked="entry.restrict"/>
+                            <input type="checkbox"
+                                   class="entry-restrict"
+                                   @change="emitDocUpdate"
+                                   v-model="entry.restrict"/>
                           </label>
                         </td>
                         <td class="has-text-centered">
                           <label class="checkbox">
-                            <input type="checkbox" :checked="entry.mask"/>
+                            <input type="checkbox"
+                                   class="entry-mask"
+                                   @change="emitDocUpdate"
+                                   v-model="entry.mask"/>
                           </label>
                         </td>
                         <td>
                           <serialized-input placeholder="Space separated rule IDs"
-                                            :value="entry.exclusions"
+                                            class="entry-exclusions"
+                                            @update:value="emitDocUpdate"
+                                            :value.sync="entry.exclusions"
                                             :get-function="unpackExclusions"
-                                            :set-function="packExclusions"
-                                            @blur="entry.exclusions = $event">
+                                            :set-function="packExclusions">
                           </serialized-input>
                         </td>
                         <td class="has-text-centered">
                           <button :data-curie="genRowKey(tab, 'regex', idx)"
-                                  @click="deleteWAFRow"
-                                  title="Delete entry" class="button is-light is-small">
+                                  @click="deleteEntryRow(tab, 'regex', idx)"
+                                  title="Delete entry"
+                                  class="button is-light is-small remove-entry-button">
                               <span class="icon is-small">
                                 <i class="fas fa-trash fa-xs"></i>
                               </span>
@@ -443,7 +487,7 @@ export default Vue.extend({
       }))
     },
 
-    unpackExclusions(exclusions: string[]) {
+    unpackExclusions(exclusions: WAFEntryMatch['exclusions']) {
       return _.keys(exclusions).join(' ')
     },
 
@@ -451,19 +495,9 @@ export default Vue.extend({
       return `${tab}-${type}-${idx}`
     },
 
-    deleteWAFRow(event: Event) {
-      let elem = event.target as HTMLElement
-      let rowKey = elem.dataset.curie
-      while (elem) {
-        if (rowKey) {
-          const [tab, type, idx] = rowKey.split('-')
-          this.localDoc[tab as ArgsCookiesHeadersType][type as NamesRegexType].splice(Number(idx), 1)
-          this.emitDocUpdate()
-          break
-        }
-        elem = elem.parentElement
-        rowKey = elem.dataset.curie
-      }
+    deleteEntryRow(tab: ArgsCookiesHeadersType, type: NamesRegexType, index: number) {
+      this.localDoc[tab][type].splice(index, 1)
+      this.emitDocUpdate()
     },
   },
 })

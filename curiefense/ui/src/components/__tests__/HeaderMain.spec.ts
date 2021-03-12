@@ -7,7 +7,7 @@ describe('HeaderMain.vue', () => {
   test('should render the logo', () => {
     const logoPath = 'http://localhost/assets/logo.png'
     const wrapper = mount(HeaderMain)
-    const element = wrapper.find('img.logo').element as any
+    const element = wrapper.find('img.logo').element as HTMLImageElement
     expect(element['src']).toEqual(logoPath)
   })
 

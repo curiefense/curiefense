@@ -5,9 +5,9 @@ declare module CuriefenseClient {
   type GenericObject = { [key: string]: any }
 
   type TagsDatabaseDocument = {
-    neutral: string[]
-    malicious: string[]
-    legitimate: string[]
+    neutral?: string[]
+    malicious?: string[]
+    legitimate?: string[]
   }
 
   // Document types helpers - START
@@ -68,7 +68,7 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
-  type Document = BasicDocument & (ACLPolicy | FlowControl | TagRule | RateLimit | URLMap | WAFPolicy | WAFSignature)
+  type Document = BasicDocument & (ACLPolicy | FlowControl | TagRule | RateLimit | URLMap | WAFPolicy | WAFRule)
 
   type DocumentType = 'aclpolicies' | 'flowcontrol' | 'tagrules' | 'ratelimits' | 'urlmaps' | 'wafpolicies' | 'wafrules'
 
@@ -122,7 +122,6 @@ declare module CuriefenseClient {
     source: string
     mdate: string // ISO string
     notes: string
-    entries_relation: Relation
     active: boolean
     tags: string[]
     action: ResponseActionType
@@ -171,7 +170,7 @@ declare module CuriefenseClient {
     }[]
   }
 
-  type WAFSignature = {
+  type WAFRule = {
     id: string
     name: string
     category: string

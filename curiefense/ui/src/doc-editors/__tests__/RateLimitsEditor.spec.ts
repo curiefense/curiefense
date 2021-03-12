@@ -4,9 +4,10 @@ import ResponseAction from '@/components/ResponseAction.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 import {mount, shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
+import {RateLimit} from '@/types'
 
 describe('RateLimitsEditor.vue', () => {
-  let docs: any[]
+  let docs: RateLimit[]
   let wrapper: Wrapper<Vue>
   beforeEach(() => {
     docs = [{
@@ -34,22 +35,22 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should have correct name in input', () => {
-      const element = wrapper.find('.document-name').element as any
+      const element = wrapper.find('.document-name').element as HTMLInputElement
       expect(element.value).toEqual(docs[0].name)
     })
 
     test('should have correct description in input', () => {
-      const element = wrapper.find('.document-description').element as any
+      const element = wrapper.find('.document-description').element as HTMLInputElement
       expect(element.value).toEqual(docs[0].description)
     })
 
     test('should have correct threshold in input', () => {
-      const element = wrapper.find('.document-limit').element as any
+      const element = wrapper.find('.document-limit').element as HTMLInputElement
       expect(element.value).toEqual(docs[0].limit)
     })
 
     test('should have correct TTL in input', () => {
-      const element = wrapper.find('.document-ttl').element as any
+      const element = wrapper.find('.document-ttl').element as HTMLInputElement
       expect(element.value).toEqual(docs[0].ttl)
     })
 
@@ -145,11 +146,10 @@ describe('RateLimitsEditor.vue', () => {
         },
       })
       const wantedType = 'headers'
-      const wantedValue: any = null
       const actualType = Object.keys((wrapper.vm as any).localDoc.key[0])[0]
       const actualValue = Object.values((wrapper.vm as any).localDoc.key[0])[0]
       expect(actualType).toEqual(wantedType)
-      expect(actualValue).toEqual(wantedValue)
+      expect(actualValue).toEqual(null)
     })
 
     test('should show error when two of the same key type exist', async () => {
@@ -219,11 +219,10 @@ describe('RateLimitsEditor.vue', () => {
         },
       })
       const wantedType = 'self'
-      const wantedValue: any = null
       const actualType = Object.keys((wrapper.vm as any).localDoc.pairwith)[0]
       const actualValue = Object.values((wrapper.vm as any).localDoc.pairwith)[0]
       expect(actualType).toEqual(wantedType)
-      expect(actualValue).toEqual(wantedValue)
+      expect(actualValue).toEqual(null)
     })
 
     test('should update key when change event occurs', async () => {
@@ -258,7 +257,7 @@ describe('RateLimitsEditor.vue', () => {
   })
 
   describe('include / exclude', () => {
-    const addEntry = async (includeExcludeIndex: number, typeIndex: number, keyIndex: number, value: any) => {
+    const addEntry = async (includeExcludeIndex: number, typeIndex: number, keyIndex: number, value: string) => {
       // open new entry row
       const newButton = wrapper.find('.new-include-exclude-button')
       newButton.trigger('click')
@@ -279,7 +278,7 @@ describe('RateLimitsEditor.vue', () => {
       await Vue.nextTick()
       // insert value input
       const valueInput = newEntryRow.find('.value-input');
-      (valueInput.element as any).value = value
+      (valueInput.element as HTMLInputElement).value = value
       valueInput.trigger('input')
       await Vue.nextTick()
       // click add button

@@ -1,1 +1,0 @@
-curiefense-logdb-patterns.txt

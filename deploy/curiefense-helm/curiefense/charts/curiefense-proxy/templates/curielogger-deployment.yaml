@@ -18,25 +18,10 @@ spec:
     spec:
       containers:
       - name: curielogger
-{{- if eq .Values.global.settings.curiefense_logdb_type "postgres" }}
         env:
-        - name: CURIELOGGER_USES_POSTGRES
-          value: "true"
-        - name: CURIELOGGER_DBHOST
-          value: {{ .Values.global.settings.curiefense_db_hostname }}
-        - name: CURIELOGGER_DBUSER
-          valueFrom:
-            secretKeyRef:
-              name: curiefense-db-credentials
-              key: username
-        - name: CURIELOGGER_DBPASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: curiefense-db-credentials
-              key: password
-{{- end }}
+        - name: CURIELOGGER_METRICS_PROMETHEUS_ENABLED
+          value: "{{ .Values.global.settings.curiefense_metrics_prometheus_enabled }}"
 {{- if eq .Values.global.settings.curiefense_logdb_type "elasticsearch" }}
-        env:
         - name: ELASTICSEARCH_URL
           value: "{{ .Values.global.settings.curiefense_es_hosts }}"
 {{- if eq .Values.global.settings.curiefense_es_forwarder "logstash" }}

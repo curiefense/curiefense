@@ -6,7 +6,6 @@ import MasterComponent from '@/views/MasterComponent.vue'
 import DocumentEditor from '@/views/DocumentEditor.vue'
 import DBEditor from '@/views/DBEditor.vue'
 import Publish from '@/views/Publish.vue'
-import AccessLog from '@/views/AccessLog.vue'
 import VersionControl from '@/views/VersionControl.vue'
 import DocumentSearch from '@/views/DocumentSearch.vue'
 
@@ -45,7 +44,6 @@ const routes = [
       },
       {path: 'db', name: 'DBEditor', component: DBEditor},
       {path: 'publish', name: 'Publish', component: Publish},
-      {path: 'accesslog', name: 'AccessLog', component: AccessLog},
       {path: 'versioncontrol', name: 'VersionControl', component: VersionControl},
       {path: 'search', name: 'DocumentSearch', component: DocumentSearch},
     ],

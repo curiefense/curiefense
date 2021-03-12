@@ -4,6 +4,7 @@
            type="text"
            class="serialized-input input is-small"
            v-model="formattedValue"
+           @change="updateValue($event.target.value)"
            @blur="updateValue($event.target.value)"
            :title="placeholder"
            :placeholder="placeholder"/>
@@ -37,7 +38,7 @@ export default Vue.extend({
   methods: {
     updateValue: function(newValue: string) {
       const result = this.setFunction(newValue)
-      this.$emit('blur', result)
+      this.$emit('update:value', result)
     },
     formatValue: function() {
       this.formattedValue = this.getFunction(this.value)

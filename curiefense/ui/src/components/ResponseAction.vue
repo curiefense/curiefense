@@ -27,10 +27,10 @@
                     'is-6': !labelDisplayedInline && !isSingleInputColumn,
                     'is-10': labelDisplayedInline && isSingleInputColumn,
                     'is-12': !labelDisplayedInline && isSingleInputColumn}">
-        <div class="control select is-fullwidth is-small" v-if="localAction">
+        <div class="control select is-fullwidth is-small action-type-selection" v-if="localAction">
           <select v-model="localAction.type"
                   title="Action type"
-                  @change="emitActionUpdate">
+                  @change="normalizeActionParams">
             <option v-for="(value, id) in options"
                     :value="id"
                     :key="id">
@@ -53,7 +53,7 @@
         <p class="control is-fullwidth">
           <input
               v-if="localAction && (localAction.type === 'response' || localAction.type === 'redirect')"
-              class="input is-small"
+              class="input is-small action-status"
               type="text"
               v-model="localAction.params.status"
               @change="emitActionUpdate"
@@ -62,7 +62,7 @@
           <span v-if="localAction && localAction.type === 'ban'"
                 class="suffix seconds-suffix">
             <input
-                class="input is-small"
+                class="input is-small action-duration"
                 type="text"
                 v-model="localAction.params.ttl"
                 @change="emitActionUpdate"
@@ -71,7 +71,7 @@
           </span>
           <input
               v-if="localAction && localAction.type === 'request_header'"
-              class="input is-small"
+              class="input is-small action-headers"
               type="text"
               v-model="localAction.params.headers"
               @change="emitActionUpdate"
@@ -96,7 +96,7 @@
                class="control is-fullwidth">
               <textarea v-model="localAction.params.content"
                         @change="emitActionUpdate"
-                        class="textarea is-small"
+                        class="textarea is-small action-content"
                         rows="2"
                         title="Response body"
                         placeholder="Response body">
@@ -105,7 +105,7 @@
           <div v-if="localAction.type === 'redirect'"
                class="control is-fullwidth">
             <p>
-              <input class="input is-small"
+              <input class="input is-small action-location"
                      type="text"
                      v-model="localAction.params.location"
                      @change="emitActionUpdate"
@@ -151,9 +151,9 @@ export default Vue.extend({
       default: 'Action',
     },
     ignore: {
-      type: Array,
-      default: () => {
-        return [] as string[]
+      type: Array as PropType<ResponseActionType['type'][]>,
+      default: (): ResponseActionType['type'][] => {
+        return []
       },
     },
     labelSeparatedLine: {
@@ -169,7 +169,7 @@ export default Vue.extend({
   data() {
     return {
       options: _.pickBy({...responseActions}, (value, key) => {
-        return !this.ignore || !this.ignore.includes(key)
+        return !this.ignore || !this.ignore.includes(key as ResponseActionType['type'])
       }),
     }
   },
@@ -186,6 +186,36 @@ export default Vue.extend({
     emitActionUpdate() {
       this.$emit('update:action', this.localAction)
     },
+
+    normalizeActionParams() {
+      const oldParams = _.cloneDeep(this.localAction.params) || {}
+      delete this.localAction.params
+      if (this.localAction.type !== 'default' &&
+          this.localAction.type !== 'challenge' &&
+          this.localAction.type !== 'monitor') {
+        this.localAction.params = {}
+      }
+      if (this.localAction.type === 'response') {
+        this.localAction.params.status = oldParams.status ? oldParams.status : ''
+        this.localAction.params.content = oldParams.content ? oldParams.content : ''
+      }
+      if (this.localAction.type === 'redirect') {
+        this.localAction.params.status = oldParams.status ? oldParams.status : ''
+        this.localAction.params.location = oldParams.location ? oldParams.location : ''
+      }
+      if (this.localAction.type === 'ban') {
+        this.localAction.params.ttl = oldParams.ttl ? oldParams.ttl : ''
+        this.localAction.params.action = oldParams.action ? oldParams.action : {
+          type: 'default',
+        }
+      }
+      if (this.localAction.type === 'request_header') {
+        this.localAction.params.headers = oldParams.headers ? oldParams.headers : ''
+      }
+      if (!_.isEqual(this.localAction, this.action)) {
+        this.emitActionUpdate()
+      }
+    },
   },
   watch: {
     action: {
@@ -193,32 +223,11 @@ export default Vue.extend({
         if (!value) {
           this.$emit('update:action', {
             type: 'default',
-            params: {
-              action: {
-                type: 'default',
-                params: {},
-              },
-            },
           })
           return
         }
-        // adding necessary fields to action field
-        const normalizedAction: ResponseActionType = {
-          ...{
-            params: {
-              action: {
-                type: 'default',
-                params: {},
-              },
-            },
-          },
-          ...this.localAction,
-        }
-        this.localAction.type = normalizedAction.type
-        this.localAction.params = normalizedAction.params
-        if (!_.isEqual(this.localAction, this.action)) {
-          this.emitActionUpdate()
-        }
+        // adding necessary fields to action params field
+        this.normalizeActionParams()
       },
       immediate: true,
       deep: true,

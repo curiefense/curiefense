@@ -1,13 +1,14 @@
-log_level: debug
+log_level: info
 outputs:
-    - elasticsearch: &es
-        enabled: false
-        initialize: true
-        overwrite: true
-        use_data_stream: true
-        url: "http://elasticsearch:9200/"
+  elasticsearch: &es
+    enabled: false
+    initialize: true
+    overwrite: true
+    use_data_stream: true
+    url: "http://elasticsearch:9200/"
+    kibana_url: "http://kibana:5601"
 
-    - logstash:
-        enabled: true
-        url: "http://logstash:5001/"
-        elasticsearch: *es
+  logstash:
+    enabled: false
+    url: "http://logstash:5001/"
+    elasticsearch: *es

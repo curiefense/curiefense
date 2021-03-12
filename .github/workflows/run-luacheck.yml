@@ -1,5 +1,10 @@
 name: "Run luacheck on Lua code"
-on: [pull_request]
+
+on:
+  pull_request:
+    paths:
+      - "*/**.lua"
+
 jobs:
   luacheck:
     runs-on: ubuntu-20.04

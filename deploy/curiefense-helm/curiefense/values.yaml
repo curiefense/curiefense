@@ -4,9 +4,7 @@ global:
     confserver: curiefense/confserver
     curielogger: curiefense/curielogger
     curietasker: curiefense/curietasker
-    logdb: curiefense/logdb
     redis: curiefense/redis
-    curielogserver: curiefense/curielogserver
     uiserver: curiefense/uiserver
     curiesync: curiefense/curiesync
     grafana: curiefense/grafana
@@ -18,14 +16,14 @@ global:
     storage_class_name: null
     confserver_storage_size: '1Gi'
     grafana_storage_size: '1Gi'
-    logdb_storage_size: '10Gi'
     elasticsearch_storage_size: '10Gi'
     prometheus_storage_size: '1Gi'
     redis_storage_size: '1Gi'
 
   settings:
+    curiefense_metrics_prometheus_enabled: true
     curieconf_manifest_url: 's3://curiefense-test01/prod/manifest.json'
-    # supported types: 'postgres', 'elasticsearch'
+    # supported types: 'elasticsearch'
     curiefense_logdb_type: 'elasticsearch'
     # supported types: 'fluentd', 'logstash'
     curiefense_es_forwarder: 'logstash'
@@ -37,8 +35,6 @@ global:
     curiefense_fluentd_url: 'http://fluentd:5001/'
     # change curiefense_kibana_url if you supply your own kibana server.
     curiefense_kibana_url: 'http://kibana:5601/'
-    # change curiefense_db_hostname if you supply your own postgres server
-    curiefense_db_hostname: 'logdb'
     # supported types: 's3', 'gs', 'local-bucket'
     curiefense_bucket_type: 's3'
     curiefense_es_index_name: 'curieaccesslog'
@@ -53,7 +49,6 @@ global:
       redis: "10m"
       logstash: "100m"
       kibana: "100m"
-      logdb: "1"
       uiserver: "100m"
       confserver_init: "100m"
       confserver_nginx: "10m"
@@ -61,16 +56,12 @@ global:
       curietasker: "100m"
       prometheus: "100m"
       grafana: "20m"
-      curielogserver_nginx: "10m"
-      curielogserver_uwsgi: "10m"
       elasticsearch: "1"
 
   enable:
     # set to false to disable parts of this deployment, ex. if you prefer to use your own versions
     grafana: true
     prometheus: true
-    # postgres database to store logs. Can be replaced with AWS Aurora
-    logdb: true
     kibana: true
     elasticsearch: true
     fluentd: true

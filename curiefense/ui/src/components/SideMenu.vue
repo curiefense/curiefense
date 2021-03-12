@@ -132,8 +132,8 @@ export default Vue.extend({
       }
     },
   },
-  mounted() {
-    this.loadLinksFromDB()
+  async mounted() {
+    await this.loadLinksFromDB()
   },
 })
 </script>

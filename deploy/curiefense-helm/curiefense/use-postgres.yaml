@@ -1,6 +1,0 @@
----
-# use this file to override default values from ../values.yaml
-# ./deploy.sh -f curiefense/use-es.yaml
-global:
-  settings:
-    curiefense_logdb_type: 'postgres'

@@ -5,27 +5,29 @@
         <div class="columns columns-divided">
           <div class="column is-3">
             <div class="field">
-              <label class="label is-small">Name
-                <span class="has-text-grey is-pulled-right"
+              <label class="label is-small">
+                Name
+                <span class="has-text-grey is-pulled-right document-id"
                       title="Rule id">
                   {{ localDoc.id }}
                 </span>
               </label>
               <div class="control">
-                <input class="input is-small"
+                <input class="input is-small document-name"
                        title="List name"
                        placeholder="List name"
                        @change="emitDocUpdate"
                        v-model="localDoc.name"
                        :readonly="readonly"/>
               </div>
-              <p class="subtitle is-7 has-text-grey">
+              <p class="subtitle is-7 has-text-grey sections-entries-display">
                 {{ sectionsEntriesDisplay }}
               </p>
             </div>
             <div class="field">
               <label class="checkbox is-size-7">
                 <input type="checkbox"
+                       class="document-active"
                        :readonly="readonly"
                        :disabled="readonly"
                        @change="emitDocUpdate"
@@ -34,11 +36,10 @@
               </label>
             </div>
             <div class="field">
-
               <div class="control"
                    v-if="editable">
                 <label class="label is-small">Sections Relation</label>
-                <div class="tags has-addons mb-0"
+                <div class="tags has-addons mb-0 document-sections-relation"
                      tabindex="0"
                      @keypress.space.prevent
                      @keypress.space="toggleRuleRelation()"
@@ -67,7 +68,7 @@
             </div>
             <div class="field">
               <a v-if="localDoc && localDoc.source && localDoc.source.indexOf('http') === 0"
-                 class="is-small has-text-grey is-size-7 is-pulled-right"
+                 class="is-small has-text-grey is-size-7 is-pulled-right update-now-button"
                  tabindex="0"
                  @click="fetchList"
                  @keypress.space.prevent
@@ -77,7 +78,7 @@
               </a>
               <label class="label is-small">Source</label>
               <div class="control">
-                <input class="input is-small"
+                <input class="input is-small document-source"
                        title="List source"
                        placeholder="List source"
                        @change="emitDocUpdate"
@@ -95,7 +96,7 @@
             <div class="field">
               <label class="label is-small">Notes</label>
               <div class="control">
-                <textarea class="is-small textarea"
+                <textarea class="is-small textarea document-notes"
                           title="Notes"
                           @change="emitDocUpdate"
                           v-model="localDoc.notes"
@@ -106,9 +107,10 @@
             <div class="pt-6">
               <div class="field" v-if="editable">
                 <div class="control is-expanded">
-                  <button class="button is-small has-text-danger-dark"
+                  <button class="button is-small has-text-danger-dark remove-all-sections-button"
                           title="Remove all sections"
-                          @click="removeAllSections">Clear all sections
+                          @click="removeAllSections">
+                    Clear all sections
                   </button>
                 </div>
               </div>
@@ -117,9 +119,9 @@
 
           </div>
           <div class="column is-9">
-            <entries-relation-list :rule="localDoc.rule"
+            <entries-relation-list :rule.sync="localDoc.rule"
                                    :editable="editable"
-                                   @update="updateRule($event)">
+                                   @update:rule="emitDocUpdate">
             </entries-relation-list>
           </div>
         </div>
@@ -171,15 +173,15 @@ export default Vue.extend({
 
     selectedDocTags: {
       get: function(): string {
-        if (this.localDoc.tags) {
+        if (this.localDoc.tags && this.localDoc.tags.length > 0) {
           return this.localDoc.tags.join(' ')
         }
         return ''
       },
       set: function(tags: string): void {
-        this.localDoc.tags = _.map(tags.split(' '), (tag) => {
+        this.localDoc.tags = tags.length > 0 ? _.map(tags.split(' '), (tag) => {
           return tag.trim()
-        })
+        }) : []
         this.emitDocUpdate()
       },
     },
@@ -206,12 +208,7 @@ export default Vue.extend({
     },
 
     setRuleRelation(relation: Relation) {
-      if (relation) {
-        this.localDoc.rule.relation = relation
-      } else {
-        this.localDoc.rule.relation = (this.localDoc.rule.relation === 'AND') ? 'OR' : 'AND'
-      }
-
+      this.localDoc.rule.relation = relation
       this.emitDocUpdate()
     },
 
@@ -224,14 +221,14 @@ export default Vue.extend({
       this.emitDocUpdate()
     },
 
-    tryMatch(data: any, regex: RegExp, type: Category): TagRuleSectionEntry[] {
+    tryMatch(data: string, regex: RegExp, type: Category): TagRuleSectionEntry[] {
       let matches
       const entries = []
       matches = regex.exec(data)
       while (matches) {
         const entry: TagRuleSectionEntry = [type, matches[1], null]
-        if (matches.length > 2) {
-          entry[2] = (matches.slice(-1)[0] || '').slice(0, 128)
+        if (matches.length > 2 && matches.slice(-1)[0]) {
+          entry[2] = (matches.slice(-1)[0]).slice(1, 128)
         }
         entries.push(entry)
         matches = regex.exec(data)
@@ -241,8 +238,8 @@ export default Vue.extend({
 
     fetchList() {
       const lineMatchingIP =
-          /^((((\d{1,3})\.){3}\d{1,3}(\/\d{1,2}))|([0-9a-f]+:+){1,8}([0-9a-f]+)?(\/\d{1,3})?)\s+([#;/].+)/gm
-      const lineMatchingASN = /(as\d{3,6})((\s+)?([#;/?].+))?/gmi
+          /^((((\d{1,3})\.){3}\d{1,3}(\/\d{1,2}))|([0-9a-f]+:+){1,8}([0-9a-f]+)?(\/\d{1,3})?)((\s+)?([#;?].+))?/gm
+      const lineMatchingASN = /(as\d{3,6})((\s+)?([#;?].+))?/gmi
       const singleIP = /^((((\d{1,3})\.){3}\d{1,3}(\/\d{1,2}))|([0-9a-f]+:+){1,8}([0-9a-f]+)?(\/\d{1,3})?)$/
       const singleASN = /(as\d{3,6})/i
       // try every node / element of String type with the regex.
@@ -250,7 +247,7 @@ export default Vue.extend({
         _.each(data, (item) => {
           if (_.isArray(item) && (item.length === 2 || item.length === 3)) {
             if (_.isString(item[0]) && (item[0].toLowerCase() === 'ip' || item[0].toLowerCase() === 'asn') &&
-                _.isString(item[1]) && singleIP.test(item[1])) {
+                _.isString(item[1]) && (singleIP.test(item[1]) || singleASN.test(item[1]))) {
               const annotation = (item[2] && _.isString(item[2])) ? item[2] : null
               store.push([item[0].toLowerCase() as Category, item[1], annotation])
             } else {
@@ -277,11 +274,7 @@ export default Vue.extend({
           entries = this.tryMatch(data, lineMatchingASN, 'asn')
         }
         if (entries.length === 0) {
-          try {
-            objectParser(data, entries)
-          } catch (e) {
-            console.log(e)
-          }
+          objectParser(data, entries)
         }
         if (entries.length > 0) {
           const newSection: TagRuleSection = {
@@ -298,11 +291,6 @@ export default Vue.extend({
           this.emitDocUpdate()
         }
       })
-    },
-
-    updateRule(rule: TagRule['rule']) {
-      this.localDoc.rule = rule
-      this.emitDocUpdate()
     },
   },
 

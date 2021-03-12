@@ -3,6 +3,7 @@ import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals
 import {shallowMount, Wrapper} from '@vue/test-utils'
 import axios from 'axios'
 import Vue from 'vue'
+import {ACLPolicy, BasicDocument, Branch, FlowControl, RateLimit, TagRule, URLMap, WAFPolicy} from '@/types'
 
 jest.useFakeTimers()
 jest.mock('axios')
@@ -10,20 +11,126 @@ jest.mock('axios')
 describe('DocumentSearch.vue', () => {
   let wrapper: Wrapper<Vue>
   let mockRouter
-  let gitData: any[]
-  let aclDocs: any[]
-  let profilingListDocs: any[]
-  let urlMapsDocs: any[]
-  let flowControlDocs: any[]
-  let rateLimitDocs: any[]
-  let wafDocs: any[]
+  let gitData: Branch[]
+  let aclDocs: ACLPolicy[]
+  let profilingListDocs: TagRule[]
+  let urlMapsDocs: URLMap[]
+  let flowControlDocs: FlowControl[]
+  let rateLimitDocs: RateLimit[]
+  let wafDocs: WAFPolicy[]
   beforeEach((done) => {
     gitData = [
       {
-        id: 'master',
+        'id': 'master',
+        'description': 'Update entry [__default__] of document [aclpolicies]',
+        'date': '2020-11-10T15:49:17+02:00',
+        'logs': [
+          {
+            'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
+            'date': '2020-11-10T15:49:17+02:00',
+            'parents': [
+              'fc47a6cd9d7f254dd97875a04b87165cc484e075',
+            ],
+            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'email': 'curiefense@reblaze.com',
+            'author': 'Curiefense API',
+          },
+          {
+            'version': 'fc47a6cd9d7f254dd97875a04b87165cc484e075',
+            'date': '2020-11-10T15:48:35+02:00',
+            'parents': [
+              '5aba4a5b9d6faea1896ee8965c7aa651f76af63c',
+            ],
+            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'email': 'curiefense@reblaze.com',
+            'author': 'Curiefense API',
+          },
+          {
+            'version': '5aba4a5b9d6faea1896ee8965c7aa651f76af63c',
+            'date': '2020-11-10T15:48:31+02:00',
+            'parents': [
+              '277c5d7bd0e2eb4b9d2944f7eefdfadf37ba8581',
+            ],
+            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'email': 'curiefense@reblaze.com',
+            'author': 'Curiefense API',
+          },
+          {
+            'version': '277c5d7bd0e2eb4b9d2944f7eefdfadf37ba8581',
+            'date': '2020-11-10T15:48:22+02:00',
+            'parents': [
+              '878b47deeddac94625fe7c759786f2df885ec541',
+            ],
+            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'email': 'curiefense@reblaze.com',
+            'author': 'Curiefense API',
+          },
+          {
+            'version': '878b47deeddac94625fe7c759786f2df885ec541',
+            'date': '2020-11-10T15:48:05+02:00',
+            'parents': [
+              '93c180513fe7edeaf1c0ca69a67aa2a11374da4f',
+            ],
+            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'email': 'curiefense@reblaze.com',
+            'author': 'Curiefense API',
+          },
+          {
+            'version': '93c180513fe7edeaf1c0ca69a67aa2a11374da4f',
+            'date': '2020-11-10T15:47:59+02:00',
+            'parents': [
+              '1662043d2a18d6ad2c9c94d6f826593ff5506354',
+            ],
+            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'email': 'curiefense@reblaze.com',
+            'author': 'Curiefense API',
+          },
+          {
+            'version': '1662043d2a18d6ad2c9c94d6f826593ff5506354',
+            'date': '2020-11-08T21:31:41+01:00',
+            'parents': [
+              '16379cdf39501574b4a2f5a227b82a4454884b84',
+            ],
+            'message': 'Create config [master]\n',
+            'email': 'curiefense@reblaze.com',
+            'author': 'Curiefense API',
+          },
+          {
+            'version': '16379cdf39501574b4a2f5a227b82a4454884b84',
+            'date': '2020-08-27T16:19:06+00:00',
+            'parents': [
+              'a34f979217215060861b58b3f270e82580c20efb',
+            ],
+            'message': 'Initial empty config',
+            'email': 'curiefense@reblaze.com',
+            'author': 'Curiefense API',
+          },
+          {
+            'version': 'a34f979217215060861b58b3f270e82580c20efb',
+            'date': '2020-08-27T16:19:06+00:00',
+            'parents': [],
+            'message': 'Initial empty content',
+            'email': 'curiefense@reblaze.com',
+            'author': 'Curiefense API',
+          },
+        ],
+        'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
       },
       {
-        id: 'zzz_branch',
+        'id': 'zzz_branch',
+        'description': 'Initial empty content',
+        'date': '2020-08-27T16:19:06+00:00',
+        'logs': [
+          {
+            'version': 'a34f979217215060861b58b3f270e82580c20efb',
+            'date': '2020-08-27T16:19:06+00:00',
+            'parents': [],
+            'message': 'Initial empty content',
+            'email': 'curiefense@reblaze.com',
+            'author': 'Curiefense API',
+          },
+        ],
+        'version': 'a34f979217215060861b58b3f270e82580c20efb',
       },
     ]
     aclDocs = [
@@ -73,78 +180,70 @@ describe('DocumentSearch.vue', () => {
         'mdate': '2020-05-23T00:04:41',
         'notes': 'Default Tag API Requests',
         'active': true,
-        'entries_relation': 'OR',
-        'tags': [
-          'api',
-        ],
-        'entries': [
-          [
-            'headers',
-            [
-              'content-type',
-              '.*/(json|xml)',
-            ],
-            'content type',
+        'tags': ['api'],
+        'action': {
+          'type': 'monitor',
+          'params': {},
+        },
+        'rule': {
+          'relation': 'OR',
+          'sections': [
+            {
+              'relation': 'OR', 'entries': [
+                [
+                  'headers',
+                  [
+                    'content-type',
+                    '.*/(json|xml)',
+                  ],
+                  'content type',
+                ],
+                [
+                  'headers',
+                  [
+                    'host',
+                    '.?ap[ip]\\.',
+                  ],
+                  'app or api in domain name',
+                ],
+                [
+                  'method',
+                  '(POST|PUT|DELETE|PATCH)',
+                  'Methods',
+                ],
+                [
+                  'path',
+                  '/api/',
+                  'api path',
+                ],
+                [
+                  'uri',
+                  '/.+\\.json',
+                  'URI JSON extention',
+                ],
+              ],
+            },
           ],
-          [
-            'headers',
-            [
-              'host',
-              '.?ap[ip]\\.',
-            ],
-            'app or api in domain name',
-          ],
-          [
-            'method',
-            '(POST|PUT|DELETE|PATCH)',
-            'Methods',
-          ],
-          [
-            'path',
-            '/api/',
-            'api path',
-          ],
-          [
-            'uri',
-            '/.+\\.json',
-            'URI JSON extention',
-          ],
-        ],
-      },
-      {
+        },
+      }, {
         'id': '07656fbe',
         'name': 'devop internal demo',
         'source': 'self-managed',
         'mdate': '2020-05-23T00:04:41',
         'notes': 'this is my own list',
         'active': false,
-        'entries_relation': 'OR',
-        'tags': [
-          'internal',
-          'devops',
-        ],
-        'entries': [
-          [
-            'ip',
-            '12.34.56.78/32',
-            'testers',
-          ],
-          [
-            'ip',
-            '98.76.54.0/24',
-            'monitoring',
-          ],
-          [
-            'ip',
-            '!5.4.3.2/32',
-            'old monitoring',
-          ],
-          [
-            'path',
-            '/test/app/status',
-            'monitoring path',
-          ],
-        ],
+        'tags': ['internal', 'devops'],
+        'action': {
+          'type': 'monitor',
+          'params': {},
+        },
+        'rule': {
+          'relation': 'OR',
+          'sections': [
+            {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
+            {'relation': 'OR', 'entries': [['ip', '2.2.2.2', null]]},
+            {'relation': 'OR', 'entries': [['headers', ['headerrr', 'valueeee'], 'anooo']]}],
+        },
       },
     ]
     urlMapsDocs = [
@@ -185,6 +284,8 @@ describe('DocumentSearch.vue', () => {
     ]
     flowControlDocs = [
       {
+        'active': true,
+        'notes': '',
         'exclude': [],
         'include': ['all'],
         'name': 'flow control',
@@ -293,7 +394,7 @@ describe('DocumentSearch.vue', () => {
     jest.clearAllMocks()
   })
 
-  function isItemInFilteredDocs(item: any, doctype: string) {
+  function isItemInFilteredDocs(item: BasicDocument, doctype: string) {
     const isInModel = (wrapper.vm as any).filteredDocs.some((doc: any) => {
       return doc.id === item.id && doc.docType === doctype
     })
@@ -314,7 +415,7 @@ describe('DocumentSearch.vue', () => {
     options.at(1).setSelected()
     // allow all requests to finish
     setImmediate(() => {
-      expect((branchSelection.element as any).selectedIndex).toEqual(1)
+      expect((branchSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
       done()
     })
   })
@@ -363,7 +464,7 @@ describe('DocumentSearch.vue', () => {
     options.at(1).setSelected()
     await Vue.nextTick()
     const searchInput = wrapper.find('.search-input');
-    (searchInput.element as any).value = 'url map'
+    (searchInput.element as HTMLInputElement).value = 'url map'
     searchInput.trigger('input')
     await Vue.nextTick()
 
@@ -391,7 +492,7 @@ describe('DocumentSearch.vue', () => {
       await Vue.nextTick()
 
       const searchInput = wrapper.find('.search-input');
-      (searchInput.element as any).value = 'default'
+      (searchInput.element as HTMLInputElement).value = 'default'
       searchInput.trigger('input')
       await Vue.nextTick()
 
@@ -420,7 +521,7 @@ describe('DocumentSearch.vue', () => {
       await Vue.nextTick()
 
       const searchInput = wrapper.find('.search-input');
-      (searchInput.element as any).value = 'default'
+      (searchInput.element as HTMLInputElement).value = 'default'
       searchInput.trigger('input')
       await Vue.nextTick()
       expect(isItemInFilteredDocs(aclDocs[0], 'aclpolicies')).toBeTruthy()
@@ -441,7 +542,7 @@ describe('DocumentSearch.vue', () => {
       await Vue.nextTick()
 
       const searchInput = wrapper.find('.search-input');
-      (searchInput.element as any).value = 'flow'
+      (searchInput.element as HTMLInputElement).value = 'flow'
       searchInput.trigger('input')
       await Vue.nextTick()
       expect(isItemInFilteredDocs(flowControlDocs[0], 'flowcontrol')).toBeTruthy()
@@ -457,7 +558,7 @@ describe('DocumentSearch.vue', () => {
       await Vue.nextTick()
 
       const searchInput = wrapper.find('.search-input');
-      (searchInput.element as any).value = 'c03dabe4b9ca'
+      (searchInput.element as HTMLInputElement).value = 'c03dabe4b9ca'
       searchInput.trigger('input')
       await Vue.nextTick()
       expect(isItemInFilteredDocs(flowControlDocs[0], 'flowcontrol')).toBeTruthy()
@@ -473,7 +574,7 @@ describe('DocumentSearch.vue', () => {
       await Vue.nextTick()
 
       const searchInput = wrapper.find('.search-input');
-      (searchInput.element as any).value = 'default entry'
+      (searchInput.element as HTMLInputElement).value = 'default entry'
       searchInput.trigger('input')
       await Vue.nextTick()
       expect(isItemInFilteredDocs(urlMapsDocs[0], 'urlmaps')).toBeTruthy()
@@ -489,7 +590,7 @@ describe('DocumentSearch.vue', () => {
       await Vue.nextTick()
 
       const searchInput = wrapper.find('.search-input');
-      (searchInput.element as any).value = 'default'
+      (searchInput.element as HTMLInputElement).value = 'default'
       searchInput.trigger('input')
       await Vue.nextTick()
       expect(isItemInFilteredDocs(profilingListDocs[0], 'tagrules')).toBeTruthy()
@@ -505,7 +606,7 @@ describe('DocumentSearch.vue', () => {
       await Vue.nextTick()
 
       const searchInput = wrapper.find('.search-input');
-      (searchInput.element as any).value = 'china'
+      (searchInput.element as HTMLInputElement).value = 'china'
       searchInput.trigger('input')
       await Vue.nextTick()
       expect(isItemInFilteredDocs(aclDocs[0], 'aclpolicies')).toBeTruthy()
@@ -521,7 +622,7 @@ describe('DocumentSearch.vue', () => {
       await Vue.nextTick()
 
       const searchInput = wrapper.find('.search-input');
-      (searchInput.element as any).value = 'default'
+      (searchInput.element as HTMLInputElement).value = 'default'
       searchInput.trigger('input')
       await Vue.nextTick()
       expect(isItemInFilteredDocs(aclDocs[1], 'aclpolicies')).toBeTruthy()

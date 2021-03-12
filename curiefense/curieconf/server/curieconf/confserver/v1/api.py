@@ -225,7 +225,7 @@ m_meta = api.model(
         "id": fields.String(required=True),
         "description": fields.String(required=True),
         "date": fields.DateTime(),
-        "logs": fields.List(fields.Nested(m_version_log)),
+        "logs": fields.List(fields.Nested(m_version_log), default=[]),
         "version": fields.String(),
     },
 )
@@ -256,11 +256,15 @@ m_document_list_entry = api.model(
 
 m_config_documents = api.model(
     "Config Documents",
-    {x: fields.List(fields.Nested(models[x])) for x in utils.DOCUMENTS_PATH},
+    {
+        x: fields.List(fields.Nested(models[x], default=[]))
+        for x in utils.DOCUMENTS_PATH
+    },
 )
 
 m_config_blobs = api.model(
-    "Config Blobs", {x: fields.Nested(m_blob_entry) for x in utils.BLOBS_PATH}
+    "Config Blobs",
+    {x: fields.Nested(m_blob_entry, default={}) for x in utils.BLOBS_PATH},
 )
 
 m_config_delete_blobs = api.model(
@@ -270,11 +274,11 @@ m_config_delete_blobs = api.model(
 m_config = api.model(
     "Config",
     {
-        "meta": fields.Nested(m_meta),
-        "documents": fields.Nested(m_config_documents),
-        "blobs": fields.Nested(m_config_blobs),
-        "delete_documents": fields.Nested(m_config_documents),
-        "delete_blobs": fields.Nested(m_config_delete_blobs),
+        "meta": fields.Nested(m_meta, default={}),
+        "documents": fields.Nested(m_config_documents, default={}),
+        "blobs": fields.Nested(m_config_blobs, default={}),
+        "delete_documents": fields.Nested(m_config_documents, default={}),
+        "delete_blobs": fields.Nested(m_config_delete_blobs, default={}),
     },
 )
 

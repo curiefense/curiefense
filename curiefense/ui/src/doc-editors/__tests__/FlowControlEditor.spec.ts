@@ -3,14 +3,15 @@ import LimitOption from '@/components/LimitOption.vue'
 import ResponseAction from '@/components/ResponseAction.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {beforeEach, describe, expect, test, jest} from '@jest/globals'
-import {mount, Wrapper} from '@vue/test-utils'
+import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 
 jest.mock('axios')
 import axios from 'axios'
+import {FlowControl} from '@/types'
 
 describe('FlowControlEditor.vue', () => {
-  let docs: any[]
+  let docs: FlowControl[]
   let wrapper: Wrapper<Vue>
   beforeEach(() => {
     docs = [
@@ -52,13 +53,12 @@ describe('FlowControlEditor.vue', () => {
         'notes': 'New Flow Control Notes and Remarks',
         'action': {
           'type': 'default',
-          'params': {},
         },
         'ttl': 60,
         'id': 'c03dabe4b9ca',
       },
     ]
-    wrapper = mount(FlowControlEditor, {
+    wrapper = shallowMount(FlowControlEditor, {
       propsData: {
         selectedDoc: docs[0],
       },
@@ -71,17 +71,17 @@ describe('FlowControlEditor.vue', () => {
     })
 
     test('should have correct name in input', () => {
-      const element = wrapper.find('.document-name').element as any
+      const element = wrapper.find('.document-name').element as HTMLInputElement
       expect(element.value).toEqual(docs[0].name)
     })
 
     test('should have correct active mode', () => {
-      const element = wrapper.find('.document-active').element as any
+      const element = wrapper.find('.document-active').element as HTMLInputElement
       expect(element.checked).toEqual(docs[0].active)
     })
 
     test('should have correct ttl in input', () => {
-      const element = wrapper.find('.document-ttl').element as any
+      const element = wrapper.find('.document-ttl').element as HTMLInputElement
       expect(element.value).toEqual(docs[0].ttl.toString())
     })
 
@@ -101,7 +101,7 @@ describe('FlowControlEditor.vue', () => {
     })
 
     test('should have correct notes in input', () => {
-      const element = wrapper.find('.document-notes').element as any
+      const element = wrapper.find('.document-notes').element as HTMLTextAreaElement
       expect(element.value).toEqual(docs[0].notes.toString())
     })
 
@@ -137,17 +137,16 @@ describe('FlowControlEditor.vue', () => {
 
     test('should handle key with no value', async () => {
       docs[0].key = [{'headers': null}]
-      wrapper = mount(FlowControlEditor, {
+      wrapper = shallowMount(FlowControlEditor, {
         propsData: {
           selectedDoc: docs[0],
         },
       })
       const wantedType = 'headers'
-      const wantedValue: any = null
       const actualType = Object.keys((wrapper.vm as any).localDoc.key[0])[0]
       const actualValue = Object.values((wrapper.vm as any).localDoc.key[0])[0]
       expect(actualType).toEqual(wantedType)
-      expect(actualValue).toEqual(wantedValue)
+      expect(actualValue).toEqual(null)
     })
 
     test('should show error when two of the same key type exist', async () => {
@@ -309,15 +308,15 @@ describe('FlowControlEditor.vue', () => {
         const uriEntryInput = wrapper.find('.uri-entry-input')
         const hostEntryInput = wrapper.find('.host-entry-input')
         expect(tables.length).toEqual(1)
-        expect((methodEntryInput.element as any).value).toContain('GET')
-        expect((uriEntryInput.element as any).value).toContain('/')
-        expect((hostEntryInput.element as any).value).toContain('www.example.com')
+        expect((methodEntryInput.element as HTMLInputElement).value).toContain('GET')
+        expect((uriEntryInput.element as HTMLInputElement).value).toContain('/')
+        expect((hostEntryInput.element as HTMLInputElement).value).toContain('www.example.com')
       })
 
       test('should get header host value from first section', async () => {
         const wantedHostValue = 'api.example.com'
         const hostEntryInput = wrapper.findAll('.host-entry-input').at(0);
-        (hostEntryInput.element as any).value = wantedHostValue
+        (hostEntryInput.element as HTMLInputElement).value = wantedHostValue
         hostEntryInput.trigger('input')
         await Vue.nextTick()
         const addSectionButton = wrapper.find('.new-sequence-button')
@@ -325,7 +324,7 @@ describe('FlowControlEditor.vue', () => {
         await Vue.nextTick()
         await wrapper.vm.$forceUpdate()
         const newHostEntryInput = wrapper.findAll('.host-entry-input').at(2)
-        expect((newHostEntryInput.element as any).value).toContain(wantedHostValue)
+        expect((newHostEntryInput.element as HTMLInputElement).value).toContain(wantedHostValue)
       })
     })
 

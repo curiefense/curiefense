@@ -1,19 +1,20 @@
 <template>
   <div class="limit-options">
     <label v-if="labelSeparatedLine && label"
-           class="label is-small is-size-7 has-text-left">
+           class="label is-small is-size-7 has-text-left form-label">
       {{ label }}
     </label>
     <div class="columns mb-0">
       <div v-if="!labelSeparatedLine && label"
            class="column is-2">
-        <label class="label is-small is-size-7">
+        <label class="label is-small is-size-7 form-label">
           {{ label }}
         </label>
       </div>
       <div class="column">
         <div class="control select is-small is-fullwidth">
           <select v-model="selectedType"
+                  class="option-type-selection"
                   title="Type">
             <option v-if="useDefaultSelf" value="self">HTTP request</option>
             <option v-for="(value, id) in options" :selected="value === selectedType" :value="id" :key="id">
@@ -29,12 +30,13 @@
           <input type="text"
                  title="Key"
                  v-model="selectedKey"
-                 class="input is-small">
+                 class="input is-small option-key-input">
           <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
         </div>
         <div class="control select is-small is-fullwidth" v-if="selectedType === 'attrs'">
           <div class="select is-fullwidth">
             <select v-model="selectedKey"
+                    class="option-attribute-selection"
                     title="Key">
               <option v-for="(value, id) in attributes" :value="id" :key="id">{{ value }}</option>
             </select>
@@ -46,7 +48,7 @@
           <input type="text"
                  title="Value"
                  v-model="selectedValue"
-                 class="input is-small">
+                 class="input is-small option-value-input">
           <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
         </div>
       </div>
@@ -56,6 +58,7 @@
             :class="['button', 'is-light', 'is-small', 'remove-icon', 'is-small',
                     removable ? 'has-text-grey' : 'has-text-grey-light is-disabled']"
             :disabled="!removable"
+            class="remove-option-button"
             title="click to remove"
             @click="$emit('remove')">
           <span class="icon is-small"><i class="fas fa-trash fa-xs"></i></span>
@@ -94,8 +97,19 @@ export const limitAttributes = {
 export default Vue.extend({
   name: 'LimitOption',
   props: {
-    label: String,
-    option: Object as PropType<OptionObject>,
+    label: {
+      type: String,
+      default: '',
+    },
+    option: {
+      type: Object as PropType<OptionObject>,
+      default: (): OptionObject => {
+        return {
+          type: 'attrs' as OptionObject['type'],
+          key: '',
+        } as OptionObject
+      },
+    },
     removable: {
       type: Boolean,
       default: false,
@@ -124,7 +138,7 @@ export default Vue.extend({
     },
   },
   data() {
-    const {limitOptionsTypes} = DatasetsUtils
+    const limitOptionsTypes = DatasetsUtils.limitOptionsTypes
     const optionsData: { [key: string]: OptionObject } = {
       self: {
         type: 'self',
@@ -135,7 +149,7 @@ export default Vue.extend({
       return !this.ignoreAttributes || !this.ignoreAttributes.includes(key)
     })
     Object.keys(limitOptionsTypes).forEach((ruleType) => {
-      const {type, key = '', value} = this.option || {}
+      const {type, key = '', value} = this.option
       optionsData[ruleType] = {type, key, value}
     })
     return {
@@ -172,13 +186,8 @@ export default Vue.extend({
         this.selectedOption.type = value
       },
     },
-    selectedOption: {
-      get: function(): OptionObject {
-        return this.optionsData[this.type]
-      },
-      set: function(value: OptionObject): void {
-        this.optionsData[this.type] = value
-      },
+    selectedOption(): OptionObject {
+      return this.optionsData[this.type]
     },
   },
   updated() {

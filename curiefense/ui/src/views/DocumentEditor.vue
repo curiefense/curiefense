@@ -37,7 +37,7 @@
                 <p class="control">
                   <button class="button is-small download-doc-button"
                           :class="{'is-loading': isDownloadLoading}"
-                          @click="downloadDoc"
+                          @click="downloadDoc()"
                           title="Download document">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
@@ -92,7 +92,7 @@
                    v-if="selectedDocType !== 'wafrules'">
                   <button class="button is-small fork-document-button"
                           :class="{'is-loading': isForkLoading}"
-                          @click="forkDoc"
+                          @click="forkDoc()"
                           title="Duplicate document"
                           :disabled="!selectedDoc">
                     <span class="icon is-small">
@@ -155,7 +155,6 @@
             :selectedDoc.sync="selectedDoc"
             :docs.sync="docs"
             :apiPath="documentAPIPath"
-            @switch-doc-type="switchDocType"
             @form-invalid="isDocumentInvalid = $event"
             ref="currentComponent">
         </component>
@@ -181,6 +180,7 @@
             <span v-if="!branchNames.includes(selectedBranch)">
               Missing branch. To be redirected to Version Control page where you will be able to create a new one, click
               <a title="Add new"
+                 class="version-control-referral-button"
                  @click="referToVersionControl()">
                 here
               </a>
@@ -234,6 +234,7 @@ export default Vue.extend({
         await this.setSelectedDataFromRouteParams()
         this.setLoadingDocStatus(false)
       },
+      deep: true,
     },
   },
   data() {
@@ -357,6 +358,7 @@ export default Vue.extend({
         await this.loadDocs(this.selectedDocType)
       }
       this.selectedDocID = this.$route.params.doc_id || this.docIdNames[0][0]
+      this.isDocumentInvalid = false
       await this.loadSelectedDocData()
       this.addMissingDefaultsToDoc()
       this.setLoadingDocStatus(false)
@@ -392,13 +394,6 @@ export default Vue.extend({
       }))
       this.branches = _.size(configs)
       console.log('config counters', this.branches, this.commits)
-    },
-
-    async initDocTypes(skipDocSelection?: boolean) {
-      if (!skipDocSelection) {
-        this.selectedDocType = Object.keys(this.componentsMap)[0] as DocumentType
-      }
-      await this.loadDocs(this.selectedDocType, skipDocSelection)
     },
 
     updateDocIdNames() {
@@ -466,40 +461,27 @@ export default Vue.extend({
       }
     },
 
-    async switchBranch(branch?: string) {
+    async switchBranch() {
       this.setLoadingDocStatus(true)
-      if (branch) {
-        this.selectedBranch = branch
-      }
       this.resetGitLog()
-      await this.initDocTypes(true)
+      await this.loadDocs(this.selectedDocType, true)
       await this.loadReferencedDocsIDs()
       this.goToRoute()
       this.setLoadingDocStatus(false)
     },
 
-    async switchDocType(docType?: DocumentType) {
+    async switchDocType() {
       this.setLoadingDocStatus(true)
-      if (!docType) {
-        docType = this.selectedDocType
-      } else {
-        this.selectedDocType = docType
-      }
       this.docs = []
       this.selectedDocID = null
       this.resetGitLog()
-      await this.loadDocs(docType, true)
+      await this.loadDocs(this.selectedDocType, true)
       this.goToRoute()
       this.setLoadingDocStatus(false)
     },
 
-    async switchDocID(docID?: string) {
+    async switchDocID() {
       this.setLoadingDocStatus(true)
-      if (docID) {
-        this.selectedDocID = docID
-        await this.loadSelectedDocData()
-        this.addMissingDefaultsToDoc()
-      }
       this.loadGitLog()
       this.goToRoute()
       this.setLoadingDocStatus(false)

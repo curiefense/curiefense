@@ -8,7 +8,6 @@ global:
       redis: "1m"
       logstash: "1m"
       kibana: "1m"
-      logdb: "1m"
       uiserver: "1m"
       confserver-init: "1m"
       confserver-nginx: "1m"
@@ -16,7 +15,5 @@ global:
       curietasker: "1m"
       prometheus: "1m"
       grafana: "1m"
-      curielogserver-nginx: "1m"
-      curielogserver-uwsgi: "1m"
       elasticsearch: "1m"
 

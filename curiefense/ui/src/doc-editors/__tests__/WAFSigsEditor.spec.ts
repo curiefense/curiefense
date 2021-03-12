@@ -2,9 +2,10 @@ import WAFSigsEditor from '@/doc-editors/WAFSigsEditor.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
+import {WAFRule} from '@/types'
 
 describe('WAFSigsEditor.vue', () => {
-  let docs: any[]
+  let docs: WAFRule[]
   let wrapper: Wrapper<Vue>
   beforeEach(() => {
     docs = [{
@@ -30,12 +31,12 @@ describe('WAFSigsEditor.vue', () => {
     })
 
     test('should have correct name in input', () => {
-      const element = wrapper.find('.document-name').element as any
+      const element = wrapper.find('.document-name').element as HTMLInputElement
       expect(element.value).toEqual(docs[0].name)
     })
 
     test('should have correct operand in input', () => {
-      const element = wrapper.find('.document-operand').element as any
+      const element = wrapper.find('.document-operand').element as HTMLInputElement
       expect(element.value).toEqual(docs[0].operand)
     })
 

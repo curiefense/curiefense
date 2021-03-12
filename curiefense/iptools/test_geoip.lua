@@ -8,10 +8,11 @@ mmdb:load_city_db("../curieproxy/config/maxmind/GeoLite2-City.mmdb")
 mmdb:load_country_db("../curieproxy/config/maxmind/GeoLite2-Country.mmdb")
 
 function ipinfo(ip, handle)
+    local city = mmdb:lookup_city(ip)
     local country, iso = mmdb:lookup_country(ip)
     local asn, org = mmdb:lookup_asn(ip)
     return {
-        country, asn, org, iso
+        city, country, iso, asn, org
     }
 end
 
@@ -29,14 +30,16 @@ function inspect(t, level)
 end
 
 
-a, b = mmdb:lookup_asn("89.160.20.128")
-print("ASN ===>", a, b)
-
-country = mmdb:lookup_country("89.160.20.128")
+local city, country, iso, asn, company = unpack(ipinfo("199.0.0.1"))
+print("ASN")
+print(asn, company)
+assert(asn)
+assert(company)
 
 print("Country")
 inspect(country, "country")
+assert(country)
 
-city = mmdb:lookup_city("89.160.20.128")
 print("City")
 inspect(city, "city")
+assert(city)

@@ -79,7 +79,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import {WAFSignature} from '@/types'
+import {WAFRule} from '@/types'
 import _ from 'lodash'
 
 export default Vue.extend({
@@ -88,7 +88,7 @@ export default Vue.extend({
     selectedDoc: Object,
   },
   computed: {
-    localDoc(): WAFSignature {
+    localDoc(): WAFRule {
       return _.cloneDeep(this.selectedDoc)
     },
   },

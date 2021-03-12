@@ -3,12 +3,13 @@ import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals
 import {mount, Wrapper} from '@vue/test-utils'
 import _ from 'lodash'
 import Vue from 'vue'
+import {TagRule, TagRuleSection} from '@/types'
 
 describe('EntriesRelationList.vue', () => {
   let wrapper: Wrapper<Vue>
-  let ruleData: any
-  let entryData1: any
-  let entryData2: any
+  let ruleData: TagRule['rule']
+  let entryData1: TagRuleSection
+  let entryData2: TagRuleSection
   beforeEach(() => {
     entryData1 = {
       relation: 'OR',
@@ -45,7 +46,7 @@ describe('EntriesRelationList.vue', () => {
         entryData2,
       ],
     }
-    const onUpdate = (rule: any) => {
+    const onUpdate = (rule: TagRule['rule']) => {
       wrapper.setProps({rule: rule})
     }
     wrapper = mount(EntriesRelationList, {
@@ -54,7 +55,7 @@ describe('EntriesRelationList.vue', () => {
         editable: true,
       },
       listeners: {
-        update: onUpdate,
+        'update:rule': onUpdate,
       },
     })
   })
@@ -73,9 +74,9 @@ describe('EntriesRelationList.vue', () => {
     const categories = component.findAll('.entry-category')
     const values = component.findAll('.entry-value')
     expect(categories.at(0).text().toLowerCase()).toContain(wantedEntryData[0][0].toLowerCase())
-    expect(values.at(0).text().toLowerCase()).toContain(wantedEntryData[0][1].toLowerCase())
+    expect(values.at(0).text().toLowerCase()).toContain((wantedEntryData[0][1] as string).toLowerCase())
     expect(categories.at(1).text().toLowerCase()).toContain(wantedEntryData[1][0].toLowerCase())
-    expect(values.at(1).text().toLowerCase()).toContain(wantedEntryData[1][1].toLowerCase())
+    expect(values.at(1).text().toLowerCase()).toContain((wantedEntryData[1][1] as string).toLowerCase())
     expect(ruleData.sections[0].entries).toEqual(wantedEntryData)
   })
 
@@ -99,7 +100,7 @@ describe('EntriesRelationList.vue', () => {
   })
 
   test('should not break if data changes to invalid data', async () => {
-    entryData1 = {}
+    (entryData1 as any) = {}
     await Vue.nextTick()
     const component = wrapper.findComponent(EntriesRelationList)
     expect(component).toBeTruthy()
@@ -139,18 +140,6 @@ describe('EntriesRelationList.vue', () => {
       await Vue.nextTick()
       expect(sectionRelationToggle.text()).toEqual('OR')
     })
-
-    // TODO: rule relation was moved outside of this component
-    test.skip('should change rule relation between `OR` and `AND` when clicked', async () => {
-      const component = wrapper.findComponent(EntriesRelationList)
-      const ruleRelationToggle = component.find('.rule-relation-toggle')
-      ruleRelationToggle.trigger('click')
-      await Vue.nextTick()
-      expect(ruleRelationToggle.text()).toEqual('OR')
-      ruleRelationToggle.trigger('click')
-      await Vue.nextTick()
-      expect(ruleRelationToggle.text()).toEqual('AND')
-    })
   })
 
   describe('large data pagination', () => {
@@ -158,7 +147,7 @@ describe('EntriesRelationList.vue', () => {
     let checkedTable: Wrapper<Vue>
     beforeEach(() => {
       entryData1 = {
-        relation: 'and',
+        relation: 'AND',
         entries: [
           ['uri', '/login0'],
           ['uri', '/login1'],
@@ -193,12 +182,12 @@ describe('EntriesRelationList.vue', () => {
         ],
       }
       ruleData = {
-        relation: 'and',
+        relation: 'AND',
         sections: [
           entryData1,
         ],
       }
-      const onUpdate = (rule: any) => {
+      const onUpdate = (rule: TagRule['rule']) => {
         wrapper.setProps({rule: rule})
       }
       wrapper = mount(EntriesRelationList, {
@@ -265,25 +254,25 @@ describe('EntriesRelationList.vue', () => {
     })
 
     test('should return false for relation not `or` or `and`', () => {
-      ruleData.relation = 'unknown value'
+      (ruleData as any).relation = 'unknown value'
       const isValid = validator(ruleData)
       expect(isValid).toEqual(false)
     })
 
     test('should return false for entries with too few arguments', () => {
-      ruleData.sections[0].entries[0] = ['ok']
+      (ruleData as any).sections[0].entries[0] = ['ip']
       const isValid = validator(ruleData)
       expect(isValid).toEqual(false)
     })
 
     test('should return false for entries with too many arguments', () => {
-      ruleData.sections[0].entries[0] = ['ok', 'test', 'banana', 'apple', 'pear', 'eggplant']
+      (ruleData as any).sections[0].entries[0] = ['ip', 'test', 'banana', 'apple', 'pear', 'eggplant']
       const isValid = validator(ruleData)
       expect(isValid).toEqual(false)
     })
 
     test('should return false for object entry which does not match the schema', () => {
-      ruleData.sections[0].entries[0] = {
+      (ruleData as any).sections[0].entries[0] = {
         prop: 'value',
       }
       const isValid = validator(ruleData)
@@ -364,30 +353,6 @@ describe('EntriesRelationList.vue', () => {
       const component = wrapper.findComponent(EntriesRelationList)
       const removeSectionButton = component.find('.remove-section-button')
       expect(removeSectionButton.element).toBeUndefined()
-    })
-  })
-
-  // TODO: remove all sections button was moved outside of this component
-  describe.skip('remove all sections button', () => {
-    test('should remove all sections', async () => {
-      const component = wrapper.findComponent(EntriesRelationList)
-      const removeAllSectionsButton = component.find('.remove-all-sections-button')
-      removeAllSectionsButton.trigger('click')
-      await Vue.nextTick()
-      const tables = wrapper.findAll('.entries-table')
-      expect(tables.length).toEqual(0)
-    })
-
-    test('should not have the option to remove component if not editable', () => {
-      wrapper = mount(EntriesRelationList, {
-        propsData: {
-          rule: ruleData,
-          editable: false,
-        },
-      })
-      const component = wrapper.findComponent(EntriesRelationList)
-      const removeAllSectionsButton = component.find('.remove-all-sections-button')
-      expect(removeAllSectionsButton.element).toBeUndefined()
     })
   })
 
@@ -547,7 +512,7 @@ describe('EntriesRelationList.vue', () => {
       expect(sectionRelationToggle.text()).toEqual('OR')
     })
 
-    test.skip('should not set section relation to `OR` if no more than one item of same category added', async () => {
+    test('should not set section relation to `OR` if no more than one item of same category added', async () => {
       const newRuleData = JSON.parse(JSON.stringify(ruleData))
       newRuleData.sections[0].entries = [
         [
@@ -558,10 +523,8 @@ describe('EntriesRelationList.vue', () => {
       wrapper.setProps({rule: newRuleData})
       await Vue.nextTick()
       const component = wrapper.findComponent(EntriesRelationList)
-      // set relation to AND
+      // check relation is AND
       const sectionRelationToggle = component.findAll('.section-relation-toggle').at(0)
-      sectionRelationToggle.trigger('click')
-      await Vue.nextTick()
       expect(sectionRelationToggle.text()).toEqual('AND')
       // open new entry row
       const addEntryButton = component.find('.add-entry-button')
@@ -575,7 +538,7 @@ describe('EntriesRelationList.vue', () => {
       const confirmAddEntryButton = component.find('.confirm-add-entry-button')
       confirmAddEntryButton.trigger('click')
       await Vue.nextTick()
-      // check
+      // check relation is still AND
       expect(sectionRelationToggle.text()).toEqual('AND')
     })
 

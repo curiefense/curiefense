@@ -2,7 +2,7 @@
 #set -e
 # shellcheck disable=SC1090
 
-BASEDIR="$(dirname "$(readlink -f "$0")")" 
+BASEDIR="$(dirname "$(readlink -f "$0")")"
 DATE="$(date --iso=m)"
 BRANCH=${BRANCH:-dev}
 
@@ -38,8 +38,8 @@ if helm ls -a | grep -q istio-cf; then
 	helm delete --purge istio-cf
 fi
 
-for i in persistent-confdb-confserver-0 persistent-grafana-grafana-0 persistent-logdb-logdb-0 persistent-prometheus-prometheus-0 persistent-redis-redis-0 persistent-elasticsearch-elasticsearch-0; do 
-	if kubectl get pvc -n curiefense | grep -q "$i"; then 
+for i in persistent-confdb-confserver-0 persistent-grafana-grafana-0 persistent-prometheus-prometheus-0 persistent-redis-redis-0 persistent-elasticsearch-elasticsearch-0; do
+	if kubectl get pvc -n curiefense | grep -q "$i"; then
 		kubectl delete pvc -n curiefense --grace-period=0 --force $i
 	fi
 done

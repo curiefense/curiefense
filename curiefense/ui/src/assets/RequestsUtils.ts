@@ -67,16 +67,9 @@ const sendRequest = (methodName: MethodNames, urlTail: string, data?: any, confi
   return processRequest(methodName, apiUrl, data, config, successMessage, failureMessage)
 }
 
-const sendLogsRequest = (methodName: MethodNames, urlTail: string, data?: any, config?: AxiosRequestConfig,
-                         successMessage?: string, failureMessage?: string) => {
-  const apiUrl = `${logsAPIRoot}/${logsAPIVersion}/${urlTail}`
-  return processRequest(methodName, apiUrl, data, config, successMessage, failureMessage)
-}
-
 export default {
   name: 'RequestsUtils',
   sendRequest,
-  sendLogsRequest,
   confAPIRoot,
   confAPIVersion,
   logsAPIRoot,

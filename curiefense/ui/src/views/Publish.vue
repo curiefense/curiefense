@@ -9,6 +9,7 @@
                 <div class="control">
                   <div class="select is-small">
                     <select v-model="selectedBranchName"
+                            class="branch-selection"
                             title="Switch branch"
                             @change="switchBranch">
                       <option v-for="name in branchNames"
@@ -25,14 +26,15 @@
             <div class="column">
               <div class="field is-grouped is-pulled-right">
                 <div class="control">
-                  <span class="is-size-7">Version: {{ selectedCommit }}</span>
+                  <span class="is-size-7 version-display">Version: {{ selectedCommit }}</span>
                 </div>
                 <div class="control">
-                  <span class="is-size-7">Buckets: {{ selectedBucketNames.length }}</span>
+                  <span class="is-size-7 buckets-display">Buckets: {{ selectedBucketNames.length }}</span>
                 </div>
                 <p class="control">
                   <button
-                      class="button is-small"
+                      class="button is-small publish-button"
+                      :class="{'is-loading': isPublishLoading}"
                       @click="publish"
                       :title="selectedBucketNames.length > 0 ? 'Publish configuration': 'Select one or more buckets'"
                       :disabled="selectedBucketNames.length === 0">
@@ -56,6 +58,7 @@
             <table class="table" v-if="gitLog && gitLog.length > 0">
               <tbody>
               <tr @click="selectCommit(commit)"
+                  class="commit-row"
                   v-for="commit in commitLines"
                   :key="commit.version"
                   :class="getVersionRowClass(commit.version)">
@@ -69,12 +72,18 @@
               </tr>
               <tr v-if="!expanded && gitLog.length > init_max_rows">
                 <td>
-                  <a class="has-text-grey" @click="expanded = true">View More</a>
+                  <a class="has-text-grey view-more-button"
+                     @click="expanded = true">
+                    View More
+                  </a>
                 </td>
               </tr>
               <tr v-if="expanded && gitLog.length > init_max_rows">
                 <td>
-                  <a class="has-text-grey" @click="expanded = false">View Less</a>
+                  <a class="has-text-grey view-less-button"
+                     @click="expanded = false">
+                    View Less
+                  </a>
                 </td>
               </tr>
               </tbody>
@@ -87,7 +96,8 @@
               <tr
                   v-for="bucket in buckets"
                   :key="bucket.name"
-                  :class="getBucketRowClass(bucket.name)"
+                  class="bucket-row"
+                  :class="{'has-background-warning-light': !publishMode && selectedBucketNames.includes(bucket.name)}"
                   @click="bucketNameClicked(bucket.name)">
                 <td class="is-size-7">
                   <span class="icon is-small is-vcentered">
@@ -106,7 +116,7 @@
                     Error publishing to this bucket: {{ bucket.publishStatus.message }}!
                   </p>
                   <p class="has-text-success" v-if="bucket.publishStatus && bucket.publishStatus.ok">
-                    Publish to bucket is done with success!
+                    Publish to this bucket has been done successfully!
                   </p>
                 </td>
               </tr>
@@ -121,12 +131,12 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import RequestsUtils from '@/assets/RequestsUtils.ts'
 import {mdiBucket} from '@mdi/js'
 import Vue from 'vue'
 import {Branch, Commit} from '@/types'
 import {AxiosResponse} from 'axios'
+import Utils from '@/assets/Utils'
 
 export default Vue.extend({
   name: 'Publish',
@@ -140,8 +150,6 @@ export default Vue.extend({
       expanded: false,
       init_max_rows: 5,
       publishMode: false,
-      commits: 0,
-      branches: 0,
       selectedBranchName: null,
       // db/system info
       publishInfo: {buckets: [], branch_buckets: []},
@@ -153,7 +161,8 @@ export default Vue.extend({
       publishedBuckets: [],
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
-      titles: DatasetsUtils.titles,
+      // loading indicator
+      isPublishLoading: false,
     }
   },
   computed: {
@@ -168,51 +177,17 @@ export default Vue.extend({
       if (this.expanded) {
         return this.gitLog
       }
-
       return this.gitLog.slice(0, this.init_max_rows)
-    },
-
-    gitAPIPath(): string {
-      return `${this.apiRoot}/${this.apiVersion}/configs/v/`
     },
 
     branchNames(): string[] {
       return _.sortBy(_.map(this.configs, 'id'))
     },
-
-    selectedBranch(): Branch {
-      if (!this.selectedBranchName) {
-        return {} as Branch
-      }
-
-      const idx = _.findIndex(this.configs, (conf) => {
-        return conf.id === this.selectedBranchName
-      })
-
-      if (idx > -1) {
-        return this.configs[idx]
-      }
-
-      return this.configs[0]
-    },
-
   },
-
   methods: {
     selectCommit(commit: Commit) {
       this.selectedCommit = commit.version
       this.publishMode = false
-      console.log('publish info buckets', this.publishInfo.buckets)
-    },
-
-    getBucketRowClass(bucketName: string) {
-      const classNames = []
-      if (!this.publishMode) {
-        if (this.bucketWithinList(bucketName)) {
-          classNames.push('has-background-warning-light')
-        }
-        return classNames.join(' ')
-      }
     },
 
     getVersionRowClass(version: string) {
@@ -226,9 +201,12 @@ export default Vue.extend({
 
     switchBranch() {
       this.publishMode = false
-      this.setGitLog()
+      const selectedBranch = _.find(this.configs, (conf) => {
+        return conf.id === this.selectedBranchName
+      })
+      this.gitLog = selectedBranch.logs
+      this.selectedCommit = this.gitLog[0]?.version || null
       this.setDefaultBuckets()
-      console.log('publish info buckets', this.publishInfo.buckets)
     },
 
     setDefaultBuckets() {
@@ -245,17 +223,6 @@ export default Vue.extend({
           }))
         }
       }
-
-      console.log('publish info', this.publishInfo)
-    },
-
-    setGitLog() {
-      if (this.selectedBranch) {
-        this.gitLog = this.selectedBranch.logs
-        this.selectedCommit = this.gitLog[0].version
-      } else {
-        this.gitLog = []
-      }
     },
 
     loadPublishInfo() {
@@ -263,10 +230,6 @@ export default Vue.extend({
         this.publishInfo = response.data
         this.setDefaultBuckets()
       })
-    },
-
-    bucketWithinList(name: string) {
-      return _.indexOf(this.selectedBucketNames, name) > -1
     },
 
     bucketNameClicked(name: string) {
@@ -281,62 +244,48 @@ export default Vue.extend({
     loadConfigs() {
       // store configs
       RequestsUtils.sendRequest('GET', 'configs/').then((response: AxiosResponse<Branch[]>) => {
-        const configs = response.data
-        this.configs = configs
+        this.configs = response.data
         // pick first branch name as selected
         this.selectedBranchName = this.branchNames[0]
-
-        // counters
-        this.commits = _.sum(_.map(_.map(configs, 'logs'), (logs) => {
-          return _.size(logs)
-        }))
-        this.branches = _.size(configs)
         this.switchBranch()
       })
     },
 
-    publish(event: Event) {
+    publish() {
+      this.isPublishLoading = true
       this.publishMode = true
-      let node = event.target as HTMLElement
-      while (node.nodeName !== 'BUTTON') {
-        node = node.parentNode as HTMLElement
-      }
-      node.classList.add('is-loading')
       this.publishedBuckets = _.cloneDeep(_.filter(this.publishInfo.buckets, (bucket) => {
         return _.indexOf(this.selectedBucketNames, bucket.name) > -1
       }))
 
       RequestsUtils.sendRequest('PUT',
-          `/tools/publish/${this.selectedBranchName}/v/${this.selectedCommit}/`,
+          `tools/publish/${this.selectedBranchName}/v/${this.selectedCommit}/`,
           this.buckets,
-          null,
-          `Published successfully!`,
-          `Failed publishing!`,
       ).then((response: AxiosResponse) => {
-        this.parsePublishResults(response.data, node)
+        this.parsePublishResults(response.data)
+        this.isPublishLoading = false
       }).catch((error: Error) => {
         console.error(error)
-        node.classList.remove('is-loading')
+        this.isPublishLoading = false
+        Utils.failureToast(`Failed publishing branch ${this.selectedBranchName} version ${this.selectedCommit}!`)
       })
     },
 
-    parsePublishResults(data: any, node: HTMLElement) {
-      node.classList.remove('is-loading')
-      _.each(data.status, (response) => {
-        console.log('response', response)
-        console.log('published buckets', this.publishedBuckets)
-
+    parsePublishResults(data: any) {
+      if (data.ok) {
+        Utils.successToast(`Published branch ${this.selectedBranchName} version ${this.selectedCommit} successfully!`)
+      } else {
+        Utils.failureToast(`Failed publishing branch ${this.selectedBranchName} version ${this.selectedCommit}!`)
+      }
+      _.each(data.status, (responseStatus) => {
         const index = _.findIndex(this.publishedBuckets, (entry) => {
-          return entry.name === response.name
+          return entry.name === responseStatus.name
         })
         if (index > -1) {
-          this.publishedBuckets[index].publishStatus = response
+          this.publishedBuckets[index].publishStatus = responseStatus
         }
       })
-
-      const tempList = _.cloneDeep(this.publishedBuckets)
-      this.publishedBuckets = []
-      this.publishedBuckets = tempList
+      this.publishedBuckets = _.cloneDeep(this.publishedBuckets)
     },
 
   },

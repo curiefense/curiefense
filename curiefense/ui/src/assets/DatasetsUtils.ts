@@ -106,11 +106,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
   tagrules(): TagRule {
     return {
       'id': generateUUID2(),
-      'name': 'New Tag Rules',
+      'name': 'New Tag Rule',
       'source': 'self-managed',
       'mdate': (new Date()).toISOString(),
       'notes': 'New List Notes and Remarks',
-      'entries_relation': 'OR',
       'active': true,
       'tags': [],
       'action': {

@@ -4,12 +4,15 @@ import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals
 import {mount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
+import {TagsDatabaseDocument} from '@/types'
 
 jest.mock('axios')
 
 describe('TagAutocompleteInput.vue', () => {
   let wrapper: Wrapper<Vue>
-  let tagsData: any
+  let tagsData: {
+    data: TagsDatabaseDocument,
+  }
   beforeEach(async () => {
     tagsData = {
       data: {
@@ -28,6 +31,8 @@ describe('TagAutocompleteInput.vue', () => {
       },
     }
     jest.spyOn(axios, 'get').mockImplementation(() => Promise.resolve(tagsData))
+    jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
+    jest.spyOn(axios, 'post').mockImplementation(() => Promise.resolve())
     wrapper = mount(TagAutocompleteInput, {
       propsData: {
         autoFocus: true,
@@ -518,7 +523,7 @@ describe('TagAutocompleteInput.vue', () => {
     })
 
     test('should return false for undefined type', () => {
-      const type: any = undefined
+      const type: string = undefined
       const isValid = validator(type)
       expect(isValid).toEqual(false)
     })

@@ -1,11 +1,12 @@
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {describe, test, expect, beforeEach} from '@jest/globals'
-import {mount, Wrapper} from '@vue/test-utils'
+import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
+import {ACLPolicy} from '@/types'
 
 describe('ACLEditor.vue', () => {
-  let docs: any[]
+  let docs: ACLPolicy[]
   let wrapper: Wrapper<Vue>
   beforeEach(() => {
     docs = [
@@ -32,7 +33,7 @@ describe('ACLEditor.vue', () => {
         ],
       },
     ]
-    wrapper = mount(ACLEditor, {
+    wrapper = shallowMount(ACLEditor, {
       propsData: {
         selectedDoc: docs[0],
       },
@@ -44,7 +45,7 @@ describe('ACLEditor.vue', () => {
   })
 
   test('should have correct name in input', () => {
-    const element = wrapper.find('.document-name').element as any
+    const element = wrapper.find('.document-name').element as HTMLInputElement
     expect(element.value).toEqual(docs[0].name)
   })
 
@@ -56,7 +57,7 @@ describe('ACLEditor.vue', () => {
   test('should show a warning when there are duplicate tags', async () => {
     docs[0]['deny'].push('test-tag')
     docs[0]['allow'].push('test-tag')
-    wrapper = mount(ACLEditor, {
+    wrapper = shallowMount(ACLEditor, {
       propsData: {
         selectedDoc: docs[0],
       },
@@ -68,7 +69,7 @@ describe('ACLEditor.vue', () => {
 
   test('should show tags as crossed when there are is `all` tag in higher priority', async () => {
     docs[0]['bypass'].push('all')
-    wrapper = mount(ACLEditor, {
+    wrapper = shallowMount(ACLEditor, {
       propsData: {
         selectedDoc: docs[0],
       },
@@ -81,7 +82,7 @@ describe('ACLEditor.vue', () => {
 
   test('should not show non bot tags as crossed when there are is `all` tag in higher bot priority', async () => {
     docs[0]['deny_bot'].push('all')
-    wrapper = mount(ACLEditor, {
+    wrapper = shallowMount(ACLEditor, {
       propsData: {
         selectedDoc: docs[0],
       },
@@ -94,7 +95,7 @@ describe('ACLEditor.vue', () => {
 
   test('should show bot tags as crossed when there are is `all` tag in higher bot priority', async () => {
     docs[0]['allow_bot'].push('all')
-    wrapper = mount(ACLEditor, {
+    wrapper = shallowMount(ACLEditor, {
       propsData: {
         selectedDoc: docs[0],
       },

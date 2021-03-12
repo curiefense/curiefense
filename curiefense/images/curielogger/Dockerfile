@@ -2,6 +2,8 @@ FROM golang as builder
 
 COPY curielogger /curielogger
 WORKDIR /curielogger
+RUN go get -u github.com/skx/implant
+RUN implant -input files/ -output curielogger/static.go
 RUN go build -o build/curielogger ./curielogger/
 
 FROM debian:buster

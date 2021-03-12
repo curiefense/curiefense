@@ -30,13 +30,13 @@ describe('SerializedInput.vue', () => {
 
   test('should have correct provided placeholder for the input', () => {
     const input = wrapper.find('.serialized-input')
-    expect((input.element as any).placeholder).toEqual(placeholder)
+    expect((input.element as HTMLInputElement).placeholder).toEqual(placeholder)
   })
 
   test('should format value correctly from model to view', () => {
     const wantedValue = getFunction(value)
     const input = wrapper.find('.serialized-input')
-    expect((input.element as any).value).toEqual(wantedValue)
+    expect((input.element as HTMLInputElement).value).toEqual(wantedValue)
   })
 
   test('should format value correctly from model to view when value changes', async () => {
@@ -45,15 +45,24 @@ describe('SerializedInput.vue', () => {
     wrapper.setProps({value: newValue})
     await Vue.nextTick()
     const input = wrapper.find('.serialized-input')
-    expect((input.element as any).value).toEqual(wantedValue)
+    expect((input.element as HTMLInputElement).value).toEqual(wantedValue)
   })
 
-  test('should format and emit value correctly from view to model', async () => {
+  test('should format and emit value correctly from view to model on blur', async () => {
     const wantedValue = value
     const input = wrapper.find('.serialized-input')
     input.trigger('blur')
     await Vue.nextTick()
-    expect(wrapper.emitted('blur')).toBeTruthy()
-    expect(wrapper.emitted('blur')[0]).toEqual([wantedValue])
+    expect(wrapper.emitted('update:value')).toBeTruthy()
+    expect(wrapper.emitted('update:value')[0]).toEqual([wantedValue])
+  })
+
+  test('should format and emit value correctly from view to model on change', async () => {
+    const wantedValue = value
+    const input = wrapper.find('.serialized-input')
+    input.trigger('change')
+    await Vue.nextTick()
+    expect(wrapper.emitted('update:value')).toBeTruthy()
+    expect(wrapper.emitted('update:value')[0]).toEqual([wantedValue])
   })
 })

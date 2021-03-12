@@ -174,7 +174,7 @@
 
 <script lang="ts">
 import _ from 'lodash'
-import Vue from 'vue'
+import Vue, {PropType} from 'vue'
 import {Category, Relation, TagRule, TagRuleSection, TagRuleSectionEntry} from '@/types'
 
 export default Vue.extend({
@@ -182,7 +182,7 @@ export default Vue.extend({
 
   props: {
     rule: {
-      type: Object,
+      type: Object as PropType<TagRule['rule']>,
       default: () => {
         return {
           relation: 'OR',
@@ -261,7 +261,7 @@ export default Vue.extend({
     },
 
     localRule(): TagRule['rule'] {
-      return _.cloneDeep(this.rule)
+      return _.cloneDeep(this.rule) as TagRule['rule']
     },
   },
 
@@ -288,7 +288,7 @@ export default Vue.extend({
     },
 
     emitRuleUpdate() {
-      this.$emit('update', this.localRule)
+      this.$emit('update:rule', this.localRule)
     },
 
     sectionContainsSameCategoryItems(section: TagRuleSection) {
