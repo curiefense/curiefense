@@ -430,16 +430,16 @@ def gen_rl_rules(authority):
     add_rl_rule("event-cookies", pairwith={"cookies": "event"})
     add_rl_rule("event-headers", pairwith={"headers": "event"})
     add_rl_rule("event-params", pairwith={"args": "event"})
-    add_rl_rule("event-ipv4", pairwith={"attrs": "ip"})
-    add_rl_rule("event-ipv6", pairwith={"attrs": "ip"})
+    add_rl_rule("event-ipv4", key=[{"attrs": "path"}], pairwith={"attrs": "ip"})
+    add_rl_rule("event-ipv6", key=[{"attrs": "path"}], pairwith={"attrs": "ip"})
     # "Provider" in the UI maps to "asn"
-    add_rl_rule("event-provider", pairwith={"attrs": "asn"})
+    add_rl_rule("event-provider", key=[{"attrs": "path"}], pairwith={"attrs": "asn"})
     add_rl_rule("event-uri", pairwith={"attrs": "uri"})
     add_rl_rule("event-path", pairwith={"attrs": "path"})
     add_rl_rule("event-query", pairwith={"attrs": "query"})
     add_rl_rule("event-method", pairwith={"attrs": "method"})
-    add_rl_rule("event-company", pairwith={"attrs": "company"})
-    add_rl_rule("event-country", pairwith={"attrs": "country"})
+    add_rl_rule("event-company", key=[{"attrs": "path"}], pairwith={"attrs": "company"})
+    add_rl_rule("event-country", key=[{"attrs": "path"}], pairwith={"attrs": "country"})
     add_rl_rule("event-authority", pairwith={"attrs": "authority"})
     # action
     add_rl_rule("action-challenge", action="challenge")
@@ -986,19 +986,19 @@ class TestRateLimit:
         limit = len(params)
         for i in range(limit - 1):
             assert target.is_reachable(
-                f"/event-{name}/1/{i+1}", **params[i]
+                f"/event-{name}/1/", **params[i]
             ), f"Request for value #{i+1} with {name} event should be allowed"
         assert not target.is_reachable(
-            f"/event-{name}/1/{limit}", **params[limit - 1]
+            f"/event-{name}/1/", **params[limit - 1]
         ), f"Request for value #{limit} with {name} event should be denied"
         for i in range(limit):
             assert not target.is_reachable(
-                f"/event-{name}/1/{i+1}", **params[i]
+                f"/event-{name}/1/", **params[i]
             ), f"Request for value #{i+1} with {name} event should be denied"
         time.sleep(10)
         for i in range(limit - 1):
             assert target.is_reachable(
-                f"/event-{name}/1/{i+1}", **params[i]
+                f"/event-{name}/1/", **params[i]
             ), f"Request for value #{i+1} with {name} event should be allowed"
 
     def test_ratelimit_event_section(self, target, ratelimit_config, section):
@@ -1022,12 +1022,12 @@ class TestRateLimit:
 
     def test_ratelimit_event_uri(self, target, ratelimit_config):
         # URI is different for each query, nothing more needs changing
-        params = [{} for i in range(1, 5)]
+        params = [{"suffix": f"{i}"} for i in range(1, 5)]
         self.ratelimit_event_param_helper(target, "uri", params)
 
     def test_ratelimit_event_path(self, target, ratelimit_config):
         # Path is different for each query, nothing more needs changing
-        params = [{} for i in range(1, 5)]
+        params = [{"suffix": f"{i}"} for i in range(1, 5)]
         self.ratelimit_event_param_helper(target, "path", params)
 
     def test_ratelimit_event_query(self, target, ratelimit_config):
