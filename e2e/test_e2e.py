@@ -1030,11 +1030,6 @@ class TestRateLimit:
         params = [{} for i in range(1, 5)]
         self.ratelimit_event_param_helper(target, "path", params)
 
-    def test_ratelimit_event_tag(self, target, ratelimit_config):
-        # changing the source IP will change the ip tag
-        params = [{"srcip": f"199.0.0.{i}"} for i in range(1, 5)]
-        self.ratelimit_event_param_helper(target, "tag", params)
-
     def test_ratelimit_event_query(self, target, ratelimit_config):
         params = [{"suffix": f"?QUERY-{i}"} for i in range(1, 5)]
         self.ratelimit_event_param_helper(target, "query", params)
