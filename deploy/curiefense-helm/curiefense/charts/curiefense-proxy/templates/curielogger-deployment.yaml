@@ -21,7 +21,6 @@ spec:
         env:
         - name: CURIELOGGER_METRICS_PROMETHEUS_ENABLED
           value: "{{ .Values.global.settings.curiefense_metrics_prometheus_enabled }}"
-{{- if eq .Values.global.settings.curiefense_logdb_type "elasticsearch" }}
         - name: ELASTICSEARCH_URL
           value: "{{ .Values.global.settings.curiefense_es_hosts }}"
 {{- if eq .Values.global.settings.curiefense_es_forwarder "logstash" }}
@@ -42,7 +41,6 @@ spec:
 {{- if .Values.global.enable.kibana }}
         - name: CURIELOGGER_INITIALIZE_KIBANA_INDEX
           value: "true"
-{{- end }}
 {{- end }}
         {{ if regexMatch ".*/.*:" .Values.global.images.curielogger }}
         {{/* The image name contains a version tag (e.g. for tests), do not append docker_tag */}}

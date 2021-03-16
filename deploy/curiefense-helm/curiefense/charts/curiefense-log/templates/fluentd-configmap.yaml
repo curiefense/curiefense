@@ -1,4 +1,3 @@
-{{- if eq .Values.global.settings.curiefense_logdb_type "elasticsearch" }}
 {{- if eq .Values.global.settings.curiefense_es_forwarder "fluentd" }}
 {{- if .Values.global.enable.fluentd }}
 ---
@@ -27,6 +26,5 @@ data:
         suppress_type_name true
       </match>
     </label>
-{{- end }}
 {{- end }}
 {{- end }}

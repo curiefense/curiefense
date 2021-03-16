@@ -1,4 +1,3 @@
-{{- if eq .Values.global.settings.curiefense_logdb_type "elasticsearch" }}
 {{- if eq .Values.global.settings.curiefense_es_forwarder "logstash" }}
 {{- if .Values.global.enable.logstash }}
 ---
@@ -19,6 +18,5 @@ spec:
     targetPort: 5001
   selector:
     app.kubernetes.io/name: logstash
-{{- end }}
 {{- end }}
 {{- end }}

@@ -1,4 +1,3 @@
-{{- if eq .Values.global.settings.curiefense_logdb_type "elasticsearch" }}
 {{- if .Values.global.enable.elasticsearch }}
 ---
 apiVersion: v1
@@ -15,5 +14,4 @@ spec:
     targetPort: 9200
   selector:
     app.kubernetes.io/name: elasticsearch
-{{ end }}
 {{ end }}

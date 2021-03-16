@@ -23,8 +23,6 @@ global:
   settings:
     curiefense_metrics_prometheus_enabled: true
     curieconf_manifest_url: 's3://curiefense-test01/prod/manifest.json'
-    # supported types: 'elasticsearch'
-    curiefense_logdb_type: 'elasticsearch'
     # supported types: 'fluentd', 'logstash'
     curiefense_es_forwarder: 'logstash'
     # change curiefense_es_hosts if you supply your own elasticsearch server. Using several servers is not (yet?) fully supported by this chart

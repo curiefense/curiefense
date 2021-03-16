@@ -1,4 +1,3 @@
-{{- if eq .Values.global.settings.curiefense_logdb_type "elasticsearch" }}
 {{- if .Values.global.enable.elasticsearch }}
 ---
 # a headless service is required for StatefulSets
@@ -17,5 +16,4 @@ spec:
   clusterIP: None
   selector:
     app.kubernetes.io/name: elasticsearch
-{{- end }}
 {{- end }}

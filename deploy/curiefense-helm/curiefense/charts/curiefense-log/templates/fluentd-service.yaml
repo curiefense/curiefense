@@ -1,4 +1,3 @@
-{{- if eq .Values.global.settings.curiefense_logdb_type "elasticsearch" }}
 {{- if eq .Values.global.settings.curiefense_es_forwarder "fluentd" }}
 {{- if .Values.global.enable.fluentd }}
 ---
@@ -16,6 +15,5 @@ spec:
     targetPort: 5001
   selector:
     app.kubernetes.io/name: fluentd
-{{- end }}
 {{- end }}
 {{- end }}

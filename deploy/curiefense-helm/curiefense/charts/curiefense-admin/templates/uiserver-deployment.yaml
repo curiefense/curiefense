@@ -19,11 +19,6 @@ spec:
     spec:
       containers:
       - name: uiserver
-      {{- if eq .Values.global.settings.curiefense_logdb_type "elasticsearch" }}
-        env:
-        - name: "CURIELOGSERVER_DISABLED"
-          value: "yes"
-      {{- end }}
       {{ if regexMatch ".*/.*:" .Values.global.images.uiserver }}
       {{/* The image name contains a version tag (e.g. for tests), do not append docker_tag */}}
         image: {{ .Values.global.images.uiserver }}
