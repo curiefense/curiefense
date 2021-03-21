@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 
 HELM_ARGS=${HELM_ARGS:-"--wait --timeout 600"}
 
