@@ -51,12 +51,14 @@ kubectl patch -n istio-system deployment istio-pilot --patch '{"spec": {"templat
 sleep 5
 popd || exit
 
+PARAMS=()
+
 if [ -n "$USE_FLUENTD" ]; then
-    EXTRA_VALUES="${EXTRA_VALUES} -f curiefense/use-es-fluentd.yaml"
+    PARAMS+=("-f" "curiefense/use-es-fluentd.yaml")
 fi
 
 pushd deploy/curiefense-helm || exit
-./deploy.sh -f curiefense/use-local-bucket.yaml -f curiefense/e2e-ci.yaml "$EXTRA_VALUES"
+./deploy.sh -f curiefense/use-local-bucket.yaml -f curiefense/e2e-ci.yaml "${PARAMS[@]}" "$@"
 
 # Expose services
 # No need to pass the namespace as it's already
