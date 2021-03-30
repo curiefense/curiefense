@@ -56,7 +56,6 @@ jobs:
       - name: Publish Unit Test Results
         # TODO implement https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories
         uses: EnricoMi/publish-unit-test-result-action@ea8720de4a2e723f8204d44fc0178744cf401c1a
-        if: always()
         with:
           files: e2e/pytest.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -66,3 +65,15 @@ jobs:
           comment_on_pr: true
           report_individual_runs: true
           deduplicate_classes_by_file_name: false
+        if: >
+          always() &&
+          github.event.sender.login != 'dependabot[bot]' &&
+          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: Unit Test Results
+          path: |
+            e2e/pytest.xml

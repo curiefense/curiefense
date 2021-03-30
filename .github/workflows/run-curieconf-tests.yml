@@ -50,7 +50,6 @@ jobs:
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@70b5dd187f73f17a3b4ac0191e22bb9eec9bbb25
-        if: always()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           check_name: Unit Test Results
@@ -60,3 +59,15 @@ jobs:
           files: junit.xml
           report_individual_runs: true
           deduplicate_classes_by_file_name: false
+        if: >
+          always() &&
+          github.event.sender.login != 'dependabot[bot]' &&
+          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: Unit Test Results
+          path: |
+            junit.xml
