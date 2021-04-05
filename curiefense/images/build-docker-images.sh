@@ -9,7 +9,6 @@ cd "${0%/*}" || exit 1
 # To specify a different repo, set `REPO=my.repo.tld`
 
 REPO=${REPO:-curiefense}
-BUILD_OPT=${BUILD_OPT:-}
 
 declare -A status
 
@@ -42,7 +41,7 @@ do
         # a temporary file is needed on macos -- docker complains otherwise
         TMPFILE=$(mktemp)
         tar -czhf "$TMPFILE" -C "$image" .
-        if docker build -t "$IMG:$DOCKER_TAG" ${BUILD_OPT} - < "$TMPFILE"; then
+        if docker build -t "$IMG:$DOCKER_TAG" "$@" - < "$TMPFILE"; then
             STB="ok"
             if [ -n "$PUSH" ]; then
                 if docker push "$IMG:$DOCKER_TAG"; then
