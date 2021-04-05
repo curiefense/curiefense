@@ -40,7 +40,7 @@ do
         echo "=================== $IMG:$DOCKER_TAG ====================="
         # shellcheck disable=SC2086
         # a temporary file is needed on macos -- docker complains otherwise
-        TMPFILE=(mktemp)
+        TMPFILE=$(mktemp)
         tar -czhf "$TMPFILE" -C "$image" .
         if docker build -t "$IMG:$DOCKER_TAG" ${BUILD_OPT} - < "$TMPFILE"; then
             STB="ok"
@@ -59,6 +59,7 @@ do
             STP="SKIP"
             GLOBALSTATUS=1
         fi
+        rm "$TMPFILE"
         status[$image]="build=$STB  push=$STP"
 done
 
