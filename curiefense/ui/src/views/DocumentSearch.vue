@@ -145,6 +145,7 @@ import RequestsUtils from '@/assets/RequestsUtils.ts'
 import Vue, {VueConstructor} from 'vue'
 import {Document, DocumentType, URLMapEntryMatch} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
+import Utils from '@/assets/Utils'
 
 type SearchDocument = Document & {
   docType: DocumentType
@@ -187,7 +188,7 @@ export default Vue.extend({
       'aclpolicies': {
         component: ACLEditor,
         title: titles['aclpolicies'],
-        fields: 'id, name, allow, allow_bot, deny_bot, bypass, deny, enforce_deny',
+        fields: 'id, name, allow, allow_bot, deny_bot, bypass, deny, force_deny',
       },
       'flowcontrol': {
         component: FlowControlEditor,
@@ -477,6 +478,7 @@ export default Vue.extend({
 
     async switchBranch() {
       await this.loadDocs()
+      Utils.toast(`Switched to branch ${this.selectedBranch}.`, 'is-info')
     },
 
     goToDocument(doc: SearchDocument) {

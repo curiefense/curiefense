@@ -3,6 +3,7 @@ import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals
 import * as bulmaToast from 'bulma-toast'
 import {Options} from 'bulma-toast'
 import axios from 'axios'
+import {JSDOM} from 'jsdom'
 
 describe('Utils.ts', () => {
   describe('generateUniqueEntityName function', () => {
@@ -225,32 +226,126 @@ describe('Utils.ts', () => {
   })
 
   describe('toast function', () => {
-    const successMessage = 'yay we did it!'
-    const successMessageClass = 'is-success'
-    const failureMessage = 'oops, something went wrong'
-    const failureMessageClass = 'is-danger'
     let toastOutput: Options[] = []
     beforeEach(() => {
       toastOutput = []
       jest.spyOn(bulmaToast, 'toast').mockImplementation((output: Options) => {
         toastOutput.push(output)
       })
+      const dom = new JSDOM()
+      Object.defineProperty(global, 'document', {
+        writable: true,
+        value: dom.window.document,
+      })
+      Object.defineProperty(global, 'window', {
+        writable: true,
+        value: dom.window,
+      })
     })
     afterEach(() => {
       jest.clearAllMocks()
     })
 
-    test('should send success toast', () => {
-      Utils.successToast(successMessage)
+    test('should display success toast', () => {
+      const successMessage = 'yay we did it!'
+      const successMessageClass = 'is-success'
+      Utils.toast(successMessage, 'is-success')
       expect(toastOutput[0].message).toContain(successMessage)
       expect(toastOutput[0].type).toContain(successMessageClass)
     })
 
-    test('should send failure toast', () => {
+    test('should display failure toast', () => {
+      const failureMessage = 'oops, something went wrong'
+      const failureMessageClass = 'is-danger'
       jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.reject(new Error()))
-      Utils.failureToast(failureMessage)
+      Utils.toast(failureMessage, 'is-danger')
       expect(toastOutput[0].message).toContain(failureMessage)
       expect(toastOutput[0].type).toContain(failureMessageClass)
+    })
+
+    test('should display info toast', () => {
+      const infoMessage = 'Notice me'
+      const infoMessageClass = 'is-info'
+      Utils.toast(infoMessage, 'is-info')
+      expect(toastOutput[0].message).toContain(infoMessage)
+      expect(toastOutput[0].type).toContain(infoMessageClass)
+    })
+
+    test('should display toast html element message', () => {
+      const message = 'message text goes here'
+      const textElement = document.createElement('span')
+      textElement.innerText = message
+      const successMessageClass = 'is-success'
+      Utils.toast(textElement, 'is-success')
+      expect(toastOutput[0].message).toEqual(textElement)
+      expect((toastOutput[0].message as HTMLElement).innerText).toEqual(message)
+      expect(toastOutput[0].type).toContain(successMessageClass)
+    })
+
+    test('should display toast message correctly if given undo function', () => {
+      const successMessage = 'yay we did it!'
+      const undoFunction = () => {
+        return true
+      }
+      Utils.toast(successMessage, 'is-success', undoFunction)
+      const toastMessageElement = (toastOutput[0].message as HTMLElement).getElementsByTagName('span')[0]
+      expect(toastMessageElement.innerText).toContain(successMessage)
+    })
+
+    test('should display toast html element message correctly if given undo function', () => {
+      const undoFunction = () => {
+        return true
+      }
+      const message = 'message text goes here'
+      const textElement = document.createElement('span')
+      textElement.innerText = message
+      const successMessageClass = 'is-success'
+      Utils.toast(textElement, 'is-success', undoFunction)
+      const toastMessageElement = (toastOutput[0].message as HTMLElement).getElementsByTagName('span')[0]
+      expect(toastMessageElement).toEqual(textElement)
+      expect((toastMessageElement).innerText).toEqual(message)
+      expect(toastOutput[0].type).toContain(successMessageClass)
+    })
+
+
+    test('should display toast undo message if given undo function', () => {
+      const undoFunction = () => {
+        return true
+      }
+      const undoMessage = 'To undo this action, click here.'
+      Utils.toast('ok', 'is-success', undoFunction)
+      const toastUndoPrefixElement = (toastOutput[0].message as HTMLElement).getElementsByTagName('span')[1]
+      const toastUndoAnchorElement = (toastOutput[0].message as HTMLElement).getElementsByTagName('a')[0]
+      const toastUndoSuffixElement = (toastOutput[0].message as HTMLElement).getElementsByTagName('span')[2]
+      const actualUndoText = toastUndoPrefixElement.innerText +
+        toastUndoAnchorElement.innerText +
+        toastUndoSuffixElement.innerText
+      expect(actualUndoText).toContain(undoMessage)
+    })
+
+    test('should display toast with an undo link with an anchor tag', () => {
+      const undoFunction = () => {
+        return true
+      }
+      const undoAnchorElement = document.createElement('a')
+      undoAnchorElement.onclick = undoFunction
+      undoAnchorElement.innerText = 'here'
+      Utils.toast('ok', 'is-success', undoFunction)
+      const toastUndoAnchorElement = (toastOutput[0].message as HTMLElement).getElementsByTagName('a')[0]
+      expect(toastUndoAnchorElement).toEqual(undoAnchorElement)
+      expect(toastUndoAnchorElement.onclick).toEqual(undoAnchorElement.onclick)
+    })
+
+    test('should call undo function if anchor is clicked', (done) => {
+      const undoFunction = () => {
+        done()
+      }
+      const undoAnchorElement = document.createElement('a')
+      undoAnchorElement.onclick = undoFunction
+      undoAnchorElement.innerText = 'here'
+      Utils.toast('ok', 'is-success', undoFunction)
+      const toastUndoAnchorElement = (toastOutput[0].message as HTMLElement).getElementsByTagName('a')[0]
+      toastUndoAnchorElement.click()
     })
   })
 })

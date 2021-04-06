@@ -70,27 +70,51 @@ const downloadFile = (fileName: string, fileType: string, data: any) => {
   link.click()
 }
 
-// Displays a toast message at the bottom left corner of the page
-const toast = (message: string, type: ToastType) => {
+// Default values for toast messages
+bulmaToast.setDefaults({
+  position: 'bottom-left',
+  closeOnClick: false,
+  dismissible: true,
+  duration: 10000,
+  opacity: 0.9,
+})
+
+// Displays a toast message
+const toast = (message: string | HTMLElement, type: ToastType, undoFunction?: () => any) => {
+  let element
+  if (undoFunction) {
+    element = buildToastUndoElement(message, undoFunction)
+  } else {
+    element = message
+  }
   bulmaToast.toast({
-    message: message,
-    type: <ToastType>`is-light ${type}`,
-    position: 'bottom-left',
-    closeOnClick: true,
-    pauseOnHover: true,
-    duration: 3000,
-    opacity: 0.8,
+    message: element,
+    type: type,
   })
 }
 
-// Displays the default toast with a success color
-const successToast = (message: string) => {
-  toast(message, 'is-success')
-}
-
-// Displays the default toast with a failure color
-const failureToast = (message: string) => {
-  toast(message, 'is-danger')
+// Builds the UI element with undo functionality for the toast messages
+const buildToastUndoElement = (message: string | HTMLElement, undoFunction: () => any) => {
+  const element = document.createElement('div')
+  let textElement
+  if (typeof message === 'string') {
+    textElement = document.createElement('span')
+    textElement.innerText = message
+  } else {
+    textElement = message
+  }
+  element.appendChild(textElement)
+  const undoInfoPrefixElement = document.createElement('span')
+  undoInfoPrefixElement.innerText = '\nTo undo this action, click '
+  const undoElement = document.createElement('a')
+  undoElement.onclick = undoFunction
+  undoElement.innerText = 'here'
+  const undoInfoSuffixElement = document.createElement('span')
+  undoInfoSuffixElement.innerText = '.'
+  element.appendChild(undoInfoPrefixElement)
+  element.appendChild(undoElement)
+  element.appendChild(undoInfoSuffixElement)
+  return element
 }
 
 export default {
@@ -100,6 +124,4 @@ export default {
   generateUniqueEntityName,
   downloadFile,
   toast,
-  successToast,
-  failureToast,
 }

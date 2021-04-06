@@ -32,12 +32,19 @@ const titles: { [key: string]: string } = {
   'args-entry': 'Argument',
   'attrs-entry': 'Attribute',
   'aclpolicies': 'ACL Policies',
+  'aclpolicies-singular': 'ACL Policy',
   'ratelimits': 'Rate Limits',
+  'ratelimits-singular': 'Rate Limit',
   'urlmaps': 'URL Maps',
+  'urlmaps-singular': 'URL Map',
   'wafpolicies': 'WAF Policies',
-  'wafrules': 'WAF Signatures',
+  'wafpolicies-singular': 'WAF Policy',
+  'wafrules': 'WAF Rules',
+  'wafrules-singular': 'WAF Rule',
   'tagrules': 'Tag Rules',
+  'tagrules-singular': 'Tag Rule',
   'flowcontrol': 'Flow Control',
+  'flowcontrol-singular': 'Flow Control',
 }
 
 const limitOptionsTypes = {

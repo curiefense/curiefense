@@ -273,6 +273,7 @@ export default Vue.extend({
 
     async switchBranch() {
       this.resetGitLog()
+      Utils.toast(`Switched to branch "${this.selectedBranch}".`, 'is-info')
       this.forkBranchInputOpen = false
       this.deleteBranchInputOpen = false
       await this.loadSelectedBranchData()
@@ -295,15 +296,15 @@ export default Vue.extend({
       const urlTrail = `configs/${branch}/v/${versionId}/`
 
       await RequestsUtils.sendRequest('PUT', `${urlTrail}revert/`, null, null,
-          `Branch [${branch}] restored to version [${versionId}]!`,
-          `Failed restoring branch [${branch}] to version [${versionId}]!`)
+          `Branch "${branch}" was restored to version "${versionId}".`,
+          `Failed while attempting to restore branch "${branch}" to version "${versionId}".`)
       await this.loadGitLog()
     },
 
     deleteBranch() {
       RequestsUtils.sendRequest('DELETE', `configs/${this.selectedBranch}/`, null, null,
-          `Branch [${this.selectedBranch}] deleted successfully!`,
-          `Failed deleting branch [${this.selectedBranch}]!`,
+          `Branch ${this.selectedBranch} was deleted.`,
+          `Failed while attempting to delete branch "${this.selectedBranch}".`,
       ).then(() => {
         this.loadConfigs()
         this.toggleBranchDelete()
@@ -319,8 +320,8 @@ export default Vue.extend({
             'id': 'string',
             'description': 'string',
           }, null,
-          `Branch [${this.selectedBranch}] forked to [${this.forkBranchName}] successfully!`,
-          `Failed forking branch [${this.selectedBranch}] to [${this.forkBranchName}]!`,
+          `Branch "${this.selectedBranch}" was forked to "${this.forkBranchName}".`,
+          `Failed while attempting to fork branch "${this.selectedBranch}" to "${this.forkBranchName}".`,
       ).then(() => {
         this.loadConfigs(newBranchName)
         this.toggleBranchFork()

@@ -192,8 +192,10 @@ export default (Vue as VueConstructor<Vue & {
         if (!this.currentValue.length) {
           return
         }
-        Utils.failureToast(
-            `Selected tag [${this.currentValue}] is invalid! Tags must be at least three characters long.`,
+        Utils.toast(
+            `Selected tag "${this.currentValue}" is invalid!\n` +
+            `Tags must be at least ${this.minimumValueLength} characters long.`,
+            'is-danger',
         )
         this.currentValue = ''
       } else {

@@ -430,7 +430,7 @@ describe('Publish.vue', () => {
         return Promise.resolve({data: response})
       })
       successMessage =
-        `Published branch ${publishInfoData.buckets[0].name} version ${gitData[0].logs[0].version} successfully!`
+        `Branch "${publishInfoData.buckets[0].name}" was published with version "${gitData[0].logs[0].version}".`
       successMessageClass = 'is-success'
       toastOutput = []
       jest.spyOn(bulmaToast, 'toast').mockImplementation((output: Options) => {
@@ -490,8 +490,8 @@ describe('Publish.vue', () => {
       jest.spyOn(axios, 'put').mockImplementation(() => {
         return Promise.resolve({data: response})
       })
-      failureMessage =
-        `Failed publishing branch ${publishInfoData.buckets[0].name} version ${gitData[0].logs[0].version}!`
+      // eslint-disable-next-line max-len
+      failureMessage = `Failed while attempting to publish branch "${publishInfoData.buckets[0].name}" version "${gitData[0].logs[0].version}".`
       failureMessageClass = 'is-danger'
       toastOutput = []
       jest.spyOn(bulmaToast, 'toast').mockImplementation((output: Options) => {
@@ -547,8 +547,8 @@ describe('Publish.vue', () => {
       const mockedError = (output: string) => consoleOutput.push(output)
       consoleOutput = []
       console.error = mockedError
-      failureMessage =
-        `Failed publishing branch ${publishInfoData.buckets[0].name} version ${gitData[0].logs[0].version}!`
+      // eslint-disable-next-line max-len
+      failureMessage = `Failed while attempting to publish branch "${publishInfoData.buckets[0].name}" version "${gitData[0].logs[0].version}".`
       failureMessageClass = 'is-danger'
       toastOutput = []
       jest.spyOn(bulmaToast, 'toast').mockImplementation((output: Options) => {

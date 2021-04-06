@@ -199,13 +199,18 @@ export default Vue.extend({
       return classNames.join(' ')
     },
 
-    switchBranch() {
-      this.publishMode = false
+    loadBranchLogs() {
       const selectedBranch = _.find(this.configs, (conf) => {
         return conf.id === this.selectedBranchName
       })
       this.gitLog = selectedBranch.logs
       this.selectedCommit = this.gitLog[0]?.version || null
+    },
+
+    switchBranch() {
+      this.loadBranchLogs()
+      this.publishMode = false
+      Utils.toast(`Switched to branch "${this.selectedBranchName}".`, 'is-info')
       this.setDefaultBuckets()
     },
 
@@ -247,7 +252,8 @@ export default Vue.extend({
         this.configs = response.data
         // pick first branch name as selected
         this.selectedBranchName = this.branchNames[0]
-        this.switchBranch()
+        this.loadBranchLogs()
+        this.setDefaultBuckets()
       })
     },
 
@@ -267,15 +273,24 @@ export default Vue.extend({
       }).catch((error: Error) => {
         console.error(error)
         this.isPublishLoading = false
-        Utils.failureToast(`Failed publishing branch ${this.selectedBranchName} version ${this.selectedCommit}!`)
+        Utils.toast(
+            `Failed while attempting to publish branch "${this.selectedBranchName}" version "${this.selectedCommit}".`,
+            'is-danger',
+        )
       })
     },
 
     parsePublishResults(data: any) {
       if (data.ok) {
-        Utils.successToast(`Published branch ${this.selectedBranchName} version ${this.selectedCommit} successfully!`)
+        Utils.toast(
+            `Branch "${this.selectedBranchName}" was published with version "${this.selectedCommit}".`,
+            'is-success',
+        )
       } else {
-        Utils.failureToast(`Failed publishing branch ${this.selectedBranchName} version ${this.selectedCommit}!`)
+        Utils.toast(
+            `Failed while attempting to publish branch "${this.selectedBranchName}" version "${this.selectedCommit}".`,
+            'is-danger',
+        )
       }
       _.each(data.status, (responseStatus) => {
         const index = _.findIndex(this.publishedBuckets, (entry) => {

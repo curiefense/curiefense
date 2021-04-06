@@ -363,20 +363,9 @@ export default Vue.extend({
       this.setLoadingDocStatus(false)
     },
 
-    saveDatabase(database: string, data: { [key: string]: any }) {
-      if (!data) {
-        data = {key: {}}
-      }
-
-      return RequestsUtils.sendRequest('PUT',
-          `db/${database}/`,
-          data, null,
-          `Database [${database}] saved!`,
-          `Failed saving database [${database}]!`)
-    },
-
     switchDatabase() {
       this.loadDatabase(this.selectedDatabase)
+      Utils.toast(`Switched to database "${this.selectedDatabase}".`, 'is-info')
     },
 
     async deleteDatabase(database?: string, disableAnnouncementMessages?: boolean) {
@@ -391,8 +380,8 @@ export default Vue.extend({
       let successMessage
       let failureMessage
       if (!disableAnnouncementMessages) {
-        successMessage = `Database [${database}] deleted!`
-        failureMessage = `Failed deleting database [${database}]!`
+        successMessage = `Database "${database}" was deleted.`
+        failureMessage = `Failed while attempting to delete database "${database}".`
       }
       await RequestsUtils.sendRequest('DELETE', `db/${database}/`, null, null, successMessage, failureMessage)
       if (!this.databases.includes(this.selectedDatabase)) {
@@ -406,7 +395,14 @@ export default Vue.extend({
       if (!newDatabase) {
         newDatabase = Utils.generateUniqueEntityName('new database', this.databases)
       }
-      await this.saveDatabase(newDatabase, data).then(() => {
+      if (!data) {
+        data = {key: {}}
+      }
+      await RequestsUtils.sendRequest('PUT',
+          `db/${newDatabase}/`,
+          data, null,
+          `Database "${newDatabase}" was saved`,
+          `Failed while attempting to create the new database.`).then(() => {
         this.loadDatabase(newDatabase)
         this.databases.unshift(newDatabase)
       })
@@ -444,12 +440,13 @@ export default Vue.extend({
           `db/${database}/k/${key}/`,
           parsedDoc,
           null,
-          `Key [${key}] in database [${database}] saved!`,
-          `Failed saving key [${key}] in database [${database}]!`)
+          `Key "${key}" in database "${database}" was saved.`,
+          `Failed while attempting to save key "${key}" in database "${database}".`)
     },
 
     switchKey() {
       this.loadKey(this.selectedKey)
+      Utils.toast(`Switched to key "${this.selectedKey}".`, 'is-info')
     },
 
     async deleteKey(key?: string, disableAnnouncementMessages?: boolean) {
@@ -465,8 +462,8 @@ export default Vue.extend({
       let successMessage
       let failureMessage
       if (!disableAnnouncementMessages) {
-        successMessage = `Key [${key}] in database [${database}] deleted!`
-        failureMessage = `Failed deleting key [${key}] in database [${database}]!`
+        successMessage = `Key "${key}" in database "${database}" was deleted.`
+        failureMessage = `Failed while attempting to delete key "${key}" in database "${database}".`
       }
       await RequestsUtils.sendRequest('DELETE', `db/${database}/k/${key}/`, null, null, successMessage, failureMessage)
       if (!this.keys.includes(this.selectedKey)) {
