@@ -7,7 +7,7 @@
     - filters:
       - name: envoy.filters.network.http_connection_manager
         typed_config:
-          "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
           stat_prefix: ingress_http
           codec_type: auto
           use_remote_address: true
@@ -15,9 +15,10 @@
           access_log:
             name: "envoy.access_loggers.tcp_grpc"
             typed_config:
-              "@type": type.googleapis.com/envoy.config.accesslog.v2.HttpGrpcAccessLogConfig
+              "@type": type.googleapis.com/envoy.extensions.access_loggers.grpc.v3.TcpGrpcAccessLogConfig
               common_config:
                 log_name: "test_GRPC_log"
+                transport_api_version: "v3"
                 grpc_service:
                   envoy_grpc:
                     cluster_name: grpc_log_cluster
@@ -38,7 +39,7 @@
           http_filters:
           - name: envoy.filters.http.lua
             typed_config:
-              "@type": type.googleapis.com/envoy.config.filter.http.lua.v2.Lua
+              "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
               inline_code: |
                 local session = require "lua.session"
                 function envoy_on_request(handle)
@@ -46,10 +47,13 @@
                 end
           - name: envoy.filters.http.router
             typed_config: {}
-      tls_context:
-        common_tls_context:
-          tls_certificates:
-            - certificate_chain:
-                filename: "/run/secrets/curieproxysslcrt"
-              private_key:
-                filename: "/run/secrets/curieproxysslkey"
+      transport_socket:
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+          common_tls_context:
+            tls_certificates:
+              - certificate_chain:
+                  filename: "/run/secrets/curieproxysslcrt"
+                private_key:
+                  filename: "/run/secrets/curieproxysslkey"

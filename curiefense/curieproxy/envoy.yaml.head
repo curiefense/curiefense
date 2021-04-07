@@ -9,7 +9,7 @@ static_resources:
     - filters:
       - name: envoy.filters.network.http_connection_manager
         typed_config:
-          "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
           stat_prefix: ingress_http
           codec_type: auto
           use_remote_address: true
@@ -17,9 +17,10 @@ static_resources:
           access_log:
             name: "envoy.access_loggers.tcp_grpc"
             typed_config:
-              "@type": type.googleapis.com/envoy.config.accesslog.v2.HttpGrpcAccessLogConfig
+              "@type": type.googleapis.com/envoy.extensions.access_loggers.grpc.v3.TcpGrpcAccessLogConfig
               common_config:
                 log_name: "test_GRPC_log"
+                transport_api_version: "v3"
                 grpc_service:
                   envoy_grpc:
                     cluster_name: grpc_log_cluster
