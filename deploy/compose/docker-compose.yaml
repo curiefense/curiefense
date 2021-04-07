@@ -2,6 +2,7 @@ version: "3.7"
 services:
   curieproxy:
     container_name: curieproxy
+    hostname: curieproxy
     image: "curiefense/curieproxy-envoy:${DOCKER_TAG}"
     restart: always
     volumes:
@@ -25,6 +26,7 @@ services:
 
   confserver:
     container_name: confserver
+    hostname: confserver
     image: "curiefense/confserver:${DOCKER_TAG}"
     restart: always
     volumes:
@@ -47,6 +49,7 @@ services:
 
   curiesync:
     container_name: curiesync
+    hostname: curiesync
     image: "curiefense/curiesync:${DOCKER_TAG}"
     restart: always
     volumes:
@@ -65,6 +68,7 @@ services:
 
   curietasker:
     container_name: curietasker
+    hostname: curietasker
     image: "curiefense/curietasker:${DOCKER_TAG}"
     restart: always
     networks:
@@ -72,6 +76,7 @@ services:
 
   redis:
     container_name: redis
+    hostname: redis
     image: "curiefense/redis:${DOCKER_TAG}"
     restart: always
     volumes:
@@ -85,6 +90,7 @@ services:
 
   echo:
     container_name: echo
+    hostname: echo
     image: jmalloc/echo-server
     restart: always
     networks:
@@ -94,6 +100,7 @@ services:
 
   curielogger:
     container_name: curielogger
+    hostname: curielogger
     image: "curiefense/curielogger:${DOCKER_TAG}"
     #image: "curielogger"
     restart: always
@@ -111,6 +118,7 @@ services:
 
   uiserver:
     container_name: uiserver
+    hostname: uiserver
     image: "curiefense/uiserver:${DOCKER_TAG}"
     restart: always
     networks:
@@ -124,6 +132,7 @@ services:
 
   prometheus:
     container_name: prometheus
+    hostname: prometheus
     image: "curiefense/prometheus:${DOCKER_TAG}"
     restart: always
     volumes:
@@ -135,6 +144,7 @@ services:
 
   grafana:
     container_name: grafana
+    hostname: grafana
     image: "curiefense/grafana:${DOCKER_TAG}"
     restart: always
     volumes:
@@ -147,6 +157,7 @@ services:
 
   elasticsearch:
     container_name: elasticsearch
+    hostname: elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
     restart: always
     volumes:
@@ -168,6 +179,7 @@ services:
 
   kibana:
     container_name: kibana
+    hostname: kibana
     image: docker.elastic.co/kibana/kibana:7.10.1
     restart: always
     environment:
@@ -182,6 +194,7 @@ services:
 
   logstash:
     container_name: logstash
+    hostname: logstash
     image: docker.elastic.co/logstash/logstash:7.10.1
     restart: always
     volumes:
@@ -206,6 +219,7 @@ services:
   # uncomment this to replace logstash with fluentd
   # fluentd:
   #   container_name: fluentd
+  #   hostname: fluentd
   #   image: "curiefense/fluentd:${DOCKER_TAG}"
   #   restart: always
   #   volumes:
