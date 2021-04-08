@@ -15,7 +15,7 @@
           access_log:
             name: "envoy.access_loggers.tcp_grpc"
             typed_config:
-              "@type": type.googleapis.com/envoy.extensions.access_loggers.grpc.v3.TcpGrpcAccessLogConfig
+              "@type": type.googleapis.com/envoy.extensions.access_loggers.grpc.v3.HttpGrpcAccessLogConfig
               common_config:
                 log_name: "test_GRPC_log"
                 transport_api_version: "v3"
