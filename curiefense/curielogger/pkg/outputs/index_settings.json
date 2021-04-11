@@ -1,0 +1,8 @@
+{
+  "aliases": {
+    "{{.AccessLogIndexName}}": {
+      "is_write_index": true
+    }
+  }
+}
+
