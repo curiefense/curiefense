@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/viper"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"strings"
@@ -178,7 +179,12 @@ func (es *ElasticSearch) ConfigureEs() {
 		body := es.client.ILM.PutLifecycle.WithBody(strings.NewReader(policy))
 		resp, err := es.client.ILM.PutLifecycle(es.cfg.AccessLogIndexName, body)
 		if err != nil || resp.IsError() {
-			log.Printf("[ERROR] index template creation failed %v %v", err, resp)
+			var body []byte
+			if resp != nil {
+				defer resp.Body.Close()
+				body, _ = ioutil.ReadAll(resp.Body)
+			}
+			log.Printf("[ERROR] index template creation failed %v %v %v", err, resp, string(body))
 		}
 	}
 
