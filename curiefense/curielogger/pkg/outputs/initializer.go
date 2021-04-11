@@ -1,9 +1,10 @@
 package outputs
 
 import (
-	"github.com/spf13/viper"
 	"io"
 	"os"
+
+	"github.com/spf13/viper"
 )
 
 const (
@@ -29,21 +30,13 @@ func InitOutputs(v *viper.Viper, cfg Config) io.WriteCloser {
 	if v.GetBool(STDOUT_ENABLED) {
 		output = append(output, os.Stdout)
 	}
-	if v.GetBool(BUCKET_ENABLED) {
-		if g := NewBucket(v); g != nil {
-			output = append(output, g)
-		}
-	}
 
-	// DEPRECATED
 	if v.GetBool(FLUENTD_ENABLED) {
 		output = append(output, NewFluentD(v))
 	}
-	// DEPRECATED
 	if v.GetBool(LOGSTASH_ENABLED) || cfg.Outputs.Logstash.Enabled {
 		output = append(output, NewLogstash(v, cfg.Outputs.Logstash))
 	}
-	// DEPRECATED
 	if v.GetBool(ES_ENABLED) || cfg.Outputs.Elasticsearch.Enabled {
 		if es := NewElasticSearch(v, cfg.Outputs.Elasticsearch); es != nil {
 			output = append(output, es)
