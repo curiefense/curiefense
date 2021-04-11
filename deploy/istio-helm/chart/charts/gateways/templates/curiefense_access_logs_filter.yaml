@@ -22,9 +22,10 @@ spec:
           access_log:
             - name: "envoy.http_grpc_access_log"
               typed_config:
-                "@type": type.googleapis.com/envoy.config.accesslog.v2.HttpGrpcAccessLogConfig
+                "@type": type.googleapis.com/envoy.extensions.access_loggers.grpc.v3.HttpGrpcAccessLogConfig
                 common_config:
                   log_name: "send_GRPC_log_to_curielogger"
+                  transport_api_version: "v3"
                   grpc_service:
                     google_grpc:
                       target_uri: "curielogger.{{ $.Values.global.proxy.curiefense_namespace }}:9001"
