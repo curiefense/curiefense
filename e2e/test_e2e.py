@@ -165,23 +165,12 @@ class LogHelper:
         self._es_url = es_url + "/_search"
 
     def check_log_pattern(self, pattern):
-        if self._es_url == "/_search":
-            data = {
-                "statement": (
-                    "SELECT Path FROM logs " "ORDER BY StartTime DESC LIMIT 1024"
-                ),
-                "parameters": [],
-            }
-            res = requests.post(self._base_url + "/logs/api/v1/exec/", json=data)
-            for log in res.json():
-                if pattern in log[0]:
-                    return True
-        else:
-            data = {"query": {"bool": {"must": {"match": {"path": pattern}}}}}
-            res = requests.get(self._es_url, json=data)
-            nbhits = res.json()["hits"]["total"]["value"]
-            return nbhits == 1
-        return False
+        data = {
+            "query": {"bool": {"must": {"match": {"request.attributes.uri": pattern}}}}
+        }
+        res = requests.get(self._es_url, json=data)
+        nbhits = res.json()["hits"]["total"]["value"]
+        return nbhits == 1
 
 
 @pytest.fixture(scope="session")

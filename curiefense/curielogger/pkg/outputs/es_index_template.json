@@ -99,16 +99,13 @@
             }
           }
         },
-        "method": {
-          "type": "keyword"
-        },
-        "path": {
-          "type": "keyword"
-        },
-        "port": {
-          "type": "integer"
-        },
         "request": {
+          "requestid": {
+            "type": "keyword"
+          },
+          "scheme": {
+            "type": "keyword"
+          },
           "properties": {
             "geo": {
               "type": "object",
@@ -142,9 +139,6 @@
               "type": "keyword"
             }
           }
-        },
-        "requestid": {
-          "type": "keyword"
         },
         "response": {
           "properties": {
@@ -180,9 +174,6 @@
               "type": "float"
             }
           }
-        },
-        "scheme": {
-          "type": "keyword"
         },
         "tags": {
           "type": "keyword"
