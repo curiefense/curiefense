@@ -13,14 +13,13 @@ spec:
   - applyTo: HTTP_FILTER
     match:
       context: GATEWAY
-      listener:
-        portNumber: 80
     patch:
       operation: INSERT_BEFORE
       value: # lua filter specification
-       name: envoy.lua
-       config:
-         inlineCode: |
+        name: envoy.lua
+        typed_config:
+          "@type": "type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua"
+          inlineCode: |
             local session = require "lua.session"
             function envoy_on_request(handle)
               session.inspect(handle)
