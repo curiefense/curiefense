@@ -5,10 +5,6 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"github.com/elastic/go-elasticsearch/v7"
-	"github.com/elastic/go-elasticsearch/v7/esapi"
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -16,6 +12,11 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/elastic/go-elasticsearch/v7"
+	"github.com/elastic/go-elasticsearch/v7/esapi"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 const (

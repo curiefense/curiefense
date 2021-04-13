@@ -100,13 +100,13 @@
           }
         },
         "request": {
-          "requestid": {
-            "type": "keyword"
-          },
-          "scheme": {
-            "type": "keyword"
-          },
           "properties": {
+            "requestid": {
+              "type": "keyword"
+            },
+            "scheme": {
+              "type": "keyword"
+            },
             "geo": {
               "type": "object",
               "properties": {
