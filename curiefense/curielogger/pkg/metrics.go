@@ -121,9 +121,20 @@ func (m *Metrics) add(e *entities.LogEntry) {
 
 	m.requestBytes.Add(float64(e.CfLog.Request.HeadersBytes + e.CfLog.Request.BodyBytes))
 	m.responseBytes.Add(float64(e.CfLog.Response.HeadersBytes + e.CfLog.Response.BodyBytes))
+	tags := e.CfLog.Tags
+	blocked := strconv.FormatBool(e.CfLog.Blocked)
+	var method string
+	if m, ok := e.CfLog.Request.Attributes["method"]; ok {
+		method = fmt.Sprintf("%v", m)
+	}
 
-	labels := makeLabels(e.CfLog.Response.Code, e.CfLog.Method, e.CfLog.Path,
-		e.CfLog.Upstream.RemoteAddress, strconv.FormatBool(e.CfLog.Blocked), e.CfLog.Tags)
+	var uri string
+	if u, ok := e.CfLog.Request.Attributes["uri"]; ok {
+		uri = fmt.Sprintf("%v", u)
+	}
+
+	labels := makeLabels(e.CfLog.Response.Code, method, uri, e.CfLog.Upstream.RemoteAddress, blocked, tags)
+
 	m.sessionDetails.With(labels).Inc()
 
 	for _, name := range e.CfLog.Tags {

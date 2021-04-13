@@ -104,13 +104,8 @@ func (s *grpcServer) parseRawEntry(entry *ald.HTTPAccessLogEntry) (*entities.Log
 func (s *grpcServer) buildCfLog(req *ald.HTTPRequestProperties, common *ald.AccessLogCommon, curieProxyLog entities.CurieProxyLog, respFlags *ald.ResponseFlags, tls *ald.TLSProperties, lan []string, pan []string, resp *ald.HTTPResponseProperties) entities.CuriefenseLog {
 
 	return entities.CuriefenseLog{
-		RequestId:   req.GetRequestId(),
+
 		Timestamp:   TimestampToRFC3339(common.GetStartTime()),
-		Scheme:      req.GetScheme(),
-		Authority:   req.GetAuthority(),
-		Port:        req.GetPort().GetValue(),
-		Method:      req.GetRequestMethod().String(),
-		Path:        req.GetPath(),
 		Blocked:     curieProxyLog.Blocked,
 		BlockReason: curieProxyLog.BlockReason,
 		Tags:        append(curieProxyLog.Tags, "curieaccesslog"),
@@ -165,9 +160,10 @@ func (s *grpcServer) buildCfLog(req *ald.HTTPRequestProperties, common *ald.Acce
 			Version:     tls.GetTlsVersion().String(),
 		},
 		Request: entities.Request{
+			RequestId:    req.GetRequestId(),
+			Scheme:       req.GetScheme(),
 			BodyBytes:    req.GetRequestBodyBytes(),
 			HeadersBytes: req.GetRequestHeadersBytes(),
-			OriginalPath: req.GetOriginalPath(),
 			Headers:      curieProxyLog.Headers,
 			Cookies:      curieProxyLog.Cookies,
 			Arguments:    curieProxyLog.Arguments,

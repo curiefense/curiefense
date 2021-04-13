@@ -1,13 +1,7 @@
 package entities
 
 type CuriefenseLog struct {
-	RequestId string `json:"requestid"`
 	Timestamp string `json:"timestamp"`
-	Scheme    string `json:"scheme"`
-	Authority string `json:"authority"`
-	Port      uint32 `json:"port"`
-	Method    string `json:"method"`
-	Path      string `json:"path"`
 
 	Blocked     bool                   `json:"blocked"`
 	BlockReason map[string]interface{} `json:"block_reason"`
