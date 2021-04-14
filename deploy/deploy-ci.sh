@@ -38,11 +38,8 @@ nohup minikube mount "$WORKDIR/bucket":/bucket > "$LOGS_DIR/minikube-mount.log" 
 nohup minikube tunnel > "$LOGS_DIR/minikube-tunnel.log" &
 
 pushd deploy/istio-helm || exit
-./deploy.sh -f chart/use-local-bucket.yaml -f chart/values-istio-ci.yaml
+./deploy.sh -f charts/use-local-bucket.yaml -f charts/values-istio-ci.yaml
 sleep 10
-# reduce cpu requests for istio components so that this fits on a 4-CPU node
-kubectl patch -n istio-system deployment istio-pilot --patch '{"spec": {"template": {"spec": {"containers": [{"name": "discovery", "resources": {"requests": {"cpu": "10m"}}}]}}}}'
-sleep 5
 popd || exit
 
 PARAMS=()
@@ -67,13 +64,24 @@ kubectl -n echoserver create -f deploy/echo-server.yaml
 runtime="5 minute"
 endtime=$(date -ud "$runtime" +%s)
 
-while ! curl -fsS "http://$(minikube ip):30081/productpage" | grep -q "command=GET";
+INGRESS_HOST=$(minikube ip)
+INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
+URL=$INGRESS_HOST:$INGRESS_PORT
+
+while ! curl -fsS "http://$URL/productpage" | grep -q "command=GET";
 do
     if [[ $(date -u +%s) -ge $endtime ]];
     then
         echo "URL $URL"
         kubectl --namespace echoserver describe pods
         kubectl --namespace echoserver get pods
+        kubectl get --all-namespaces gateways -o yaml
+        kubectl get --all-namespaces services -o yaml
+        kubectl get --all-namespaces endpoints -o yaml
+        echo "---- ingressgateway logs ----"
+        kubectl logs -n istio-system -l app=istio-ingressgateway --all-containers --tail=-1
+        echo "---- istiod logs ----"
+        kubectl logs -n istio-system -l app=istiod --all-containers --tail=-1
         echo "Time out waiting for echoserver to respond"
         exit 1
     fi

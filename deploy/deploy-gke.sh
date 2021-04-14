@@ -68,13 +68,13 @@ deploy_bookinfo () {
 	echo "-- Deploy target: bookinfo app --"
 	kubectl create namespace bookinfo
 	kubectl label namespace bookinfo istio-injection=enabled
-	if [ ! -d "$BASEDIR/istio-1.5.10/" ]; then
+	if [ ! -d "$BASEDIR/istio-1.9.2/" ]; then
 		cd "$BASEDIR" || exit 1
-		wget 'https://github.com/istio/istio/releases/download/1.5.10/istio-1.5.10-linux.tar.gz'
-		tar -xf 'istio-1.5.10-linux.tar.gz'
+		wget 'https://github.com/istio/istio/releases/download/1.9.2/istio-1.9.2-linux-amd64.tar.gz'
+		tar -xf 'istio-1.9.2-linux-amd64.tar.gz'
 	fi
-	kubectl apply -n bookinfo -f "$BASEDIR/istio-1.5.10/samples/bookinfo/platform/kube/bookinfo.yaml"
-	kubectl apply -n bookinfo -f "$BASEDIR/istio-1.5.10/samples/bookinfo/networking/bookinfo-gateway.yaml"
+	kubectl apply -n bookinfo -f "$BASEDIR/istio-1.9.2/samples/bookinfo/platform/kube/bookinfo.yaml"
+	kubectl apply -n bookinfo -f "$BASEDIR/istio-1.9.2/samples/bookinfo/networking/bookinfo-gateway.yaml"
 	# also expose the "ratings" service directly
 	kubectl apply -f "$BASEDIR/../e2e/latency/ratings-virtualservice.yml"
 }

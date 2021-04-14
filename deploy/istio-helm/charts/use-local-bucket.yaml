@@ -1,0 +1,7 @@
+---
+# use this file to override default values from ../values.yaml
+# ./deploy.sh -f curiefense/use-gs.yaml
+global:
+  proxy:
+    curieconf_manifest_url: 'file:///bucket/prod/manifest.json'
+    curiefense_bucket_type: 'local-bucket'
