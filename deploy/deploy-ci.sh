@@ -71,6 +71,7 @@ while ! curl -fsS "http://$(minikube ip):30081/productpage" | grep -q "command=G
 do
     if [[ $(date -u +%s) -ge $endtime ]];
     then
+        echo "URL $URL"
         kubectl --namespace echoserver describe pods
         kubectl --namespace echoserver get pods
         echo "Time out waiting for echoserver to respond"

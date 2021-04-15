@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/curiefense/curiefense/curielogger/pkg"
 	"github.com/curiefense/curiefense/curielogger/pkg/outputs"
-	als "github.com/envoyproxy/go-control-plane/envoy/service/accesslog/v2"
+	als "github.com/envoyproxy/go-control-plane/envoy/service/accesslog/v3"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
