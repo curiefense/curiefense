@@ -39,6 +39,7 @@ spec:
         - containerPort: 9200
           name: elasticsearch
         livenessProbe:
+          initialDelaySeconds: 60
           tcpSocket:
             port: elasticsearch
         volumeMounts:
