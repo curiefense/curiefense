@@ -1,0 +1,4 @@
+# workaround for clusters where third party jwt tokens are not enabled
+# Ref: https://istio.io/latest/docs/ops/best-practices/security/#configure-third-party-service-account-tokens
+global:
+  jwtPolicy: "first-party-jwt"
