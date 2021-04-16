@@ -12,6 +12,7 @@ metadata:
     istio.io/rev: {{ .Values.revision | default "default" }}
     install.operator.istio.io/owning-resource: {{ .Values.ownerName | default "unknown" }}
     operator.istio.io/component: "IngressGateways"
+    curiefense: {{ (ternary "enabled" "disabled" $gateway.waf.enabled) }}
 spec:
 {{- if not $gateway.autoscaleEnabled }}
 {{- if $gateway.replicaCount }}
@@ -44,6 +45,7 @@ spec:
         install.operator.istio.io/owning-resource: {{ .Values.ownerName | default "unknown" }}
         operator.istio.io/component: "IngressGateways"
         sidecar.istio.io/inject: "{{- ne $gateway.injectionTemplate "" }}"
+        curiefense: {{ (ternary "enabled" "disabled" $gateway.waf.enabled) }}
       annotations:
         {{- if .Values.meshConfig.enablePrometheusMerge }}
         prometheus.io/port: "15020"
@@ -69,8 +71,10 @@ spec:
 {{- if .Values.global.priorityClassName }}
       priorityClassName: "{{ .Values.global.priorityClassName }}"
 {{- end }}
-{{- if .Values.global.proxy.enableCoreDump }}
+{{- if or (.Values.global.proxy.enableCoreDump) ($gateway.waf.enabled) }}
       initContainers:
+{{- end }}
+{{- if .Values.global.proxy.enableCoreDump }}
         - name: enable-core-dump
 {{- if contains "/" .Values.global.proxy.image }}
           image: "{{ .Values.global.proxy.image }}"
@@ -91,12 +95,100 @@ spec:
             runAsNonRoot: false
             privileged: true
 {{- end }}
+{{- if $gateway.waf.enabled }}
+        - name: curiesync-initialpull
+{{- if contains "/" $.Values.global.proxy.curiesync_image }}
+          image: "{{ $.Values.global.proxy.curiesync_image }}"
+{{- else }}
+          image: "{{ $.Values.global.hub }}/{{ $.Values.global.proxy.curiesync_image }}:{{ $.Values.global.tag }}"
+{{- end }}
+          env:
+            - name: CURIE_BUCKET_LINK
+              value: "{{ $.Values.global.proxy.curieconf_manifest_url }}"
+            - name: CURIESYNC_QUIET
+              value: "true"
+            - name: RUN_MODE
+{{- if $.Values.global.proxy.initial_curieconf_pull }}
+              value: "SYNC_ONCE"
+{{- else }}
+              value: "COPY_BOOTSTRAP"
+{{- end }}
+          imagePullPolicy: {{ $.Values.global.imagePullPolicy }}
+          resources:
+            limits:
+              memory: "500Mi"
+              cpu: "500m"
+            requests:
+              memory: "100Mi"
+              cpu: "100m"
+          volumeMounts:
+{{- if eq $.Values.global.proxy.curiefense_bucket_type "s3" }}
+          - mountPath: /run/secrets/s3cfg
+            name: s3cfg
+{{- end }}
+{{- if eq $.Values.global.proxy.curiefense_bucket_type "gs" }}
+          - mountPath: /run/secrets/gs
+            name: gs
+{{- end }}
+{{- if eq $.Values.global.proxy.curiefense_bucket_type "local-bucket" }}
+          - mountPath: /bucket
+            name: local-bucket
+{{- end }}
+          - mountPath: /config
+            name: curiefense-config
+{{- end }}
       containers:
+{{- if $gateway.waf.enabled }}
+        - name: curiesync
+{{- if contains "/" $.Values.global.proxy.curiesync_image }}
+          image: "{{ $.Values.global.proxy.curiesync_image }}"
+{{- else }}
+          image: "{{ $.Values.global.hub }}/{{ $.Values.global.proxy.curiesync_image }}:{{ $.Values.global.tag }}"
+{{- end }}
+          env:
+            - name: CURIE_BUCKET_LINK
+              value: {{ $.Values.global.proxy.curieconf_manifest_url }}
+            - name: CURIESYNC_QUIET
+              value: "true"
+            - name: RUN_MODE
+              value: "PERIODIC_SYNC"
+          imagePullPolicy: {{ $.Values.global.imagePullPolicy }}
+          resources:
+            limits:
+              memory: "500Mi"
+              cpu: "500m"
+            requests:
+              memory: "60Mi"
+              cpu: "100m"
+          volumeMounts:
+{{- if eq $.Values.global.proxy.curiefense_bucket_type "s3" }}
+          - mountPath: /run/secrets/s3cfg
+            name: s3cfg
+{{- end }}
+{{- if eq $.Values.global.proxy.curiefense_bucket_type "gs" }}
+          - mountPath: /run/secrets/gs
+            name: gs
+{{- end }}
+{{- if eq $.Values.global.proxy.curiefense_bucket_type "local-bucket" }}
+          - mountPath: /bucket
+            name: local-bucket
+{{- end }}
+          - mountPath: /config
+            name: curiefense-config
+{{- end }}
         - name: istio-proxy
+{{- if $gateway.waf.enabled }}
+{{- if contains "/" $.Values.global.proxy.gw_image }}
+          image: "{{ $.Values.global.proxy.gw_image }}"
+{{- else }}
+          image: "{{ $.Values.global.hub }}/{{ $.Values.global.proxy.gw_image }}:{{ $.Values.global.tag }}"
+{{- end }}
+{{- else }}
 {{- if contains "/" .Values.global.proxy.image }}
           image: "{{ .Values.global.proxy.image }}"
 {{- else }}
           image: "{{ .Values.global.hub }}/{{ .Values.global.proxy.image | default "proxyv2" }}:{{ .Values.global.tag }}"
+{{- end }}
 {{- end }}
 {{- if .Values.global.imagePullPolicy }}
           imagePullPolicy: {{ .Values.global.imagePullPolicy }}
@@ -130,6 +222,9 @@ spec:
           - {{ $gateway.name }}
         {{- if .Values.global.sts.servicePort }}
           - --stsPort={{ .Values.global.sts.servicePort }}
+        {{- end }}
+        {{- if $gateway.waf.enabled }}
+          - --envoyAccessLogService true
         {{- end }}
         {{- if not $gateway.runAsRoot }}
           securityContext:
@@ -223,6 +318,12 @@ spec:
           - name: ISTIO_META_UNPRIVILEGED_POD
             value: "true"
           {{- end }}
+          {{- if $gateway.waf.enabled }}
+          - name: REDIS_HOST
+            value: "{{ $.Values.global.proxy.redis_host }}"
+          - name: REDIS_PORT
+            value: "{{ $.Values.global.proxy.redis_port }}"
+          {{- end }}
           {{- range $key, $val := $gateway.env }}
           - name: {{ $key }}
             value: {{ $val }}
@@ -244,6 +345,10 @@ spec:
           - name: ISTIO_META_CLUSTER_ID
             value: "{{ $.Values.global.multiCluster.clusterName | default `Kubernetes` }}"
           volumeMounts:
+          {{- if $gateway.waf.enabled }}
+          - name: curiefense-config
+            mountPath: /config
+          {{- end }}
           - name: istio-envoy
             mountPath: /etc/istio/proxy
           - name: config-volume
@@ -283,6 +388,32 @@ spec:
 {{ toYaml $gateway.additionalContainers | indent 8 }}
 {{- end }}
       volumes:
+{{- if $gateway.waf.enabled }}
+{{- if eq $.Values.global.proxy.curiefense_bucket_type "s3" }}
+      - name: s3cfg
+        secret:
+          items:
+          - key: s3cfg
+            path: s3cfg
+          secretName: s3cfg
+{{- end }}
+{{- if eq $.Values.global.proxy.curiefense_bucket_type "gs" }}
+      - name: gs
+        secret:
+          items:
+          - key: gs.json
+            path: gs.json
+          secretName: gs
+{{- end }}
+{{- if eq $.Values.global.proxy.curiefense_bucket_type "local-bucket" }}
+      - name: local-bucket
+        hostPath:
+          path: /bucket
+          type: DirectoryOrCreate
+{{- end }}
+      - name: curiefense-config
+        emptyDir: {}
+{{- end }}
 {{- if eq .Values.global.pilotCertProvider "istiod" }}
       - name: istiod-ca-cert
         configMap:

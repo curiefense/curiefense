@@ -34,6 +34,9 @@ gateways:
       name: tls
       protocol: TCP
 
+    waf:
+      enabled: false
+
     # Scalability tunning
     # replicaCount: 1
     rollingMaxSurge: 100%
@@ -231,6 +234,17 @@ global:
     # Log level for proxy, applies to gateways and sidecars.
     # Expected values are: trace|debug|info|warning|error|critical|off
     logLevel: warning
+    gw_image: curiefense/curieproxy-istio
+    curiesync_image: curiefense/curiesync
+    curieconf_manifest_url: "s3://curiefense-test01/prod/manifest.json"
+    # namespace where curiefense components are running (redis, curielogger)
+    curiefense_namespace: "curiefense"
+    # typically "redis.$curiefense_namespace", can be changed to use an external redis instance
+    redis_host: "redis.curiefense"
+    redis_port: 6379
+    # valid values: true  = pull initial config from bucket then start gateway
+    #               false = start gateway with a bootstrap config without waiting for the config from the bucket
+    initial_curieconf_pull: true
 
   ##############################################################################################
   # The following values are found in other charts. To effectively modify these values, make   #
