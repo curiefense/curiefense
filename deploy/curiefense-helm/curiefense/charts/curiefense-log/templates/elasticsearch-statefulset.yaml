@@ -48,7 +48,7 @@ spec:
         imagePullPolicy: {{ .Values.global.imagePullPolicy }}
         resources:
           limits:
-            memory: "2Gi"
+            memory: "3Gi"
             cpu: "2"
           requests:
             memory: "200Mi"
