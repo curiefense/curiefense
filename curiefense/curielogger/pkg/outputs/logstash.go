@@ -2,9 +2,10 @@ package outputs
 
 import (
 	"bytes"
+	"net/http"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"net/http"
 )
 
 const (
@@ -23,7 +24,7 @@ type LogstashConfig struct {
 
 func NewLogstash(v *viper.Viper, cfg LogstashConfig) *Logstash {
 	log.Info(`initialized logstash`)
-	log.Warn(`logstash driver will be deprecated in next release please use the stdout driver`)
+	log.Warn("The Logstash output is deprecated and will be removed in the 1.5.0 release. More on the reasoning and discussion here: https://github.com/curiefense/curiefense/issues/317")
 	url := v.GetString(CURIELOGGER_OUTPUTS_LOGSTASH_URL)
 	if url == `` {
 		url = cfg.Url

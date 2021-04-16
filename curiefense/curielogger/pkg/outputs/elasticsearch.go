@@ -147,6 +147,7 @@ func (es *ElasticSearch) ConfigureKibana() {
 }
 
 func (es *ElasticSearch) ConfigureEs() {
+	log.Warn("The Elasticsearch output is deprecated and will be removed in the 1.5.0 release. More on the reasoning and discussion here: https://github.com/curiefense/curiefense/issues/317")
 	var res *esapi.Response
 	var err error
 	for i := 0; i < 60; i++ {

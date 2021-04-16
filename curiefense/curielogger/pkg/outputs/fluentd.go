@@ -2,10 +2,11 @@ package outputs
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"net/http"
 	neturl "net/url"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -18,7 +19,7 @@ type FluentD struct {
 
 func NewFluentD(v *viper.Viper) *FluentD {
 	log.Info(`initialized fluentd`)
-	log.Warn(`fluentd driver will be deprecated in next release please use the stdout driver`)
+	log.Warn("The FluentD output is deprecated and will be removed in the 1.5.0 release. More on the reasoning and discussion here: https://github.com/curiefense/curiefense/issues/317")
 	return &FluentD{url: fmt.Sprintf("%scuriefense.log", v.GetString(CURIELOGGER_FLUENTD_URL))}
 }
 
