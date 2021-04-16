@@ -7,12 +7,6 @@ eval "$(minikube docker-env)"
 GITTAG="$(git describe --tag --long --dirty)"
 DOCKER_DIR_HASH="$(git rev-parse --short=12 HEAD:curiefense)"
 export DOCKER_TAG="$GITTAG-$DOCKER_DIR_HASH"
-HELM_VERSION=${HELM_VERSION:-3}
-
-if [[ $HELM_VERSION -ge 3 ]];
-then
-    export HELM_ARGS="--wait --timeout=10m"
-fi
 
 ROOT_DIR=$(git rev-parse --show-toplevel)
 WORKDIR=$(mktemp -d -t ci-XXXXXXXXXX)

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-HELM_ARGS=${HELM_ARGS:-"--wait --timeout 600"}
-
 if [ -z "$DOCKER_TAG" ]; then
     if ! GITTAG="$(git describe --tag --long --exact-match 2> /dev/null)"; then
         GITTAG="$(git describe --tag --long --dirty)"
@@ -11,31 +9,34 @@ if [ -z "$DOCKER_TAG" ]; then
     DOCKER_TAG="$GITTAG-$DOCKER_DIR_HASH"
 fi
 
-if ! kubectl api-resources|grep -q config.istio.io; then
-    for i in crds/crd-*yaml; do kubectl apply -f "$i"; done
-    echo "CRDs created, waiting 5s for them to be registered..."
-    sleep 5
-fi
-
-
-if ! kubectl get namespaces|grep -q istio-system; then
-	kubectl create namespace istio-system
-    echo "istio-system namespace created"
-fi
-
 PARAMS=()
 
 if [ -n "$NOPULL" ]; then
-    PARAMS+=("--set" "global.imagePullPolicy=Never")
+    PARAMS+=("--set" "global.imagePullPolicy=IfNotPresent")
 fi
 
+if [ -n "$JWT_WORKAROUND" ]; then
+    PARAMS+=("-f" "charts/first-party-jwt.yaml")
+fi
+# Install the Istio base chart which contains cluster-wide resources used by the Istio control plane
+helm upgrade istio-base charts/base -n istio-system --install \
+    --wait --timeout 600s --create-namespace
+
+# Install the Istio discovery chart which deploys the istiod service
+helm upgrade istiod charts/istio-control/istio-discovery \
+    "${PARAMS[@]}" \
+    --wait --timeout 600s \
+    -n istio-system --install
+
 # shellcheck disable=SC2086
-if ! helm upgrade --install --namespace istio-system --reuse-values \
-    $HELM_ARGS \
-    -f chart/custom/enable-waf-ingress.yaml \
+if ! helm upgrade istio-ingress charts/gateways/istio-ingress \
+    --install --namespace istio-system --reuse-values --debug \
+    -f charts/enable-waf-ingress.yaml \
+    -f charts/first-party-jwt.yaml \
+    "${PARAMS[@]}" \
+    --wait --timeout 600s \
     --set "global.proxy.gw_image=curiefense/curieproxy-istio:$DOCKER_TAG" \
-    --set "global.proxy.curiesync_image=curiefense/curiesync:$DOCKER_TAG" \
-    "${PARAMS[@]}" "$@" istio-cf chart/
+    --set "global.proxy.curiesync_image=curiefense/curiesync:$DOCKER_TAG" "$@"
 then
     echo "istio deployment failure... "
     kubectl --namespace istio-system describe pods
