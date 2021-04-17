@@ -8,11 +8,9 @@ scrape_configs:
       - targets: ['localhost:9090']
   - job_name: 'envoy_scrape'
     scrape_interval: 5s
-    metrics_path: /stats
-    params:
-      format: ['prometheus']
+    metrics_path: /stats/prometheus
     static_configs:
-      - targets: ['curiefense:8001']
+      - targets: ['curieproxy:8001']
   - job_name: 'curiefense'
     scrape_interval: 5s
     static_configs:
