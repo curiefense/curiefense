@@ -1,62 +1,134 @@
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import LimitOption from '@/components/LimitOption.vue'
 import ResponseAction from '@/components/ResponseAction.vue'
-import {beforeEach, describe, expect, test} from '@jest/globals'
+import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
-import {RateLimit} from '@/types'
+import {RateLimit, URLMap} from '@/types'
+import axios from 'axios'
+import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
+import _ from 'lodash'
+
+jest.mock('axios')
 
 describe('RateLimitsEditor.vue', () => {
-  let docs: RateLimit[]
+  let rateLimitsDocs: RateLimit[]
+  let urlMapsDocs: URLMap[]
   let wrapper: Wrapper<Vue>
   beforeEach(() => {
-    docs = [{
+    rateLimitsDocs = [{
       'id': 'f971e92459e2',
       'name': 'Rate Limit Example Rule 5/60',
       'description': '5 requests per minute',
       'ttl': '60',
       'limit': '5',
       'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
-      'include': {headers: {}, cookies: {}, args: {}, attrs: {ip: '10.0.0.1', path: 'localhost'}},
-      'exclude': {headers: {}, cookies: {}, args: {foo: 'bar'}, attrs: {}},
+      'include': ['blocklist'],
+      'exclude': ['allowlist'],
       'key': [{'attrs': 'ip'}],
       'pairwith': {'self': 'self'},
     }]
+    urlMapsDocs = [
+      {
+        'id': '__default__',
+        'name': 'default entry',
+        'match': '__default__',
+        'map': [
+          {
+            'name': 'default',
+            'match': '/',
+            'acl_profile': '__default__',
+            'acl_active': false,
+            'waf_profile': '__default__',
+            'waf_active': false,
+            'limit_ids': ['f971e92459e2'],
+          },
+          {
+            'name': 'entry name',
+            'match': '/login',
+            'acl_profile': '5828321c37e0',
+            'acl_active': false,
+            'waf_profile': '009e846e819e',
+            'waf_active': false,
+            'limit_ids': ['365757ec0689'],
+          },
+        ],
+      },
+      {
+        'id': '3086b9c5b518',
+        'name': 'copy of default entry',
+        'match': 'www.example.com',
+        'map': [
+          {
+            'name': 'default',
+            'match': '/',
+            'acl_profile': '__default__',
+            'acl_active': false,
+            'waf_profile': '__default__',
+            'waf_active': false,
+            'limit_ids': ['f971e92459e2', '365757ec0689'],
+          },
+          {
+            'name': 'entry name',
+            'match': '/login',
+            'acl_profile': '5828321c37e0',
+            'acl_active': false,
+            'waf_profile': '009e846e819e',
+            'waf_active': false,
+            'limit_ids': [],
+          },
+        ],
+      },
+    ]
+    jest.spyOn(axios, 'get').mockImplementation((path, config) => {
+      if (!wrapper) {
+        return Promise.resolve({data: []})
+      }
+      const branch = (wrapper.vm as any).selectedBranch
+      if (path === `/conf/api/v1/configs/${branch}/d/urlmaps/`) {
+        if (config && config.headers && config.headers['x-fields'] === 'id, name') {
+          return Promise.resolve({data: _.map(urlMapsDocs, (i) => _.pick(i, 'id', 'name'))})
+        }
+        return Promise.resolve({data: urlMapsDocs})
+      }
+      return Promise.resolve({data: []})
+    })
     wrapper = shallowMount(RateLimitsEditor, {
       propsData: {
-        selectedDoc: docs[0],
+        selectedDoc: rateLimitsDocs[0],
+        selectedBranch: 'master',
       },
     })
   })
 
   describe('form data', () => {
     test('should have correct ID displayed', () => {
-      expect(wrapper.find('.document-id').text()).toEqual(docs[0].id)
+      expect(wrapper.find('.document-id').text()).toEqual(rateLimitsDocs[0].id)
     })
 
     test('should have correct name in input', () => {
       const element = wrapper.find('.document-name').element as HTMLInputElement
-      expect(element.value).toEqual(docs[0].name)
+      expect(element.value).toEqual(rateLimitsDocs[0].name)
     })
 
     test('should have correct description in input', () => {
       const element = wrapper.find('.document-description').element as HTMLInputElement
-      expect(element.value).toEqual(docs[0].description)
+      expect(element.value).toEqual(rateLimitsDocs[0].description)
     })
 
     test('should have correct threshold in input', () => {
       const element = wrapper.find('.document-limit').element as HTMLInputElement
-      expect(element.value).toEqual(docs[0].limit)
+      expect(element.value).toEqual(rateLimitsDocs[0].limit)
     })
 
     test('should have correct TTL in input', () => {
       const element = wrapper.find('.document-ttl').element as HTMLInputElement
-      expect(element.value).toEqual(docs[0].ttl)
+      expect(element.value).toEqual(rateLimitsDocs[0].ttl)
     })
 
     test('should have count-by limit option component with correct data', () => {
-      const wantedType = Object.keys(docs[0].key[0])[0]
-      const wantedValue = Object.values(docs[0].key[0])[0]
+      const wantedType = Object.keys(rateLimitsDocs[0].key[0])[0]
+      const wantedValue = Object.values(rateLimitsDocs[0].key[0])[0]
       const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(0)
       const actualType = (limitOptionComponent.vm as any).option.type
       const actualValue = (limitOptionComponent.vm as any).option.key
@@ -65,8 +137,8 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should have event limit option component with correct data', () => {
-      const wantedType = Object.keys(docs[0].pairwith)[0]
-      const wantedValue = Object.values(docs[0].pairwith)[0]
+      const wantedType = Object.keys(rateLimitsDocs[0].pairwith)[0]
+      const wantedValue = Object.values(rateLimitsDocs[0].pairwith)[0]
       const limitOptionComponent = wrapper.findAllComponents(LimitOption).at(1)
       const actualType = (limitOptionComponent.vm as any).option.type
       const actualValue = (limitOptionComponent.vm as any).option.key
@@ -90,37 +162,21 @@ describe('RateLimitsEditor.vue', () => {
 
     test('should have response action component with correct data', () => {
       const ResponseActionComponent = wrapper.findComponent(ResponseAction)
-      expect((ResponseActionComponent.vm as any).action).toEqual(docs[0].action)
+      expect((ResponseActionComponent.vm as any).action).toEqual(rateLimitsDocs[0].action)
     })
 
     test('should have correct include data in table', () => {
-      const includeOption1 = wrapper.findAllComponents(LimitOption).at(2)
-      const wantedOption1Key = Object.keys(docs[0].include.attrs)[0]
-      const wantedOption1Value = Object.values(docs[0].include.attrs)[0]
-      expect(includeOption1.props('option')).toEqual({
-        'key': wantedOption1Key,
-        'type': 'attrs',
-        'value': wantedOption1Value,
-      })
-      const includeOption2 = wrapper.findAllComponents(LimitOption).at(3)
-      const wantedOption2Key = Object.keys(docs[0].include.attrs)[1]
-      const wantedOption2Value = Object.values(docs[0].include.attrs)[1]
-      expect(includeOption2.props('option')).toEqual({
-        'key': wantedOption2Key,
-        'type': 'attrs',
-        'value': wantedOption2Value,
-      })
+      const includeTags = wrapper.find('.include-filter-column')
+      const includeTagsCell0 = includeTags.find('.tag-cell')
+      const wantedIncludeTags = rateLimitsDocs[0].include.toString()
+      expect(includeTagsCell0.text()).toEqual(wantedIncludeTags)
     })
 
     test('should have correct exclude data in table', () => {
-      const excludeOption1 = wrapper.findAllComponents(LimitOption).at(4)
-      const wantedOption1Key = Object.keys(docs[0].exclude.args)[0]
-      const wantedOption1Value = Object.values(docs[0].exclude.args)[0]
-      expect(excludeOption1.props('option')).toEqual({
-        'key': wantedOption1Key,
-        'type': 'args',
-        'value': wantedOption1Value,
-      })
+      const excludeTags = wrapper.find('.exclude-filter-column')
+      const includeTagsCell0 = excludeTags.find('.tag-cell')
+      const wantedExcludeTags = rateLimitsDocs[0].exclude.toString()
+      expect(includeTagsCell0.text()).toEqual(wantedExcludeTags)
     })
   })
 
@@ -139,10 +195,10 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should handle key with no value', async () => {
-      docs[0].key = [{'headers': null}]
+      rateLimitsDocs[0].key = [{'headers': null}]
       wrapper = mount(RateLimitsEditor, {
         propsData: {
-          selectedDoc: docs[0],
+          selectedDoc: rateLimitsDocs[0],
         },
       })
       const wantedType = 'headers'
@@ -195,10 +251,10 @@ describe('RateLimitsEditor.vue', () => {
 
     test('should handle selectedDoc with undefined key value', async (done) => {
       try {
-        docs[0].key = [{'headers': null}, undefined]
+        rateLimitsDocs[0].key = [{'headers': null}, undefined]
         wrapper = mount(RateLimitsEditor, {
           propsData: {
-            selectedDoc: docs[0],
+            selectedDoc: rateLimitsDocs[0],
           },
         })
         await Vue.nextTick()
@@ -212,10 +268,10 @@ describe('RateLimitsEditor.vue', () => {
 
   describe('event', () => {
     test('should handle key with no value', async () => {
-      docs[0].pairwith = {'self': null}
+      rateLimitsDocs[0].pairwith = {'self': null}
       wrapper = mount(RateLimitsEditor, {
         propsData: {
-          selectedDoc: docs[0],
+          selectedDoc: rateLimitsDocs[0],
         },
       })
       const wantedType = 'self'
@@ -241,10 +297,10 @@ describe('RateLimitsEditor.vue', () => {
 
     test('should handle selectedDoc without pairwith property', async (done) => {
       try {
-        delete docs[0].pairwith
+        delete rateLimitsDocs[0].pairwith
         wrapper = mount(RateLimitsEditor, {
           propsData: {
-            selectedDoc: docs[0],
+            selectedDoc: rateLimitsDocs[0],
           },
         })
         await Vue.nextTick()
@@ -256,221 +312,90 @@ describe('RateLimitsEditor.vue', () => {
     })
   })
 
-  describe('include / exclude', () => {
-    const addEntry = async (includeExcludeIndex: number, typeIndex: number, keyIndex: number, value: string) => {
-      // open new entry row
-      const newButton = wrapper.find('.new-include-exclude-button')
-      newButton.trigger('click')
-      await Vue.nextTick()
-      // find new entry row
-      const newEntryRow = wrapper.find('.new-include-exclude-row')
-      // select include or exclude
-      const includeExcludeSelect = newEntryRow.find('.include-exclude-select')
-      includeExcludeSelect.findAll('option').at(includeExcludeIndex).setSelected()
-      await Vue.nextTick()
-      // select type
-      const typeSelect = newEntryRow.find('.type-select')
-      typeSelect.findAll('option').at(typeIndex).setSelected()
-      await Vue.nextTick()
-      // select key
-      const keySelect = newEntryRow.find('.key-select')
-      keySelect.findAll('option').at(keyIndex).setSelected()
-      await Vue.nextTick()
-      // insert value input
-      const valueInput = newEntryRow.find('.value-input');
-      (valueInput.element as HTMLInputElement).value = value
-      valueInput.trigger('input')
-      await Vue.nextTick()
-      // click add button
-      const addButton = newEntryRow.find('.add-button')
-      addButton.trigger('click')
-      await Vue.nextTick()
-    }
+  describe('tags', () => {
     beforeEach(() => {
-      const emptyIncludeExclude = {headers: {}, cookies: {}, args: {}, attrs: {}}
-      docs[0].include = emptyIncludeExclude
-      docs[0].exclude = emptyIncludeExclude
-      wrapper = shallowMount(RateLimitsEditor, {
-        propsData: {
-          selectedDoc: docs[0],
+      const tagsData = {
+        data: {
+          tags: [
+            'united-states',
+            'test-tag-1',
+            'test-tag-2',
+            'another-tag',
+            'devops',
+            'internal',
+          ],
         },
+      }
+      jest.spyOn(axios, 'get').mockImplementation((path) => {
+        if (path === `db/master/k/autocomplete/`) {
+          return Promise.resolve(tagsData)
+        }
+        return Promise.resolve()
       })
     })
 
-    test('should handle doc with no include property', async (done) => {
-      try {
-        delete docs[0].include
-        wrapper = mount(RateLimitsEditor, {
-          propsData: {
-            selectedDoc: docs[0],
-          },
-        })
-        done()
-      } catch (err) {
-        expect(err).not.toBeDefined()
-        done()
-      }
+    test('should not have any warning in the tags table when there are no duplicate tags', () => {
+      const tagsWithWarning = wrapper.findAll('.has-text-danger')
+      expect(tagsWithWarning.length).toEqual(0)
     })
 
-    test('should handle doc with no exclude property', async (done) => {
-      try {
-        delete docs[0].exclude
-        wrapper = mount(RateLimitsEditor, {
-          propsData: {
-            selectedDoc: docs[0],
-          },
-        })
-        done()
-      } catch (err) {
-        expect(err).not.toBeDefined()
-        done()
-      }
-    })
-
-    test('should handle adding include entry to doc with no include property', async (done) => {
-      try {
-        delete (wrapper.vm as any).localDoc.include
-        await addEntry(0, 0, 0, '10.0.0.1')
-        done()
-      } catch (err) {
-        expect(err).not.toBeDefined()
-        done()
-      }
-    })
-
-    test('should handle adding exclude entry to doc with no exclude property', async (done) => {
-      try {
-        delete (wrapper.vm as any).localDoc.exclude
-        await addEntry(1, 0, 0, '10.0.0.1')
-        done()
-      } catch (err) {
-        expect(err).not.toBeDefined()
-        done()
-      }
-    })
-
-    test('should have correct message when no entries exist', async () => {
-      const noEntriesMessage = wrapper.find('.no-include-exclude-message')
-      expect(noEntriesMessage.text()).toEqual('To limit this rule coverage add new entry')
-    })
-
-    test('should have correct text in new entry button', async () => {
-      const newButton = wrapper.find('.new-include-exclude-button')
-      expect(newButton.text()).toEqual('New entry')
-      newButton.trigger('click')
+    test('should emit doc update when adding tags', async () => {
+      const newTag = 'test-tag'
+      const wantedEmit = JSON.parse(JSON.stringify(rateLimitsDocs[0]))
+      wantedEmit.include.push(newTag)
+      const newIncludeEntryButton = wrapper.findAll('.add-new-filter-entry-button').at(0)
+      // add first
+      newIncludeEntryButton.trigger('click')
       await Vue.nextTick()
-      expect(newButton.text()).toEqual('Cancel')
-      newButton.trigger('click')
+      const firstTagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      firstTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
       await Vue.nextTick()
-      expect(newButton.text()).toEqual('New entry')
+      // check
+      expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+      expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
     })
 
-    test('should show new entry row when new entry button is clicked', async () => {
-      const newButton = wrapper.find('.new-include-exclude-button')
-      newButton.trigger('click')
+    test('should show a warning when there are duplicate tags', async () => {
+      const duplicatedTagsDoc = JSON.parse(JSON.stringify(rateLimitsDocs[0]))
+      duplicatedTagsDoc.include = ['test-tag', 'test-tag']
+      wrapper.setProps({selectedDoc: duplicatedTagsDoc})
       await Vue.nextTick()
-      const newEntryRow = wrapper.find('.new-include-exclude-row')
-      expect(newEntryRow.element).toBeDefined()
+      // check
+      const tagsWithWarning = wrapper.findAll('.has-text-danger')
+      expect(tagsWithWarning.length).toEqual(2)
     })
 
-    test('should change include entry when selectedDoc changes', async () => {
-      const newDoc = {...docs[0]}
-      newDoc.include = {headers: {}, cookies: {}, args: {}, attrs: {ip: '10.0.0.1'}}
-      wrapper.setProps({selectedDoc: newDoc})
+    test('should not emit doc update when adding tags which is 2 or less characters long', async () => {
+      const newTag = 't'
+      const wantedEmit = JSON.parse(JSON.stringify(rateLimitsDocs[0]))
+      wantedEmit.include.push(newTag)
+      const newIncludeEntryButton = wrapper.findAll('.add-new-filter-entry-button').at(0)
+      // add first
+      newIncludeEntryButton.trigger('click')
       await Vue.nextTick()
-      // ignore first 2 limit options, 0 is count by, 1 is event
-      const includeItem = wrapper.findAllComponents(LimitOption).at(2)
-      expect((includeItem.vm as any).label).toEqual('Include')
-      expect((includeItem.vm as any).option.type).toEqual('attrs')
-      expect((includeItem.vm as any).option.key).toEqual('ip')
-      expect((includeItem.vm as any).option.value).toEqual('10.0.0.1')
-    })
-
-    test('should change exclude entry when selectedDoc changes', async () => {
-      const newDoc = {...docs[0]}
-      newDoc.exclude = {headers: {}, cookies: {}, args: {}, attrs: {ip: '10.0.0.1'}}
-      wrapper.setProps({selectedDoc: newDoc})
+      const firstTagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
+      firstTagAutocompleteInput.vm.$emit('tag-submitted', newTag)
       await Vue.nextTick()
-      // ignore first 2 limit options, 0 is count by, 1 is event
-      const includeItem = wrapper.findAllComponents(LimitOption).at(2)
-      expect((includeItem.vm as any).label).toEqual('Exclude')
-      expect((includeItem.vm as any).option.type).toEqual('attrs')
-      expect((includeItem.vm as any).option.key).toEqual('ip')
-      expect((includeItem.vm as any).option.value).toEqual('10.0.0.1')
+      // check
+      expect(wrapper.emitted('update:selectedDoc')).toBeFalsy()
     })
 
-    test('should be able to add include entry', async () => {
-      await addEntry(0, 0, 0, '10.0.0.1')
-      // ignore first 2 limit options, 0 is count by, 1 is event
-      const includeItem = wrapper.findAllComponents(LimitOption).at(2)
-      expect((includeItem.vm as any).label).toEqual('Include')
-      expect((includeItem.vm as any).option.type).toEqual('attrs')
-      expect((includeItem.vm as any).option.key).toEqual('ip')
-      expect((includeItem.vm as any).option.value).toEqual('10.0.0.1')
-    })
-
-    test('should be able to add exclude entry', async () => {
-      await addEntry(1, 0, 0, '10.0.0.1')
-      // ignore first 2 limit options, 0 is count by, 1 is event
-      const excludeItem = wrapper.findAllComponents(LimitOption).at(2)
-      expect((excludeItem.vm as any).label).toEqual('Exclude')
-      expect((excludeItem.vm as any).option.type).toEqual('attrs')
-      expect((excludeItem.vm as any).option.key).toEqual('ip')
-      expect((excludeItem.vm as any).option.value).toEqual('10.0.0.1')
-    })
-
-    test('should be able to remove include entry', async () => {
-      await addEntry(0, 0, 0, '10.0.0.1')
-      // ignore first 2 limit options, 0 is count by, 1 is event
-      const includeItem = wrapper.findAllComponents(LimitOption).at(2);
-      (includeItem.vm as any).$emit('remove')
+    test('should remove tag from correct filter when tag removed', async () => {
+      const removeIncludeEntryButton = wrapper.find('.remove-filter-entry-button')
+      removeIncludeEntryButton.trigger('click')
       await Vue.nextTick()
-      expect(wrapper.findAllComponents(LimitOption).length).toEqual(2)
+      expect((wrapper.vm as any).localDoc.include.length).toEqual(0)
     })
 
-    test('should be able to remove exclude entry', async () => {
-      await addEntry(1, 0, 0, '10.0.0.1')
-      // ignore first 2 limit options, 0 is count by, 1 is event
-      const excludeItem = wrapper.findAllComponents(LimitOption).at(2);
-      (excludeItem.vm as any).$emit('remove')
+    test('should hide tag input when tag selection cancelled', async () => {
+      const newIncludeEntryButton = wrapper.find('.add-new-filter-entry-button')
+      newIncludeEntryButton.trigger('click')
+      await Vue.nextTick();
+      (wrapper.vm as any).cancelAddNewTag()
       await Vue.nextTick()
-      expect(wrapper.findAllComponents(LimitOption).length).toEqual(2)
-    })
-
-    test('should show duplicated include message when duplicated include entries exist', async () => {
-      await addEntry(0, 0, 0, '10.0.0.1')
-      await addEntry(0, 0, 0, '10.0.0.1')
-      const invalidMessage = wrapper.find('.include-invalid')
-      expect(invalidMessage.text()).toEqual('Include rule keys must be unique')
-    })
-
-    test('should show duplicated exclude message when duplicated exclude entries exist', async () => {
-      await addEntry(1, 0, 0, '10.0.0.1')
-      await addEntry(1, 0, 0, '10.0.0.1')
-      const invalidMessage = wrapper.find('.exclude-invalid')
-      expect(invalidMessage.text()).toEqual('Exclude rule keys must be unique')
-    })
-
-    test('should not show duplicated include message when duplicated entries issue resolved', async () => {
-      await addEntry(0, 0, 0, '10.0.0.1')
-      await addEntry(0, 0, 0, '10.0.0.1')
-      // ignore first 2 limit options, 0 is count by, 1 is event
-      const includeItem = wrapper.findAllComponents(LimitOption).at(2);
-      (includeItem.vm as any).$emit('change', {key: 'asn', oldKey: 'ip', type: 'attrs', value: '10.0.0.1'}, 0)
+      const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
       await Vue.nextTick()
-      const invalidMessage = wrapper.find('.include-invalid')
-      expect(invalidMessage.element).not.toBeDefined()
-    })
-
-    test('should not show duplicated exclude message when duplicated entries issue resolved', async () => {
-      await addEntry(1, 0, 0, '10.0.0.1')
-      await addEntry(1, 0, 0, '10.0.0.1')
-      // ignore first 2 limit options, 0 is count by, 1 is event
-      const excludeItem = wrapper.findAllComponents(LimitOption).at(2);
-      (excludeItem.vm as any).$emit('change', {key: 'asn', oldKey: 'ip', type: 'attrs', value: '10.0.0.1'}, 0)
-      await Vue.nextTick()
-      const invalidMessage = wrapper.find('.exclude-invalid')
-      expect(invalidMessage.element).not.toBeDefined()
+      expect(tagAutocompleteInput.element).toBeUndefined()
     })
   })
 })

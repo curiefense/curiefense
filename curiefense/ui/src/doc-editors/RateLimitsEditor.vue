@@ -4,7 +4,7 @@
       <div class="card-content">
         <div class="content">
           <div class="columns columns-divided">
-            <div class="column is-4">
+            <div class="column is-5">
               <div class="field">
                 <label class="label is-small">
                   Name
@@ -28,8 +28,8 @@
                 <div class="control">
                   <input class="input is-small document-description"
                          type="text"
-                         title="New rate limit rule name"
-                         placeholder="New rate limit rule name"
+                         title="Rate limit rule description"
+                         placeholder="Rate limit rule description"
                          @change="emitDocUpdate"
                          v-model="localDoc.description">
                 </div>
@@ -41,8 +41,8 @@
                 <div class="control">
                   <input class="input is-small document-limit"
                          type="text"
-                         title="New rate limit threshold"
-                         placeholder="New rate limit threshold"
+                         title="Rate limit threshold"
+                         placeholder="Rate limit threshold"
                          @change="emitDocUpdate"
                          v-model="localDoc.limit">
                 </div>
@@ -54,16 +54,15 @@
                 <div class="control suffix seconds-suffix">
                   <input class="input is-small document-ttl"
                          type="text"
-                         title="New rate limit duration"
-                         placeholder="New rate limit duration"
+                         title="Rate limit duration"
+                         placeholder="Rate limit duration"
                          @change="emitDocUpdate"
                          v-model="localDoc.ttl">
                 </div>
               </div>
-            </div>
-            <div class="column is-8">
               <div class="group-key mb-3">
                 <limit-option v-for="(option, index) in localDoc.key"
+                              label-separated-line
                               :label="index === 0 ? 'Count by' : ' '"
                               show-remove
                               @remove="removeKey(index)"
@@ -88,6 +87,7 @@
               </div>
               <div class="group-event mb-3">
                 <limit-option use-default-self
+                              label-separated-line
                               label="Event"
                               :option.sync="eventOption"
                               :key="eventOption.type + localDoc.id"
@@ -96,138 +96,197 @@
               </div>
               <div class="field">
                 <response-action :action.sync="localDoc.action"
+                                 label-separated-line
                                  @update:action="emitDocUpdate"/>
               </div>
-              <div>
-                <hr>
-                <div class="columns mb-3">
-                  <div class="column has-text-danger is-size-7">
-                    <p v-if="!includesAreValid"
-                       class="include-invalid">
-                      Include rule keys must be unique
-                    </p>
-                    <p v-if="!excludesAreValid"
-                       class="exclude-invalid">
-                      Exclude rule keys must be unique
-                    </p>
-                  </div>
-                  <div class="column is-narrow">
-                    <a title="Add new option rule"
-                       class="is-text is-small is-size-7 new-include-exclude-button"
-                       tabindex="0"
-                       @click="toggleNewIncludeExcludeEntryVisibility()"
-                       @keypress.space.prevent
-                       @keypress.space="toggleNewIncludeExcludeEntryVisibility()"
-                       @keypress.enter="toggleNewIncludeExcludeEntryVisibility()">
-                      {{ newIncludeOrExcludeEntry.visible ? 'Cancel' : 'New entry' }}
-                    </a>
-                  </div>
-                </div>
-                <div>
-                  <div v-if="newIncludeOrExcludeEntry.visible"
-                       class="new-include-exclude-row has-background-warning-light">
-                    <div class="columns">
-                      <div class="column is-2">
-                        <div class="control select is-small">
-                          <select class="include-exclude-select"
-                                  title="Include or Exclude"
-                                  v-model="newIncludeOrExcludeEntry.include">
-                            <option :value="true">Include</option>
-                            <option :value="false">Exclude</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div class="column">
-                        <div class="control select is-small is-fullwidth">
-                          <select class="type-select"
-                                  title="Type"
-                                  v-model="newIncludeOrExcludeEntry.type">
-                            <option value="attrs">Attribute</option>
-                            <option value="args">Argument</option>
-                            <option value="cookies">Cookie</option>
-                            <option value="headers">Header</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div class="column">
-                        <div v-if="newIncludeOrExcludeEntry.type === 'attrs'"
-                             class="control select is-small is-fullwidth">
-                          <select class="key-select"
-                                  title="Key"
-                                  v-model="newIncludeOrExcludeEntry.key">
-                            <option value="ip">IP Address</option>
-                            <option value="asn">Provider</option>
-                            <option value="uri">URI</option>
-                            <option value="path">Path</option>
-                            <option value="tags">Tags</option>
-                            <option value="query">Query</option>
-                            <option value="method">Method</option>
-                            <option value="company">Company</option>
-                            <option value="country">Country</option>
-                            <option value="authority">Authority</option>
-                          </select>
-                        </div>
-                        <div v-else class="control">
-                          <input v-model="newIncludeOrExcludeEntry.key"
-                                 title="Key"
-                                 type="text"
-                                 class="input is-small key-input">
-                        </div>
-                      </div>
-                      <div class="column">
-                        <div class="control has-icons-left">
-                          <tag-autocomplete-input v-show="newIncludeOrExcludeEntry.key === 'tags'"
-                                                  :initial-tag="newIncludeOrExcludeEntry.value"
-                                                  :selection-type="'multiple'"
-                                                  @tag-changed="newIncludeOrExcludeEntry.value = $event">
-                          </tag-autocomplete-input>
-                          <input v-show="newIncludeOrExcludeEntry.key !== 'tags'"
-                                 v-model="newIncludeOrExcludeEntry.value"
-                                 type="text"
-                                 title="Value"
-                                 class="input is-small value-input">
-                          <span class="icon is-small is-left has-text-grey-light">
-                      <i class="fa fa-code"></i>
-                    </span>
-                        </div>
-                      </div>
-                      <div class="column is-narrow">
-                        <button title="Add new entry"
-                                class="button is-light is-small add-button"
-                                @click="addIncludeOrExclude">
-                          <span class="icon is-small"><i class="fas fa-plus"></i></span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <div v-if="!includes.length && !excludes.length && !newIncludeOrExcludeEntry.visible">
-                    <p class="is-size-7 has-text-centered has-text-grey no-include-exclude-message">
-                      To limit this rule coverage add <a @click="newIncludeOrExcludeEntry.visible = true">new entry</a>
-                    </p>
-                  </div>
-                  <div class="group-include-exclude">
-                    <limit-option v-for="(option, index) in includes"
-                                  @change="updateIncludeOption($event, index)"
-                                  @remove="removeIncludeOrExclude(index, true)"
-                                  :option="option"
-                                  :key="`${option.type}_${option.key}_${index}_inc`"
-                                  label="Include"
-                                  use-value
-                                  show-remove
-                                  removable/>
-                    <limit-option v-for="(option, index) in excludes"
-                                  @change="updateExcludeOption($event, index)"
-                                  @remove="removeIncludeOrExclude(index, false)"
-                                  :option="option"
-                                  :key="`${option.type}_${option.key}_${index}_exc`"
-                                  label="Exclude"
-                                  use-value
-                                  show-remove
-                                  removable/>
-                  </div>
+            </div>
+            <div class="column is-7">
+              <div class="columns">
+                <div class="column is-6 filter-column"
+                     v-for="filter in filters"
+                     :key="filter"
+                     :class="filter + '-filter-column'">
+                  <p class="title is-7">
+                    {{ titles[filter] }}
+                  </p>
+                  <hr class="bar"
+                      :class="`bar-${filter}`"/>
+                  <table class="table is-narrow is-fullwidth">
+                    <tbody>
+                    <tr v-for="(tag, tagIndex) in localDoc[filter]"
+                        :key="tagIndex">
+                      <td class="tag-cell"
+                          :class=" duplicateTags[tag] ? 'has-text-danger' : '' ">
+                        {{ tag }}
+                      </td>
+                      <td class="is-size-7 width-20px">
+                        <a title="Remove entry"
+                           class="is-small has-text-grey remove-filter-entry-button"
+                           tabindex="0"
+                           @click="removeTag(filter, tagIndex)"
+                           @keypress.space.prevent
+                           @keypress.space="removeTag(filter, tagIndex)"
+                           @keypress.enter="removeTag(filter, tagIndex)">
+                          &ndash;
+                        </a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <tag-autocomplete-input v-if="addNewTagColName === filter"
+                                                ref="tagAutocompleteInput"
+                                                :clear-input-after-selection="true"
+                                                :selection-type="'single'"
+                                                :auto-focus="true"
+                                                @keydown.esc="cancelAddNewTag"
+                                                @tag-submitted="addNewTag(filter, $event)">
+                        </tag-autocomplete-input>
+                      </td>
+                      <td class="is-size-7 width-20px">
+                        <a title="add new entry"
+                           class="is-size-7 width-20px is-small has-text-grey add-new-filter-entry-button"
+                           tabindex="0"
+                           @click="openTagInput(filter)"
+                           @keypress.space.prevent
+                           @keypress.space="openTagInput(filter)"
+                           @keypress.enter="openTagInput(filter)">
+                          +
+                        </a>
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
+          </div>
+          <div>
+            <div class="has-text-left has-text-weight-bold pb-3">Connections to URL Maps</div>
+            <table class="table">
+              <thead>
+              <tr>
+                <th class="is-size-7 width-200px">Name</th>
+                <th class="is-size-7 width-120px">ID</th>
+                <th class="is-size-7 width-300px">Domain Match</th>
+                <th class="is-size-7 width-300px">Entry Match</th>
+                <th class="is-size-7 width-80px has-text-centered">
+                  <a v-show="!newURLMapConnectionOpened"
+                     class="has-text-grey-dark is-small new-connection-button"
+                     title="Add new connection"
+                     tabindex="0"
+                     @click="openNewURLMapConnection"
+                     @keypress.space.prevent
+                     @keypress.space="openNewURLMapConnection"
+                     @keypress.enter="openNewURLMapConnection">
+                    <span class="icon is-small"><i class="fas fa-plus"></i></span>
+                  </a>
+                  <a v-show="newURLMapConnectionOpened"
+                     class="has-text-grey-dark is-small" title="Cancel adding new connection"
+                     tabindex="0"
+                     @click="closeNewURLMapConnection"
+                     @keypress.space.prevent
+                     @keypress.space="closeNewURLMapConnection"
+                     @keypress.enter="closeNewURLMapConnection">
+                    <span class="icon is-small"><i class="fas fa-minus"></i></span>
+                  </a>
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr v-if="newURLMapConnectionOpened"
+                  class="has-background-warning-light new-connection-row">
+                <td colspan="2">
+                  <div class="select is-small">
+                    <select v-model="newURLMapConnectionData.id"
+                            @change="newURLMapConnectionData.entryIndex = 0"
+                            class="new-connection-id"
+                            title="Type">
+                      <option v-for="map in newURLMapConnections" :key="map.id" :value="map.id">
+                        {{ map.name }}
+                      </option>
+                    </select>
+                  </div>
+                </td>
+                <td colspan="2">
+                  <div class="select is-small">
+                    <select v-model="newURLMapConnectionData.entryIndex"
+                            class="new-connection-id"
+                            title="Type">
+                      <option v-for="(mapEntry, index) in newURLMapConnectionEntries"
+                              :key="mapEntry.match"
+                              :value="index">
+                        {{ mapEntry.match }}
+                      </option>
+                    </select>
+                  </div>
+                </td>
+                <td class="has-text-centered">
+                  <button title="Add new connection"
+                          class="button is-light is-small confirm-add-new-connection"
+                          @click="addNewURLMapConnection">
+                    <span class="icon is-small"><i class="fas fa-plus fa-xs"></i></span>
+                  </button>
+                </td>
+
+              </tr>
+              <tr v-for="(connection, index) in connectedURLMapsEntries" :key="index">
+                <td class="is-size-7 is-vcentered py-3 width-200px"
+                    :title="connection[0]">
+                  <a title="Add new"
+                     class="url-map-referral-button"
+                     @click="referToURLMap(connection.id)">
+                    {{ connection.name }}
+                  </a>
+                </td>
+                <td class="is-size-7 is-vcentered py-3 width-120px"
+                    :title="connection.id">
+                  {{ connection.id }}
+                </td>
+                <td class="is-size-7 is-vcentered py-3 width-300px"
+                    :title="connection.domainMatch">
+                  {{ connection.domainMatch }}
+                </td>
+                <td class="is-size-7 is-vcentered py-3 width-300px"
+                    :title="connection.entryMatch">
+                  {{ connection.entryMatch }}
+                </td>
+                <td class="is-size-7 is-vcentered width-80px height-50px">
+                    <span v-show="currentEntryDeleteIndex !== index">
+                    <a tabindex="0"
+                       title="Remove connection to the URL Map"
+                       class="is-small has-text-grey remove-connection-button"
+                       @click="setEntryDeleteIndex(index)"
+                       @keypress.space.prevent
+                       @keypress.space="setEntryDeleteIndex(index)"
+                       @keypress.enter="setEntryDeleteIndex(index)">
+                      Remove
+                    </a>
+                    </span>
+                  <span v-show="currentEntryDeleteIndex === index">
+                      <a class="is-size-7 has-text-grey add-button confirm-remove-connection-button"
+                         title="Confirm"
+                         tabindex="0"
+                         @click="removeURLMapConnection(connection.id, connection.entryMatch)"
+                         @keypress.space.prevent
+                         @keypress.space="removeURLMapConnection(connection.id, connection.entryMatch)"
+                         @keypress.enter="removeURLMapConnection(connection.id, connection.entryMatch)">
+                      <i class="fas fa-check"></i> Confirm
+                    </a>
+                    <br/>
+                    <a class="is-size-7 has-text-grey cancel-remove-connection-button"
+                       title="Cancel"
+                       tabindex="0"
+                       @click="setEntryDeleteIndex(-1)"
+                       @keypress.space.prevent
+                       @keypress.space="setEntryDeleteIndex(-1)"
+                       @keypress.enter="setEntryDeleteIndex(-1)">
+                      <i class="fas fa-times"></i> Cancel
+                    </a>
+                    </span>
+                </td>
+              </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -241,13 +300,17 @@ import ResponseAction from '@/components/ResponseAction.vue'
 import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import Vue from 'vue'
-import {LimitOptionType, LimitRuleType, RateLimit} from '@/types'
+import {IncludeExcludeType, LimitOptionType, LimitRuleType, RateLimit, URLMap, URLMapEntryMatch} from '@/types'
+import {Dictionary} from 'vue-router/types/router'
 import DatasetsUtils from '@/assets/DatasetsUtils'
+import RequestsUtils from '@/assets/RequestsUtils'
+import {AxiosResponse} from 'axios'
 
 export default Vue.extend({
   name: 'RateLimits',
   props: {
     selectedDoc: Object,
+    selectedBranch: String,
     apiPath: String,
   },
   components: {
@@ -257,23 +320,34 @@ export default Vue.extend({
   },
   data() {
     return {
-      includes: [],
-      excludes: [],
-      includesAreValid: true,
-      excludesAreValid: true,
-      keysAreValid: true,
-      newIncludeOrExcludeEntry: {
-        visible: false,
-        include: true,
-        type: 'attrs',
-        key: 'ip',
-        value: '',
+      filters: ['include', 'exclude'] as IncludeExcludeType[],
+      addNewTagColName: null,
+      titles: DatasetsUtils.titles,
+      urlMaps: [] as URLMap[],
+      currentEntryDeleteIndex: -1,
+      newURLMapConnectionData: {
+        id: '',
+        entryIndex: 0,
+      } as {
+        id: URLMap['id'],
+        entryIndex: number,
       },
+      newURLMapConnectionOpened: false,
+      // TODO
+      connectedURLMapsEntries: [],
+      keysAreValid: true,
     }
   },
   computed: {
     localDoc(): RateLimit {
       return _.cloneDeep(this.selectedDoc)
+    },
+
+    duplicateTags(): Dictionary<string> {
+      const doc = this.localDoc
+      const allTags = _.concat(doc['include'], doc['exclude'])
+      const dupTags = _.filter(allTags, (val, i, iteratee) => _.includes(iteratee, val, i + 1))
+      return _.fromPairs(_.zip(dupTags, dupTags))
     },
 
     eventOption: {
@@ -284,6 +358,24 @@ export default Vue.extend({
         this.localDoc.pairwith = value
         this.emitDocUpdate()
       },
+    },
+
+    newURLMapConnections(): URLMap[] {
+      const urlMap = this.urlMaps.filter((urlMap) => {
+        return !urlMap.map.every((urlMapEntry) => {
+          return urlMapEntry.limit_ids.includes(this.localDoc.id)
+        })
+      })
+      return urlMap ? urlMap : []
+    },
+
+    newURLMapConnectionEntries(): URLMapEntryMatch[] {
+      const urlMap = this.newURLMapConnections.find((urlMap) => {
+        return urlMap.id === this.newURLMapConnectionData.id
+      })
+      return (urlMap && urlMap.map) ? urlMap.map.filter((urlMapEntry) => {
+        return !urlMapEntry.limit_ids.includes(this.localDoc.id)
+      }) : []
     },
   },
   methods: {
@@ -349,115 +441,147 @@ export default Vue.extend({
       return this.keysAreValid
     },
 
-    addIncludeOrExclude() {
-      const arr = this.newIncludeOrExcludeEntry.include ? this.includes : this.excludes
-      const {
-        type,
-        key,
-        value,
-      } = this.newIncludeOrExcludeEntry
-      arr.push({type, key, value})
-      this.checkIncludeOrExcludeValidity(this.newIncludeOrExcludeEntry.include)
-      this.newIncludeOrExcludeEntry.type = 'attrs'
-      this.newIncludeOrExcludeEntry.key = 'ip'
-      this.newIncludeOrExcludeEntry.value = ''
-      this.newIncludeOrExcludeEntry.visible = false
-    },
-
-    updateIncludeOrExcludeOption(option: OptionObject, index: number, include: boolean) {
-      const arr = include ? this.includes : this.excludes
-      arr.splice(index, 1, option)
-      this.checkIncludeOrExcludeValidity(include)
-    },
-
-    removeIncludeOrExclude(index: number, include: boolean) {
-      const options = (include ? this.includes : this.excludes)
-      options.splice(index, 1)
-      this.checkIncludeOrExcludeValidity(include)
-    },
-
-    checkIncludeOrExcludeValidity(include: boolean) {
-      const docKey = include ? 'includesAreValid' : 'excludesAreValid'
-      const arr = include ? this.includes : this.excludes
-      const keysToCheck = _.countBy(arr, (item) => `${item.type}_${item.key}`)
-      this[docKey] = true
-      for (const key of Object.keys(keysToCheck)) {
-        if (keysToCheck[key] > 1) {
-          this[docKey] = false
-          break
-        }
-      }
-      return this[docKey]
-    },
-
-    updateIncludeOption(option: OptionObject, index: number) {
-      this.updateIncludeOrExcludeOption(option, index, true)
-    },
-
-    updateExcludeOption(option: OptionObject, index: number) {
-      this.updateIncludeOrExcludeOption(option, index, false)
-    },
-
-    convertIncludesOrExcludes(obj: RateLimit['include'] | RateLimit['exclude']) {
-      if (!obj) {
-        return []
-      }
-      return Object.keys(obj).reduce((acc, type) => {
-        const options = Object.keys(obj[type as LimitRuleType]).map((key) => ({
-          type,
-          key,
-          value: obj[type as LimitRuleType][key],
-        }))
-        return [...acc, ...options]
-      }, [])
-    },
-
     updateEvent(option: OptionObject) {
       this.eventOption = {[option.type]: option.key}
     },
 
-    normalizeIncludesOrExcludes(value: OptionObject[], include: boolean) {
-      // converting includes/excludes from component arrays to selectedDoc objects
-      const includeOrExcludeKey = include ? 'include' : 'exclude'
-      const limitOptionsTypes = DatasetsUtils.limitOptionsTypes
-      if (!this.localDoc[includeOrExcludeKey]) {
-        this.$set(this.localDoc, includeOrExcludeKey, {})
+    getConnectedURLMapsEntries() {
+      // TODO: better loop with lodash
+      const arr = []
+      for (let i = 0; i < this.urlMaps.length; i++) {
+        for (let j = 0; j < this.urlMaps[i].map.length; j++) {
+          if (this.urlMaps[i].map[j].limit_ids.includes(this.localDoc.id)) {
+            arr.push({
+              name: this.urlMaps[i].name,
+              id: this.urlMaps[i].id,
+              domainMatch: this.urlMaps[i].match,
+              entryMatch: this.urlMaps[i].map[j].match,
+            })
+          }
+        }
       }
-      Object.keys(limitOptionsTypes).forEach((t) => {
-        this.$set(this.localDoc[includeOrExcludeKey], t, {})
+      this.connectedURLMapsEntries = arr
+      // return _.sortBy(_.map(_.filter(this.urlMaps, (urlMap) => {
+      //   return _.some(urlMap.map, (mapEntry: URLMapEntryMatch) => {
+      //     return mapEntry.limit_ids.includes(this.localDoc.id)
+      //   })
+      // }), (entity) => {
+      //   return [entity.id, entity.name]
+      // }), (e) => {
+      //   return e[1]
+      // })
+    },
+
+    openNewURLMapConnection() {
+      this.newURLMapConnectionOpened = true
+      this.newURLMapConnectionData.id = this.newURLMapConnections.length > 0 ? this.newURLMapConnections[0].id : ''
+      this.newURLMapConnectionData.entryIndex = 0
+    },
+
+    closeNewURLMapConnection() {
+      this.newURLMapConnectionOpened = false
+    },
+
+    addNewURLMapConnection() {
+      const id = this.newURLMapConnectionData.id
+      const entryMatch = this.newURLMapConnectionEntries[this.newURLMapConnectionData.entryIndex].match
+      const methodName = 'PUT'
+      const selectedDocType = 'urlmaps'
+      const urlTrail = `configs/${this.selectedBranch}/d/${selectedDocType}/e/${id}/`
+      const doc = _.find(this.urlMaps, (urlMap) => {
+        return urlMap.id === id
       })
-      value.forEach((el: OptionObject) => {
-        this.$set(this.localDoc[includeOrExcludeKey][el.type], el.key, el.value)
+      const mapEntry = _.find(doc.map, (mapEntry) => {
+        return mapEntry.match === entryMatch
       })
-      if (!_.isEqual(this.localDoc, this.selectedDoc)) {
+      if (!mapEntry.limit_ids.includes(this.localDoc.id)) {
+        mapEntry.limit_ids.push(this.localDoc.id)
+        this.closeNewURLMapConnection()
+        const docTypeText = this.titles[selectedDocType + '-singular']
+        const successMessage = `The connection to the ${docTypeText} was added.`
+        const failureMessage = `Failed while attempting to add the connection to the ${docTypeText}.`
+        RequestsUtils.sendRequest(methodName, urlTrail, doc, null, successMessage, failureMessage).then(() => {
+          this.getConnectedURLMapsEntries()
+        })
+      }
+    },
+
+    removeURLMapConnection(id: URLMap['id'], entryMatch: URLMapEntryMatch['match']) {
+      const methodName = 'PUT'
+      const selectedDocType = 'urlmaps'
+      const urlTrail = `configs/${this.selectedBranch}/d/${selectedDocType}/e/${id}/`
+      const doc = _.find(this.urlMaps, (urlMap) => {
+        return urlMap.id === id
+      })
+      const mapEntry = _.find(doc.map, (mapEntry) => {
+        return mapEntry.match === entryMatch
+      })
+      const limitIdIndex = _.findIndex(mapEntry.limit_ids, (rateLimitID) => {
+        return rateLimitID === this.localDoc.id
+      })
+      mapEntry.limit_ids.splice(limitIdIndex, 1)
+      const docTypeText = this.titles[selectedDocType + '-singular']
+      const successMessage = `The connection to the ${docTypeText} was removed.`
+      const failureMessage = `Failed while attempting to remove the connection to the ${docTypeText}.`
+      RequestsUtils.sendRequest(methodName, urlTrail, doc, null, successMessage, failureMessage).then(() => {
+        this.setEntryDeleteIndex(-1)
+        this.getConnectedURLMapsEntries()
+      })
+    },
+
+    setEntryDeleteIndex(index: number) {
+      this.closeNewURLMapConnection()
+      this.currentEntryDeleteIndex = index
+    },
+
+    loadURLMaps() {
+      RequestsUtils.sendRequest('GET',
+          `configs/${this.selectedBranch}/d/urlmaps/`).then((response: AxiosResponse<URLMap[]>) => {
+        this.urlMaps = _.sortBy(response.data)
+        this.getConnectedURLMapsEntries()
+        this.newURLMapConnectionData.id = this.newURLMapConnections.length > 0 ? this.newURLMapConnections[0].id : ''
+      })
+    },
+
+    addNewTag(section: IncludeExcludeType, entry: string) {
+      if (entry && entry.length > 2) {
+        this.localDoc[section].push(entry)
         this.emitDocUpdate()
       }
     },
 
-    toggleNewIncludeExcludeEntryVisibility() {
-      this.newIncludeOrExcludeEntry.visible = !this.newIncludeOrExcludeEntry.visible
+    openTagInput(section: IncludeExcludeType) {
+      this.addNewTagColName = section
     },
+
+    cancelAddNewTag() {
+      this.addNewTagColName = null
+    },
+
+    removeTag(section: IncludeExcludeType, index: number) {
+      this.localDoc[section].splice(index, 1)
+      this.addNewTagColName = null
+      this.emitDocUpdate()
+    },
+
+    referToURLMap(id: string) {
+      this.$router.push(`/config/${this.selectedBranch}/urlmaps/${id}`)
+    },
+  },
+  created() {
+    this.loadURLMaps()
   },
   mounted() {
     this.checkKeysValidity()
-    this.checkIncludeOrExcludeValidity(true)
-    this.checkIncludeOrExcludeValidity(false)
   },
   watch: {
     selectedDoc: {
-      handler: function(newValue) {
-        this.includes = this.convertIncludesOrExcludes(newValue.include)
-        this.excludes = this.convertIncludesOrExcludes(newValue.exclude)
+      handler: function() {
+        this.getConnectedURLMapsEntries()
         this.$forceUpdate()
       },
       immediate: true,
       deep: true,
-    },
-    includes(newValue) {
-      this.normalizeIncludesOrExcludes(newValue, true)
-    },
-    excludes(newValue) {
-      this.normalizeIncludesOrExcludes(newValue, false)
     },
   },
 })
@@ -467,6 +591,10 @@ export default Vue.extend({
 
 .form-label {
   padding-top: 0.25rem;
+}
+
+.bar {
+  margin: 1rem 0 0.5rem;
 }
 
 .seconds-suffix {

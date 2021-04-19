@@ -164,18 +164,8 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'action': {
         'type': 'default',
       },
-      'exclude': {
-        'headers': {},
-        'cookies': {},
-        'args': {},
-        'attrs': {'tags': 'allowlist'},
-      },
-      'include': {
-        'headers': {},
-        'cookies': {},
-        'args': {},
-        'attrs': {'tags': 'blocklist'},
-      },
+      'exclude': ['allowlist'],
+      'include': ['blocklist'],
       'pairwith': {
         'self': 'self',
       },

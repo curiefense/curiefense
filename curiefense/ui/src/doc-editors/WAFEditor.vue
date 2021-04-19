@@ -537,16 +537,9 @@ export default Vue.extend({
       })
     },
   },
-  watch: {
-    selectedDoc: {
-      handler: function(val, oldVal) {
-        if (!val || !oldVal || val.id !== oldVal.id) {
-          this.loadWAFRuleIDs()
-        }
-      },
-      immediate: true,
-      deep: true,
-    },
+
+  created() {
+    this.loadWAFRuleIDs()
   },
 })
 </script>

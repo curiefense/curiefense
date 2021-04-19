@@ -35,8 +35,8 @@
               <div class="control suffix seconds-suffix">
                 <input class="input is-small document-ttl"
                        type="number"
-                       title="New rate limit rule name"
-                       placeholder="New rate limit rule name"
+                       title="Flow control duration"
+                       placeholder="Flow control duration"
                        @change="emitDocUpdate"
                        v-model.number="localDoc.ttl">
               </div>
@@ -47,7 +47,7 @@
                             :label="index === 0 ? 'Count by' : ''"
                             show-remove
                             @remove="removeKey(index)"
-                            @change="updateKeyOption"
+                            @change="updateKeyOption($event, index)"
                             :removable="localDoc.key.length > 1"
                             :index="index"
                             :option="generateOption(option)"
@@ -82,12 +82,12 @@
                 </textarea>
               </div>
             </div>
-            <div class="columns">
+            <div class="columns filter-columns">
               <div class="column is-6 filter-column"
                    v-for="filter in filters"
                    :key="filter"
                    :class="filter + '-filter-column'">
-                <p class="title is-7 is-uppercase">
+                <p class="title is-7">
                   {{ titles[filter] }}
                 </p>
                 <hr class="bar"
@@ -541,21 +541,8 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 
-@import 'node_modules/bulma/sass/utilities/initial-variables.sass';
-@import 'node_modules/bulma/sass/utilities/functions.sass';
-@import 'node_modules/bulma/sass/utilities/derived-variables.sass';
-@import 'node_modules/bulma/sass/helpers/color.sass';
-
 .bar {
   margin: 1rem 0 0.5rem;
-}
-
-.bar-include {
-  @extend .has-background-success;
-}
-
-.bar-exclude {
-  @extend .has-background-danger;
 }
 
 .sequence-entries {
@@ -587,12 +574,8 @@ export default Vue.extend({
   width: 100%;
 }
 
-.filter-column:first-of-type {
-  padding-left: 0;
-}
-
-.filter-column:last-of-type {
-  padding-right: 0;
+.filter-columns {
+  margin-top: 20px;
 }
 
 .seconds-suffix {
