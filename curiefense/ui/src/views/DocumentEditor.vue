@@ -147,9 +147,9 @@
 
       <hr/>
 
-      <div class="content document-editor-wrapper"
-           v-if="!loadingDocCounter && selectedBranch && selectedDocType && selectedDoc">
+      <div class="content document-editor-wrapper">
         <component
+            v-if="!loadingDocCounter && selectedBranch && selectedDocType && selectedDoc"
             :is="componentsMap[selectedDocType].component"
             :selectedBranch.sync="selectedBranch"
             :selectedDoc.sync="selectedDoc"
@@ -159,14 +159,14 @@
             ref="currentComponent">
         </component>
         <hr/>
-        <git-history v-if="selectedDocID"
+        <git-history v-show="selectedDocID"
                      :gitLog="gitLog"
                      :apiPath="gitAPIPath"
                      @restore-version="restoreGitVersion"></git-history>
       </div>
 
       <div class="content no-data-wrapper"
-           v-else>
+           v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc">
         <div v-if="loadingDocCounter > 0">
           <button class="button is-outlined is-text is-small is-loading document-loading">
             Loading
@@ -485,6 +485,7 @@ export default Vue.extend({
 
     async switchDocID() {
       this.setLoadingDocStatus(true)
+      this.resetGitLog()
       this.loadGitLog()
       Utils.toast(
           `Switched to document "${(this.selectedDoc as BasicDocument).name}" with ID "${this.selectedDocID}".`,

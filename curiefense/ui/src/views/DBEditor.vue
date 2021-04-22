@@ -364,6 +364,7 @@ export default Vue.extend({
     },
 
     switchDatabase() {
+      this.resetGitLog()
       this.loadDatabase(this.selectedDatabase)
       Utils.toast(`Switched to database "${this.selectedDatabase}".`, 'is-info')
     },
@@ -445,6 +446,7 @@ export default Vue.extend({
     },
 
     switchKey() {
+      this.resetGitLog()
       this.loadKey(this.selectedKey)
       Utils.toast(`Switched to key "${this.selectedKey}".`, 'is-info')
     },
@@ -527,6 +529,10 @@ export default Vue.extend({
       }
       await this.loadGitLog()
       this.isSaveDocLoading = false
+    },
+
+    resetGitLog() {
+      this.gitLog = []
     },
 
     async loadGitLog() {

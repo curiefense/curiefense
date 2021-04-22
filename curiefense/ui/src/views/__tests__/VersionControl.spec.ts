@@ -327,18 +327,21 @@ describe('VersionControl.vue', () => {
     expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/v/${wantedVersion.version}/revert/`)
   })
 
-  test('should attempt to download branch when download button is clicked', async () => {
+  test('should attempt to download branch when download button is clicked', async (done) => {
     const wantedFileName = 'master'
     const wantedFileType = 'json'
     const wantedFileData = gitData[0]
     const downloadFileSpy = jest.spyOn(Utils, 'downloadFile')
     // force update because downloadFile is mocked after it is read to to be used as event handler
     await wrapper.vm.$forceUpdate()
-    await Vue.nextTick()
-    const downloadBranchButton = wrapper.find('.download-branch-button')
-    downloadBranchButton.trigger('click')
-    await Vue.nextTick()
-    expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
+    // allow all requests to finish
+    setImmediate(async () => {
+      const downloadBranchButton = wrapper.find('.download-branch-button')
+      downloadBranchButton.trigger('click')
+      await Vue.nextTick()
+      expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
+      done()
+    })
   })
 
   test('should not attempt to download branch when download button is clicked while loading is true', async () => {
@@ -429,19 +432,19 @@ describe('VersionControl.vue', () => {
       expect(postSpy).not.toHaveBeenCalled()
     })
 
-    test('should be hidden if forked successfully', async () => {
+    test('should be hidden if forked successfully', async (done) => {
       const newBranchName = 'new_branch'
       let forkBranchNameInput = wrapper.find('.fork-branch-input')
       const forkBranchSaveButton = wrapper.find('.fork-branch-confirm')
       forkBranchNameInput.setValue(newBranchName)
       await Vue.nextTick()
       forkBranchSaveButton.trigger('click')
-      // process click
-      await Vue.nextTick()
-      // process API (fake) return
-      await Vue.nextTick()
-      forkBranchNameInput = wrapper.find('.fork-branch-input')
-      expect(forkBranchNameInput.element).toBeUndefined()
+      // allow all requests to finish
+      setImmediate(() => {
+        forkBranchNameInput = wrapper.find('.fork-branch-input')
+        expect(forkBranchNameInput.element).toBeUndefined()
+        done()
+      })
     })
 
     test('should be visible if fork failed', async () => {
@@ -521,19 +524,19 @@ describe('VersionControl.vue', () => {
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
-    test('should be hidden if deleted successfully', async () => {
+    test('should be hidden if deleted successfully', async (done) => {
       const currentBranchName = (wrapper.vm as any).selectedBranch
       let deleteBranchNameInput = wrapper.find('.delete-branch-input')
       const deleteBranchSaveButton = wrapper.find('.delete-branch-confirm')
       deleteBranchNameInput.setValue(currentBranchName)
       await Vue.nextTick()
       deleteBranchSaveButton.trigger('click')
-      // process click
-      await Vue.nextTick()
-      // process API (fake) return
-      await Vue.nextTick()
-      deleteBranchNameInput = wrapper.find('.delete-branch-input')
-      expect(deleteBranchNameInput.element).toBeUndefined()
+      // allow all requests to finish
+      setImmediate(() => {
+        deleteBranchNameInput = wrapper.find('.delete-branch-input')
+        expect(deleteBranchNameInput.element).toBeUndefined()
+        done()
+      })
     })
 
     test('should be visible if delete failed', async () => {

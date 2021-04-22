@@ -290,7 +290,6 @@ export default Vue.extend({
     },
 
     async restoreGitVersion(gitVersion: Commit) {
-      this.resetGitLog()
       const branch = this.selectedBranch
       const versionId = gitVersion.version
       const urlTrail = `configs/${branch}/v/${versionId}/`
@@ -302,18 +301,21 @@ export default Vue.extend({
     },
 
     deleteBranch() {
+      this.resetGitLog()
       RequestsUtils.sendRequest('DELETE', `configs/${this.selectedBranch}/`, null, null,
           `Branch ${this.selectedBranch} was deleted.`,
           `Failed while attempting to delete branch "${this.selectedBranch}".`,
       ).then(() => {
         this.loadConfigs()
         this.toggleBranchDelete()
+        this.loadGitLog()
       }).catch((error: Error) => {
         console.error(error)
       })
     },
 
     forkBranch() {
+      this.resetGitLog()
       const newBranchName = this.forkBranchName
       RequestsUtils.sendRequest('POST', `configs/${this.selectedBranch}/clone/${newBranchName}/`,
           {
@@ -325,6 +327,7 @@ export default Vue.extend({
       ).then(() => {
         this.loadConfigs(newBranchName)
         this.toggleBranchFork()
+        this.loadGitLog()
       }).catch((error: Error) => {
         console.error(error)
       })

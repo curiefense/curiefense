@@ -18,13 +18,25 @@
               <th class="is-size-7">Message</th>
               <th class="is-size-7">Author</th>
               <th class="is-size-7">Email</th>
-              <th class="is-size-7"></th>
+              <th class="is-size-7">
+                <p class="control has-text-centered" v-if="commitsRestorationLog.length > 0">
+                  <button class="button is-small undo-restore-button"
+                          @click="restoreVersionFromLog()"
+                          tabindex="1"
+                          title="Undo latest version restore">
+                    <span class="icon is-small">
+                      <i class="fas fa-history"></i>
+                    </span>
+                  </button>
+                </p>
+              </th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="(commit, index) in commits" :key="commit.version"
                 @mouseleave="mouseLeave()"
-                @mouseover="mouseOver(index)">
+                @mouseover="mouseOver(index)"
+                class="version-row">
               <td class="is-size-7 is-vcentered py-3">{{ commit.date }}</td>
               <td class="is-size-7 is-vcentered py-3" :title="commit.version">
                 {{ commit.version.substr(0, 7) }}
@@ -40,9 +52,9 @@
               <td class="is-size-7 is-vcentered restore-cell">
                 <p class="control has-text-centered" v-if="commitOverIndex === index">
                   <button class="button is-small restore-button"
-                     @click="restoreVersion(commit)"
-                     tabindex="1"
-                     title="Restore version">
+                          @click="restoreVersion(commit, true)"
+                          tabindex="1"
+                          title="Restore version">
                     <span class="icon is-small">
                       <i class="fas fa-history"></i>
                     </span>
@@ -88,6 +100,7 @@ export default Vue.extend({
       expanded: false,
       init_max_rows: 5,
       commitOverIndex: null,
+      commitsRestorationLog: [] as Commit[],
     }
   },
 
@@ -101,9 +114,25 @@ export default Vue.extend({
     },
   },
 
+  watch: {
+    gitLog: function(newVal) {
+      if (!newVal.length) {
+        this.commitsRestorationLog = []
+      }
+    },
+  },
+
   methods: {
-    restoreVersion(commit: Commit) {
+    restoreVersion(commit: Commit, log?: boolean) {
+      if (log) {
+        this.commitsRestorationLog.push(this.commits[0])
+      }
       this.$emit('restore-version', commit)
+    },
+
+    restoreVersionFromLog() {
+      const commit = this.commitsRestorationLog.pop()
+      this.restoreVersion(commit, false)
     },
 
     mouseLeave() {
