@@ -118,7 +118,7 @@ export default Vue.extend({
   methods: {
     async loadLinksFromDB() {
       const systemDBData = (await RequestsUtils.sendRequest('GET', `db/system/`)).data
-      const kibanaURL = systemDBData?.links?.kibaba_url ? systemDBData.links.kibaba_url : this.defaultKibanaURL
+      const kibanaURL = systemDBData?.links?.kibana_url ? systemDBData.links.kibana_url : this.defaultKibanaURL
       const grafanaURL = systemDBData?.links?.grafana_url ? systemDBData.links.grafana_url : this.defaultGrafanaURL
       this.menuItems.analytics.kibana = {
         title: 'Access Log (ELK)',

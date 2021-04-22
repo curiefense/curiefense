@@ -19,7 +19,7 @@ describe('SideMenu.vue', () => {
     grafanaURL = 'https://10.0.0.1:30300/'
     const dbData = {
       links: {
-        kibaba_url: kibanaURL,
+        kibana_url: kibanaURL,
         grafana_url: grafanaURL,
       },
     }
