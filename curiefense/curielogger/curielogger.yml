@@ -1,7 +1,7 @@
 log_level: info
 outputs:
   stdout:
-    enabled: false
+    enabled: true
 
   elasticsearch: &es
     enabled: false
@@ -13,6 +13,6 @@ outputs:
     kibana_url: "http://kibana:5601"
 
   logstash:
-    enabled: true
+    enabled: false
     url: "http://logstash:5001/"
     elasticsearch: *es

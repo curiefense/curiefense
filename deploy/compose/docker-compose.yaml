@@ -104,13 +104,15 @@ services:
     image: "curiefense/curielogger:${DOCKER_TAG}"
     #image: "curielogger"
     restart: always
+    labels:
+        co.elastic.logs/enabled: true
+        co.elastic.logs/json.keys_under_root: true
+        co.elastic.logs/json.add_error_key: true
+        co.elastic.logs/ignore_decoding_error: true
     environment:
       - CURIELOGGER_LOG_LEVEL=info
       - CURIELOGGER_OUTPUTS_STDOUT_ENABLED=true
-      - CURIELOGGER_OUTPUTS_LOGSTASH_ENABLED=false
-      - CURIELOGGER_OUTPUTS_LOGSTASH_URL=http://logstash:5001/
       - CURIELOGGER_METRICS_PROMETHEUS_ENABLED=true
-      - ELASTICSEARCH_URL=http://elasticsearch:9200/
     networks:
       - curiemesh
     ports:
@@ -193,29 +195,22 @@ services:
     ports:
       - 5601:5601
 
-  logstash:
-    container_name: logstash
-    hostname: logstash
-    image: docker.elastic.co/logstash/logstash:7.10.1
-    restart: always
-    volumes:
-      - type: bind
-        source: ./logstash
-        target: /usr/share/logstash/pipeline/
-        read_only: true
-      - type: bind
-        source: ./logstash/pipelines.yml
-        target: /usr/share/logstash/config/pipelines.yml
-        read_only: true
+  filebeat:
+    container_name: filebeat
+    image: docker.elastic.co/beats/filebeat:7.10.1
+    command: "--strict.perms=false -v -e -d autodiscover,docker"
+    user: root
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - CURIEFENSE_INDEX_NAME=curieaccesslog
+      - KIBANA_URL=http://kibana:5601
+    volumes:
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./filebeat/ilm.json:/usr/share/filebeat/ilm.json
+      - ./filebeat/template.json:/usr/share/filebeat/template.json
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - curiemesh
-    ports:
-      # http input
-      - 5001:5001
 
   # uncomment this to replace logstash with fluentd
   # fluentd:
