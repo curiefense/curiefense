@@ -77,4 +77,6 @@ create_kibana_index_pattern () {
 wait_for_es
 define_es_index_template
 define_es_initial_index
-create_kibana_index_pattern
+if [ -z "$SKIP_KIBANA_INIT" ]; then
+	create_kibana_index_pattern
+fi
