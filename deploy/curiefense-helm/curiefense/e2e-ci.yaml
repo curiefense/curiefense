@@ -26,6 +26,7 @@ global:
     prometheus: false
     kibana: true
     fluentd: false
-    logstash: true
+    logstash: false
+    filebeat: true
     elasticsearch: true
 

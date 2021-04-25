@@ -1,6 +1,12 @@
 {
   "index_patterns": ["curieaccesslog-*"],
   "version": 1,
+  "priority": 200,
+  "composed_of": [],
+  "data_stream": {},
+  "_meta": {
+    "description": "Curiefense's index template "
+  },
   "template": {
     "settings": {
       "index": {

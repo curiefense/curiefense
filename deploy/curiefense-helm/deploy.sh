@@ -30,5 +30,8 @@ if ! helm upgrade --install --namespace curiefense --reuse-values \
 then
     echo "curiefense deployment failure... "
     kubectl --namespace curiefense describe pods
+
+    # Template generation
+    helm template --debug --set "global.settings.docker_tag=$DOCKER_TAG" "${PARAMS[@]}" "$@" curiefense curiefense/
     # TODO(flaper87): Print logs from failed PODs
 fi
