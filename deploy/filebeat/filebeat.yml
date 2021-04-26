@@ -6,7 +6,6 @@ filebeat.autodiscover:
 
 output.elasticsearch:
   hosts: "${ELASTICSEARCH_URL}"
-  index: "curieaccesslog"
 
 
 setup.kibana:
@@ -27,8 +26,6 @@ setup.template:
   enabled: true
   overwrite: true
   type: "index"
-  name: "curieaccesslog"
-  pattern: "curieaccesslog*"
   json.enabled: true
   json.path: "/usr/share/filebeat/template.json"
   json.name: "curieaccesslog"

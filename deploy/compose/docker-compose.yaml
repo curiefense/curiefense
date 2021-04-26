@@ -101,8 +101,7 @@ services:
   curielogger:
     container_name: curielogger
     hostname: curielogger
-    image: "curiefense/curielogger:${DOCKER_TAG}"
-    #image: "curielogger"
+    image: "curiefense/curielogger:test"
     restart: always
     labels:
         co.elastic.logs/enabled: true
@@ -198,7 +197,13 @@ services:
   filebeat:
     container_name: filebeat
     image: docker.elastic.co/beats/filebeat:7.10.1
-    command: "--strict.perms=false -v -e -d autodiscover,docker"
+    command: >
+        bash -c "
+        for i in {1..40}; do
+            filebeat setup --strict.perms=false -v -e -d autodiscover,docker && break || sleep 10
+         done
+
+         filebeat --strict.perms=false -v -e -d autodiscover,docker"
     user: root
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
