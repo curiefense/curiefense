@@ -9,9 +9,7 @@ output.elasticsearch:
 
 
 setup.kibana:
-  enabled: true
-  host: "${KIBANA_URL}"
-  index: "curieaccesslog-*"
+  enabled: false
 
 setup.ilm:
   enabled: true
