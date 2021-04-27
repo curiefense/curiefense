@@ -101,7 +101,7 @@ services:
   curielogger:
     container_name: curielogger
     hostname: curielogger
-    image: "curiefense/curielogger:test"
+    image: "curiefense/curielogger:${DOCKER_TAG}"
     restart: always
     labels:
         co.elastic.logs/enabled: true

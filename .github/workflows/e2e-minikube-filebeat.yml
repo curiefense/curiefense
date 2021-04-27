@@ -6,10 +6,10 @@ on:
       - "deploy/**"
       - "curiefense/**"
       - "e2e/**"
-      - ".github/workflows/e2e-tests.yml"
+      - ".github/workflows/e2e-minikube-filebeat.yml"
 
 jobs:
-  e2e-minikube-logstash:
+  e2e-minikube-filebeat:
     runs-on: ubuntu-latest
     strategy:
       matrix:

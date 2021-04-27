@@ -6,7 +6,7 @@ eval "$(minikube docker-env)"
 
 GITTAG="$(git describe --tag --long --dirty)"
 DOCKER_DIR_HASH="$(git rev-parse --short=12 HEAD:curiefense)"
-export DOCKER_TAG="${DOCKER_TAG:-$GITTAG-$DOCKER_DIR_HASH}"
+export DOCKER_TAG="$GITTAG-$DOCKER_DIR_HASH"
 
 ROOT_DIR=$(git rev-parse --show-toplevel)
 WORKDIR=$(mktemp -d -t ci-XXXXXXXXXX)
