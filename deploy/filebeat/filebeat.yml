@@ -7,9 +7,14 @@ filebeat.autodiscover:
 output.elasticsearch:
   hosts: "${ELASTICSEARCH_URL}"
 
+setup.dashboards:
+  enabled: false
+  index: "curieaccesslog-*"
+  retry:
+    enabled: false
 
 setup.kibana:
-  enabled: false
+  host: "${KIBANA_URL}"
 
 setup.ilm:
   enabled: true

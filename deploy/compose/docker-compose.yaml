@@ -200,10 +200,10 @@ services:
     command: >
         bash -c "
         for i in {1..40}; do
-            filebeat setup --strict.perms=false -v -e -d autodiscover,docker && break || sleep 10
+            filebeat setup --strict.perms=false -v -e && break || sleep 10
          done
 
-         filebeat --strict.perms=false -v -e -d autodiscover,docker"
+         filebeat --strict.perms=false -v -e"
     user: root
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
