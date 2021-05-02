@@ -77,7 +77,7 @@ spec:
         {{ end }}
 {{- if eq .Values.global.settings.curiefense_es_forwarder "filebeat" }}
         args:
-          - /bin/curielogger > /var/log/curielogger/curielogger.log
+          - /bin/curielogger |tee > /var/log/curielogger/curielogger.log
         command:
           - /bin/bash
           - -c
