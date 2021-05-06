@@ -22,7 +22,7 @@
     "bulma-toast": "^2.3.0",
     "core-js": "^3.8.3",
     "jsoneditor": "^9.1.9",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "vue": "^2.6.12",
     "vue-axios": "^2.1.5",
     "vue-class-component": "^7.2.6",
