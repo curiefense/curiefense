@@ -29,6 +29,6 @@ jobs:
       - name: Version bump
         uses: remorses/bump-version@js
         with:
-          version_file: ./curiefense/ui/package.json
+          version_file: ./curiefense/ui/VERSION
           prefix: curiefense/ui
           github_token: ${{ secrets.GITHUB_TOKEN }}
