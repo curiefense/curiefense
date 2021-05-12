@@ -162,7 +162,7 @@
           </div>
           <div>
             <div class="has-text-left has-text-weight-bold pb-3">Connections to URL Maps</div>
-            <table class="table">
+            <table class="table connected-url-maps-table">
               <thead>
               <tr>
                 <th class="is-size-7 width-200px">Name</th>
@@ -170,7 +170,7 @@
                 <th class="is-size-7 width-300px">Domain Match</th>
                 <th class="is-size-7 width-300px">Entry Match</th>
                 <th class="is-size-7 width-80px has-text-centered">
-                  <a v-show="!newURLMapConnectionOpened"
+                  <a v-if="!newURLMapConnectionOpened"
                      class="has-text-grey-dark is-small new-connection-button"
                      title="Add new connection"
                      tabindex="0"
@@ -180,8 +180,9 @@
                      @keypress.enter="openNewURLMapConnection">
                     <span class="icon is-small"><i class="fas fa-plus"></i></span>
                   </a>
-                  <a v-show="newURLMapConnectionOpened"
-                     class="has-text-grey-dark is-small" title="Cancel adding new connection"
+                  <a v-else
+                     class="has-text-grey-dark is-small new-connection-button"
+                     title="Cancel adding new connection"
                      tabindex="0"
                      @click="closeNewURLMapConnection"
                      @keypress.space.prevent
@@ -195,42 +196,54 @@
               <tbody>
               <tr v-if="newURLMapConnectionOpened"
                   class="has-background-warning-light new-connection-row">
-                <td colspan="2">
-                  <div class="select is-small">
-                    <select v-model="newURLMapConnectionData.id"
-                            @change="newURLMapConnectionData.entryIndex = 0"
-                            class="new-connection-id"
-                            title="Type">
-                      <option v-for="map in newURLMapConnections" :key="map.id" :value="map.id">
-                        {{ map.name }}
-                      </option>
-                    </select>
-                  </div>
-                </td>
-                <td colspan="2">
-                  <div class="select is-small">
-                    <select v-model="newURLMapConnectionData.entryIndex"
-                            class="new-connection-id"
-                            title="Type">
-                      <option v-for="(mapEntry, index) in newURLMapConnectionEntries"
-                              :key="mapEntry.match"
-                              :value="index">
-                        {{ mapEntry.match }}
-                      </option>
-                    </select>
-                  </div>
-                </td>
-                <td class="has-text-centered">
-                  <button title="Add new connection"
-                          class="button is-light is-small confirm-add-new-connection"
-                          @click="addNewURLMapConnection">
-                    <span class="icon is-small"><i class="fas fa-plus fa-xs"></i></span>
-                  </button>
-                </td>
-
+                <template v-if="newURLMapConnections.length > 0">
+                  <td>
+                    <div class="select is-small">
+                      <select v-model="newURLMapConnectionData.map"
+                              @change="newURLMapConnectionData.entryIndex = 0"
+                              class="new-connection-map"
+                              title="Type">
+                        <option v-for="map in newURLMapConnections" :key="map.id" :value="map">
+                          {{ map.name }}
+                        </option>
+                      </select>
+                    </div>
+                  </td>
+                  <td>
+                    {{ newURLMapConnectionData.map.id }}
+                  </td>
+                  <td>
+                    {{ newURLMapConnectionData.map.match }}
+                  </td>
+                  <td>
+                    <div class="select is-small">
+                      <select v-model="newURLMapConnectionData.entryIndex"
+                              class="new-connection-entry-index"
+                              title="Type">
+                        <option v-for="(mapEntry, index) in newURLMapConnectionEntries"
+                                :key="mapEntry.match"
+                                :value="index">
+                          {{ mapEntry.match }}
+                        </option>
+                      </select>
+                    </div>
+                  </td>
+                  <td class="has-text-centered">
+                    <button title="Add new connection"
+                            class="button is-light is-small add-new-connection"
+                            @click="addNewURLMapConnection">
+                      <span class="icon is-small"><i class="fas fa-plus fa-xs"></i></span>
+                    </button>
+                  </td>
+                </template>
+                <template v-else>
+                  <td colspan="5">
+                    All URL Maps entries are currently connected to this Rate Limit
+                  </td>
+                </template>
               </tr>
               <tr v-for="(connection, index) in connectedURLMapsEntries" :key="index">
-                <td class="is-size-7 is-vcentered py-3 width-200px"
+                <td class="is-size-7 is-vcentered py-3 width-200px connected-entry-row"
                     :title="connection[0]">
                   <a title="Add new"
                      class="url-map-referral-button"
@@ -326,14 +339,13 @@ export default Vue.extend({
       urlMaps: [] as URLMap[],
       currentEntryDeleteIndex: -1,
       newURLMapConnectionData: {
-        id: '',
+        map: null,
         entryIndex: 0,
       } as {
-        id: URLMap['id'],
+        map: URLMap,
         entryIndex: number,
       },
       newURLMapConnectionOpened: false,
-      // TODO
       connectedURLMapsEntries: [],
       keysAreValid: true,
     }
@@ -361,21 +373,20 @@ export default Vue.extend({
     },
 
     newURLMapConnections(): URLMap[] {
-      const urlMap = this.urlMaps.filter((urlMap) => {
+      return this.urlMaps.filter((urlMap) => {
         return !urlMap.map.every((urlMapEntry) => {
           return urlMapEntry.limit_ids.includes(this.localDoc.id)
         })
       })
-      return urlMap ? urlMap : []
     },
 
     newURLMapConnectionEntries(): URLMapEntryMatch[] {
       const urlMap = this.newURLMapConnections.find((urlMap) => {
-        return urlMap.id === this.newURLMapConnectionData.id
+        return urlMap.id === this.newURLMapConnectionData.map?.id
       })
-      return (urlMap && urlMap.map) ? urlMap.map.filter((urlMapEntry) => {
+      return urlMap?.map?.filter((urlMapEntry) => {
         return !urlMapEntry.limit_ids.includes(this.localDoc.id)
-      }) : []
+      })
     },
   },
   methods: {
@@ -446,35 +457,29 @@ export default Vue.extend({
     },
 
     getConnectedURLMapsEntries() {
-      // TODO: better loop with lodash
-      const arr = []
-      for (let i = 0; i < this.urlMaps.length; i++) {
-        for (let j = 0; j < this.urlMaps[i].map.length; j++) {
-          if (this.urlMaps[i].map[j].limit_ids.includes(this.localDoc.id)) {
-            arr.push({
-              name: this.urlMaps[i].name,
-              id: this.urlMaps[i].id,
-              domainMatch: this.urlMaps[i].match,
-              entryMatch: this.urlMaps[i].map[j].match,
-            })
+      this.connectedURLMapsEntries = _.sortBy(_.flatMap(_.filter(this.urlMaps, (urlMap) => {
+        return _.some(urlMap.map, (mapEntry: URLMapEntryMatch) => {
+          return mapEntry.limit_ids.includes(this.localDoc.id)
+        })
+      }), (urlMap) => {
+        return _.compact(_.map(urlMap.map, (mapEntry) => {
+          if (mapEntry.limit_ids.includes(this.localDoc.id)) {
+            return {
+              name: urlMap.name,
+              id: urlMap.id,
+              domainMatch: urlMap.match,
+              entryMatch: mapEntry.match,
+            }
+          } else {
+            return null
           }
-        }
-      }
-      this.connectedURLMapsEntries = arr
-      // return _.sortBy(_.map(_.filter(this.urlMaps, (urlMap) => {
-      //   return _.some(urlMap.map, (mapEntry: URLMapEntryMatch) => {
-      //     return mapEntry.limit_ids.includes(this.localDoc.id)
-      //   })
-      // }), (entity) => {
-      //   return [entity.id, entity.name]
-      // }), (e) => {
-      //   return e[1]
-      // })
+        }))
+      }))
     },
 
     openNewURLMapConnection() {
       this.newURLMapConnectionOpened = true
-      this.newURLMapConnectionData.id = this.newURLMapConnections.length > 0 ? this.newURLMapConnections[0].id : ''
+      this.newURLMapConnectionData.map = this.newURLMapConnections.length > 0 ? this.newURLMapConnections[0] : null
       this.newURLMapConnectionData.entryIndex = 0
     },
 
@@ -483,7 +488,7 @@ export default Vue.extend({
     },
 
     addNewURLMapConnection() {
-      const id = this.newURLMapConnectionData.id
+      const id = this.newURLMapConnectionData.map?.id
       const entryMatch = this.newURLMapConnectionEntries[this.newURLMapConnectionData.entryIndex].match
       const methodName = 'PUT'
       const selectedDocType = 'urlmaps'
@@ -494,16 +499,14 @@ export default Vue.extend({
       const mapEntry = _.find(doc.map, (mapEntry) => {
         return mapEntry.match === entryMatch
       })
-      if (!mapEntry.limit_ids.includes(this.localDoc.id)) {
-        mapEntry.limit_ids.push(this.localDoc.id)
-        this.closeNewURLMapConnection()
-        const docTypeText = this.titles[selectedDocType + '-singular']
-        const successMessage = `The connection to the ${docTypeText} was added.`
-        const failureMessage = `Failed while attempting to add the connection to the ${docTypeText}.`
-        RequestsUtils.sendRequest(methodName, urlTrail, doc, null, successMessage, failureMessage).then(() => {
-          this.getConnectedURLMapsEntries()
-        })
-      }
+      mapEntry.limit_ids.push(this.localDoc.id)
+      this.closeNewURLMapConnection()
+      const docTypeText = this.titles[selectedDocType + '-singular']
+      const successMessage = `The connection to the ${docTypeText} was added.`
+      const failureMessage = `Failed while attempting to add the connection to the ${docTypeText}.`
+      RequestsUtils.sendRequest(methodName, urlTrail, doc, null, successMessage, failureMessage).then(() => {
+        this.getConnectedURLMapsEntries()
+      })
     },
 
     removeURLMapConnection(id: URLMap['id'], entryMatch: URLMapEntryMatch['match']) {
@@ -539,7 +542,7 @@ export default Vue.extend({
           `configs/${this.selectedBranch}/d/urlmaps/`).then((response: AxiosResponse<URLMap[]>) => {
         this.urlMaps = _.sortBy(response.data)
         this.getConnectedURLMapsEntries()
-        this.newURLMapConnectionData.id = this.newURLMapConnections.length > 0 ? this.newURLMapConnections[0].id : ''
+        this.newURLMapConnectionData.map = this.newURLMapConnections.length > 0 ? this.newURLMapConnections[0] : null
       })
     },
 

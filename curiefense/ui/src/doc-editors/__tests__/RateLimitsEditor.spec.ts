@@ -1,7 +1,7 @@
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import LimitOption from '@/components/LimitOption.vue'
 import ResponseAction from '@/components/ResponseAction.vue'
-import {beforeEach, describe, expect, jest, test} from '@jest/globals'
+import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import {RateLimit, URLMap} from '@/types'
@@ -14,6 +14,7 @@ jest.mock('axios')
 describe('RateLimitsEditor.vue', () => {
   let rateLimitsDocs: RateLimit[]
   let urlMapsDocs: URLMap[]
+  let mockRouter
   let wrapper: Wrapper<Vue>
   beforeEach(() => {
     rateLimitsDocs = [{
@@ -93,10 +94,16 @@ describe('RateLimitsEditor.vue', () => {
       }
       return Promise.resolve({data: []})
     })
+    mockRouter = {
+      push: jest.fn(),
+    }
     wrapper = shallowMount(RateLimitsEditor, {
       propsData: {
         selectedDoc: rateLimitsDocs[0],
         selectedBranch: 'master',
+      },
+      mocks: {
+        $router: mockRouter,
       },
     })
   })
@@ -396,6 +403,108 @@ describe('RateLimitsEditor.vue', () => {
       const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
       await Vue.nextTick()
       expect(tagAutocompleteInput.element).toBeUndefined()
+    })
+  })
+
+  describe('connected URL Maps', () => {
+    afterEach(() => {
+      jest.clearAllMocks()
+    })
+
+    test('should display all connected URL Maps', () => {
+      const connectedURLMapsEntriesRows = wrapper.findAll('.connected-entry-row')
+      expect(connectedURLMapsEntriesRows.length).toEqual(2)
+    })
+
+    test('should have a link to each connected URL map', async () => {
+      const wantedRoute = `/config/${(wrapper.vm as any).selectedBranch}/urlmaps/${urlMapsDocs[0].id}`
+      const connectedURLMapsEntryRow = wrapper.findAll('.connected-entry-row').at(0)
+      const referralButton = connectedURLMapsEntryRow.find('.url-map-referral-button')
+      await referralButton.trigger('click')
+      await Vue.nextTick()
+      expect(mockRouter.push).toHaveBeenCalledTimes(1)
+      expect(mockRouter.push).toHaveBeenCalledWith(wantedRoute)
+    })
+
+    test('should show the new connection row when `+` button is clicked', async () => {
+      const newConnectionButton = wrapper.find('.new-connection-button')
+      newConnectionButton.trigger('click')
+      await Vue.nextTick()
+      const newConnectionRow = wrapper.find('.new-connection-row')
+      expect(newConnectionRow.exists()).toBeTruthy()
+    })
+
+    test('should show an appropriate message when there are no available new connections', async () => {
+      const wantedMessage = `All URL Maps entries are currently connected to this Rate Limit`
+      urlMapsDocs[0].map[1].limit_ids.push(rateLimitsDocs[0].id)
+      urlMapsDocs[1].map[1].limit_ids.push(rateLimitsDocs[0].id)
+      wrapper = shallowMount(RateLimitsEditor, {
+        propsData: {
+          selectedDoc: rateLimitsDocs[0],
+          selectedBranch: 'master',
+        },
+      })
+      await Vue.nextTick()
+      const newConnectionButton = wrapper.find('.new-connection-button')
+      newConnectionButton.trigger('click')
+      await Vue.nextTick()
+      const newConnectionRow = wrapper.find('.new-connection-row')
+      expect(newConnectionRow.text()).toEqual(wantedMessage)
+    })
+
+    test('should hide the new connection row when `-` button is clicked', async () => {
+      let newConnectionButton = wrapper.find('.new-connection-button')
+      newConnectionButton.trigger('click')
+      await Vue.nextTick()
+      newConnectionButton = wrapper.find('.new-connection-button')
+      newConnectionButton.trigger('click')
+      await Vue.nextTick()
+      const newConnectionRow = wrapper.find('.new-connection-row')
+      expect(newConnectionRow.exists()).toBeFalsy()
+    })
+
+    test('should send request to change URL Map when new connection is added', async () => {
+      const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
+      const wantedUrl = `/conf/api/v1/configs/${(wrapper.vm as any).selectedBranch}/d/urlmaps/e/${urlMapsDocs[1].id}/`
+      const wantedDoc = JSON.parse(JSON.stringify(urlMapsDocs[1]))
+      wantedDoc.map[1].limit_ids.push(rateLimitsDocs[0].id)
+      const newConnectionButton = wrapper.find('.new-connection-button')
+      newConnectionButton.trigger('click')
+      await Vue.nextTick()
+      const newConnectionRow = wrapper.find('.new-connection-row')
+      const newConnectionMapSelection = newConnectionRow.find('.new-connection-map')
+      const options = newConnectionMapSelection.findAll('option')
+      options.at(1).setSelected()
+      await Vue.nextTick()
+      const addNewConnectionButton = wrapper.find('.add-new-connection')
+      addNewConnectionButton.trigger('click')
+      await Vue.nextTick()
+      expect(putSpy).toHaveBeenCalledWith(wantedUrl, wantedDoc)
+    })
+
+    test('should send request to change URL Map when removing connection was confirmed', async () => {
+      const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
+      const wantedUrl = `/conf/api/v1/configs/${(wrapper.vm as any).selectedBranch}/d/urlmaps/e/${urlMapsDocs[0].id}/`
+      const wantedDoc = JSON.parse(JSON.stringify(urlMapsDocs[0]))
+      wantedDoc.map[0].limit_ids = []
+      const removeConnectionButton = wrapper.findAll('.remove-connection-button').at(0)
+      removeConnectionButton.trigger('click')
+      await Vue.nextTick()
+      const confirmRemoveConnectionButton = wrapper.find('.confirm-remove-connection-button')
+      confirmRemoveConnectionButton.trigger('click')
+      await Vue.nextTick()
+      expect(putSpy).toHaveBeenCalledWith(wantedUrl, wantedDoc)
+    })
+
+    test('should not send request to change URL Map when removing connection was cancelled', async () => {
+      const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
+      const removeConnectionButton = wrapper.findAll('.remove-connection-button').at(0)
+      removeConnectionButton.trigger('click')
+      await Vue.nextTick()
+      const cancelRemoveConnectionButton = wrapper.find('.cancel-remove-connection-button')
+      cancelRemoveConnectionButton.trigger('click')
+      await Vue.nextTick()
+      expect(putSpy).not.toHaveBeenCalled()
     })
   })
 })
