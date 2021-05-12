@@ -10,7 +10,6 @@ use md5;
 use std::cmp::Ordering;
 use std::net::IpAddr;
 use std::str::FromStr;
-use urldecode::decode;
 use urlencoding::encode;
 
 pub mod avltree;
@@ -358,8 +357,56 @@ fn iptonum(_: &Lua, ip: String) -> LuaResult<Option<String>> {
 
 //////////////// DECODE URL ////////////////
 
+fn from_hex_digit(digit: u8) -> Option<u8> {
+    match digit {
+        b'0'..=b'9' => Some(digit - b'0'),
+        b'A'..=b'F' => Some(digit - b'A' + 10),
+        b'a'..=b'f' => Some(digit - b'a' + 10),
+        _ => None,
+    }
+}
+
+fn urldecode(input: String) -> Vec<u8> {
+    let mut out = Vec::new();
+    let mut bytes = input.as_bytes().iter().copied();
+    while let Some(mut b) = bytes.next() {
+        loop {
+            if b == b'%' {
+                if let Some(h) = bytes.next() {
+                    if let Some(hv) = from_hex_digit(h) {
+                        if let Some(l) = bytes.next() {
+                            if let Some(lv) = from_hex_digit(l) {
+                                out.push(hv * 16 + lv);
+                                break;
+                            } else {
+                                out.push(b);
+                                out.push(h);
+                                b = l;
+                            }
+                        } else {
+                            out.push(b);
+                            out.push(h);
+                            break;
+                        }
+                    } else {
+                        out.push(b);
+                        b = h;
+                    }
+                } else {
+                    out.push(b);
+                    break;
+                }
+            } else {
+                out.push(b);
+                break;
+            }
+        }
+    }
+    out
+}
+
 fn decodeurl(_: &Lua, url: String) -> LuaResult<Option<String>> {
-    Ok(Some(decode(url)))
+    Ok(Some(String::from_utf8_lossy(&urldecode(url)).into_owned()))
 }
 
 fn encodeurl(_: &Lua, url: String) -> LuaResult<Option<String>> {
@@ -383,7 +430,7 @@ fn iptools(lua: &Lua) -> LuaResult<LuaTable> {
 }
 
 #[cfg(test)]
-mod tests {
+mod test_lib {
     use super::*;
 
     #[test]
@@ -426,5 +473,39 @@ mod tests {
             println!("Testing {:?}", a);
             assert!(!ipset.contains(&a));
         }
+    }
+
+    fn dec(url: &str) -> String {
+        String::from_utf8_lossy(&urldecode(url.to_string())).into_owned()
+    }
+
+    #[test]
+    fn test_urldecode_normal() {
+        assert!(dec("ABCD") == "ABCD");
+        assert!(dec("ABCD%40") == "ABCD@");
+        assert!(dec("ABCD%40EFG") == "ABCD@EFG");
+        assert!(dec("%27%28%29%2a%2b%2C%2D%2e%2F") == "'()*+,-./");
+        assert!(dec("ABCD+EFG") == "ABCD+EFG");
+        assert!(
+            dec("http://www.example.com/foo/bar?x=AB%20CD%3d~~F%7C%60G")
+                == "http://www.example.com/foo/bar?x=AB CD=~~F|`G"
+        );
+    }
+
+    #[test]
+    fn test_urldecode_utf8() {
+        assert!(dec("%F0%9F%91%BE%20Exterminate%21") == "👾 Exterminate!");
+    }
+
+    #[test]
+    fn test_urldecode_incorrect() {
+        assert!(dec("%") == "%");
+        assert!(dec("%a") == "%a");
+        assert!(dec("%p1") == "%p1");
+        assert!(dec("%ap") == "%ap");
+        assert!(dec("%%41") == "%A");
+        assert!(dec("%a%41") == "%aA");
+        assert!(dec("%F0%9F%91%BE%20Exterminate%21%") == "👾 Exterminate!%");
+        assert!(dec("%F0%9F%BE%20%21%") == "� !%");
     }
 }

@@ -17,6 +17,46 @@ spec:
         app.kubernetes.io/name: curielogger
     spec:
       containers:
+{{- if eq .Values.global.settings.curiefense_es_forwarder "filebeat" }}
+      - name: filebeat
+        image: docker.elastic.co/beats/filebeat:7.10.1
+        args:
+          - "-v"
+          - "-e"
+        env:
+        - name: ELASTICSEARCH_URL
+          value: "{{ .Values.global.settings.curiefense_es_hosts }}"
+        - name: KIBANA_URL
+          value: "{{ .Values.global.settings.curiefense_kibana_url }}"
+        - name: INDEX_NAME
+          value: {{ .Values.global.settings.curiefense_es_index_name }}
+        volumeMounts:
+          - name: curielogger
+            mountPath: /var/log/curielogger
+          - name: filebeat-configmap
+            subPath: filebeat.yml
+            mountPath: /usr/share/filebeat/filebeat.yml
+          - name: filebeat-configmap
+            subPath: ilm.json
+            mountPath: /usr/share/filebeat/ilm.json
+          - name: filebeat-configmap
+            subPath: template.json
+            mountPath: /usr/share/filebeat/template.json
+      - name: logrotate
+        image: blacklabelops/logrotate:1.2
+        env:
+        - name: LOGS_DIRECTORIES
+          value: "/var/log/curielogger"
+        - name: LOGROTATE_INTERVAL
+          value: hourly
+        - name: LOGROTATE_SIZE
+          value: "10M"
+        - name: LOGROTATE_COPIES
+          value: "10"
+        volumeMounts:
+          - name: curielogger
+            mountPath: /var/log/curielogger
+{{- end }}
       - name: curielogger
         env:
         - name: CURIELOGGER_METRICS_PROMETHEUS_ENABLED
@@ -28,13 +68,14 @@ spec:
           value: "true"
         - name: CURIELOGGER_OUTPUTS_LOGSTASH_URL
           value: "{{ .Values.global.settings.curiefense_logstash_url }}"
-{{- else }}
+        - name: USE_DATA_STREAMS
+          value: "false"
+{{- end }}
+{{- if eq .Values.global.settings.curiefense_es_forwarder "fluentd" }}
         - name: CURIELOGGER_USES_FLUENTD
           value: "true"
         - name: CURIELOGGER_FLUENTD_URL
           value: "{{ .Values.global.settings.curiefense_fluentd_url }}"
-        - name: USE_DATA_STREAMS
-          value: "false"
 {{- end }}
         - name: CURIELOGGER_KIBANA_URL
           value: "{{ .Values.global.settings.curiefense_kibana_url }}"
@@ -48,6 +89,14 @@ spec:
         {{ else }}
         image: {{ .Values.global.images.curielogger }}:{{ .Values.global.settings.docker_tag }}
         {{ end }}
+{{- if eq .Values.global.settings.curiefense_es_forwarder "filebeat" }}
+        args:
+          - /bin/curielogger |tee > /var/log/curielogger/curielogger.log
+        command:
+          - /bin/bash
+          - -c
+          - --
+{{- end }}
         ports:
         - containerPort: 9001
           name: logger-grpc
@@ -64,9 +113,22 @@ spec:
           requests:
             memory: "20Mi"
             cpu: {{ .Values.global.requests.cpu.curielogger }}
+{{- if eq .Values.global.settings.curiefense_es_forwarder "filebeat" }}
+        volumeMounts:
+          - name: curielogger
+            mountPath: /var/log/curielogger
+{{- end }}
       restartPolicy: Always
       serviceAccountName: ""
 {{- if .Values.global.tolerations }}
       tolerations:
 {{ toYaml .Values.global.tolerations | indent 8 }}
+{{- end }}
+{{- if eq .Values.global.settings.curiefense_es_forwarder "filebeat" }}
+      volumes:
+      - name: curielogger
+        emptyDir: {}
+      - name: filebeat-configmap
+        configMap:
+          name: filebeat-configmap
 {{- end }}

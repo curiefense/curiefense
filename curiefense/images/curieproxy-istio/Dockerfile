@@ -1,4 +1,5 @@
-FROM docker.io/istio/proxyv2:1.5.10
+FROM curiefense/envoy-istio-cf:1fc81107d58c138eba288f3d8b567bbca4b6423f AS envoy-istio-cf
+FROM docker.io/istio/proxyv2:1.9.3
 
 RUN apt-get update && \
     apt-get -yq --no-install-recommends install jq luarocks libpcre2-dev libgeoip-dev python dumb-init gcc g++ make unzip libhyperscan4 libhyperscan-dev && \
@@ -16,7 +17,7 @@ RUN luarocks install lrexlib-pcre2 && \
     luarocks install lua-resty-injection
 
 # Overwrite stripped envoy with full symbol
-COPY curieproxy/envoy-1.13.4 /usr/local/bin/envoy
+COPY --from=envoy-istio-cf /envoy /usr/local/bin/envoy
 
 COPY init/start_curiefense_pilot.sh /start_curiefense_pilot.sh
 COPY curieproxy/lua /lua

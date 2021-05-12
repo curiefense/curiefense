@@ -57,6 +57,7 @@ export default Vue.extend({
     const grafanaURL = `${location.protocol}//${location.hostname}:30300/`
 
     return {
+      defaultSwaggerURL: swaggerURL,
       defaultKibanaURL: kibanaURL,
       defaultGrafanaURL: grafanaURL,
       menuItems: {
@@ -118,8 +119,14 @@ export default Vue.extend({
   methods: {
     async loadLinksFromDB() {
       const systemDBData = (await RequestsUtils.sendRequest('GET', `db/system/`)).data
-      const kibanaURL = systemDBData?.links?.kibaba_url ? systemDBData.links.kibaba_url : this.defaultKibanaURL
+      const swaggerURL = systemDBData?.links?.swagger_url ? systemDBData.links.swagger_url : this.defaultSwaggerURL
+      const kibanaURL = systemDBData?.links?.kibana_url ? systemDBData.links.kibana_url : this.defaultKibanaURL
       const grafanaURL = systemDBData?.links?.grafana_url ? systemDBData.links.grafana_url : this.defaultGrafanaURL
+      this.menuItems.settings.swagger = {
+        title: 'API',
+        url: swaggerURL,
+        external: true,
+      }
       this.menuItems.analytics.kibana = {
         title: 'Access Log (ELK)',
         url: kibanaURL,

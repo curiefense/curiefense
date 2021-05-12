@@ -1,0 +1,36 @@
+{{- $gateway := index .Values "gateways" "istio-ingressgateway" }}
+{{- if $gateway.waf.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: curiefense-access-logs-filter
+  namespace: istio-system
+spec:
+  workloadSelector:
+    labels:
+      curiefense: "enabled"
+  configPatches:
+  - applyTo: NETWORK_FILTER # http connection manager is a filter in Envoy
+    match:
+      context: GATEWAY
+      listener:
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager"
+    patch:
+      operation: MERGE
+      value:
+        typed_config:
+          "@type": "type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager"
+          access_log:
+            - name: "envoy.http_grpc_access_log"
+              typed_config:
+                "@type": "type.googleapis.com/envoy.extensions.access_loggers.grpc.v3.HttpGrpcAccessLogConfig"
+                common_config:
+                  log_name: "send_GRPC_log_to_curielogger"
+                  transport_api_version: "V3"
+                  grpc_service:
+                    google_grpc:
+                      target_uri: "curielogger.{{ $.Values.global.proxy.curiefense_namespace }}:9001"
+                      stat_prefix: "curielogger_grpc"
+{{- end }}

@@ -1,0 +1,7 @@
+{
+  "aliases": {
+    "INDEX_NAME": {
+      "is_write_index": true
+    }
+  }
+}

@@ -52,7 +52,7 @@ data:
 
     output {
       elasticsearch {
-        hosts => "elasticsearch:9200"
+        hosts => "${ELASTICSEARCH_URL}"
         index => "${CURIEFENSE_INDEX_NAME:curieaccesslog}"
         # Action create is required for data streams which are,
         # by definition, an append only type of index. Only
@@ -74,7 +74,7 @@ data:
 
     output {
       elasticsearch {
-        hosts => "elasticsearch:9200"
+        hosts => "${ELASTICSEARCH_URL}"
         index => "${CURIEFENSE_METRICS_INDEX_NAME:curiemetrics}"
         # Action create is required for data streams which are,
         # by definition, an append only type of index. Only

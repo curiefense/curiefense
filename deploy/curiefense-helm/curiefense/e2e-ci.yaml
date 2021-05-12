@@ -4,7 +4,6 @@ global:
     cpu:
       curielogger: "1m"
       redis: "1m"
-      logstash: "1m"
       kibana: "1m"
       uiserver: "1m"
       confserver-init: "1m"
@@ -13,7 +12,7 @@ global:
       curietasker: "1m"
       prometheus: "1m"
       grafana: "1m"
-      elasticsearch: "1m"
+      elasticsearch: "2m"
 
   storage:
     confserver_storage_size: '1Gi'
@@ -26,6 +25,7 @@ global:
     prometheus: false
     kibana: true
     fluentd: false
-    logstash: true
+    logstash: false
+    filebeat: true
     elasticsearch: true
 

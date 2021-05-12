@@ -1,3 +1,4 @@
+FROM curiefense/envoy-cf:0250ad715e8c0463d0d4389cbfab340bc7dd7587 AS envoy-cf
 FROM envoyproxy/envoy:v1.16-latest
 
 RUN apt-get update && \
@@ -17,7 +18,7 @@ RUN luarocks install lrexlib-pcre2 && \
     luarocks install lua-resty-injection
 
 # Overwrite stripped envoy with full symbol
-COPY curieproxy/envoy-1.16.2 /usr/local/bin/envoy
+COPY --from=envoy-cf /envoy /usr/local/bin/envoy
 
 COPY init/start_curiefense.sh /start_curiefense.sh
 

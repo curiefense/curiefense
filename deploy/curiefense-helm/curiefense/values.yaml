@@ -23,8 +23,9 @@ global:
   settings:
     curiefense_metrics_prometheus_enabled: true
     curieconf_manifest_url: 's3://curiefense-test01/prod/manifest.json'
-    # supported types: 'fluentd', 'logstash'
-    curiefense_es_forwarder: 'logstash'
+    # supported types: 'fluentd', 'logstash', 'filebeat'
+    # warning: the 'filebeat' mechanism relies on writing logs to a temporary file that is never deleted. Do not use in production.
+    curiefense_es_forwarder: 'filebeat'
     # change curiefense_es_hosts if you supply your own elasticsearch server. Using several servers is not (yet?) fully supported by this chart
     curiefense_es_hosts: 'http://elasticsearch:9200/'
     # change curiefense_logstash_url if you supply your own logstash server.
@@ -64,3 +65,4 @@ global:
     elasticsearch: true
     fluentd: true
     logstash: true
+    filebeat: true

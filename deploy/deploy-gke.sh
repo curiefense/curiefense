@@ -28,17 +28,7 @@ install_helm () {
 	echo "-- Install helm --"
 	curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
 	chmod 700 get_helm.sh
-	./get_helm.sh -v v2.16.7
-	kubectl -n kube-system create serviceaccount tiller
-	kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
-	helm init --service-account tiller
-	echo "Waiting for tiller to become ready"
-	for _ in $(seq 1 30); do
-		if kubectl get pods -n kube-system -l app=helm|grep -q Running; then
-			break
-		fi
-		sleep 2
-	done
+	./get_helm.sh
 }
 
 deploy_curiefense () {
@@ -66,17 +56,18 @@ deploy_curiefense () {
 
 deploy_bookinfo () {
 	echo "-- Deploy target: bookinfo app --"
-	kubectl create namespace bookinfo
-	kubectl label namespace bookinfo istio-injection=enabled
-	if [ ! -d "$BASEDIR/istio-1.5.10/" ]; then
+	kubectl label namespace default istio-injection=enabled
+	if [ ! -d "$BASEDIR/istio-1.9.3/" ]; then
 		cd "$BASEDIR" || exit 1
-		wget 'https://github.com/istio/istio/releases/download/1.5.10/istio-1.5.10-linux.tar.gz'
-		tar -xf 'istio-1.5.10-linux.tar.gz'
+		wget 'https://github.com/istio/istio/releases/download/1.9.3/istio-1.9.3-linux-amd64.tar.gz'
+		tar -xf 'istio-1.9.3-linux-amd64.tar.gz'
 	fi
-	kubectl apply -n bookinfo -f "$BASEDIR/istio-1.5.10/samples/bookinfo/platform/kube/bookinfo.yaml"
-	kubectl apply -n bookinfo -f "$BASEDIR/istio-1.5.10/samples/bookinfo/networking/bookinfo-gateway.yaml"
+	kubectl apply -f "$BASEDIR/istio-1.9.3/samples/bookinfo/platform/kube/bookinfo.yaml"
+	kubectl apply -f "$BASEDIR/istio-1.9.3/samples/bookinfo/networking/bookinfo-gateway.yaml"
 	# also expose the "ratings" service directly
 	kubectl apply -f "$BASEDIR/../e2e/latency/ratings-virtualservice.yml"
+	# deploy 5 replicas to handle the test load
+	kubectl scale deployment ratings-v1 --replicas 5
 }
 
 install_fortio () {
@@ -93,6 +84,7 @@ run_fortio () {
 	OUT_PATH=$5
 	if [ -z "$FORTIO_URL" ]; then
 		NODE_IP=$(kubectl get nodes -o json|jq '.items[0].status.addresses[]|select(.type=="ExternalIP").address'|tr -d '"')
+		INGRESS_PORT=$(kubectl -n istio-system get service -n istio-system istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
 		FORTIO_URL="http://$NODE_IP:30100/fortio/"
 		JAEGER_URL="http://$NODE_IP:30686/jaeger/api/"
 		echo "Waiting for fortio to become reachable..."
@@ -103,7 +95,7 @@ run_fortio () {
 			sleep 1
 		done
 		echo "Pre-heat request"
-		curl -s "http://$NODE_IP:30081/ratings/preheat" > /dev/null
+		curl -s "http://$NODE_IP:$INGRESS_PORT/ratings/preheat" > /dev/null
 	fi
 
 	# target: http://istio-ingressgateway.istio-system/ratings/invalid-$tag -- JSON response

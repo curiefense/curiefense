@@ -1,0 +1,34 @@
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+      hints.default_config.enabled: false
+
+output.elasticsearch:
+  hosts: "${ELASTICSEARCH_URL}"
+
+setup.dashboards:
+  enabled: false
+  index: "curieaccesslog-*"
+  retry:
+    enabled: false
+
+setup.kibana:
+  host: "${KIBANA_URL}"
+
+setup.ilm:
+  enabled: true
+  rollover_alias: "curieaccesslog"
+  pattern: "{now/d}-000001"
+  overwrite: true
+  policy_name: "curieaccesslog"
+  policy_file: /usr/share/filebeat/ilm.json
+
+
+setup.template:
+  enabled: true
+  overwrite: true
+  type: "index"
+  json.enabled: true
+  json.path: "/usr/share/filebeat/template.json"
+  json.name: "curieaccesslog"

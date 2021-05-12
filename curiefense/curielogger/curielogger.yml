@@ -1,10 +1,14 @@
 log_level: info
 outputs:
+  stdout:
+    enabled: true
+
   elasticsearch: &es
     enabled: false
     initialize: true
     overwrite: true
     use_data_stream: true
+    accesslog_index_name: "curieaccesslog"
     url: "http://elasticsearch:9200/"
     kibana_url: "http://kibana:5601"
 

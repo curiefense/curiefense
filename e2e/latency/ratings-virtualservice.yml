@@ -2,7 +2,6 @@ apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: bookinfo-ratings
-  namespace: bookinfo
 spec:
   gateways:
   - bookinfo-gateway

@@ -1,0 +1,8 @@
+---
+# use this file to override default values from ../values.yaml
+# ./deploy.sh -f chart/use-gs.yaml
+global:
+  proxy:
+    curieconf_manifest_url: "gs://curiefense-test-s3-replacement/prod/manifest.json"
+    curiefense_bucket_type: "gs"
+

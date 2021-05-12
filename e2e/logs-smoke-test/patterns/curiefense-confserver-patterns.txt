@@ -11,7 +11,7 @@
 ^Compressing objects: .* done.
 ^Writing objects: .* done.
 ^Total \S+ \(delta \S+\), reused \S+ \(delta \S+\)
-^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "(PUT|GET|POST|DELETE) /api/v1/\S* HTTP/1.[01]" 200 .*
+^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "(PUT|GET|POST|DELETE) /api/v1/\S* HTTP/1.[01]" (200|308) .*
 ^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "GET / HTTP/1.[01]" 404 .*
 ^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "GET /favicon.ico HTTP/1.[01]" 404 .*
 ^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "GET /swaggerui/\S* HTTP/1.[01]" .*
@@ -42,7 +42,7 @@
 ^machine: x86_64
 ^clock source: unix
 ^pcre jit disabled
-^detected number of CPU cores: 4
+^detected number of CPU cores: \S+
 ^current working directory: /app
 ^detected binary path: /usr/local/bin/uwsgi
 ^your memory page size is \S+ bytes
@@ -90,7 +90,7 @@
 ^ rewrite config/.*.json \(\S+%\)
 ^To /config/confdb
 ^ \* \[new branch\]      \S+ -> \S+
-^os: Linux-\S+ \S+ \S+ PREEMPT \S+ \S+ \S+ \S+ \S+ \S+
+^os: Linux-.*
 ^\S+-\S+-\S+ \S+:\S+:\S+,\S+ INFO
 ^\S+-\S+-\S+ \S+:\S+:\S+,\S+ CRIT Server 'unix_http_server' running without any HTTP authentication checking
 ^Gracefully killing worker \S+ \(pid: \S+\)...

@@ -2,6 +2,7 @@ version: "3.7"
 services:
   curieproxy:
     container_name: curieproxy
+    hostname: curieproxy
     image: "curiefense/curieproxy-envoy:${DOCKER_TAG}"
     restart: always
     volumes:
@@ -25,6 +26,7 @@ services:
 
   confserver:
     container_name: confserver
+    hostname: confserver
     image: "curiefense/confserver:${DOCKER_TAG}"
     restart: always
     volumes:
@@ -47,6 +49,7 @@ services:
 
   curiesync:
     container_name: curiesync
+    hostname: curiesync
     image: "curiefense/curiesync:${DOCKER_TAG}"
     restart: always
     volumes:
@@ -65,6 +68,7 @@ services:
 
   curietasker:
     container_name: curietasker
+    hostname: curietasker
     image: "curiefense/curietasker:${DOCKER_TAG}"
     restart: always
     networks:
@@ -72,6 +76,7 @@ services:
 
   redis:
     container_name: redis
+    hostname: redis
     image: "curiefense/redis:${DOCKER_TAG}"
     restart: always
     volumes:
@@ -85,6 +90,7 @@ services:
 
   echo:
     container_name: echo
+    hostname: echo
     image: jmalloc/echo-server
     restart: always
     networks:
@@ -94,16 +100,18 @@ services:
 
   curielogger:
     container_name: curielogger
+    hostname: curielogger
     image: "curiefense/curielogger:${DOCKER_TAG}"
     restart: always
+    labels:
+        co.elastic.logs/enabled: true
+        co.elastic.logs/json.keys_under_root: true
+        co.elastic.logs/json.add_error_key: true
+        co.elastic.logs/ignore_decoding_error: true
     environment:
-      - CURIELOGGER_OUTPUTS_LOGSTASH_ENABLED=true
-      - CURIELOGGER_OUTPUTS_LOGSTASH_URL=http://logstash:5001/
-      - CURIELOGGER_USES_FLUENTD=0
-      - CURIELOGGER_FLUENTD_URL=http://fluentd:5001/
+      - CURIELOGGER_LOG_LEVEL=info
+      - CURIELOGGER_OUTPUTS_STDOUT_ENABLED=true
       - CURIELOGGER_METRICS_PROMETHEUS_ENABLED=true
-      - ELASTICSEARCH_URL=http://elasticsearch:9200/
-
     networks:
       - curiemesh
     ports:
@@ -112,6 +120,7 @@ services:
 
   uiserver:
     container_name: uiserver
+    hostname: uiserver
     image: "curiefense/uiserver:${DOCKER_TAG}"
     restart: always
     networks:
@@ -125,6 +134,7 @@ services:
 
   prometheus:
     container_name: prometheus
+    hostname: prometheus
     image: "curiefense/prometheus:${DOCKER_TAG}"
     restart: always
     volumes:
@@ -136,6 +146,7 @@ services:
 
   grafana:
     container_name: grafana
+    hostname: grafana
     image: "curiefense/grafana:${DOCKER_TAG}"
     restart: always
     volumes:
@@ -148,6 +159,7 @@ services:
 
   elasticsearch:
     container_name: elasticsearch
+    hostname: elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
     restart: always
     volumes:
@@ -169,6 +181,7 @@ services:
 
   kibana:
     container_name: kibana
+    hostname: kibana
     image: docker.elastic.co/kibana/kibana:7.10.1
     restart: always
     environment:
@@ -181,32 +194,33 @@ services:
     ports:
       - 5601:5601
 
-  logstash:
-    container_name: logstash
-    image: docker.elastic.co/logstash/logstash:7.10.1
-    restart: always
-    volumes:
-      - type: bind
-        source: ./logstash
-        target: /usr/share/logstash/pipeline/
-        read_only: true
-      - type: bind
-        source: ./logstash/pipelines.yml
-        target: /usr/share/logstash/config/pipelines.yml
-        read_only: true
+  filebeat:
+    container_name: filebeat
+    image: docker.elastic.co/beats/filebeat:7.10.1
+    command: >
+        bash -c "
+        for i in {1..40}; do
+            filebeat setup --strict.perms=false -v -e && break || sleep 10
+         done
+
+         filebeat --strict.perms=false -v -e"
+    user: root
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - CURIEFENSE_INDEX_NAME=curieaccesslog
+      - KIBANA_URL=http://kibana:5601
+    volumes:
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./filebeat/ilm.json:/usr/share/filebeat/ilm.json
+      - ./filebeat/template.json:/usr/share/filebeat/template.json
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - curiemesh
-    ports:
-      # http input
-      - 5001:5001
 
   # uncomment this to replace logstash with fluentd
   # fluentd:
   #   container_name: fluentd
+  #   hostname: fluentd
   #   image: "curiefense/fluentd:${DOCKER_TAG}"
   #   restart: always
   #   volumes:

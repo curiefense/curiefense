@@ -22,6 +22,8 @@ spec:
       containers:
       - name: logstash
         env:
+        - name: ELASTICSEARCH_URL
+          value: "{{ .Values.global.settings.curiefense_es_hosts }}"
         - name: CURIEFENSE_ES_INDEX_NAME
           value: {{ .Values.global.settings.curiefense_es_index_name }}
         image: docker.elastic.co/logstash/logstash:7.10.1

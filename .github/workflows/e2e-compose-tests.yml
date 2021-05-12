@@ -48,6 +48,10 @@ jobs:
             pytest --log-level INFO --base-protected-url http://$IP:30081 --base-conf-url http://$IP:30000/api/v1/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --junit-xml pytest.xml .
             popd
 
+
+      - name: Dump compose logs
+        if: ${{ failure() }}
+        run: |
             # Print logs from all services for debug
             # purposes.
             pushd deploy/compose
