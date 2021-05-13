@@ -5,6 +5,7 @@
     <div class="dropdown-trigger">
       <input v-model="autocompleteValue"
              :title="title"
+             :placeholder="title"
              type="text"
              class="autocomplete-input input is-small"
              aria-haspopup="true"
