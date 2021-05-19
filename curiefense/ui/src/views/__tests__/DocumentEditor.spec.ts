@@ -463,6 +463,28 @@ describe('DocumentEditor.vue', () => {
           'author': 'Curiefense API',
         },
       ],
+      [
+        {
+          'version': '93c180513fe7edeaf1c0ca69a67aa2a11374da4f',
+          'date': '2020-11-10T15:47:59+02:00',
+          'parents': [
+            '1662043d2a18d6ad2c9c94d6f826593ff5506354',
+          ],
+          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'email': 'curiefense@reblaze.com',
+          'author': 'Curiefense API',
+        },
+        {
+          'version': '1662043d2a18d6ad2c9c94d6f826593ff5506354',
+          'date': '2020-11-08T21:31:41+01:00',
+          'parents': [
+            '16379cdf39501574b4a2f5a227b82a4454884b84',
+          ],
+          'message': 'Create config [master]\n',
+          'email': 'curiefense@reblaze.com',
+          'author': 'Curiefense API',
+        },
+      ],
     ]
     aclGitOldVersion = [
       {
@@ -683,8 +705,14 @@ describe('DocumentEditor.vue', () => {
       if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
         return Promise.resolve({data: aclGitOldVersion})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/${docID}/v/`) {
+      if (path === `/conf/api/v1/configs/master/d/aclpolicies/e/__default__/v/`) {
         return Promise.resolve({data: aclDocsLogs[0]})
+      }
+      if (path === `/conf/api/v1/configs/zzz_branch/d/aclpolicies/e/__default__/v/`) {
+        return Promise.resolve({data: aclDocsLogs[1]})
+      }
+      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/5828321c37e0/v/`) {
+        return Promise.resolve({data: aclDocsLogs[1]})
       }
       if (path === `/conf/api/v1/configs/${branch}/d/tagrules/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
@@ -774,9 +802,10 @@ describe('DocumentEditor.vue', () => {
     jest.clearAllMocks()
   })
 
-  test('should have a git history component', () => {
+  test('should have a git history component with correct data', () => {
     const gitHistory = wrapper.findComponent(GitHistory)
     expect(gitHistory).toBeTruthy()
+    expect((gitHistory.vm as any).gitLog).toEqual(aclDocsLogs[0])
   })
 
   test('should send API request to restore to the correct version', async () => {
@@ -986,6 +1015,53 @@ describe('DocumentEditor.vue', () => {
         const docSelection = wrapper.find('.doc-selection')
         expect((docSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         done()
+      })
+    })
+
+    describe('git history when route changes', () => {
+      test('should load correct git history when branch changes', (done) => {
+        mockRoute.params = {
+          branch: 'zzz_branch',
+          doc_type: 'aclpolicies',
+          doc_id: '__default__',
+        }
+        // allow all requests to finish
+        setImmediate(() => {
+          const gitHistory = wrapper.findComponent(GitHistory)
+          expect(gitHistory).toBeTruthy()
+          expect((gitHistory.vm as any).gitLog).toEqual(aclDocsLogs[1])
+          done()
+        })
+      })
+
+      test('should load correct git history when document type changes', (done) => {
+        mockRoute.params = {
+          branch: 'master',
+          doc_type: 'urlmaps',
+          doc_id: '__default__',
+        }
+        // allow all requests to finish
+        setImmediate(() => {
+          const gitHistory = wrapper.findComponent(GitHistory)
+          expect(gitHistory).toBeTruthy()
+          expect((gitHistory.vm as any).gitLog).toEqual(urlMapsDocsLogs[0])
+          done()
+        })
+      })
+
+      test('should load correct git history when document id changes', (done) => {
+        mockRoute.params = {
+          branch: 'master',
+          doc_type: 'aclpolicies',
+          doc_id: '5828321c37e0',
+        }
+        // allow all requests to finish
+        setImmediate(() => {
+          const gitHistory = wrapper.findComponent(GitHistory)
+          expect(gitHistory).toBeTruthy()
+          expect((gitHistory.vm as any).gitLog).toEqual(aclDocsLogs[1])
+          done()
+        })
       })
     })
   })
@@ -1424,7 +1500,8 @@ describe('DocumentEditor.vue', () => {
         },
       })
       await Vue.nextTick()
-      const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {})
+      const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
+      })
       // force update because downloadFile is mocked after it is read to to be used as event handler
       await (wrapper.vm as any).$forceUpdate()
       await Vue.nextTick()
@@ -1438,7 +1515,8 @@ describe('DocumentEditor.vue', () => {
       const wantedFileName = 'aclpolicies'
       const wantedFileType = 'json'
       const wantedFileData = aclDocs
-      const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {})
+      const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
+      })
       // force update because downloadFile is mocked after it is read to to be used as event handler
       await (wrapper.vm as any).$forceUpdate()
       await Vue.nextTick()
