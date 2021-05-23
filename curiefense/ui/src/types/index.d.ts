@@ -188,14 +188,14 @@ declare module CuriefenseClient {
   type Branch = {
     id: string
     description: string
-    date: string
+    date: string // ISO string
     logs: Commit[]
     version: string
   }
 
   type Commit = {
     version: string
-    date: string
+    date: string // ISO string
     parents: string[]
     message: string
     email: string

@@ -63,7 +63,7 @@
                   :key="commit.version"
                   :class="getVersionRowClass(commit.version)">
                 <td class="is-size-7">
-                  {{ commit.date }} {{ commit.version }}
+                  {{ formatDate(commit.date) }} {{ commit.version }}
                   <br/>
                   {{ commit.message }}
                   <br/>
@@ -137,6 +137,7 @@ import Vue from 'vue'
 import {Branch, Commit} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
+import DateTimeUtils from '@/assets/DateTimeUtils'
 
 export default Vue.extend({
   name: 'Publish',
@@ -188,6 +189,10 @@ export default Vue.extend({
     selectCommit(commit: Commit) {
       this.selectedCommit = commit.version
       this.publishMode = false
+    },
+
+    formatDate(date: string) {
+      return DateTimeUtils.isoToNowFullCuriefenseFormat(date)
     },
 
     getVersionRowClass(version: string) {

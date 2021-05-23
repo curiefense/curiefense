@@ -45,11 +45,11 @@ popd || exit
 PARAMS=()
 
 if [ -n "$USE_FLUENTD" ]; then
-    PARAMS+=("-f" "curiefense/use-es-fluentd.yaml")
+    PARAMS+=("-f" "use-es-fluentd.yaml")
 fi
 
 pushd deploy/curiefense-helm || exit
-./deploy.sh -f curiefense/use-local-bucket.yaml -f curiefense/e2e-ci.yaml "${PARAMS[@]}" "$@"
+./deploy.sh -f use-local-bucket.yaml -f e2e-ci.yaml "${PARAMS[@]}" "$@"
 
 # Expose services
 # No need to pass the namespace as it's already

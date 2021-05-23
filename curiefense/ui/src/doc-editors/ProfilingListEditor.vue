@@ -114,7 +114,10 @@
                   </button>
                 </div>
               </div>
-              <p class="help">updated @ {{ localDoc.mdate }}</p>
+              <p class="help"
+                 :title="fullFormattedModifiedDate">
+                updated @ {{ formattedModifiedDate }}
+              </p>
             </div>
 
           </div>
@@ -140,6 +143,7 @@ import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import Vue from 'vue'
 import {Category, Relation, TagRule, TagRuleSection, TagRuleSectionEntry} from '@/types'
 import {AxiosResponse} from 'axios'
+import DateTimeUtils from '@/assets/DateTimeUtils'
 
 export default Vue.extend({
   name: 'ProfilingListEditor',
@@ -198,6 +202,14 @@ export default Vue.extend({
         })
       }
       return totalEntries
+    },
+
+    formattedModifiedDate(): string {
+      return DateTimeUtils.isoToNowCuriefenseFormat(this.localDoc?.mdate)
+    },
+
+    fullFormattedModifiedDate(): string {
+      return DateTimeUtils.isoToNowFullCuriefenseFormat(this.localDoc?.mdate)
     },
 
   },
