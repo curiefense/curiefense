@@ -1,16 +1,16 @@
 package entities
 
 type RXTimer struct {
-	FirstUpstreamByte float64 `json:"firstupstreambyte"`
-	LastUpstreamByte  float64 `json:"lastupstreambyte"`
+	FirstUpstreamByte float64 `json:"firstupstreambyte,string"`
+	LastUpstreamByte  float64 `json:"lastupstreambyte,string"`
 	LastByte          float64 `json:"lastbyte"`
 }
 
 type TXTimer struct {
-	FirstUpstreamByte   float64 `json:"firstupstreambyte"`
-	LastUpstreamByte    float64 `json:"lastupstreambyte"`
-	FirstDownstreamByte float64 `json:"firstdownstreambyte"`
-	LastDownstreamByte  float64 `json:"lastdownstreambyte"`
+	FirstUpstreamByte   float64 `json:"firstupstreambyte,string"`
+	LastUpstreamByte    float64 `json:"lastupstreambyte,string"`
+	FirstDownstreamByte float64 `json:"firstdownstreambyte,string"`
+	LastDownstreamByte  float64 `json:"lastdownstreambyte,string"`
 }
 
 type Downstream struct {
