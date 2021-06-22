@@ -3,7 +3,7 @@ module(..., package.seeall)
 
 local utils       = require "lua.utils"
 
-local iptools     = require "iptools"
+local curiefense     = require "curiefense"
 
 local cjson       = require "cjson"
 local json_safe   = require "cjson.safe"
@@ -50,8 +50,8 @@ function gen_section_dict(section)
         [ "pairs" ]            = defaultdict(dict),
         [ "negate_pairs" ]     = defaultdict(dict),
 
-        [ "iprange" ]          = iptools.new_ip_set(),
-        [ "negate_iprange" ]   = iptools.new_ip_set(),
+        [ "iprange" ]          = curiefense.new_ip_set(),
+        [ "negate_iprange" ]   = curiefense.new_ip_set(),
     }
 
     for _, entry in ipairs(section["entries"]) do

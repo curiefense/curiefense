@@ -82,3 +82,13 @@ function build_key(request_map, key_set, entry_id, entry_name)
     return hashkey(key)
 
 end
+
+
+function match_tags (tags, request_map)
+    local request_map_tags = request_map.attrs.tags
+    for _, tag in ipairs(tags) do
+        if request_map_tags[tag] then
+            return true
+        end
+    end
+end

@@ -4,14 +4,14 @@ local cjson       = require "cjson"
 local json_safe   = require "cjson.safe"
 local socket      = require "socket"
 local lfs         = require "lfs"
-local iptools     = require "iptools"
+local curiefense  = require "curiefense"
 local luahs       = require "luahs"
 local preplists   = require "lua.preplists"
 
 local gen_list_entries  = preplists.gen_list_entries
 local json_decode       = json_safe.decode
 
-local test_regex = iptools.test_regex
+local test_regex = curiefense.test_regex
 
 -- global datasets
 
@@ -19,12 +19,13 @@ URLMap          = nil
 ACLProfiles     = nil
 WAFProfiles     = nil
 WAFSignatures   = nil
--- WAFRustSignatures   = iptools.new_sig_set()
+-- WAFRustSignatures   = curiefense.new_sig_set()
 -- hyperscan
 WAFHScanDB      = nil
 WAFHScanScratch = nil
 ProfilingLists  = nil
 LimitRules      = nil
+FlowControl     = nil
 
 
 MaxMindCountry  = nil
@@ -90,6 +91,26 @@ function load_and_reconstruct(handle, path)
     for _, entry in ipairs(json_map) do
         -- -- handle:logDebug(string.format("loading %s from %s", entry.id, path))
         store[entry.id] = entry
+    end
+
+    return store
+end
+
+function load_and_reconstruct_flow(handle, path)
+    -- -- handle:logInfo(string.format("loading %s", path))
+    local store = {}
+    local json_map = direct_load(handle, path)
+
+    for _, entry in ipairs(json_map) do
+        if entry.active then
+            entry.sequence_keys = {}
+            for _, sequence_entry in ipairs(entry.sequence) do
+                local entry_key = string.format("%s%s%s", sequence_entry.method, sequence_entry.headers.host, sequence_entry.uri)
+                sequence_entry["key"] = entry_key
+                entry.sequence_keys[entry_key] = 1
+            end
+            table.insert(store, entry)
+        end
     end
 
     return store
@@ -191,6 +212,7 @@ local dl  = direct_load
 local lr  = load_and_reconstruct
 local lra = load_and_reconstruct_acl
 local lrw = load_and_reconstruct_waf
+local lrf = load_and_reconstruct_flow
 local lrt = load_and_reconstruct_taglist
 
 function reload(handle)
@@ -229,6 +251,7 @@ function maybe_reload(handle)
     if lfs.attributes("/config/current").change > last_reload_time then
         last_reload_time = curtime
         ProfilingLists  = lrt(handle, "/config/current/config/json/profiling-lists.json")
+        FlowControl     = lrf(handle, "/config/current/config/json/flow-control.json")
         LimitRules      = lr(handle,  "/config/current/config/json/limits.json")
         ACLProfiles     = lra(handle, "/config/current/config/json/acl-profiles.json")
         WAFProfiles     = lrw(handle, "/config/current/config/json/waf-profiles.json")

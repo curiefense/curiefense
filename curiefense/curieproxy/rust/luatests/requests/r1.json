@@ -1,0 +1,35 @@
+{
+  "geo": {
+    "location": {},
+    "country": {},
+    "city": {},
+    "continent": {}
+  },
+  "cookies": {},
+  "args": {
+    "deny": "1",
+    "b": "2",
+    "c": "3"
+  },
+  "attrs": {
+    "ipnum": 2886926337,
+    "xff_trusted_hops": 1,
+    "session_sequence_key": "GETlocalhost:30081\/direct\/",
+    "path": "\/direct\/",
+    "method": "GET",
+    "ip": "172.19.0.1",
+    "query": "deny=1&b=2&c=3",
+    "tags": {},
+    "authority": "localhost:30081",
+    "uri": "\/direct\/?deny=1&b=2&c=3"
+  },
+  "headers": {
+    "x-request-id": "90888dfa-aef6-4345-9558-012b9a3a24f5",
+    "x-forwarded-for": "172.19.0.1",
+    "lol": "boa",
+    "accept": "*\/*",
+    "x-envoy-internal": "true",
+    "x-forwarded-proto": "http",
+    "user-agent": "curl\/7.68.0"
+  }
+}

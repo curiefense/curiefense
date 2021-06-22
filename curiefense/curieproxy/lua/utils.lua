@@ -1,6 +1,5 @@
 module(..., package.seeall)
 
-local os        = require "os"
 local cjson     = require "cjson"
 local json_safe = require "cjson.safe"
 local rex       = require "rex_pcre2"
@@ -9,7 +8,7 @@ local resty_md5 = require "resty.md5"
 local maxmind   = require "lua.maxmind"
 local globals   = require "lua.globals"
 local accesslog = require "lua.accesslog"
-local iptools   =  require "iptools"
+local curiefense   =  require "curiefense"
 
 local find      = string.find
 local gsub      = string.gsub
@@ -22,18 +21,16 @@ local gmatch    = string.gmatch
 local concat    = table.concat
 local insert    = table.insert
 
-local iptonum = iptools.iptonum
+local iptonum = curiefense.iptonum
 
 local ipinfo    = maxmind.ipinfo
 
 local json_decode   = json_safe.decode
 local json_encode   = json_safe.encode
-local log_request   = accesslog.log_request
+local log_request   = accesslog.envoy_log_request
 
-local iptools       = require "iptools"
-
-local urldecode     = iptools.decodeurl
-local urlencode     = iptools.encodeurl
+local urldecode     = curiefense.decodeurl
+local urlencode     = curiefense.encodeurl
 
 nobody = rex.new("(GET|DELETE|TRACE|OPTIONS|HEAD)")
 isipv4 = rex.new("(\\d{1,3}\\.){3}\\d{1,3}")
@@ -85,8 +82,13 @@ function map_cookies(cookiestr, map)
     end
 end
 
-function map_args(map)
+function map_args(handle, map)
     local _uri = urldecode(map.attrs.path)
+
+    if not _uri then
+        handle:logErr("Could not decode uri as a string: " .. map.attrs.path)
+        _uri = map.attrs.path
+    end
 
     -- query
     if _uri:find("?") then
@@ -120,6 +122,7 @@ function map_metadata(metadata, map)
     for key, value in pairs(metadata) do
         map.attrs[key] = value
     end
+
 end
 
 
@@ -133,41 +136,42 @@ function detectip(xff, hops)
 end
 
 
-function map_ip(headers, metadata, map)
+function extract_ip(headers, metadata)
     local client_addr = "1.1.1.1"
     local xff = headers:get("x-forwarded-for")
-    
-    local hops = os.getenv("XFF_TRUSTED_HOPS")
-    if not hops then
-        hops = metadata:get("xff_trusted_hops") or "1"
-    end
-    
+    local hops = metadata:get("xff_trusted_hops") or "1"
+
     hops = tonumber(hops)
     local addrs = map_fn(xff:split(","), trim)
 
     client_addr = detectip(addrs, hops) or client_addr
 
-    -- if #addrs == 1 then
-    --     client_addr = addrs[1]
-    -- elseif #addrs < hops then
-    --     client_addr = addrs[#addrs]
-    -- else
-    --     client_addr = addrs[#addrs-hops]
-    -- end
+    return client_addr
+end
+
+function map_ip(client_addr, map)
+    map = get_geo_info(map, client_addr)
+    return map
+end
+
+
+function get_geo_info(map, client_addr)
 
     map.attrs.ip = client_addr
-    map.attrs.remote_addr = client_addr
+    -- map.attrs.remote_addr = client_addr
     map.attrs.ipnum = ip_to_num(client_addr)
 
-    local city, country, iso, asn, company = unpack(ipinfo(client_addr, map.handle))
+    local city, country, iso, asn, company = unpack(ipinfo(client_addr))
 
-    map.geo.city = {}
-    map.geo.country = {}
-    map.geo.location = {}
-    map.geo.continent = {}
+    map.geo = {
+        city      = {},
+        country   = {},
+        location  = {},
+        continent = {}
+    }
 
     if city then
-        map.geo.city.name = (city.city and city.city.names.en) or "-"
+        map.geo.city.name = (city.city and city.city ~= cjson.null and city.city.names.en) or "-"
 
         -- Use lat and lon to match the key names
         -- expected by Elasticsearch's geo_ip field type
@@ -191,6 +195,8 @@ function map_ip(headers, metadata, map)
         map.geo.company = company
     end
 
+    return map
+
 end
 
 function tagify(input)
@@ -212,6 +218,23 @@ function tag_request(r_map, tags)
     end
 end
 
+
+function build_request_map(headers, metadata, map, handle, client_addr)
+    map_headers(headers, map)
+    map_metadata(metadata, map)
+    map_ip(client_addr, map)
+    map_args(handle, map)
+
+    map.attrs.session_sequence_key = string.format(
+        "%s%s%s",
+        map.attrs.method,
+        map.headers.host or map.attrs.authority,
+        map.attrs.path
+    )
+
+    return map
+end
+
 function map_request(handle)
     local headers = handle:headers()
     local metadata = handle:metadata()
@@ -219,12 +242,8 @@ function map_request(handle)
 
     map.handle = handle
 
-    map_headers(headers, map)
-    map_metadata(metadata, map)
-    map_ip(headers, metadata, map)
-    map_args(map)
-
-    return map
+    local client_addr = extract_ip(headers, metadata)
+    return build_request_map(headers, metadata, map, handle, client_addr)
 end
 
 
@@ -520,38 +539,4 @@ function md5(input)
     local digest = _md5:final()
 
     return digest:tohex()
-end
-
-function custom_response(request_map, action_params)
-    if not action_params then action_params = {} end
-    local block_mode = action_params.block_mode
-    -- if not block_mode then block_mode = true end
-
-    local handle = request_map.handle
-    -- handle:logDebug(string.format("custom_response - action_params %s, block_mode %s", json_encode(action_params), block_mode))
-
-    local response = {
-        [ "status" ] = "403",
-        [ "headers"] = { ["x-curiefense"] = "response" },
-        [ "reason" ] = { initiator = "undefined", reason = "undefined"},
-        [ "content"] = "curiefense - request denied"
-    }
-
-    -- override defaults
-    if action_params["status" ] then response["status" ] = action_params["status" ] end
-    if action_params["headers"] then response["headers"] = action_params["headers"] end
-    if action_params["reason" ] then response["reason" ] = action_params["reason" ] end
-    if action_params["content"] then response["content"] = action_params["content"] end
-
-    response["headers"][":status"] = response["status"]
-
-    request_map.attrs.blocked = true
-    request_map.attrs.block_reason = response["reason"]
-
-
-    if block_mode then
-        log_request(request_map)
-        request_map.handle:respond( response["headers"], response["content"])
-    end
-
 end

@@ -35,10 +35,10 @@ local format = string.format
 local match = string.match
 local gmatch = string.gmatch
 
-local iptools       = require "iptools"
+local curiefense       = require "curiefense"
 
-local urldecode     = iptools.decodeurl
-local urlencode     = iptools.encodeurl
+local urldecode     = curiefense.decodeurl
+local urlencode     = curiefense.encodeurl
 
 -- local function urldecode(str)
 --   str = gsub(str, '+', ' ')

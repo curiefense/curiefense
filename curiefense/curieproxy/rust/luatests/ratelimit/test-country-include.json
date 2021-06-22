@@ -1,0 +1,42 @@
+[
+  {
+    "headers": {
+      "x-forwarded-for": "199.0.0.1",
+      ":method": "GET",
+      ":path": "/scope-country-include/included",
+      ":authority": "localhost:30081"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "199.0.0.1",
+      ":method": "GET",
+      ":path": "/scope-country-include/included",
+      ":authority": "localhost:30081"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "199.0.0.1",
+      ":method": "GET",
+      ":path": "/scope-country-include/included",
+      ":authority": "localhost:30081"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "199.0.0.1",
+      ":method": "GET",
+      ":path": "/scope-country-include/included",
+      ":authority": "localhost:30081"
+    },
+    "delay": 0,
+    "pass": false
+  }
+]

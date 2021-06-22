@@ -1,0 +1,57 @@
+[package]
+name = "curiefense"
+version = "0.1.0"
+authors = ["simon <simon@banquise.net>"]
+edition = "2018"
+
+[lib]
+crate-type = ["lib"]
+bench = false
+
+[dependencies]
+log = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1.0"
+lazy_static = "*"
+itertools = "0.10"
+maxminddb = "0.13"
+http = "0.2"
+urlencoding = "1.1"
+regex = "1"
+ipnet = "2.3.0"
+iprange = "0.6.3"
+anyhow = "1.0"
+redis = "0.20"
+r2d2_redis = "0.14.0"
+md5 = "0.7"
+libinjection = "0.2"
+uuid = { version = "0.8", features = ["serde", "v4"] }
+multipart = "0.17.1"
+xmlparser = "0.13.3"
+
+# iptools dependencies
+rand = "0.8.3"
+cidr = "0.1.1"
+
+[dependencies.hyperscan]
+version = "0.2"
+default-features = false
+features = ["full"]
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "body_parse"
+path = "benches/body_parse.rs"
+harness = false
+
+[[bench]]
+name = "url_maps"
+path = "benches/url_maps.rs"
+harness = false
+
+[[bench]]
+name = "check_acl"
+path = "benches/check_acl.rs"
+harness = false

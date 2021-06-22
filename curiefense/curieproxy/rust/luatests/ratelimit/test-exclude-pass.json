@@ -1,0 +1,60 @@
+[
+  {
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/limits/exclude",
+      "foo": "bar",
+      ":authority": "localhost:30081"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/limits/exclude",
+      ":authority": "localhost:30081"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/limits/exclude",
+      "foo": "bar",
+      ":authority": "localhost:30081"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/limits/exclude",
+      ":authority": "localhost:30081"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/limits/exclude",
+      "foo": "bar",
+      ":authority": "localhost:30081"
+    },
+    "delay": 0,
+    "pass": true
+  }
+]

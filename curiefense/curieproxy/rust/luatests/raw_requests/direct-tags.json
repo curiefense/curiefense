@@ -1,0 +1,1406 @@
+[
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&allowbot=allowbot&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + allowbot + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&allowbot=allowbot&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + allowbot + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&allowbot=allowbot&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + allowbot + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&allowbot=allowbot&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + allowbot + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&deny=deny&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + deny + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&deny=deny&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + deny + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&deny=deny&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + deny + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&deny=deny&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + deny + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&denybot=denybot&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + denybot + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&denybot=denybot&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + denybot + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&denybot=denybot&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + denybot + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&denybot=denybot&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + denybot + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&forcedeny=forcedeny&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + forcedeny + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&forcedeny=forcedeny&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + forcedeny + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&forcedeny=forcedeny&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + forcedeny + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&forcedeny=forcedeny&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + forcedeny + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&bypass=bypass&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + bypass + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&bypass=bypass&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + bypass + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&bypass=bypass&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + bypass + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allow=allow&bypass=bypass&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allow + bypass + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&allow=allow&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + allow + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&allow=allow&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + allow + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&allow=allow&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + allow + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&allow=allow&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + allow + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&deny=deny&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + deny + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&deny=deny&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + deny + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&deny=deny&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + deny + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&deny=deny&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + deny + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&denybot=denybot&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + denybot + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&denybot=denybot&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + denybot + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&denybot=denybot&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + denybot + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&denybot=denybot&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + denybot + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&forcedeny=forcedeny&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + forcedeny + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&forcedeny=forcedeny&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + forcedeny + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&forcedeny=forcedeny&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + forcedeny + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&forcedeny=forcedeny&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + forcedeny + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&bypass=bypass&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + bypass + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&bypass=bypass&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + bypass + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&bypass=bypass&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + bypass + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?allowbot=allowbot&bypass=bypass&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "allowbot + bypass + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&allow=allow&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + allow + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&allow=allow&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + allow + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&allow=allow&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + allow + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&allow=allow&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + allow + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&allowbot=allowbot&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + allowbot + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&allowbot=allowbot&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + allowbot + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&allowbot=allowbot&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + allowbot + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&allowbot=allowbot&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + allowbot + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&denybot=denybot&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + denybot + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&denybot=denybot&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + denybot + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&denybot=denybot&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + denybot + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&denybot=denybot&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + denybot + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&forcedeny=forcedeny&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + forcedeny + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&forcedeny=forcedeny&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + forcedeny + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&forcedeny=forcedeny&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + forcedeny + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&forcedeny=forcedeny&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + forcedeny + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&bypass=bypass&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + bypass + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&bypass=bypass&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + bypass + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&bypass=bypass&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + bypass + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?deny=deny&bypass=bypass&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "deny + bypass + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&allow=allow&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + allow + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&allow=allow&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + allow + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&allow=allow&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + allow + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&allow=allow&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + allow + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&allowbot=allowbot&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + allowbot + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&allowbot=allowbot&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + allowbot + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&allowbot=allowbot&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + allowbot + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&allowbot=allowbot&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + allowbot + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&deny=deny&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + deny + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&deny=deny&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + deny + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&deny=deny&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + deny + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&deny=deny&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + deny + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&forcedeny=forcedeny&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + forcedeny + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&forcedeny=forcedeny&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + forcedeny + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&forcedeny=forcedeny&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + forcedeny + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&forcedeny=forcedeny&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + forcedeny + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&bypass=bypass&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + bypass + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&bypass=bypass&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + bypass + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&bypass=bypass&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + bypass + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?denybot=denybot&bypass=bypass&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "denybot + bypass + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&allow=allow&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + allow + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&allow=allow&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + allow + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&allow=allow&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + allow + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&allow=allow&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + allow + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&allowbot=allowbot&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + allowbot + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&allowbot=allowbot&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + allowbot + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&allowbot=allowbot&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + allowbot + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&allowbot=allowbot&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + allowbot + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&deny=deny&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + deny + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&deny=deny&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + deny + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&deny=deny&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + deny + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&deny=deny&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + deny + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&denybot=denybot&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + denybot + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&denybot=denybot&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + denybot + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&denybot=denybot&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + denybot + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&denybot=denybot&=bypass=bypass",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + denybot + bypass"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&bypass=bypass&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + bypass + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&bypass=bypass&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + bypass + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&bypass=bypass&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + bypass + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?forcedeny=forcedeny&bypass=bypass&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "forcedeny + bypass + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&allow=allow&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + allow + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&allow=allow&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + allow + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&allow=allow&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + allow + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&allow=allow&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + allow + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&allowbot=allowbot&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + allowbot + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&allowbot=allowbot&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + allowbot + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&allowbot=allowbot&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + allowbot + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&allowbot=allowbot&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + allowbot + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&deny=deny&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + deny + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&deny=deny&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + deny + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&deny=deny&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + deny + denybot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&deny=deny&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + deny + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&denybot=denybot&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + denybot + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&denybot=denybot&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + denybot + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&denybot=denybot&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + denybot + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&denybot=denybot&=forcedeny=forcedeny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + denybot + forcedeny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&forcedeny=forcedeny&=allow=allow",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + forcedeny + allow"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&forcedeny=forcedeny&=allowbot=allowbot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + forcedeny + allowbot"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&forcedeny=forcedeny&=deny=deny",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + forcedeny + deny"
+   },
+   {
+      "headers" : {
+         ":authority" : "localhost:30081",
+         ":method" : "GET",
+         ":path" : "/direct?bypass=bypass&forcedeny=forcedeny&=denybot=denybot",
+         "x-forwarded-for" : "23.129.64.253"
+      },
+      "name" : "bypass + forcedeny + denybot"
+   }
+]

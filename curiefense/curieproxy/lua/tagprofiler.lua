@@ -226,6 +226,9 @@ function tag_lists(request_map)
     local list_eval = eval_list(request_map, list)
     if list_eval then
       tag_request(request_map, list.tags)
+      if list.action and list.action ~= 'monitor' then
+        custom_response(request_map, list.action)
+      end
     end
   end
 end
