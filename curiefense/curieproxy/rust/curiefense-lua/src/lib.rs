@@ -282,12 +282,19 @@ mod tests {
     fn config_load() {
         let mut logs = Logs::default();
         let cfg = with_config("../../config", &mut logs, |_, c| c.clone());
-        for r in logs.logs.iter() {
-            println!("{}", r.to_string());
-        }
         assert!(cfg.is_some());
-        assert!(logs.logs.len() == 2);
-        assert!(logs.logs[0].message.to_string().contains("profiling-lists.json"));
-        assert!(logs.logs[1].message.to_string().contains("rbz-cloud-platforms"));
+        match logs.logs.len() {
+            3 => {
+                assert!(logs.logs[0].message.to_string().contains("CFGLOAD"));
+                assert!(logs.logs[1].message.to_string().contains("profiling-lists.json"));
+                assert!(logs.logs[2].message.to_string().contains("rbz-cloud-platforms"));
+            },
+            n => {
+                for r in logs.logs.iter() {
+                    println!("{}", r.to_string());
+                }
+                panic!("Invalid amount of logs: {}", n);
+            }
+        }
     }
 }
