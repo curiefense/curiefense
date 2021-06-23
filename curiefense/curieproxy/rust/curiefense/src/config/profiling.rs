@@ -127,12 +127,15 @@ pub fn optimize_ipranges(rel: Relation, unoptimized: Vec<ProfilingEntry>) -> Vec
         out
     }
     fn intersection<N: iprange::IpNet>(elems: Vec<N>) -> IpRange<N> {
-        // this is a bit convoluter but the first element of the fold must be
+        // this is a bit convoluted but the first element of the fold must be
         // an element that is to be intersected, and not the empty set (as it
         // would always return the empty set)
         let mut i = elems.into_iter();
         match i.next() {
-            None => panic!("invariant violated, elems is empty!"),
+            None => {
+                println!("invariant violated, elems is empty! Please report this.");
+                IpRange::default()
+            },
             Some(first) => i
                 .map(torange)
                 .fold(torange(first), |currange, p| currange.intersect(&p)),
