@@ -274,5 +274,182 @@
             }
          ]
       }
+   },
+   {
+      "action": {
+         "type": "challenge"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "action_challenge",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "action challenge",
+      "notes": "...",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "args",
+                     [
+                        "challenge",
+                        ".*"
+                     ],
+                     "challenge"
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "actionchallenge"
+      ]
+   },
+   {
+      "action": {
+         "params": {
+            "content": "lol",
+            "status": "123"
+         },
+         "type": "response"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "action_response",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "action response",
+      "notes": "...",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "args",
+                     [
+                        "response",
+                        ".*"
+                     ],
+                     "response"
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "actionresponse"
+      ]
+   },
+   {
+      "action": {
+         "type": "default"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "action_default",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "action default",
+      "notes": "...",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "args",
+                     [
+                        "default",
+                        ".*"
+                     ],
+                     "default"
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "actiondefault"
+      ]
+   },
+   {
+      "action": {
+         "params": {
+            "location": "http://www.google.com",
+            "status": "123"
+         },
+         "type": "redirect"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "action_redirect",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "action redirect",
+      "notes": "...",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "args",
+                     [
+                        "redirect",
+                        ".*"
+                     ],
+                     "redirect"
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "actionredirect"
+      ]
+   },
+   {
+      "action": {
+         "params": {
+            "content": "content",
+            "status": "123"
+         },
+         "type": "response"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "action_response",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "action response",
+      "notes": "...",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "args",
+                     [
+                        "response",
+                        ".*"
+                     ],
+                     "response"
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "actionresponse"
+      ]
    }
 ]

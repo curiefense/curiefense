@@ -17,6 +17,9 @@ local waf = require "lua.waf"
 local utils = require "lua.utils"
 local socket = require "socket"
 
+local nativeutils = require "nativeutils"
+local startswith = nativeutils.startswith
+
 local ffi = require "ffi"
 ffi.load("crypto", true)
 
@@ -275,21 +278,78 @@ function Machin:new(content)
   return setmetatable(t, M)
 end
 
+-- test that two lists contain the same tags
+function compare_tag_list(actual, expected)
+  local m_actual = {}
+  for _, a in ipairs(actual) do
+    if not startswith(a, "container:") then
+      m_actual[a] = 1
+    end
+  end
+  for _, e in ipairs(expected) do
+    if not startswith(e, "container:") and not m_actual[e] then
+      error("Missing expected tag: " .. e)
+    end
+    m_actual[e] = nil
+  end
+  local good = true
+  for a, _ in pairs(m_actual) do
+    print(a)
+    good = false
+  end
+  if not good then
+    error("^ extra tags")
+  end
+end
+
 -- testing from envoy metadata
 function test_raw_request(request_path)
   print("Testing " .. request_path)
   local raw_request_maps = load_json_file(request_path)
   for _, raw_request_map in pairs(raw_request_maps) do
-    local handle = FakeHandle
-    function handle.headers()
-      return Machin:new(raw_request_map.headers)
+    local meta = {}
+    local headers = {}
+    for k, v in pairs(raw_request_map.headers) do
+      if startswith(k, ":") then
+          meta[k:sub(2):lower()] = v
+      else
+          headers[k] = v
+      end
     end
-    function handle.metadata()
-      return Machin:new({xff_trusted_hops=1})
+    local ip = "1.2.3.4"
+    if raw_request_map.ip then
+      ip = raw_request_map.ip
+    elseif headers["x-forwarded-for"] then
+      ip = headers["x-forwarded-for"]
     end
-    local request_map = utils.map_request(handle)
-    local result = test_request_map(raw_request_map.name, request_map)
-    print(" -> " .. raw_request_map.name .. " " .. result)
+
+    local response, merr = curiefense.inspect_request(meta, headers, raw_request_map.body, ip, nil)
+    if merr then
+      error(merr)
+    end
+    local r = cjson.decode(response)
+
+    compare_tag_list(r.request_map.tags, raw_request_map.response.tags)
+    local good = true
+    if r.action ~= raw_request_map.response.action then
+      good = false
+    end
+    if r.response ~= cjson.null then
+      if r.response.status ~= raw_request_map.response.status then
+        good = false
+      end
+      if r.response.block_mode ~= raw_request_map.response.block_mode then
+        good = false
+      end
+    end
+
+    if not good then
+      print("Tags")
+      print("Got response: " .. response)
+      print("Expected parts: " .. cjson.encode(r.response))
+      error("mismatch")
+    end
+   
   end
 end
 
