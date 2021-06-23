@@ -217,9 +217,11 @@ pub fn session_match_urlmap(session_id: &str) -> anyhow::Result<SessionUrlMap> {
 pub fn session_tag_request(session_id: &str) -> anyhow::Result<bool> {
     let uuid: Uuid = session_id.parse()?;
 
-    let new_tags = with_config(|cfg| with_request_info(uuid, |rinfo| Ok(tag_request(&cfg, &rinfo))))?;
+    // TODO: humanity is assumed
+    let new_tags = with_config(|cfg| with_request_info(uuid, |rinfo| Ok(tag_request(true, &cfg, &rinfo))))?;
     with_tags_mut(uuid, |tgs| {
-        tgs.extend(new_tags);
+        // TODO: the decision is ignored, but this is going to be deprecated
+        tgs.extend(new_tags.0);
         Ok(())
     })?;
     Ok(true)
@@ -232,13 +234,14 @@ pub fn session_limit_check(session_id: &str) -> anyhow::Result<Decision> {
     let limits = with_urlmap(uuid, |urlmap| Ok(urlmap.limits.clone()))?;
     let mut logs = Logs::default();
 
-    with_request_info(uuid, |rinfo| {
+    let sdecision = with_request_info(uuid, |rinfo| {
         with_urlmap(uuid, |urlmap| {
             with_tags_mut(uuid, |mut tags| {
                 Ok(limit_check(&mut logs, &urlmap.name, &rinfo, &limits, &mut tags))
             })
         })
-    })
+    });
+    Ok(sdecision?.into_decision_no_challenge())
 }
 
 pub fn session_acl_check(session_id: &str) -> anyhow::Result<AclResult> {
@@ -267,11 +270,12 @@ pub fn session_waf_check(session_id: &str) -> anyhow::Result<Decision> {
 pub fn session_flow_check(session_id: &str) -> anyhow::Result<Decision> {
     let uuid: Uuid = session_id.parse()?;
 
-    with_config(|cfg| {
+    let sdecision = with_config(|cfg| {
         with_request_info(uuid, |rinfo| {
             with_tags(uuid, |tags| flow_check(&cfg.flows, rinfo, tags))
         })
-    })
+    });
+    Ok(sdecision?.into_decision_no_challenge())
 }
 // HELPERS
 

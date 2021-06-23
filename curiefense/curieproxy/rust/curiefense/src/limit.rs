@@ -2,7 +2,7 @@ use crate::logs::Logs;
 use redis::RedisResult;
 
 use crate::config::limit::Limit;
-use crate::interface::{Decision, Tags};
+use crate::interface::{SimpleActionT, SimpleDecision, Tags};
 use crate::redis::redis_conn;
 use crate::utils::{check_selector_cond, select_string, RequestInfo};
 
@@ -24,14 +24,14 @@ fn is_banned(cnx: &mut redis::Connection, key: &str) -> bool {
     q.unwrap_or(None).is_some()
 }
 
-fn limit_react(cnx: &mut redis::Connection, limit: &Limit, key: String) -> Decision {
-    if limit.action.ban {
+fn limit_react(cnx: &mut redis::Connection, limit: &Limit, key: String) -> SimpleDecision {
+    if let SimpleActionT::Ban(_) = limit.action.atype {
         let ban_key = get_ban_key(&key);
         if let Err(rr) = redis::cmd("SET").arg(ban_key).arg(1).query::<()>(cnx) {
             println!("*** Redis error {}", rr);
         }
     }
-    Decision::Action(limit.action.clone())
+    SimpleDecision::Action(limit.action.clone(), None)
 }
 
 fn redis_check_limit(
@@ -69,11 +69,11 @@ pub fn limit_check(
     reqinfo: &RequestInfo,
     limits: &[Limit],
     tags: &mut Tags,
-) -> Decision {
+) -> SimpleDecision {
     // early return to avoid redis connection
     if limits.is_empty() {
         logs.debug("no limits to check");
-        return Decision::Pass;
+        return SimpleDecision::Pass;
     }
 
     // we connect once for all limit tests
@@ -81,7 +81,7 @@ pub fn limit_check(
         Ok(c) => c,
         Err(rr) => {
             logs.error(format!("Could not connect to the redis server {}", rr));
-            return Decision::Pass;
+            return SimpleDecision::Pass;
         }
     };
 
@@ -107,7 +107,7 @@ pub fn limit_check(
         tags.insert(&limit.name);
 
         let key = match build_key(url_map_name, reqinfo, limit) {
-            None => return Decision::Pass,
+            None => return SimpleDecision::Pass,
             Some(k) => k,
         };
         logs.debug(format!("limit={:?} key={}", limit, key));
@@ -130,5 +130,5 @@ pub fn limit_check(
             Ok(false) => (),
         }
     }
-    Decision::Pass
+    SimpleDecision::Pass
 }

@@ -8,9 +8,14 @@ use serde_json::json;
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone)]
+pub enum SimpleDecision {
+    Pass,
+    Action(SimpleAction, Option<serde_json::Value>),
+}
+
+#[derive(Debug, Clone)]
 pub enum Decision {
     Pass,
-    /// pass because the Hostmap/Urlmap lacked a default entry
     Action(Action),
 }
 
@@ -42,6 +47,13 @@ impl Decision {
             "logs": logs.logs
         });
         serde_json::to_string(&j).unwrap_or_else(|_| "{}".to_string())
+    }
+
+    pub fn is_blocking(&self) -> bool {
+        match self {
+            Decision::Pass => false,
+            Decision::Action(a) => a.atype.is_blocking(),
+        }
     }
 }
 
@@ -95,6 +107,7 @@ impl Tags {
     }
 }
 
+// an action, as formatted for outside consumption
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Action {
     pub atype: ActionType,
@@ -105,6 +118,31 @@ pub struct Action {
     pub reason: serde_json::value::Value,
     pub content: String,
     pub extra_tags: Option<HashSet<String>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SimpleActionT {
+    Default,
+    Monitor,
+    Ban(Box<SimpleAction>),
+    RequestHeader(HashMap<String, String>),
+    Response(String),
+    Redirect(String),
+    Challenge,
+}
+
+// an action with its semantic meaning
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SimpleAction {
+    pub atype: SimpleActionT,
+    pub status: u32,
+    pub reason: String,
+}
+
+impl std::default::Default for SimpleActionT {
+    fn default() -> Self {
+        SimpleActionT::Default
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy, Serialize, Deserialize)]
@@ -136,51 +174,136 @@ impl std::default::Default for Action {
     }
 }
 
-impl Action {
-    pub fn resolve(rawaction: &RawAction) -> anyhow::Result<Action> {
-        let mut action = Action::default();
-        match rawaction.type_ {
-            RawActionType::Default => return Ok(action),
-            RawActionType::Monitor => action.atype = ActionType::Monitor,
-            RawActionType::Ban => {
-                action = rawaction
+impl SimpleAction {
+    pub fn from_reason(reason: String) -> Self {
+        SimpleAction {
+            atype: SimpleActionT::default(),
+            status: 403,
+            reason,
+        }
+    }
+
+    pub fn resolve(rawaction: &RawAction) -> anyhow::Result<SimpleAction> {
+        let atype = match rawaction.type_ {
+            RawActionType::Default => SimpleActionT::Default,
+            RawActionType::Monitor => SimpleActionT::Monitor,
+            RawActionType::Ban => SimpleActionT::Ban(Box::new(
+                rawaction
                     .params
                     .action
                     .as_ref()
-                    .map(|x| Action::resolve(x).ok())
+                    .map(|x| SimpleAction::resolve(x).ok())
                     .flatten()
-                    .unwrap_or_default();
-                action.ban = true;
-            }
-            RawActionType::RequestHeader => action.atype = ActionType::AlterHeaders,
-            RawActionType::Response => {
-                action.atype = ActionType::Block;
-                action.content = rawaction
+                    .unwrap_or_else(|| {
+                        SimpleAction::from_reason(rawaction.params.reason.clone().unwrap_or_else(|| "?".into()))
+                    }),
+            )),
+            RawActionType::RequestHeader => SimpleActionT::RequestHeader(HashMap::new()),
+            RawActionType::Response => SimpleActionT::Response(
+                rawaction
                     .params
                     .content
                     .clone()
-                    .unwrap_or_else(|| "default content".into());
-            }
-            // FIXME FIXME FIXME
-            RawActionType::Redirect => {
-                action.atype = ActionType::Block;
-                action.status = 500;
-                action.content = "unsupported action redirect".into();
-            }
-            RawActionType::Challenge => {
-                action.atype = ActionType::Block;
-                action.status = 500;
-                action.content = "unsupported action challenge".into();
-            }
+                    .unwrap_or_else(|| "default content".into()),
+            ),
+            RawActionType::Challenge => SimpleActionT::Challenge,
+            RawActionType::Redirect => SimpleActionT::Redirect(
+                rawaction
+                    .params
+                    .location
+                    .clone()
+                    .ok_or_else(|| anyhow::anyhow!("no location for redirect in rule {:?}", rawaction))?,
+            ),
         };
-        action.block_mode = action.atype.is_blocking();
-        if let Some(sstatus) = &rawaction.params.status {
+        let status = if let Some(sstatus) = &rawaction.params.status {
             match sstatus.parse::<u32>() {
-                Ok(s) => action.status = s,
+                Ok(s) => s,
                 Err(rr) => return Err(anyhow::anyhow!("Unparseable status: {} -> {}", sstatus, rr)),
             }
+        } else {
+            403
+        };
+        Ok(SimpleAction {
+            atype,
+            status,
+            reason: rawaction.params.reason.clone().unwrap_or_else(|| "no reason".into()),
+        })
+    }
+
+    /// returns None when it is a challenge, Some(action) otherwise
+    fn to_action(&self, is_human: bool) -> Option<Action> {
+        let mut action = Action::default();
+        match &self.atype {
+            SimpleActionT::Default => {}
+            SimpleActionT::Monitor => action.atype = ActionType::Monitor,
+            SimpleActionT::Ban(sub) => {
+                action = sub.to_action(is_human).unwrap_or_default();
+                action.ban = true;
+            }
+            SimpleActionT::RequestHeader(hdrs) => {
+                action.headers = Some(hdrs.clone());
+                action.atype = ActionType::AlterHeaders;
+            }
+            SimpleActionT::Response(content) => {
+                action.atype = ActionType::Block;
+                action.content = content.clone();
+            }
+            SimpleActionT::Challenge => {
+                if !is_human {
+                    return None;
+                }
+                action.atype = ActionType::Monitor;
+            }
+            SimpleActionT::Redirect(to) => {
+                let mut headers = HashMap::new();
+                headers.insert("Location".into(), to.clone());
+                action.atype = ActionType::Block;
+                action.headers = Some(headers);
+            }
         }
-        Ok(action)
+        action.block_mode = action.atype.is_blocking();
+        action.status = self.status;
+        Some(action)
+    }
+
+    pub fn to_decision<GH: Grasshopper>(
+        &self,
+        is_human: bool,
+        mgh: &Option<GH>,
+        headers: &RequestField,
+        reason: Option<serde_json::Value>,
+    ) -> Decision {
+        let mut action = match self.to_action(is_human) {
+            None => match (mgh, headers.get("user-agent")) {
+                (Some(gh), Some(ua)) => return challenge_phase01(gh, ua, Vec::new()),
+                _ => Action::default(),
+            },
+            Some(a) => a,
+        };
+        if let Some(r) = reason {
+            action.reason = r;
+        }
+        Decision::Action(action)
+    }
+
+    pub fn to_decision_no_challenge(&self, reason: Option<serde_json::Value>) -> Decision {
+        let mut action = match self.to_action(true) {
+            None => Action::default(),
+            Some(a) => a,
+        };
+        if let Some(r) = reason {
+            action.reason = r;
+        }
+        Decision::Action(action)
+    }
+}
+
+impl SimpleDecision {
+    pub fn into_decision_no_challenge(self) -> Decision {
+        match self {
+            SimpleDecision::Pass => Decision::Pass,
+            SimpleDecision::Action(action, reason) => action.to_decision_no_challenge(reason),
+        }
     }
 }
 

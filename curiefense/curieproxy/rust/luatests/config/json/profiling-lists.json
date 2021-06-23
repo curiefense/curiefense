@@ -382,7 +382,7 @@
       "action": {
          "params": {
             "location": "http://www.google.com",
-            "status": "123"
+            "status": "456"
          },
          "type": "redirect"
       },
@@ -413,43 +413,6 @@
       "source": "self-managed",
       "tags": [
          "actionredirect"
-      ]
-   },
-   {
-      "action": {
-         "params": {
-            "content": "content",
-            "status": "123"
-         },
-         "type": "response"
-      },
-      "active": true,
-      "entries_relation": "OR",
-      "id": "action_response",
-      "mdate": "2020-05-23T00:04:41",
-      "name": "action response",
-      "notes": "...",
-      "rule": {
-         "relation": "AND",
-         "sections": [
-            {
-               "entries": [
-                  [
-                     "args",
-                     [
-                        "response",
-                        ".*"
-                     ],
-                     "response"
-                  ]
-               ],
-               "relation": "OR"
-            }
-         ]
-      },
-      "source": "self-managed",
-      "tags": [
-         "actionresponse"
       ]
    }
 ]

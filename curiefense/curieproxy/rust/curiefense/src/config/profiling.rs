@@ -8,7 +8,7 @@ use std::net::IpAddr;
 use crate::config::raw::{
     ProfilingEntryType, RawProfilingSSection, RawProfilingSSectionEntry, RawProfilingSection, Relation,
 };
-use crate::interface::Tags;
+use crate::interface::{SimpleAction, Tags};
 use crate::logs::Logs;
 
 #[derive(Debug, Clone)]
@@ -16,6 +16,7 @@ pub struct ProfilingSection {
     pub tags: Tags,
     pub relation: Relation,
     pub sections: Vec<ProfilingSSection>,
+    pub action: Option<SimpleAction>,
 }
 
 #[derive(Debug, Clone)]
@@ -135,7 +136,7 @@ pub fn optimize_ipranges(rel: Relation, unoptimized: Vec<ProfilingEntry>) -> Vec
             None => {
                 println!("invariant violated, elems is empty! Please report this.");
                 IpRange::default()
-            },
+            }
             Some(first) => i
                 .map(torange)
                 .fold(torange(first), |currange, p| currange.intersect(&p)),
@@ -315,10 +316,15 @@ impl ProfilingSection {
                 .collect();
             let subsections: Vec<ProfilingSSection> = rsubsections
                 .with_context(|| format!("profiling configuration error in section id={}, name={}", sid, sname))?;
+            let action = match &s.action {
+                Some(ma) => Some(SimpleAction::resolve(ma).with_context(|| "when resolving the action entry")?),
+                None => None,
+            };
             Ok(ProfilingSection {
                 tags: Tags::from_slice(&s.tags),
                 relation: s.rule.relation,
                 sections: subsections,
+                action,
             })
         }
 

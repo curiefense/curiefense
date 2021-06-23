@@ -43,6 +43,7 @@ pub struct RawProfilingSection {
     pub active: bool,
     pub tags: Vec<String>,
     pub rule: RawProfilingRule,
+    pub action: Option<RawAction>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -190,6 +191,7 @@ pub struct RawActionParams {
     pub headers: HashMap<String, String>,
     pub reason: Option<String>,
     pub content: Option<String>,
+    pub location: Option<String>,
 }
 
 impl std::default::Default for RawActionParams {
@@ -201,6 +203,7 @@ impl std::default::Default for RawActionParams {
             headers: HashMap::new(),
             reason: None,
             content: None,
+            location: None,
         }
     }
 }

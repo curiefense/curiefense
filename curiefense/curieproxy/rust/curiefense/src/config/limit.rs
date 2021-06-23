@@ -6,7 +6,7 @@ use crate::config::raw::{RawLimit, RawLimitSelector};
 use crate::config::utils::{
     decode_request_selector_condition, resolve_selector_raw, RequestSelector, RequestSelectorCondition, SelectorType,
 };
-use crate::interface::Action;
+use crate::interface::SimpleAction;
 use crate::logs::Logs;
 
 #[derive(Debug, Clone)]
@@ -15,7 +15,7 @@ pub struct Limit {
     pub name: String,
     pub limit: u64,
     pub ttl: u64,
-    pub action: Action,
+    pub action: SimpleAction,
     pub exclude: Vec<RequestSelectorCondition>,
     pub include: Vec<RequestSelectorCondition>,
     pub pairwith: Option<RequestSelector>,
@@ -54,7 +54,7 @@ impl Limit {
                 name: rawlimit.name,
                 limit: rawlimit.limit.parse().with_context(|| "when converting the limit")?,
                 ttl: rawlimit.ttl.parse().with_context(|| "when converting the ttl")?,
-                action: Action::resolve(&rawlimit.action).with_context(|| "when resolving the action entry")?,
+                action: SimpleAction::resolve(&rawlimit.action).with_context(|| "when resolving the action entry")?,
                 exclude: resolve_selectors(rawlimit.exclude).with_context(|| "when resolving the exclude entry")?,
                 include: resolve_selectors(rawlimit.include).with_context(|| "when resolving the include entry")?,
                 pairwith,
@@ -99,7 +99,7 @@ mod tests {
                 limit: v,
                 ttl: 0,
                 id: String::new(),
-                action: Default::default(),
+                action: SimpleAction::from_reason(format!("limit {}", name)),
                 include: Vec::new(),
                 exclude: Vec::new(),
                 key: Vec::new(),

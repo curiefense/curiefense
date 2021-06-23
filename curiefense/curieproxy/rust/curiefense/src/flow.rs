@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::config::flow::{FlowElement, SequenceKey};
 use crate::config::utils::RequestSelector;
-use crate::interface::{Decision, Tags};
+use crate::interface::{SimpleDecision, Tags};
 use crate::utils::{check_selector_cond, select_string, RequestInfo};
 
 fn session_sequence_key(ri: &RequestInfo) -> SequenceKey {
@@ -71,22 +71,20 @@ pub fn flow_check(
     flows: &HashMap<SequenceKey, Vec<FlowElement>>,
     reqinfo: &RequestInfo,
     tags: &Tags,
-) -> anyhow::Result<Decision> {
+) -> anyhow::Result<SimpleDecision> {
     let sequence_key = session_sequence_key(reqinfo);
     match flows.get(&sequence_key) {
-        None => Ok(Decision::Pass),
+        None => Ok(SimpleDecision::Pass),
         Some(elems) => {
-            let mut bad = Decision::Pass;
+            let mut bad = SimpleDecision::Pass;
             // do not establish the connection if unneeded
             let mut cnx = crate::redis::redis_conn()?;
             for elem in elems.iter().filter(|e| flow_match(reqinfo, tags, e)) {
                 let redis_key = build_redis_key(reqinfo, &elem.key, &elem.id, &elem.name);
                 if check_flow(&mut cnx, &redis_key, elem.step, elem.ttl, elem.is_last)? {
-                    return Ok(Decision::Pass);
+                    return Ok(SimpleDecision::Pass);
                 } else {
-                    let mut naction = elem.action.clone();
-                    naction.reason = serde_json::json!({"initiator":"flow_check"});
-                    bad = Decision::Action(naction);
+                    bad = SimpleDecision::Action(elem.action.clone(), Some(serde_json::json!({"initiator":"flow_check"})));
                 }
             }
             Ok(bad)

@@ -1,7 +1,7 @@
 use crate::config::profiling::{PairEntry, ProfilingEntry, ProfilingEntryE, ProfilingSSection, SingleEntry};
 use crate::config::raw::Relation;
 use crate::config::Config;
-use crate::interface::Tags;
+use crate::interface::{SimpleActionT, SimpleDecision, Tags};
 use crate::requestfields::RequestField;
 use crate::utils::RequestInfo;
 use std::net::IpAddr;
@@ -67,14 +67,9 @@ fn check_subsection(rinfo: &RequestInfo, sub: &ProfilingSSection) -> bool {
     check_relation(rinfo, sub.relation, &sub.entries, check_entry)
 }
 
-pub fn tag_request(cfg: &Config, rinfo: &RequestInfo) -> Tags {
+pub fn tag_request(is_human: bool, cfg: &Config, rinfo: &RequestInfo) -> (Tags, SimpleDecision) {
     let mut tags = Tags::default();
     tags.insert("all");
-    for psection in &cfg.profiling {
-        if check_relation(rinfo, psection.relation, &psection.sections, check_subsection) {
-            tags.extend(psection.tags.clone());
-        }
-    }
     tags.insert_qualified("ip", &rinfo.rinfo.geoip.ipstr);
     tags.insert_qualified("geo", rinfo.rinfo.geoip.country_name.as_deref().unwrap_or("nil"));
     match rinfo.rinfo.geoip.asn {
@@ -86,11 +81,21 @@ pub fn tag_request(cfg: &Config, rinfo: &RequestInfo) -> Tags {
             tags.insert_qualified("asn", &sasn);
         }
     }
-
     if let Some(container_name) = &cfg.container_name {
         tags.insert_qualified("container", container_name);
     }
-    tags
+    for psection in &cfg.profiling {
+        if check_relation(rinfo, psection.relation, &psection.sections, check_subsection) {
+            tags.extend(psection.tags.clone());
+            if let Some(a) = &psection.action {
+                if a.atype == SimpleActionT::Monitor || (a.atype == SimpleActionT::Challenge && is_human) {
+                    continue;
+                }
+                return (tags, SimpleDecision::Action(a.clone(), Some(serde_json::json!("tag action"))));
+            }
+        }
+    }
+    (tags, SimpleDecision::Pass)
 }
 
 #[cfg(test)]

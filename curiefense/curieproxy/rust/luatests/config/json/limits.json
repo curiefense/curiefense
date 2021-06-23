@@ -165,7 +165,9 @@
         "limit": "3",
         "action": {
             "type": "redirect",
-            "location": "/1234"
+            "params": {
+                "location": "/1234"
+            }
         },
         "include": {
             "headers": {},

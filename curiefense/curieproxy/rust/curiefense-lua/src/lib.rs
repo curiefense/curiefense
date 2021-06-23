@@ -11,11 +11,11 @@ use curiefense::utils::RequestMeta;
 use mlua::prelude::*;
 use std::collections::HashMap;
 
+use curiefense::inspect_generic_request_map;
 use curiefense::interface::{Decision, Grasshopper};
 use curiefense::logs::Logs;
 use curiefense::session;
 use curiefense::utils::{map_request, InspectionResult};
-use curiefense::inspect_generic_request_map;
 
 /// Lua interface to the inspection function
 ///
@@ -288,7 +288,7 @@ mod tests {
                 assert!(logs.logs[0].message.to_string().contains("CFGLOAD"));
                 assert!(logs.logs[1].message.to_string().contains("profiling-lists.json"));
                 assert!(logs.logs[2].message.to_string().contains("rbz-cloud-platforms"));
-            },
+            }
             n => {
                 for r in logs.logs.iter() {
                     println!("{}", r.to_string());

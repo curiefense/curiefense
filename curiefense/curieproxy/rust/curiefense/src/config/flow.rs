@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet};
 use crate::config::limit::{resolve_selector_map, resolve_selectors};
 use crate::config::raw::{RawFlowEntry, RawFlowStep, RawLimitSelector};
 use crate::config::utils::{RequestSelector, RequestSelectorCondition};
-use crate::interface::Action;
+use crate::interface::SimpleAction;
 use crate::logs::Logs;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -19,7 +19,7 @@ struct FlowEntry {
     key: Vec<RequestSelector>,
     active: bool,
     ttl: u64,
-    action: Action,
+    action: SimpleAction,
     sequence: Vec<FlowStep>,
 }
 
@@ -48,7 +48,7 @@ pub struct FlowElement {
     /// the entry ttl
     pub ttl: u64,
     /// the entry action
-    pub action: Action,
+    pub action: SimpleAction,
     /// the step selector
     pub select: Vec<RequestSelectorCondition>,
     /// marker for the last step
@@ -68,7 +68,7 @@ impl FlowEntry {
             name: rawentry.name,
             active: rawentry.active,
             ttl: rawentry.ttl,
-            action: Action::resolve(&rawentry.action).with_context(|| "when resolving the action entry")?,
+            action: SimpleAction::resolve(&rawentry.action).with_context(|| "when resolving the action entry")?,
             key: mkey?,
             sequence,
         })

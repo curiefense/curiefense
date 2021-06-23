@@ -17,6 +17,7 @@ local waf = require "lua.waf"
 local utils = require "lua.utils"
 local socket = require "socket"
 
+local grasshopper = require "grasshopper"
 local nativeutils = require "nativeutils"
 local startswith = nativeutils.startswith
 
@@ -279,7 +280,7 @@ function Machin:new(content)
 end
 
 -- test that two lists contain the same tags
-function compare_tag_list(actual, expected)
+function compare_tag_list(name, actual, expected)
   local m_actual = {}
   for _, a in ipairs(actual) do
     if not startswith(a, "container:") then
@@ -288,7 +289,7 @@ function compare_tag_list(actual, expected)
   end
   for _, e in ipairs(expected) do
     if not startswith(e, "container:") and not m_actual[e] then
-      error("Missing expected tag: " .. e)
+      error(name .. " - missing expected tag: " .. e)
     end
     m_actual[e] = nil
   end
@@ -298,7 +299,7 @@ function compare_tag_list(actual, expected)
     good = false
   end
   if not good then
-    error("^ extra tags")
+    error("^ extra tags in " .. name)
   end
 end
 
@@ -323,31 +324,34 @@ function test_raw_request(request_path)
       ip = headers["x-forwarded-for"]
     end
 
-    local response, merr = curiefense.inspect_request(meta, headers, raw_request_map.body, ip, nil)
+    local response, merr = curiefense.inspect_request(meta, headers, raw_request_map.body, ip, grasshopper)
     if merr then
       error(merr)
     end
     local r = cjson.decode(response)
 
-    compare_tag_list(r.request_map.tags, raw_request_map.response.tags)
+    compare_tag_list(raw_request_map.name, r.request_map.tags, raw_request_map.response.tags)
     local good = true
     if r.action ~= raw_request_map.response.action then
+      print("Expected action " .. cjson.encode(raw_request_map.response.action) .. ", but got " .. cjson.encode(r.action))
       good = false
     end
     if r.response ~= cjson.null then
       if r.response.status ~= raw_request_map.response.status then
+        print("Expected status " .. cjson.encode(raw_request_map.response.status) .. ", but got " .. cjson.encode(r.response.status))
         good = false
       end
       if r.response.block_mode ~= raw_request_map.response.block_mode then
+        print("Expected block_mode " .. cjson.encode(raw_request_map.response.block_mode) .. ", but got " .. cjson.encode(r.response.block_mode))
         good = false
       end
     end
 
     if not good then
-      print("Tags")
-      print("Got response: " .. response)
-      print("Expected parts: " .. cjson.encode(r.response))
-      error("mismatch")
+      for _, log in ipairs(r.logs) do
+          print(log["elapsed_micros"] .. "µs " .. log["message"])
+      end
+      error("mismatch in " .. raw_request_map.name)
     end
    
   end
