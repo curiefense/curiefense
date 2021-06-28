@@ -46,7 +46,6 @@ jobs:
             pushd e2e
             IP=127.0.0.1
             pytest --log-level INFO --base-protected-url http://$IP:30081 --base-conf-url http://$IP:30000/api/v1/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --junit-xml pytest.xml .
-            pytest --log-level INFO --base-protected-url http://$IP:30082 --base-conf-url http://$IP:30000/api/v1/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --junit-xml pytest.xml .
             popd
 
 
