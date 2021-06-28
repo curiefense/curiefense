@@ -12,6 +12,7 @@ COPY curieproxy/rust /build/rust
 WORKDIR /build/rust
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y && \
+    cargo test && \
     cargo build --release && \
     cp target/release/libcuriefense_lua.so /root/curiefense.so && \
     rm -rf target
