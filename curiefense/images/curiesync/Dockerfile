@@ -12,9 +12,9 @@ RUN apt-get update && \
 	rm -rf /var/lib/apt/lists/*
 
 COPY curieconf-utils /curieconf-utils
-RUN cd /curieconf-utils ; pip3 install .
+RUN cd /curieconf-utils ; pip3 install --no-cache-dir .
 COPY curieconf-client /curieconf-client
-RUN cd /curieconf-client ; pip3 install .
+RUN cd /curieconf-client ; pip3 install --no-cache-dir .
 COPY init /init
 
 ENTRYPOINT ["/usr/bin/dumb-init", "/bin/bash", "/init/pull.sh"]

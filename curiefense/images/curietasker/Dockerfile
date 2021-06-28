@@ -11,11 +11,11 @@ RUN apt-get update && \
 
 COPY curieconf-server/curieconf/confserver/json/tag-rules.schema /tag-rules.schema
 COPY curieconf-utils /curieconf-utils
-RUN cd /curieconf-utils ; pip3 install .
+RUN cd /curieconf-utils ; pip3 install --no-cache-dir .
 COPY curieconf-client /curieconf-client
-RUN cd /curieconf-client ; pip3 install .
+RUN cd /curieconf-client ; pip3 install --no-cache-dir .
 COPY curietasker /curietasker
-RUN cd /curietasker ; pip3 install .
+RUN cd /curietasker ; pip3 install --no-cache-dir .
 COPY init /init
 
 ENTRYPOINT ["/usr/bin/dumb-init", "/bin/bash", "/init/run.sh"]
