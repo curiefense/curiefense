@@ -37,7 +37,7 @@ fn acl_block(blocking: bool, code: i32, tags: &[String]) -> Decision {
         },
         block_mode: blocking,
         ban: false,
-        status: 403,
+        status: 503,
         headers: None,
         reason: json!({"action": code, "initiator": "acl", "reason": tags }),
         content: "access denied".to_string(),

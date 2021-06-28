@@ -16,7 +16,7 @@
       ],
       "action": "custom_response",
       "block_mode": false,
-      "status": 403
+      "status": 503
     },
     "name": "libinjection xss",
     "headers": {
@@ -44,7 +44,7 @@
       ],
       "action": "custom_response",
       "block_mode": false,
-      "status": 403
+      "status": 503
     },
     "name": "sqli (header)",
     "headers": {
@@ -73,7 +73,7 @@
       ],
       "action": "custom_response",
       "block_mode": false,
-      "status": 403
+      "status": 503
     },
     "name": "sqli (args)",
     "headers": {
@@ -101,7 +101,7 @@
       ],
       "action": "custom_response",
       "block_mode": false,
-      "status": 403
+      "status": 503
     },
     "name": "sqli (cookies)",
     "headers": {
@@ -156,7 +156,7 @@
       ],
       "action": "custom_response",
       "block_mode": true,
-      "status": 403
+      "status": 503
     },
     "name": "non omitted sqli (headers)",
     "headers": {
@@ -185,7 +185,7 @@
       ],
       "action": "custom_response",
       "block_mode": false,
-      "status": 403
+      "status": 503
     },
     "name": "other sqli",
     "headers": {
@@ -213,7 +213,7 @@
       ],
       "action": "custom_response",
       "block_mode": true,
-      "status": 403
+      "status": 503
     },
     "name": "other sqli, not omitted",
     "headers": {
@@ -241,7 +241,7 @@
       ],
       "action": "custom_response",
       "block_mode": false,
-      "status": 403
+      "status": 503
     },
     "name": "two sqli",
     "headers": {
@@ -269,7 +269,7 @@
       ],
       "action": "custom_response",
       "block_mode": true,
-      "status": 403
+      "status": 503
     },
     "name": "two sqli, one omitted",
     "headers": {
@@ -323,7 +323,7 @@
       ],
       "action": "custom_response",
       "block_mode": true,
-      "status": 403
+      "status": 503
     },
     "name": "alphanum blocked",
     "headers": {
@@ -377,7 +377,7 @@
       ],
       "action": "custom_response",
       "block_mode": true,
-      "status": 403
+      "status": 503
     },
     "name": "too many args",
     "headers": {
@@ -554,7 +554,7 @@
       ],
       "action": "custom_response",
       "block_mode": true,
-      "status": 403
+      "status": 503
     },
     "name": "test args b (n)",
     "headers": {
@@ -581,7 +581,7 @@
       ],
       "action": "custom_response",
       "block_mode": true,
-      "status": 403
+      "status": 503
     },
     "name": "test args c (n)",
     "headers": {
@@ -733,7 +733,7 @@
       ],
       "action": "custom_response",
       "block_mode": false,
-      "status": 403
+      "status": 503
     },
     "name": "overlong header",
     "headers": {
@@ -787,7 +787,7 @@
       ],
       "action": "custom_response",
       "block_mode": true,
-      "status": 403
+      "status": 503
     },
     "name": "short headers reject",
     "headers": {
@@ -815,7 +815,7 @@
       ],
       "action": "custom_response",
       "block_mode": true,
-      "status": 403
+      "status": 503
     },
     "name": "restrict 1",
     "headers": {
@@ -844,7 +844,7 @@
       ],
       "action": "custom_response",
       "block_mode": true,
-      "status": 403
+      "status": 503
     },
     "name": "restrict 2",
     "headers": {

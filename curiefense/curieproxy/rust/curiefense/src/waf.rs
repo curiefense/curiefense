@@ -104,7 +104,7 @@ impl WafBlock {
             atype: ActionType::Block,
             block_mode: true,
             ban: false,
-            status: 403,
+            status: 503,
             headers: None,
             reason,
             content: "Access denied".to_string(),

@@ -16,7 +16,7 @@
       ],
       "action": "custom_response",
       "block_mode": true,
-      "status": 403
+      "status": 503
     },
     "name": "test action challenge",
     "headers": {
@@ -70,7 +70,7 @@
       ],
       "action": "custom_response",
       "block_mode": true,
-      "status": 403
+      "status": 503
     },
     "name": "test action default",
     "headers": {
@@ -124,7 +124,7 @@
       ],
       "action": "custom_response",
       "block_mode": true,
-      "status": 403
+      "status": 503
     },
     "name": "test action default",
     "headers": {
