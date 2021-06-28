@@ -295,7 +295,10 @@ pub struct RawFlowEntry {
 pub struct RawFlowStep {
     pub method: String,
     pub uri: String,
+    #[serde(default)]
     pub cookies: HashMap<String, String>,
+    #[serde(default)]
     pub headers: HashMap<String, String>,
+    #[serde(default)]
     pub args: HashMap<String, String>,
 }
