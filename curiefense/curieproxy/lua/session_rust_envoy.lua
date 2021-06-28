@@ -1,20 +1,15 @@
-module(..., package.seeall)
-
+local session_rust_envoy = {}
 local cjson       = require "cjson"
-
 local curiefense  = require "curiefense"
 local grasshopper = require "grasshopper"
-
 local accesslog   = require "lua.accesslog"
 local utils       = require "lua.nativeutils"
-
 local sfmt = string.format
-
 local log_request = accesslog.envoy_log_request
 local custom_response = utils.envoy_custom_response
 
 
-function detectip(xff, hops)
+local function detectip(xff, hops)
     local len_xff = #xff
     if hops < len_xff then
         return xff[len_xff-(hops-1)]
@@ -24,13 +19,13 @@ function detectip(xff, hops)
 end
 
 
-function extract_ip(headers, metadata)
+local function extract_ip(headers, metadata)
     local client_addr = "1.1.1.1"
     local xff = headers:get("x-forwarded-for")
     local hops = metadata:get("xff_trusted_hops") or "1"
 
     hops = tonumber(hops)
-    local addrs = utils.map_fn(xff:split(","), utils.trim)
+    local addrs = utils.map_fn(utils.split(xff, ","), utils.trim)
 
     client_addr = detectip(addrs, hops) or client_addr
 
@@ -38,7 +33,7 @@ function extract_ip(headers, metadata)
 end
 
 
-function inspect(handle)
+function session_rust_envoy.inspect(handle)
     local ip_str = extract_ip(handle:headers(), handle:metadata())
 
     local headers = {}
@@ -69,6 +64,7 @@ function inspect(handle)
         handle:logErr(sfmt("curiefense.inspect_request_map error %s", err))
     end
 
+    local request_map = nil
     if response then
         local response_table = cjson.decode(response)
         handle:logDebug("decision " .. response)
@@ -83,3 +79,5 @@ function inspect(handle)
     log_request(request_map)
 
 end
+
+return session_rust_envoy

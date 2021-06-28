@@ -1,25 +1,17 @@
-module(..., package.seeall)
-
+local session_rust_nginx = {}
 local cjson       = require "cjson"
-
 local curiefense  = require "curiefense"
 local grasshopper = require "grasshopper"
-
-local accesslog   = require "lua.accesslog"
 local utils       = require "lua.nativeutils"
-
 local sfmt = string.format
-
-local log_request = accesslog.nginx_log_request
 local custom_response = utils.nginx_custom_response
 
-
-function inspect(handle)
+function session_rust_nginx.inspect(handle)
     local ip_str = handle.var.remote_addr
 
     local headers = {}
 
-    local rheaders, err = ngx.req.get_headers()
+    local rheaders, err = handle.req.get_headers()
     if err == "truncated" then
         handle.log(handle.ERR, "truncated headers: " .. err)
     end
@@ -43,7 +35,8 @@ function inspect(handle)
     --   * path : the full request uri
     --   * method : the HTTP verb
     --   * authority : optionally, the HTTP2 authority field
-    local response, err = curiefense.inspect_request(
+    local response
+    response, err = curiefense.inspect_request(
         meta, headers, body_content, ip_str, grasshopper
     )
 
@@ -56,7 +49,7 @@ function inspect(handle)
         handle.ctx.response = response_table
         handle.log(handle.DEBUG, "decision: " .. response)
         utils.log_nginx_messages(handle, response_table["logs"])
-        request_map = response_table["request_map"]
+        local request_map = response_table["request_map"]
         request_map.handle = handle
         if response_table["action"] == "custom_response" then
             custom_response(request_map, response_table["response"])
@@ -65,7 +58,7 @@ function inspect(handle)
 end
 
 -- log block stage processing
-function log(handle)
+function session_rust_nginx.log(handle)
     local response = handle.ctx.response
     handle.ctx.response = nil
     local request_map = response.request_map
@@ -81,7 +74,6 @@ function log(handle)
         host=handle.var.host,
         -- TODO: authority
         -- authority= "34.66.199.37:30081",
-        tls= tls,
         requestid=handle.var.request_id,
         method=handle.var.request_method,
         response={
@@ -156,7 +148,8 @@ function log(handle)
 
     -- !!! most of these variables are unset in the default configuration !!!
     -- connection_time: connection time in seconds with a milliseconds resolution (1.19.10)
-    -- request_time: request processing time in seconds with a milliseconds resolution (1.3.9, 1.2.6); time elapsed since the first bytes were read from the client
+    -- request_time: request processing time in seconds with a milliseconds resolution (1.3.9, 1.2.6);
+   --     time elapsed since the first bytes were read from the client
     -- session_time: session duration in seconds with a milliseconds resolution
     -- upstream_header_time: keeps time spent on receiving the response header from the upstream server
     -- upstream_queue_time: keeps time the request spent in the upstream queue
@@ -166,11 +159,14 @@ function log(handle)
     -- upstream_connect_time: keeps time spent on establishing a connection with the upstream server
 
     req.rx_timers = {
-        -- Interval between the first downstream byte received and the last downstream byte received (i.e. time it takes to receive a request).
+        -- Interval between the first downstream byte received and the last downstream byte received
+        -- (i.e. time it takes to receive a request).
         lastbyte=nil,
-        -- Interval between the first downstream byte received and the first upstream byte received (i.e. time it takes to start receiving a response).
+        -- Interval between the first downstream byte received and the first upstream byte received
+        -- (i.e. time it takes to start receiving a response).
         firstupstreambyte=nil,
-        -- Interval between the first downstream byte received and the last upstream byte received (i.e. time it takes to receive a complete response).
+        -- Interval between the first downstream byte received and the last upstream byte received
+        -- (i.e. time it takes to receive a complete response).
         lastupstreambyte=nil,
     }
     req.tx_timers = {
@@ -193,3 +189,5 @@ function log(handle)
     req.request.attributes=request_map.attrs
     handle.var.request_map = cjson.encode(req)
 end
+
+return session_rust_nginx

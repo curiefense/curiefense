@@ -18,12 +18,12 @@ local socket = require "socket"
 local redishost = os.getenv("REDIS_HOST") or "redis"
 local redisport = os.getenv("REDIS_PORT") or 6379
 
-require 'lfs'
+local lfs = require 'lfs'
 
 local function ends_with(str, ending)
   return ending == "" or str:sub(-#ending) == ending
 end
-function read_file(path)
+local function read_file(path)
     local fh = io.open(path, "r")
     if fh ~= nil then
         local data = fh:read("*all")
@@ -33,7 +33,7 @@ function read_file(path)
         end
     end
 end
-function load_json_file(path)
+local function load_json_file(path)
     local data = read_file(path)
     if data then
         return json_decode(data)
@@ -54,61 +54,8 @@ if err then
     end
 end
 
-local FakeHandle = {}
-function FakeHandle:logDebug(content)
-  -- ignore debug
-end
-function FakeHandle:logInfo(content)
-  print(content)
-end
-
-function identical_tags_resolved(stage, expected, actual)
-  -- checks that all expected entries are in
-  local identical = true
-
-  for ek, _ in pairs(expected) do
-    if expected[ek] ~= actual[ek] then
-      print(sfmt("%s - missing tag %s", stage, ek, expected[ek], actual[ek]))
-      identical = false
-    end
-  end
-
-  for ek, _ in pairs(actual) do
-    if expected[ek] ~= actual[ek] then
-      print(sfmt("%s - extra tag %s", stage, ek, expected[ek], actual[ek]))
-      identical = false
-    end
-  end
-
-  return identical
-end
-
-function identical_tags(stage, request_map, session_uuid)
-  local expected = request_map.attrs.tags
-  local srm, err = curiefense.session_serialize_request_map(session_uuid)
-  if err then
-    error("could not serialize request map: " .. err)
-  end
-  local actual = cjson.decode(srm)["attrs"]["tags"]
-
-  return identical_tags_resolved(stage, expected, actual)
-end
-
-function encode_request_map(request_map)
-    local s_request_map = {
-        headers = request_map.headers,
-        cookies = request_map.cookies,
-        attrs = request_map.attrs,
-        args = request_map.args,
-        geo = request_map.geo
-    }
-
-    return cjson.encode(s_request_map)
-
-end
-
 -- test that two lists contain the same tags
-function compare_tag_list(name, actual, expected)
+local function compare_tag_list(name, actual, expected)
   local m_actual = {}
   for _, a in ipairs(actual) do
     if not startswith(a, "container:") then
@@ -131,7 +78,7 @@ function compare_tag_list(name, actual, expected)
   end
 end
 
-function run_inspect_request(raw_request_map)
+local function run_inspect_request(raw_request_map)
     local meta = {}
     local headers = {}
     for k, v in pairs(raw_request_map.headers) do
@@ -156,7 +103,7 @@ function run_inspect_request(raw_request_map)
 end
 
 -- testing from envoy metadata
-function test_raw_request(request_path)
+local function test_raw_request(request_path)
   print("Testing " .. request_path)
   local raw_request_maps = load_json_file(request_path)
   for _, raw_request_map in pairs(raw_request_maps) do
@@ -166,16 +113,19 @@ function test_raw_request(request_path)
     compare_tag_list(raw_request_map.name, r.request_map.tags, raw_request_map.response.tags)
     local good = true
     if r.action ~= raw_request_map.response.action then
-      print("Expected action " .. cjson.encode(raw_request_map.response.action) .. ", but got " .. cjson.encode(r.action))
+      print("Expected action " .. cjson.encode(raw_request_map.response.action) ..
+        ", but got " .. cjson.encode(r.action))
       good = false
     end
     if r.response ~= cjson.null then
       if r.response.status ~= raw_request_map.response.status then
-        print("Expected status " .. cjson.encode(raw_request_map.response.status) .. ", but got " .. cjson.encode(r.response.status))
+        print("Expected status " .. cjson.encode(raw_request_map.response.status) ..
+          ", but got " .. cjson.encode(r.response.status))
         good = false
       end
       if r.response.block_mode ~= raw_request_map.response.block_mode then
-        print("Expected block_mode " .. cjson.encode(raw_request_map.response.block_mode) .. ", but got " .. cjson.encode(r.response.block_mode))
+        print("Expected block_mode " .. cjson.encode(raw_request_map.response.block_mode) ..
+          ", but got " .. cjson.encode(r.response.block_mode))
         good = false
       end
     end
@@ -186,12 +136,11 @@ function test_raw_request(request_path)
       end
       error("mismatch in " .. raw_request_map.name)
     end
-   
   end
 end
 
 -- remove all keys from redis
-function clean_redis()
+local function clean_redis()
     local conn = redis.connect(redishost, redisport)
     local keys = conn:keys("*")
     for _, key in pairs(keys) do
@@ -199,29 +148,8 @@ function clean_redis()
     end
 end
 
-function redis_debug()
-    local conn = redis.connect(redishost, redisport)
-    local keys = conn:keys("*")
-    for _, key in pairs(keys) do
-      tp = conn:type(key)
-      if tp == "list" then
-        print("* " .. key)
-        while true do
-          content = conn:lpop(key)
-          if content then
-            print(" - " .. content)
-          else
-            break
-          end
-        end
-      else
-        error("unhandled key type " .. tp)
-      end
-    end
-end
-
 -- testing for rate limiting
-function test_ratelimit(request_path)
+local function test_ratelimit(request_path)
   print("Rate limit " .. request_path)
   clean_redis()
   local raw_request_maps = load_json_file(request_path)
@@ -247,7 +175,7 @@ function test_ratelimit(request_path)
 end
 
 -- testing for control flow
-function test_flow(request_path)
+local function test_flow(request_path)
   print("Flow control " .. request_path)
   clean_redis()
   local raw_request_maps = load_json_file(request_path)
