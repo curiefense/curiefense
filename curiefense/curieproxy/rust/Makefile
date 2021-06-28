@@ -39,6 +39,7 @@ test: ctarget/target/debug/libcuriefense_lua.so test-nodeps
 test-nodeps:
 	docker run -v `pwd`/ctarget/target/debug/libcuriefense_lua.so:/usr/local/lib/lua/5.1/curiefense.so \
 						 -v `pwd`/../lua:/home/builder/lua \
+						 -v `pwd`/luatests/redis.lua:/home/builder/lua/redis.lua \
 						 -v `pwd`/../lua/shared-objects/luahs.so:/usr/local/lib/lua/5.1/luahs.so \
 						 -v `pwd`/../lua/shared-objects/libinjection.so:/usr/local/lib/lua/5.1/libinjection.so \
 						 -v `pwd`/../lua/shared-objects/grasshopper.so:/usr/local/lib/lua/5.1/grasshopper.so \

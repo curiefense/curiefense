@@ -1,21 +1,10 @@
 package.path = package.path .. ";lua/?.lua"
-local acl = require "lua.acl"
-local tagprofiler = require "lua.tagprofiler"
-local redisutils = require "lua.redisutils"
 local curiefense = require "curiefense"
-local session = require "session_hybrid"
-if not session then
-  error("Could not load session")
-end
-local flowcontrol   = require "lua.flowcontrol"
 
 local sfmt = string.format
 local cjson = require "cjson"
 local json_safe = require "cjson.safe"
 local json_decode = json_safe.decode
-local waf = require "lua.waf"
-local utils = require "lua.utils"
-local socket = require "socket"
 
 local grasshopper = require "grasshopper"
 local nativeutils = require "nativeutils"
@@ -24,18 +13,12 @@ local startswith = nativeutils.startswith
 local ffi = require "ffi"
 ffi.load("crypto", true)
 
+local redis = require "lua.redis"
+local socket = require "socket"
+local redishost = os.getenv("REDIS_HOST") or "redis"
+local redisport = os.getenv("REDIS_PORT") or 6379
+
 require 'lfs'
-
-ACLNoMatch   = -1
-ACLForceDeny = 0
-ACLBypass    = 1
-ACLAllowBot  = 2
-ACLDenyBot   = 3
-ACLAllow     = 4
-ACLDeny      = 5
-
-WAFPass  = 1
-WAFBlock = 0
 
 local function ends_with(str, ending)
   return ending == "" or str:sub(-#ending) == ending
@@ -57,7 +40,6 @@ function load_json_file(path)
     end
 end
 
-session.global_init(nil)
 local _, err = curiefense.init_config()
 if err then
     local failure = false
@@ -112,171 +94,17 @@ function identical_tags(stage, request_map, session_uuid)
   return identical_tags_resolved(stage, expected, actual)
 end
 
-function test_request_map(name, request_map)
+function encode_request_map(request_map)
+    local s_request_map = {
+        headers = request_map.headers,
+        cookies = request_map.cookies,
+        attrs = request_map.attrs,
+        args = request_map.args,
+        geo = request_map.geo
+    }
 
-  local url = request_map.attrs.path
-  local host = request_map.headers.host or request_map.attrs.authority
+    return cjson.encode(s_request_map)
 
-  local encoded = session.encode_request_map(request_map)
-  local session_uuid, err = curiefense.session_init(encoded)
-  if err then
-    error("session_init failed: " .. err)
-  end
-
-  local urlmap_entry, url_map = session.match_urlmap(host, url, request_map)
-
-  local acl_active        = urlmap_entry["acl_active"]
-  local waf_active        = urlmap_entry["waf_active"]
-  local acl_profile_id    = urlmap_entry["acl_profile"]
-  local waf_profile_id    = urlmap_entry["waf_profile"]
-  local acl_profile       = session.get_acl_profile(acl_profile_id)
-  local waf_profile       = session.get_waf_profile(waf_profile_id)
-
-  local json_urlmap, err = curiefense.session_match_urlmap(session_uuid)
-  if err then
-    error("session_match_urlmap failed: " .. err)
-  end
-  local rust_urlmap = cjson.decode(json_urlmap)
-
-  for _, k in ipairs({"acl_profile", "waf_profile", "acl_active", "waf_active"}) do
-    if rust_urlmap[k] ~= urlmap_entry[k] then
-      error(sfmt("urlmap field %s error:\nlua= %s\nrust=%s", k, cjson.encode(urlmap_entry), json_urlmap))
-    end
-  end
-
-  session.map_tags(request_map,
-      sfmt('urlmap:%s', url_map.name),
-      sfmt('urlmap-entry:%s', urlmap_entry.name),
-      sfmt("aclid:%s", acl_profile_id),
-      sfmt("aclname:%s", acl_profile.name),
-      sfmt("wafid:%s", waf_profile_id),
-      sfmt("wafname:%s", waf_profile.name)
-  )
-
-  local _, err = curiefense.session_tag_request(session_uuid)
-  if err then
-      error("curiefense.session_tag_request failed " .. err)
-  end
-
-  tagprofiler.tag_lists(request_map)
-
-  if not identical_tags("match_urlmap", request_map, session_uuid) then
-    error("failed at stage match_urlmap")
-  end
-
-  -- TODO: check redis related stuff, flow control and rate limit
-
-  local acl_code, acl_result = acl.check(acl_profile, request_map, acl_active)
-  local acl_bot_code, acl_bot_result = acl.check_bot(acl_profile, request_map, acl_active)
-
-  local r_acl_code = nil
-  local r_acl_bot_code = nil
-
-  local jrust_acl, err = curiefense.session_acl_check(session_uuid)
-  if err then
-      error("curiefense.session_acl_check failed " .. err)
-  end
-  local rust_acl = cjson.decode(jrust_acl)
-  local txt_acl_result = "?"
-  if rust_acl["Match"] then
-    bot = rust_acl["Match"]["bot"]
-    human = rust_acl["Match"]["human"]
-    if bot ~= cjson.null then
-      if bot["allowed"] then
-        r_acl_bot_code = ACLAllowBot
-        txt_acl_result = "AB/"
-      else
-        r_acl_bot_code = ACLDenyBot
-        txt_acl_result = "DB/"
-      end
-    else
-      txt_acl_result = "NB/"
-    end
-    if human ~= cjson.null then
-      if human["allowed"] then
-        r_acl_code = ACLAllow
-        txt_acl_result = txt_acl_result .. "AH"
-      else
-        r_acl_code = ACLDeny
-        txt_acl_result = txt_acl_result .. "DH"
-      end
-    else
-      txt_acl_result = txt_acl_result .. "NH"
-    end
-  else
-    if rust_acl["Bypass"]["allowed"] then
-      r_acl_code = ACLBypass
-      txt_acl_result = "BP"
-    else
-      r_acl_code = ACLForceDeny
-      txt_acl_result = "FD"
-    end
-  end
-
-  if r_acl_code ~= acl_code then
-    error(sfmt("for %s, acl_code differs, expected %s, actual %s (result=%s)", name, acl_code, r_acl_code, jrust_acl))
-  end
-  if acl_code ~= ACLForceDeny and acl_code ~= ACLBypass and r_acl_bot_code ~= acl_bot_code then
-    error(sfmt("for %s, acl_bot_code differs, expected %s, actual %s (result=%s, acl_code=%d)", name, acl_bot_code, r_acl_bot_code, jrust_acl, acl_code))
-  end
-
-
-  local waf_code, waf_result = waf.check(waf_profile, request_map)
-  local jrwaf_result, err = curiefense.session_waf_check(session_uuid)
-  if err then
-    error("curiefense.waf_check failed: " .. err)
-  end
-  local rwaf_result = cjson.decode(jrwaf_result)
-  if waf_code == WAFPass and rwaf_result["action"] == "pass" then
-    -- ok, both mark it pass passed
-  elseif waf_code == WAFBlock and rwaf_result["action"] == "custom_response" then
-    -- ok, both mark it as blocked
-  else
-    print("waf_check mismatch for '" .. name .. "'")
-    print("native code returned: " .. jrwaf_result)
-    print("lua code " .. cjson.encode(waf_code) .. ", result: " .. cjson.encode(waf_result))
-    error(":(")
-  end
-
-  if not identical_tags("waf_check", request_map, session_uuid) then
-    error("failed at stage waf_check")
-  end
-
-  curiefense.session_clean(session_uuid)
-
-  local txt_waf_result = "?"
-  if waf_code == WAFPass then
-    txt_waf_result = "WAFPass"
-  elseif waf_code == WAFBlock then
-    txt_waf_result = "WAFBlock"
-  end
-
-  return txt_acl_result .. "/" .. txt_waf_result
-end
-
--- testing from a request_map
-function test_request(request_path)
-  print("Testing " .. request_path)
-  local raw_request_map = load_json_file(request_path)
-  local request_map = raw_request_map
-  request_map.handle = FakeHandle
-  test_request_map("(no name)", raw_request_map)
-end
-
--- cheating with the fake handler
-local M = {}
-function M.__pairs(tbl)
-  return pairs(tbl.content)
-end
-
-local Machin = {}
-function Machin:new(content)
-  local t = {}
-  t.content = content
-  function t:get(key)
-    return content[key]
-  end
-  return setmetatable(t, M)
 end
 
 -- test that two lists contain the same tags
@@ -303,11 +131,7 @@ function compare_tag_list(name, actual, expected)
   end
 end
 
--- testing from envoy metadata
-function test_raw_request(request_path)
-  print("Testing " .. request_path)
-  local raw_request_maps = load_json_file(request_path)
-  for _, raw_request_map in pairs(raw_request_maps) do
+function run_inspect_request(raw_request_map)
     local meta = {}
     local headers = {}
     for k, v in pairs(raw_request_map.headers) do
@@ -328,6 +152,15 @@ function test_raw_request(request_path)
     if merr then
       error(merr)
     end
+    return response
+end
+
+-- testing from envoy metadata
+function test_raw_request(request_path)
+  print("Testing " .. request_path)
+  local raw_request_maps = load_json_file(request_path)
+  for _, raw_request_map in pairs(raw_request_maps) do
+    local response = run_inspect_request(raw_request_map)
     local r = cjson.decode(response)
 
     compare_tag_list(raw_request_map.name, r.request_map.tags, raw_request_map.response.tags)
@@ -359,7 +192,7 @@ end
 
 -- remove all keys from redis
 function clean_redis()
-    local conn = redisutils.redis_connection()
+    local conn = redis.connect(redishost, redisport)
     local keys = conn:keys("*")
     for _, key in pairs(keys) do
       conn:del(key)
@@ -367,7 +200,7 @@ function clean_redis()
 end
 
 function redis_debug()
-    local conn = redisutils.redis_connection()
+    local conn = redis.connect(redishost, redisport)
     local keys = conn:keys("*")
     for _, key in pairs(keys) do
       tp = conn:type(key)
@@ -394,33 +227,7 @@ function test_ratelimit(request_path)
   local raw_request_maps = load_json_file(request_path)
   for n, raw_request_map in pairs(raw_request_maps) do
     print(" -> step " .. n)
-    local handle = FakeHandle
-    function handle.headers()
-      return Machin:new(raw_request_map.headers)
-    end
-    function handle.metadata()
-      return Machin:new({xff_trusted_hops=1})
-    end
-    local request_map = utils.map_request(handle)
-
-    local encoded = session.encode_request_map(request_map)
-    session_uuid, err = curiefense.session_init(encoded)
-    if err then
-      error("session_init failed: " .. err)
-    end
-    local json_urlmap, err = curiefense.session_match_urlmap(session_uuid)
-    if err then
-      error("session_match_urlmap failed: " .. err)
-    end
-    local _, err = curiefense.session_tag_request(session_uuid)
-    if err then
-        error("curiefense.session_tag_request failed " .. err)
-    end
-    local jres, err = curiefense.session_limit_check(session_uuid)
-    if err then
-        error("curiefense.session_limit_check failed " .. err)
-    end
-    curiefense.session_clean(session_uuid)
+    local jres = run_inspect_request(raw_request_map)
     local res = cjson.decode(jres)
 
     if raw_request_map.pass then
@@ -446,34 +253,7 @@ function test_flow(request_path)
   local raw_request_maps = load_json_file(request_path)
   for n, raw_request_map in pairs(raw_request_maps) do
     print(" -> step " .. n)
-    local handle = FakeHandle
-    function handle.headers()
-      return Machin:new(raw_request_map.headers)
-    end
-    function handle.metadata()
-      return Machin:new({xff_trusted_hops=1})
-    end
-    local request_map = utils.map_request(handle)
-
-    local encoded = session.encode_request_map(request_map)
-    session_uuid, err = curiefense.session_init(encoded)
-    if err then
-      error("session_init failed: " .. err)
-    end
-    local json_urlmap, err = curiefense.session_match_urlmap(session_uuid)
-    if err then
-      error("session_match_urlmap failed: " .. err)
-    end
-    local _, err = curiefense.session_tag_request(session_uuid)
-    if err then
-        error("curiefense.session_tag_request failed " .. err)
-    end
-
-    local jres, err = curiefense.session_flow_check(session_uuid)
-    if err then
-        error("curiefense.session_flow_check failed " .. err)
-    end
-    curiefense.session_clean(session_uuid)
+    local jres = run_inspect_request(raw_request_map)
     local res = cjson.decode(jres)
 
     if raw_request_map.pass then
@@ -489,12 +269,6 @@ function test_flow(request_path)
     if raw_request_map.delay then
       socket.sleep(raw_request_map.delay)
     end
-  end
-end
-
-for file in lfs.dir[[luatests/requests]] do
-  if ends_with(file, ".json") then
-    test_request("luatests/requests/" .. file)
   end
 end
 
