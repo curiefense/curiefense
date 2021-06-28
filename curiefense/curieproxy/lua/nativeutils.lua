@@ -9,11 +9,11 @@ function trim(s)
 end
 
 function string:startswith(arg)
-  return string.find(self, arg, 1, true) == 1
+  return string.sub(self, 1, #arg) == arg
 end
 
 function string:endswith(arg)
-  return string.find(self, arg, #self - #arg + 1, true) == #self - #arg + 1
+  return string.sub(self, 1, #arg) == arg
 end
 
 function startswith(str, arg)
