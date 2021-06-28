@@ -170,7 +170,12 @@ class LogHelper:
         }
         res = requests.get(self._es_url, json=data)
         nbhits = res.json()["hits"]["total"]["value"]
-        return nbhits == 1
+        if nbhits == 1:
+            return True
+        else:
+            print("Pattern %r" % (pattern,))
+            print("Request result %r" % (res,))
+            return False
 
 
 @pytest.fixture(scope="session")
