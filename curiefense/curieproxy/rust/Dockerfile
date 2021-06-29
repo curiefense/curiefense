@@ -6,20 +6,13 @@ RUN apt-get update && \
     apt-get -yq --no-install-recommends install \
         curl ca-certificates libhyperscan-dev \
         gcc pkg-config libssl-dev python2.7 clang-10 libclang1-10 \
-        libpcre2-dev libgeoip-dev make unzip git \
-        redis-server
+        make unzip git redis-server
 RUN ln -s /usr/bin/python2.7 /usr/bin/python2
 
-RUN luarocks install lrexlib-pcre2 && \
-    luarocks install lua-cjson && \
-    luarocks install lua-resty-string && \
+RUN luarocks install lua-cjson && \
     luarocks install luafilesystem && \
     luarocks install luasocket && \
-    luarocks install redis-lua && \
-    luarocks install compat53 && \
-    luarocks install mmdblua && \
-    luarocks install luaipc && \
-    luarocks install lua-resty-injection
+    luarocks install redis-lua
 
 RUN useradd -m -s /bin/bash builder
 USER builder
