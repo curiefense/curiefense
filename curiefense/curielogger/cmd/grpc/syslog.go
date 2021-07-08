@@ -1,14 +1,14 @@
 package main
 
 import (
-	"strings"
 	"encoding/json"
+	"strings"
 
 	pkg "github.com/curiefense/curiefense/curielogger/pkg"
+	"github.com/curiefense/curiefense/curielogger/pkg/entities"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	syslog "gopkg.in/mcuadros/go-syslog.v2"
-	"github.com/curiefense/curiefense/curielogger/pkg/entities"
 )
 
 type syslogServer struct {
@@ -41,7 +41,7 @@ func syslogInit(srv *syslogServer, v *viper.Viper) {
 			content := strings.TrimPrefix(logParts["content"].(string), "nginx: ")
 			err := json.Unmarshal([]byte(content), &cfLog)
 			if err != nil {
-			  log.Errorf("Error occured during unmarshaling. Error: %s", err.Error())
+				log.Errorf("Error occurred during unmarshalling. Error: %s", err.Error())
 			}
 			log.Debugf("%v", cfLog)
 			entry := entities.LogEntry{CfLog: cfLog}
