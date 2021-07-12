@@ -3,7 +3,7 @@
     "response": {
       "tags": [
         "urlmap-entry:default",
-        "wafid:default-waf",
+        "wafid:--default--",
         "asn:396507",
         "sante",
         "all",
@@ -12,6 +12,7 @@
         "aclid:--default--",
         "urlmap:default-entry",
         "geo:united-states",
+        "wafname:default-waf",
         "ip:23-129-64-253"
       ],
       "action": "custom_response",
@@ -30,7 +31,7 @@
     "response": {
       "tags": [
         "urlmap-entry:default",
-        "wafid:default-waf",
+        "wafid:--default--",
         "asn:396507",
         "sante",
         "all",
@@ -39,6 +40,7 @@
         "aclid:--default--",
         "urlmap:default-entry",
         "geo:united-states",
+        "wafname:default-waf",
         "ip:23-129-64-253"
       ],
       "action": "custom_response",
@@ -57,7 +59,8 @@
     "response": {
       "tags": [
         "urlmap-entry:default",
-        "wafid:default-waf",
+        "wafid:--default--",
+        "wafname:default-waf",
         "asn:396507",
         "sante",
         "all",
@@ -84,7 +87,8 @@
     "response": {
       "tags": [
         "urlmap-entry:default",
-        "wafid:default-waf",
+        "wafid:--default--",
+        "wafname:default-waf",
         "asn:396507",
         "sante",
         "all",
@@ -111,7 +115,8 @@
     "response": {
       "tags": [
         "urlmap-entry:default",
-        "wafid:default-waf",
+        "wafid:--default--",
+        "wafname:default-waf",
         "asn:396507",
         "sante",
         "all",

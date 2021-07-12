@@ -93,7 +93,8 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
     tags.insert_qualified("urlmap-entry", &urlmap.name);
     tags.insert_qualified("aclid", &urlmap.acl_profile.id);
     tags.insert_qualified("aclname", &urlmap.acl_profile.name);
-    tags.insert_qualified("wafid", &urlmap.waf_profile.name);
+    tags.insert_qualified("wafid", &urlmap.waf_profile.id);
+    tags.insert_qualified("wafname", &urlmap.waf_profile.name);
 
     if let SimpleDecision::Action(action, reason) = profiling_dec {
         let decision = action.to_decision(is_human, &mgh, &reqinfo.headers, reason);

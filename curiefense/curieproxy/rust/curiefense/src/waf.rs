@@ -62,41 +62,36 @@ impl WafBlock {
                 .unwrap_or(Value::Null),
             WafBlock::TooManyEntries(idx) => json!({
                 "section": idx,
-                "value": {
-                    "msg": "Too many entries"
-                }
+                "initiator": "waf",
+                "value": "Too many entries"
             }),
             WafBlock::EntryTooLarge(idx, nm) => json!({
                 "section": idx,
                 "name": nm,
-                "value": {
-                    "msg": "Entry too large"
-                }
+                "initiator": "waf",
+                "value": "Entry too large"
             }),
             WafBlock::SqlInjection(wmatch, fp) => json!({
                 "section": wmatch.section,
                 "name": wmatch.name,
-                "value": wmatch.value,
-                "value": {
-                    "msg": "SQLi",
-                    "fingerprint": fp
-                }
+                "initiator": "waf",
+                "value": "SQLi",
+                "matched": wmatch.value,
+                "fingerprint": fp
             }),
             WafBlock::Xss(wmatch) => json!({
                 "section": wmatch.section,
                 "name": wmatch.name,
-                "value": wmatch.value,
-                "value": {
-                    "msg": "XSS"
-                }
+                "initiator": "waf",
+                "value": "WSS",
+                "matched": wmatch.value
             }),
             WafBlock::Mismatch(wmatch) => json!({
                 "section": wmatch.section,
                 "name": wmatch.name,
+                "initiator": "waf",
                 "value": wmatch.value,
-                "value": {
-                    "msg": "Mismatch"
-                }
+                "msg": "Mismatch"
             }),
         };
 
@@ -104,11 +99,11 @@ impl WafBlock {
             atype: ActionType::Block,
             block_mode: true,
             ban: false,
-            status: 503,
+            status: 403,
             headers: None,
             reason,
             content: "Access denied".to_string(),
-            extra_tags: None, // TODO, add matching rules tags
+            extra_tags: None,
         }
     }
 }
