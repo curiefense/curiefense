@@ -504,7 +504,7 @@ export default Vue.extend({
       const docTypeText = this.titles[selectedDocType + '-singular']
       const successMessage = `The connection to the ${docTypeText} was added.`
       const failureMessage = `Failed while attempting to add the connection to the ${docTypeText}.`
-      RequestsUtils.sendRequest(methodName, urlTrail, doc, null, successMessage, failureMessage).then(() => {
+      RequestsUtils.sendRequest({methodName, url: urlTrail, data: doc, successMessage, failureMessage}).then(() => {
         this.getConnectedURLMapsEntries()
       })
     },
@@ -526,7 +526,7 @@ export default Vue.extend({
       const docTypeText = this.titles[selectedDocType + '-singular']
       const successMessage = `The connection to the ${docTypeText} was removed.`
       const failureMessage = `Failed while attempting to remove the connection to the ${docTypeText}.`
-      RequestsUtils.sendRequest(methodName, urlTrail, doc, null, successMessage, failureMessage).then(() => {
+      RequestsUtils.sendRequest({methodName, url: urlTrail, data: doc, successMessage, failureMessage}).then(() => {
         this.setEntryDeleteIndex(-1)
         this.getConnectedURLMapsEntries()
       })
@@ -538,8 +538,10 @@ export default Vue.extend({
     },
 
     loadURLMaps() {
-      RequestsUtils.sendRequest('GET',
-          `configs/${this.selectedBranch}/d/urlmaps/`).then((response: AxiosResponse<URLMap[]>) => {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/urlmaps/`,
+      }).then((response: AxiosResponse<URLMap[]>) => {
         this.urlMaps = _.sortBy(response.data)
         this.getConnectedURLMapsEntries()
         this.newURLMapConnectionData.map = this.newURLMapConnections.length > 0 ? this.newURLMapConnections[0] : null
