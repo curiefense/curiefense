@@ -29,8 +29,10 @@ func main() {
 			pkg.InitOutputs,
 			pkg.NewMetrics,
 			pkg.NewLogSender,
+			newSyslogSrv,
 			newGrpcSrv,
 		),
+		fx.Invoke(syslogInit),
 		fx.Invoke(grpcInit),
 	)
 	if err := app.Start(context.Background()); err != nil {

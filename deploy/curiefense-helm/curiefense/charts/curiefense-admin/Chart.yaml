@@ -1,4 +1,0 @@
-apiVersion: v1
-name: curiefense-admin
-version: 0.1.0
-description: "provides the admin part of curiefense: ui, confserver"

@@ -1,0 +1,72 @@
+[
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/step2",
+      ":authority": "www.example.com"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/step3",
+      ":authority": "www.example.com"
+    },
+    "delay": 0,
+    "pass": false
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/step1",
+      ":authority": "www.example.com"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/step2",
+      ":authority": "www.example.com"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/step3",
+      ":authority": "www.example.com"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/step1",
+      ":authority": "www.example.com"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/step3",
+      ":authority": "www.example.com"
+    },
+    "delay": 0,
+    "pass": true
+  }
+]

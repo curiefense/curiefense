@@ -1,0 +1,12 @@
+[
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/step3?deny=deny",
+      ":authority": "www.example.com"
+    },
+    "delay": 0,
+    "pass": true
+  }
+]

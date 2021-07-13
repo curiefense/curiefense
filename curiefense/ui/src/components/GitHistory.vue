@@ -5,11 +5,11 @@
         <div class="content">
           <p class="title is-6 is-expanded version-history-title">
             Version History
-            <button class="button is-outlined is-text is-small is-loading" v-if="!gitLog || gitLog.length === 0">
+            <button class="button is-outlined is-text is-small is-loading" v-if="loading">
               Loading
             </button>
           </p>
-          <table class="table" v-if="gitLog && gitLog.length > 0">
+          <table class="table" v-if="gitLog && gitLog.length">
             <thead>
             <tr>
               <th class="is-size-7">Date</th>
@@ -25,7 +25,10 @@
             <tr v-for="(commit, index) in commits" :key="commit.version"
                 @mouseleave="mouseLeave()"
                 @mouseover="mouseOver(index)">
-              <td class="is-size-7 is-vcentered py-3">{{ commit.date }}</td>
+              <td class="is-size-7 is-vcentered py-3"
+                  :title="fullFormatDate(commit.date)">
+                {{ formatDate(commit.date) }}
+              </td>
               <td class="is-size-7 is-vcentered py-3" :title="commit.version">
                 {{ commit.version.substr(0, 7) }}
               </td>
@@ -40,9 +43,9 @@
               <td class="is-size-7 is-vcentered restore-cell">
                 <p class="control has-text-centered" v-if="commitOverIndex === index">
                   <button class="button is-small restore-button"
-                     @click="restoreVersion(commit)"
-                     tabindex="1"
-                     title="Restore version">
+                          @click="restoreVersion(commit)"
+                          tabindex="1"
+                          title="Restore version">
                     <span class="icon is-small">
                       <i class="fas fa-history"></i>
                     </span>
@@ -72,6 +75,7 @@
 <script lang="ts">
 import Vue, {PropType} from 'vue'
 import {Commit} from '@/types'
+import DateTimeUtils from '@/assets/DateTimeUtils'
 
 export default Vue.extend({
   name: 'GitHistory',
@@ -79,6 +83,7 @@ export default Vue.extend({
   props: {
     gitLog: Array as PropType<Commit[]>,
     apiPath: String,
+    loading: Boolean,
   },
 
   components: {},
@@ -112,6 +117,14 @@ export default Vue.extend({
 
     mouseOver(index: number) {
       this.commitOverIndex = index
+    },
+
+    formatDate(date: string) {
+      return DateTimeUtils.isoToNowCuriefenseFormat(date)
+    },
+
+    fullFormatDate(date: string) {
+      return DateTimeUtils.isoToNowFullCuriefenseFormat(date)
     },
   },
 

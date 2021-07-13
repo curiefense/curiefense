@@ -37,4 +37,7 @@ print("add dazd", s:add("dazd","adz"))
 
 print(ipt.decodeurl("/foo%20bar/?baz=%32das"))
 print(ipt.encodeurl(ipt.decodeurl("/foo%20bar/?baz=%32das")))
+print(ipt.decodeurl("/foo%20bar/?baz=%32das", "extra"))
+print(ipt.decodeurl(nil))
+print(ipt.decodeurl())
 

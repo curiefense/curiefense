@@ -346,6 +346,9 @@ with open(tagrules_file_path) as json_file:
 flowcontrol_file_path = (base_path / "../json/flow-control.schema").resolve()
 with open(flowcontrol_file_path) as json_file:
     flowcontrol_schema = json.load(json_file)
+waf_rule_file_path = (base_path / "../json/waf-rule.schema").resolve()
+with open(waf_rule_file_path) as json_file:
+    waf_rule_schema = json.load(json_file)
 
 schema_type_map = {
     "ratelimits": ratelimits_schema,
@@ -354,6 +357,7 @@ schema_type_map = {
     "aclpolicies": acl_policy_schema,
     "tagrules": tagrules_schema,
     "flowcontrol": flowcontrol_schema,
+    "wafrules": waf_rule_schema,
 }
 
 

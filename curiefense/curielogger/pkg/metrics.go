@@ -2,15 +2,16 @@ package pkg
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+
 	"github.com/curiefense/curiefense/curielogger/pkg/entities"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"net/http"
-	"strconv"
-	"strings"
 )
 
 const (
@@ -124,13 +125,13 @@ func (m *Metrics) add(e *entities.LogEntry) {
 	tags := e.CfLog.Tags
 	blocked := strconv.FormatBool(e.CfLog.Blocked)
 	var method string
-	if m, ok := e.CfLog.Request.Attributes["method"]; ok {
-		method = fmt.Sprintf("%v", m)
+	if e.CfLog.Request.Attributes.Method != "" {
+		method = e.CfLog.Request.Attributes.Method
 	}
 
 	var uri string
-	if u, ok := e.CfLog.Request.Attributes["uri"]; ok {
-		uri = fmt.Sprintf("%v", u)
+	if e.CfLog.Request.Attributes.URI != "" {
+		uri = e.CfLog.Request.Attributes.URI
 	}
 
 	labels := makeLabels(e.CfLog.Response.Code, method, uri, e.CfLog.Upstream.RemoteAddress, blocked, tags)

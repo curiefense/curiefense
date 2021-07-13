@@ -173,12 +173,12 @@ declare module CuriefenseClient {
   type WAFRule = {
     id: string
     name: string
-    category: string
-    certainity: number
-    msg: string
+    category?: string
+    certainity?: number
+    msg?: string
     operand: string
-    severity: number
-    subcategory: string
+    severity?: number
+    subcategory?: string
   }
 
   // Document types - END
@@ -188,14 +188,14 @@ declare module CuriefenseClient {
   type Branch = {
     id: string
     description: string
-    date: string
+    date: string // ISO string
     logs: Commit[]
     version: string
   }
 
   type Commit = {
     version: string
-    date: string
+    date: string // ISO string
     parents: string[]
     message: string
     email: string

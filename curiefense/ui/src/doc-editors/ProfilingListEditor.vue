@@ -114,14 +114,18 @@
                   </button>
                 </div>
               </div>
-              <p class="help">updated @ {{ localDoc.mdate }}</p>
+              <p class="help"
+                 :title="fullFormattedModifiedDate">
+                updated @ {{ formattedModifiedDate }}
+              </p>
             </div>
 
           </div>
           <div class="column is-9">
             <entries-relation-list :rule.sync="localDoc.rule"
                                    :editable="editable"
-                                   @update:rule="emitDocUpdate">
+                                   @update:rule="emitDocUpdate"
+                                   @invalid="emitFormInvalid">
             </entries-relation-list>
           </div>
         </div>
@@ -140,6 +144,7 @@ import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import Vue from 'vue'
 import {Category, Relation, TagRule, TagRuleSection, TagRuleSectionEntry} from '@/types'
 import {AxiosResponse} from 'axios'
+import DateTimeUtils from '@/assets/DateTimeUtils'
 
 export default Vue.extend({
   name: 'ProfilingListEditor',
@@ -153,6 +158,7 @@ export default Vue.extend({
   props: {
     selectedDoc: Object,
     apiPath: String,
+    docs: Array,
   },
 
   computed: {
@@ -200,11 +206,23 @@ export default Vue.extend({
       return totalEntries
     },
 
+    formattedModifiedDate(): string {
+      return DateTimeUtils.isoToNowCuriefenseFormat(this.localDoc?.mdate)
+    },
+
+    fullFormattedModifiedDate(): string {
+      return DateTimeUtils.isoToNowFullCuriefenseFormat(this.localDoc?.mdate)
+    },
   },
 
   methods: {
+
     emitDocUpdate() {
       this.$emit('update:selectedDoc', this.localDoc)
+    },
+
+    emitFormInvalid( isFormInvalid: boolean ) {
+      this.$emit('form-invalid', isFormInvalid)
     },
 
     setRuleRelation(relation: Relation) {
@@ -266,7 +284,7 @@ export default Vue.extend({
         })
       }
       const url = this.localDoc.source
-      RequestsUtils.sendRequest('GET', `tools/fetch?url=${url}`).then((response: AxiosResponse) => {
+      RequestsUtils.sendRequest({methodName: 'GET', url: `tools/fetch?url=${url}`}).then((response: AxiosResponse) => {
         const data = response.data
         let entries: TagRuleSectionEntry[]
         entries = this.tryMatch(data, lineMatchingIP, 'ip')
@@ -293,7 +311,6 @@ export default Vue.extend({
       })
     },
   },
-
 })
 </script>
 

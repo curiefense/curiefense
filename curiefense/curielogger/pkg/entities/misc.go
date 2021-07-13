@@ -1,16 +1,16 @@
 package entities
 
 type RXTimer struct {
-	FirstUpstreamByte float64 `json:"firstupstreambyte"`
-	LastUpstreamByte  float64 `json:"lastupstreambyte"`
+	FirstUpstreamByte float64 `json:"firstupstreambyte,string"`
+	LastUpstreamByte  float64 `json:"lastupstreambyte,string"`
 	LastByte          float64 `json:"lastbyte"`
 }
 
 type TXTimer struct {
-	FirstUpstreamByte   float64 `json:"firstupstreambyte"`
-	LastUpstreamByte    float64 `json:"lastupstreambyte"`
-	FirstDownstreamByte float64 `json:"firstdownstreambyte"`
-	LastDownstreamByte  float64 `json:"lastdownstreambyte"`
+	FirstUpstreamByte   float64 `json:"firstupstreambyte,string"`
+	LastUpstreamByte    float64 `json:"lastupstreambyte,string"`
+	FirstDownstreamByte float64 `json:"firstdownstreambyte,string"`
+	LastDownstreamByte  float64 `json:"lastdownstreambyte,string"`
 }
 
 type Downstream struct {
@@ -58,6 +58,15 @@ type NameValue struct {
 	Value string `json:"value"`
 }
 
+type RequestAttributes struct {
+	ipnum  uint32 `json:"ipnum,omitempty"`
+	IP     string `json:"ip,omitempty"`
+	Query  string `json:"query,omitempty"`
+	URI    string `json:"uri,omitempty"`
+	Path   string `json:"path,omitempty"`
+	Method string `json:"method,omitempty"`
+}
+
 type Request struct {
 	RequestId    string                 `json:"requestid"`
 	Scheme       string                 `json:"scheme"`
@@ -67,7 +76,7 @@ type Request struct {
 	Cookies      map[string]string      `json:"cookies"`
 	Arguments    map[string]string      `json:"arguments"`
 	Geo          map[string]interface{} `json:"geo"`
-	Attributes   map[string]interface{} `json:"attributes"`
+	Attributes   RequestAttributes      `json:"attributes"`
 }
 
 type Response struct {

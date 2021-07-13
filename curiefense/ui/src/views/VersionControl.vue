@@ -6,7 +6,7 @@
           <div class="columns">
             <div class="column">
               <div class="field is-grouped">
-                <div class="control">
+                <div class="control" v-if="branchNames.length">
                   <div class="select is-small">
                     <select v-model="selectedBranch"
                             title="Switch Branch"
@@ -47,7 +47,7 @@
               </div>
             </div>
 
-            <div class="column">
+            <div class="column" v-if="branches">
               <div class="field is-grouped is-pulled-right">
 
                 <p class="control">
@@ -146,6 +146,7 @@
         <hr/>
         <git-history :gitLog="gitLog"
                      :apiPath="gitAPIPath"
+                     :loading="loadingGitlog"
                      @restore-version="restoreGitVersion">
         </git-history>
       </div>
@@ -192,6 +193,8 @@ export default Vue.extend({
 
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
+
+      loadingGitlog: false,
     }
   },
 
@@ -246,8 +249,8 @@ export default Vue.extend({
 
     async loadConfigs(activeBranch?: string) {
       // store configs
-      const response = await RequestsUtils.sendRequest('GET', 'configs/')
-      const configs = response.data
+      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
+      const configs = response?.data
       this.configs = configs
       if (!activeBranch) {
         // pick first branch name as selected if not given active branch
@@ -267,7 +270,7 @@ export default Vue.extend({
 
     async loadSelectedBranchData() {
       this.isDownloadLoading = true
-      this.selectedBranchData = (await RequestsUtils.sendRequest('GET', `configs/${this.selectedBranch}/`)).data
+      this.selectedBranchData = (await RequestsUtils.sendRequest({methodName: 'GET', url: `configs/${this.selectedBranch}/`}))?.data
       this.isDownloadLoading = false
     },
 
@@ -281,10 +284,16 @@ export default Vue.extend({
     },
 
     async loadGitLog() {
+      this.loadingGitlog = true
       const config = this.selectedBranch
-      const urlTrail = `configs/${config}/v/`
-      return RequestsUtils.sendRequest('GET', urlTrail).then((response: AxiosResponse<Commit[]>) => {
-        this.gitLog = response.data
+      const url = `configs/${config}/v/`
+      return RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url,
+        failureMessage: 'Failed while attempting to load Git log',
+      }).then((response: AxiosResponse<Commit[]>) => {
+        this.gitLog = response?.data
+        this.loadingGitlog = false
         return response
       })
     },
@@ -295,38 +304,41 @@ export default Vue.extend({
       const versionId = gitVersion.version
       const urlTrail = `configs/${branch}/v/${versionId}/`
 
-      await RequestsUtils.sendRequest('PUT', `${urlTrail}revert/`, null, null,
-          `Branch "${branch}" was restored to version "${versionId}".`,
-          `Failed while attempting to restore branch "${branch}" to version "${versionId}".`)
+      await RequestsUtils.sendRequest({
+        methodName: 'PUT',
+        url: `${urlTrail}revert/`,
+        successMessage: `Branch "${branch}" was restored to version "${versionId}".`,
+        failureMessage: `Failed while attempting to restore branch "${branch}" to version "${versionId}".`,
+      })
       await this.loadGitLog()
     },
 
     deleteBranch() {
-      RequestsUtils.sendRequest('DELETE', `configs/${this.selectedBranch}/`, null, null,
-          `Branch ${this.selectedBranch} was deleted.`,
-          `Failed while attempting to delete branch "${this.selectedBranch}".`,
-      ).then(() => {
+      RequestsUtils.sendRequest({
+        methodName: 'DELETE',
+        url: `configs/${this.selectedBranch}/`,
+        successMessage: `Branch ${this.selectedBranch} was deleted.`,
+        failureMessage: `Failed while attempting to delete branch "${this.selectedBranch}".`,
+      }).then(() => {
         this.loadConfigs()
         this.toggleBranchDelete()
-      }).catch((error: Error) => {
-        console.error(error)
       })
     },
 
     forkBranch() {
       const newBranchName = this.forkBranchName
-      RequestsUtils.sendRequest('POST', `configs/${this.selectedBranch}/clone/${newBranchName}/`,
-          {
-            'id': 'string',
-            'description': 'string',
-          }, null,
-          `Branch "${this.selectedBranch}" was forked to "${this.forkBranchName}".`,
-          `Failed while attempting to fork branch "${this.selectedBranch}" to "${this.forkBranchName}".`,
-      ).then(() => {
+      RequestsUtils.sendRequest({
+        methodName: 'POST',
+        url: `configs/${this.selectedBranch}/clone/${newBranchName}/`,
+        data: {
+          'id': 'string',
+          'description': 'string',
+        },
+        successMessage: `Branch "${this.selectedBranch}" was forked to "${this.forkBranchName}".`,
+        failureMessage: `Failed while attempting to fork branch "${this.selectedBranch}" to "${this.forkBranchName}".`,
+      }).then(() => {
         this.loadConfigs(newBranchName)
         this.toggleBranchFork()
-      }).catch((error: Error) => {
-        console.error(error)
       })
     },
 

@@ -1,3 +1,5 @@
+ARG RUSTBIN_TAG=latest
+FROM curiefense/curiefense-rustbuild-bionic:${RUSTBIN_TAG} AS rustbin
 FROM curiefense/envoy-cf:0250ad715e8c0463d0d4389cbfab340bc7dd7587 AS envoy-cf
 FROM envoyproxy/envoy:v1.16-latest
 
@@ -21,14 +23,12 @@ RUN luarocks install lrexlib-pcre2 && \
 COPY --from=envoy-cf /envoy /usr/local/bin/envoy
 
 COPY init/start_curiefense.sh /start_curiefense.sh
-
 COPY curieproxy/lua /lua
 COPY curieproxy/lua/shared-objects/*.so /usr/local/lib/lua/5.1/
-
+COPY --from=rustbin /root/curiefense.so /usr/local/lib/lua/5.1/
 COPY curieproxy/config /bootstrap-config/config
 COPY curieproxy/envoy.yaml.* /etc/envoy/
 
 RUN mkdir /config && chmod a+rwxt /config
 
 ENTRYPOINT ["/start_curiefense.sh"]
-

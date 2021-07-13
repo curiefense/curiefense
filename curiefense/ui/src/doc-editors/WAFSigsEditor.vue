@@ -18,7 +18,7 @@
                            title="Document name"
                            placeholder="Document name"
                            v-model="localDoc.name"
-                           readonly/>
+                           @change="emitDocUpdate()"/>
                   </div>
                 </div>
               </div>
@@ -34,8 +34,8 @@
                      title="Match"
                      placeholder="matching domain(s) regex"
                      v-model="localDoc.operand"
-                     required
-                     readonly>
+                     @change="emitDocUpdate()"
+                     required>
               <span class="icon is-small is-left has-text-grey">
                 <i class="fas fa-code"></i>
               </span>
@@ -45,28 +45,28 @@
             <div class="control">
               <div class="tags has-addons">
                 <span class="tag">severity</span>
-                <span class="tag has-text-info document-severity">{{ selectedDoc.severity }}</span>
+                <span class="tag has-text-info document-severity">{{ localDoc.severity }}</span>
               </div>
             </div>
 
             <div class="control">
               <div class="tags has-addons">
                 <span class="tag">certainty</span>
-                <span class="tag has-text-info document-certainty">{{ selectedDoc.certainity }}</span>
+                <span class="tag has-text-info document-certainty">{{ localDoc.certainity }}</span>
               </div>
             </div>
 
             <div class="control">
               <div class="tags has-addons">
                 <span class="tag">category</span>
-                <span class="tag has-text-info document-category">{{ selectedDoc.category }}</span>
+                <span class="tag has-text-info document-category">{{ localDoc.category }}</span>
               </div>
             </div>
 
             <div class="control">
               <div class="tags has-addons">
                 <span class="tag">subcategory</span>
-                <span class="tag has-text-info document-subcategory">{{ selectedDoc.subcategory }}</span>
+                <span class="tag has-text-info document-subcategory">{{ localDoc.subcategory }}</span>
               </div>
             </div>
 
@@ -90,6 +90,12 @@ export default Vue.extend({
   computed: {
     localDoc(): WAFRule {
       return _.cloneDeep(this.selectedDoc)
+    },
+  },
+
+  methods: {
+    emitDocUpdate() {
+      this.$emit('update:selectedDoc', this.localDoc)
     },
   },
 })

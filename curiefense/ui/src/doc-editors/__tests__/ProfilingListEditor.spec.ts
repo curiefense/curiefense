@@ -240,6 +240,14 @@ describe('ProfilingListEditor.vue', () => {
       expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
     })
 
+    test('should emit form validness when EntriesRelationList is validated', async () => {
+      const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
+      entriesRelationListComponent.vm.$emit('invalid', false)
+      await Vue.nextTick()
+      // check
+      expect(wrapper.emitted('form-invalid')).toBeTruthy()
+    })
+
     test('should set document tags to be an empty array if empty string provided', async () => {
       const newTagInputValue = ''
       const wantedEmit = JSON.parse(JSON.stringify(docs[0]))

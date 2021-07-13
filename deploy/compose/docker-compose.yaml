@@ -12,6 +12,7 @@ services:
       - TARGET_ADDRESS=echo
       - TARGET_PORT=8080
       - XFF_TRUSTED_HOPS
+      - ENVOY_LOG_LEVEL
     networks:
       curiemesh:
         aliases:

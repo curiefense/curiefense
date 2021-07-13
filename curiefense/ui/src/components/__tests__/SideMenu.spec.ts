@@ -12,6 +12,7 @@ describe('SideMenu.vue', () => {
   let swaggerURL: string
   let kibanaURL: string
   let grafanaURL: string
+  let prometheusURL: string
   beforeEach(() => {
     $route = {
       path: '/config',
@@ -19,11 +20,13 @@ describe('SideMenu.vue', () => {
     swaggerURL = 'https://10.0.0.1:30000/api/v1/'
     kibanaURL = 'https://10.0.0.1:5601/app/discover/'
     grafanaURL = 'https://10.0.0.1:30300/'
+    prometheusURL = 'https://10.0.0.1:9090/'
     const dbData = {
       links: {
         kibana_url: kibanaURL,
         grafana_url: grafanaURL,
         swagger_url: swaggerURL,
+        prometheus_url: prometheusURL,
       },
     }
     jest.spyOn(axios, 'get').mockImplementation((path) => {
@@ -112,12 +115,17 @@ describe('SideMenu.vue', () => {
     const wantedMenuItems = [
       {
         path: `${location.protocol}//${location.hostname}:5601/app/discover`,
-        title: 'Access Log (ELK)',
+        title: 'Kibana',
         external: true,
       },
       {
         path: `${location.protocol}//${location.hostname}:30300/`,
         title: 'Grafana',
+        external: true,
+      },
+      {
+        path: `${location.protocol}//${location.hostname}:9090/`,
+        title: 'Prometheus',
         external: true,
       },
     ]
@@ -138,12 +146,17 @@ describe('SideMenu.vue', () => {
     const wantedMenuItems = [
       {
         path: kibanaURL,
-        title: 'Access Log (ELK)',
+        title: 'Kibana',
         external: true,
       },
       {
         path: grafanaURL,
         title: 'Grafana',
+        external: true,
+      },
+      {
+        path: prometheusURL,
+        title: 'Prometheus',
         external: true,
       },
     ]

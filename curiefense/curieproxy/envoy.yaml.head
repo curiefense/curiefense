@@ -43,7 +43,7 @@ static_resources:
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
               inline_code: |
-                local session = require "lua.session"
+                local session = require "lua.session_envoy"
                 function envoy_on_request(handle)
                   session.inspect(handle)
                 end

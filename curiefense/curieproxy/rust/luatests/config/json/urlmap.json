@@ -1,0 +1,138 @@
+[
+    {
+        "match": "__default__",
+        "id": "__default__",
+        "name": "default entry",
+        "map": [
+            {
+                "match": "^/direct",
+                "name": "direct association",
+                "acl_profile": "FROMTAGS",
+                "waf_profile": "__default__",
+                "acl_active": true,
+                "waf_active": false,
+                "limit_ids": []
+            },
+            {
+                "match": "^/waf/noinjection",
+                "name": "waf noinjection tests",
+                "acl_profile": "__default__",
+                "waf_profile": "noinject",
+                "acl_active": true,
+                "waf_active": true,
+                "limit_ids": []
+            },
+            {
+                "match": "^/waf/omitted",
+                "name": "waf omit tests",
+                "acl_profile": "__default__",
+                "waf_profile": "omitted",
+                "acl_active": true,
+                "waf_active": true,
+                "limit_ids": []
+            },
+            {
+                "match": "^/waf/args",
+                "name": "waf args tests",
+                "acl_profile": "__default__",
+                "waf_profile": "argschecks",
+                "acl_active": true,
+                "waf_active": true,
+                "limit_ids": []
+            },
+            {
+                "match": "^/limits/simple",
+                "name": "limits simple",
+                "acl_profile": "__default__",
+                "waf_profile": "__default__",
+                "acl_active": true,
+                "waf_active": true,
+                "limit_ids": [
+                    "limitsimple"
+                ]
+            },
+            {
+                "match": "^/limits/country",
+                "name": "limits country",
+                "acl_profile": "__default__",
+                "waf_profile": "__default__",
+                "acl_active": true,
+                "waf_active": true,
+                "limit_ids": [
+                    "limitcountry"
+                ]
+            },
+            {
+                "match": "^/limits/include",
+                "name": "limits simple",
+                "acl_profile": "__default__",
+                "waf_profile": "__default__",
+                "acl_active": true,
+                "waf_active": true,
+                "limit_ids": [
+                    "limitinclude"
+                ]
+            },
+            {
+                "match": "^/limits/exclude",
+                "name": "limits simple",
+                "acl_profile": "__default__",
+                "waf_profile": "__default__",
+                "acl_active": true,
+                "waf_active": true,
+                "limit_ids": [
+                    "limitexclude"
+                ]
+            },
+            {
+                "match": "^/rr/",
+                "name": "waf restrict tests",
+                "acl_profile": "__default__",
+                "waf_profile": "rr",
+                "acl_active": false,
+                "waf_active": true,
+                "limit_ids": []
+            },
+            {
+                "name": "waf-short-headers",
+                "match": "^/waf-short-headers/",
+                "acl_profile": "__default__",
+                "acl_active": false,
+                "waf_profile": "e2e000000002",
+                "waf_active": true,
+                "limit_ids": []
+            },
+            {
+                "name": "scope-country-include",
+                "match": "/scope-country-include/",
+                "acl_profile": "__default__",
+                "acl_active": true,
+                "waf_profile": "__default__",
+                "waf_active": true,
+                "limit_ids": [
+                    "e2e1000000007"
+                ]
+            },
+            {
+                "name": "ban-test",
+                "match": "/limits/ban-test",
+                "acl_profile": "__default__",
+                "acl_active": true,
+                "waf_profile": "__default__",
+                "waf_active": true,
+                "limit_ids": [
+                    "f971e92459e2"
+                ]
+            },
+            {
+                "match": "/",
+                "name": "default",
+                "acl_profile": "__default__",
+                "waf_profile": "__default__",
+                "acl_active": false,
+                "waf_active": false,
+                "limit_ids": []
+            }
+        ]
+    }
+]

@@ -1,4 +1,4 @@
-import RequestsUtils from '../../assets/RequestsUtils'
+import RequestsUtils, {IRequestParams} from '../../assets/RequestsUtils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import * as bulmaToast from 'bulma-toast'
 import {Options} from 'bulma-toast'
@@ -21,13 +21,23 @@ describe('RequestsUtils.ts', () => {
     jest.clearAllMocks()
   })
 
-  function buildFuncDescribe(requestFunc: Function, baseUrl: string, urlTrail: string) {
-    describe(`${requestFunc.name} function`, () => {
+  function buildFuncDescribe(func: Function, baseUrl: string, urlTrail: string) {
+    describe(`${func.name} function`, () => {
       const apiUrl = `${baseUrl}${urlTrail}`
       const dataObject = {
         id: 'a240gava',
         name: 'A name',
       }
+      const requestFunc = (
+        methodName: string,
+        url: IRequestParams['url'],
+        data?: IRequestParams['data'],
+        config?: IRequestParams['config'],
+        successMessage?: IRequestParams['successMessage'],
+        failureMessage?: IRequestParams['failureMessage'],
+        undoFunction?: IRequestParams['undoFunction'],
+        onFail?: IRequestParams['onFail'],
+      ) => func({methodName, url, data, config, successMessage, failureMessage, undoFunction, onFail})
 
       describe('basic usage', () => {
         test('should send GET request correctly', async () => {
@@ -108,11 +118,9 @@ describe('RequestsUtils.ts', () => {
         test('should send error when attempting to send request with unrecognized request method', async () => {
           const originalError = console.error
           console.error = (output: string) => consoleOutput.push(output)
-
-          const weirdRequestMethod = 'POTATO'
+          const weirdRequestMethod = 'POTATO' as IRequestParams['methodName']
           await requestFunc(weirdRequestMethod, urlTrail)
           expect(consoleOutput).toContain(`Attempted sending unrecognized request method ${weirdRequestMethod}`)
-
           console.error = originalError
         })
       })
@@ -164,46 +172,51 @@ describe('RequestsUtils.ts', () => {
 
         test('should not send failure toast when GET request is rejected if not set', (done) => {
           jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.reject(new Error()))
-          requestFunc('GET', urlTrail, null, null, successMessage, null).catch(() => {
+          const onFail = () => {
             expect(toastOutput.length).toEqual(0)
             done()
-          })
+          }
+          requestFunc('GET', urlTrail, null, null, successMessage, null, null, onFail)
         })
 
         test('should send failure toast when GET request is rejected', (done) => {
           jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.reject(new Error()))
-          requestFunc('GET', urlTrail, null, null, successMessage, failureMessage).catch(() => {
+          const onFail = () => {
             expect(toastOutput[0].message).toContain(failureMessage)
             expect(toastOutput[0].type).toContain(failureMessageClass)
             done()
-          })
+          }
+          requestFunc('GET', urlTrail, null, null, successMessage, failureMessage, null, onFail)
         })
 
         test('should send failure toast when PUT request is rejected', (done) => {
           jest.spyOn(axios, 'put').mockImplementationOnce(() => Promise.reject(new Error()))
-          requestFunc('PUT', urlTrail, dataObject, null, successMessage, failureMessage).catch(() => {
+          const onFail = () => {
             expect(toastOutput[0].message).toContain(failureMessage)
             expect(toastOutput[0].type).toContain(failureMessageClass)
             done()
-          })
+          }
+          requestFunc('PUT', urlTrail, dataObject, null, successMessage, failureMessage, null, onFail)
         })
 
         test('should send failure toast when POST request is rejected', (done) => {
           jest.spyOn(axios, 'post').mockImplementationOnce(() => Promise.reject(new Error()))
-          requestFunc('POST', urlTrail, dataObject, null, successMessage, failureMessage).catch(() => {
+          const onFail = () => {
             expect(toastOutput[0].message).toContain(failureMessage)
             expect(toastOutput[0].type).toContain(failureMessageClass)
             done()
-          })
+          }
+          requestFunc('POST', urlTrail, dataObject, null, successMessage, failureMessage, null, onFail)
         })
 
         test('should send failure toast when DELETE request is rejected', (done) => {
           jest.spyOn(axios, 'delete').mockImplementationOnce(() => Promise.reject(new Error()))
-          requestFunc('DELETE', urlTrail, null, null, successMessage, failureMessage).catch(() => {
+          const onFail = () => {
             expect(toastOutput[0].message).toContain(failureMessage)
             expect(toastOutput[0].type).toContain(failureMessageClass)
             done()
-          })
+          }
+          requestFunc('DELETE', urlTrail, null, null, successMessage, failureMessage, null, onFail)
         })
       })
     })

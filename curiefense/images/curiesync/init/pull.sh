@@ -12,6 +12,10 @@ info () {
     fi
 }
 
+if [ -f /etc/curiefense/curiesync.env ]; then
+	# shellcheck disable=SC1091
+	source /etc/curiefense/curiesync.env
+fi
 
 if [ "$RUN_MODE" = "SYNC_ONCE" ]; then
     info "Synchronizing once"

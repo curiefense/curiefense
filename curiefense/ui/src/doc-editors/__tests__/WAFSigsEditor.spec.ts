@@ -7,7 +7,7 @@ import {WAFRule} from '@/types'
 describe('WAFSigsEditor.vue', () => {
   let docs: WAFRule[]
   let wrapper: Wrapper<Vue>
-  beforeEach(() => {
+  beforeEach(async () => {
     docs = [{
       'id': '100000',
       'name': '100000',
@@ -23,6 +23,7 @@ describe('WAFSigsEditor.vue', () => {
         selectedDoc: docs[0],
       },
     })
+    await Vue.nextTick()
   })
 
   describe('form data', () => {
@@ -55,5 +56,29 @@ describe('WAFSigsEditor.vue', () => {
     test('should have correct subcategory displayed', () => {
       expect(wrapper.find('.document-subcategory').text()).toEqual(docs[0].subcategory)
     })
+  })
+
+  test('should emit doc update when name input changes', async () => {
+    const wantedName = 'new name'
+    const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
+    wantedEmit.name = wantedName
+    const element = wrapper.find('.document-name')
+    element.setValue(wantedName)
+    element.trigger('change')
+    await Vue.nextTick()
+    expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+    expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
+  })
+
+  test('should emit doc update when operand input changes', async () => {
+    const wantedOperand = '\\s(and|or)\\s+["\']\\w+["\']\\s+.*between\\s.*["\']\\w+["\']\\s+and\\s+["\']\\w+.*'
+    const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
+    wantedEmit.operand = wantedOperand
+    const element = wrapper.find('.document-operand');
+    element.setValue(wantedOperand)
+    element.trigger('change')
+    await Vue.nextTick()
+    expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+    expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
   })
 })

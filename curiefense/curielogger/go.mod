@@ -18,4 +18,5 @@ require (
 	gocloud.dev v0.22.0
 	google.golang.org/grpc v1.34.0
 	gopkg.in/dealancer/validate.v2 v2.1.0
+	gopkg.in/mcuadros/go-syslog.v2 v2.3.0
 )

@@ -55,11 +55,13 @@ export default Vue.extend({
     const swaggerURL = `${location.protocol}//${location.hostname}:30000/api/v1/`
     const kibanaURL = `${location.protocol}//${location.hostname}:5601/app/discover`
     const grafanaURL = `${location.protocol}//${location.hostname}:30300/`
+    const prometheusURL = `${location.protocol}//${location.hostname}:9090/`
 
     return {
       defaultSwaggerURL: swaggerURL,
       defaultKibanaURL: kibanaURL,
       defaultGrafanaURL: grafanaURL,
+      defaultPrometheusURL: prometheusURL,
       menuItems: {
         settings: {
           '/config': {
@@ -82,13 +84,18 @@ export default Vue.extend({
         },
         analytics: {
           'kibana': {
-            title: 'Access Log (ELK)',
+            title: 'Kibana',
             url: kibanaURL,
             external: true,
           },
           'grafana': {
             title: 'Grafana',
             url: grafanaURL,
+            external: true,
+          },
+          'prometheus': {
+            title: 'Prometheus',
+            url: prometheusURL,
             external: true,
           },
         },
@@ -118,23 +125,29 @@ export default Vue.extend({
   },
   methods: {
     async loadLinksFromDB() {
-      const systemDBData = (await RequestsUtils.sendRequest('GET', `db/system/`)).data
+      const systemDBData = (await RequestsUtils.sendRequest( {methodName: 'GET', url: `db/system/`} ))?.data
       const swaggerURL = systemDBData?.links?.swagger_url ? systemDBData.links.swagger_url : this.defaultSwaggerURL
       const kibanaURL = systemDBData?.links?.kibana_url ? systemDBData.links.kibana_url : this.defaultKibanaURL
       const grafanaURL = systemDBData?.links?.grafana_url ? systemDBData.links.grafana_url : this.defaultGrafanaURL
+      const prometheusURL = systemDBData?.links?.prometheus_url ? systemDBData.links.prometheus_url : this.defaultPrometheusURL
       this.menuItems.settings.swagger = {
         title: 'API',
         url: swaggerURL,
         external: true,
       }
       this.menuItems.analytics.kibana = {
-        title: 'Access Log (ELK)',
+        title: 'Kibana',
         url: kibanaURL,
         external: true,
       }
       this.menuItems.analytics.grafana = {
         title: 'Grafana',
         url: grafanaURL,
+        external: true,
+      }
+      this.menuItems.analytics.prometheus = {
+        title: 'Prometheus',
+        url: prometheusURL,
         external: true,
       }
     },

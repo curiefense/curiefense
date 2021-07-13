@@ -1,4 +1,4 @@
-import {ACLPolicy, FlowControl, RateLimit, TagRule, URLMap, WAFPolicy} from '@/types'
+import {ACLPolicy, FlowControl, RateLimit, TagRule, URLMap, WAFPolicy, WAFRule} from '@/types'
 
 const titles: { [key: string]: string } = {
   'admin': 'Admin',
@@ -190,6 +190,14 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'exclude': [],
       'include': ['all'],
       'sequence': [],
+    }
+  },
+
+  wafrules(): WAFRule {
+    return {
+      'id': generateUUID2(),
+      'name': 'New WAF Rule',
+      'operand': '',
     }
   },
 

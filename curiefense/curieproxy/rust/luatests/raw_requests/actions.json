@@ -1,0 +1,32 @@
+[
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/dqsqsdqsdcqsd",
+      "user-agent": "dummy",
+      "x-forwarded-for": "12.13.14.15"
+    },
+    "name": "test block by ip tagging",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:12-13-14-15",
+        "sante",
+        "urlmap-entry:default",
+        "wafname:default-waf",
+        "urlmap:default-entry",
+        "aclname:default-acl",
+        "aclid:--default--",
+        "asn:7018",
+        "tagbyip",
+        "wafid:--default--",
+        "bot"
+      ]
+    }
+  }
+]

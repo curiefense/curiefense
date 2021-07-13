@@ -112,7 +112,24 @@
                             "type": "object"
                         },
                         "attributes": {
-                            "type": "object"
+                          "type": "object",
+                          "properties": {
+                            "ip": {
+                              "type": "ip"
+                            },
+                            "ipnum": {
+                              "type": "integer"
+                            },
+                            "query": {
+                              "type": "text"
+                            },
+                            "uri": {
+                              "type": "keyword"
+                            },
+                            "path": {
+                              "type": "keyword"
+                            }
+                          }
                         },
                         "bodybytes": {
                             "type": "integer"

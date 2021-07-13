@@ -109,5 +109,12 @@ describe('RequestsUtils.ts', () => {
       expect(document['include']).toEqual(['all'])
       expect(document['sequence']).toEqual([])
     })
+
+    test('should generate a new WAF Rule', async () => {
+      const document = DatasetsUtils.newDocEntryFactory.wafrules()
+      expect(regexUUID2.test(document['id'])).toBeTruthy()
+      expect(document['name']).toEqual('New WAF Rule')
+      expect(document['operand']).toEqual('')
+    })
   })
 })

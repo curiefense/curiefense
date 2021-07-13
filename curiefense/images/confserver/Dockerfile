@@ -16,6 +16,6 @@ RUN /usr/bin/apt-get update && \
 COPY bootstrap /bootstrap
 COPY init /init
 COPY curieconf-utils /curieconf-utils
-RUN cd /curieconf-utils ; pip3 install .
+RUN cd /curieconf-utils ; pip3 install --no-cache-dir .
 COPY curieconf-server /curieconf-server
-RUN cd /curieconf-server ; pip3 install .
+RUN cd /curieconf-server ; pip3 install --no-cache-dir .

@@ -6,7 +6,7 @@
           <div class="columns">
             <div class="column is-4">
               <div class="field is-grouped">
-                <div class="control">
+                <div class="control" v-if="branchNames.length">
                   <div class="select is-small">
                     <select v-model="selectedBranchName"
                             class="branch-selection"
@@ -63,7 +63,7 @@
                   :key="commit.version"
                   :class="getVersionRowClass(commit.version)">
                 <td class="is-size-7">
-                  {{ commit.date }} {{ commit.version }}
+                  {{ formatDate(commit.date) }} {{ commit.version }}
                   <br/>
                   {{ commit.message }}
                   <br/>
@@ -137,6 +137,7 @@ import Vue from 'vue'
 import {Branch, Commit} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
+import DateTimeUtils from '@/assets/DateTimeUtils'
 
 export default Vue.extend({
   name: 'Publish',
@@ -190,6 +191,10 @@ export default Vue.extend({
       this.publishMode = false
     },
 
+    formatDate(date: string) {
+      return DateTimeUtils.isoToNowFullCuriefenseFormat(date)
+    },
+
     getVersionRowClass(version: string) {
       const classNames = []
       if (version === this.selectedCommit) {
@@ -203,8 +208,8 @@ export default Vue.extend({
       const selectedBranch = _.find(this.configs, (conf) => {
         return conf.id === this.selectedBranchName
       })
-      this.gitLog = selectedBranch.logs
-      this.selectedCommit = this.gitLog[0]?.version || null
+      this.gitLog = selectedBranch?.logs
+      this.selectedCommit = this.gitLog?.[0]?.version || null
     },
 
     switchBranch() {
@@ -216,7 +221,7 @@ export default Vue.extend({
 
     setDefaultBuckets() {
       this.selectedBucketNames = []
-      if (this.publishInfo.branch_buckets.length > 0) {
+      if (this.publishInfo?.branch_buckets?.length) {
         const bucketList = _.find(this.publishInfo.branch_buckets, (list) => {
           return list.name === this.selectedBranchName
         })
@@ -231,8 +236,12 @@ export default Vue.extend({
     },
 
     loadPublishInfo() {
-      RequestsUtils.sendRequest('GET', `db/system/k/publishinfo/`).then((response: AxiosResponse) => {
-        this.publishInfo = response.data
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `db/system/k/publishinfo/`,
+        failureMessage: 'Failed while attempting to load publish info',
+      }).then((response: AxiosResponse) => {
+        this.publishInfo = response?.data
         this.setDefaultBuckets()
       })
     },
@@ -248,8 +257,8 @@ export default Vue.extend({
 
     loadConfigs() {
       // store configs
-      RequestsUtils.sendRequest('GET', 'configs/').then((response: AxiosResponse<Branch[]>) => {
-        this.configs = response.data
+      RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'}).then((response: AxiosResponse<Branch[]>) => {
+        this.configs = response?.data
         // pick first branch name as selected
         this.selectedBranchName = this.branchNames[0]
         this.loadBranchLogs()
@@ -264,19 +273,20 @@ export default Vue.extend({
         return _.indexOf(this.selectedBucketNames, bucket.name) > -1
       }))
 
-      RequestsUtils.sendRequest('PUT',
-          `tools/publish/${this.selectedBranchName}/v/${this.selectedCommit}/`,
-          this.buckets,
-      ).then((response: AxiosResponse) => {
-        this.parsePublishResults(response.data)
-        this.isPublishLoading = false
-      }).catch((error: Error) => {
-        console.error(error)
-        this.isPublishLoading = false
-        Utils.toast(
+      RequestsUtils.sendRequest({
+        methodName: 'PUT',
+        url: `tools/publish/${this.selectedBranchName}/v/${this.selectedCommit}/`,
+        data: this.buckets,
+        onFail: () => {
+          this.isPublishLoading = false
+          Utils.toast(
             `Failed while attempting to publish branch "${this.selectedBranchName}" version "${this.selectedCommit}".`,
             'is-danger',
-        )
+          )
+        },
+      }).then((response: AxiosResponse) => {
+        this.parsePublishResults(response.data)
+        this.isPublishLoading = false
       })
     },
 

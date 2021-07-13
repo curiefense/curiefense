@@ -219,7 +219,8 @@
                                              class="input is-small new-entry-key"
                                              type="text"
                                              v-model="newEntry.key"
-                                             :title="titles.names"/>
+                                             placeholder="Key"
+                                             title="Key"/>
                                     </div>
                                   </div>
                                 </div>
@@ -233,7 +234,8 @@
                                    class="input is-small new-entry-reg"
                                    type="text"
                                    v-model="newEntry.reg"
-                                   :title="titles.regex"/>
+                                   placeholder="Value"
+                                   title="Value regex"/>
                             <span class="icon is-small is-left has-text-grey">
                                   <i class="fas fa-code"></i>
                                 </span>
@@ -283,7 +285,8 @@
                                      type="text"
                                      @change="emitDocUpdate"
                                      v-model="entry.key"
-                                     :title="titles.names"/>
+                                     placeholder="Key"
+                                     title="Key name"/>
                               <span class="icon is-small is-left has-text-grey">
                                 <i class="fas fa-font"></i>
                               </span>
@@ -297,7 +300,8 @@
                                    type="text"
                                    @change="emitDocUpdate"
                                    v-model="entry.reg"
-                                   :title="titles.regex"/>
+                                   placeholder="Value"
+                                   title="Value regex"/>
                             <span class="icon is-small is-left has-text-grey">
                               <i class="fas fa-code"></i>
                             </span>
@@ -352,7 +356,8 @@
                                      type="text"
                                      @change="emitDocUpdate"
                                      v-model="entry.key"
-                                     :title="titles.regex"/>
+                                     placeholder="Key"
+                                     title="Key regex"/>
                               <span class="icon is-small is-left has-text-grey">
                                 <i class="fas fa-code"></i>
                               </span>
@@ -366,7 +371,8 @@
                                    type="text"
                                    @change="emitDocUpdate"
                                    v-model="entry.reg"
-                                   :title="titles.regex"/>
+                                   placeholder="Value"
+                                   title="Value regex"/>
                             <span class="icon is-small is-left has-text-grey">
                                   <i class="fas fa-code"></i>
                             </span>
@@ -525,10 +531,11 @@ export default Vue.extend({
     loadWAFRuleIDs() {
       const branch = this.selectedBranch
 
-      RequestsUtils.sendRequest('GET',
-          `configs/${branch}/d/wafrules/`,
-          null,
-          {headers: {'x-fields': 'id'}}).then((response: AxiosResponse<WAFRule[]>) => {
+      RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${branch}/d/wafrules/`,
+        config: {headers: {'x-fields': 'id'}},
+      }).then((response: AxiosResponse<WAFRule[]>) => {
         this.wafRuleIDsSuggestions = _.sortBy(_.map(response.data, (entity) => {
           return {
             value: entity.id,

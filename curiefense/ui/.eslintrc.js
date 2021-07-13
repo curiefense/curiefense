@@ -44,6 +44,7 @@ module.exports = {
       'CallExpression': {
         'arguments': 'off',
       },
+      'SwitchCase': 1,
     }],
   },
 }

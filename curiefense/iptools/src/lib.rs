@@ -405,12 +405,20 @@ fn urldecode(input: String) -> Vec<u8> {
     out
 }
 
-fn decodeurl(_: &Lua, url: String) -> LuaResult<Option<String>> {
-    Ok(Some(String::from_utf8_lossy(&urldecode(url)).into_owned()))
+pub fn decodeurl(lua: &Lua, args: LuaMultiValue) -> LuaResult<Option<String>> {
+    let res: LuaResult<String> = FromLuaMulti::from_lua_multi(args, lua);
+    Ok(Some(match res {
+        Ok(url_str) => String::from_utf8_lossy(&urldecode(url_str)).into_owned(),
+        _ => "".into(),
+    }))
 }
 
-fn encodeurl(_: &Lua, url: String) -> LuaResult<Option<String>> {
-    Ok(Some(encode(&url)))
+pub fn encodeurl(lua: &Lua, args: LuaMultiValue) -> LuaResult<Option<String>> {
+    let res: LuaResult<String> = FromLuaMulti::from_lua_multi(args, lua);
+    Ok(Some(match res {
+        Ok(url_str) => encode(&url_str),
+        _ => "".into(),
+    }))
 }
 
 /////////////////////////////////////////

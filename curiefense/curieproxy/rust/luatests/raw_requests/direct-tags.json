@@ -1,0 +1,1618 @@
+[
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow + allowbot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow&deny=deny",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow + deny",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow",
+        "deny"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow&denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow + denybot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 247,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow",
+        "denybot",
+        "challenge-phase01"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow&forcedeny=forcedeny",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow + forcedeny",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow",
+        "forcedeny"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow&bypass=bypass",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow + bypass",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow",
+        "bypass"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow&deny=deny&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow + deny + allowbot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow",
+        "deny",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow&denybot=denybot&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow + denybot + allowbot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow",
+        "denybot",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow&forcedeny=forcedeny&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow + forcedeny + allowbot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow",
+        "forcedeny",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow&bypass=bypass&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow + bypass + allowbot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow",
+        "bypass",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow&deny=deny&denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow + deny + denybot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 247,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow",
+        "deny",
+        "denybot",
+        "challenge-phase01"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow&deny=deny&forcedeny=forcedeny",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow + deny + forcedeny",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow",
+        "deny",
+        "forcedeny"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow&deny=deny&bypass=bypass",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow + deny + bypass",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow",
+        "deny",
+        "bypass"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow&allowbot=allowbot&denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow + allowbot + denybot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow",
+        "allowbot",
+        "denybot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow&forcedeny=forcedeny&denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow + forcedeny + denybot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow",
+        "forcedeny",
+        "denybot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow&bypass=bypass&denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow + bypass + denybot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow",
+        "bypass",
+        "denybot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allow=allow&bypass=bypass&forcedeny=forcedeny",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allow + bypass + forcedeny",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allow",
+        "bypass",
+        "forcedeny"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allowbot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?deny=deny&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "deny + allowbot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "deny",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?denybot=denybot&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "denybot + allowbot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "denybot",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?forcedeny=forcedeny&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "forcedeny + allowbot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "forcedeny",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass + allowbot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?denybot=denybot&deny=deny&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "denybot + deny + allowbot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "denybot",
+        "deny",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?deny=deny&forcedeny=forcedeny&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "deny + forcedeny + allowbot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "deny",
+        "forcedeny",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass&deny=deny&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass + deny + allowbot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass",
+        "deny",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?denybot=denybot&allow=allow&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "denybot + allow + allowbot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "denybot",
+        "allow",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?denybot=denybot&forcedeny=forcedeny&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "denybot + forcedeny + allowbot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "denybot",
+        "forcedeny",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?denybot=denybot&bypass=bypass&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "denybot + bypass + allowbot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "denybot",
+        "bypass",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass&forcedeny=forcedeny&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass + forcedeny + allowbot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass",
+        "forcedeny",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass&allow=allow&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass + allow + allowbot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass",
+        "allow",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass&denybot=denybot&allowbot=allowbot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass + denybot + allowbot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass",
+        "denybot",
+        "allowbot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?deny=deny",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "deny",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "deny"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?deny=deny&denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "deny + denybot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "deny",
+        "denybot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?deny=deny&forcedeny=forcedeny",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "deny + forcedeny",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "deny",
+        "forcedeny"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass&deny=deny",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass + deny",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass",
+        "deny"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?deny=deny&allowbot=allowbot&denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "deny + allowbot + denybot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "deny",
+        "allowbot",
+        "denybot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?deny=deny&forcedeny=forcedeny&denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "deny + forcedeny + denybot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "deny",
+        "forcedeny",
+        "denybot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass&deny=deny&denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass + deny + denybot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass",
+        "deny",
+        "denybot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass&deny=deny&forcedeny=forcedeny",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass + deny + forcedeny",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass",
+        "deny",
+        "forcedeny"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass&deny=deny&allow=allow",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass + deny + allow",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass",
+        "deny",
+        "allow"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allowbot=allowbot&denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allowbot + denybot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allowbot",
+        "denybot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?allowbot=allowbot&forcedeny=forcedeny&denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "allowbot + forcedeny + denybot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "allowbot",
+        "forcedeny",
+        "denybot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass&allowbot=allowbot&denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass + allowbot + denybot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass",
+        "allowbot",
+        "denybot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "denybot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 247,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "denybot",
+        "challenge-phase01"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?forcedeny=forcedeny&denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "forcedeny + denybot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "forcedeny",
+        "denybot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass&denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass + denybot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass",
+        "denybot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass&forcedeny=forcedeny&denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass + forcedeny + denybot",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass",
+        "forcedeny",
+        "denybot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass&allow=allow&denybot=denybot",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass + allow + denybot",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass",
+        "allow",
+        "denybot"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?forcedeny=forcedeny",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "forcedeny",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "forcedeny"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass&forcedeny=forcedeny",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass + forcedeny",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass",
+        "forcedeny"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass&allow=allow&forcedeny=forcedeny",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass + allow + forcedeny",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 503,
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass",
+        "allow",
+        "forcedeny"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass&allow=allow",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass + allow",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass",
+        "allow"
+      ]
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/direct?bypass=bypass",
+      "user-agent": "dummy",
+      "x-forwarded-for": "23.129.64.253"
+    },
+    "name": "bypass",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "all",
+        "geo:united-states",
+        "ip:23-129-64-253",
+        "aclname:from-tags",
+        "aclid:fromtags",
+        "wafname:default-waf",
+        "wafid:--default--",
+        "urlmap:default-entry",
+        "asn:396507",
+        "urlmap-entry:direct-association",
+        "bot",
+        "sante",
+        "bypass"
+      ]
+    }
+  }
+]

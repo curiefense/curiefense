@@ -13,6 +13,7 @@ fi
 TADDR="${TARGET_ADDRESS:-echo}"
 TPORT="${TARGET_PORT:-8080}"
 XFF="${XFF_TRUSTED_HOPS:-1}"
+ENVOY_LOG_LEVEL="${ENVOY_LOG_LEVEL:-error}"
 
 sed -e "s/XFF_TRUSTED/$XFF/" /etc/envoy/envoy.yaml.head > /etc/envoy/envoy.yaml
 if [ -f /run/secrets/curieproxysslcrt ]; then
@@ -23,8 +24,7 @@ sed -e "s/TARGET_ADDRESS/$TADDR/" -e "s/TARGET_PORT/$TPORT/" /etc/envoy/envoy.ya
 while true
 do
 	# shellcheck disable=SC2086
-	/usr/local/bin/envoy -c /etc/envoy/envoy.yaml --service-cluster proxy --log-level debug $ENVOY_ARGS --concurrency 1 #NO concurrency PICKS THE NUM OF CORES
-    # /usr/local/bin/envoy -c /etc/envoy/envoy.yaml --service-cluster proxy --log-level error $ENVOY_ARGS #--concurrency 1 NO concurrency PICKS THE NUM OF CORES
+    /usr/local/bin/envoy -c /etc/envoy/envoy.yaml --service-cluster proxy --log-level "$ENVOY_LOG_LEVEL" $ENVOY_ARGS #--concurrency 1 NO concurrency PICKS THE NUM OF CORES
 	sleep 1
 done
 

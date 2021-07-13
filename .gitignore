@@ -31,3 +31,6 @@ venv-*
 
 */node_modules
 internal-notes/
+
+.mypy_cache
+.vscode
