@@ -72,6 +72,16 @@ fn redis_check_limit(
     Ok(current > limit as i64)
 }
 
+fn limit_match(tags: &Tags, elem: &Limit) -> bool {
+    if elem.exclude.iter().any(|e| tags.contains(e)) {
+        return false;
+    }
+    if !(elem.include.is_empty() || elem.include.iter().any(|e| tags.contains(e))) {
+        return false;
+    }
+    true
+}
+
 pub fn limit_check(
     logs: &mut Logs,
     url_map_name: &str,
@@ -95,20 +105,8 @@ pub fn limit_check(
     };
 
     for limit in limits {
-        if limit
-            .exclude
-            .iter()
-            .any(|selcond| check_selector_cond(reqinfo, tags, selcond))
-        {
+        if !limit_match(tags, limit) {
             logs.debug(format!("limit {} excluded", limit.name));
-            continue;
-        }
-        if !limit
-            .include
-            .iter()
-            .all(|selcond| check_selector_cond(reqinfo, tags, selcond))
-        {
-            logs.debug(format!("limit {} not included", limit.name));
             continue;
         }
 

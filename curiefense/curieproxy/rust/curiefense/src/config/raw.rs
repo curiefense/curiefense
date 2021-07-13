@@ -121,9 +121,9 @@ pub struct RawLimit {
     #[serde(default)]
     pub key: Vec<HashMap<String, String>>,
     #[serde(default)]
-    pub include: RawLimitSelector,
+    pub include: Vec<String>,
     #[serde(default)]
-    pub exclude: RawLimitSelector,
+    pub exclude: Vec<String>,
     pub pairwith: HashMap<String, String>,
     pub action: RawAction,
 }

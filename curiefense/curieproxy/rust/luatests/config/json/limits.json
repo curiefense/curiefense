@@ -8,18 +8,8 @@
         "action": {
             "type": "default"
         },
-        "include": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
-        "exclude": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [],
+        "exclude": [],
         "key": [
             {
                 "attrs": "country"
@@ -38,18 +28,8 @@
         "action": {
             "type": "default"
         },
-        "include": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
-        "exclude": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [],
+        "exclude": [],
         "key": [
             {
                 "attrs": "ip"
@@ -68,20 +48,10 @@
         "action": {
             "type": "default"
         },
-        "include": {
-            "headers": {
-                "foo": "bar"
-            },
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
-        "exclude": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [
+            "hdrfoobar"
+        ],
+        "exclude": [],
         "key": [
             {
                 "attrs": "ip"
@@ -100,20 +70,10 @@
         "action": {
             "type": "default"
         },
-        "include": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
-        "exclude": {
-            "headers": {
-                "foo": "bar"
-            },
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [],
+        "exclude": [
+            "hdrfoobar"
+        ],
         "key": [
             {
                 "attrs": "ip"
@@ -133,21 +93,11 @@
             "type": "response",
             "content": "body"
         },
-        "include": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {
-                "company": "CLOUDFARE",
-                "authority": "foo"
-            }
-        },
-        "exclude": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [
+            "asn:CLOUDFARE",
+            "authority:foo"
+        ],
+        "exclude": [],
         "key": [
             {
                 "attrs": "ip"
@@ -169,18 +119,8 @@
                 "location": "/1234"
             }
         },
-        "include": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
-        "exclude": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [],
+        "exclude": [],
         "key": [
             {
                 "attrs": "ip"
@@ -205,20 +145,10 @@
                 }
             }
         },
-        "include": {
-            "cookies": {},
-            "headers": {},
-            "args": {},
-            "attrs": {
-                "country": "us"
-            }
-        },
-        "exclude": {
-            "cookies": {},
-            "headers": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [
+            "geo:united-states"
+        ],
+        "exclude": [],
         "key": [
             {
                 "attrs": "ip"
@@ -243,18 +173,8 @@
                 }
             }
         },
-        "include": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
-        "exclude": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [],
+        "exclude": [],
         "key": [
             {
                 "attrs": "ip"
