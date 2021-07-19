@@ -71,6 +71,7 @@ pub struct Config {
     pub last_mod: SystemTime,
     pub container_name: Option<String>,
     pub flows: HashMap<SequenceKey, Vec<FlowElement>>,
+    pub waf_profiles: HashMap<String, WafProfile>,
 }
 
 fn from_map<V: Clone>(mp: &HashMap<String, V>, k: &str) -> Result<V, String> {
@@ -159,12 +160,12 @@ impl Config {
         let mut urlmaps: Vec<Matching<HostMap>> = Vec::new();
 
         let limits = Limit::resolve(logs, rawlimits);
-        let wafprofiles = WafProfile::resolve(logs, rawwafprofiles);
+        let waf_profiles = WafProfile::resolve(logs, rawwafprofiles);
         let acls = rawacls.into_iter().map(|a| (a.id.clone(), a)).collect();
 
         // build the entries while looking for the default entry
         for rawmap in rawmaps {
-            let (entries, default_entry) = Config::resolve_url_maps(logs, rawmap.map, &limits, &acls, &wafprofiles);
+            let (entries, default_entry) = Config::resolve_url_maps(logs, rawmap.map, &limits, &acls, &waf_profiles);
             if default_entry.is_none() {
                 logs.warning(format!(
                     "HostMap entry '{}', id '{}' does not have a default entry",
@@ -208,6 +209,7 @@ impl Config {
             last_mod,
             container_name,
             flows,
+            waf_profiles,
         }
     }
 
@@ -293,6 +295,7 @@ impl Config {
             default: None,
             container_name: None,
             flows: HashMap::new(),
+            waf_profiles: HashMap::new(),
         }
     }
 }

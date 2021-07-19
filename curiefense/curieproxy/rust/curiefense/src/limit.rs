@@ -25,7 +25,7 @@ fn is_banned(cnx: &mut redis::Connection, key: &str) -> bool {
 }
 
 fn limit_react(logs: &mut Logs, cnx: &mut redis::Connection, limit: &Limit, key: String) -> SimpleDecision {
-    if let SimpleActionT::Ban(_, ttl) = &limit.action.atype {
+    let action = if let SimpleActionT::Ban(subaction, ttl) = &limit.action.atype {
         logs.info(format!("Banned key {} for {}s", key, ttl));
         let ban_key = get_ban_key(&key);
         if let Err(rr) = redis::pipe()
@@ -39,8 +39,11 @@ fn limit_react(logs: &mut Logs, cnx: &mut redis::Connection, limit: &Limit, key:
         {
             println!("*** Redis error {}", rr);
         }
-    }
-    SimpleDecision::Action(limit.action.clone(), serde_json::json!({
+        *subaction.clone()
+    } else {
+        limit.action.clone()
+    };
+    SimpleDecision::Action(action, serde_json::json!({
         "initiator": "limit",
         "limitname": limit.name,
         "key": key
@@ -116,9 +119,6 @@ pub fn limit_check(
             continue;
         }
 
-        // every matching ratelimit rule is tagged by name
-        tags.insert(&limit.name);
-
         let key = match build_key(url_map_name, reqinfo, limit) {
             None => return SimpleDecision::Pass,
             Some(k) => k,
@@ -139,7 +139,10 @@ pub fn limit_check(
 
         match redis_check_limit(&mut redis, &key, limit.limit, limit.ttl, pairvalue) {
             Err(rr) => logs.error(rr),
-            Ok(true) => return limit_react(logs, &mut redis, limit, key),
+            Ok(true) => {
+                tags.insert(&limit.name);
+                return limit_react(logs, &mut redis, limit, key);
+            }
             Ok(false) => (),
         }
     }

@@ -254,3 +254,34 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
         tags,
     )
 }
+
+// generic entry point when the request map has already been parsed
+pub fn waf_check_generic_request_map(
+    configpath: &str,
+    reqinfo: &RequestInfo,
+    waf_id: &str,
+    logs: &mut Logs,
+) -> Decision {
+    logs.debug("WAF inspection starts");
+    let waf_profile = match with_config(configpath, logs, |_slogs, cfg| cfg.waf_profiles.get(waf_id).cloned()) {
+        Some(Some(prof)) => prof,
+        _ => {
+            logs.error("WAF profile not found");
+            return Decision::Pass;
+        }
+    };
+
+    let waf_result = match HSDB.read() {
+        Ok(rd) => waf_check(&reqinfo, &waf_profile, rd),
+        Err(rr) => {
+            logs.error(format!("Could not get lock on HSDB: {}", rr));
+            Ok(())
+        }
+    };
+    logs.debug("WAF checks done");
+
+    match waf_result {
+        Ok(()) => Decision::Pass,
+        Err(wb) => Decision::Action(wb.to_action()),
+    }
+}

@@ -263,5 +263,35 @@
         "pairwith": {
             "self": "self"
         }
+    },
+    {
+        "id": "4d1d9d405fc9",
+        "name": "Limit per method",
+        "description": ":)",
+        "ttl": "5",
+        "limit": "3",
+        "action": {
+            "type": "default"
+        },
+        "include": {
+            "headers": {},
+            "cookies": {},
+            "args": {},
+            "attrs": {}
+        },
+        "exclude": {
+            "headers": {},
+            "cookies": {},
+            "args": {},
+            "attrs": {}
+        },
+        "key": [
+            {
+                "attrs": "ip"
+            }
+        ],
+        "pairwith": {
+            "attrs": "method"
+        }
     }
 ]
