@@ -315,8 +315,8 @@ describe('FlowControlPolicyEditor.vue', () => {
 
       test('should get header host value from first section', async () => {
         const wantedHostValue = 'api.example.com'
-        const hostEntryInput = wrapper.findAll('.host-entry-input').at(0);
-        (hostEntryInput.element as HTMLInputElement).value = wantedHostValue
+        const hostEntryInput = wrapper.findAll('.host-entry-input').at(0)
+        hostEntryInput.setValue(wantedHostValue)
         hostEntryInput.trigger('input')
         await Vue.nextTick()
         const addSectionButton = wrapper.find('.new-sequence-button')

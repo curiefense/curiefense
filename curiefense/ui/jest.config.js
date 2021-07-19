@@ -14,6 +14,13 @@ module.exports = {
   ],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   transformIgnorePatterns: ['<rootDir>/node_modules/'],
+  collectCoverageFrom: [
+    'src/**/*.{ts,vue}',
+    '!src/router/index.ts',
+    '!coverage/*',
+    '!src/main.ts',
+    '!**/*.d.ts',
+  ],
   // Accept global coverage of 90% or higher, and 80% for each individual file
   // This should ensure most of the code is covered and leaves us room to skip hard-to-test areas
   // Please only write meaningful and comprehensive tests

@@ -50,24 +50,24 @@ describe('AutocompleteInput.vue', () => {
   test('should have dropdown hidden after typing in input if empty', async () => {
     jest.spyOn(axios, 'get').mockImplementation(() => Promise.resolve({data: {}}))
     wrapper = mount(AutocompleteInput)
-    const input = wrapper.find('.autocomplete-input');
-    (input.element as HTMLInputElement).value = 'value'
+    const input = wrapper.find('.autocomplete-input')
+    input.setValue('value')
     input.trigger('input')
     await Vue.nextTick()
     expect(wrapper.find('.dropdown').element.classList.contains('is-active')).toBeFalsy()
   })
 
   test('should have dropdown displayed after typing in input', async () => {
-    const input = wrapper.find('.autocomplete-input');
-    (input.element as HTMLInputElement).value = 'value'
+    const input = wrapper.find('.autocomplete-input')
+    input.setValue('value')
     input.trigger('input')
     await Vue.nextTick()
     expect(wrapper.find('.dropdown').element.classList.contains('is-active')).toBeTruthy()
   })
 
   test('should emit changed value when input changes', async () => {
-    const input = wrapper.find('.autocomplete-input');
-    (input.element as HTMLInputElement).value = 'value'
+    const input = wrapper.find('.autocomplete-input')
+    input.setValue('value')
     input.trigger('input')
     await Vue.nextTick()
     expect(wrapper.emitted('value-changed')).toBeTruthy()
@@ -75,8 +75,8 @@ describe('AutocompleteInput.vue', () => {
   })
 
   test('should show correct filtered values in dropdown ordered alphabetically', async () => {
-    const input = wrapper.find('.autocomplete-input');
-    (input.element as HTMLInputElement).value = 'value'
+    const input = wrapper.find('.autocomplete-input')
+    input.setValue('value')
     input.trigger('input')
     await Vue.nextTick()
     const dropdownItems = wrapper.findAll('.dropdown-item')
@@ -87,8 +87,8 @@ describe('AutocompleteInput.vue', () => {
   })
 
   test('should show correct prefixes in dropdown', async () => {
-    const input = wrapper.find('.autocomplete-input');
-    (input.element as HTMLInputElement).value = 'value'
+    const input = wrapper.find('.autocomplete-input')
+    input.setValue('value')
     input.trigger('input')
     await Vue.nextTick()
     const dropdownItems = wrapper.findAll('.dropdown-item')
@@ -97,8 +97,8 @@ describe('AutocompleteInput.vue', () => {
   })
 
   test('should show correct filtered values in dropdown ordered alphabetically regardless of casing', async () => {
-    const input = wrapper.find('.autocomplete-input');
-    (input.element as HTMLInputElement).value = 'value'
+    const input = wrapper.find('.autocomplete-input')
+    input.setValue('value')
     input.trigger('input')
     await Vue.nextTick()
     const dropdownItems = wrapper.findAll('.dropdown-item')
@@ -110,8 +110,8 @@ describe('AutocompleteInput.vue', () => {
 
   test('should re-assign the input when prop changes', async () => {
     const newValue = 'another'
-    const input = wrapper.find('.autocomplete-input');
-    (input.element as HTMLInputElement).value = 'value'
+    const input = wrapper.find('.autocomplete-input')
+    input.setValue('value')
     input.trigger('input')
     wrapper.setProps({initialValue: newValue})
     await Vue.nextTick()
@@ -120,8 +120,8 @@ describe('AutocompleteInput.vue', () => {
 
   test('should have dropdown hidden when prop changes', async () => {
     const newValue = 'another'
-    const input = wrapper.find('.autocomplete-input');
-    (input.element as HTMLInputElement).value = 'value'
+    const input = wrapper.find('.autocomplete-input')
+    input.setValue('value')
     input.trigger('input')
     wrapper.setProps({initialValue: newValue})
     await Vue.nextTick()
@@ -130,8 +130,8 @@ describe('AutocompleteInput.vue', () => {
 
   test('should have dropdown hidden when prop changes to the same value', async () => {
     const value = 'value'
-    const input = wrapper.find('.autocomplete-input');
-    (input.element as HTMLInputElement).value = value
+    const input = wrapper.find('.autocomplete-input')
+    input.setValue(value)
     input.trigger('input')
     wrapper.setProps({initialValue: value})
     await Vue.nextTick()
@@ -140,8 +140,8 @@ describe('AutocompleteInput.vue', () => {
 
   test('should clear autocomplete input when selected', async () => {
     wrapper.setProps({clearInputAfterSelection: true})
-    const input = wrapper.find('.autocomplete-input');
-    (input.element as HTMLInputElement).value = 'value'
+    const input = wrapper.find('.autocomplete-input')
+    input.setValue('value')
     input.trigger('input')
     wrapper.setData({focusedSuggestionIndex: 2})
     input.trigger('keydown.enter')
@@ -151,8 +151,8 @@ describe('AutocompleteInput.vue', () => {
 
   test('should emit selected value on input blur event', (done) => {
     wrapper.setProps({clearInputAfterSelection: true})
-    const input = wrapper.find('.autocomplete-input');
-    (input.element as HTMLInputElement).value = 'value'
+    const input = wrapper.find('.autocomplete-input')
+    input.setValue('value')
     input.trigger('input')
     wrapper.setData({focusedSuggestionIndex: 2})
     input.trigger('blur')
@@ -165,8 +165,8 @@ describe('AutocompleteInput.vue', () => {
 
   test('should emit selected value on input blur event with the correct clicked suggestion', (done) => {
     wrapper.setProps({clearInputAfterSelection: true})
-    const input = wrapper.find('.autocomplete-input');
-    (input.element as HTMLInputElement).value = 'value'
+    const input = wrapper.find('.autocomplete-input')
+    input.setValue('value')
     input.trigger('input')
     const dropdownItems = wrapper.findAll('.dropdown-item')
     input.trigger('blur')
@@ -180,8 +180,8 @@ describe('AutocompleteInput.vue', () => {
 
   test('should not emit selected value on input blur event if destroyed before finishing', async (done) => {
     wrapper.setProps({clearInputAfterSelection: true})
-    const input = wrapper.find('.autocomplete-input');
-    (input.element as HTMLInputElement).value = 'value'
+    const input = wrapper.find('.autocomplete-input')
+    input.setValue('value')
     input.trigger('input')
     input.trigger('blur')
     wrapper.destroy()
@@ -207,8 +207,8 @@ describe('AutocompleteInput.vue', () => {
       attachTo: elem,
     })
     await Vue.nextTick()
-    const input = wrapper.find('.autocomplete-input');
-    (input.element as HTMLInputElement).value = 'value'
+    const input = wrapper.find('.autocomplete-input')
+    input.setValue('value')
     input.trigger('input')
     const dropdownItems = wrapper.findAll('.dropdown-item')
     dropdownItems.at(1).trigger('mousedown')
@@ -234,8 +234,8 @@ describe('AutocompleteInput.vue', () => {
       attachTo: elem,
     })
     await Vue.nextTick()
-    const input = wrapper.find('.autocomplete-input');
-    (input.element as HTMLInputElement).value = 'value'
+    const input = wrapper.find('.autocomplete-input')
+    input.setValue('value')
     input.trigger('input')
     const dropdownItems = wrapper.findAll('.dropdown-item')
     dropdownItems.at(1).trigger('mousedown')
@@ -250,8 +250,8 @@ describe('AutocompleteInput.vue', () => {
     let input: Wrapper<Vue>
     let dropdownItems: WrapperArray<Vue>
     beforeEach(async () => {
-      input = wrapper.find('.autocomplete-input');
-      (input.element as HTMLInputElement).value = 'value'
+      input = wrapper.find('.autocomplete-input')
+      input.setValue('value')
       input.trigger('input')
       dropdownItems = wrapper.findAll('.dropdown-item')
     })
@@ -293,8 +293,8 @@ describe('AutocompleteInput.vue', () => {
     })
 
     test('should select input value when enter is pressed and there is no focused suggestion', async () => {
-      wrapper.setData({focusedSuggestionIndex: -1});
-      (input.element as HTMLInputElement).value = 'test-value-1'
+      wrapper.setData({focusedSuggestionIndex: -1})
+      input.setValue('test-value-1')
       input.trigger('input')
       input.trigger('keydown.enter')
       await Vue.nextTick()
@@ -316,8 +316,8 @@ describe('AutocompleteInput.vue', () => {
     })
 
     test('should select input value when space is pressed and there is no focused suggestion', async () => {
-      wrapper.setData({focusedSuggestionIndex: -1});
-      (input.element as HTMLInputElement).value = 'test-value-1'
+      wrapper.setData({focusedSuggestionIndex: -1})
+      input.setValue('test-value-1')
       input.trigger('input')
       input.trigger('keydown.space')
       await Vue.nextTick()
@@ -326,8 +326,8 @@ describe('AutocompleteInput.vue', () => {
 
     test('should select input value when input is longer than the minimumValueLength prop', async () => {
       wrapper.setProps({minimumValueLength: 3})
-      await Vue.nextTick();
-      (input.element as HTMLInputElement).value = 'test-value-1'
+      await Vue.nextTick()
+      input.setValue('test-value-1')
       input.trigger('input')
       input.trigger('keydown.enter')
       await Vue.nextTick()
@@ -336,8 +336,8 @@ describe('AutocompleteInput.vue', () => {
 
     test('should not select input value when input is empty', async () => {
       wrapper.setProps({minimumValueLength: 3})
-      await Vue.nextTick();
-      (input.element as HTMLInputElement).value = ''
+      await Vue.nextTick()
+      input.setValue('')
       input.trigger('input')
       input.trigger('keydown.enter')
       await Vue.nextTick()
@@ -346,8 +346,8 @@ describe('AutocompleteInput.vue', () => {
 
     test('should not select input value when input is shorter than the minimumValueLength prop', async () => {
       wrapper.setProps({minimumValueLength: 3})
-      await Vue.nextTick();
-      (input.element as HTMLInputElement).value = 't'
+      await Vue.nextTick()
+      input.setValue('t')
       input.trigger('input')
       input.trigger('keydown.enter')
       await Vue.nextTick()
@@ -360,8 +360,8 @@ describe('AutocompleteInput.vue', () => {
         toastOutput.push(output)
       })
       wrapper.setProps({minimumValueLength: 3})
-      await Vue.nextTick();
-      (input.element as HTMLInputElement).value = ''
+      await Vue.nextTick()
+      input.setValue('')
       input.trigger('input')
       input.trigger('keydown.enter')
       await Vue.nextTick()
@@ -381,8 +381,8 @@ describe('AutocompleteInput.vue', () => {
         toastOutput.push(output)
       })
       wrapper.setProps({minimumValueLength: minLength})
-      await Vue.nextTick();
-      (input.element as HTMLInputElement).value = selectedValue
+      await Vue.nextTick()
+      input.setValue(selectedValue)
       input.trigger('input')
       input.trigger('keydown.enter')
       await Vue.nextTick()
@@ -440,8 +440,8 @@ describe('AutocompleteInput.vue', () => {
           selectionType: 'multiple',
         },
       })
-      input = wrapper.find('.autocomplete-input');
-      (input.element as HTMLInputElement).value = 'devops value'
+      input = wrapper.find('.autocomplete-input')
+      input.setValue('devops value')
       input.trigger('input')
     })
 

@@ -13,8 +13,8 @@ describe('ContentFilterRulesEditor.vue', () => {
       'name': '100000',
       'msg': 'SQLi Attempt (Conditional Operator Detected)',
       'operand': '\\s(and|or)\\s+\\d+\\s+.*between\\s.*\\d+\\s+and\\s+\\d+.*',
-      'severity': 5,
-      'certainity': 5,
+      'risk': 5,
+      'notes': 'SQL injection',
       'category': 'sqli',
       'subcategory': 'statement injection',
     }]
@@ -41,12 +41,9 @@ describe('ContentFilterRulesEditor.vue', () => {
       expect(element.value).toEqual(docs[0].operand)
     })
 
-    test('should have correct severity displayed', () => {
-      expect(wrapper.find('.document-severity').text()).toEqual(docs[0].severity.toString())
-    })
-
-    test('should have correct certainty displayed', () => {
-      expect(wrapper.find('.document-certainty').text()).toEqual(docs[0].certainity.toString())
+    test('should have correct risk displayed', () => {
+      const riskSelection = wrapper.find('.risk-level-selection')
+      expect((riskSelection.find('option:checked').element as HTMLOptionElement).value).toEqual(docs[0].risk.toString())
     })
 
     test('should have correct category displayed', () => {
@@ -74,7 +71,7 @@ describe('ContentFilterRulesEditor.vue', () => {
     const wantedOperand = '\\s(and|or)\\s+["\']\\w+["\']\\s+.*between\\s.*["\']\\w+["\']\\s+and\\s+["\']\\w+.*'
     const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
     wantedEmit.operand = wantedOperand
-    const element = wrapper.find('.document-operand');
+    const element = wrapper.find('.document-operand')
     element.setValue(wantedOperand)
     element.trigger('change')
     await Vue.nextTick()

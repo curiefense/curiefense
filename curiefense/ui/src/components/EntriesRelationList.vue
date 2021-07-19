@@ -14,12 +14,10 @@
               </div>
               <table class="table is-narrow entries-table mb-0">
                 <tbody>
-                <tr
-                  v-for="(entry,entryIndex) in sectionsCurrentPage[sectionIndex]"
-                  :key="entryIndex"
-                  class="entry-row"
-                  :class="{'has-text-danger': isEntryDuplicate( sectionIndex, entry )}"
-                >
+                <tr v-for="(entry,entryIndex) in sectionsCurrentPage[sectionIndex]"
+                    :key="entryIndex"
+                    class="entry-row"
+                    :class="{'has-text-danger': isEntryDuplicate( sectionIndex, entry )}">
                   <td class="is-size-7 width-50px has-text-centered has-text-weight-medium">
                       <span
                           v-if="((entryIndex + 1) + ((sectionsCurrentPageIndex[sectionIndex] - 1) * rowsPerPage)) !== 1"
@@ -82,12 +80,10 @@
                 <tr v-if="newEntrySectionIndex === sectionIndex && editable" class="new-entry-row">
                   <td class="is-size-7" colspan="2">
                     <div class="select is-small is-fullwidth">
-                      <select
-                        v-model="newEntryCategory"
-                        @change="clearFields"
-                        title="New entry category"
-                        class="select new-entry-type-selection"
-                      >
+                      <select v-model="newEntryCategory"
+                              @change="clearFields"
+                              title="New entry category"
+                              class="select new-entry-type-selection">
                         <option v-for="(entryType, category) in listEntryTypes" :key="category" :value="category">
                           {{ entryType.title }}
                         </option>
@@ -123,13 +119,11 @@
                   </td>
                   <td class="is-size-7 width-250px">
                     <div class="control has-icons-left is-fullwidth new-entry-value-annotation">
-                      <input
-                        class="input is-small new-entry-value-annotation-input"
-                        :class="{'is-danger': errorSecondAttr( sectionIndex )}"
-                        :placeholder="isCategoryArgsCookiesHeaders( newEntryCategory ) ? 'Value' : 'Annotation'"
-                        v-model="newEntryItem.secondAttr"
-                        @input="onChangeSecondAttr( sectionIndex, $event.target.value )"
-                      />
+                      <input class="input is-small new-entry-value-annotation-input"
+                             :class="{'is-danger': errorSecondAttr( sectionIndex )}"
+                             :placeholder="isCategoryArgsCookiesHeaders( newEntryCategory ) ? 'Value' : 'Annotation'"
+                             v-model="newEntryItem.secondAttr"
+                             @input="onChangeSecondAttr( sectionIndex, $event.target.value )"/>
                       <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
                     </div>
                   </td>
@@ -188,10 +182,8 @@
         </div>
       </div>
     </div>
-    <div
-      v-if="editable && newEntrySectionIndex === -1"
-      class="field is-grouped is-pulled-left"
-    >
+    <div v-if="editable && newEntrySectionIndex === -1"
+         class="field is-grouped is-pulled-left">
       <div class="control">
         <button class="button is-small add-section-button"
                 title="Add new section"
@@ -316,7 +308,7 @@ export default Vue.extend({
       deep: true,
     },
     entriesErrors: {
-      handler( value ) {
+      handler(value) {
         this.$emit('invalid', !!value.length)
       },
     },
@@ -407,7 +399,7 @@ export default Vue.extend({
     },
 
     addEntry(section: GlobalFilterSection, sectionIndex: number) {
-      if ( this.isErrorField( `${this.newEntryCategory}${sectionIndex}` ) || !this.newEntryItem.firstAttr.trim() ) {
+      if (this.isErrorField(`${this.newEntryCategory}${sectionIndex}`) || !this.newEntryItem.firstAttr.trim()) {
         return
       }
       // args cookies or headers
@@ -432,24 +424,24 @@ export default Vue.extend({
       }
       this.setNewEntryIndex(-1)
       this.emitRuleUpdate()
-      this.$nextTick( this.validateDuplicates )
+      this.$nextTick(this.validateDuplicates)
     },
 
     removeEntry(section: GlobalFilterSection, sectionIndex: number, entryIndex: number) {
       const pointer = ((this.sectionsCurrentPageIndex[sectionIndex] - 1) * this.rowsPerPage) + entryIndex
       section.entries.splice(pointer, 1)
-      if ( !section.entries.length ) {
+      if (!section.entries.length) {
         this.removeSection(sectionIndex)
       }
       this.emitRuleUpdate()
-      this.$nextTick( this.validateDuplicates )
+      this.$nextTick(this.validateDuplicates)
     },
 
-    cancelEntry( sectionIndex: number ) {
+    cancelEntry(sectionIndex: number) {
       this.setNewEntryIndex(-1)
       this.invalidIPs = []
-      this.clearError( `${this.newEntryCategory}${sectionIndex}` )
-      if ( !this.localRule.sections[sectionIndex].entries.length ) {
+      this.clearError(`${this.newEntryCategory}${sectionIndex}`)
+      if (!this.localRule.sections[sectionIndex].entries.length) {
         this.removeSection(sectionIndex)
       }
     },
@@ -463,114 +455,122 @@ export default Vue.extend({
       this.invalidIPs = []
     },
 
-    clearError( field: string='' ) {
-      this.entriesErrors = field ? this.entriesErrors.filter( (err: string) => err !== field ) : []
+    clearError(field: string = '') {
+      this.entriesErrors = field ? this.entriesErrors.filter((err: string) => err !== field) : []
     },
 
-    isErrorField( field: string ) {
-      return this.entriesErrors.includes( field )
+    isErrorField(field: string) {
+      return this.entriesErrors.includes(field)
     },
 
-    addError( field: string ) {
-      if ( !this.isErrorField( field )) {
-        this.entriesErrors.push( field )
+    addError(field: string) {
+      if (!this.isErrorField(field)) {
+        this.entriesErrors.push(field)
       }
     },
 
     validateDuplicates() {
       this.duplicatedEntries = []
       this.rule.sections.forEach(
-        ({entries}, sectionIndex: number ) => entries.map(
-          ({0: category, 1: value}) => {
-            const isDuplicate = entries.filter(({0: eCat, 1: eVal}) => eCat === category && _.isEqual(eVal, value))?.length > 1
-            if ( isDuplicate && !this.isEntryDuplicate( sectionIndex, [category, value])) {
-              this.duplicatedEntries.push( [sectionIndex, category, value] )
-            }
-            return !isDuplicate
-          },
-        ).every((entry) => entry ),
+          ({entries}, sectionIndex: number) => entries.map(
+              ({0: category, 1: value}) => {
+                const isDuplicate = entries.filter(({0: eCat, 1: eVal}) => {
+                  return eCat === category && _.isEqual(eVal, value)
+                })?.length > 1
+                if (isDuplicate && !this.isEntryDuplicate(sectionIndex, [category, value])) {
+                  this.duplicatedEntries.push([sectionIndex, category, value])
+                }
+                return !isDuplicate
+              },
+          ).every((entry) => entry),
       )
-      if ( this.duplicatedEntries.length ) {
+      if (this.duplicatedEntries.length) {
         const duplicatesMsg = this.duplicatedEntries.reduce(
           ( prev: string, [section, category, value]: GlobalFilterSectionEntry ) => {
-            const sectionMsg = this.rule.sections.length > 1 ? `Section ${section+1}: ` : ''
-            return `${prev}<br />${sectionMsg}${this.listEntryTypes[category as Category]?.title} = ${this.dualCell( value )}`
-          },
-          '',
+              const sectionMsg = this.rule.sections.length > 1 ? `Section ${section + 1}: ` : ''
+              return `${prev}<br/>` +
+                  `${sectionMsg}${this.listEntryTypes[category as Category]?.title} = ${this.dualCell(value)}`
+            },
+            '',
         )
-        this.addError( 'duplicate' )
-        Utils.toast( `There are duplicate entries in the list:${duplicatesMsg}`, 'is-danger' )
+        this.addError('duplicate')
+        Utils.toast(`There are duplicate entries in the list:${duplicatesMsg}`, 'is-danger')
       } else {
-        this.clearError( 'duplicate' )
+        this.clearError('duplicate')
       }
     },
 
     isEntryDuplicate( sectionIndex: number, [currentCategory, currentValue]: GlobalFilterSectionEntry ) {
-      return this.duplicatedEntries.findIndex(
-        ([section, category, value]) => section === sectionIndex && category === currentCategory && _.isEqual(value, currentValue),
-      ) > -1
+      const index = this.duplicatedEntries.findIndex(
+          ([section, category, value]) => {
+            return section === sectionIndex && category === currentCategory && _.isEqual(value, currentValue)
+          },
+      )
+      return index > -1
     },
 
-    validateValue( sectionIndex: number, value: string ) {
+    validateValue(sectionIndex: number, value: string) {
       const {validateNotEmpty, newEntryCategory, validateIp, validateRegex} = this
       let validator: Function = validateNotEmpty
-      if (['path', 'query', 'uri'].includes( newEntryCategory )) {
+      if (['path', 'query', 'uri'].includes(newEntryCategory)) {
         validator = validateRegex
-      } else if ( newEntryCategory === 'ip' ) {
+      } else if (newEntryCategory === 'ip') {
         validator = validateIp
       }
-      validator( `${newEntryCategory}${sectionIndex}`, value )
+      validator(`${newEntryCategory}${sectionIndex}`, value)
     },
 
-    validateIp( id: string, value: string ) {
-      const ipPattern = /((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*(:([0-9]|[1-8][0-9]|9[0-9]|[1-8][0-9]{2}|9[0-8][0-9]|99[0-9]|[1-8][0-9]{3}|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-9]|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])|(\/[0-9]|\/[1-2][0-9]|\/[1-3][0-2]))?(\s?(#([a-zA-Z0-9$@$!%*?&#^-_. +:"'/\\;,-=]+)?)?)?$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*(:([0-9]|[1-8][0-9]|9[0-9]|[1-8][0-9]{2}|9[0-8][0-9]|99[0-9]|[1-8][0-9]{3}|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-9]|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])|(\/[0-9]|\/[1-2][0-9]|\/[1-3][0-2]))?(\s?(#([a-zA-Z0-9$@$!%*?&#^-_. +:"'/\\;,-=]+)?)?)?$))/
-      const ipList = value.split('\n').filter( (ip) => ip )
+    validateIp(id: string, value: string) {
+      // eslint-disable-next-line max-len
+      const ipPattern = /((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*(:([0-9]|[1-8][0-9]|9[0-9]|[1-8][0-9]{2}|9[0-8][0-9]|99[0-9]|[1-8][0-9]{3}|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-9]|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])|(\/[0-9]|\/[1-2][0-9]|\/[1-3][0-2]))?(\s?(#([a-zA-Z0-9$@!%*?&#^-_. +:"'/\\;,-=]+)?)?)?$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*(:([0-9]|[1-8][0-9]|9[0-9]|[1-8][0-9]{2}|9[0-8][0-9]|99[0-9]|[1-8][0-9]{3}|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-9]|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])|(\/[0-9]|\/[1-2][0-9]|\/[1-3][0-2]))?(\s?(#([a-zA-Z0-9$@!%*?&#^-_. +:"'/\\;,-=]+)?)?)?$))/
+      const ipList = value.split('\n').filter((ip) => ip)
       this.invalidIPs = []
-      ipList.forEach(( line, index ) => {
-        if ( !this.validate( line, ipPattern, id )) {
-          this.invalidIPs.push( ipList.length > 1 ? `(line ${index+1}) ${line}` : line )
+      ipList.forEach((line, index) => {
+        if (!this.validate(line, ipPattern, id)) {
+          this.invalidIPs.push(ipList.length > 1 ? `(line ${index + 1}) ${line}` : line)
         }
       })
-      if ( this.invalidIPs.length ) {
-        this.addError( id )
+      if (this.invalidIPs.length) {
+        this.addError(id)
       }
     },
 
-    validateRegex( id: string, value: string ) {
+    validateRegex(id: string, value: string) {
       const val = value.trim()
       try {
-        this.clearError( id )
-        new RegExp( val )
+        this.clearError(id)
+        new RegExp(val)
       } catch {
-        this.validate( val, /^[\w-]+$/, id )
+        this.validate(val, /^[\w-]+$/, id)
       }
     },
 
-    validateNotEmpty( id: string, value: string ) {
+    validateNotEmpty(id: string, value: string) {
       const val = value.trim()
-      this.clearError( id )
-      this.validate( val, null, id )
+      this.clearError(id)
+      this.validate(val, null, id)
     },
 
-    validate( value: string, pattern: RegExp, name: string ) {
-      const isValid = pattern ? ( new RegExp( pattern )).test( value ) : value.length
-      if ( !isValid && !this.isErrorField( name )) {
-        this.addError( name )
-      } else if ( isValid ) {
-        this.clearError( name )
+    validate(value: string, pattern: RegExp, name: string) {
+      const isValid = pattern ? (new RegExp(pattern)).test(value) : value.length
+      if (!isValid && !this.isErrorField(name)) {
+        this.addError(name)
+      } else if (isValid) {
+        this.clearError(name)
       }
       return isValid
     },
 
-    errorSecondAttr( sectionIndex: number ) {
+    errorSecondAttr(sectionIndex: number) {
       const {isCategoryArgsCookiesHeaders, newEntryCategory, isErrorField} = this
-      return isCategoryArgsCookiesHeaders(newEntryCategory) && isErrorField(`${newEntryCategory}${sectionIndex}-secondAttr`)
+      return isCategoryArgsCookiesHeaders(newEntryCategory) &&
+          isErrorField(`${newEntryCategory}${sectionIndex}-secondAttr`)
     },
 
-    onChangeSecondAttr( sectionIndex: number, value: string ) {
+    onChangeSecondAttr(sectionIndex: number, value: string) {
       const {isCategoryArgsCookiesHeaders, newEntryCategory, validateRegex} = this
-      if ( isCategoryArgsCookiesHeaders( newEntryCategory )) {
-        validateRegex( `${newEntryCategory}${sectionIndex}-secondAttr`, value )
+      if (isCategoryArgsCookiesHeaders(newEntryCategory)) {
+        validateRegex(`${newEntryCategory}${sectionIndex}-secondAttr`, value)
       }
     },
   },

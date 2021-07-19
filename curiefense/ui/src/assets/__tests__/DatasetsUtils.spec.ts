@@ -44,6 +44,9 @@ describe('RequestsUtils.ts', () => {
       expect(document['max_headers_count']).toEqual(42)
       expect(document['max_cookies_count']).toEqual(42)
       expect(document['max_args_count']).toEqual(512)
+      expect(document['min_headers_risk']).toEqual(1)
+      expect(document['min_cookies_risk']).toEqual(1)
+      expect(document['min_args_risk']).toEqual(1)
       expect(document['args']['names']).toEqual([])
       expect(document['args']['regex']).toEqual([])
       expect(document['headers']['names']).toEqual([])
@@ -122,7 +125,12 @@ describe('RequestsUtils.ts', () => {
       const document = newDocEntryFactory.contentfilterrules()
       expect(regexUUID2.test(document['id'])).toBeTruthy()
       expect(document['name']).toEqual('New Content Filter Rule')
+      expect(document['risk']).toEqual(1)
+      expect(document['msg']).toEqual('')
+      expect(document['notes']).toEqual('')
       expect(document['operand']).toEqual('')
+      expect(document['category']).toEqual('')
+      expect(document['subcategory']).toEqual('')
     })
 
     test('should generate a new Content Filter Group', async () => {

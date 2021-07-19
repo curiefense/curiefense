@@ -4,8 +4,7 @@
     "name": "100000",
     "msg": "SQLi Attempt (Conditional Operator Detected)",
     "operand": "\\s(and|or)\\s+\\d+\\s+.*between\\s.*\\d+\\s+and\\s+\\d+.*",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection"
   },
@@ -14,8 +13,7 @@
     "name": "100001",
     "msg": "SQLi Attempt (Conditional Operator Detected)",
     "operand": "\\s(and|or)\\s+[\"']\\w+[\"']\\s+.*between\\s.*[\"']\\w+[\"']\\s+and\\s+[\"']\\w+.*",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection"
   },
@@ -24,8 +22,7 @@
     "name": "100002",
     "msg": "SQLi Attempt (Conditional Operator Detected)",
     "operand": "\\W(\\s*)?(and|or)\\s.*('|\").+('|\")(\\s+)?(=|>|<|>=|<=).*('|\").+",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection"
   },
@@ -34,8 +31,7 @@
     "name": "100003",
     "msg": "SQLi Attempt (Conditional Operator Detected)",
     "operand": "\\W(\\s*)?(and|or)\\s.*\\w.*(=|>|<|>=|<=).*\\w",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection"
   },
@@ -44,8 +40,7 @@
     "name": "100004",
     "msg": "SQLi Attempt (Conditional Operator Detected)",
     "operand": ".*\\W(\\s*)?(and|or)\\s.+(r?like)\\s.*['\"]((%\\w|\\w%)|.+).*",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection"
   },
@@ -54,8 +49,7 @@
     "name": "100005",
     "msg": "SQLi Attempt (Conditional Operator Detected)",
     "operand": "\\W(\\s*)?(and|or)\\s.*\\d+.*(=|>|<|>=|<=).*\\d+",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection"
   },
@@ -64,8 +58,7 @@
     "name": "100006",
     "msg": "SQLi Attempt (SQL Command Detected)",
     "operand": "((\"|')\\s|;).*(drop|create)\\s+(table|function)\\s+.+",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection"
   },
@@ -74,8 +67,7 @@
     "name": "100007",
     "msg": "SQLi Attempt (SQL Command Detected)",
     "operand": "(\"|'|\\s|;)delete\\s+from\\s+.+(--|'|\"|;)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection"
   },
@@ -84,8 +76,7 @@
     "name": "100008",
     "msg": "SQLi Attempt (SQL Command Detected)",
     "operand": "('|\"|;)(\\s+)?select\\s+(\\*|((`|\")?\\w+(`|\")?,\\s){1,}).+\\s+from\\s+",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection"
   },
@@ -94,8 +85,7 @@
     "name": "100009",
     "msg": "SQLi Attempt (SQL Command Detected)",
     "operand": "('|\"|;)(\\s+)?select\\s+.+\\s+from",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection"
   },
@@ -104,8 +94,7 @@
     "name": "100010",
     "msg": "SQLi Attempt (SQL Command Detected)",
     "operand": "((\"|')\\s|;).*(insert|replace).*\\s.*into.*\\s",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection"
   },
@@ -114,8 +103,7 @@
     "name": "100011",
     "msg": "SQLi Attempt (SQL Command Detected)",
     "operand": "((\"|')\\s|;).*(update)(\\s|\\+).*set\\s.*\\w.*=.+",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection"
   },
@@ -124,8 +112,7 @@
     "name": "100012",
     "msg": "SQLi Attempt (SQL Sleep Command Detected)",
     "operand": "((\"|')\\s|;).*(select)(\\s|\\+|;|')(pg_sleep|sleep).*\\(.+",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection"
   },
@@ -134,8 +121,7 @@
     "name": "100013",
     "msg": "SQLi Attempt (SQL Sleep Command Detected)",
     "operand": "\\W(waitfor).*(\\s).*(delay).*(\\d+:)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection"
   },
@@ -144,8 +130,7 @@
     "name": "100014",
     "msg": "SQLi Attempt (SQL Command Execution Detected)",
     "operand": "(\"|').*exec\\s",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection"
   },
@@ -154,8 +139,7 @@
     "name": "100015",
     "msg": "SQLi Attempt (SQL Command Detected)",
     "operand": "(\\b|\\s).*(union|intersect|except).*(\\s+all)?.+select([^\\w]|\\s)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection"
   },
@@ -164,8 +148,7 @@
     "name": "100016",
     "msg": "SQLi Attempt (SQL Built-in Function Call Detected)",
     "operand": "xp_(makecab|cmdshell|execresultset|regaddmultistring|regread|enumdsn|availablemedia|regdeletekey|loginconfig|regremovemultistring|regwrite|regdeletevalue|dirtree|regenumkeys|filelist|terminate|servicecontrol|ntsec_enumdomains|terminate_process|ntsec|regenumvalues|cmdshell)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "built-in function invocation"
   },
@@ -174,8 +157,7 @@
     "name": "100017",
     "msg": "SQLi Attempt (SQL Built-in Function Call Detected)",
     "operand": "(information_schema|connection_id|iif|benchmark|sha1|md5)(\\s)?\\(",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "built-in function invocation"
   },
@@ -184,8 +166,7 @@
     "name": "100018",
     "msg": "SQLi Attempt (SQL Built-in Function Call Detected)",
     "operand": "sp_(execute|prepare|password|sqlexec|replwritetovarbin|help|addextendedproc|executesql|makewebtask|oacreate)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "built-in function invocation"
   },
@@ -194,8 +175,7 @@
     "name": "100019",
     "msg": "SQLi Attempt (MS-SQL Built-in Function Call Detected)",
     "operand": "\\W(and|or|;)\\s*(abs|acos|adddate|addtime|aes_decrypt|aes_encrypt|and|atan2|atan|atan|avg|benchmark|bin|binary|bit_and|bit_count|bit_length|bit_or|bit_xor|cast|ceil|ceiling|char_length|char|character_length|charset|coalesce|coercibility|collation|compress|concat_ws|concat|connection_id|conv|convert_tz|convert|cos|cot|count(distinct)|count|crc32|curdate|current_date|current_date|current_time|current_time|current_timestamp|current_timestamp|current_user|current_user|curtime|database|date_add|date_format|date_sub|date|datediff|day|dayname|dayofmonth|dayofweek|dayofyear|decode|default|degrees|des_decrypt|des_encrypt|elt|encode|encrypt|exp|export_set|extract|extractvalue|field|find_in_set|floor|format|found_rows|from_days|from_unixtime|get_format|get_lock|greatest|group_concat|hex|hour|if|ifnull|in|inet_aton|inet_ntoa|insert|instr|interval|is_free_lock|is_used_lock|isnull|last_insert_id|lcase|least|left|length|ln|load_file|localtime|localtimestamp|locate|log10|log2|log|lower|lpad|ltrim|make_set|makedate|maketime|master_pos_wait|match|max|md5|microsecond|mid|min|minute|mod|month|monthname|name_const|now|nullif|oct|octet_length|old_password|ord|password|period_add|period_diff|pi|position|pow|power|procedure analyse|quarter|quote|radians|rand|regexp|release_lock|repeat|replace|reverse|right|rlike|round|row_count|rpad|rtrim|schema|sec_to_time|second|session_user|sha1|sha|sign|sin|sleep|soundex|sounds like|space|sqrt|std|stddev_pop|stddev_samp|stddev|str_to_date|strcmp|subdate|substr|substring_index|substring|subtime|sum|sysdate|system_user|tan|time_format|time_to_sec|time|timediff|timestamp|timestampadd|timestampdiff|to_days|trim|truncate|ucase|uncompress|uncompressed_length|unhex|unix_timestamp|updatexml|upper|user|utc_date|utc_time|utc_timestamp|uuid_short|uuid|values|var_pop|var_samp|variance|version|week|weekday|weekofyear|year|yearweek)(\\s)?\\(",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "built-in function invocation"
   },
@@ -204,8 +184,7 @@
     "name": "100020",
     "msg": "SQLi Attempt (mySQL Built-in Function Call Detected)",
     "operand": "\\W(abs|acos|ascii|asin|atan|atn2|avg|cast|ceiling|char|charindex|coalesce|col_length|col_name|convert|cos|cot|count|count|count|count|current_timestamp|current_user|datalength|databasepropertyex|dateadd|datediff|datename|datepart|day|db_id|db_name|degrees|difference|exp|floor|file_id|file_name|filegroup_id|filegroup_name|filegroupproperty|fileproperty|fulltextcatalogproperty|fulltextserviceproperty|formatmessage|freetexttable|getdate|getansinull|host_id|host_name|ident_incr|ident_seed|ident_current|identity|index_col|indexproperty|isdate|is_member|is_srvrolemember|isnull|isnumeric|left|len|log|log10|lower|ltrim|max|min|month|nchar|newid|nullif|object_id|object_name|objectproperty|open|opendatasource|openquery|openrowset|parsename|patindex|permissions|pi|power|radians|rand|replicate|replace|reverse|right|rtrim|round|rowcount_big|session_user|sign|sin|soundex|space|stats_date|stdev|stdevp|str|stuff|substring|sum|suser_id|suser_sid|suser_sname|system_user|tan|textptr|textvalid|typeproperty|unicode|user|user_id|user_name|upper|var|varp|year)(\\s)?\\(.+\\)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "built-in function invocation"
   },
@@ -214,8 +193,7 @@
     "name": "100021",
     "msg": "SQLi Attempt (Oracle Built-in Utilities Call Detected)",
     "operand": "(dbms_alert|dbms_application_info|v\\$session|v\\$session_longops|dbms_aq|dbms_aqadm|dbms_aqelm|dbms_backup_restore|dbms_ddl|dbms_debug|dbms_defer|dbms_defer_query|dmbs_defer_sys|dbms_describe|dbms_distributed_trust_admin|dbms_encode|dbms_fga|dmbs_flashback|dbms_hs_passthrough|dbms_iot|dbms_job|dbms_ldap|dbms_libcache|dbms_lob|dbms_lock|dbms_logmnr|dbms_logmnr_cdc_publish|dbms_logmnr_cdc_subscribe|dbms_logmnr_d|dbms_metadata|dbms_mview|dbms_obfuscation_toolkit|dbms_odci|dbms_offline_og|dbms_offline_snapshot|dbms_olap|dbms_oracle_trace_agent|dbms_oracle_trace_user|dbms_outln|dbms_outln_edit|dbms_output|dbms_pclxutil|dbms_pipe|dbms_profiler|dbms_random|dbms_rectifier_diff|dbms_redefinition|dbms_refresh|dbms_repair|dbms_repcat|dbms_repcat_admin|dbms_repcat_instatiate|dbms_repcat_rgt|dbms_reputil|dbms_resource_manager|dbms_resource_manager_privs|dbms_resumable|dbms_rls|dbms_rowid|dbms_session|dbms_shared_pool|dbms_snapshot|dbms_space|dbms_space_admin|dbms_sql|dbms_stats|dbms_trace|dbms_transaction|dbms_transform|dbms_tts|dbms_types|dbms_url|dbms_utility|dbms_wm|dbms_xmlgen|dmbs_xmlquery|dbms_xmlsave|debug_extproc|outln_pkg|sdo_cs|sdo_geom|sdo_lrs|sdo_migrate|sdo_tune|utl_coll|utl_encode|utl_file|utl_http|utl_inaddr|utl_pg|utl_raw|utl_ref|utl_smtp|utl_tcp|utl_url|anydata|anydataset|anytype|all_arguments|user_arguments|dba_objects|all_objects|user_objects|sys_objects|dba_source|all_source|user_source|myappadmin\\.adduser)[\\s\\.\\(]",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "built-in function invocation"
   },
@@ -224,8 +202,7 @@
     "name": "100022",
     "msg": "SQLi Attempt (comment insertion)",
     "operand": "/\\*.+(\\w|\\W).+\\*/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "escape-character"
   },
@@ -234,8 +211,7 @@
     "name": "100023",
     "msg": "SQLi Attempt (Break|Split)",
     "operand": "('|\")[^-]*--",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "escape-character"
   },
@@ -244,8 +220,7 @@
     "name": "100024",
     "msg": "SQLi Attempt (Built-in Function)",
     "operand": "passthru(\\s+)?\\(",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "built-in function invocation"
   },
@@ -254,8 +229,7 @@
     "name": "100025",
     "msg": "SQLi Attempt (Built-in Function)",
     "operand": "(chr|char|varchar|nvarchar)\\(\\d+\\)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "built-in function invocation"
   },
@@ -264,8 +238,7 @@
     "name": "100026",
     "msg": "SQLi Attempt (Built-in Function)",
     "operand": "select @@?\\w.*--",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "built-in function invocation"
   },
@@ -274,8 +247,7 @@
     "name": "100027",
     "msg": "SQLi Attempt (Escape Technique Detected)",
     "operand": "^['\"][\\s\\<\\>;-]",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "escape-character"
   },
@@ -284,8 +256,7 @@
     "name": "100028",
     "msg": "SQLi Attempt (Inline Commnet Detected)",
     "operand": "^/\\*",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "escape-character"
   },
@@ -294,8 +265,7 @@
     "name": "100029",
     "msg": "SQLi Attempt (QL Detected)",
     "operand": "select\\s.+\\sfrom \\(",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement"
   },
@@ -304,8 +274,7 @@
     "name": "100030",
     "msg": "SQLi Attempt (Built-in Function)",
     "operand": "(and|or)\\s.+\\s+is\\s+null",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement"
   },
@@ -314,8 +283,7 @@
     "name": "100031",
     "msg": "SQLi Attempt (Escape Technique Captured)",
     "operand": "(\"'|'\"|--)[\\s\\<\\>;-]",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "escape-character"
   },
@@ -324,8 +292,7 @@
     "name": "100032",
     "msg": "SQLi Attempt (Built-in Function)",
     "operand": "\\W1e309\\W",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "escape-character"
   },
@@ -334,8 +301,7 @@
     "name": "100033",
     "msg": "SQLi Attempt (Built-in Function)",
     "operand": ";--\\s",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "escape-character"
   },
@@ -344,8 +310,7 @@
     "name": "100034",
     "msg": "SQLi Attempt (Built-in Function)",
     "operand": "``",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "escape-character"
   },
@@ -354,8 +319,7 @@
     "name": "100035",
     "msg": "SQLi Attempt",
     "operand": ".*select.+from.+where.+",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement"
   },
@@ -364,8 +328,7 @@
     "name": "100036",
     "msg": "SQLi Attempt",
     "operand": ".*(select)?.+case.+when.+then",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement"
   },
@@ -374,8 +337,7 @@
     "name": "100037",
     "msg": "SQLi Attempt",
     "operand": "\\Wsleep\\W?\\(\\W?\\d+\\W?\\)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "built-in function invocation"
   },
@@ -384,8 +346,7 @@
     "name": "100038",
     "msg": "XSS Attempt (Closing Tags)",
     "operand": ".*<[- ~]{4,}>",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "tag insertion"
   },
@@ -394,8 +355,7 @@
     "name": "100039",
     "msg": "XSS Attempt (HTML Tags Injection)",
     "operand": "</?(.+\\W)?(address|area|article|aside|audio|base|br|bdi|bdo|blockquote|body|button|canvas|caption|cite|code|col|colgroup|command|data|datalist|del|details|dfn|div|embed|fieldset|figcaption|figure|footer|form|head|header|hgroup|html|iframe|img|input|ins|keygen|label|legend|link|main|map|mark|math|menu|meta|meter|nav|noscript|object|optgroup|option|output|param|pre|progress|ruby|samp|script|section|select|small|source|span|strong|style|summary|table|tbody|textarea|tfoot|thead|time|title|track|var|video|wbr)[\\W]",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "tag insertion"
   },
@@ -404,8 +364,7 @@
     "name": "100040",
     "msg": "XSS Attempt (Inline Javascript Injection)",
     "operand": "javascript.*:",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "xss"
   },
@@ -414,8 +373,7 @@
     "name": "100041",
     "msg": "XSS Attempt (Inline Javascript Injection)",
     "operand": ".*\\W(function|alert|prompt|eval)\\W?.*\\(.*\\).*",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "xss"
   },
@@ -424,8 +382,7 @@
     "name": "100042",
     "msg": "XSS Attempt (Inline Javascript Injection)",
     "operand": "(shell:|\\.fromcharcode)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "xss"
   },
@@ -434,8 +391,7 @@
     "name": "100043",
     "msg": "XSS Attempt (Inline Javascript Event Handler Injection)",
     "operand": "\\bon(abort|blur|change|click|dblclick|dragdrop|error|focus|keydown|keypress|keyup|load|mousedown|mousemove|mouseout|mouseover|mouseup|move|readystatechange|reset|resize|select|submit|unload)\\b\\W*?=",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "xss"
   },
@@ -444,8 +400,7 @@
     "name": "100044",
     "msg": "XSS Attempt (Comment Content)",
     "operand": "<!--",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "xss"
   },
@@ -454,8 +409,7 @@
     "name": "100045",
     "msg": "XSS Attempt (-moz-binding)",
     "operand": "-moz-binding\\:",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "xss"
   },
@@ -464,8 +418,7 @@
     "name": "100046",
     "msg": "XSS Attempt (resource loading)",
     "operand": "['\"=;]res\\:.*?[\\|/]",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "xss"
   },
@@ -474,8 +427,7 @@
     "name": "100047",
     "msg": "XSS Attempt (Meta Programming)",
     "operand": "\\.(call|apply)\\W.*(this|window|document|name|body|location)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "xss"
   },
@@ -484,8 +436,7 @@
     "name": "100048",
     "msg": "XSS Attempt (Closing Tags)",
     "operand": "('|\")>.*<!",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "xss"
   },
@@ -494,8 +445,7 @@
     "name": "100049",
     "msg": "XSS Attempt (anchor, img or script)",
     "operand": "<\\s*(a|img|script)\\s+(href|src)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "xss"
   },
@@ -504,8 +454,7 @@
     "name": "100050",
     "msg": "XSS Attempt (anchor, img or script)",
     "operand": "<\\s*(\\w+).*\\s+(href|src)\\s*=",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "xss"
   },
@@ -514,8 +463,7 @@
     "name": "100051",
     "msg": "RFI/LFI/OSCI",
     "operand": "(\\\\.\\.){2,}",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -524,8 +472,7 @@
     "name": "100052",
     "msg": "RFI/LFI/OSCI",
     "operand": "^/(-|\\.|~)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -534,8 +481,7 @@
     "name": "100053",
     "msg": "RFI/LFI/OSCI",
     "operand": "^/[\\(\\)]",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -544,8 +490,7 @@
     "name": "100054",
     "msg": "RFI/LFI/OSCI",
     "operand": "^/\\{\\d+\\}",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -554,8 +499,7 @@
     "name": "100055",
     "msg": "RFI/LFI/OSCI",
     "operand": "^///",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -564,8 +508,7 @@
     "name": "100056",
     "msg": "RFI/LFI/OSCI",
     "operand": "^/(\\\\.){3,}",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -574,8 +517,7 @@
     "name": "100057",
     "msg": "RFI/LFI/OSCI",
     "operand": "^/about:.+",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -584,8 +526,7 @@
     "name": "100058",
     "msg": "RFI/LFI/OSCI",
     "operand": "^/(~|_)?admin((_|-).*)?/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -594,8 +535,7 @@
     "name": "100059",
     "msg": "RFI/LFI/OSCI",
     "operand": "^/admisapi/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -604,8 +544,7 @@
     "name": "100060",
     "msg": "RFI/LFI/OSCI",
     "operand": "/adodb/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -614,8 +553,7 @@
     "name": "100061",
     "msg": "RFI/LFI/OSCI",
     "operand": "/advwebadmin/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -624,8 +562,7 @@
     "name": "100062",
     "msg": "RFI/LFI/OSCI",
     "operand": "/adxmlrpc.php",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -634,8 +571,7 @@
     "name": "100063",
     "msg": "RFI/LFI/OSCI",
     "operand": "/db/mysql/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -644,8 +580,7 @@
     "name": "100064",
     "msg": "RFI/LFI/OSCI",
     "operand": "/apache/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -654,8 +589,7 @@
     "name": "100065",
     "msg": "RFI/LFI/OSCI",
     "operand": "/.*\\.inc\\.php.*",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -664,8 +598,7 @@
     "name": "100066",
     "msg": "RFI/LFI/OSCI",
     "operand": "~.+\\.(bak|copy|old|swp|tmp.*)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -674,8 +607,7 @@
     "name": "100067",
     "msg": "RFI/LFI/OSCI",
     "operand": "/win.ini",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -684,8 +616,7 @@
     "name": "100068",
     "msg": "RFI/LFI/OSCI",
     "operand": "/passwd",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -694,8 +625,7 @@
     "name": "100069",
     "msg": "RFI/LFI/OSCI",
     "operand": "/f?cgi-bin/_?(admin|config|include|sh|shell|global)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -704,8 +634,7 @@
     "name": "100070",
     "msg": "RFI/LFI/OSCI",
     "operand": "/f?cgi-bin/.+\\.(ini|dat|dll|pl|exe|asp|xml|cgi|mdb|dat|php|php3|perl|aspx|html|bz2|7z|bz2|gz|jar|rar|tar|tgz|war|z|zip)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -714,8 +643,7 @@
     "name": "100071",
     "msg": "RFI/LFI/OSCI",
     "operand": "/conf/ssl/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -724,8 +652,7 @@
     "name": "100072",
     "msg": "RFI/LFI/OSCI",
     "operand": "/crypto/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -734,8 +661,7 @@
     "name": "100073",
     "msg": "RFI/LFI/OSCI",
     "operand": "\\:\\:\\$DATA",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -744,8 +670,7 @@
     "name": "100074",
     "msg": "RFI/LFI/OSCI",
     "operand": "/fbsd/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -754,8 +679,7 @@
     "name": "100075",
     "msg": "RFI/LFI/OSCI",
     "operand": "/hsx.cgi",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -764,8 +688,7 @@
     "name": "100076",
     "msg": "RFI/LFI/OSCI",
     "operand": "/ht/(bin|docs)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -774,8 +697,7 @@
     "name": "100077",
     "msg": "RFI/LFI/OSCI",
     "operand": "/\\.htaccess",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -784,8 +706,7 @@
     "name": "100078",
     "msg": "RFI/LFI/OSCI",
     "operand": "/iis(admin|admpwd|protect|samples)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -794,8 +715,7 @@
     "name": "100080",
     "msg": "RFI/LFI/OSCI",
     "operand": "/inc/.+.php",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -804,8 +724,7 @@
     "name": "100081",
     "msg": "RFI/LFI/OSCI",
     "operand": "/info2www",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -814,8 +733,7 @@
     "name": "100082",
     "msg": "RFI/LFI/OSCI",
     "operand": "/info.dat",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -824,8 +742,7 @@
     "name": "100083",
     "msg": "RFI/LFI/OSCI",
     "operand": "/.git/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -834,8 +751,7 @@
     "name": "100084",
     "msg": "RFI/LFI/OSCI",
     "operand": "/gitweb",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -844,8 +760,7 @@
     "name": "100085",
     "msg": "RFI/LFI/OSCI",
     "operand": "/mail/(admin|atmail)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -854,8 +769,7 @@
     "name": "100086",
     "msg": "RFI/LFI/OSCI",
     "operand": "/mailbox.php3",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -864,8 +778,7 @@
     "name": "100087",
     "msg": "RFI/LFI/OSCI",
     "operand": "/mail(file)?.cgi",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -874,8 +787,7 @@
     "name": "100088",
     "msg": "RFI/LFI/OSCI",
     "operand": "/mailgu(ard|st)/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -884,8 +796,7 @@
     "name": "100089",
     "msg": "RFI/LFI/OSCI",
     "operand": "/mail/(inc|src)/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -894,8 +805,7 @@
     "name": "100090",
     "msg": "RFI/LFI/OSCI",
     "operand": "/maillist/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -904,8 +814,7 @@
     "name": "100091",
     "msg": "RFI/LFI/OSCI",
     "operand": "/mail_log_files/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -914,8 +823,7 @@
     "name": "100092",
     "msg": "RFI/LFI/OSCI",
     "operand": "/mailnews.cgi",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -924,8 +832,7 @@
     "name": "100093",
     "msg": "RFI/LFI/OSCI",
     "operand": "/mail\\.php",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -934,8 +841,7 @@
     "name": "100094",
     "msg": "RFI/LFI/OSCI",
     "operand": "/mailpost.exe",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -944,8 +850,7 @@
     "name": "100095",
     "msg": "RFI/LFI/OSCI",
     "operand": "/mail(man|root|scanner|-secure|secure|server|view|watch)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -954,8 +859,7 @@
     "name": "100096",
     "msg": "RFI/LFI/OSCI",
     "operand": "/_maincfgret.cgi",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -964,8 +868,7 @@
     "name": "100097",
     "msg": "RFI/LFI/OSCI",
     "operand": "/main.cgi",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -974,8 +877,7 @@
     "name": "100098",
     "msg": "RFI/LFI/OSCI",
     "operand": "/main/inc/lib/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -984,8 +886,7 @@
     "name": "100099",
     "msg": "RFI/LFI/OSCI",
     "operand": "/nettracker/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -994,8 +895,7 @@
     "name": "100100",
     "msg": "RFI/LFI/OSCI",
     "operand": "/netutils",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1004,8 +904,7 @@
     "name": "100101",
     "msg": "RFI/LFI/OSCI",
     "operand": "/_old/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1014,8 +913,7 @@
     "name": "100102",
     "msg": "RFI/LFI/OSCI",
     "operand": "/old_files/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1024,8 +922,7 @@
     "name": "100103",
     "msg": "RFI/LFI/OSCI",
     "operand": "/oldfiles/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1034,8 +931,7 @@
     "name": "100104",
     "msg": "RFI/LFI/OSCI",
     "operand": "/old/wp-admin/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1044,8 +940,7 @@
     "name": "100105",
     "msg": "RFI/LFI/OSCI",
     "operand": "/_vti",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1054,8 +949,7 @@
     "name": "100106",
     "msg": "RFI/LFI/OSCI",
     "operand": "^/'",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1064,8 +958,7 @@
     "name": "100107",
     "msg": "admin area",
     "operand": "^/admin",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1074,8 +967,7 @@
     "name": "100109",
     "msg": "RFI/LFI/OSCI",
     "operand": "\\\\\\.",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1084,8 +976,7 @@
     "name": "100110",
     "msg": "PHP Eval/Exec Family",
     "operand": "([$@{}()\\[\\]].*){8,}",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1094,8 +985,7 @@
     "name": "100111",
     "msg": "Control chars only",
     "operand": "^[\\[\\]$;.\"(),'`{}]{7,}$",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1104,8 +994,7 @@
     "name": "100112",
     "msg": "system resource",
     "operand": "/\\.(\\w|\\.|-)+/?",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1114,8 +1003,7 @@
     "name": "100113",
     "msg": "system resource",
     "operand": "%20onload=",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1124,8 +1012,7 @@
     "name": "100114",
     "msg": "system resource",
     "operand": "%3e%3c",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1134,8 +1021,7 @@
     "name": "100115",
     "msg": "system resource",
     "operand": "\\);}}--></script><script",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1144,8 +1030,7 @@
     "name": "100116",
     "msg": "system resource",
     "operand": "../../../../../",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1154,8 +1039,7 @@
     "name": "100117",
     "msg": "system resource",
     "operand": "/.../.././../",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1164,8 +1048,7 @@
     "name": "100118",
     "msg": "system resource",
     "operand": "/.htaccess",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1174,8 +1057,7 @@
     "name": "100119",
     "msg": "system resource",
     "operand": "//../..//..",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1184,8 +1066,7 @@
     "name": "100120",
     "msg": "system resource",
     "operand": "/Acunetix",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1194,8 +1075,7 @@
     "name": "100121",
     "msg": "system resource",
     "operand": "/acunetix",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1204,8 +1084,7 @@
     "name": "100122",
     "msg": "system resource",
     "operand": "/ppim/email/root.email",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1214,8 +1093,7 @@
     "name": "100123",
     "msg": "system resource",
     "operand": "/ppim/password.dat",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1224,8 +1102,7 @@
     "name": "100124",
     "msg": "system resource",
     "operand": "/var/www/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1234,8 +1111,7 @@
     "name": "100125",
     "msg": "system resource",
     "operand": "/~1/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1244,8 +1120,7 @@
     "name": "100126",
     "msg": "system resource",
     "operand": "/~admin/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1254,8 +1129,7 @@
     "name": "100127",
     "msg": "system resource",
     "operand": "/~log/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1264,8 +1138,7 @@
     "name": "100128",
     "msg": "system resource",
     "operand": "/~nobody/etc/passwd",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1274,8 +1147,7 @@
     "name": "100129",
     "msg": "system resource",
     "operand": "/~root/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1284,8 +1156,7 @@
     "name": "100130",
     "msg": "system resource",
     "operand": "/~stats/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1294,8 +1165,7 @@
     "name": "100131",
     "msg": "system resource",
     "operand": "/~webstats/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1304,8 +1174,7 @@
     "name": "100132",
     "msg": "system resource",
     "operand": "/~wsdocs/",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1314,8 +1183,7 @@
     "name": "100133",
     "msg": "system resource",
     "operand": "appscan_fingerprint",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1324,8 +1192,7 @@
     "name": "100134",
     "msg": "system resource",
     "operand": "boot.ini",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1334,8 +1201,7 @@
     "name": "100135",
     "msg": "system resource",
     "operand": "cmd.exe",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1344,8 +1210,7 @@
     "name": "100136",
     "msg": "system resource",
     "operand": "code=phold",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1354,8 +1219,7 @@
     "name": "100137",
     "msg": "system resource",
     "operand": "document.cookie",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1364,8 +1228,7 @@
     "name": "100138",
     "msg": "system resource",
     "operand": "etc/passwd",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1374,8 +1237,7 @@
     "name": "100139",
     "msg": "system resource",
     "operand": "global.asa",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1384,8 +1246,7 @@
     "name": "100140",
     "msg": "system resource",
     "operand": "htaccess",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1394,8 +1255,7 @@
     "name": "100141",
     "msg": "system resource",
     "operand": "modtest",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1404,8 +1264,7 @@
     "name": "100142",
     "msg": "system resource",
     "operand": "nessustest",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1414,8 +1273,7 @@
     "name": "100143",
     "msg": "system resource",
     "operand": "php_info()",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1424,8 +1282,7 @@
     "name": "100144",
     "msg": "system resource",
     "operand": "phpinfo()",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1434,8 +1291,7 @@
     "name": "100145",
     "msg": "system resource",
     "operand": "rfi?..",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1444,8 +1300,7 @@
     "name": "100146",
     "msg": "system resource",
     "operand": "system.ini",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1454,8 +1309,7 @@
     "name": "100147",
     "msg": "system resource",
     "operand": "windows/win.ini",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1464,8 +1318,7 @@
     "name": "100148",
     "msg": "system resource",
     "operand": "Xx<XaXaXXaXaX>xX",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1474,8 +1327,7 @@
     "name": "100149",
     "msg": "system resource",
     "operand": " & dir",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1484,8 +1336,7 @@
     "name": "100150",
     "msg": "system resource",
     "operand": "';\",\\)`",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "generic",
     "subcategory": "generic"
   },
@@ -1494,8 +1345,7 @@
     "name": "100151",
     "msg": "OSCI (OS Command Injection) Attempt",
     "operand": "(&&|\\|\\||;|`)\\s*?(arch|ash|awk|base64|basename|bash|bc|bsh|bunzip2|cat|chcon|chgrp|chmod|chown|chroot|cjpeg|cksum|clear|comm|configure|cp|cpio|csh|csplit|curl|cut|date|dc|dd|df|diff|diff3|dig|dir|dircolors|dirname|djpeg|dmesg|dnsdomainname|doexec|domainname|dos2unix|du|dumpkeys|echo|ed|egrep|eject|elinks|env|ex|expand|expr|ext|factor|false|fdisk|fgrep|find|finger|fixps|fmt|fold|free|gawk|grep|groups|gtar|gunzip|gzip|halt|hdparm|head|hell|history|hostid|hostname|httpd|id|identify|ifconfig|igawk|install|ipcalc|join|kbd_mode|kill|last|lastlog|link|links|ln|loadkeys|locate|login|logname|look|ls|lsmod|lynx|mac2unix|mail|man|manweb|md5sum|mdu|mkdir|mkfifo|mkfs|mknod|mktemp|more|mount|mt|mtr|mv|namei|nano|nc|ncftp|nedit-nc|netstat|nice|nisdomainname|nl|nohup|nslookup|od|paste|pathchk|pdf2dsc|pdf2ps|pdfinfo|pdftotext|perl|pgawk|pico|pine|ping|ping6|pinky|pr|printenv|printf|ps|ps2ascii|ps2epsi|ps2frag|ps2pdf|ps2pdf12|ps2pdf13|ps2pdf14|ps2pdfwr|ps2pk|ps2ps|psbook|ptx|pwd|quota|readelf|readlink|reboot|red|rename|resize|rm|rmdir|rpm|runcon|rundig|rvi|sed|seq|gid|serial|uid|setfont|sfdisk|sftp|sh|sha1sum|sha224sum|sha256sum|sha384sum|sha512sum|shred|shuf|sleep|slocate|sort|split|ssh|stat|stty|stty cooked|stty raw|su|sum|switchdesk|sync|tac|tail|tar|tcsh|tee|telnet|test|time|timeout|tr|tracepath|tracepath6|traceroute|traceroute6|tree|true|truncate|tsort|tty|umask|umount|uname|unexpand|unicode_start|unicode_stop|uniq|unlink|ungid|unuid|untar|unzip|updatedb|uptime|useradd|users|usleep|vdir|viwc|wget|is|whereis|which|who|whoami|whois|xinit|xpdf|xrandr|yes|ypdomainname|zcat|zip|zipinfo)(\\s|;|&|`|#|$)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "osci",
     "subcategory": "osci"
   },
@@ -1504,8 +1354,7 @@
     "name": "100152",
     "msg": "OSCI (OS Command Injection) Attempt",
     "operand": "(arch|ash|awk|base64|basename|bash|bc|bsh|bunzip2|cat|chcon|chgrp|chmod|chown|chroot|cjpeg|cksum|clear|comm|configure|cp|cpio|csh|csplit|curl|cut|date|dc|dd|df|diff|diff3|dig|dir|dircolors|dirname|djpeg|dmesg|dnsdomainname|doexec|domainname|dos2unix|du|dumpkeys|echo|ed|egrep|eject|elinks|env|ex|expand|expr|ext|factor|false|fdisk|fgrep|find|finger|fixps|fmt|fold|free|gawk|grep|groups|gtar|gunzip|gzip|halt|hdparm|head|hell|history|hostid|hostname|httpd|id|identify|ifconfig|igawk|install|ipcalc|join|kbd_mode|kill|last|lastlog|link|links|ln|loadkeys|locate|login|logname|look|ls|lsmod|lynx|mac2unix|mail|man|manweb|md5sum|mdu|mkdir|mkfifo|mkfs|mknod|mktemp|more|mount|mt|mtr|mv|namei|nano|nc|ncftp|nedit-nc|netstat|nice|nisdomainname|nl|nohup|nslookup|od|paste|pathchk|pdf2dsc|pdf2ps|pdfinfo|pdftotext|perl|pgawk|pico|pine|ping|ping6|pinky|pr|printenv|printf|ps|ps2ascii|ps2epsi|ps2frag|ps2pdf|ps2pdf12|ps2pdf13|ps2pdf14|ps2pdfwr|ps2pk|ps2ps|psbook|ptx|pwd|quota|readelf|readlink|reboot|red|rename|resize|rm|rmdir|rpm|runcon|rundig|rvi|sed|seq|gid|serial|uid|setfont|sfdisk|sftp|sh|sha1sum|sha224sum|sha256sum|sha384sum|sha512sum|shred|shuf|sleep|slocate|sort|split|ssh|stat|stty|stty cooked|stty raw|su|sum|switchdesk|sync|tac|tail|tar|tcsh|tee|telnet|test|time|timeout|tr|tracepath|tracepath6|traceroute|traceroute6|tree|true|truncate|tsort|tty|umask|umount|uname|unexpand|unicode_start|unicode_stop|uniq|unlink|ungid|unuid|untar|unzip|updatedb|uptime|useradd|users|usleep|vdir|viwc|wget|is|whereis|which|who|whoami|whois|xinit|xpdf|xrandr|yes|ypdomainname|zcat|zip|zipinfo)\\s+(-+[a-z]+)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "osci",
     "subcategory": "osci"
   },
@@ -1514,8 +1363,7 @@
     "name": "100153",
     "msg": "OSCI (OS Command Injection) Attempt",
     "operand": "(&&|\\|\\||;|`)\\s*?(arch|ash|awk|base64|basename|bash|bc|bsh|bunzip2|cat|chcon|chgrp|chmod|chown|chroot|cjpeg|cksum|clear|comm|configure|cp|cpio|csh|csplit|curl|cut|date|dc|dd|df|diff|diff3|dig|dir|dircolors|dirname|djpeg|dmesg|dnsdomainname|doexec|domainname|dos2unix|du|dumpkeys|echo|ed|egrep|eject|elinks|env|ex|expand|expr|ext|factor|false|fdisk|fgrep|find|finger|fixps|fmt|fold|free|gawk|grep|groups|gtar|gunzip|gzip|halt|hdparm|head|hell|history|hostid|hostname|httpd|id|identify|ifconfig|igawk|install|ipcalc|join|kbd_mode|kill|last|lastlog|link|links|ln|loadkeys|locate|login|logname|look|ls|lsmod|lynx|mac2unix|mail|man|manweb|md5sum|mdu|mkdir|mkfifo|mkfs|mknod|mktemp|more|mount|mt|mtr|mv|namei|nano|nc|ncftp|nedit-nc|netstat|nice|nisdomainname|nl|nohup|nslookup|od|paste|pathchk|pdf2dsc|pdf2ps|pdfinfo|pdftotext|perl|pgawk|pico|pine|ping|ping6|pinky|pr|printenv|printf|ps|ps2ascii|ps2epsi|ps2frag|ps2pdf|ps2pdf12|ps2pdf13|ps2pdf14|ps2pdfwr|ps2pk|ps2ps|psbook|ptx|pwd|quota|readelf|readlink|reboot|red|rename|resize|rm|rmdir|rpm|runcon|rundig|rvi|sed|seq|gid|serial|uid|setfont|sfdisk|sftp|sh|sha1sum|sha224sum|sha256sum|sha384sum|sha512sum|shred|shuf|sleep|slocate|sort|split|ssh|stat|stty|stty cooked|stty raw|su|sum|switchdesk|sync|tac|tail|tar|tcsh|tee|telnet|test|time|timeout|tr|tracepath|tracepath6|traceroute|traceroute6|tree|true|truncate|tsort|tty|umask|umount|uname|unexpand|unicode_start|unicode_stop|uniq|unlink|ungid|unuid|untar|unzip|updatedb|uptime|useradd|users|usleep|vdir|viwc|wget|is|whereis|which|who|whoami|whois|xinit|xpdf|xrandr|yes|ypdomainname|zcat|zip|zipinfo)\\s+((-+[a-z]+)|(/\\w){2,})",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "osci",
     "subcategory": "osci"
   },
@@ -1524,8 +1372,7 @@
     "name": "100154",
     "msg": "OSCI (OS Command Injection) Attempt",
     "operand": "(exec|popen|system|os\\.command|shell|escapeshellcmd)\\(.*\\)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "osci",
     "subcategory": "osci"
   },
@@ -1534,8 +1381,7 @@
     "name": "100155",
     "msg": "OSCI (OS Command Injection) Attempt",
     "operand": "(arch|ash|awk|base64|basename|bash|bc|bsh|bunzip2|cat|chcon|chgrp|chmod|chown|chroot|cjpeg|cksum|clear|comm|configure|cp|cpio|csh|csplit|curl|cut|date|dc|dd|df|diff|diff3|dig|dir|dircolors|dirname|djpeg|dmesg|dnsdomainname|doexec|domainname|dos2unix|du|dumpkeys|echo|ed|egrep|eject|elinks|env|ex|expand|expr|ext|factor|false|fdisk|fgrep|find|finger|fixps|fmt|fold|free|gawk|grep|groups|gtar|gunzip|gzip|halt|hdparm|head|hell|history|hostid|hostname|httpd|id|identify|ifconfig|igawk|install|ipcalc|join|kbd_mode|kill|last|lastlog|link|links|ln|loadkeys|locate|login|logname|look|ls|lsmod|lynx|mac2unix|mail|man|manweb|md5sum|mdu|mkdir|mkfifo|mkfs|mknod|mktemp|more|mount|mt|mtr|mv|namei|nano|nc|ncftp|nedit-nc|netstat|nice|nisdomainname|nl|nohup|nslookup|od|paste|pathchk|pdf2dsc|pdf2ps|pdfinfo|pdftotext|perl|pgawk|pico|pine|ping|ping6|pinky|pr|printenv|printf|ps|ps2ascii|ps2epsi|ps2frag|ps2pdf|ps2pdf12|ps2pdf13|ps2pdf14|ps2pdfwr|ps2pk|ps2ps|psbook|ptx|pwd|quota|readelf|readlink|reboot|red|rename|resize|rm|rmdir|rpm|runcon|rundig|rvi|sed|seq|gid|serial|uid|setfont|sfdisk|sftp|sh|sha1sum|sha224sum|sha256sum|sha384sum|sha512sum|shred|shuf|sleep|slocate|sort|split|ssh|stat|stty|stty cooked|stty raw|su|sum|switchdesk|sync|tac|tail|tar|tcsh|tee|telnet|test|time|timeout|tr|tracepath|tracepath6|traceroute|traceroute6|tree|true|truncate|tsort|tty|umask|umount|uname|unexpand|unicode_start|unicode_stop|uniq|unlink|ungid|unuid|untar|unzip|updatedb|uptime|useradd|users|usleep|vdir|viwc|wget|is|whereis|which|who|whoami|whois|xinit|xpdf|xrandr|yes|ypdomainname|zcat|zip|zipinfo)(\\s+(-|&&|\\|\\||;|>|<).*){2,}[ -~]",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "osci",
     "subcategory": "osci"
   },
@@ -1544,8 +1390,7 @@
     "name": "100156",
     "msg": "OSCI (OS Command Injection) Attempt",
     "operand": ";.*\\$\\((arch|ash|awk|base64|basename|bash|bc|bsh|bunzip2|cat|chcon|chgrp|chmod|chown|chroot|cjpeg|cksum|clear|comm|configure|cp|cpio|csh|csplit|curl|cut|date|dc|dd|df|diff|diff3|dig|dir|dircolors|dirname|djpeg|dmesg|dnsdomainname|doexec|domainname|dos2unix|du|dumpkeys|echo|ed|egrep|eject|elinks|env|ex|expand|expr|ext|factor|false|fdisk|fgrep|find|finger|fixps|fmt|fold|free|gawk|grep|groups|gtar|gunzip|gzip|halt|hdparm|head|hell|history|hostid|hostname|httpd|id|identify|ifconfig|igawk|install|ipcalc|join|kbd_mode|kill|last|lastlog|link|links|ln|loadkeys|locate|login|logname|look|ls|lsmod|lynx|mac2unix|mail|man|manweb|md5sum|mdu|mkdir|mkfifo|mkfs|mknod|mktemp|more|mount|mt|mtr|mv|namei|nano|nc|ncftp|nedit-nc|netstat|nice|nisdomainname|nl|nohup|nslookup|od|paste|pathchk|pdf2dsc|pdf2ps|pdfinfo|pdftotext|perl|pgawk|pico|pine|ping|ping6|pinky|pr|printenv|printf|ps|ps2ascii|ps2epsi|ps2frag|ps2pdf|ps2pdf12|ps2pdf13|ps2pdf14|ps2pdfwr|ps2pk|ps2ps|psbook|ptx|pwd|quota|readelf|readlink|reboot|red|rename|resize|rm|rmdir|rpm|runcon|rundig|rvi|sed|seq|gid|serial|uid|setfont|sfdisk|sftp|sh|sha1sum|sha224sum|sha256sum|sha384sum|sha512sum|shred|shuf|sleep|slocate|sort|split|ssh|stat|stty|stty cooked|stty raw|su|sum|switchdesk|sync|tac|tail|tar|tcsh|tee|telnet|test|time|timeout|tr|tracepath|tracepath6|traceroute|traceroute6|tree|true|truncate|tsort|tty|umask|umount|uname|unexpand|unicode_start|unicode_stop|uniq|unlink|ungid|unuid|untar|unzip|updatedb|uptime|useradd|users|usleep|vdir|viwc|wget|is|whereis|which|who|whoami|whois|xinit|xpdf|xrandr|yes|ypdomainname|zcat|zip|zipinfo).*\\)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "osci",
     "subcategory": "osci"
   },
@@ -1554,8 +1399,7 @@
     "name": "100157",
     "msg": "XSS Attempt (Win OSCI)",
     "operand": "[A-Za-z]\\:.+\\.(exe|bat|cmd|dll)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "xss"
   },
@@ -1564,8 +1408,7 @@
     "name": "100158",
     "msg": "XSS Attempt (Win OSCI)",
     "operand": "\\w\\.(exe|bat|cmd|dll|sh|bash)($|(\\?.*))",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "xss"
   },
@@ -1574,8 +1417,7 @@
     "name": "100159",
     "msg": "XSS Attempt (Closing Tags)",
     "operand": "(\\s|\"|')(jscript|onsubmit|copyparentfolder|document|javascript|meta|onchange|onmove|onkeydown|onkeyup|activexobject|onerror|onmouseup|ecmascript|bexpression|onmouseover|vbscript:|<!\\[cdata\\[|http:|.innerhtml|settimeout|shell:|onabort|asfunction:|onkeypress|onmousedown|onclick|.fromcharcode|background-image:|x-javascript|ondragdrop|onblur|mocha:|javascript:|onfocus|lowsrc|getparentfolder|onresize|@import|alert|script|onselect|onmouseout|application|onmousemove|background|.execscript|livescript:|vbscript|getspecialfolder|.addimport|<iframe|onunload|createtextrange|<input|onload)(\\s|=)",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "tag insertion"
   },
@@ -1584,8 +1426,7 @@
     "name": "100160",
     "msg": "XSS Attempt (anchor, img or script)",
     "operand": "%3c.+%3e.+%3c%2f.+%3e",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "xss"
   },
@@ -1594,8 +1435,7 @@
     "name": "100161",
     "msg": "XSS Attempt (anchor, img or script)",
     "operand": "%3c.+%2f%3e",
-    "severity": 5,
-    "certainity": 5,
+    "risk": 5,
     "category": "xss",
     "subcategory": "xss"
   }

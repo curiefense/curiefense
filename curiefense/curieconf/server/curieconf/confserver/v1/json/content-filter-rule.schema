@@ -20,7 +20,34 @@
             "minLength": 0,
             "title": "Operand",
             "description": "Matching domain(s) regex"
+        },
+        "notes": {
+            "type": "string",
+            "title": "Description",
+            "description": "Description of entity shown in UI"
+        },
+        "risk": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "title": "Risk Level",
+            "description": "Risk level of this rule, between 1 (lowest risk) and 5 (highest risk)"
+        },
+        "msg": {
+            "type": "string",
+            "title": "Message",
+            "description": "Log message for this rule"
+        },
+        "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "Category of the rule"
+        },
+        "subcategory": {
+            "type": "string",
+            "title": "Subcategory",
+            "description": "Subcategory of the rule"
         }
     },
-    "required": [ "id", "name" ]
+    "required": [ "id", "name", "operand", "notes", "risk", "msg", "category", "subcategory" ]
 }

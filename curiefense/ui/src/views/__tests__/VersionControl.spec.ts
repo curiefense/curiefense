@@ -345,8 +345,8 @@ describe('VersionControl.vue', () => {
     const downloadFileSpy = jest.spyOn(Utils, 'downloadFile')
     // force update because downloadFile is mocked after it is read to to be used as event handler
     await wrapper.vm.$forceUpdate()
-    await Vue.nextTick();
-    (wrapper.vm as any).isDownloadLoading = true
+    await Vue.nextTick()
+    wrapper.setData({isDownloadLoading: true})
     const downloadBranchButton = wrapper.find('.download-branch-button')
     downloadBranchButton.trigger('click')
     await Vue.nextTick()

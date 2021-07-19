@@ -498,7 +498,7 @@ export default Vue.extend({
       this.setLoadingDocStatus(true)
       this.loadGitLog()
       const docName = (this.selectedDoc as BasicDocument)?.name
-      if ( docName ) {
+      if (docName) {
         Utils.toast(
             `Switched to document ${docName} with ID "${this.selectedDocID}".`,
             'is-info',
@@ -515,7 +515,7 @@ export default Vue.extend({
     },
 
     async forkDoc() {
-      if ( !this.selectedDoc ) {
+      if (!this.selectedDoc) {
         return
       }
       this.setLoadingDocStatus(true)
@@ -613,7 +613,10 @@ export default Vue.extend({
     },
 
     async loadReferencedDocsIDs() {
-      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: `configs/${this.selectedBranch}/d/securitypolicies/`})
+      const response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/securitypolicies/`,
+      })
       const docs = response?.data
       const referencedACL: string[] = []
       const referencedContentFilter: string[] = []

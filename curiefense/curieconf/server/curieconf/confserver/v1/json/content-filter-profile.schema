@@ -65,6 +65,27 @@
             "title": "Max Arguments Count",
             "description": "Max amount of arguments allowed in the request"
         },
+        "min_headers_risk": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "title": "Min Headers Risk Level",
+            "description": "Min risk level of headers to match with the request"
+        },
+        "min_cookies_risk": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "title": "Min Cookies Risk Level",
+            "description": "Min risk level of cookies to match with the request"
+        },
+        "min_args_risk": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "title": "Min Arguments Risk Level",
+            "description": "Min risk level of arguments to match with the request"
+        },
         "args": {
             "type": "object",
             "properties": {
@@ -90,5 +111,5 @@
             "required": [ "names", "regex" ]
         }
     },
-    "required": [ "id", "name", "ignore_alphanum", "max_header_length", "max_cookie_length", "max_arg_length", "max_headers_count", "max_cookies_count", "max_args_count", "args", "headers", "cookies" ]
+    "required": [ "id", "name", "ignore_alphanum", "max_header_length", "max_cookie_length", "max_arg_length", "max_headers_count", "max_cookies_count", "max_args_count", "min_headers_risk", "min_cookies_risk", "min_args_risk", "args", "headers", "cookies" ]
 }

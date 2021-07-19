@@ -25,6 +25,9 @@ describe('ContentFilterProfileEditor.vue', () => {
       'max_headers_count': 36,
       'max_cookies_count': 42,
       'max_args_count': 512,
+      'min_headers_risk': 1,
+      'min_cookies_risk': 1,
+      'min_args_risk': 1,
       'args': {'names': [], 'regex': []},
       'headers': {'names': [], 'regex': []},
       'cookies': {'names': [], 'regex': []},
@@ -35,8 +38,8 @@ describe('ContentFilterProfileEditor.vue', () => {
         'name': '100000',
         'msg': 'SQLi Attempt (Conditional Operator Detected)',
         'operand': '\\s(and|or)\\s+\\d+\\s+.*between\\s.*\\d+\\s+and\\s+\\d+.*',
-        'severity': 5,
-        'certainity': 5,
+        'risk': 5,
+        'notes': '',
         'category': 'sqli',
         'subcategory': 'statement injection',
       },
@@ -45,8 +48,8 @@ describe('ContentFilterProfileEditor.vue', () => {
         'name': '100001',
         'subcategory': 'statement injection',
         'category': 'sqli',
-        'certainity': 5,
-        'severity': 5,
+        'risk': 5,
+        'notes': '',
         'operand': '\\s(and|or)\\s+["\']\\w+["\']\\s+.*between\\s.*["\']\\w+["\']\\s+and\\s+["\']\\w+.*',
         'msg': 'SQLi Attempt (Conditional Operator Detected)',
       },
@@ -55,8 +58,8 @@ describe('ContentFilterProfileEditor.vue', () => {
         'name': '100002',
         'subcategory': 'statement injection',
         'category': 'sqli',
-        'certainity': 5,
-        'severity': 5,
+        'risk': 5,
+        'notes': '',
         'operand': '\\W(\\s*)?(and|or)\\s.*(\'|").+(\'|")(\\s+)?(=|>|<|>=|<=).*(\'|").+',
         'msg': 'SQLi Attempt (Conditional Operator Detected)',
       },
@@ -145,6 +148,21 @@ describe('ContentFilterProfileEditor.vue', () => {
     test('should have correct max args count in input', () => {
       const element = wrapper.find('.max-args-count-input').element as HTMLInputElement
       expect(element.value).toEqual(docs[0].max_args_count.toString())
+    })
+
+    test('should have correct min headers risk in input', () => {
+      const element = wrapper.find('.min-headers-risk-input').element as HTMLInputElement
+      expect(element.value).toEqual(docs[0].min_headers_risk.toString())
+    })
+
+    test('should have correct min cookies risk in input', () => {
+      const element = wrapper.find('.min-cookies-risk-input').element as HTMLInputElement
+      expect(element.value).toEqual(docs[0].min_cookies_risk.toString())
+    })
+
+    test('should have correct min args risk in input', () => {
+      const element = wrapper.find('.min-args-risk-input').element as HTMLInputElement
+      expect(element.value).toEqual(docs[0].min_args_risk.toString())
     })
 
     test('should have correct ignore alphanumeric boolean in checkbox input', () => {

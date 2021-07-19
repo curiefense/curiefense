@@ -266,23 +266,22 @@ export default Vue.extend({
       })
     },
 
-    publish() {
+    async publish() {
       this.isPublishLoading = true
       this.publishMode = true
       this.publishedBuckets = _.cloneDeep(_.filter(this.publishInfo.buckets, (bucket) => {
         return _.indexOf(this.selectedBucketNames, bucket.name) > -1
       }))
 
-      RequestsUtils.sendRequest({
+      const failureMessage = 'Failed while attempting to publish branch ' +
+          `"${this.selectedBranchName}" version "${this.selectedCommit}".`
+      await RequestsUtils.sendRequest({
         methodName: 'PUT',
         url: `tools/publish/${this.selectedBranchName}/v/${this.selectedCommit}/`,
         data: this.buckets,
+        failureMessage,
         onFail: () => {
           this.isPublishLoading = false
-          Utils.toast(
-            `Failed while attempting to publish branch "${this.selectedBranchName}" version "${this.selectedCommit}".`,
-            'is-danger',
-          )
         },
       }).then((response: AxiosResponse) => {
         this.parsePublishResults(response?.data)

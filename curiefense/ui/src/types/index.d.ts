@@ -109,6 +109,9 @@ declare module CuriefenseClient {
     max_headers_count: number
     max_cookies_count: number
     max_args_count: number
+    min_headers_risk: number,
+    min_cookies_risk: number,
+    min_args_risk: number,
     args: {
       names: ContentFilterEntryMatch[]
       regex: ContentFilterEntryMatch[]
@@ -181,12 +184,12 @@ declare module CuriefenseClient {
   type ContentFilterRule = {
     id: string
     name: string
-    category?: string
-    certainity?: number
-    msg?: string
     operand: string
-    severity?: number
-    subcategory?: string
+    notes: string
+    risk: number
+    msg: string
+    category: string
+    subcategory: string
   }
 
   type ContentFilterRuleGroup = {

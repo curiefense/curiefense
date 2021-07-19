@@ -151,8 +151,8 @@ describe('TagAutocompleteInput.vue', () => {
         selectionType: 'single',
       },
     })
-    const newTagName = 'tag-of-doom';
-    (wrapper.vm as any).tagsAddedWhileSuggestionsLoading = [newTagName]
+    const newTagName = 'tag-of-doom'
+    wrapper.setData({tagsAddedWhileSuggestionsLoading: [newTagName]})
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
     jest.spyOn(axios, 'put').mockImplementationOnce((path, data: TagsNamespaceValue) => {
       expect(data.neutral).toContain(newTagName)
@@ -173,8 +173,8 @@ describe('TagAutocompleteInput.vue', () => {
     })
     const tag1 = 'tag-1'
     const tag2 = 'tag-2'
-    const tag3 = 'tag-3';
-    (wrapper.vm as any).tagsAddedWhileSuggestionsLoading = [tag2, tag3]
+    const tag3 = 'tag-3'
+    wrapper.setData({tagsAddedWhileSuggestionsLoading: [tag2, tag3]})
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
     jest.spyOn(axios, 'put').mockImplementationOnce((path, data: TagsNamespaceValue) => {
       expect(data.neutral).not.toContain(tag1)
@@ -195,8 +195,8 @@ describe('TagAutocompleteInput.vue', () => {
         selectionType: 'single',
       },
     })
-    const newTagName = 'internal';
-    (wrapper.vm as any).tagsAddedWhileSuggestionsLoading = [newTagName]
+    const newTagName = 'internal'
+    wrapper.setData({tagsAddedWhileSuggestionsLoading: [newTagName]})
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
     const spy = jest.spyOn(axios, 'put')
     autocompleteInput.vm.$emit('value-submitted', newTagName)
@@ -212,8 +212,8 @@ describe('TagAutocompleteInput.vue', () => {
         selectionType: 'single',
       },
     })
-    const newTagName = 'malware';
-    (wrapper.vm as any).tagsAddedWhileSuggestionsLoading = [newTagName]
+    const newTagName = 'malware'
+    wrapper.setData({tagsAddedWhileSuggestionsLoading: [newTagName]})
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
     const spy = jest.spyOn(axios, 'put')
     autocompleteInput.vm.$emit('value-submitted', newTagName)
@@ -229,8 +229,8 @@ describe('TagAutocompleteInput.vue', () => {
         selectionType: 'single',
       },
     })
-    const newTagName = 'all';
-    (wrapper.vm as any).tagsAddedWhileSuggestionsLoading = [newTagName]
+    const newTagName = 'all'
+    wrapper.setData({tagsAddedWhileSuggestionsLoading: [newTagName]})
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
     const spy = jest.spyOn(axios, 'put')
     autocompleteInput.vm.$emit('value-submitted', newTagName)
@@ -258,8 +258,8 @@ describe('TagAutocompleteInput.vue', () => {
         selectionType: 'single',
       },
     })
-    const newTagName = 'tag-2300';
-    (wrapper.vm as any).tagsAddedWhileSuggestionsLoading = [newTagName]
+    const newTagName = 'tag-2300'
+    wrapper.setData({tagsAddedWhileSuggestionsLoading: [newTagName]})
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
     jest.spyOn(axios, 'put').mockImplementationOnce((path, data: TagsNamespaceValue) => {
       expect(data.neutral).toContain(newTagName)
@@ -290,8 +290,8 @@ describe('TagAutocompleteInput.vue', () => {
         selectionType: 'single',
       },
     })
-    const newTagName = 'tag-2300';
-    (wrapper.vm as any).tagsAddedWhileSuggestionsLoading = [newTagName]
+    const newTagName = 'tag-2300'
+    wrapper.setData({tagsAddedWhileSuggestionsLoading: [newTagName]})
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
     jest.spyOn(axios, 'put').mockImplementationOnce((path, data: TagsNamespaceValue) => {
       expect(data.neutral).toContain(newTagName)
@@ -323,8 +323,8 @@ describe('TagAutocompleteInput.vue', () => {
         selectionType: 'single',
       },
     })
-    const newTagName = 'tag-2300';
-    (wrapper.vm as any).tagsAddedWhileSuggestionsLoading = [newTagName]
+    const newTagName = 'tag-2300'
+    wrapper.setData({tagsAddedWhileSuggestionsLoading: [newTagName]})
     const autocompleteInput = wrapper.findComponent(AutocompleteInput)
     jest.spyOn(axios, 'put').mockImplementationOnce((path, data: TagsNamespaceValue) => {
       expect(data.neutral).toContain(newTagName)

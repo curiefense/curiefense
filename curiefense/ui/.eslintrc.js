@@ -24,9 +24,9 @@ module.exports = {
     'vue',
     '@typescript-eslint',
   ],
-  'ignorePatterns': ['public/*', 'dist/*'],
+  'ignorePatterns': ['public/*', 'dist/*', 'coverage/*', '**/*.js'],
   'rules': {
-    'semi': 'off',
+    'semi': ['error', 'never'],
     'max-len': ['warn', {
       'code': 120,
       'comments': 140,
@@ -46,5 +46,8 @@ module.exports = {
       },
       'SwitchCase': 1,
     }],
+    'space-in-parens': [2, 'never'],
+    'array-bracket-spacing': [2, 'never'],
+    'computed-property-spacing': [2, 'never'],
   },
 }

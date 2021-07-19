@@ -161,7 +161,7 @@ describe('CurieDBEditor.vue', () => {
     }
     const putSpy = jest.spyOn(axios, 'put')
     putSpy.mockImplementation(() => Promise.resolve())
-    const gitHistory = wrapper.findComponent(GitHistory);
+    const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', wantedVersion)
     await Vue.nextTick()
     expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/system/v/${wantedVersion.version}/revert/`)
@@ -171,10 +171,10 @@ describe('CurieDBEditor.vue', () => {
     const restoredVersion = {
       version: 'b104d3dd17f790b75c4e067c44bb06b914902d78',
     }
-    const wantedKey = 'publishinfo';
-    (wrapper.vm as any).selectedKey = wantedKey
+    const wantedKey = 'publishinfo'
+    wrapper.setData({selectedKey: wantedKey})
     jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
-    const gitHistory = wrapper.findComponent(GitHistory);
+    const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', restoredVersion)
     // allow all requests to finish
     setImmediate(() => {
@@ -187,10 +187,10 @@ describe('CurieDBEditor.vue', () => {
     const restoredVersion = {
       version: 'b104d3dd17f790b75c4e067c44bb06b914902d78',
     }
-    const wantedKey = 'publishinfo';
-    (wrapper.vm as any).selectedKey = 'somekey'
+    const wantedKey = 'publishinfo'
+    wrapper.setData({selectedKey: 'somekey'})
     jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
-    const gitHistory = wrapper.findComponent(GitHistory);
+    const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', restoredVersion)
     // allow all requests to finish
     setImmediate(() => {
@@ -232,7 +232,7 @@ describe('CurieDBEditor.vue', () => {
     const wantedFileType = 'json'
     const wantedFileData = publishInfoData
     const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {});
-    (wrapper.vm as any).selectedKeyValue = null
+    wrapper.setData({selectedKeyValue: null})
     // force update because downloadFile is mocked after it is read to be used as event handler
     await (wrapper.vm as any).$forceUpdate()
     await Vue.nextTick()
@@ -389,15 +389,15 @@ describe('CurieDBEditor.vue', () => {
     })
 
     test('should be able to save key changes even if key name changes', async () => {
-      const keyNameInput = wrapper.find('.key-name-input');
-      (keyNameInput.element as any).value = 'key_name'
+      const keyNameInput = wrapper.find('.key-name-input')
+      keyNameInput.setValue('key_name')
       keyNameInput.trigger('input')
       await Vue.nextTick()
       const value = {
         buckets: {},
         foo: 'bar',
-      };
-      (wrapper.vm as any).selectedKeyValue = JSON.stringify(value)
+      }
+      wrapper.setData({selectedKeyValue: JSON.stringify(value)})
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
       saveKeyButton.trigger('click')
@@ -409,8 +409,8 @@ describe('CurieDBEditor.vue', () => {
       const value = {
         buckets: {},
         foo: 'bar',
-      };
-      (wrapper.vm as any).selectedKeyValue = JSON.stringify(value)
+      }
+      wrapper.setData({selectedKeyValue: JSON.stringify(value)})
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
       saveKeyButton.trigger('click')
@@ -424,8 +424,8 @@ describe('CurieDBEditor.vue', () => {
         const value = {
           buckets: {},
           foo: 'bar',
-        };
-        (wrapper.vm as any).editor.set(value)
+        }
+        wrapper.vm.$data.editor.set(value)
         await Vue.nextTick()
         const saveKeyButton = wrapper.find('.save-button')
         saveKeyButton.trigger('click')
@@ -437,12 +437,12 @@ describe('CurieDBEditor.vue', () => {
 
     test('should not be able to save key changes' +
       'if value is an invalid json when not using json editor', async () => {
-      (wrapper.vm as any).editor = null;
-      (wrapper.vm as any).isJsonEditor = false
+      wrapper.setData({editor: null})
+      wrapper.setData({isJsonEditor: false})
       await Vue.nextTick()
       const value = '{'
-      const valueInput = wrapper.find('.value-input');
-      (valueInput.element as any).value = value
+      const valueInput = wrapper.find('.value-input')
+      valueInput.setValue(value)
       valueInput.trigger('input')
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
@@ -475,8 +475,8 @@ describe('CurieDBEditor.vue', () => {
     })
 
     test('should not be able to save key changes if namespace name is empty', async () => {
-      const namespaceNameInput = wrapper.find('.namespace-name-input');
-      (namespaceNameInput.element as any).value = ''
+      const namespaceNameInput = wrapper.find('.namespace-name-input')
+      namespaceNameInput.setValue('')
       namespaceNameInput.trigger('input')
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
@@ -487,7 +487,7 @@ describe('CurieDBEditor.vue', () => {
 
     test('should not be able to save key changes if namespace name is duplicate of another namespace', async () => {
       const namespaceNameInput = wrapper.find('.namespace-name-input');
-      (namespaceNameInput.element as any).value = 'namespaceCopy'
+      namespaceNameInput.element.setValue('namespaceCopy')
       namespaceNameInput.trigger('input')
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
@@ -497,8 +497,8 @@ describe('CurieDBEditor.vue', () => {
     })
 
     test('should not be able to save key changes if key name is empty', async () => {
-      const keyNameInput = wrapper.find('.key-name-input');
-      (keyNameInput.element as any).value = ''
+      const keyNameInput = wrapper.find('.key-name-input')
+      keyNameInput.setValue('')
       keyNameInput.trigger('input')
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
@@ -516,8 +516,8 @@ describe('CurieDBEditor.vue', () => {
       // key switch
       await Vue.nextTick()
       // change key name
-      const keyNameInput = wrapper.find('.key-name-input');
-      (keyNameInput.element as any).value = 'key'
+      const keyNameInput = wrapper.find('.key-name-input')
+      keyNameInput.setValue('key')
       keyNameInput.trigger('input')
       await Vue.nextTick()
       // reset spy counter

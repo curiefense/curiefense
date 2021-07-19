@@ -92,6 +92,33 @@
                          v-model.number="localDoc.max_args_count"/>
                 </td>
               </tr>
+              <tr>
+                <td>Min Risk Level</td>
+                <td>
+                  <input required
+                         class="input is-small min-headers-risk-input"
+                         type="number"
+                         @change="emitDocUpdate"
+                         title="Min headers risk"
+                         v-model.number="localDoc.min_headers_risk"/>
+                </td>
+                <td>
+                  <input required
+                         class="input is-small min-cookies-risk-input"
+                         type="number"
+                         @change="emitDocUpdate"
+                         title="Min cookies risk"
+                         v-model.number="localDoc.min_cookies_risk"/>
+                </td>
+                <td>
+                  <input required
+                         class="input is-small min-args-risk-input"
+                         type="number"
+                         @change="emitDocUpdate"
+                         title="Min arguments risk"
+                         v-model.number="localDoc.min_args_risk"/>
+                </td>
+              </tr>
               </tbody>
             </table>
           </div>

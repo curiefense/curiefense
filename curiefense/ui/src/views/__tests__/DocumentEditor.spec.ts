@@ -661,6 +661,9 @@ describe('DocumentEditor.vue', () => {
       'max_headers_count': 36,
       'max_cookies_count': 42,
       'max_args_count': 512,
+      'min_headers_risk': 1,
+      'min_cookies_risk': 1,
+      'min_args_risk': 1,
       'args': {'names': [], 'regex': []},
       'headers': {'names': [], 'regex': []},
       'cookies': {'names': [], 'regex': []},
@@ -1408,8 +1411,8 @@ describe('DocumentEditor.vue', () => {
 
     test('should not be able to delete a document if its id is __default__', async () => {
       const deleteSpy = jest.spyOn(axios, 'delete')
-      deleteSpy.mockImplementation(() => Promise.resolve());
-      (wrapper.vm as any).selectedDocID = '__default__'
+      deleteSpy.mockImplementation(() => Promise.resolve())
+      wrapper.setData({selectedDocID: '__default__'})
       await Vue.nextTick()
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       deleteDocumentButton.trigger('click')
@@ -1425,8 +1428,8 @@ describe('DocumentEditor.vue', () => {
       options.at(1).setSelected()
       await Vue.nextTick()
       const deleteSpy = jest.spyOn(axios, 'delete')
-      deleteSpy.mockImplementation(() => Promise.resolve());
-      (wrapper.vm as any).selectedDoc.id = '__default__'
+      deleteSpy.mockImplementation(() => Promise.resolve())
+      wrapper.setData({selectedDoc: {id: '__default__'}})
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       deleteDocumentButton.trigger('click')
       await Vue.nextTick()
@@ -1442,8 +1445,8 @@ describe('DocumentEditor.vue', () => {
       await Vue.nextTick()
       await Vue.nextTick()
       const deleteSpy = jest.spyOn(axios, 'delete')
-      deleteSpy.mockImplementation(() => Promise.resolve());
-      (wrapper.vm as any).selectedDoc.id = '009e846e819e'
+      deleteSpy.mockImplementation(() => Promise.resolve())
+      wrapper.setData({selectedDoc: {id: '009e846e819e'}})
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       deleteDocumentButton.trigger('click')
       await Vue.nextTick()
@@ -1459,8 +1462,8 @@ describe('DocumentEditor.vue', () => {
       await Vue.nextTick()
       await Vue.nextTick()
       const deleteSpy = jest.spyOn(axios, 'delete')
-      deleteSpy.mockImplementation(() => Promise.resolve());
-      (wrapper.vm as any).selectedDoc.id = 'f971e92459e2'
+      deleteSpy.mockImplementation(() => Promise.resolve())
+      wrapper.setData({selectedDoc: {id: 'f971e92459e2'}})
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       deleteDocumentButton.trigger('click')
       await Vue.nextTick()
