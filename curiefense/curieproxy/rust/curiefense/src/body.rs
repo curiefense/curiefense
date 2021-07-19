@@ -16,7 +16,7 @@ use xmlparser::{ElementEnd, EntityDefinition, ExternalId, Token};
 
 use crate::logs::Logs;
 use crate::requestfields::RequestField;
-use crate::utils::url::parse_urlencoded_params_bytes;
+use crate::utils::decoders::parse_urlencoded_params_bytes;
 
 fn json_path(prefix: &[String]) -> String {
     if prefix.is_empty() {
@@ -266,11 +266,12 @@ pub fn parse_body(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::config::contentfilter::Transformation;
     use crate::logs::LogLevel;
 
-    fn test_parse_ok(mcontent_type: Option<&str>, body: &[u8]) -> RequestField {
+    fn test_parse_ok_dec(dec: &[Transformation], mcontent_type: Option<&str>, body: &[u8]) -> RequestField {
         let mut logs = Logs::default();
-        let mut args = RequestField::default();
+        let mut args = RequestField::new(dec);
         parse_body(&mut logs, &mut args, mcontent_type, body).unwrap();
         for lg in logs.logs {
             if lg.level > LogLevel::Debug {
@@ -282,12 +283,12 @@ mod tests {
 
     fn test_parse_bad(mcontent_type: Option<&str>, body: &[u8]) {
         let mut logs = Logs::default();
-        let mut args = RequestField::default();
+        let mut args = RequestField::new(&[]);
         assert!(parse_body(&mut logs, &mut args, mcontent_type, body).is_err());
     }
 
-    fn test_parse(mcontent_type: Option<&str>, body: &[u8], expected: &[(&str, &str)]) {
-        let args = test_parse_ok(mcontent_type, body);
+    fn test_parse_dec(dec: &[Transformation], mcontent_type: Option<&str>, body: &[u8], expected: &[(&str, &str)]) {
+        let args = test_parse_ok_dec(dec, mcontent_type, body);
         for (k, v) in expected {
             match args.get_str(k) {
                 None => panic!("Argument not set {}", k),
@@ -304,6 +305,10 @@ mod tests {
         }
     }
 
+    fn test_parse(mcontent_type: Option<&str>, body: &[u8], expected: &[(&str, &str)]) {
+        test_parse_dec(&[], mcontent_type, body, expected)
+    }
+
     #[test]
     fn json_empty_body() {
         test_parse(Some("application/json"), br#"{}"#, &[]);
@@ -316,10 +321,11 @@ mod tests {
 
     #[test]
     fn json_scalar_b64() {
-        test_parse(
+        test_parse_dec(
+            &[Transformation::Base64Decode],
             Some("application/json"),
             br#""c2NhbGFyIQ==""#,
-            &[("JSON_ROOT", "c2NhbGFyIQ=="), ("JSON_ROOT_base64", "scalar!")],
+            &[("JSON_ROOT", "c2NhbGFyIQ=="), ("JSON_ROOT:decoded", "scalar!")],
         );
     }
 
@@ -363,7 +369,7 @@ mod tests {
     #[test]
     fn arguments_collision() {
         let mut logs = Logs::default();
-        let mut args = RequestField::default();
+        let mut args = RequestField::new(&[]);
         args.add("a".to_string(), "query_arg".to_string());
         parse_body(&mut logs, &mut args, Some("application/json"), br#"{"a": "body_arg"}"#).unwrap();
         assert_eq!(args.get_str("a"), Some("query_arg body_arg"));
@@ -376,10 +382,31 @@ mod tests {
 
     #[test]
     fn xml_simple_b64() {
-        test_parse(
+        test_parse_dec(
+            &[Transformation::Base64Decode],
             Some("text/xml"),
             br#"<a>ZHFzcXNkcXNk</a>"#,
-            &[("a1", "ZHFzcXNkcXNk"), ("a1_base64", "dqsqsdqsd")],
+            &[("a1", "ZHFzcXNkcXNk"), ("a1:decoded", "dqsqsdqsd")],
+        );
+    }
+
+    #[test]
+    fn xml_simple_html() {
+        test_parse_dec(
+            &[Transformation::HtmlEntitiesDecode],
+            Some("text/xml"),
+            br#"<a>&lt;em&gt;</a>"#,
+            &[("a1", "&lt;em&gt;"), ("a1:decoded", "<em>")],
+        );
+    }
+
+    #[test]
+    fn xml_simple_html_partial() {
+        test_parse_dec(
+            &[Transformation::HtmlEntitiesDecode],
+            Some("text/xml"),
+            br#"<a>&lt;em&gt</a>"#,
+            &[("a1", "&lt;em&gt"), ("a1:decoded", "<em&gt")],
         );
     }
 

@@ -13,6 +13,8 @@ pub mod securitypolicy;
 pub mod tagging;
 pub mod utils;
 
+use crate::utils::map_request;
+use crate::utils::RawRequest;
 use interface::Tags;
 use serde_json::json;
 
@@ -68,7 +70,7 @@ fn challenge_verified<GH: Grasshopper>(gh: &GH, reqinfo: &RequestInfo, logs: &mu
 pub fn inspect_generic_request_map<GH: Grasshopper>(
     configpath: &str,
     mgh: Option<GH>,
-    reqinfo: RequestInfo,
+    raw: RawRequest,
     itags: Tags,
     logs: &mut Logs,
 ) -> (Decision, Tags, RequestInfo) {
@@ -79,40 +81,41 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
 
     logs.debug(format!("Inspection starts (grasshopper active: {})", mgh.is_some()));
 
-    // without grasshopper, default to being human
-    let is_human = if let Some(gh) = &mgh {
-        challenge_verified(gh, &reqinfo, logs)
-    } else {
-        false
-    };
-
-    if is_human {
-        tags.insert("human");
-    } else {
-        tags.insert("bot");
-    }
-
-    logs.debug(format!("Human check result: {}", is_human));
-
     // do all config queries in the lambda once
     // there is a lot of copying taking place, to minimize the lock time
     // this decision should be backed with benchmarks
-    let ((nm, securitypolicy), (ntags, globalfilter_dec), flows) = match with_config(configpath, logs, |slogs, cfg| {
-        let msecuritypolicy = match_securitypolicy(&reqinfo, cfg, slogs).map(|(nm, um)| (nm, um.clone()));
-        let nflows = cfg.flows.clone();
-        let ntags = tag_request(is_human, cfg, &reqinfo);
-        (msecuritypolicy, ntags, nflows)
-    }) {
-        Some((Some(stuff), itags, iflows)) => (stuff, itags, iflows),
-        Some((None, _, _)) => {
-            logs.debug("Could not find a matching securitypolicy");
-            return (Decision::Pass, tags, reqinfo);
-        }
-        None => {
-            logs.debug("Something went wrong during request tagging");
-            return (Decision::Pass, tags, reqinfo);
-        }
-    };
+    let ((nm, securitypolicy), (ntags, globalfilter_dec), flows, reqinfo, is_human) =
+        match with_config(configpath, logs, |slogs, cfg| {
+            let murlmap =
+                match_securitypolicy(&raw.get_host(), &raw.meta.path, cfg, slogs).map(|(nm, um)| (nm, um.clone()));
+            let transformations = murlmap
+                .as_ref()
+                .map(|u| u.1.content_filter_profile.decoding.as_ref())
+                .unwrap_or_default();
+            let reqinfo = map_request(slogs, transformations, &raw);
+            let nflows = cfg.flows.clone();
+
+            // without grasshopper, default to being human
+            let is_human = if let Some(gh) = &mgh {
+                challenge_verified(gh, &reqinfo, slogs)
+            } else {
+                false
+            };
+
+            let ntags = tag_request(is_human, cfg, &reqinfo);
+            (murlmap, ntags, nflows, reqinfo, is_human)
+        }) {
+            Some((Some(stuff), itags, iflows, rr, is_human)) => (stuff, itags, iflows, rr, is_human),
+            Some((None, _, _, rr, _)) => {
+                logs.debug("Could not find a matching securitypolicy");
+                return (Decision::Pass, tags, rr);
+            }
+            None => {
+                logs.debug("Something went wrong during request tagging");
+                return (Decision::Pass, tags, map_request(logs, &[], &raw));
+            }
+        };
+
     logs.debug("request tagged");
     tags.extend(ntags);
     tags.insert_qualified("securitypolicy", &nm);
@@ -122,14 +125,10 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
     tags.insert_qualified("contentfilterid", &securitypolicy.content_filter_profile.id);
     tags.insert_qualified("contentfiltername", &securitypolicy.content_filter_profile.name);
 
-    if let Some(dec) = mgh.as_ref().and_then(|gh| {
-        reqinfo
-            .rinfo
-            .qinfo
-            .uri
-            .as_ref()
-            .and_then(|uri| challenge_phase02(gh, uri, &reqinfo.headers))
-    }) {
+    if let Some(dec) = mgh
+        .as_ref()
+        .and_then(|gh| challenge_phase02(gh, &reqinfo.rinfo.qinfo.uri, &reqinfo.headers))
+    {
         // TODO, check for monitor
         return (dec, tags, masking(reqinfo, &securitypolicy.content_filter_profile));
     }
@@ -257,7 +256,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
 
     // otherwise, run content_filter_check
     let content_filter_result = match HSDB.read() {
-        Ok(rd) => content_filter_check(&reqinfo, &securitypolicy.content_filter_profile, rd),
+        Ok(rd) => content_filter_check(logs, &reqinfo, &securitypolicy.content_filter_profile, rd),
         Err(rr) => {
             logs.error(format!("Could not get lock on HSDB: {}", rr));
             Ok(())
@@ -289,23 +288,25 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
 // generic entry point when the request map has already been parsed
 pub fn content_filter_check_generic_request_map(
     configpath: &str,
-    reqinfo: &RequestInfo,
+    raw: &RawRequest,
     content_filter_id: &str,
     logs: &mut Logs,
-) -> Decision {
+) -> (Decision, RequestInfo) {
     logs.debug("Content Filter inspection starts");
-    let content_filter_profile = match with_config(configpath, logs, |_slogs, cfg| {
+    let waf_profile = match with_config(configpath, logs, |_slogs, cfg| {
         cfg.content_filter_profiles.get(content_filter_id).cloned()
     }) {
         Some(Some(prof)) => prof,
         _ => {
             logs.error("Content Filter profile not found");
-            return Decision::Pass;
+            return (Decision::Pass, map_request(logs, &[], raw));
         }
     };
 
-    let content_filter_result = match HSDB.read() {
-        Ok(rd) => content_filter_check(reqinfo, &content_filter_profile, rd),
+    let reqinfo = map_request(logs, &waf_profile.decoding, raw);
+
+    let waf_result = match HSDB.read() {
+        Ok(rd) => content_filter_check(logs, &reqinfo, &waf_profile, rd),
         Err(rr) => {
             logs.error(format!("Could not get lock on HSDB: {}", rr));
             Ok(())
@@ -313,8 +314,11 @@ pub fn content_filter_check_generic_request_map(
     };
     logs.debug("Content Filter checks done");
 
-    match content_filter_result {
-        Ok(()) => Decision::Pass,
-        Err(wb) => Decision::Action(wb.to_action()),
-    }
+    (
+        match waf_result {
+            Ok(()) => Decision::Pass,
+            Err(wb) => Decision::Action(wb.to_action()),
+        },
+        reqinfo,
+    )
 }

@@ -10,6 +10,7 @@ use crate::config::contentfilter::{
 use crate::interface::{Action, ActionType};
 use crate::requestfields::RequestField;
 use crate::utils::RequestInfo;
+use crate::Logs;
 
 #[derive(Debug, Clone)]
 pub struct ContentFilterMatched {
@@ -63,7 +64,7 @@ impl ContentFilterBlock {
                             "sig_subcategory": sig.subcategory,
                             "sig_operand": sig.operand,
                             "sig_id": sig.id,
-                            "sig_severity": sig.severity,
+                            "sig_risk": sig.risk,
                             "sig_msg": sig.msg,
                             "content_filter_groups": json!(groups),
                         })
@@ -93,7 +94,7 @@ impl ContentFilterBlock {
                 "section": wmatch.section,
                 "name": wmatch.name,
                 "initiator": "content_filter",
-                "value": "WSS",
+                "value": "XSS",
                 "matched": wmatch.value
             }),
             ContentFilterBlock::Mismatch(wmatch) => json!({
@@ -138,11 +139,13 @@ fn get_section(idx: SectionIdx, rinfo: &RequestInfo) -> &RequestField {
         Headers => &rinfo.headers,
         Cookies => &rinfo.cookies,
         Args => &rinfo.rinfo.qinfo.args,
+        Path => &rinfo.rinfo.qinfo.path_as_map,
     }
 }
 
 /// Runs the Content Filter part of curiefense
 pub fn content_filter_check(
+    logs: &mut Logs,
     rinfo: &RequestInfo,
     profile: &ContentFilterProfile,
     hsdb: std::sync::RwLockReadGuard<Option<ContentFilterRules>>,
@@ -151,7 +154,7 @@ pub fn content_filter_check(
     let mut omit = Default::default();
 
     // check section profiles
-    for idx in &[Headers, Cookies, Args] {
+    for idx in &[Path, Headers, Cookies, Args] {
         section_check(
             *idx,
             profile.sections.get(*idx),
@@ -164,14 +167,15 @@ pub fn content_filter_check(
     let mut hca_keys: HashMap<String, (SectionIdx, String)> = HashMap::new();
 
     // run libinjection on non-whitelisted sections
-    for idx in &[Headers, Cookies, Args] {
+    for idx in &[Path, Headers, Cookies, Args] {
+        // note that there is no risk check with injection, every match triggers a block.
         injection_check(*idx, get_section(*idx, rinfo), &omit, &mut hca_keys)?;
     }
 
     // finally, hyperscan check
-    match hyperscan(hca_keys, hsdb, &omit.exclusions) {
+    match hyperscan(logs, hca_keys, hsdb, &omit.exclusions, &profile.sections) {
         Err(rr) => {
-            println!("Hyperscan failed {}", rr);
+            logs.error(format!("Hyperscan failed {}", rr));
             Ok(())
         }
         Ok(None) => Ok(()),
@@ -285,9 +289,11 @@ fn injection_check(
 }
 
 fn hyperscan(
+    logs: &mut Logs,
     hca_keys: HashMap<String, (SectionIdx, String)>,
     hsdb: std::sync::RwLockReadGuard<Option<ContentFilterRules>>,
     exclusions: &Section<HashMap<String, HashSet<String>>>,
+    sections: &Section<ContentFilterSection>,
 ) -> anyhow::Result<Option<ContentFilterBlock>> {
     let sigs = match &*hsdb {
         None => return Err(anyhow::anyhow!("Hyperscan database not loaded")),
@@ -312,9 +318,12 @@ fn hyperscan(
         sigs.db.scan(&[k.as_bytes()], &scratch, |id, _, _, _| {
             // TODO this is really ugly, the string hashmap should be converted into a numeric id, or it should be a string in the first place?
             match sigs.ids.get(id as usize) {
-                None => println!("INVALID INDEX ??? {}", id),
+                None => logs.error(format!("INVALID INDEX ??? {}", id)),
                 Some(sig) => {
-                    if exclusions.get(sid).get(&name).map(|ex| ex.contains(&sig.id)) != Some(true) {
+                    logs.debug(format!("signature matched {:?}", sig));
+                    if sig.risk >= sections.get(sid).min_risk
+                        && exclusions.get(sid).get(&name).map(|ex| ex.contains(&sig.id)) != Some(true)
+                    {
                         ids.push(sig.clone());
                     }
                 }
@@ -348,19 +357,21 @@ fn mask_section(sec: &mut RequestField, section: &ContentFilterSection) -> bool 
     out
 }
 
+// TODO remove decoded values
 pub fn masking(req: RequestInfo, profile: &ContentFilterProfile) -> RequestInfo {
     let mut ri = req;
     mask_section(&mut ri.headers, profile.sections.get(SectionIdx::Headers));
     let cookies_masked = mask_section(&mut ri.cookies, profile.sections.get(SectionIdx::Cookies));
     if cookies_masked {
-        ri.headers.0.insert("cookie".into(), "*REDACTED*".into());
+        ri.headers.fields.insert("cookie".into(), "*REDACTED*".into());
     }
 
     let arg_masked = mask_section(&mut ri.rinfo.qinfo.args, profile.sections.get(SectionIdx::Args));
     if arg_masked {
         ri.rinfo.qinfo.query = "*MASKED*".into();
-        ri.rinfo.qinfo.uri = Some("*MASKED*".into());
+        ri.rinfo.qinfo.uri = "*MASKED*".into();
     }
+    mask_section(&mut ri.rinfo.qinfo.path_as_map, profile.sections.get(SectionIdx::Path));
     ri
 }
 
@@ -368,7 +379,7 @@ pub fn masking(req: RequestInfo, profile: &ContentFilterProfile) -> RequestInfo 
 mod test {
     use super::*;
     use crate::utils::{map_request, RequestMeta};
-    use crate::Logs;
+    use crate::{Logs, RawRequest};
 
     fn test_request_info() -> RequestInfo {
         let meta = RequestMeta {
@@ -382,7 +393,13 @@ mod test {
             .iter()
             .map(|(k, v)| (k.to_string(), v.to_string()))
             .collect();
-        map_request(&mut logs, "1.2.3.4".into(), headers, meta, None).unwrap()
+        let raw_request = RawRequest {
+            ipstr: "1.2.3.4".into(),
+            mbody: None,
+            headers,
+            meta,
+        };
+        map_request(&mut logs, &[], &raw_request)
     }
 
     #[test]
@@ -414,7 +431,7 @@ mod test {
         assert_eq!(rinfo.headers, masked.headers);
         assert_eq!(rinfo.cookies, masked.cookies);
         assert_eq!(
-            RequestField::raw_create(&[("arg1", "*MASKED*"), ("arg2", "*MASKED*")]),
+            RequestField::raw_create(&[], &[("arg1", "*MASKED*"), ("arg2", "*MASKED*")]),
             masked.rinfo.qinfo.args
         );
     }
@@ -429,7 +446,7 @@ mod test {
         assert_eq!(rinfo.headers, masked.headers);
         assert_eq!(rinfo.cookies, masked.cookies);
         assert_eq!(
-            RequestField::raw_create(&[("arg1", "*MASKED*"), ("arg2", "avalue2")]),
+            RequestField::raw_create(&[], &[("arg1", "*MASKED*"), ("arg2", "avalue2")]),
             masked.rinfo.qinfo.args
         );
     }
@@ -444,7 +461,7 @@ mod test {
         assert_eq!(rinfo.headers, masked.headers);
         assert_eq!(rinfo.cookies, masked.cookies);
         assert_eq!(
-            RequestField::raw_create(&[("arg1", "*MASKED*"), ("arg2", "avalue2")]),
+            RequestField::raw_create(&[], &[("arg1", "*MASKED*"), ("arg2", "avalue2")]),
             masked.rinfo.qinfo.args
         );
     }
@@ -459,7 +476,7 @@ mod test {
         assert_eq!(rinfo.headers, masked.headers);
         assert_eq!(rinfo.cookies, masked.cookies);
         assert_eq!(
-            RequestField::raw_create(&[("arg1", "*MASKED*"), ("arg2", "*MASKED*")]),
+            RequestField::raw_create(&[], &[("arg1", "*MASKED*"), ("arg2", "*MASKED*")]),
             masked.rinfo.qinfo.args
         );
     }

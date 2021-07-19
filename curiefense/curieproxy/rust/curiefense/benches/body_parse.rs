@@ -7,7 +7,7 @@ use std::collections::HashMap;
 
 fn body_test(mcontent_type: Option<&str>, body: &[u8], expected_size: Option<usize>) {
     let mut logs = Logs::default();
-    let mut args = RequestField::default();
+    let mut args = RequestField::new(&[]);
     parse_body(&mut logs, &mut args, mcontent_type, body).unwrap();
     if let Some(sz) = expected_size {
         assert_eq!(args.len(), sz);

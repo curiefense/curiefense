@@ -15,6 +15,7 @@ setup(
         "minio==6.0.2",
         "cloudstorage [amazon, google, local, minio]==0.10.1",
         "pydash==5.0.2",
+        "MarkupSafe==2.0.1",
         "flask>=1.1.2",
         "markupsafe==2.0.1",
         "flask-restx",

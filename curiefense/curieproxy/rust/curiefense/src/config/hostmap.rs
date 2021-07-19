@@ -1,7 +1,7 @@
+use crate::config::contentfilter::ContentFilterProfile;
 use crate::config::limit::Limit;
 use crate::config::raw::AclProfile;
 use crate::config::utils::Matching;
-use crate::config::contentfilter::ContentFilterProfile;
 
 /// the default entry is statically encoded so that it is certain it exists
 #[derive(Debug, Clone)]

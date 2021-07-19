@@ -1,7 +1,6 @@
 use crate::config::hostmap::{HostMap, SecurityPolicy};
 use crate::config::Config;
 use crate::logs::Logs;
-use crate::utils::RequestInfo;
 
 /// finds the securitypolicy matching a given request, based on the configuration
 /// there are cases where default values do not exist (even though the UI should prevent that)
@@ -9,12 +8,17 @@ use crate::utils::RequestInfo;
 /// note that the url is matched using the url-decoded path!
 ///
 /// returns the matching security policy, along with the id of the selected host map
-pub fn match_securitypolicy<'a>(ri: &RequestInfo, cfg: &'a Config, logs: &mut Logs) -> Option<(String, &'a SecurityPolicy)> {
+pub fn match_securitypolicy<'a>(
+    host: &str,
+    path: &str,
+    cfg: &'a Config,
+    logs: &mut Logs,
+) -> Option<(String, &'a SecurityPolicy)> {
     // find the first matching hostmap, or use the default, if it exists
     let hostmap: &HostMap = cfg
         .securitypolicies
         .iter()
-        .find(|e| e.matcher.is_match(&ri.rinfo.host))
+        .find(|e| e.matcher.is_match(host))
         .map(|m| &m.inner)
         .or_else(|| cfg.default.as_ref())?;
     logs.debug(format!("Selected hostmap {}", hostmap.name));
@@ -22,7 +26,7 @@ pub fn match_securitypolicy<'a>(ri: &RequestInfo, cfg: &'a Config, logs: &mut Lo
     let securitypolicy: &SecurityPolicy = match hostmap
         .entries
         .iter()
-        .find(|e| e.matcher.is_match(&ri.rinfo.qinfo.qpath))
+        .find(|e| e.matcher.is_match(path))
         .map(|m| &m.inner)
         .or_else(|| hostmap.default.as_ref())
     {

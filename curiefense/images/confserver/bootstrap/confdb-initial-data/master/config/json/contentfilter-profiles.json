@@ -3,23 +3,36 @@
         "id": "__default__",
         "name": "default contentfilter",
         "ignore_alphanum": true,
-        "max_header_length": 1024,
-        "max_cookie_length": 1024,
-        "max_arg_length": 1024,
-        "max_headers_count": 42,
-        "max_cookies_count": 42,
-        "max_args_count": 512,
         "args": {
             "names": [],
-            "regex": []
+            "regex": [],
+            "min_risk": 1,
+            "max_count": 512,
+            "max_length": 1024
         },
         "headers": {
             "names": [],
-            "regex": []
+            "regex": [],
+            "min_risk": 1,
+            "max_count": 42,
+            "max_length": 1024
         },
         "cookies": {
             "names": [],
-            "regex": []
+            "regex": [],
+            "min_risk": 1,
+            "max_count": 42,
+            "max_length": 1024
+        },
+        "path": {
+            "names": [],
+            "regex": [],
+            "min_risk": 1,
+            "max_count": 42,
+            "max_length": 1024
+        },
+        "decoding": {
+            "base64": true
         }
     }
 ]

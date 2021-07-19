@@ -16,6 +16,7 @@ pub struct Section<A> {
     pub headers: A,
     pub cookies: A,
     pub args: A,
+    pub path: A,
 }
 
 // TODO: undefined data structures
@@ -25,6 +26,15 @@ pub struct ContentFilterProfile {
     pub name: String,
     pub ignore_alphanum: bool,
     pub sections: Section<ContentFilterSection>,
+    pub decoding: Vec<Transformation>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Transformation {
+    Base64Decode,
+    HtmlEntitiesDecode,
+    UnicodeDecode,
+    UrlDecode,
 }
 
 impl Default for ContentFilterProfile {
@@ -39,20 +49,31 @@ impl Default for ContentFilterProfile {
                     max_length: 1024,
                     names: HashMap::new(),
                     regex: Vec::new(),
+                    min_risk: 1,
                 },
                 args: ContentFilterSection {
                     max_count: 512,
                     max_length: 1024,
                     names: HashMap::new(),
                     regex: Vec::new(),
+                    min_risk: 1,
                 },
                 cookies: ContentFilterSection {
                     max_count: 42,
                     max_length: 1024,
                     names: HashMap::new(),
                     regex: Vec::new(),
+                    min_risk: 1,
+                },
+                path: ContentFilterSection {
+                    max_count: 42,
+                    max_length: 1024,
+                    names: HashMap::new(),
+                    regex: Vec::new(),
+                    min_risk: 1,
                 },
             },
+            decoding: Vec::default(),
         }
     }
 }
@@ -63,6 +84,7 @@ pub struct ContentFilterSection {
     pub max_length: usize,
     pub names: HashMap<String, ContentFilterEntryMatch>,
     pub regex: Vec<(Regex, ContentFilterEntryMatch)>,
+    pub min_risk: u8,
 }
 
 #[derive(Debug, Clone)]
@@ -79,6 +101,7 @@ pub enum SectionIdx {
     Headers,
     Cookies,
     Args,
+    Path,
 }
 
 impl<A> Section<A> {
@@ -87,6 +110,7 @@ impl<A> Section<A> {
             SectionIdx::Headers => &self.headers,
             SectionIdx::Cookies => &self.cookies,
             SectionIdx::Args => &self.args,
+            SectionIdx::Path => &self.path,
         }
     }
 
@@ -95,6 +119,7 @@ impl<A> Section<A> {
             SectionIdx::Headers => &mut self.headers,
             SectionIdx::Cookies => &mut self.cookies,
             SectionIdx::Args => &mut self.args,
+            SectionIdx::Path => &mut self.path,
         }
     }
 }
@@ -108,6 +133,7 @@ where
             headers: Default::default(),
             cookies: Default::default(),
             args: Default::default(),
+            path: Default::default(),
         }
     }
 }
@@ -188,8 +214,6 @@ fn mk_entry_match(
 
 fn mk_section(
     props: RawContentFilterProperties,
-    max_length: usize,
-    max_count: usize,
     content_filter_groups: &HashMap<String, ContentFilterGroup>,
 ) -> anyhow::Result<ContentFilterSection> {
     let mnames: anyhow::Result<HashMap<String, ContentFilterEntryMatch>> = props
@@ -207,10 +231,11 @@ fn mk_section(
         })
         .collect();
     Ok(ContentFilterSection {
-        max_count,
-        max_length,
+        max_count: props.max_count.0,
+        max_length: props.max_length.0,
         names: mnames?,
         regex: mregex?,
+        min_risk: props.min_risk.0,
     })
 }
 
@@ -218,6 +243,21 @@ fn convert_entry(
     entry: RawContentFilterProfile,
     content_filter_groups: &HashMap<String, ContentFilterGroup>,
 ) -> anyhow::Result<(String, ContentFilterProfile)> {
+    let mut decoding = Vec::new();
+    let rawdec = entry.decoding.unwrap_or_default();
+    // default order
+    if rawdec.base64 {
+        decoding.push(Transformation::Base64Decode)
+    }
+    if rawdec.dual {
+        decoding.push(Transformation::UrlDecode)
+    }
+    if rawdec.html {
+        decoding.push(Transformation::HtmlEntitiesDecode)
+    }
+    if rawdec.unicode {
+        decoding.push(Transformation::UnicodeDecode)
+    }
     Ok((
         entry.id.clone(),
         ContentFilterProfile {
@@ -225,25 +265,12 @@ fn convert_entry(
             name: entry.name,
             ignore_alphanum: entry.ignore_alphanum,
             sections: Section {
-                headers: mk_section(
-                    entry.headers,
-                    entry.max_header_length,
-                    entry.max_headers_count,
-                    content_filter_groups,
-                )?,
-                cookies: mk_section(
-                    entry.cookies,
-                    entry.max_cookie_length,
-                    entry.max_cookies_count,
-                    content_filter_groups,
-                )?,
-                args: mk_section(
-                    entry.args,
-                    entry.max_arg_length,
-                    entry.max_args_count,
-                    content_filter_groups,
-                )?,
+                headers: mk_section(entry.headers, content_filter_groups)?,
+                cookies: mk_section(entry.cookies, content_filter_groups)?,
+                args: mk_section(entry.args, content_filter_groups)?,
+                path: mk_section(entry.path, content_filter_groups)?,
             },
+            decoding,
         },
     ))
 }
@@ -272,10 +299,9 @@ impl ContentFilterProfile {
 pub struct ContentFilterRule {
     pub id: String,
     pub name: String,
-    pub msg: String,
     pub operand: String,
-    pub severity: u8,
-    pub certainity: u8,
+    pub msg: String,
+    pub risk: u8,
     pub category: String,
     pub subcategory: String,
     pub groups: HashMap<String, String>,
@@ -308,8 +334,7 @@ pub fn resolve_rules(
             name: raw.name,
             msg: raw.msg,
             operand: raw.operand,
-            severity: raw.severity,
-            certainity: raw.certainity,
+            risk: raw.risk,
             category: raw.category,
             subcategory: raw.subcategory,
             groups: match rule_id_groups.get(&raw.id).cloned() {

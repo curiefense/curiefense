@@ -3,7 +3,7 @@ name: Run curiefense Rust tests
 on:
   pull_request:
     paths:
-      - "curiefense/iptools/**"
+      - "curiefense/curieproxy/rust/**"
       - ".github/workflows/run-curieconf-rust-tests.yml"
 
 jobs:
@@ -24,24 +24,10 @@ jobs:
           components: rustfmt
 
       - name: Run cargo fmt
-        working-directory: ./curiefense/iptools
+        working-directory: ./curiefense/curieproxy/rust
         run: 'cargo fmt --all -- --check'
 
-      - name: Run lua test
-        working-directory: ./curiefense/iptools
-        run: |
-          # TODO: Find a way to simplify this
-          sudo apt-get update
-          sudo apt-get -qq -y --no-install-recommends install jq luarocks libpcre2-dev libgeoip-dev python gcc g++ make unzip libhyperscan4 libhyperscan-dev
-          sudo luarocks install lrexlib-pcre2
-          sudo luarocks install lua-cjson
-          sudo luarocks install lua-resty-string
-          sudo luarocks install luafilesystem
-          sudo luarocks install luasocket
-          sudo luarocks install redis-lua
-          sudo luarocks install compat53
-          sudo luarocks install mmdblua
-          sudo luarocks install luaipc
-          sudo luarocks install lua-resty-injection
-          make test
+      - name: Run cargo tests
+        working-directory: ./curiefense/curieproxy/rust
+        run: 'cargo test'
 

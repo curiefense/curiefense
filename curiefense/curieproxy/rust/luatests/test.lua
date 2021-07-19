@@ -277,7 +277,7 @@ local function test_content_filter(request_path)
 
     for _, log in ipairs(r.logs) do
         if log["message"] == "Content Filter profile not found" then
-          print("content filter profile not found")
+          print("content filter profile '" .. raw_request_map.content_filter_id .. "' not found")
           good = false
         end
     end

@@ -11,7 +11,7 @@ use curiefense::content_filter_check_generic_request_map;
 use curiefense::inspect_generic_request_map;
 use curiefense::interface::{Decision, Grasshopper};
 use curiefense::logs::Logs;
-use curiefense::utils::{map_request, InspectionResult};
+use curiefense::utils::{InspectionResult, RawRequest};
 
 // ******************************************
 // Content Filter ONLY CHECKS
@@ -73,9 +73,15 @@ fn inspect_content_filter(
     logs.debug("Inspection init");
     let rmeta: RequestMeta = RequestMeta::from_map(meta)?;
 
-    let reqinfo = map_request(&mut logs, ip, headers, rmeta, mbody)?;
+    let raw = RawRequest {
+        ipstr: ip,
+        meta: rmeta,
+        headers,
+        mbody,
+    };
 
-    let dec = content_filter_check_generic_request_map(configpath, &reqinfo, &content_filter_id, &mut logs);
+    let (dec, reqinfo) = content_filter_check_generic_request_map(configpath, &raw, &content_filter_id, &mut logs);
+
     Ok(InspectionResult {
         decision: dec,
         tags: None,
@@ -111,8 +117,6 @@ fn lua_inspect_request(
 ) -> LuaResult<(String, Option<String>)> {
     let (meta, headers, lua_body, str_ip, lua_grasshopper) = args;
     let grasshopper = lua_grasshopper.map(Luagrasshopper);
-
-    // TODO: solve the lifetime issue for the &[u8] to reduce duplication
     let res = match lua_body {
         None => inspect_request("/config/current/config", meta, headers, None, str_ip, grasshopper),
         Some(body) => inspect_request(
@@ -147,9 +151,14 @@ fn inspect_request<GH: Grasshopper>(
     logs.debug("Inspection init");
     let rmeta: RequestMeta = RequestMeta::from_map(meta)?;
 
-    let reqinfo = map_request(&mut logs, ip, headers, rmeta, mbody)?;
-
-    let (dec, tags, masked_rinfo) = inspect_generic_request_map(configpath, grasshopper, reqinfo, Tags::default(), &mut logs);
+    let raw = RawRequest {
+        ipstr: ip,
+        meta: rmeta,
+        headers,
+        mbody,
+    };
+    let (dec, tags, masked_rinfo) =
+        inspect_generic_request_map(configpath, grasshopper, raw, Tags::default(), &mut logs);
 
     Ok(InspectionResult {
         decision: dec,

@@ -130,7 +130,6 @@ pub struct RawLimit {
     #[serde(default)]
     pub exclude: Vec<String>,
     pub pairwith: HashMap<String, String>,
-
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -253,21 +252,82 @@ pub struct RawContentFilterProfile {
     pub id: String,
     pub name: String,
     pub ignore_alphanum: bool,
-    pub max_header_length: usize,
-    pub max_cookie_length: usize,
-    pub max_arg_length: usize,
-    pub max_headers_count: usize,
-    pub max_cookies_count: usize,
-    pub max_args_count: usize,
     pub args: RawContentFilterProperties,
     pub headers: RawContentFilterProperties,
     pub cookies: RawContentFilterProperties,
+    #[serde(default)]
+    pub path: RawContentFilterProperties,
+    pub decoding: Option<ContentFilterDecoding>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct MinRisk(pub u8);
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct MaxCount(pub usize);
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct MaxLength(pub usize);
+
+impl Default for MinRisk {
+    fn default() -> Self {
+        MinRisk(1)
+    }
+}
+impl Default for MaxCount {
+    fn default() -> Self {
+        MaxCount(42)
+    }
+}
+impl Default for MaxLength {
+    fn default() -> Self {
+        MaxLength(2048)
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RawContentFilterProperties {
     pub names: Vec<RawContentFilterEntryMatch>,
     pub regex: Vec<RawContentFilterEntryMatch>,
+    #[serde(default)]
+    pub min_risk: MinRisk,
+    #[serde(default)]
+    pub max_count: MaxCount,
+    #[serde(default)]
+    pub max_length: MaxLength,
+}
+
+impl Default for RawContentFilterProperties {
+    fn default() -> Self {
+        RawContentFilterProperties {
+            names: Vec::default(),
+            regex: Vec::default(),
+            min_risk: MinRisk::default(),
+            max_count: MaxCount::default(),
+            max_length: MaxLength::default(),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq)]
+pub struct ContentFilterDecoding {
+    #[serde(default)]
+    pub base64: bool,
+    #[serde(default)]
+    pub dual: bool,
+    #[serde(default)]
+    pub html: bool,
+    #[serde(default)]
+    pub unicode: bool,
+}
+
+impl Default for ContentFilterDecoding {
+    fn default() -> Self {
+        ContentFilterDecoding {
+            base64: false,
+            dual: false,
+            html: false,
+            unicode: false,
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -291,10 +351,9 @@ pub struct RawContentFilterGroup {
 pub struct RawContentFilterRule {
     pub id: String,
     pub name: String,
-    pub msg: String,
     pub operand: String,
-    pub severity: u8,
-    pub certainity: u8,
+    pub msg: String,
+    pub risk: u8,
     pub category: String,
     pub subcategory: String,
 }
