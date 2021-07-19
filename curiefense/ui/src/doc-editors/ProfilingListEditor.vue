@@ -91,7 +91,8 @@
                                :ignore="['ban']"
                                @update:action="emitDocUpdate"
                                label-separated-line
-                               is-single-input-column/>
+                               is-single-input-column
+                               @update:invalid="$emit( 'form-invalid', $event )"/>
             </div>
             <div class="field">
               <label class="label is-small">Notes</label>

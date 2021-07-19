@@ -96,7 +96,8 @@
               </div>
               <div class="field">
                 <response-action :action.sync="localDoc.action"
-                                 @update:action="emitDocUpdate"/>
+                                 @update:action="emitDocUpdate"
+                                 @update:invalid="$emit( 'form-invalid', $event )"/>
               </div>
               <div>
                 <hr>

@@ -485,6 +485,7 @@ export default Vue.extend({
       this.docs = []
       this.selectedDocID = null
       this.resetGitLog()
+      Utils.closeAllToasts()
       Utils.toast(`Switched to document type ${this.titles[this.selectedDocType]}.`, 'is-info')
       await this.loadDocs(this.selectedDocType, true)
       this.goToRoute()
@@ -610,7 +611,10 @@ export default Vue.extend({
     },
 
     async loadReferencedDocsIDs() {
-      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: `configs/${this.selectedBranch}/d/urlmaps/`})
+      const response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/urlmaps/`,
+      })
       const docs = response?.data
       const referencedACL: string[] = []
       const referencedWAF: string[] = []
