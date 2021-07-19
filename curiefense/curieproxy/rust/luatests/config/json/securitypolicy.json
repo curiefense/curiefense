@@ -55,6 +55,51 @@
                 "limit_ids": []
             },
             {
+                "match": "^/content-filter/lvl2",
+                "name": "content-filter level2",
+                "acl_profile": "__default__",
+                "content_filter_profile": "lvl2",
+                "acl_active": true,
+                "content_filter_active": true,
+                "limit_ids": []
+            },
+            {
+                "match": "^/content-filter/lvl3",
+                "name": "content filter level3",
+                "acl_profile": "__default__",
+                "content_filter_profile": "lvl3",
+                "acl_active": true,
+                "content_filter_active": true,
+                "limit_ids": []
+            },
+            {
+                "match": "^/content-filter/lvl4",
+                "name": "content filter level4",
+                "acl_profile": "__default__",
+                "content_filter_profile": "lvl4",
+                "acl_active": true,
+                "content_filter_active": true,
+                "limit_ids": []
+            },
+            {
+                "match": "^/content-filter/lvl5",
+                "name": "content filter level5",
+                "acl_profile": "__default__",
+                "content_filter_profile": "lvl5",
+                "acl_active": true,
+                "content_filter_active": true,
+                "limit_ids": []
+            },
+            {
+                "match": "^/content-filter/lvlX135",
+                "name": "content filter level 1.3.5",
+                "acl_profile": "__default__",
+                "content_filter_profile": "lvl135",
+                "acl_active": true,
+                "content_filter_active": true,
+                "limit_ids": []
+            },
+            {
                 "match": "^/content-filter/omitted",
                 "name": "content filter omit tests",
                 "acl_profile": "__default__",
@@ -140,9 +185,7 @@
                 "match": "^/limits/multithreshold",
                 "name": "limits multiple thresholds",
                 "acl_profile": "__default__",
-                "waf_profile": "__default__",
                 "acl_active": true,
-                "waf_active": true,
                 "content_filter_profile": "__default__",
                 "content_filter_active": false,
                 "limit_ids": [
@@ -154,6 +197,15 @@
                 "name": "content filter restrict tests",
                 "acl_profile": "__default__",
                 "content_filter_profile": "rr",
+                "acl_active": false,
+                "content_filter_active": true,
+                "limit_ids": []
+            },
+            {
+                "match": "^/rre/",
+                "name": "content filter restrict exclude tests",
+                "acl_profile": "__default__",
+                "content_filter_profile": "rre",
                 "acl_active": false,
                 "content_filter_active": true,
                 "limit_ids": []

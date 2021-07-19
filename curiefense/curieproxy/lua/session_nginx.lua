@@ -114,6 +114,9 @@ function session_rust_nginx.log(handle)
     local server_port = tonumber(raw_server_port) or raw_server_port
     local remote_port = tonumber(raw_remote_port) or raw_remote_port
 
+    req.upstream = {}
+    req.upstream.cluster = handle.var.proxy_host
+
     req.downstream = {
       localaddressport=server_port,
       remoteaddress=handle.var.remote_addr,
@@ -123,9 +126,6 @@ function session_rust_nginx.log(handle)
       directremoteaddressport=remote_port,
       directremoteaddress=handle.var.remote_addr,
     }
-
-    req.upstream = {}
-    req.upstream.cluster = handle.var.proxy_host
 
     -- handle upstream_addr with ports
     local u_host, u_port = parse_ip_port(handle.var.upstream_addr)

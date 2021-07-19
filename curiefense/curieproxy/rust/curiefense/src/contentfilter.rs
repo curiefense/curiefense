@@ -3,10 +3,14 @@ use libinjection::{sqli, xss};
 use serde_json::{json, Value};
 use std::collections::{HashMap, HashSet};
 
-use crate::config::contentfilter::{Section, SectionIdx, ContentFilterEntryMatch, ContentFilterProfile, ContentFilterSection, ContentFilterRules, ContentFilterRule};
+use crate::config::contentfilter::{
+    ContentFilterEntryMatch, ContentFilterProfile, ContentFilterRule, ContentFilterRules, ContentFilterSection,
+    Section, SectionIdx,
+};
 use crate::interface::{Action, ActionType};
 use crate::requestfields::RequestField;
 use crate::utils::RequestInfo;
+use crate::Logs;
 
 #[derive(Debug, Clone)]
 pub struct ContentFilterMatched {
@@ -60,7 +64,7 @@ impl ContentFilterBlock {
                             "sig_subcategory": sig.subcategory,
                             "sig_operand": sig.operand,
                             "sig_id": sig.id,
-                            "sig_severity": sig.severity,
+                            "sig_risk": sig.risk,
                             "sig_msg": sig.msg,
                             "content_filter_groups": json!(groups),
                         })
@@ -90,7 +94,7 @@ impl ContentFilterBlock {
                 "section": wmatch.section,
                 "name": wmatch.name,
                 "initiator": "content_filter",
-                "value": "WSS",
+                "value": "XSS",
                 "matched": wmatch.value
             }),
             ContentFilterBlock::Mismatch(wmatch) => json!({
@@ -131,6 +135,7 @@ impl Default for Omitted {
 
 /// Runs the Content Filter part of curiefense
 pub fn content_filter_check(
+    logs: &mut Logs,
     rinfo: &RequestInfo,
     profile: &ContentFilterProfile,
     hsdb: std::sync::RwLockReadGuard<Option<ContentFilterRules>>,
@@ -142,10 +147,11 @@ pub fn content_filter_check(
         Headers => &rinfo.headers,
         Cookies => &rinfo.cookies,
         Args => &rinfo.rinfo.qinfo.args,
+        Path => &rinfo.rinfo.qinfo.path_as_map,
     };
 
     // check section profiles
-    for idx in &[Headers, Cookies, Args] {
+    for idx in &[Path, Headers, Cookies, Args] {
         section_check(
             *idx,
             profile.sections.get(*idx),
@@ -158,14 +164,15 @@ pub fn content_filter_check(
     let mut hca_keys: HashMap<String, (SectionIdx, String)> = HashMap::new();
 
     // run libinjection on non-whitelisted sections
-    for idx in &[Headers, Cookies, Args] {
+    for idx in &[Path, Headers, Cookies, Args] {
+        // note that there is no risk check with injection, every match triggers a block.
         injection_check(*idx, getsection(*idx), &omit, &mut hca_keys)?;
     }
 
     // finally, hyperscan check
-    match hyperscan(hca_keys, hsdb, &omit.exclusions) {
+    match hyperscan(logs, hca_keys, hsdb, &omit.exclusions, &profile.sections) {
         Err(rr) => {
-            println!("Hyperscan failed {}", rr);
+            logs.error(format!("Hyperscan failed {}", rr));
             Ok(())
         }
         Ok(None) => Ok(()),
@@ -206,7 +213,11 @@ fn section_check(
             if matched {
                 omit.entries.at(idx).insert(name.clone());
             } else if name_entry.restrict {
-                return Err(ContentFilterBlock::Mismatch(ContentFilterMatched::new(idx, name.clone(), value.clone())));
+                return Err(ContentFilterBlock::Mismatch(ContentFilterMatched::new(
+                    idx,
+                    name.clone(),
+                    value.clone(),
+                )));
             } else if !name_entry.exclusions.is_empty() {
                 omit.exclusions
                     .at(idx)
@@ -258,7 +269,11 @@ fn injection_check(
                 }
                 if let Some(b) = xss(value) {
                     if b {
-                        return Err(ContentFilterBlock::Xss(ContentFilterMatched::new(idx, name.clone(), value.clone())));
+                        return Err(ContentFilterBlock::Xss(ContentFilterMatched::new(
+                            idx,
+                            name.clone(),
+                            value.clone(),
+                        )));
                     }
                 }
             }
@@ -271,9 +286,11 @@ fn injection_check(
 }
 
 fn hyperscan(
+    logs: &mut Logs,
     hca_keys: HashMap<String, (SectionIdx, String)>,
     hsdb: std::sync::RwLockReadGuard<Option<ContentFilterRules>>,
     exclusions: &Section<HashMap<String, HashSet<String>>>,
+    sections: &Section<ContentFilterSection>,
 ) -> anyhow::Result<Option<ContentFilterBlock>> {
     let sigs = match &*hsdb {
         None => return Err(anyhow::anyhow!("Hyperscan database not loaded")),
@@ -298,9 +315,12 @@ fn hyperscan(
         sigs.db.scan(&[k.as_bytes()], &scratch, |id, _, _, _| {
             // TODO this is really ugly, the string hashmap should be converted into a numeric id, or it should be a string in the first place?
             match sigs.ids.get(id as usize) {
-                None => println!("INVALID INDEX ??? {}", id),
+                None => logs.error(format!("INVALID INDEX ??? {}", id)),
                 Some(sig) => {
-                    if exclusions.get(sid).get(&name).map(|ex| ex.contains(&sig.id)) != Some(true) {
+                    logs.debug(format!("signature matched {:?}", sig));
+                    if sig.risk >= sections.get(sid).min_risk
+                        && exclusions.get(sid).get(&name).map(|ex| ex.contains(&sig.id)) != Some(true)
+                    {
                         ids.push(sig.clone());
                     }
                 }

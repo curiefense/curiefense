@@ -58,7 +58,7 @@
                   [
                      "args",
                      [
-                        "deny_base64",
+                        "deny:decoded",
                         "deny"
                      ],
                      "deny"
@@ -99,7 +99,7 @@
                   [
                      "args",
                      [
-                        "allow_base64",
+                        "allow:decoded",
                         "allow"
                      ],
                      "allow"
@@ -140,7 +140,7 @@
                   [
                      "args",
                      [
-                        "allowbot_base64",
+                        "allowbot:decoded",
                         "allowbot"
                      ],
                      "allowbot"
@@ -181,7 +181,7 @@
                   [
                      "args",
                      [
-                        "denybot_base64",
+                        "denybot:decoded",
                         "denybot"
                      ],
                      "denybot"
@@ -222,7 +222,7 @@
                   [
                      "args",
                      [
-                        "forcedeny_base64",
+                        "forcedeny:decoded",
                         "forcedeny"
                      ],
                      "forcedeny"
@@ -263,7 +263,7 @@
                   [
                      "args",
                      [
-                        "passthrough_base64",
+                        "passthrough:decoded",
                         "passthrough"
                      ],
                      "passthrough"

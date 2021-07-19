@@ -42,13 +42,7 @@ fn check_entry(rinfo: &RequestInfo, sub: &GlobalFilterEntry) -> bool {
         },
         GlobalFilterEntryE::Path(pth) => check_single(pth, &rinfo.rinfo.qinfo.qpath),
         GlobalFilterEntryE::Query(qry) => check_single(qry, &rinfo.rinfo.qinfo.query),
-        GlobalFilterEntryE::Uri(uri) => rinfo
-            .rinfo
-            .qinfo
-            .uri
-            .as_ref()
-            .map(|curi| check_single(uri, curi))
-            .unwrap_or(false),
+        GlobalFilterEntryE::Uri(uri) => check_single(uri, &rinfo.rinfo.qinfo.uri),
         GlobalFilterEntryE::Country(cty) => rinfo
             .rinfo
             .geoip
@@ -133,6 +127,7 @@ mod tests {
     use crate::config::globalfilter::optimize_ipranges;
     use crate::logs::Logs;
     use crate::utils::map_request;
+    use crate::utils::RawRequest;
     use crate::utils::RequestMeta;
     use regex::Regex;
     use std::collections::HashMap;
@@ -165,7 +160,16 @@ mod tests {
         }
         let meta = RequestMeta::from_map(attrs).unwrap();
         let mut logs = Logs::default();
-        map_request(&mut logs, "52.78.12.56".to_string(), headers, meta, None).unwrap()
+        map_request(
+            &mut logs,
+            &[],
+            &RawRequest {
+                ipstr: "52.78.12.56".to_string(),
+                headers,
+                meta,
+                mbody: None,
+            },
+        )
     }
 
     fn t_check_entry(negated: bool, entry: GlobalFilterEntryE) -> bool {

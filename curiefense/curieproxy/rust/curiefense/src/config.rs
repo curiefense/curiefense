@@ -1,11 +1,12 @@
+pub mod contentfilter;
 pub mod flow;
+pub mod globalfilter;
 pub mod hostmap;
 pub mod limit;
-pub mod globalfilter;
 pub mod raw;
 pub mod utils;
-pub mod contentfilter;
 
+use crate::config::limit::Limit;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
@@ -15,13 +16,15 @@ use std::sync::RwLock;
 use std::time::SystemTime;
 
 use crate::logs::Logs;
+use contentfilter::{resolve_rules, ContentFilterGroup, ContentFilterProfile, ContentFilterRules};
 use flow::{flow_resolve, FlowElement, SequenceKey};
-use hostmap::{HostMap, SecurityPolicy};
-use limit::{Limit};
 use globalfilter::GlobalFilterSection;
-use raw::{AclProfile, RawFlowEntry, RawHostMap, RawLimit, RawGlobalFilterSection, RawSecurityPolicy, RawContentFilterProfile, RawContentFilterGroup};
+use hostmap::{HostMap, SecurityPolicy};
+use raw::{
+    AclProfile, RawContentFilterGroup, RawContentFilterProfile, RawFlowEntry, RawGlobalFilterSection, RawHostMap,
+    RawLimit, RawSecurityPolicy,
+};
 use utils::Matching;
-use contentfilter::{resolve_rules, ContentFilterProfile, ContentFilterRules, ContentFilterGroup};
 
 lazy_static! {
     pub static ref CONFIG: RwLock<Config> = RwLock::new(Config::empty());
@@ -102,13 +105,17 @@ impl Config {
                     AclProfile::default()
                 }
             };
-            let content_filter_profile: ContentFilterProfile = match contentfilterprofiles.get(&rawmap.content_filter_profile) {
-                Some(p) => p.clone(),
-                None => {
-                    logs.warning(format!("Unknown Content Filter profile {}", &rawmap.content_filter_profile));
-                    ContentFilterProfile::default()
-                }
-            };
+            let content_filter_profile: ContentFilterProfile =
+                match contentfilterprofiles.get(&rawmap.content_filter_profile) {
+                    Some(p) => p.clone(),
+                    None => {
+                        logs.warning(format!(
+                            "Unknown Content Filter profile {}",
+                            &rawmap.content_filter_profile
+                        ));
+                        ContentFilterProfile::default()
+                    }
+                };
             let mut olimits: Vec<Limit> = Vec::new();
             for lid in rawmap.limit_ids {
                 match from_map(limits, &lid) {
@@ -136,7 +143,10 @@ impl Config {
                         "Invalid regex {} in entry {}: {}",
                         &rawmap.match_, &mapname, rr
                     )),
-                    Ok(matcher) => entries.push(Matching { matcher, inner: securitypolicy }),
+                    Ok(matcher) => entries.push(Matching {
+                        matcher,
+                        inner: securitypolicy,
+                    }),
                 };
             }
         }
@@ -161,12 +171,14 @@ impl Config {
 
         let limits = Limit::resolve(logs, rawlimits);
         let content_filter_groups = ContentFilterGroup::resolve(rawcontentfiltergroups);
-        let content_filter_profiles = ContentFilterProfile::resolve(logs, rawcontentfilterprofiles, &content_filter_groups);
+        let content_filter_profiles =
+            ContentFilterProfile::resolve(logs, rawcontentfilterprofiles, &content_filter_groups);
         let acls = rawacls.into_iter().map(|a| (a.id.clone(), a)).collect();
 
         // build the entries while looking for the default entry
         for rawmap in rawmaps {
-            let (entries, default_entry) = Config::resolve_security_policies(logs, rawmap.map, &limits, &acls, &content_filter_profiles);
+            let (entries, default_entry) =
+                Config::resolve_security_policies(logs, rawmap.map, &limits, &acls, &content_filter_profiles);
             if default_entry.is_none() {
                 logs.warning(format!(
                     "HostMap entry '{}', id '{}' does not have a default entry",
@@ -307,4 +319,11 @@ impl Config {
             content_filter_groups: HashMap::new(),
         }
     }
+}
+
+pub fn init_config() -> (bool, Vec<String>) {
+    let mut logs = Logs::default();
+    with_config_default_path(&mut logs, |_, _| {});
+    let is_ok = logs.logs.is_empty();
+    (is_ok, logs.to_stringvec())
 }
