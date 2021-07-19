@@ -254,12 +254,13 @@ pub fn session_acl_check(session_id: &str) -> anyhow::Result<AclResult> {
 
 pub fn session_waf_check(session_id: &str) -> anyhow::Result<Decision> {
     let uuid: Uuid = session_id.parse()?;
+    let mut logs = Logs::default();
 
     let hsdb = HSDB.read().map_err(|rr| anyhow::anyhow!("{}", rr))?;
 
     with_request_info(uuid, |rinfo| {
         with_urlmap(uuid, |urlmap| {
-            Ok(match waf_check(rinfo, &urlmap.waf_profile, hsdb) {
+            Ok(match waf_check(&mut logs, rinfo, &urlmap.waf_profile, hsdb) {
                 Ok(()) => Decision::Pass,
                 Err(rr) => Decision::Action(rr.to_action()),
             })

@@ -8,6 +8,7 @@ use crate::config::waf::{Section, SectionIdx, WafEntryMatch, WafProfile, WafSect
 use crate::interface::{Action, ActionType};
 use crate::requestfields::RequestField;
 use crate::utils::RequestInfo;
+use crate::Logs;
 
 #[derive(Debug, Clone)]
 pub struct WafMatched {
@@ -54,7 +55,7 @@ impl WafBlock {
                             "sig_subcategory": sig.subcategory,
                             "sig_operand": sig.operand,
                             "sig_id": sig.id,
-                            "sig_severity": sig.severity,
+                            "sig_risk": sig.risk,
                             "sig_msg": sig.msg,
                         })
                     })
@@ -123,11 +124,8 @@ impl Default for Omitted {
 }
 
 /// Runs the WAF part of curiefense
-///
-/// TODO:
-/// * resolve hyperscan matches into policies
-/// * handle excluded waf policies
 pub fn waf_check(
+    logs: &mut Logs,
     rinfo: &RequestInfo,
     profile: &WafProfile,
     hsdb: std::sync::RwLockReadGuard<Option<WafSignatures>>,
@@ -156,13 +154,14 @@ pub fn waf_check(
 
     // run libinjection on non-whitelisted sections
     for idx in &[Headers, Cookies, Args] {
+        // note that there is no risk check with injection, every match triggers a block.
         injection_check(*idx, getsection(*idx), &omit, &mut hca_keys)?;
     }
 
     // finally, hyperscan check
-    match hyperscan(hca_keys, hsdb, &omit.exclusions) {
+    match hyperscan(logs, hca_keys, hsdb, &omit.exclusions, &profile.min_risks) {
         Err(rr) => {
-            println!("Hyperscan failed {}", rr);
+            logs.error(format!("Hyperscan failed {}", rr));
             Ok(())
         }
         Ok(None) => Ok(()),
@@ -268,9 +267,11 @@ fn injection_check(
 }
 
 fn hyperscan(
+    logs: &mut Logs,
     hca_keys: HashMap<String, (SectionIdx, String)>,
     hsdb: std::sync::RwLockReadGuard<Option<WafSignatures>>,
     exclusions: &Section<HashMap<String, HashSet<String>>>,
+    min_risks: &Section<u8>,
 ) -> anyhow::Result<Option<WafBlock>> {
     let sigs = match &*hsdb {
         None => return Err(anyhow::anyhow!("Hyperscan database not loaded")),
@@ -295,9 +296,12 @@ fn hyperscan(
         sigs.db.scan(&[k.as_bytes()], &scratch, |id, _, _, _| {
             // TODO this is really ugly, the string hashmap should be converted into a numeric id, or it should be a string in the first place?
             match sigs.ids.get(id as usize) {
-                None => println!("INVALID INDEX ??? {}", id),
+                None => logs.error(format!("INVALID INDEX ??? {}", id)),
                 Some(sig) => {
-                    if exclusions.get(sid).get(&name).map(|ex| ex.contains(&sig.id)) != Some(true) {
+                    logs.debug(format!("signature matched {:?}", sig));
+                    if sig.risk >= *min_risks.get(sid)
+                        && exclusions.get(sid).get(&name).map(|ex| ex.contains(&sig.id)) != Some(true)
+                    {
                         ids.push(sig.clone());
                     }
                 }

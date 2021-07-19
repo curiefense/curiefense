@@ -248,6 +248,9 @@ pub struct RawWafProfile {
     pub max_headers_count: usize,
     pub max_cookies_count: usize,
     pub max_args_count: usize,
+    pub min_headers_risk: u8,
+    pub min_cookies_risk: u8,
+    pub min_args_risk: u8,
     pub args: RawWafProperties,
     pub headers: RawWafProperties,
     pub cookies: RawWafProperties,
@@ -271,10 +274,9 @@ pub struct RawWafEntryMatch {
 pub struct WafSignature {
     pub id: String,
     pub name: String,
-    pub msg: String,
     pub operand: String,
-    pub severity: u8,
-    pub certainity: u8,
+    pub msg: String,
+    pub risk: u8,
     pub category: String,
     pub subcategory: String,
 }
