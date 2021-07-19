@@ -191,7 +191,7 @@ export default Vue.extend({
     },
   },
   updated() {
-    this.$emit( 'change', {...this.selectedOption})
+    this.$emit('change', {...this.selectedOption})
   },
   methods: {
     isCategoryArgsCookiesHeaders(limitRuleType: LimitRuleType) {

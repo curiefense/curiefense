@@ -19,12 +19,19 @@ pub fn match_urlmap<'a>(ri: &RequestInfo, cfg: &'a Config, logs: &mut Logs) -> O
         .or_else(|| cfg.default.as_ref())?;
     logs.debug(format!("Selected hostmap {}", hostmap.name));
     // find the first matching urlmap, or use the default, if it exists
-    let urlmap: &UrlMap = hostmap
+    let urlmap: &UrlMap = match hostmap
         .entries
         .iter()
         .find(|e| e.matcher.is_match(&ri.rinfo.qinfo.qpath))
         .map(|m| &m.inner)
-        .or_else(|| hostmap.default.as_ref())?;
+        .or_else(|| hostmap.default.as_ref())
+    {
+        None => {
+            logs.debug("This hostname has no default entry!");
+            return None;
+        }
+        Some(x) => x,
+    };
     logs.debug(format!("Selected hostmap entry {}", urlmap.name));
     Some((hostmap.name.clone(), urlmap))
 }

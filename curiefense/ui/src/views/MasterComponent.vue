@@ -34,7 +34,6 @@ html {
 }
 
 .navbar {
-  border-top: 4px solid #276cda;
   margin-bottom: 1rem;
 }
 

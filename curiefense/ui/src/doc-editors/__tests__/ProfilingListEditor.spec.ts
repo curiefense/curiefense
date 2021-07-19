@@ -240,6 +240,14 @@ describe('ProfilingListEditor.vue', () => {
       expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
     })
 
+    test('should emit form validness when EntriesRelationList is validated', async () => {
+      const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
+      entriesRelationListComponent.vm.$emit('invalid', false)
+      await Vue.nextTick()
+      // check
+      expect(wrapper.emitted('form-invalid')).toBeTruthy()
+    })
+
     test('should set document tags to be an empty array if empty string provided', async () => {
       const newTagInputValue = ''
       const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
@@ -376,7 +384,7 @@ describe('ProfilingListEditor.vue', () => {
       await Vue.nextTick()
     })
 
-    test('should update entries relation component with correct data - ip array', async () => {
+    test('should update entries relation component with correct data - ipv4 array', async () => {
       const wantedEntries: TagRuleSectionEntry[] = [
         [
           'ip',
@@ -390,7 +398,58 @@ describe('ProfilingListEditor.vue', () => {
         ],
         [
           'ip',
-          '66.249.90.0/24',
+          '66.249.90.0',
+          'Crawler',
+        ],
+      ]
+      const wantedData: TagRule['rule'] = {
+        relation: 'OR',
+        sections: [{
+          entries: wantedEntries,
+          relation: 'OR',
+        }],
+      }
+      resolveData = {
+        data: {
+          'type': 'acl',
+          'name': 'Crawler example',
+          'id': 'example_id',
+          'active': true,
+          'mdate': '2020-11-04 07:54:27.417791',
+          'source': 'https://example.com',
+          'notes': 'some example crawlers',
+          'entries_relation': 'OR',
+          'tags': [
+            'allowlist',
+            'crawler',
+          ],
+          'entries': wantedEntries,
+        },
+      }
+      const button = wrapper.find('.update-now-button')
+      button.trigger('click')
+      await Vue.nextTick()
+      await wrapper.vm.$forceUpdate()
+      await Vue.nextTick()
+      const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
+      expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
+    })
+
+    test('should update entries relation component with correct data - ipv6 array', async () => {
+      const wantedEntries: TagRuleSectionEntry[] = [
+        [
+          'ip',
+          '2603:8080:3d40:f7:d45b:477e:579e:245',
+          'Crawler',
+        ],
+        [
+          'ip',
+          '2a01:4f8:150:8147::2',
+          'Crawler',
+        ],
+        [
+          'ip',
+          '2001:16b8:a08a:cb00:a5ce:3228:fbdc:23ad',
           'Crawler',
         ],
       ]

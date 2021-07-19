@@ -1,21 +1,7 @@
 [
   {
+    "waf_id": "__default__",
     "response": {
-      "tags": [
-        "asn:396507",
-        "sante",
-        "ip:23-129-64-253",
-        "wafid:--default--",
-        "wafname:default-waf",
-        "container:1e219d8ed6b4",
-        "all",
-        "urlmap:default-entry",
-        "urlmap-entry:default",
-        "aclid:--default--",
-        "geo:united-states",
-        "bot",
-        "aclname:default-acl"
-      ],
       "action": "custom_response",
       "block_mode": false,
       "status": 403
@@ -30,22 +16,8 @@
     }
   },
   {
+    "waf_id": "__default__",
     "response": {
-      "tags": [
-        "urlmap:default-entry",
-        "urlmap-entry:default",
-        "ip:23-129-64-253",
-        "sante",
-        "all",
-        "container:1e219d8ed6b4",
-        "geo:united-states",
-        "asn:396507",
-        "wafid:--default--",
-        "wafname:default-waf",
-        "aclid:--default--",
-        "bot",
-        "aclname:default-acl"
-      ],
       "action": "custom_response",
       "block_mode": false,
       "status": 403
@@ -61,22 +33,8 @@
     }
   },
   {
+    "waf_id": "__default__",
     "response": {
-      "tags": [
-        "wafid:--default--",
-        "wafname:default-waf",
-        "asn:396507",
-        "urlmap-entry:default",
-        "ip:23-129-64-253",
-        "urlmap:default-entry",
-        "aclid:--default--",
-        "all",
-        "aclname:default-acl",
-        "geo:united-states",
-        "container:1e219d8ed6b4",
-        "bot",
-        "sante"
-      ],
       "action": "custom_response",
       "block_mode": false,
       "status": 403
@@ -91,22 +49,8 @@
     }
   },
   {
+    "waf_id": "__default__",
     "response": {
-      "tags": [
-        "aclid:--default--",
-        "ip:23-129-64-253",
-        "container:1e219d8ed6b4",
-        "all",
-        "geo:united-states",
-        "urlmap-entry:default",
-        "urlmap:default-entry",
-        "aclname:default-acl",
-        "wafid:--default--",
-        "wafname:default-waf",
-        "asn:396507",
-        "bot",
-        "sante"
-      ],
       "action": "custom_response",
       "block_mode": false,
       "status": 403
@@ -122,22 +66,8 @@
     }
   },
   {
+    "waf_id": "omitted",
     "response": {
-      "tags": [
-        "wafname:omit-id-100016",
-        "wafid:omitted",
-        "all",
-        "sante",
-        "container:1e219d8ed6b4",
-        "asn:16625",
-        "geo:united-states",
-        "urlmap-entry:waf-omit-tests",
-        "ip:23-5-64-253",
-        "urlmap:default-entry",
-        "aclid:--default--",
-        "bot",
-        "aclname:default-acl"
-      ],
       "action": "pass"
     },
     "name": "omit sqli",
@@ -150,22 +80,8 @@
     }
   },
   {
+    "waf_id": "omitted",
     "response": {
-      "tags": [
-        "wafname:omit-id-100016",
-        "wafid:omitted",
-        "aclid:--default--",
-        "asn:16625",
-        "all",
-        "geo:united-states",
-        "urlmap-entry:waf-omit-tests",
-        "urlmap:default-entry",
-        "sante",
-        "container:1e219d8ed6b4",
-        "ip:23-5-64-253",
-        "bot",
-        "aclname:default-acl"
-      ],
       "action": "custom_response",
       "block_mode": true,
       "status": 403
@@ -181,22 +97,8 @@
     }
   },
   {
+    "waf_id": "__default__",
     "response": {
-      "tags": [
-        "wafid:--default--",
-        "wafname:default-waf",
-        "all",
-        "sante",
-        "asn:nil",
-        "ip:13-129-64-253",
-        "urlmap-entry:default",
-        "aclid:--default--",
-        "container:1e219d8ed6b4",
-        "urlmap:default-entry",
-        "aclname:default-acl",
-        "bot",
-        "geo:united-states"
-      ],
       "action": "custom_response",
       "block_mode": false,
       "status": 403
@@ -211,22 +113,8 @@
     }
   },
   {
+    "waf_id": "omitted",
     "response": {
-      "tags": [
-        "wafname:omit-id-100016",
-        "wafid:omitted",
-        "asn:nil",
-        "all",
-        "urlmap:default-entry",
-        "ip:13-129-64-253",
-        "sante",
-        "container:1e219d8ed6b4",
-        "geo:united-states",
-        "urlmap-entry:waf-omit-tests",
-        "aclid:--default--",
-        "bot",
-        "aclname:default-acl"
-      ],
       "action": "custom_response",
       "block_mode": true,
       "status": 403
@@ -241,22 +129,8 @@
     }
   },
   {
+    "waf_id": "__default__",
     "response": {
-      "tags": [
-        "urlmap-entry:default",
-        "wafid:--default--",
-        "wafname:default-waf",
-        "ip:13-129-64-253",
-        "sante",
-        "geo:united-states",
-        "all",
-        "urlmap:default-entry",
-        "container:1e219d8ed6b4",
-        "aclid:--default--",
-        "aclname:default-acl",
-        "bot",
-        "asn:nil"
-      ],
       "action": "custom_response",
       "block_mode": false,
       "status": 403
@@ -271,22 +145,8 @@
     }
   },
   {
+    "waf_id": "omitted",
     "response": {
-      "tags": [
-        "urlmap:default-entry",
-        "sante",
-        "aclname:default-acl",
-        "ip:13-129-64-253",
-        "all",
-        "urlmap-entry:waf-omit-tests",
-        "asn:nil",
-        "wafname:omit-id-100016",
-        "wafid:omitted",
-        "geo:united-states",
-        "container:1e219d8ed6b4",
-        "bot",
-        "aclid:--default--"
-      ],
       "action": "custom_response",
       "block_mode": true,
       "status": 403
@@ -301,22 +161,8 @@
     }
   },
   {
+    "waf_id": "noinject",
     "response": {
-      "tags": [
-        "container:1e219d8ed6b4",
-        "all",
-        "urlmap:default-entry",
-        "urlmap-entry:waf-noinjection-tests",
-        "aclname:default-acl",
-        "ip:23-129-64-253",
-        "aclid:--default--",
-        "wafname:omit-libinjection",
-        "wafid:noinject",
-        "asn:396507",
-        "geo:united-states",
-        "bot",
-        "sante"
-      ],
       "action": "pass"
     },
     "name": "no libinjection",
@@ -329,22 +175,8 @@
     }
   },
   {
+    "waf_id": "omitted",
     "response": {
-      "tags": [
-        "aclid:--default--",
-        "urlmap-entry:waf-omit-tests",
-        "wafname:omit-id-100016",
-        "sante",
-        "urlmap:default-entry",
-        "aclname:default-acl",
-        "container:1e219d8ed6b4",
-        "ip:13-129-64-253",
-        "wafid:omitted",
-        "asn:nil",
-        "all",
-        "bot",
-        "geo:united-states"
-      ],
       "action": "custom_response",
       "block_mode": true,
       "status": 403
@@ -359,22 +191,8 @@
     }
   },
   {
+    "waf_id": "noinject",
     "response": {
-      "tags": [
-        "container:1e219d8ed6b4",
-        "asn:nil",
-        "urlmap-entry:waf-noinjection-tests",
-        "wafname:omit-libinjection",
-        "aclid:--default--",
-        "sante",
-        "ip:13-129-64-253",
-        "all",
-        "urlmap:default-entry",
-        "wafid:noinject",
-        "geo:united-states",
-        "bot",
-        "aclname:default-acl"
-      ],
       "action": "pass"
     },
     "name": "alphanum skipped",
@@ -387,22 +205,8 @@
     }
   },
   {
+    "waf_id": "argschecks",
     "response": {
-      "tags": [
-        "urlmap-entry:waf-args-tests",
-        "aclid:--default--",
-        "wafname:args-checkes",
-        "wafid:argschecks",
-        "container:1e219d8ed6b4",
-        "sante",
-        "aclname:default-acl",
-        "ip:13-129-64-253",
-        "asn:nil",
-        "all",
-        "urlmap:default-entry",
-        "bot",
-        "geo:united-states"
-      ],
       "action": "custom_response",
       "block_mode": true,
       "status": 403
@@ -416,22 +220,8 @@
     }
   },
   {
+    "waf_id": "argschecks",
     "response": {
-      "tags": [
-        "container:1e219d8ed6b4",
-        "ip:13-129-64-253",
-        "all",
-        "urlmap-entry:waf-args-tests",
-        "aclid:--default--",
-        "wafname:args-checkes",
-        "wafid:argschecks",
-        "aclname:default-acl",
-        "urlmap:default-entry",
-        "sante",
-        "geo:united-states",
-        "bot",
-        "asn:nil"
-      ],
       "action": "pass"
     },
     "name": "passing",
@@ -443,22 +233,8 @@
     }
   },
   {
+    "waf_id": "argschecks",
     "response": {
-      "tags": [
-        "all",
-        "urlmap:default-entry",
-        "aclname:default-acl",
-        "sante",
-        "wafname:args-checkes",
-        "wafid:argschecks",
-        "urlmap-entry:waf-args-tests",
-        "asn:nil",
-        "aclid:--default--",
-        "container:1e219d8ed6b4",
-        "ip:13-129-64-253",
-        "bot",
-        "geo:united-states"
-      ],
       "action": "pass"
     },
     "name": "test args a",
@@ -470,22 +246,8 @@
     }
   },
   {
+    "waf_id": "argschecks",
     "response": {
-      "tags": [
-        "aclid:--default--",
-        "container:1e219d8ed6b4",
-        "wafname:args-checkes",
-        "wafid:argschecks",
-        "geo:united-states",
-        "aclname:default-acl",
-        "ip:13-129-64-253",
-        "sante",
-        "asn:nil",
-        "urlmap-entry:waf-args-tests",
-        "urlmap:default-entry",
-        "bot",
-        "all"
-      ],
       "action": "pass"
     },
     "name": "test args b",
@@ -497,22 +259,8 @@
     }
   },
   {
+    "waf_id": "argschecks",
     "response": {
-      "tags": [
-        "asn:nil",
-        "urlmap-entry:waf-args-tests",
-        "aclid:--default--",
-        "sante",
-        "aclname:default-acl",
-        "wafname:args-checkes",
-        "wafid:argschecks",
-        "ip:13-129-64-253",
-        "urlmap:default-entry",
-        "geo:united-states",
-        "all",
-        "bot",
-        "container:1e219d8ed6b4"
-      ],
       "action": "pass"
     },
     "name": "test args c",
@@ -524,22 +272,8 @@
     }
   },
   {
+    "waf_id": "argschecks",
     "response": {
-      "tags": [
-        "aclid:--default--",
-        "asn:nil",
-        "sante",
-        "aclname:default-acl",
-        "urlmap:default-entry",
-        "all",
-        "geo:united-states",
-        "urlmap-entry:waf-args-tests",
-        "ip:13-129-64-253",
-        "wafname:args-checkes",
-        "wafid:argschecks",
-        "bot",
-        "container:1e219d8ed6b4"
-      ],
       "action": "pass"
     },
     "name": "test args d",
@@ -551,22 +285,8 @@
     }
   },
   {
+    "waf_id": "argschecks",
     "response": {
-      "tags": [
-        "urlmap-entry:waf-args-tests",
-        "sante",
-        "geo:united-states",
-        "all",
-        "container:1e219d8ed6b4",
-        "urlmap:default-entry",
-        "aclid:--default--",
-        "aclname:default-acl",
-        "ip:13-129-64-253",
-        "asn:nil",
-        "wafname:args-checkes",
-        "wafid:argschecks",
-        "bot"
-      ],
       "action": "pass"
     },
     "name": "test args a (n)",
@@ -578,22 +298,8 @@
     }
   },
   {
+    "waf_id": "argschecks",
     "response": {
-      "tags": [
-        "container:1e219d8ed6b4",
-        "ip:13-129-64-253",
-        "sante",
-        "aclid:--default--",
-        "wafname:args-checkes",
-        "wafid:argschecks",
-        "urlmap:default-entry",
-        "all",
-        "urlmap-entry:waf-args-tests",
-        "aclname:default-acl",
-        "geo:united-states",
-        "bot",
-        "asn:nil"
-      ],
       "action": "custom_response",
       "block_mode": true,
       "status": 403
@@ -607,22 +313,8 @@
     }
   },
   {
+    "waf_id": "argschecks",
     "response": {
-      "tags": [
-        "urlmap:default-entry",
-        "all",
-        "container:1e219d8ed6b4",
-        "urlmap-entry:waf-args-tests",
-        "aclid:--default--",
-        "wafname:args-checkes",
-        "wafid:argschecks",
-        "aclname:default-acl",
-        "geo:united-states",
-        "sante",
-        "ip:13-129-64-253",
-        "bot",
-        "asn:nil"
-      ],
       "action": "custom_response",
       "block_mode": true,
       "status": 403
@@ -636,22 +328,8 @@
     }
   },
   {
+    "waf_id": "argschecks",
     "response": {
-      "tags": [
-        "geo:united-states",
-        "container:1e219d8ed6b4",
-        "all",
-        "sante",
-        "urlmap-entry:waf-args-tests",
-        "ip:13-129-64-253",
-        "urlmap:default-entry",
-        "asn:nil",
-        "wafname:args-checkes",
-        "wafid:argschecks",
-        "aclid:--default--",
-        "bot",
-        "aclname:default-acl"
-      ],
       "action": "pass"
     },
     "name": "test args d (n)",
@@ -663,22 +341,8 @@
     }
   },
   {
+    "waf_id": "argschecks",
     "response": {
-      "tags": [
-        "ip:13-129-64-253",
-        "asn:nil",
-        "aclid:--default--",
-        "aclname:default-acl",
-        "geo:united-states",
-        "urlmap-entry:waf-args-tests",
-        "sante",
-        "container:1e219d8ed6b4",
-        "wafname:args-checkes",
-        "wafid:argschecks",
-        "urlmap:default-entry",
-        "bot",
-        "all"
-      ],
       "action": "pass"
     },
     "name": "test args a (nosig)",
@@ -690,22 +354,8 @@
     }
   },
   {
+    "waf_id": "argschecks",
     "response": {
-      "tags": [
-        "ip:13-129-64-253",
-        "all",
-        "aclid:--default--",
-        "aclname:default-acl",
-        "container:1e219d8ed6b4",
-        "geo:united-states",
-        "sante",
-        "urlmap:default-entry",
-        "asn:nil",
-        "urlmap-entry:waf-args-tests",
-        "wafname:args-checkes",
-        "wafid:argschecks",
-        "bot"
-      ],
       "action": "pass"
     },
     "name": "test args b (nosig)",
@@ -717,22 +367,8 @@
     }
   },
   {
+    "waf_id": "argschecks",
     "response": {
-      "tags": [
-        "geo:united-states",
-        "urlmap:default-entry",
-        "container:1e219d8ed6b4",
-        "urlmap-entry:waf-args-tests",
-        "aclname:default-acl",
-        "wafname:args-checkes",
-        "wafid:argschecks",
-        "all",
-        "asn:nil",
-        "ip:13-129-64-253",
-        "sante",
-        "bot",
-        "aclid:--default--"
-      ],
       "action": "pass"
     },
     "name": "test args c (nosig)",
@@ -744,22 +380,8 @@
     }
   },
   {
+    "waf_id": "argschecks",
     "response": {
-      "tags": [
-        "asn:nil",
-        "container:1e219d8ed6b4",
-        "geo:united-states",
-        "urlmap-entry:waf-args-tests",
-        "aclid:--default--",
-        "sante",
-        "ip:13-129-64-253",
-        "all",
-        "aclname:default-acl",
-        "wafname:args-checkes",
-        "wafid:argschecks",
-        "bot",
-        "urlmap:default-entry"
-      ],
       "action": "pass"
     },
     "name": "test args d (nosig)",
@@ -771,22 +393,8 @@
     }
   },
   {
+    "waf_id": "__default__",
     "response": {
-      "tags": [
-        "asn:nil",
-        "aclid:--default--",
-        "urlmap:default-entry",
-        "sante",
-        "aclname:default-acl",
-        "urlmap-entry:default",
-        "ip:13-129-64-253",
-        "geo:united-states",
-        "wafid:--default--",
-        "wafname:default-waf",
-        "all",
-        "bot",
-        "container:1e219d8ed6b4"
-      ],
       "action": "custom_response",
       "block_mode": false,
       "status": 403
@@ -801,22 +409,8 @@
     }
   },
   {
+    "waf_id": "e2e000000002",
     "response": {
-      "tags": [
-        "aclid:--default--",
-        "urlmap:default-entry",
-        "geo:united-states",
-        "aclname:default-acl",
-        "all",
-        "asn:nil",
-        "wafname:e2e-waf-short-headers",
-        "wafid:e2e000000002",
-        "ip:13-129-64-253",
-        "container:1e219d8ed6b4",
-        "sante",
-        "bot",
-        "urlmap-entry:waf-short-headers"
-      ],
       "action": "pass"
     },
     "name": "short headers ok",
@@ -829,22 +423,8 @@
     }
   },
   {
+    "waf_id": "e2e000000002",
     "response": {
-      "tags": [
-        "ip:13-129-64-253",
-        "urlmap:default-entry",
-        "geo:united-states",
-        "sante",
-        "container:1e219d8ed6b4",
-        "urlmap-entry:waf-short-headers",
-        "aclid:--default--",
-        "wafname:e2e-waf-short-headers",
-        "wafid:e2e000000002",
-        "asn:nil",
-        "all",
-        "bot",
-        "aclname:default-acl"
-      ],
       "action": "custom_response",
       "block_mode": true,
       "status": 403
@@ -859,22 +439,8 @@
     }
   },
   {
+    "waf_id": "rr",
     "response": {
-      "tags": [
-        "ip:13-129-64-253",
-        "urlmap:default-entry",
-        "urlmap-entry:waf-restrict-tests",
-        "container:1e219d8ed6b4",
-        "aclid:--default--",
-        "asn:nil",
-        "geo:united-states",
-        "wafname:rr",
-        "wafid:rr",
-        "aclname:default-acl",
-        "sante",
-        "bot",
-        "all"
-      ],
       "action": "custom_response",
       "block_mode": true,
       "status": 403
@@ -890,22 +456,8 @@
     }
   },
   {
+    "waf_id": "rr",
     "response": {
-      "tags": [
-        "urlmap:default-entry",
-        "aclname:default-acl",
-        "wafid:rr",
-        "wafname:rr",
-        "all",
-        "sante",
-        "container:1e219d8ed6b4",
-        "geo:united-states",
-        "aclid:--default--",
-        "urlmap-entry:waf-restrict-tests",
-        "ip:13-129-64-253",
-        "bot",
-        "asn:nil"
-      ],
       "action": "custom_response",
       "block_mode": true,
       "status": 403

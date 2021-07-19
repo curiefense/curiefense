@@ -48,5 +48,6 @@ test-nodeps:
 						 -v `pwd`/luatests/run.sh:/home/builder/run.sh \
 						 -v `pwd`/luatests/config/json:/config/current/config/json \
 						 -v `pwd`/luatests:/home/builder/luatests \
+						 --rm \
 						 -w /home/builder -t curiefense/rustbuild:latest \
 						 /bin/sh /home/builder/run.sh

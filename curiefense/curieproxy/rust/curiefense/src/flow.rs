@@ -1,3 +1,4 @@
+use crate::Logs;
 use std::collections::HashMap;
 
 use crate::config::flow::{FlowElement, SequenceKey};
@@ -6,15 +7,7 @@ use crate::interface::{SimpleDecision, Tags};
 use crate::utils::{check_selector_cond, select_string, RequestInfo};
 
 fn session_sequence_key(ri: &RequestInfo) -> SequenceKey {
-    let host_part: &str = ri
-        .rinfo
-        .meta
-        .authority
-        .as_ref()
-        .or_else(|| ri.headers.get("host"))
-        .map(|x| x.as_str())
-        .unwrap_or("nil");
-    SequenceKey(ri.rinfo.meta.method.to_string() + host_part + &ri.rinfo.qinfo.qpath)
+    SequenceKey(ri.rinfo.meta.method.to_string() + &ri.rinfo.host + &ri.rinfo.qinfo.qpath)
 }
 
 fn build_redis_key(reqinfo: &RequestInfo, key: &[RequestSelector], entry_id: &str, entry_name: &str) -> String {
@@ -35,19 +28,29 @@ fn flow_match(reqinfo: &RequestInfo, tags: &Tags, elem: &FlowElement) -> bool {
     elem.select.iter().all(|e| check_selector_cond(reqinfo, tags, e))
 }
 
+enum FlowResult {
+    NonLast,
+    LastOk,
+    LastBlock,
+}
+
 fn check_flow(
     cnx: &mut redis::Connection,
     redis_key: &str,
     step: u32,
     ttl: u64,
     is_last: bool,
-) -> anyhow::Result<bool> {
+) -> anyhow::Result<FlowResult> {
     // first, read from REDIS how many steps already passed
     let mlistlen: Option<usize> = redis::cmd("LLEN").arg(redis_key).query(cnx)?;
     let listlen = mlistlen.unwrap_or(0);
 
     if is_last {
-        Ok(step as usize == listlen)
+        if step as usize == listlen {
+            Ok(FlowResult::LastOk)
+        } else {
+            Ok(FlowResult::LastBlock)
+        }
     } else {
         if step as usize == listlen {
             let (_, mexpire): ((), Option<i64>) = redis::pipe()
@@ -63,14 +66,15 @@ fn check_flow(
             }
         }
         // never block if not the last step!
-        Ok(true)
+        Ok(FlowResult::NonLast)
     }
 }
 
 pub fn flow_check(
+    logs: &mut Logs,
     flows: &HashMap<SequenceKey, Vec<FlowElement>>,
     reqinfo: &RequestInfo,
-    tags: &Tags,
+    tags: &mut Tags,
 ) -> anyhow::Result<SimpleDecision> {
     let sequence_key = session_sequence_key(reqinfo);
     match flows.get(&sequence_key) {
@@ -79,12 +83,29 @@ pub fn flow_check(
             let mut bad = SimpleDecision::Pass;
             // do not establish the connection if unneeded
             let mut cnx = crate::redis::redis_conn()?;
-            for elem in elems.iter().filter(|e| flow_match(reqinfo, tags, e)) {
+            for elem in elems.iter() {
+                logs.debug(format!("Testing flow control {} (step {})", elem.name, elem.step));
+                if !flow_match(reqinfo, &tags, elem) {
+                    continue;
+                }
+                logs.debug(format!("Checking flow control {} (step {})", elem.name, elem.step));
                 let redis_key = build_redis_key(reqinfo, &elem.key, &elem.id, &elem.name);
-                if check_flow(&mut cnx, &redis_key, elem.step, elem.ttl, elem.is_last)? {
-                    return Ok(SimpleDecision::Pass);
-                } else {
-                    bad = SimpleDecision::Action(elem.action.clone(), Some(serde_json::json!({"initiator":"flow_check"})));
+                match check_flow(&mut cnx, &redis_key, elem.step, elem.ttl, elem.is_last)? {
+                    FlowResult::LastOk => {
+                        tags.insert(&elem.name);
+                        return Ok(SimpleDecision::Pass);
+                    }
+                    FlowResult::LastBlock => {
+                        tags.insert(&elem.name);
+                        bad = SimpleDecision::Action(
+                            elem.action.clone(),
+                            serde_json::json!({
+                                "initiator": "flow_check",
+                                "name": elem.name
+                            }),
+                        );
+                    }
+                    FlowResult::NonLast => {}
                 }
             }
             Ok(bad)

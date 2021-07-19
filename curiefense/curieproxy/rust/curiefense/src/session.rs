@@ -269,10 +269,11 @@ pub fn session_waf_check(session_id: &str) -> anyhow::Result<Decision> {
 
 pub fn session_flow_check(session_id: &str) -> anyhow::Result<Decision> {
     let uuid: Uuid = session_id.parse()?;
+    let mut logs = Logs::default();
 
     let sdecision = with_config(|cfg| {
         with_request_info(uuid, |rinfo| {
-            with_tags(uuid, |tags| flow_check(&cfg.flows, rinfo, tags))
+            with_tags_mut(uuid, |tags| flow_check(&mut logs, &cfg.flows, rinfo, tags))
         })
     });
     Ok(sdecision?.into_decision_no_challenge())

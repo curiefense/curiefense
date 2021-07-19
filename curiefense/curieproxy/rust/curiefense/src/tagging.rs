@@ -95,7 +95,7 @@ pub fn tag_request(is_human: bool, cfg: &Config, rinfo: &RequestInfo) -> (Tags, 
                     tags,
                     SimpleDecision::Action(
                         a.clone(),
-                        Some(serde_json::json!({"initiator": "tag action", "tags": psection.tags})),
+                        serde_json::json!({"initiator": "tag action", "tags": psection.tags}),
                     ),
                 );
             }

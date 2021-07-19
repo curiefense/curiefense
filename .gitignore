@@ -31,7 +31,6 @@ venv-*
 
 */node_modules
 internal-notes/
-curiefense/ui/yarn.lock
 
 .mypy_cache
 .vscode

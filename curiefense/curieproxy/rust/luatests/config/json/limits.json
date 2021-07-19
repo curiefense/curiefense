@@ -227,5 +227,71 @@
         "pairwith": {
             "self": "self"
         }
+    },
+    {
+        "id": "f971e92459e2",
+        "name": "Rate limit ban",
+        "description": "3 requests per 2 seconds",
+        "ttl": "2",
+        "limit": "3",
+        "action": {
+            "type": "ban",
+            "params": {
+                "ttl": "4",
+                "action": {
+                    "type": "default"
+                }
+            }
+        },
+        "include": {
+            "headers": {},
+            "cookies": {},
+            "args": {},
+            "attrs": {}
+        },
+        "exclude": {
+            "headers": {},
+            "cookies": {},
+            "args": {},
+            "attrs": {}
+        },
+        "key": [
+            {
+                "attrs": "ip"
+            }
+        ],
+        "pairwith": {
+            "self": "self"
+        }
+    },
+    {
+        "id": "4d1d9d405fc9",
+        "name": "Limit per method",
+        "description": ":)",
+        "ttl": "5",
+        "limit": "3",
+        "action": {
+            "type": "default"
+        },
+        "include": {
+            "headers": {},
+            "cookies": {},
+            "args": {},
+            "attrs": {}
+        },
+        "exclude": {
+            "headers": {},
+            "cookies": {},
+            "args": {},
+            "attrs": {}
+        },
+        "key": [
+            {
+                "attrs": "ip"
+            }
+        ],
+        "pairwith": {
+            "attrs": "method"
+        }
     }
 ]
