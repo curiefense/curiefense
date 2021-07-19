@@ -686,7 +686,7 @@ describe('ResponseAction.vue', () => {
           content: '{"foo": "bar"}',
         },
       }
-      wrapper = mount(ResponseAction, { propsData: { action }})
+      wrapper = mount(ResponseAction, {propsData: {action}})
       await Vue.nextTick()
       const statusInput = wrapper.find('.action-status');
       (statusInput.element as HTMLInputElement).value = '99';
@@ -704,7 +704,7 @@ describe('ResponseAction.vue', () => {
           content: '{"foo": "bar"}',
         },
       }
-      wrapper = mount(ResponseAction, { propsData: { action }})
+      wrapper = mount(ResponseAction, {propsData: {action}})
       await Vue.nextTick()
       wrapper.find('.action-status').trigger('blur')
       await Vue.nextTick()
@@ -721,7 +721,7 @@ describe('ResponseAction.vue', () => {
           },
         },
       }
-      wrapper = mount(ResponseAction, { propsData: { action }})
+      wrapper = mount(ResponseAction, {propsData: {action}})
       await Vue.nextTick()
       const ttlInput = wrapper.find('.action-duration');
       (ttlInput.element as HTMLInputElement).value = '86401';
