@@ -9,6 +9,7 @@ output.elasticsearch:
 
 setup.dashboards:
   enabled: false
+  directory: "curiefense"
   index: "curieaccesslog-*"
   retry:
     enabled: false

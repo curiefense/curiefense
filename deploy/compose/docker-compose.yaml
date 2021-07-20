@@ -152,6 +152,7 @@ services:
     restart: always
     volumes:
       - persistent_grafana:/var/lib/grafana
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
     networks:
       - curiemesh
       - confnet
@@ -161,7 +162,7 @@ services:
   elasticsearch:
     container_name: elasticsearch
     hostname: elasticsearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.3
     restart: always
     volumes:
       - persistent_elasticsearch:/usr/share/elasticsearch/data
@@ -183,7 +184,7 @@ services:
   kibana:
     container_name: kibana
     hostname: kibana
-    image: docker.elastic.co/kibana/kibana:7.10.1
+    image: docker.elastic.co/kibana/kibana:7.13.3
     restart: always
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
@@ -197,7 +198,7 @@ services:
 
   filebeat:
     container_name: filebeat
-    image: docker.elastic.co/beats/filebeat:7.10.1
+    image: docker.elastic.co/beats/filebeat:7.13.3
     command: >
         bash -c "
         for i in {1..40}; do
@@ -210,6 +211,7 @@ services:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
       - KIBANA_URL=http://kibana:5601
     volumes:
+      - ./elk/7_x/dashboards.json:/usr/share/filebeat/curiefense/7/dashboard/dashboards.json
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
       - ./filebeat/ilm.json:/usr/share/filebeat/ilm.json
       - ./filebeat/template.json:/usr/share/filebeat/template.json
