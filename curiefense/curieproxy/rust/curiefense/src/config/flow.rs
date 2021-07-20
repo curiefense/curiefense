@@ -107,6 +107,9 @@ pub fn flow_resolve(logs: &mut Logs, rawentries: Vec<RawFlowEntry>) -> HashMap<S
 
     // entries are created with steps in order
     for rawentry in rawentries {
+        if !rawentry.active {
+            continue;
+        }
         match FlowEntry::convert(rawentry) {
             Err(rr) => logs.warning(rr),
             Ok(entry) => {
