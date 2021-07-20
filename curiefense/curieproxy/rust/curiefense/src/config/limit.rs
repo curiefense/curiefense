@@ -1,6 +1,7 @@
 use anyhow::Context;
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 use crate::config::raw::{RawLimit, RawLimitSelector};
 use crate::config::utils::{
@@ -16,8 +17,8 @@ pub struct Limit {
     pub limit: u64,
     pub ttl: u64,
     pub action: SimpleAction,
-    pub exclude: Vec<RequestSelectorCondition>,
-    pub include: Vec<RequestSelectorCondition>,
+    pub exclude: HashSet<String>,
+    pub include: HashSet<String>,
     pub pairwith: Option<RequestSelector>,
     pub key: Vec<RequestSelector>,
 }
@@ -55,8 +56,8 @@ impl Limit {
                 limit: rawlimit.limit.parse().with_context(|| "when converting the limit")?,
                 ttl: rawlimit.ttl.parse().with_context(|| "when converting the ttl")?,
                 action: SimpleAction::resolve(&rawlimit.action).with_context(|| "when resolving the action entry")?,
-                exclude: resolve_selectors(rawlimit.exclude).with_context(|| "when resolving the exclude entry")?,
-                include: resolve_selectors(rawlimit.include).with_context(|| "when resolving the include entry")?,
+                include: rawlimit.include.into_iter().collect(),
+                exclude: rawlimit.exclude.into_iter().collect(),
                 pairwith,
                 key,
             },
@@ -100,8 +101,8 @@ mod tests {
                 ttl: 0,
                 id: String::new(),
                 action: SimpleAction::from_reason(format!("limit {}", name)),
-                include: Vec::new(),
-                exclude: Vec::new(),
+                include: HashSet::new(),
+                exclude: HashSet::new(),
                 key: Vec::new(),
                 pairwith: None,
             }
