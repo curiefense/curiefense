@@ -147,6 +147,7 @@ describe('ResponseAction.vue', () => {
           type: 'response',
           params: {
             status: '',
+            headers: {},
             content: '',
           },
         }
@@ -193,7 +194,7 @@ describe('ResponseAction.vue', () => {
         const wantedEmit = {
           type: 'request_header',
           params: {
-            headers: '',
+            headers: {},
           },
         }
         const selection = wrapper.find('.action-type-selection')
@@ -210,6 +211,7 @@ describe('ResponseAction.vue', () => {
           type: 'response',
           params: {
             status: '500',
+            headers: {},
             content: '',
           },
         }
@@ -220,11 +222,7 @@ describe('ResponseAction.vue', () => {
             content: '',
           },
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
         const statusInput = wrapper.find('.action-status');
         (statusInput.element as HTMLInputElement).value = wantedEmit.params.status;
@@ -240,6 +238,7 @@ describe('ResponseAction.vue', () => {
           type: 'response',
           params: {
             status: '',
+            headers: {},
             content: '{"foo": "bar"}',
           },
         }
@@ -250,11 +249,7 @@ describe('ResponseAction.vue', () => {
             content: '',
           },
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
         const contentInput = wrapper.find('.action-content');
         (contentInput.element as HTMLInputElement).value = wantedEmit.params.content;
@@ -280,16 +275,12 @@ describe('ResponseAction.vue', () => {
             location: '',
           },
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
         const statusInput = wrapper.find('.action-status');
         (statusInput.element as HTMLInputElement).value = wantedEmit.params.status;
         (wrapper.vm as any).localAction.params.status = wantedEmit.params.status
-        statusInput.trigger('change')
+        statusInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -310,16 +301,12 @@ describe('ResponseAction.vue', () => {
             location: '',
           },
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
         const locationInput = wrapper.find('.action-location');
         (locationInput.element as HTMLInputElement).value = wantedEmit.params.location;
         (wrapper.vm as any).localAction.params.location = wantedEmit.params.location
-        locationInput.trigger('change')
+        locationInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -344,16 +331,12 @@ describe('ResponseAction.vue', () => {
             },
           },
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
         const durationInput = wrapper.find('.action-duration');
         (durationInput.element as HTMLInputElement).value = wantedEmit.params.ttl;
         (wrapper.vm as any).localAction.params.ttl = wantedEmit.params.ttl
-        durationInput.trigger('change')
+        durationInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -378,11 +361,7 @@ describe('ResponseAction.vue', () => {
             },
           },
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
         const responseActionComponent = wrapper.findAllComponents(ResponseAction).at(1)
         responseActionComponent.vm.$emit('update:action', wantedEmit.params.action)
@@ -395,25 +374,25 @@ describe('ResponseAction.vue', () => {
         const wantedEmit = {
           type: 'request_header',
           params: {
-            headers: 'foo',
+            headers: {foo: 'bar'},
           },
         }
         action = {
           type: 'request_header',
           params: {
-            headers: '',
+            headers: {},
           },
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
-        const headersInput = wrapper.find('.action-headers');
-        (headersInput.element as HTMLInputElement).value = wantedEmit.params.headers;
+        const headerNameInput = wrapper.find('.action-headers')
+        const headerValueInput = wrapper.find('.action-headers-value')
+        const [[wantedHeaderName, wantedHeaderValue]] = Object.entries(wantedEmit.params.headers);
+        (headerNameInput.element as HTMLInputElement).value = wantedHeaderName;
+        (headerValueInput.element as HTMLInputElement).value = wantedHeaderValue;
         (wrapper.vm as any).localAction.params.headers = wantedEmit.params.headers
-        headersInput.trigger('change')
+        headerNameInput.trigger('input')
+        headerValueInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -426,6 +405,7 @@ describe('ResponseAction.vue', () => {
           type: 'response',
           params: {
             status: '500',
+            headers: {},
             content: '{"foo": "bar"}',
           },
         }
@@ -436,11 +416,7 @@ describe('ResponseAction.vue', () => {
             content: '{"foo": "bar"}',
           },
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
         const statusInput = wrapper.find('.action-status');
         (statusInput.element as HTMLInputElement).value = wantedEmit.params.status;
@@ -456,6 +432,7 @@ describe('ResponseAction.vue', () => {
           type: 'response',
           params: {
             status: '500',
+            headers: {},
             content: '{"foo": "bar"}',
           },
         }
@@ -466,11 +443,7 @@ describe('ResponseAction.vue', () => {
             content: '{"foo2": "bar2"}',
           },
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
         const contentInput = wrapper.find('.action-content');
         (contentInput.element as HTMLInputElement).value = wantedEmit.params.content;
@@ -496,16 +469,12 @@ describe('ResponseAction.vue', () => {
             location: 'www.example.com',
           },
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
         const statusInput = wrapper.find('.action-status');
         (statusInput.element as HTMLInputElement).value = wantedEmit.params.status;
         (wrapper.vm as any).localAction.params.status = wantedEmit.params.status
-        statusInput.trigger('change')
+        statusInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -526,16 +495,12 @@ describe('ResponseAction.vue', () => {
             location: 'example.com',
           },
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
         const locationInput = wrapper.find('.action-location');
         (locationInput.element as HTMLInputElement).value = wantedEmit.params.location;
         (wrapper.vm as any).localAction.params.location = wantedEmit.params.location
-        locationInput.trigger('change')
+        locationInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -560,16 +525,12 @@ describe('ResponseAction.vue', () => {
             },
           },
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
         const durationInput = wrapper.find('.action-duration');
         (durationInput.element as HTMLInputElement).value = wantedEmit.params.ttl;
         (wrapper.vm as any).localAction.params.ttl = wantedEmit.params.ttl
-        durationInput.trigger('change')
+        durationInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -594,11 +555,7 @@ describe('ResponseAction.vue', () => {
             },
           },
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
         const responseActionComponent = wrapper.findAllComponents(ResponseAction).at(1)
         responseActionComponent.vm.$emit('update:action', wantedEmit.params.action)
@@ -611,25 +568,22 @@ describe('ResponseAction.vue', () => {
         const wantedEmit = {
           type: 'request_header',
           params: {
-            headers: 'foo',
+            headers: {foo: 'bar'},
           },
         }
         action = {
           type: 'request_header',
           params: {
-            headers: 'foo2',
+            headers: {foo2: 'bar'},
           },
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
-        const headersInput = wrapper.find('.action-headers');
-        (headersInput.element as HTMLInputElement).value = wantedEmit.params.headers;
+        const headerNameInput = wrapper.find('.action-headers')
+        const [[wantedHeaderName]] = Object.entries(wantedEmit.params.headers);
+        (headerNameInput.element as HTMLInputElement).value = wantedHeaderName;
         (wrapper.vm as any).localAction.params.headers = wantedEmit.params.headers
-        headersInput.trigger('change')
+        headerNameInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -656,17 +610,14 @@ describe('ResponseAction.vue', () => {
           type: 'response',
           params: {
             status: '',
+            headers: {},
             content: '',
           },
         }
         action = {
           type: 'response',
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -683,11 +634,7 @@ describe('ResponseAction.vue', () => {
         action = {
           type: 'redirect',
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -706,11 +653,7 @@ describe('ResponseAction.vue', () => {
         action = {
           type: 'ban',
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -720,21 +663,82 @@ describe('ResponseAction.vue', () => {
         const wantedEmit = {
           type: 'request_header',
           params: {
-            headers: '',
+            headers: {},
           },
         }
         action = {
           type: 'request_header',
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
+    })
+  })
+  describe('validations', () => {
+    test('should emit invalid status', async () => {
+      action = {
+        type: 'response',
+        params: {
+          status: '400',
+          headers: {},
+          content: '{"foo": "bar"}',
+        },
+      }
+      wrapper = mount(ResponseAction, {propsData: {action}})
+      await Vue.nextTick()
+      const statusInput = wrapper.find('.action-status');
+      (statusInput.element as HTMLInputElement).value = '99';
+      (wrapper.vm as any).localAction.params.status = '99'
+      statusInput.trigger('input')
+      await Vue.nextTick()
+      expect(wrapper.emitted('update:invalid')).toBeTruthy()
+    })
+    test('should validate on blur', async () => {
+      action = {
+        type: 'response',
+        params: {
+          status: '',
+          headers: {},
+          content: '{"foo": "bar"}',
+        },
+      }
+      wrapper = mount(ResponseAction, {propsData: {action}})
+      await Vue.nextTick()
+      wrapper.find('.action-status').trigger('blur')
+      await Vue.nextTick()
+      expect(wrapper.emitted('update:invalid')).toBeTruthy()
+      expect(wrapper.findAll('.is-danger').length).toEqual(3) // headerName + headerValue + status
+    })
+    test('should validate on input', async () => {
+      action = {
+        type: 'ban',
+        params: {
+          ttl: '',
+          action: {
+            type: 'default',
+          },
+        },
+      }
+      wrapper = mount(ResponseAction, {propsData: {action}})
+      await Vue.nextTick()
+      const ttlInput = wrapper.find('.action-duration');
+      (ttlInput.element as HTMLInputElement).value = '86401';
+      ttlInput.trigger('input')
+      await Vue.nextTick()
+      expect(wrapper.emitted('update:invalid')[0][0]).toBeTruthy()
+      expect(wrapper.findAll('.is-danger').length).toEqual(1); // ttl
+      (ttlInput.element as HTMLInputElement).value = '10';
+      ttlInput.trigger('input')
+      await Vue.nextTick()
+      expect(wrapper.emitted('update:invalid')[1][0]).toBeFalsy()
+      expect(wrapper.findAll('.is-danger').length).toEqual(0);
+      (ttlInput.element as HTMLInputElement).value = '';
+      ttlInput.trigger('input')
+      await Vue.nextTick()
+      expect(wrapper.emitted('update:invalid')[2][0]).toBeTruthy()
+      expect(wrapper.findAll('.is-danger').length).toEqual(1); // ttl
     })
   })
 })

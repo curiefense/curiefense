@@ -610,7 +610,10 @@ export default Vue.extend({
     },
 
     async loadReferencedDocsIDs() {
-      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: `configs/${this.selectedBranch}/d/urlmaps/`})
+      const response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/d/urlmaps/`,
+      })
       const docs = response?.data
       const referencedACL: string[] = []
       const referencedWAF: string[] = []

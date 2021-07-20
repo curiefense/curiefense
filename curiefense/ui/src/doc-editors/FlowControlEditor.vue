@@ -53,7 +53,7 @@
                             :option="generateOption(option)"
                             :key="getOptionTextKey(option, index)"/>
               <a title="Add new option rule"
-                 class="is-text is-small is-size-7 ml-3 add-key-button"
+                 class="is-text is-small is-size-7 add-key-button"
                  tabindex="0"
                  @click="addKey()"
                  @keypress.space.prevent
@@ -66,10 +66,13 @@
                 Count-by entries must be unique
               </p>
             </div>
-            <div class="field">
-              <response-action :action.sync="localDoc.action"
-                               @update:action="emitDocUpdate"
-                               label-separated-line/>
+            <div class="field my-5">
+              <response-action
+                :action.sync="localDoc.action"
+                @update:action="emitDocUpdate"
+                @update:invalid="$emit( 'form-invalid', $event )"
+                label-separated-line
+              />
             </div>
             <div class="field">
               <label class="label is-small">Notes</label>
