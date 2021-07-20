@@ -144,11 +144,13 @@
       </div>
       <div class="content">
         <hr/>
-        <git-history :gitLog="gitLog"
-                     :apiPath="gitAPIPath"
-                     :loading="loadingGitlog"
-                     @restore-version="restoreGitVersion">
-        </git-history>
+        <git-history
+          :not-collapsible="true"
+          :git-log="gitLog"
+          :api-path="gitAPIPath"
+          :loading="isLoadingGitlog || isDownloadLoading"
+          @restore-version="restoreGitVersion"
+        />
       </div>
     </div>
   </div>
@@ -194,7 +196,7 @@ export default Vue.extend({
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
 
-      loadingGitlog: false,
+      isLoadingGitlog: false,
     }
   },
 
@@ -270,7 +272,8 @@ export default Vue.extend({
 
     async loadSelectedBranchData() {
       this.isDownloadLoading = true
-      this.selectedBranchData = (await RequestsUtils.sendRequest({methodName: 'GET', url: `configs/${this.selectedBranch}/`}))?.data
+      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: `configs/${this.selectedBranch}/`})
+      this.selectedBranchData = response?.data
       this.isDownloadLoading = false
     },
 
@@ -284,7 +287,7 @@ export default Vue.extend({
     },
 
     async loadGitLog() {
-      this.loadingGitlog = true
+      this.isLoadingGitlog = true
       const config = this.selectedBranch
       const url = `configs/${config}/v/`
       return RequestsUtils.sendRequest({
@@ -293,7 +296,7 @@ export default Vue.extend({
         failureMessage: 'Failed while attempting to load Git log',
       }).then((response: AxiosResponse<Commit[]>) => {
         this.gitLog = response?.data
-        this.loadingGitlog = false
+        this.isLoadingGitlog = false
         return response
       })
     },

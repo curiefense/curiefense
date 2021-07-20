@@ -192,7 +192,7 @@ export default Vue.extend({
     },
 
     formatDate(date: string) {
-      return DateTimeUtils.isoToNowFullCuriefenseFormat(date)
+      return DateTimeUtils.isoToNowCuriefenseFormat(date)
     },
 
     getVersionRowClass(version: string) {

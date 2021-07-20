@@ -494,7 +494,9 @@ export default Vue.extend({
         const duplicatesMsg = this.duplicatedEntries.reduce(
           ( prev: string, [section, category, value]: TagRuleSectionEntry ) => {
             const sectionMsg = this.rule.sections.length > 1 ? `Section ${section+1}: ` : ''
-            return `${prev}<br />${sectionMsg}${this.listEntryTypes[category as Category]?.title} = ${this.dualCell( value )}`
+            return `
+              ${prev}<br />${sectionMsg}${this.listEntryTypes[category as Category]?.title} = ${this.dualCell( value )}
+            `
           },
           '',
         )
@@ -505,9 +507,9 @@ export default Vue.extend({
       }
     },
 
-    isEntryDuplicate( sectionIndex: number, [currentCategory, currentValue]: TagRuleSectionEntry ) {
+    isEntryDuplicate( sectionIndex: number, [theCategory, theValue]: TagRuleSectionEntry ) {
       return this.duplicatedEntries.findIndex(
-        ([section, category, value]) => section === sectionIndex && category === currentCategory && _.isEqual(value, currentValue),
+        ([section, category, value]) => section === sectionIndex && category === theCategory && _.isEqual(value, theValue),
       ) > -1
     },
 
@@ -523,6 +525,7 @@ export default Vue.extend({
     },
 
     validateIp( id: string, value: string ) {
+      // eslint-disable-next-line
       const ipPattern = /((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*(:([0-9]|[1-8][0-9]|9[0-9]|[1-8][0-9]{2}|9[0-8][0-9]|99[0-9]|[1-8][0-9]{3}|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-9]|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])|(\/[0-9]|\/[1-2][0-9]|\/[1-3][0-2]))?(\s?(#([a-zA-Z0-9$@$!%*?&#^-_. +:"'/\\;,-=]+)?)?)?$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*(:([0-9]|[1-8][0-9]|9[0-9]|[1-8][0-9]{2}|9[0-8][0-9]|99[0-9]|[1-8][0-9]{3}|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-9]|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])|(\/[0-9]|\/[1-2][0-9]|\/[1-3][0-2]))?(\s?(#([a-zA-Z0-9$@$!%*?&#^-_. +:"'/\\;,-=]+)?)?)?$))/
       const ipList = value.split('\n').filter( (ip) => ip )
       this.invalidIPs = []
@@ -564,7 +567,9 @@ export default Vue.extend({
 
     errorSecondAttr( sectionIndex: number ) {
       const {isCategoryArgsCookiesHeaders, newEntryCategory, isErrorField} = this
-      return isCategoryArgsCookiesHeaders(newEntryCategory) && isErrorField(`${newEntryCategory}${sectionIndex}-secondAttr`)
+      return isCategoryArgsCookiesHeaders(newEntryCategory) && isErrorField(
+        `${newEntryCategory}${sectionIndex}-secondAttr`,
+      )
     },
 
     onChangeSecondAttr( sectionIndex: number, value: string ) {

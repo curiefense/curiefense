@@ -211,7 +211,7 @@ export default Vue.extend({
     },
 
     fullFormattedModifiedDate(): string {
-      return DateTimeUtils.isoToNowFullCuriefenseFormat(this.localDoc?.mdate)
+      return DateTimeUtils.isoToNowCuriefenseFormat(this.localDoc?.mdate)
     },
   },
 
