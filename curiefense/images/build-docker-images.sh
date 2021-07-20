@@ -42,8 +42,9 @@ then
             image=curiefense-rustbuild-${distro}
             IMG=${REPO}/${image}
             echo "=================== $IMG:$DOCKER_TAG ====================="
-            if tar -C curiefense-rustbuild -ch --exclude='.*/target' --exclude='.*/ctarget' . \
-                    | docker build --build-arg UBUNTU_VERSION=${distro} -t "$IMG:$DOCKER_TAG" -; then
+            TMPFILE=$(mktemp)
+            tar -chf "$TMPFILE" --exclude='.*/target' --exclude='.*/ctarget' -C curiefense-rustbuild .
+            if docker build --build-arg UBUNTU_VERSION=${distro} -t "$IMG:$DOCKER_TAG" - < "$TMPFILE"; then
                 STB="ok"
                 if [ -n "$PUSH" ]; then
                     if docker push "$IMG:$DOCKER_TAG"; then
@@ -60,6 +61,7 @@ then
                 STP="SKIP"
                 GLOBALSTATUS=1
             fi
+            rm "$TMPFILE"
             status[$image]="build=$STB  push=$STP"
     done
 fi
