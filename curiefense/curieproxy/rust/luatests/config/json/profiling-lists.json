@@ -18,7 +18,15 @@
                      "args",
                      [
                         "deny",
-                        ".*"
+                        "deny"
+                     ],
+                     "deny"
+                  ],
+                  [
+                     "args",
+                     [
+                        "deny_base64",
+                        "deny"
                      ],
                      "deny"
                   ]
@@ -51,7 +59,15 @@
                      "args",
                      [
                         "allow",
-                        ".*"
+                        "allow"
+                     ],
+                     "allow"
+                  ],
+                  [
+                     "args",
+                     [
+                        "allow_base64",
+                        "allow"
                      ],
                      "allow"
                   ]
@@ -84,7 +100,15 @@
                      "args",
                      [
                         "allowbot",
-                        ".*"
+                        "allowbot"
+                     ],
+                     "allowbot"
+                  ],
+                  [
+                     "args",
+                     [
+                        "allowbot_base64",
+                        "allowbot"
                      ],
                      "allowbot"
                   ]
@@ -117,7 +141,15 @@
                      "args",
                      [
                         "denybot",
-                        ".*"
+                        "denybot"
+                     ],
+                     "denybot"
+                  ],
+                  [
+                     "args",
+                     [
+                        "denybot_base64",
+                        "denybot"
                      ],
                      "denybot"
                   ]
@@ -150,7 +182,15 @@
                      "args",
                      [
                         "forcedeny",
-                        ".*"
+                        "forcedeny"
+                     ],
+                     "forcedeny"
+                  ],
+                  [
+                     "args",
+                     [
+                        "forcedeny_base64",
+                        "forcedeny"
                      ],
                      "forcedeny"
                   ]
@@ -183,7 +223,15 @@
                      "args",
                      [
                         "bypass",
-                        ".*"
+                        "bypass"
+                     ],
+                     "bypass"
+                  ],
+                  [
+                     "args",
+                     [
+                        "bypass_base64",
+                        "bypass"
                      ],
                      "bypass"
                   ]

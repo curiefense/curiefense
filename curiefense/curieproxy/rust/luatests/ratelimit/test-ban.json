@@ -1,0 +1,62 @@
+[
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/limits/ban-test",
+      ":authority": "localhost:30081"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/limits/ban-test",
+      ":authority": "localhost:30081"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/limits/ban-test",
+      ":authority": "localhost:30081"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/limits/ban-test",
+      ":authority": "localhost:30081"
+    },
+    "delay": 3,
+    "pass": false
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/limits/ban-test",
+      ":authority": "localhost:30081"
+    },
+    "delay": 5,
+    "pass": false
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/limits/ban-test",
+      ":authority": "localhost:30081"
+    },
+    "delay": 0,
+    "pass": true
+  }
+]

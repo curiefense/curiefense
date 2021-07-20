@@ -36,7 +36,7 @@
               <tr v-for="(tag, idx) in localDoc[operation]" :key="idx">
                 <td class="tag-cell"
                     :class=" { 'has-text-danger': duplicateTags[tag], 'tag-crossed': allPrior(operation) }"
-                    :title=" allPrior(operation) ? '[all] is set in a higher priority section' : '' ">
+                    :title="tagMessage(tag, operation)">
                   {{ tag }}
                 </td>
                 <td class="is-size-7 width-20px">
@@ -121,7 +121,9 @@ export default Vue.extend({
       const allTags = _.concat(doc['force_deny'], doc['bypass'],
           doc['allow_bot'], doc['deny_bot'], doc['allow'], doc['deny'])
       const dupTags = _.filter(allTags, (val, i, iteratee) => _.includes(iteratee, val, i + 1))
-      return _.fromPairs(_.zip(dupTags, dupTags))
+      const result = _.fromPairs(_.zip(dupTags, dupTags))
+      this.$emit('form-invalid', !!_.size(result))
+      return result
     },
 
   },
@@ -175,6 +177,16 @@ export default Vue.extend({
 
     operationClassName(operation: ACLPolicyFilter) {
       return operation && operation.replace('_', '-')
+    },
+
+    tagMessage(tag: string, operation: ACLPolicyFilter) {
+      let message = ''
+      if (this.allPrior(operation)) {
+        message = '[all] is set in a higher priority section'
+      } else if (this.duplicateTags[tag]) {
+        message = `[${tag}] is duplicated`
+      }
+      return message
     },
 
   },

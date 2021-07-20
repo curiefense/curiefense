@@ -69,12 +69,14 @@ function nativeutils.nginx_custom_response(request_map, action_params)
 
     if action_params["headers"] and action_params["headers"] ~= cjson.null then
         for k, v in pairs(action_params["headers"]) do
-            handle.log[k] = v
+            handle.header[k] = v
         end
     end
 
     if action_params["status"] then
-        handle.status = action_params["status"]
+        local raw_status = action_params["status"]
+        local status = tonumber(raw_status) or raw_status
+        handle.status = status
     end
 
     handle.log(handle.ERR, cjson.encode(action_params))

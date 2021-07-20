@@ -1,4 +1,6 @@
+import base64
 import json
+from urllib.parse import urlencode
 from typing import Set, Any, Tuple
 
 tags = ["allow", "allowbot", "deny", "denybot", "forcedeny", "bypass"]
@@ -6,12 +8,17 @@ tags = ["allow", "allowbot", "deny", "denybot", "forcedeny", "bypass"]
 reqs = []
 
 
-def make_request(st: Set[str]) -> Tuple[Any, str]:
+def make_request(st: Set[str], b64: bool = False) -> Tuple[Any, str]:
     name = " + ".join(st)
+    if b64:
+        name += " (b64)"
     r = {
         "name": name,
         "headers": {
-            ":path": "/direct?" + "&".join(["%s=%s" % (x, x) for x in st]),
+            ":path": "/direct?"
+            + urlencode(
+                [(x, base64.b64encode(x.encode("utf-8")) if b64 else x) for x in st]
+            ),
             ":method": "GET",
             "x-forwarded-for": "23.129.64.253",
             "user-agent": "dummy",
@@ -24,10 +31,12 @@ def make_request(st: Set[str]) -> Tuple[Any, str]:
                 "ip:23-129-64-253",
                 "aclname:from-tags",
                 "aclid:fromtags",
-                "wafid:default-waf",
+                "wafname:default-waf",
+                "wafid:--default--",
                 "urlmap:default-entry",
                 "asn:396507",
                 "urlmap-entry:direct-association",
+                "bot",
                 "sante",
             ],
             "action": "pass",
@@ -38,19 +47,20 @@ def make_request(st: Set[str]) -> Tuple[Any, str]:
     if "forcedeny" in st:
         r["response"]["action"] = "custom_response"
         r["response"]["block_mode"] = True
-        r["response"]["status"] = 503
+        r["response"]["status"] = 403
     elif "bypass" in st:
         pass
     elif "deny" in st and "allow" not in st:
         r["response"]["action"] = "custom_response"
         r["response"]["block_mode"] = True
-        r["response"]["status"] = 503
+        r["response"]["status"] = 403
     elif "allowbot" in st:
         pass
     elif "denybot" in st:
         r["response"]["action"] = "custom_response"
         r["response"]["block_mode"] = True
         r["response"]["status"] = 247
+        r["response"]["tags"].append("challenge-phase01")
     return (r, name)
 
 
@@ -60,6 +70,10 @@ for x in tags:
     for y in tags:
         for z in tags:
             (r, nm) = make_request({x, y, z})
+            if nm not in seen:
+                seen.add(nm)
+                reqs.append(r)
+            (r, nm) = make_request({x, y, z}, b64=True)
             if nm not in seen:
                 seen.add(nm)
                 reqs.append(r)

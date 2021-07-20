@@ -315,6 +315,15 @@ mod tests {
     }
 
     #[test]
+    fn json_scalar_b64() {
+        test_parse(
+            Some("application/json"),
+            br#""c2NhbGFyIQ==""#,
+            &[("JSON_ROOT", "c2NhbGFyIQ=="), ("JSON_ROOT_base64", "scalar!")],
+        );
+    }
+
+    #[test]
     fn json_simple_object() {
         test_parse(
             Some("application/json"),
@@ -363,6 +372,15 @@ mod tests {
     #[test]
     fn xml_simple() {
         test_parse(Some("text/xml"), br#"<a>content</a>"#, &[("a1", "content")]);
+    }
+
+    #[test]
+    fn xml_simple_b64() {
+        test_parse(
+            Some("text/xml"),
+            br#"<a>ZHFzcXNkcXNk</a>"#,
+            &[("a1", "ZHFzcXNkcXNk"), ("a1_base64", "dqsqsdqsd")],
+        );
     }
 
     #[test]

@@ -30,15 +30,16 @@ func syslogInit(srv *syslogServer, v *viper.Viper) {
 	server.SetHandler(handler)
 	log.Infof("syslog server listening on 9514")
 	server.ListenTCP("0.0.0.0:9514")
-	server.ListenUDP("0.0.0.0:9514")
 
 	go func(channel syslog.LogPartsChannel) {
 		for logParts := range srv.channel {
+			log.Debugf("PARTS %v", logParts)
 			var cfLog entities.CuriefenseLog
 			if !strings.HasPrefix(logParts["content"].(string), "nginx: ") {
 				continue
 			}
 			content := strings.TrimPrefix(logParts["content"].(string), "nginx: ")
+			log.Debugf("CONTENT %v", content)
 			err := json.Unmarshal([]byte(content), &cfLog)
 			if err != nil {
 				log.Errorf("Error occurred during unmarshalling. Error: %s", err.Error())

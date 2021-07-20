@@ -105,28 +105,41 @@ export default Vue.extend({
 
   methods: {
 
-    loadAutocompleteSuggestions() {
+    async loadAutocompleteSuggestions() {
       this.tagsSuggestionsLoading = true
-      RequestsUtils.sendRequest('GET',
-          `db/${this.db}/k/${this.key}/`).then((response: AxiosResponse<TagsDatabaseDocument>) => {
-        this.buildTagsSuggestionsFromData(response.data)
-        this.tagsSuggestionsLoading = false
-        if (this.tagsAddedWhileSuggestionsLoading.length > 0) {
-          this.addUnknownTagsToDB(this.tagsAddedWhileSuggestionsLoading)
-          this.tagsAddedWhileSuggestionsLoading = []
-        }
-      }).catch(() => {
-        // key does not exist, check if db exists
-        RequestsUtils.sendRequest('GET', `db/${this.db}/`).then(async () => {
+      const response: AxiosResponse<TagsDatabaseDocument> = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `db/${this.db}/k/${this.key}/`,
+        onFail: async () => {
+          // key does not exist, check if db exists
+          await RequestsUtils.sendRequest({
+            methodName: 'GET',
+            url: `db/${this.db}/`,
+            onFail: async () => {
+              // db doest not exist, key does not exist -> create a db with key
+              await RequestsUtils.sendRequest({
+                methodName: 'POST',
+                url: `db/${this.db}/`,
+                data: this.defaultDatabaseData,
+              })
+              this.tagsSuggestionsLoading = false
+            },
+          })
           // db exits, key does not exist -> create a key
-          await RequestsUtils.sendRequest('PUT', `db/${this.db}/k/${this.key}/`, this.defaultKeyData)
+          await RequestsUtils.sendRequest({
+            methodName: 'PUT',
+            url: `db/${this.db}/k/${this.key}/`,
+            data: this.defaultKeyData,
+          })
           this.tagsSuggestionsLoading = false
-        }).catch(async () => {
-          // db doest not exist, key does not exist -> create a db with key
-          await RequestsUtils.sendRequest('POST', `db/${this.db}/`, this.defaultDatabaseData)
-          this.tagsSuggestionsLoading = false
-        })
+        },
       })
+      this.buildTagsSuggestionsFromData(response.data)
+      this.tagsSuggestionsLoading = false
+      if (this.tagsAddedWhileSuggestionsLoading.length > 0) {
+        this.addUnknownTagsToDB(this.tagsAddedWhileSuggestionsLoading)
+        this.tagsAddedWhileSuggestionsLoading = []
+      }
     },
 
     buildTagsSuggestionsFromData(data: TagsDatabaseDocument) {
@@ -180,7 +193,7 @@ export default Vue.extend({
         return
       }
       // get current tags from DB
-      const response = await RequestsUtils.sendRequest('GET', `db/${this.db}/k/${this.key}/`)
+      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: `db/${this.db}/k/${this.key}/`})
       const document = {...this.defaultKeyData, ...response.data}
       // add each new tag to neutral group if does not exist anywhere
       for (let i = 0; i < tags.length; i++) {
@@ -193,15 +206,17 @@ export default Vue.extend({
         }
       }
       // save to DB
-      RequestsUtils.sendRequest('PUT', `db/${this.db}/k/${this.key}/`, document).then(() => {
-        // rebuild the tags suggestion list after a successful save
-        this.buildTagsSuggestionsFromData(document)
-        console.log(
-            `saved to database the following tags list: [${tags.join(',')}],it will now be available for autocomplete!`,
-        )
+      await RequestsUtils.sendRequest({
+        methodName: 'PUT',
+        url: `db/${this.db}/k/${this.key}/`,
+        data: document,
       })
+      // rebuild the tags suggestion list after a successful save
+      this.buildTagsSuggestionsFromData(document)
+      console.log(
+        `saved to database the following tags list: [${tags.join(',')}],it will now be available for autocomplete!`,
+      )
     },
-
   },
 
   created() {

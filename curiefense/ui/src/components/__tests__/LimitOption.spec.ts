@@ -7,7 +7,6 @@ import Vue from 'vue'
 describe('LimitOption.vue', () => {
   let option: OptionObject
   let wrapper: Wrapper<Vue>
-
   beforeEach(async () => {
     option = {
       type: 'self',
@@ -178,7 +177,6 @@ describe('LimitOption.vue', () => {
 
   describe('emit changes', () => {
     describe('type dropdown', () => {
-
       test('should emit new option when type selected from dropdown - self', async () => {
         const wantedEmit = {
           type: 'self',

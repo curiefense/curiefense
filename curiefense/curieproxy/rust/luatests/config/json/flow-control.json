@@ -1,7 +1,9 @@
 [
     {
         "exclude": [],
-        "include": ["all"],
+        "include": [
+            "all"
+        ],
         "name": "Flow Control same uri",
         "key": [
             {
@@ -16,7 +18,9 @@
                 "headers": {
                     "host": "www.example.com"
                 },
-                "args": {"step": "^1$"}
+                "args": {
+                    "step": "^1$"
+                }
             },
             {
                 "method": "GET",
@@ -25,7 +29,9 @@
                 "headers": {
                     "host": "www.example.com"
                 },
-                "args": {"step": "^2$"}
+                "args": {
+                    "step": "^2$"
+                }
             },
             {
                 "method": "GET",
@@ -34,7 +40,9 @@
                 "headers": {
                     "host": "www.example.com"
                 },
-                "args": {"step": "^3$"}
+                "args": {
+                    "step": "^3$"
+                }
             }
         ],
         "active": true,
@@ -46,8 +54,12 @@
         "id": "c03dabe4b9ca"
     },
     {
-        "exclude": ["deny"],
-        "include": ["all"],
+        "exclude": [
+            "deny"
+        ],
+        "include": [
+            "all"
+        ],
         "name": "Flow Control (simple)",
         "key": [
             {
@@ -87,6 +99,51 @@
         "notes": "abc",
         "action": {
             "type": "default"
+        },
+        "ttl": 4,
+        "id": "d03dabe4b9ca"
+    },
+    {
+        "exclude": [],
+        "include": [
+            "all"
+        ],
+        "name": "Flow Control (ban)",
+        "key": [
+            {
+                "attrs": "ip"
+            }
+        ],
+        "sequence": [
+            {
+                "method": "GET",
+                "uri": "/rlban1",
+                "cookies": {},
+                "headers": {
+                    "host": "www.example.com"
+                },
+                "args": {}
+            },
+            {
+                "method": "GET",
+                "uri": "/rlban2",
+                "cookies": {},
+                "headers": {
+                    "host": "www.example.com"
+                },
+                "args": {}
+            }
+        ],
+        "active": true,
+        "notes": "abc",
+        "action": {
+            "type": "ban",
+            "params": {
+                "ttl": "3600",
+                "action": {
+                    "type": "default"
+                }
+            }
         },
         "ttl": 4,
         "id": "d03dabe4b9ca"

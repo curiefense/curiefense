@@ -14,7 +14,7 @@ impl Default for RequestField {
 }
 
 impl RequestField {
-    pub fn add(&mut self, key: String, value: String) {
+    fn base_add(&mut self, key: String, value: String) {
         self.0
             .entry(key)
             .and_modify(|v| {
@@ -22,6 +22,19 @@ impl RequestField {
                 v.push_str(&value);
             })
             .or_insert(value);
+    }
+
+    pub fn add(&mut self, key: String, value: String) {
+        // try to insert each value as its decoded base64 version, if it makes sense
+        if !value.is_empty() {
+            if let Ok(b64decoded) = base64::decode(value.as_bytes()) {
+                if let Ok(b64value) = String::from_utf8(b64decoded) {
+                    let nkey = key.clone() + "_base64";
+                    self.base_add(nkey, b64value);
+                }
+            }
+        }
+        self.base_add(key, value);
     }
 
     pub fn get(&self, k: &str) -> Option<&String> {

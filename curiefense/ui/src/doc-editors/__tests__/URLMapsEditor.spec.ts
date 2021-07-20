@@ -389,6 +389,23 @@ describe('URLMapsEditor.vue', () => {
       expect(entryRateLimitsRows.length).toEqual(urlMapsDocs[0].map[0].limit_ids.length + 1)
     })
 
+    test('should not add a rate limit if nothing is selected in dropdown', async () => {
+      const table = wrapper.find('.entries-table')
+      const entryRow = table.findAll('.entry-row').at(0)
+      entryRow.trigger('click')
+      await Vue.nextTick()
+      const currentEntryRow = table.findAll('.current-entry-row').at(0)
+      const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
+      const addButton = entryRateLimitsTable.find('.rate-limit-add-button')
+      addButton.trigger('click')
+      await Vue.nextTick()
+      const confirmAddButton = entryRateLimitsTable.find('.rate-limit-confirm-add-button')
+      confirmAddButton.trigger('click')
+      await Vue.nextTick()
+      const entryRateLimitsRows = entryRateLimitsTable.findAll('.rate-limit-row')
+      expect(entryRateLimitsRows.length).toEqual(urlMapsDocs[0].map[0].limit_ids.length)
+    })
+
     test('should remove selected rate limit from table', async () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(0)

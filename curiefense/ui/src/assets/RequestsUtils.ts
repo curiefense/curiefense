@@ -16,7 +16,7 @@ const axiosMethodsMap: Record<MethodNames, Function> = {
 }
 
 const processRequest = (methodName: MethodNames, apiUrl: string, data: any, config: AxiosRequestConfig,
-                        successMessage: string, failureMessage: string, undoFunction: () => any) => {
+                        successMessage: string, failureMessage: string, undoFunction: () => any, onFail?: Function) => {
   // Get correct axios method
   if (!methodName) {
     methodName = 'GET'
@@ -56,15 +56,29 @@ const processRequest = (methodName: MethodNames, apiUrl: string, data: any, conf
     if (failureMessage) {
       Utils.toast(failureMessage, 'is-danger', undoFunction)
     }
-    throw error
+    if (typeof onFail === 'function') {
+      onFail();
+    }
+    console.error( error )
   })
   return request
 }
 
-const sendRequest = (methodName: MethodNames, urlTail: string, data?: any, config?: AxiosRequestConfig,
-                     successMessage?: string, failureMessage?: string, undoFunction?: () => any) => {
-  const apiUrl = `${confAPIRoot}/${confAPIVersion}/${urlTail}`
-  return processRequest(methodName, apiUrl, data, config, successMessage, failureMessage, undoFunction)
+export interface IRequestParams {
+  methodName: MethodNames,
+  url: string,
+  data?: any,
+  config?: AxiosRequestConfig,
+  successMessage?: string,
+  failureMessage?: string,
+  undoFunction?: () => any,
+  onFail?: Function,
+}
+
+const sendRequest = (requestParams: IRequestParams) => {
+  const {methodName, url, data, config, successMessage, failureMessage, undoFunction, onFail} = requestParams
+  const apiUrl = `${confAPIRoot}/${confAPIVersion}/${url}`
+  return processRequest(methodName, apiUrl, data, config, successMessage, failureMessage, undoFunction, onFail)
 }
 
 export default {

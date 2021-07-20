@@ -6,7 +6,7 @@
           <div class="columns">
             <div class="column">
               <div class="field is-grouped">
-                <div class="control">
+                <div class="control" v-if="branchNames.length">
                   <div class="select is-small">
                     <select v-model="selectedBranch"
                             title="Switch branch"
@@ -311,7 +311,7 @@ export default Vue.extend({
       // store configs
       let configs
       try {
-        const response = await RequestsUtils.sendRequest('GET', 'configs/')
+        const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
         configs = response.data
       } catch (err) {
         console.log('Error while attempting to get configs')
@@ -330,9 +330,11 @@ export default Vue.extend({
         const doctype: DocumentType = docTypes[i] as DocumentType
         const branch = this.selectedBranch
         try {
-          const response = await RequestsUtils.sendRequest('GET',
-              `configs/${branch}/d/${doctype}/`, null,
-              {headers: {'x-fields': this.componentsMap[doctype].fields}})
+          const response = await RequestsUtils.sendRequest({
+            methodName: 'GET',
+            url: `configs/${branch}/d/${doctype}/`,
+            config: {headers: {'x-fields': this.componentsMap[doctype].fields}},
+          })
           for (let j = 0; j < response.data.length; j++) {
             const doc = response.data[j]
             doc.docType = doctype

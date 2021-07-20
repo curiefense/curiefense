@@ -10,7 +10,7 @@ use std::collections::{HashMap, HashSet};
 #[derive(Debug, Clone)]
 pub enum SimpleDecision {
     Pass,
-    Action(SimpleAction, Option<serde_json::Value>),
+    Action(SimpleAction, serde_json::Value),
 }
 
 #[derive(Debug, Clone)]
@@ -35,11 +35,19 @@ impl Decision {
     }
 
     pub fn to_json(&self, rinfo: RequestInfo, tags: Tags, logs: Logs) -> String {
+        let mut tgs = tags;
         let (action_desc, response) = match self {
             Decision::Pass => ("pass", None),
             Decision::Action(a) => ("custom_response", Some(a)),
         };
-        let request_map = rinfo.into_json(tags);
+        if let Decision::Action(a) = &self {
+            if let Some(extra) = &a.extra_tags {
+                for t in extra {
+                    tgs.insert(t);
+                }
+            }
+        }
+        let request_map = rinfo.into_json(tgs);
         let j = serde_json::json!({
             "request_map": request_map,
             "action": action_desc,
@@ -49,10 +57,19 @@ impl Decision {
         serde_json::to_string(&j).unwrap_or_else(|_| "{}".to_string())
     }
 
+    /// is the action blocking (not passed to the underlying server)
     pub fn is_blocking(&self) -> bool {
         match self {
             Decision::Pass => false,
             Decision::Action(a) => a.atype.is_blocking(),
+        }
+    }
+
+    /// is the action final (no further processing)
+    pub fn is_final(&self) -> bool {
+        match self {
+            Decision::Pass => false,
+            Decision::Action(a) => a.atype.is_final(),
         }
     }
 }
@@ -124,7 +141,7 @@ pub struct Action {
 pub enum SimpleActionT {
     Default,
     Monitor,
-    Ban(Box<SimpleAction>),
+    Ban(Box<SimpleAction>, u64), // ttl
     RequestHeader(HashMap<String, String>),
     Response(String),
     Redirect(String),
@@ -154,8 +171,14 @@ pub enum ActionType {
 }
 
 impl ActionType {
+    /// is the action blocking (not passed to the underlying server)
     pub fn is_blocking(&self) -> bool {
         matches!(self, ActionType::Block)
+    }
+
+    /// is the action final (no further processing)
+    pub fn is_final(&self) -> bool {
+        !matches!(self, ActionType::Monitor)
     }
 }
 
@@ -165,7 +188,7 @@ impl std::default::Default for Action {
             atype: ActionType::Block,
             block_mode: true,
             ban: false,
-            status: 503,
+            status: 403,
             headers: None,
             reason: serde_json::value::Value::Null,
             content: "curiefense - request denied".to_string(),
@@ -178,7 +201,7 @@ impl SimpleAction {
     pub fn from_reason(reason: String) -> Self {
         SimpleAction {
             atype: SimpleActionT::default(),
-            status: 503,
+            status: 403,
             reason,
         }
     }
@@ -187,18 +210,46 @@ impl SimpleAction {
         let atype = match rawaction.type_ {
             RawActionType::Default => SimpleActionT::Default,
             RawActionType::Monitor => SimpleActionT::Monitor,
-            RawActionType::Ban => SimpleActionT::Ban(Box::new(
+            RawActionType::Ban => SimpleActionT::Ban(
+                Box::new(
+                    rawaction
+                        .params
+                        .action
+                        .as_ref()
+                        .map(|x| SimpleAction::resolve(x).ok())
+                        .flatten()
+                        .unwrap_or_else(|| {
+                            SimpleAction::from_reason(rawaction.params.reason.clone().unwrap_or_else(|| "?".into()))
+                        }),
+                ),
                 rawaction
                     .params
-                    .action
+                    .ttl
                     .as_ref()
-                    .map(|x| SimpleAction::resolve(x).ok())
-                    .flatten()
-                    .unwrap_or_else(|| {
-                        SimpleAction::from_reason(rawaction.params.reason.clone().unwrap_or_else(|| "?".into()))
-                    }),
-            )),
-            RawActionType::RequestHeader => SimpleActionT::RequestHeader(HashMap::new()),
+                    .and_then(|s| s.parse::<u64>().ok())
+                    .unwrap_or(3600),
+            ),
+            RawActionType::RequestHeader => {
+                let header_line = rawaction
+                    .params
+                    .headers
+                    .clone()
+                    .ok_or_else(|| anyhow::anyhow!("no header for request headers rule {:?}", rawaction))?;
+                let mut splitted = header_line.splitn(2, ": ");
+                let header_name = splitted
+                    .next()
+                    .ok_or_else(|| anyhow::anyhow!("Malformed header line {}", header_line))?;
+                let header_value = splitted
+                    .next()
+                    .ok_or_else(|| anyhow::anyhow!("Malformed header line {}", header_line))?;
+
+                SimpleActionT::RequestHeader(
+                    [(header_name, header_value)]
+                        .iter()
+                        .map(|(k, v)| (k.to_string(), v.to_string()))
+                        .collect(),
+                )
+            }
             RawActionType::Response => SimpleActionT::Response(
                 rawaction
                     .params
@@ -221,7 +272,7 @@ impl SimpleAction {
                 Err(rr) => return Err(anyhow::anyhow!("Unparseable status: {} -> {}", sstatus, rr)),
             }
         } else {
-            503
+            403
         };
         Ok(SimpleAction {
             atype,
@@ -236,7 +287,7 @@ impl SimpleAction {
         match &self.atype {
             SimpleActionT::Default => {}
             SimpleActionT::Monitor => action.atype = ActionType::Monitor,
-            SimpleActionT::Ban(sub) => {
+            SimpleActionT::Ban(sub, _) => {
                 action = sub.to_action(is_human).unwrap_or_default();
                 action.ban = true;
             }
@@ -256,6 +307,7 @@ impl SimpleAction {
             }
             SimpleActionT::Redirect(to) => {
                 let mut headers = HashMap::new();
+                action.content = "You are being redirected".into();
                 headers.insert("Location".into(), to.clone());
                 action.atype = ActionType::Block;
                 action.headers = Some(headers);
@@ -271,7 +323,7 @@ impl SimpleAction {
         is_human: bool,
         mgh: &Option<GH>,
         headers: &RequestField,
-        reason: Option<serde_json::Value>,
+        reason: serde_json::Value,
     ) -> Decision {
         let mut action = match self.to_action(is_human) {
             None => match (mgh, headers.get("user-agent")) {
@@ -280,20 +332,16 @@ impl SimpleAction {
             },
             Some(a) => a,
         };
-        if let Some(r) = reason {
-            action.reason = r;
-        }
+        action.reason = reason;
         Decision::Action(action)
     }
 
-    pub fn to_decision_no_challenge(&self, reason: Option<serde_json::Value>) -> Decision {
+    pub fn to_decision_no_challenge(&self, reason: serde_json::Value) -> Decision {
         let mut action = match self.to_action(true) {
             None => Action::default(),
             Some(a) => a,
         };
-        if let Some(r) = reason {
-            action.reason = r;
-        }
+        action.reason = reason;
         Decision::Action(action)
     }
 }

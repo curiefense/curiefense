@@ -42,7 +42,8 @@
       "items": {
         "type": "string"
       },
-      "uniqueItems": true
+      "uniqueItems": true,
+      "minItems": 1
     },
     "action": {
         "type": "object",

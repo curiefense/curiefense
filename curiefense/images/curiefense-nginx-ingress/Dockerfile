@@ -5,7 +5,7 @@ FROM docker.io/openresty/openresty:focal as openresty
 
 USER root
 RUN groupadd --system --gid 101 nginx \
-    && useradd --system --gid nginx --no-create-home --home-dir /nonexistent --comment "nginx user" --shell /bin/false --uid 101 nginx 
+    && useradd --system --gid nginx --no-create-home --home-dir /nonexistent --comment "nginx user" --shell /bin/false --uid 101 nginx
 
 RUN apt-get update \
     && apt-get install -y \
@@ -34,19 +34,25 @@ COPY init /curiesync
 COPY --from=nginx-ingress /nginx* /
 
 RUN mkdir -p /var/lib/nginx /etc/nginx/secrets /etc/nginx/stream-conf.d /var/cache/nginx \
-        && mkdir -p /var/lib/openresty /var/run/openresty /var/cache/openresty \
-        && ln -sf /usr/local/openresty/nginx/sbin/nginx /usr/sbin/nginx \
-        && ln -sf /usr/local/openresty/nginx/conf/* /etc/nginx/ \
+    && mkdir -p /var/lib/openresty /var/run/openresty /var/cache/openresty \
+    && ln -sf /usr/local/openresty/nginx/sbin/nginx /usr/sbin/nginx \
+    && ln -sf /usr/local/openresty/nginx/conf/* /etc/nginx/ \
 	&& chown -R nginx:0 /etc/nginx /etc/nginx/secrets /var/cache/nginx /var/lib/nginx /nginx* \
-        && chown -R nginx:0 /var/lib/openresty /var/run/openresty /var/cache/openresty /usr/local/openresty \
+    && chown -R nginx:0 /var/lib/openresty /var/run/openresty /var/cache/openresty /usr/local/openresty \
 	&& setcap 'cap_net_bind_service=+ep' /usr/local/openresty/nginx/sbin/nginx \
 	&& setcap -v 'cap_net_bind_service=+ep' /usr/local/openresty/nginx/sbin/nginx  \
-	&& rm -f /etc/nginx/conf.d/*
+	&& rm -f /etc/nginx/conf.d/* \
+    && mkdir -p /var/lib/syslog \
+    && touch /var/log/syslog \
+	&& setcap 'cap_net_bind_service=+ep' /usr/sbin/rsyslogd  \
+	&& setcap -v 'cap_net_bind_service=+ep' /usr/sbin/rsyslogd  \
+    && chown -R nginx:0 /var/lib/syslog /var/log/syslog
 
-RUN sed -i "/^http {/a log_format curiefenselog escape=none '$request_map';" /nginx.tmpl \
+
+RUN sed -i "/^http {/a log_format curiefenselog escape=none '\$request_map';" /nginx.tmpl \
+        && sed -i "/^http {/a map \$status \$request_map { default '-'; }" /nginx.tmpl \
         && sed -i "/^http {/a lua_package_path '/lua/?.lua;;';" /nginx.tmpl
 
-RUN openssl req -new -newkey rsa:4096 -days 3650 -nodes -x509 -subj "/C=fr/O=curiefense/CN=testsystem" -keyout /etc/ssl/certificate.key -out /etc/ssl/certificate.crt
 
 COPY curieproxy/lua/shared-objects/*.so /usr/local/lib/lua/5.1/
 COPY --from=rustbin /root/curiefense.so /usr/local/lib/lua/5.1/

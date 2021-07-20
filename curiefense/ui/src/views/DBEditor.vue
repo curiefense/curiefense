@@ -6,7 +6,7 @@
           <div class="columns">
             <div class="column">
               <div class="field is-grouped">
-                <div class="control">
+                <div class="control" v-if="databases.length">
                   <div class="select is-small">
                     <select class="database-selection"
                             title="Switch database"
@@ -25,6 +25,7 @@
                   <button class="button is-small fork-database-button"
                           :class="{'is-loading': isForkDatabaseLoading}"
                           @click="forkDatabase"
+                          :disabled="!selectedDatabase"
                           title="Duplicate database">
                     <span class="icon is-small">
                       <i class="fas fa-clone"></i>
@@ -35,6 +36,7 @@
                 <p class="control">
                   <button class="button is-small download-database-button"
                      @click="downloadDatabase"
+                     :disabled="!selectedDatabase"
                      title="Download database">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
@@ -68,7 +70,7 @@
             </div>
             <div class="column">
               <div class="field is-grouped is-pulled-right">
-                <div class="control">
+                <div class="control" v-if="keys.length">
                   <div class="select is-small">
                     <select class="key-selection"
                             title="Switch key"
@@ -87,6 +89,7 @@
                   <button class="button is-small fork-key-button"
                           :class="{'is-loading': isForkKeyLoading}"
                           @click="forkKey"
+                          :disabled="!selectedDatabase"
                           title="Duplicate Key">
                     <span class="icon is-small">
                       <i class="fas fa-clone"></i>
@@ -97,6 +100,7 @@
                 <p class="control">
                   <button class="button is-small download-key-button"
                      @click="downloadKey"
+                     :disabled="!document"
                      title="Download Key">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
@@ -108,6 +112,7 @@
                   <button class="button is-small new-key-button"
                           :class="{'is-loading': isNewKeyLoading}"
                           @click="addNewKey()"
+                          :disabled="!selectedDatabase"
                           title="Add New Key">
                     <span class="icon is-small">
                       <i class="fas fa-plus"></i>
@@ -206,6 +211,7 @@
         <hr/>
         <git-history :gitLog="gitLog"
                      :apiPath="gitAPIPath"
+                     :loading="loadingGitlog"
                      @restore-version="restoreGitVersion"></git-history>
       </div>
 
@@ -249,7 +255,7 @@ import Utils from '@/assets/Utils.ts'
 import GitHistory from '@/components/GitHistory.vue'
 import JSONEditor from 'jsoneditor'
 import Vue from 'vue'
-import {Commit} from '@/types'
+import {Commit, GenericObject} from '@/types'
 import {AxiosResponse} from 'axios'
 
 export default Vue.extend({
@@ -285,10 +291,11 @@ export default Vue.extend({
       keyNameInput: '',
       defaultKeyName: 'publishinfo',
 
-      selectedDatabaseData: null,
+      selectedDatabaseData: {} as GenericObject,
       document: null,
 
       gitLog: [] as Commit[],
+      loadingGitlog: false,
 
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
@@ -326,7 +333,6 @@ export default Vue.extend({
       }
       return true
     },
-
   },
 
   methods: {
@@ -337,8 +343,8 @@ export default Vue.extend({
 
     async loadDatabases() {
       this.setLoadingDocStatus(true)
-      await RequestsUtils.sendRequest('GET', 'db/').then((response: AxiosResponse<string[]>) => {
-        this.databases = response.data
+      await RequestsUtils.sendRequest({methodName: 'GET', url: 'db/'}).then((response: AxiosResponse<string[]>) => {
+        this.databases = response?.data || []
         console.log('Databases: ', this.databases)
         this.loadFirstDatabase()
       })
@@ -346,7 +352,7 @@ export default Vue.extend({
     },
 
     loadFirstDatabase() {
-      const database = this.databases[0]
+      const database = this.databases?.[0]
       if (database) {
         this.loadDatabase(database)
       } else {
@@ -358,7 +364,8 @@ export default Vue.extend({
       this.setLoadingDocStatus(true)
       this.selectedDatabase = database
       this.databaseNameInput = this.selectedDatabase
-      this.selectedDatabaseData = (await RequestsUtils.sendRequest('GET', `db/${this.selectedDatabase}/`)).data
+      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: `db/${this.selectedDatabase}/`})
+      this.selectedDatabaseData = response?.data || {}
       this.initDatabaseKeys()
       this.setLoadingDocStatus(false)
     },
@@ -383,7 +390,7 @@ export default Vue.extend({
         successMessage = `Database "${database}" was deleted.`
         failureMessage = `Failed while attempting to delete database "${database}".`
       }
-      await RequestsUtils.sendRequest('DELETE', `db/${database}/`, null, null, successMessage, failureMessage)
+      await RequestsUtils.sendRequest({methodName: 'DELETE', url: `db/${database}/`, successMessage, failureMessage})
       if (!this.databases.includes(this.selectedDatabase)) {
         this.loadFirstDatabase()
       }
@@ -398,11 +405,13 @@ export default Vue.extend({
       if (!data) {
         data = {key: {}}
       }
-      await RequestsUtils.sendRequest('PUT',
-          `db/${newDatabase}/`,
-          data, null,
-          `Database "${newDatabase}" was saved`,
-          `Failed while attempting to create the new database.`).then(() => {
+      await RequestsUtils.sendRequest({
+        methodName: 'PUT',
+        url: `db/${newDatabase}/`,
+        data,
+        successMessage: `Database "${newDatabase}" was saved`,
+        failureMessage: `Failed while attempting to create the new database.`,
+      }).then(() => {
         this.loadDatabase(newDatabase)
         this.databases.unshift(newDatabase)
       })
@@ -435,13 +444,13 @@ export default Vue.extend({
 
     saveKey(database: string, key: string, doc: string) {
       const parsedDoc = JSON.parse(doc)
-
-      return RequestsUtils.sendRequest('PUT',
-          `db/${database}/k/${key}/`,
-          parsedDoc,
-          null,
-          `Key "${key}" in database "${database}" was saved.`,
-          `Failed while attempting to save key "${key}" in database "${database}".`)
+      return RequestsUtils.sendRequest({
+        methodName: 'PUT',
+        url: `db/${database}/k/${key}/`,
+        data: parsedDoc,
+        successMessage: `Key "${key}" in database "${database}" was saved.`,
+        failureMessage: `Failed while attempting to save key "${key}" in database "${database}".`,
+      })
     },
 
     switchKey() {
@@ -465,7 +474,12 @@ export default Vue.extend({
         successMessage = `Key "${key}" in database "${database}" was deleted.`
         failureMessage = `Failed while attempting to delete key "${key}" in database "${database}".`
       }
-      await RequestsUtils.sendRequest('DELETE', `db/${database}/k/${key}/`, null, null, successMessage, failureMessage)
+      await RequestsUtils.sendRequest({
+        methodName: 'DELETE',
+        url: `db/${database}/k/${key}/`,
+        successMessage,
+        failureMessage,
+      })
       if (!this.keys.includes(this.selectedKey)) {
         this.loadKey(this.keys[0])
       }
@@ -473,6 +487,9 @@ export default Vue.extend({
     },
 
     async addNewKey(newKey?: string, newDocument?: string) {
+      if (!this.selectedDatabase) {
+        return
+      }
       this.isNewKeyLoading = true
       if (!newKey) {
         newKey = Utils.generateUniqueEntityName('new key', this.keys)
@@ -512,7 +529,7 @@ export default Vue.extend({
       } else if (this.selectedDatabase !== this.databaseNameInput) {
         // If database name changed -> Save the data under the new name and remove the old database
         const oldDatabase = this.selectedDatabase
-        const oldDataResponse = await RequestsUtils.sendRequest('GET', `db/${oldDatabase}/`)
+        const oldDataResponse = await RequestsUtils.sendRequest({methodName: 'GET', url: `db/${oldDatabase}/`})
         const data = oldDataResponse.data
         const oldKey = this.selectedKey
         delete data[oldKey]
@@ -530,9 +547,11 @@ export default Vue.extend({
     },
 
     async loadGitLog() {
-      const urlTrail = `db/${this.selectedDatabase}/k/${this.selectedKey}/v/`
-      const response = await RequestsUtils.sendRequest('GET', urlTrail)
-      this.gitLog = response.data
+      this.loadingGitlog = true
+      const url = `db/${this.selectedDatabase}/k/${this.selectedKey}/v/`
+      const response = await RequestsUtils.sendRequest({methodName: 'GET', url})
+      this.gitLog = response?.data
+      this.loadingGitlog = false
     },
 
     async restoreGitVersion(gitVersion: Commit) {
@@ -540,13 +559,12 @@ export default Vue.extend({
       const selectedKey = this.selectedKey
       const versionId = gitVersion.version
       const urlTrail = `${database}/v/${versionId}/`
-
-      await RequestsUtils.sendRequest('PUT',
-          `db/${urlTrail}revert/`,
-          null,
-          null,
-          `Database [${database}] restored to version [${versionId}]!`,
-          `Failed restoring database [${database}] to version [${versionId}]!`)
+      await RequestsUtils.sendRequest({
+        methodName: 'PUT',
+        url: `db/${urlTrail}revert/`,
+        successMessage: `Database [${database}] restored to version [${versionId}]!`,
+        failureMessage: `Failed restoring database [${database}] to version [${versionId}]!`,
+      })
       await this.loadDatabase(database)
       // load last loaded key if still exists
       const oldSelectedKey = this.keys.find((key) => {
