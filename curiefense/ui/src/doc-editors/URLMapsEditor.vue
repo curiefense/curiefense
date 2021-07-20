@@ -363,7 +363,6 @@ export default (Vue as VueConstructor<Vue & {
     apiPath: String,
   },
 
-
   data() {
     return {
       mapEntryIndex: -1,
@@ -415,29 +414,41 @@ export default (Vue as VueConstructor<Vue & {
       }
     },
 
+    isURLValid( url: string ) {
+      const URL_REGEX = /^[A-Za-z0-9]+[A-Za-z0-9%-._~:/?#[\]@!$&'()*+,;=]*$/g
+      return URL_REGEX.test( url )
+    },
+
     isSelectedDomainMatchValid(): boolean {
       const newDomainMatch = this.localDoc.match?.trim()
       const isDomainMatchEmpty = newDomainMatch === ''
       const isDomainMatchDuplicate = this.domainNames.includes(
-          newDomainMatch) ? this.initialDocDomainMatch !== newDomainMatch : false
-      return !isDomainMatchEmpty && !isDomainMatchDuplicate
+        newDomainMatch,
+      ) ? this.initialDocDomainMatch !== newDomainMatch : false
+      const domainMatchContainsInvalidCharacters = !newDomainMatch.length || this.isURLValid( newDomainMatch )
+      return !isDomainMatchEmpty && !isDomainMatchDuplicate && domainMatchContainsInvalidCharacters
     },
 
     isSelectedMapEntryMatchValid(index: number): boolean {
       const newMapEntryMatch = this.localDoc.map[index] ? this.localDoc.map[index].match.trim() : ''
-      const isMapEntryMatchEmpty = newMapEntryMatch === ''
-      const isMapEntryMatchDuplicate = this.entriesMatchNames.includes(
-          newMapEntryMatch) ? this.initialMapEntryMatch !== newMapEntryMatch : false
-      return !isMapEntryMatchEmpty && !isMapEntryMatchDuplicate
+      let isValid = newMapEntryMatch.startsWith( '/' )
+      if ( isValid ) {
+        const unslashedValue = newMapEntryMatch.substring(1)
+        const mapEntryMatchContainsInvalidCharacters = !unslashedValue.length || this.isURLValid( unslashedValue )
+        const isMapEntryMatchEmpty = newMapEntryMatch === ''
+        const isMapEntryMatchDuplicate = this.entriesMatchNames.includes(
+          newMapEntryMatch,
+        ) ? this.initialMapEntryMatch !== newMapEntryMatch : false
+        isValid = !isMapEntryMatchEmpty && !isMapEntryMatchDuplicate && mapEntryMatchContainsInvalidCharacters
+      }
+      return isValid
     },
 
-    aclProfileName(id: string): [string, string] {
-      return _.find(this.aclProfileNames, (profile) => {
-        return profile[0] === id
-      })
+    aclProfileName(id: string): string[] {
+      return _.find(this.aclProfileNames, (profile) => profile[0] === id)
     },
 
-    wafProfileName(id: string): [string, string] {
+    wafProfileName(id: string): string[] {
       return _.find(this.wafProfileNames, (profile) => {
         return profile[0] === id
       })

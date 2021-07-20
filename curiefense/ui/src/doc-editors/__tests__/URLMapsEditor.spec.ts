@@ -455,6 +455,15 @@ describe('URLMapsEditor.vue', () => {
       expect(wrapper.emitted('form-invalid')[0]).toEqual([true])
     })
 
+    test('should emit form is invalid when filling match with illegal characters', async () => {
+      const input = wrapper.find('.document-domain-name');
+      (input.element as HTMLInputElement).value = 'БЮ'
+      input.trigger('input')
+      await Vue.nextTick()
+      expect(wrapper.emitted('form-invalid')).toBeTruthy()
+      expect(wrapper.emitted('form-invalid')[0]).toEqual([true])
+    })
+
     test('should emit form is valid when changing match to valid one', async () => {
       const input = wrapper.find('.document-domain-name');
       (input.element as HTMLInputElement).value = urlMapsDocs[0].match
@@ -475,6 +484,20 @@ describe('URLMapsEditor.vue', () => {
       const currentEntryRow = table.findAll('.current-entry-row').at(0)
       const entryMatch = currentEntryRow.find('.current-entry-match');
       (entryMatch.element as HTMLInputElement).value = urlMapsDocs[1].map[1].match
+      entryMatch.trigger('input')
+      await Vue.nextTick()
+      expect(wrapper.emitted('form-invalid')).toBeTruthy()
+      expect(wrapper.emitted('form-invalid')[0]).toEqual([true])
+    })
+
+    test('should emit form is invalid when filling map entry match with unacceptable characters', async () => {
+      const table = wrapper.find('.entries-table')
+      const entryRow = table.findAll('.entry-row').at(0)
+      entryRow.trigger('click')
+      await Vue.nextTick()
+      const currentEntryRow = table.findAll('.current-entry-row').at(0)
+      const entryMatch = currentEntryRow.find('.current-entry-match');
+      (entryMatch.element as HTMLInputElement).value = '/א'
       entryMatch.trigger('input')
       await Vue.nextTick()
       expect(wrapper.emitted('form-invalid')).toBeTruthy()
