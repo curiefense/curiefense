@@ -1,5 +1,5 @@
 import URLMapsEditor from '@/doc-editors/URLMapsEditor.vue'
-import {beforeEach, describe, expect, jest, test} from '@jest/globals'
+import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount, Wrapper} from '@vue/test-utils'
 import {ACLPolicy, RateLimit, URLMap, WAFPolicy} from '@/types'
 import axios from 'axios'
@@ -15,6 +15,7 @@ describe('URLMapsEditor.vue', () => {
   let rateLimitsDocs: RateLimit[]
   let wrapper: Wrapper<Vue>
   let mockRouter
+  let axiosGetSpy: any
   beforeEach(() => {
     urlMapsDocs = [
       {
@@ -145,8 +146,8 @@ describe('URLMapsEditor.vue', () => {
         'ttl': '60',
         'limit': '5',
         'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
-        'include': {headers: {}, cookies: {}, args: {}, attrs: {ip: '10.0.0.1', path: 'localhost'}},
-        'exclude': {headers: {}, cookies: {}, args: {foo: 'bar'}, attrs: {}},
+        'include': ['badpeople'],
+        'exclude': ['goodpeople'],
         'key': [{'attrs': 'ip'}],
         'pairwith': {'self': 'self'},
       },
@@ -157,13 +158,13 @@ describe('URLMapsEditor.vue', () => {
         'ttl': '60',
         'limit': '5',
         'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
-        'include': {headers: {}, cookies: {}, args: {}, attrs: {ip: '10.0.0.1', path: 'localhost'}},
-        'exclude': {headers: {}, cookies: {}, args: {foo: 'bar'}, attrs: {}},
+        'include': ['badpeople'],
+        'exclude': ['goodpeople'],
         'key': [{'attrs': 'ip'}],
         'pairwith': {'self': 'self'},
       },
     ]
-    jest.spyOn(axios, 'get').mockImplementation((path, config) => {
+    axiosGetSpy = jest.spyOn(axios, 'get').mockImplementation((path, config) => {
       if (!wrapper) {
         return Promise.resolve({data: []})
       }
@@ -209,6 +210,54 @@ describe('URLMapsEditor.vue', () => {
         $router: mockRouter,
       },
     })
+  })
+  afterEach(() => {
+    jest.clearAllMocks();
+  })
+
+  test('should not send new requests to API if document data updates but document ID does not', async () => {
+    // 4 requests - ACL Policies, WAF Policies, Rate Limits, URL Maps
+    expect(axiosGetSpy).toHaveBeenCalledTimes(4)
+    urlMapsDocs[0] = {
+      'id': '__default__',
+      'name': 'new name',
+      'match': 'example.com',
+      'map': [
+        {
+          'name': 'one',
+          'match': '/one',
+          'acl_profile': '5828321c37e0',
+          'acl_active': false,
+          'waf_profile': '009e846e819e',
+          'waf_active': true,
+          'limit_ids': ['365757ec0689'],
+        },
+        {
+          'name': 'two',
+          'match': '/two',
+          'acl_profile': '__default__',
+          'acl_active': true,
+          'waf_profile': '__default__',
+          'waf_active': false,
+          'limit_ids': ['f971e92459e2'],
+        },
+      ],
+    }
+    wrapper.setProps({
+      selectedDoc: urlMapsDocs[0],
+    })
+    await Vue.nextTick()
+    expect(axiosGetSpy).toHaveBeenCalledTimes(4)
+  })
+
+  test('should send a single new request to API if document data updates with new ID', async () => {
+    // 4 requests - ACL Policies, WAF Policies, Rate Limits, URL Maps
+    expect(axiosGetSpy).toHaveBeenCalledTimes(4)
+    wrapper.setProps({
+      selectedDoc: urlMapsDocs[1],
+    })
+    await Vue.nextTick()
+    expect(axiosGetSpy).toHaveBeenCalledTimes(5)
   })
 
   describe('form data', () => {

@@ -146,8 +146,9 @@
       <hr/>
 
       <div class="content document-editor-wrapper"
-           v-if="!loadingDocCounter && selectedBranch && selectedDocType && selectedDoc">
+           v-show="!loadingDocCounter">
         <component
+            v-if="selectedBranch && selectedDocType && selectedDoc"
             :is="componentsMap[selectedDocType].component"
             :selectedBranch.sync="selectedBranch"
             :selectedDoc.sync="selectedDoc"
@@ -165,7 +166,7 @@
       </div>
 
       <div class="content no-data-wrapper"
-           v-else>
+           v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc">
         <div v-if="loadingDocCounter > 0">
           <button class="button is-outlined is-text is-small is-loading document-loading">
             Loading

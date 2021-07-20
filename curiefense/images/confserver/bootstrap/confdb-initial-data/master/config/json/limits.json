@@ -8,18 +8,8 @@
         "action": {
             "type": "default"
         },
-        "include": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
-        "exclude": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": ["blocklist"],
+        "exclude": ["allowlist"],
         "key": [
             {
                 "attrs": "ip"

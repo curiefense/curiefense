@@ -59,7 +59,7 @@
                     removable ? 'has-text-grey' : 'has-text-grey-light is-disabled']"
             :disabled="!removable"
             class="remove-option-button"
-            title="click to remove"
+            title="Click to remove"
             @click="$emit('remove')">
           <span class="icon is-small"><i class="fas fa-trash fa-xs"></i></span>
         </button>

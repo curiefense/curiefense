@@ -92,14 +92,8 @@ describe('RequestsUtils.ts', () => {
       expect(document['key']).toEqual([{'attrs': 'ip'}])
       expect(document['action']).toEqual({'type': 'default'})
       expect(document['pairwith']).toEqual({'self': 'self'})
-      expect(document['exclude']['headers']).toEqual({})
-      expect(document['exclude']['cookies']).toEqual({})
-      expect(document['exclude']['args']).toEqual({})
-      expect(document['exclude']['attrs']).toEqual({'tags': 'allowlist'})
-      expect(document['include']['headers']).toEqual({})
-      expect(document['include']['cookies']).toEqual({})
-      expect(document['include']['args']).toEqual({})
-      expect(document['include']['attrs']).toEqual({'tags': 'blocklist'})
+      expect(document['exclude']).toEqual(['allowlist'])
+      expect(document['include']).toEqual(['blocklist'])
     })
 
     test('should generate a new Rate Limit', async () => {
