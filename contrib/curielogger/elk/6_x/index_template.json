@@ -160,7 +160,7 @@
                             "type": "keyword"
                         },
                         "headers": {
-                            "type": "keyword"
+                            "type": "object"
                         },
                         "headersbytes": {
                             "type": "integer"
