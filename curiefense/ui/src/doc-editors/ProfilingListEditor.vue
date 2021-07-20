@@ -221,7 +221,7 @@ export default Vue.extend({
       this.$emit('update:selectedDoc', this.localDoc)
     },
 
-    emitFormInvalid( isFormInvalid: boolean ) {
+    emitFormInvalid(isFormInvalid: boolean) {
       this.$emit('form-invalid', isFormInvalid)
     },
 

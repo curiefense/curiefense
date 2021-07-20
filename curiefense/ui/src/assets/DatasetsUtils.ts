@@ -95,6 +95,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'max_cookies_count': 42,
       'max_args_count': 512,
 
+      'min_headers_risk': 1,
+      'min_cookies_risk': 1,
+      'min_args_risk': 1,
+
       'args': {
         'names': [],
         'regex': [],
@@ -207,7 +211,12 @@ const newDocEntryFactory: { [key: string]: Function } = {
     return {
       'id': generateUUID2(),
       'name': 'New WAF Rule',
+      'risk': 1,
+      'msg': '',
+      'notes': '',
       'operand': '',
+      'category': '',
+      'subcategory': '',
     }
   },
 

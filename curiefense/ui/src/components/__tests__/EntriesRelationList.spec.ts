@@ -656,7 +656,7 @@ describe('EntriesRelationList.vue', () => {
       const removeEntryButton = section.find('.remove-entry-button')
       removeEntryButton.trigger('click')
       await Vue.nextTick()
-      expect(component.findAll('.section').length).toEqual(rule.sections.length-1)
+      expect(component.findAll('.section').length).toEqual(rule.sections.length - 1)
     })
   })
 
@@ -668,7 +668,7 @@ describe('EntriesRelationList.vue', () => {
     let newEntryRow: Wrapper<Vue>
     let confirmAddEntryButton: Wrapper<Vue>
     let options: WrapperArray<Vue>
-    beforeEach( async () => {
+    beforeEach(async () => {
       component = wrapper.findComponent(EntriesRelationList)
       // open new entry row
       const addEntryButton = component.find('.add-entry-button')

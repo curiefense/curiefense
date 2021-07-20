@@ -347,6 +347,9 @@ describe('DocumentSearch.vue', () => {
         'max_headers_count': 42,
         'max_cookies_count': 42,
         'max_args_count': 512,
+        'min_headers_risk': 1,
+        'min_cookies_risk': 1,
+        'min_args_risk': 1,
         'args': {'names': [], 'regex': []},
         'headers': {'names': [], 'regex': []},
         'cookies': {'names': [], 'regex': []},
@@ -463,8 +466,8 @@ describe('DocumentSearch.vue', () => {
     const options = searchTypeSelection.findAll('option')
     options.at(1).setSelected()
     await Vue.nextTick()
-    const searchInput = wrapper.find('.search-input');
-    (searchInput.element as HTMLInputElement).value = 'url map'
+    const searchInput = wrapper.find('.search-input')
+    searchInput.setValue('url map')
     searchInput.trigger('input')
     await Vue.nextTick()
 
@@ -491,8 +494,8 @@ describe('DocumentSearch.vue', () => {
       options.at(1).setSelected()
       await Vue.nextTick()
 
-      const searchInput = wrapper.find('.search-input');
-      (searchInput.element as HTMLInputElement).value = 'default'
+      const searchInput = wrapper.find('.search-input')
+      searchInput.setValue('default')
       searchInput.trigger('input')
       await Vue.nextTick()
 
@@ -520,8 +523,8 @@ describe('DocumentSearch.vue', () => {
       options.at(0).setSelected()
       await Vue.nextTick()
 
-      const searchInput = wrapper.find('.search-input');
-      (searchInput.element as HTMLInputElement).value = 'default'
+      const searchInput = wrapper.find('.search-input')
+      searchInput.setValue('default')
       searchInput.trigger('input')
       await Vue.nextTick()
       expect(isItemInFilteredDocs(aclDocs[0], 'aclpolicies')).toBeTruthy()
@@ -541,8 +544,8 @@ describe('DocumentSearch.vue', () => {
       options.at(1).setSelected()
       await Vue.nextTick()
 
-      const searchInput = wrapper.find('.search-input');
-      (searchInput.element as HTMLInputElement).value = 'flow'
+      const searchInput = wrapper.find('.search-input')
+      searchInput.setValue('flow')
       searchInput.trigger('input')
       await Vue.nextTick()
       expect(isItemInFilteredDocs(flowControlDocs[0], 'flowcontrol')).toBeTruthy()
@@ -557,8 +560,8 @@ describe('DocumentSearch.vue', () => {
       options.at(2).setSelected()
       await Vue.nextTick()
 
-      const searchInput = wrapper.find('.search-input');
-      (searchInput.element as HTMLInputElement).value = 'c03dabe4b9ca'
+      const searchInput = wrapper.find('.search-input')
+      searchInput.setValue('c03dabe4b9ca')
       searchInput.trigger('input')
       await Vue.nextTick()
       expect(isItemInFilteredDocs(flowControlDocs[0], 'flowcontrol')).toBeTruthy()
@@ -573,8 +576,8 @@ describe('DocumentSearch.vue', () => {
       options.at(3).setSelected()
       await Vue.nextTick()
 
-      const searchInput = wrapper.find('.search-input');
-      (searchInput.element as HTMLInputElement).value = 'default entry'
+      const searchInput = wrapper.find('.search-input')
+      searchInput.setValue('default entry')
       searchInput.trigger('input')
       await Vue.nextTick()
       expect(isItemInFilteredDocs(urlMapsDocs[0], 'urlmaps')).toBeTruthy()
@@ -589,8 +592,8 @@ describe('DocumentSearch.vue', () => {
       options.at(4).setSelected()
       await Vue.nextTick()
 
-      const searchInput = wrapper.find('.search-input');
-      (searchInput.element as HTMLInputElement).value = 'default'
+      const searchInput = wrapper.find('.search-input')
+      searchInput.setValue('default')
       searchInput.trigger('input')
       await Vue.nextTick()
       expect(isItemInFilteredDocs(profilingListDocs[0], 'tagrules')).toBeTruthy()
@@ -605,8 +608,8 @@ describe('DocumentSearch.vue', () => {
       options.at(5).setSelected()
       await Vue.nextTick()
 
-      const searchInput = wrapper.find('.search-input');
-      (searchInput.element as HTMLInputElement).value = 'china'
+      const searchInput = wrapper.find('.search-input')
+      searchInput.setValue('china')
       searchInput.trigger('input')
       await Vue.nextTick()
       expect(isItemInFilteredDocs(aclDocs[0], 'aclpolicies')).toBeTruthy()
@@ -621,8 +624,8 @@ describe('DocumentSearch.vue', () => {
       options.at(6).setSelected()
       await Vue.nextTick()
 
-      const searchInput = wrapper.find('.search-input');
-      (searchInput.element as HTMLInputElement).value = 'default'
+      const searchInput = wrapper.find('.search-input')
+      searchInput.setValue('default')
       searchInput.trigger('input')
       await Vue.nextTick()
       expect(isItemInFilteredDocs(aclDocs[1], 'aclpolicies')).toBeTruthy()

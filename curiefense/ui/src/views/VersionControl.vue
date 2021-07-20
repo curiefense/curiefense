@@ -270,7 +270,10 @@ export default Vue.extend({
 
     async loadSelectedBranchData() {
       this.isDownloadLoading = true
-      this.selectedBranchData = (await RequestsUtils.sendRequest({methodName: 'GET', url: `configs/${this.selectedBranch}/`}))?.data
+      this.selectedBranchData = (await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: `configs/${this.selectedBranch}/`,
+      }))?.data
       this.isDownloadLoading = false
     },
 

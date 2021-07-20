@@ -450,7 +450,7 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     addRateLimitToEntry(mapEntry: URLMapEntryMatch, id: string) {
-      if ( id ) {
+      if (id) {
         mapEntry.limit_ids.push(id)
         this.limitNewEntryModeMapEntryId = null
         this.limitMapEntryId = null

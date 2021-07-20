@@ -161,7 +161,7 @@ describe('DBEditor.vue', () => {
     }
     const putSpy = jest.spyOn(axios, 'put')
     putSpy.mockImplementation(() => Promise.resolve())
-    const gitHistory = wrapper.findComponent(GitHistory);
+    const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', wantedVersion)
     await Vue.nextTick()
     expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/db/system/v/${wantedVersion.version}/revert/`)
@@ -171,10 +171,10 @@ describe('DBEditor.vue', () => {
     const restoredVersion = {
       version: 'b104d3dd17f790b75c4e067c44bb06b914902d78',
     }
-    const wantedKey = 'publishinfo';
-    (wrapper.vm as any).selectedKey = wantedKey
+    const wantedKey = 'publishinfo'
+    wrapper.setData({selectedKey: wantedKey})
     jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
-    const gitHistory = wrapper.findComponent(GitHistory);
+    const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', restoredVersion)
     // allow all requests to finish
     setImmediate(() => {
@@ -187,10 +187,10 @@ describe('DBEditor.vue', () => {
     const restoredVersion = {
       version: 'b104d3dd17f790b75c4e067c44bb06b914902d78',
     }
-    const wantedKey = 'publishinfo';
-    (wrapper.vm as any).selectedKey = 'somekey'
+    const wantedKey = 'publishinfo'
+    wrapper.setData({selectedKey: 'somekey'})
     jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
-    const gitHistory = wrapper.findComponent(GitHistory);
+    const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', restoredVersion)
     // allow all requests to finish
     setImmediate(() => {
@@ -231,8 +231,8 @@ describe('DBEditor.vue', () => {
     const wantedFileName = 'publishinfo'
     const wantedFileType = 'json'
     const wantedFileData = publishInfoData
-    const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {});
-    (wrapper.vm as any).document = null
+    const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {})
+    wrapper.setData({document: null})
     // force update because downloadFile is mocked after it is read to be used as event handler
     await (wrapper.vm as any).$forceUpdate()
     await Vue.nextTick()
@@ -389,15 +389,15 @@ describe('DBEditor.vue', () => {
     })
 
     test('should be able to save key changes even if key name changes', async () => {
-      const keyNameInput = wrapper.find('.key-name-input');
-      (keyNameInput.element as any).value = 'key_name'
+      const keyNameInput = wrapper.find('.key-name-input')
+      keyNameInput.setValue('key_name')
       keyNameInput.trigger('input')
       await Vue.nextTick()
       const doc = {
         buckets: {},
         foo: 'bar',
-      };
-      (wrapper.vm as any).document = JSON.stringify(doc)
+      }
+      wrapper.setData({document: JSON.stringify(doc)})
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
       saveKeyButton.trigger('click')
@@ -409,8 +409,8 @@ describe('DBEditor.vue', () => {
       const doc = {
         buckets: {},
         foo: 'bar',
-      };
-      (wrapper.vm as any).document = JSON.stringify(doc)
+      }
+      wrapper.setData({document: JSON.stringify(doc)})
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
       saveKeyButton.trigger('click')
@@ -424,8 +424,8 @@ describe('DBEditor.vue', () => {
         const doc = {
           buckets: {},
           foo: 'bar',
-        };
-        (wrapper.vm as any).editor.set(doc)
+        }
+        wrapper.vm.$data.editor.set(doc)
         await Vue.nextTick()
         const saveKeyButton = wrapper.find('.save-button')
         saveKeyButton.trigger('click')
@@ -437,12 +437,12 @@ describe('DBEditor.vue', () => {
 
     test('should not be able to save key changes' +
       'if document is an invalid json when not using json editor', async () => {
-      (wrapper.vm as any).editor = null;
-      (wrapper.vm as any).isJsonEditor = false
+      wrapper.setData({editor: null})
+      wrapper.setData({isJsonEditor: false})
       await Vue.nextTick()
       const doc = '{'
-      const documentInput = wrapper.find('.document-input');
-      (documentInput.element as any).value = doc
+      const documentInput = wrapper.find('.document-input')
+      documentInput.setValue(doc)
       documentInput.trigger('input')
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
@@ -475,8 +475,8 @@ describe('DBEditor.vue', () => {
     })
 
     test('should not be able to save key changes if database name is empty', async () => {
-      const databaseNameInput = wrapper.find('.database-name-input');
-      (databaseNameInput.element as any).value = ''
+      const databaseNameInput = wrapper.find('.database-name-input')
+      databaseNameInput.setValue('')
       databaseNameInput.trigger('input')
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
@@ -486,8 +486,8 @@ describe('DBEditor.vue', () => {
     })
 
     test('should not be able to save key changes if database name is duplicate of another database', async () => {
-      const databaseNameInput = wrapper.find('.database-name-input');
-      (databaseNameInput.element as any).value = 'databaseCopy'
+      const databaseNameInput = wrapper.find('.database-name-input')
+      databaseNameInput.setValue('databaseCopy')
       databaseNameInput.trigger('input')
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
@@ -497,8 +497,8 @@ describe('DBEditor.vue', () => {
     })
 
     test('should not be able to save key changes if key name is empty', async () => {
-      const keyNameInput = wrapper.find('.key-name-input');
-      (keyNameInput.element as any).value = ''
+      const keyNameInput = wrapper.find('.key-name-input')
+      keyNameInput.setValue('')
       keyNameInput.trigger('input')
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
@@ -516,8 +516,8 @@ describe('DBEditor.vue', () => {
       // key switch
       await Vue.nextTick()
       // change key name
-      const keyNameInput = wrapper.find('.key-name-input');
-      (keyNameInput.element as any).value = 'key'
+      const keyNameInput = wrapper.find('.key-name-input')
+      keyNameInput.setValue('key')
       keyNameInput.trigger('input')
       await Vue.nextTick()
       // reset spy counter

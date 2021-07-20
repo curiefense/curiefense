@@ -277,8 +277,8 @@ describe('RateLimitsEditor.vue', () => {
       keySelect.findAll('option').at(keyIndex).setSelected()
       await Vue.nextTick()
       // insert value input
-      const valueInput = newEntryRow.find('.value-input');
-      (valueInput.element as HTMLInputElement).value = value
+      const valueInput = newEntryRow.find('.value-input')
+      valueInput.setValue(value)
       valueInput.trigger('input')
       await Vue.nextTick()
       // click add button
@@ -422,8 +422,8 @@ describe('RateLimitsEditor.vue', () => {
     test('should be able to remove include entry', async () => {
       await addEntry(0, 0, 0, '10.0.0.1')
       // ignore first 2 limit options, 0 is count by, 1 is event
-      const includeItem = wrapper.findAllComponents(LimitOption).at(2);
-      (includeItem.vm as any).$emit('remove')
+      const includeItem = wrapper.findAllComponents(LimitOption).at(2)
+      includeItem.vm.$emit('remove')
       await Vue.nextTick()
       expect(wrapper.findAllComponents(LimitOption).length).toEqual(2)
     })
@@ -431,8 +431,8 @@ describe('RateLimitsEditor.vue', () => {
     test('should be able to remove exclude entry', async () => {
       await addEntry(1, 0, 0, '10.0.0.1')
       // ignore first 2 limit options, 0 is count by, 1 is event
-      const excludeItem = wrapper.findAllComponents(LimitOption).at(2);
-      (excludeItem.vm as any).$emit('remove')
+      const excludeItem = wrapper.findAllComponents(LimitOption).at(2)
+      excludeItem.vm.$emit('remove')
       await Vue.nextTick()
       expect(wrapper.findAllComponents(LimitOption).length).toEqual(2)
     })
@@ -455,8 +455,8 @@ describe('RateLimitsEditor.vue', () => {
       await addEntry(0, 0, 0, '10.0.0.1')
       await addEntry(0, 0, 0, '10.0.0.1')
       // ignore first 2 limit options, 0 is count by, 1 is event
-      const includeItem = wrapper.findAllComponents(LimitOption).at(2);
-      (includeItem.vm as any).$emit('change', {key: 'asn', oldKey: 'ip', type: 'attrs', value: '10.0.0.1'}, 0)
+      const includeItem = wrapper.findAllComponents(LimitOption).at(2)
+      includeItem.vm.$emit('change', {key: 'asn', oldKey: 'ip', type: 'attrs', value: '10.0.0.1'}, 0)
       await Vue.nextTick()
       const invalidMessage = wrapper.find('.include-invalid')
       expect(invalidMessage.element).not.toBeDefined()
@@ -466,8 +466,8 @@ describe('RateLimitsEditor.vue', () => {
       await addEntry(1, 0, 0, '10.0.0.1')
       await addEntry(1, 0, 0, '10.0.0.1')
       // ignore first 2 limit options, 0 is count by, 1 is event
-      const excludeItem = wrapper.findAllComponents(LimitOption).at(2);
-      (excludeItem.vm as any).$emit('change', {key: 'asn', oldKey: 'ip', type: 'attrs', value: '10.0.0.1'}, 0)
+      const excludeItem = wrapper.findAllComponents(LimitOption).at(2)
+      excludeItem.vm.$emit('change', {key: 'asn', oldKey: 'ip', type: 'attrs', value: '10.0.0.1'}, 0)
       await Vue.nextTick()
       const invalidMessage = wrapper.find('.exclude-invalid')
       expect(invalidMessage.element).not.toBeDefined()

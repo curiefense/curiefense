@@ -134,7 +134,7 @@ export default Vue.extend({
           this.tagsSuggestionsLoading = false
         },
       })
-      this.buildTagsSuggestionsFromData(response.data)
+      this.buildTagsSuggestionsFromData(response?.data || {})
       this.tagsSuggestionsLoading = false
       if (this.tagsAddedWhileSuggestionsLoading.length > 0) {
         this.addUnknownTagsToDB(this.tagsAddedWhileSuggestionsLoading)

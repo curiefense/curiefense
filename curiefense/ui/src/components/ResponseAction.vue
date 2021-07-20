@@ -30,7 +30,7 @@
         <div class="control select is-fullwidth is-small action-type-selection" v-if="localAction">
           <select v-model="localAction.type"
                   title="Action type"
-                  @change="normalizeActionParams">
+                  @change="changeActionType()">
             <option v-for="(value, id) in options"
                     :value="id"
                     :key="id">
@@ -185,6 +185,11 @@ export default Vue.extend({
   methods: {
     emitActionUpdate() {
       this.$emit('update:action', this.localAction)
+    },
+
+    changeActionType() {
+      delete this.localAction.params
+      this.normalizeActionParams()
     },
 
     normalizeActionParams() {
