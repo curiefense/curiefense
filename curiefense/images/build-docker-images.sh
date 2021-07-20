@@ -14,6 +14,12 @@ BUILD_RUST=${BUILD_RUST:-yes}
 
 declare -A status
 
+declare -A tempfiles=( )
+tmpfiles_cleanup() { 
+     (( ${#tempfiles[@]} )) && rm -f -- "${!tempfiles[@]}";
+}
+trap 'tmpfiles_cleanup' EXIT
+
 GLOBALSTATUS=0
 GITTAG="$(git describe --tag --long --dirty)"
 DOCKER_DIR_HASH="$(git rev-parse --short=12 HEAD:curiefense)"
@@ -42,8 +48,10 @@ then
             image=curiefense-rustbuild-${distro}
             IMG=${REPO}/${image}
             echo "=================== $IMG:$DOCKER_TAG ====================="
-            if tar -C curiefense-rustbuild -ch --exclude='.*/target' --exclude='.*/ctarget' . \
-                    | docker build --build-arg UBUNTU_VERSION=${distro} -t "$IMG:$DOCKER_TAG" -; then
+            TMPFILE=$(mktemp)
+            tempfiles[$TMPFILE]=$image
+            tar -chf "$TMPFILE" --exclude='.*/target' --exclude='.*/ctarget' -C curiefense-rustbuild .
+            if docker build --build-arg UBUNTU_VERSION=${distro} -t "$IMG:$DOCKER_TAG" - < "$TMPFILE"; then
                 STB="ok"
                 if [ -n "$PUSH" ]; then
                     if docker push "$IMG:$DOCKER_TAG"; then
@@ -77,6 +85,7 @@ do
         # shellcheck disable=SC2086
         # a temporary file is needed on macos -- docker complains otherwise
         TMPFILE=$(mktemp)
+        tempfiles[$TMPFILE]=$image
         tar -czhf "$TMPFILE" --exclude='.*/target' --exclude='.*/ctarget' -C "$image" .
         if docker build --build-arg RUSTBIN_TAG=${DOCKER_TAG} -t "$IMG:$DOCKER_TAG" "$@" - < "$TMPFILE"; then
             STB="ok"
@@ -95,7 +104,6 @@ do
             STP="SKIP"
             GLOBALSTATUS=1
         fi
-        rm "$TMPFILE"
         status[$image]="build=$STB  push=$STP"
 done
 
