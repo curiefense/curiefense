@@ -485,7 +485,6 @@ export default Vue.extend({
       this.docs = []
       this.selectedDocID = null
       this.resetGitLog()
-      Utils.closeAllToasts()
       Utils.toast(`Switched to document type ${this.titles[this.selectedDocType]}.`, 'is-info')
       await this.loadDocs(this.selectedDocType, true)
       this.goToRoute()

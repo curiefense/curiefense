@@ -93,9 +93,6 @@ const toast = (message: string | HTMLElement, type: ToastType, undoFunction?: ()
   })
 }
 
-// Closes all toast messages if there're error toasts
-const closeAllToasts = () => document.querySelector( '.notification.is-danger' )?.closest( 'div' )?.remove()
-
 // Builds the UI element with undo functionality for the toast messages
 const buildToastUndoElement = (message: string | HTMLElement, undoFunction: () => any) => {
   const element = document.createElement('div')
@@ -127,5 +124,4 @@ export default {
   generateUniqueEntityName,
   downloadFile,
   toast,
-  closeAllToasts,
 }

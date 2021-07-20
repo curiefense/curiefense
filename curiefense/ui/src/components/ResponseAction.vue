@@ -18,7 +18,10 @@
       12
       12
       -->
-      <div v-if="labelDisplayedInline" class="column is-2">
+      <div
+        v-if="labelDisplayedInline"
+        class="column is-2"
+      >
         <label class="label is-small has-text-left form-label">{{ label }}</label>
       </div>
       <div class="column"
@@ -119,10 +122,13 @@
       v-if="['request_header', 'response'].includes( localAction.type )"
       class="columns"
     >
-      <div class="column" :class="{
-        'is-6': !labelDisplayedInline || isSingleInputColumn,
-        'is-5 is-offset-2': labelDisplayedInline && !isSingleInputColumn,
-        }">
+      <div
+        class="column"
+        :class="{
+          'is-6': !labelDisplayedInline || isSingleInputColumn,
+          'is-5 is-offset-2': labelDisplayedInline && !isSingleInputColumn,
+        }"
+      >
         <input
           v-model="tempHeader.name"
           class="input is-small action-headers"
@@ -134,10 +140,13 @@
           ref="request_header"
         />
       </div>
-      <div class="column" :class="{
-        'is-6': !labelDisplayedInline || isSingleInputColumn,
-        'is-5': labelDisplayedInline && !isSingleInputColumn,
-        }">
+      <div
+        class="column"
+        :class="{
+          'is-6': !labelDisplayedInline || isSingleInputColumn,
+          'is-5': labelDisplayedInline && !isSingleInputColumn,
+        }"
+      >
         <input
           v-model="tempHeader.value"
           class="input is-small action-headers-value"
@@ -149,7 +158,10 @@
         />
       </div>
     </div>
-    <div class="content" v-if="localAction.type === 'ban' && localAction.params.action">
+    <div
+      class="content"
+      v-if="localAction.type === 'ban' && localAction.params.action"
+    >
       <response-action
         :action.sync="localAction.params.action"
         :label-separated-line="labelSeparatedLine"
@@ -167,7 +179,6 @@
 import _ from 'lodash'
 import Vue, {PropType} from 'vue'
 import {ResponseActionType} from '@/types'
-import Utils from '@/assets/Utils.ts'
 
 export const responseActions = {
   'default': {'title': '503 Service Unavailable'},
@@ -215,7 +226,7 @@ export default Vue.extend({
   },
   computed: {
     localAction(): ResponseActionType {
-      return _.cloneDeep(this.action) || {type: 'default'}
+      return _.cloneDeep(this.action) || {type: ''}
     },
 
     labelDisplayedInline(): boolean {
@@ -233,7 +244,6 @@ export default Vue.extend({
       this.normalizeActionParams()
       this.removeFromErrors( `headers-name` )
       this.removeFromErrors( `headers-value` )
-      Utils.closeAllToasts()
       if (['response', 'redirect', 'ban', 'request_header'].includes( this.localAction.type )) {
         this.$emit( 'update:invalid', true )
       }
@@ -266,7 +276,7 @@ export default Vue.extend({
       if (this.localAction.type === 'request_header') {
         this.localAction.params.headers = oldParams.headers ? oldParams.headers : {}
       }
-      if (!_.isEqual(this.localAction, this.action)) {
+      if (this.action && !_.isEqual(this.localAction, this.action)) {
         this.emitActionUpdate()
       }
     },
@@ -282,7 +292,6 @@ export default Vue.extend({
 
     validate() {
       const message: string[] = []
-      Utils.closeAllToasts()
 
       for ( const [name, val] of Object.entries( this.localAction.params || {} )) {
         const value = val as string
@@ -297,7 +306,7 @@ export default Vue.extend({
         } else if ( name === 'ttl' ) {
           const numValue = Number( value.trim() )
           this.removeFromErrors( 'ttl' )
-          if ( !value || !( new RegExp( /^([1-9][0-9]+|[0-9])?$/ )).test( value ) || numValue > 86400 ) {
+          if ( !value || !/^([1-9][0-9]+|[0-9])?$/.test( value ) || numValue > 86400 ) {
             this.fieldErrors.push( 'ttl' )
             if ( numValue > 86400 ) {
               message.push( 'Max recommended ban time frame is 86400 seconds (24H)' )
@@ -309,7 +318,7 @@ export default Vue.extend({
           }
         } else if ( name !== 'headers' ) {
           this.removeFromErrors( name )
-          const isIncorrectLocation = name === 'location' && !value.match( /^https?:\/\/.+$/ )
+          const isIncorrectLocation = name === 'location' && !/^https?:\/\/.+$/.test( value )
           if ( isIncorrectLocation ) {
             this.fieldErrors.push( name )
             message.push(
@@ -319,7 +328,7 @@ export default Vue.extend({
         } else {
           ['name', 'value'].forEach( (field: string) => {
             this.removeFromErrors( `headers-${field}` )
-            if ( !(new RegExp( /^[0-9a-zA-Z-_]+$/ )).test( this.tempHeader[field as 'name'|'value'])) {
+            if ( !/^[0-9a-zA-Z-_]+$/.test( this.tempHeader[field as 'name'|'value'])) {
               this.fieldErrors.push( `headers-${field}` )
               message.push(
                 value === '' ? `Header ${field} shouldn't be empty` : `Header ${field} doesn't match ^[0-9a-zA-Z-_]+$`,
@@ -329,7 +338,8 @@ export default Vue.extend({
         }
       }
       if ( message.length ) {
-        Utils.toast( message.join( '<br />' ), 'is-danger' )
+        // to be changed with some errors displaying mechanism
+        console.error( message.join( '<br />' ), 'is-danger' )
       }
       this.isValid = !this.fieldErrors.length
     },
@@ -373,11 +383,6 @@ export default Vue.extend({
 
 .response-actions .column.additional {
   padding-top: 0;
-}
-
-.help.is-danger {
-  position: absolute;
-  z-index: 1;
 }
 
 </style>

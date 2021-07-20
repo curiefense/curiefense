@@ -43,7 +43,7 @@ declare module CuriefenseClient {
   }
 
   type ResponseActionType = {
-    type: 'default' | 'challenge' | 'monitor' | 'response' | 'redirect' | 'ban' | 'request_header'
+    type: '' | 'default' | 'challenge' | 'monitor' | 'response' | 'redirect' | 'ban' | 'request_header'
     params?: {
       status?: string
       ttl?: string
