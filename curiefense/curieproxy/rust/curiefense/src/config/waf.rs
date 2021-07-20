@@ -15,13 +15,13 @@ pub struct Section<A> {
     pub args: A,
 }
 
-// TODO: undefined data structures
 #[derive(Debug, Clone)]
 pub struct WafProfile {
     pub id: String,
     pub name: String,
     pub ignore_alphanum: bool,
     pub sections: Section<WafSection>,
+    pub min_risks: Section<u8>,
 }
 
 impl Default for WafProfile {
@@ -49,6 +49,11 @@ impl Default for WafProfile {
                     names: HashMap::new(),
                     regex: Vec::new(),
                 },
+            },
+            min_risks: Section {
+                headers: 1,
+                args: 1,
+                cookies: 1,
             },
         }
     }
@@ -169,6 +174,11 @@ fn convert_entry(entry: RawWafProfile) -> anyhow::Result<(String, WafProfile)> {
                 headers: mk_section(entry.headers, entry.max_header_length, entry.max_headers_count)?,
                 cookies: mk_section(entry.cookies, entry.max_cookie_length, entry.max_cookies_count)?,
                 args: mk_section(entry.args, entry.max_arg_length, entry.max_args_count)?,
+            },
+            min_risks: Section {
+                headers: entry.min_headers_risk,
+                cookies: entry.min_cookies_risk,
+                args: entry.min_args_risk,
             },
         },
     ))

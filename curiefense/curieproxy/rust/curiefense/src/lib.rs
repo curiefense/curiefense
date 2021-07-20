@@ -48,14 +48,14 @@ fn acl_block(blocking: bool, code: i32, tags: &[String]) -> Decision {
 fn challenge_verified<GH: Grasshopper>(gh: &GH, reqinfo: &RequestInfo, logs: &mut Logs) -> bool {
     if let Some(rbzid) = reqinfo.cookies.get("rbzid") {
         if let Some(ua) = reqinfo.headers.get("user-agent") {
-            logs.debug(format!("Checking rbzid cookie {} with user-agent {}",rbzid, ua));
+            logs.debug(format!("Checking rbzid cookie {} with user-agent {}", rbzid, ua));
             return match gh.parse_rbzid(&rbzid.replace('-', "="), ua) {
                 Some(b) => b,
                 None => {
                     logs.error("Something when wrong when calling parse_rbzid");
                     false
                 }
-            }
+            };
         } else {
             logs.warning("Could not find useragent!");
         }
@@ -227,7 +227,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
 
     // otherwise, run waf_check
     let waf_result = match HSDB.read() {
-        Ok(rd) => waf_check(&reqinfo, &urlmap.waf_profile, rd),
+        Ok(rd) => waf_check(logs, &reqinfo, &urlmap.waf_profile, rd),
         Err(rr) => {
             logs.error(format!("Could not get lock on HSDB: {}", rr));
             Ok(())

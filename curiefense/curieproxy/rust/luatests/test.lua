@@ -134,6 +134,7 @@ local function test_raw_request(request_path)
       for _, log in ipairs(r.logs) do
           print(log["elapsed_micros"] .. "µs " .. log["message"])
       end
+      print(response)
       error("mismatch in " .. raw_request_map.name)
     end
   end
