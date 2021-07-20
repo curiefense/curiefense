@@ -2,7 +2,8 @@
 
   <autocomplete-input
       :suggestions="tagsSuggestions"
-      :initial-value="initialTag"
+      :initial-value="tag"
+      :filterFunction="filterTag"
       :clear-input-after-selection="clearInputAfterSelection"
       :auto-focus="autoFocus"
       :selection-type="selectionType"
@@ -78,9 +79,11 @@ export default Vue.extend({
         tags: defaultKeyData,
       },
       minimumTagLength: 3,
-
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
+      filterTag(tag: string) {
+        return tag.replace( /[^\w: ]|_/g, '-' ).toLowerCase()
+      },
     }
   },
 

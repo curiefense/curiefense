@@ -398,6 +398,19 @@ describe('AutocompleteInput.vue', () => {
       expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-2'])
     })
 
+    test('should emit filtered value on space pressed', async () => {
+      wrapper.setProps({
+        filterFunction: (tag: string) => tag.replace(/[^\w: ]|_/g, '-').toLowerCase(),
+      })
+      await Vue.nextTick();
+      (input.element as HTMLInputElement).value = 'test:CHECK-CASE_01'
+      input.trigger('input');
+      await Vue.nextTick();
+      input.trigger('keydown.space')
+      expect(wrapper.emitted('value-submitted')).toBeTruthy()
+      expect(wrapper.emitted('value-submitted')[0]).toEqual(['test:check-case-01'])
+    })
+
     test('should select suggestion when clicked', async () => {
       dropdownItems.at(1).trigger('mousedown')
       await Vue.nextTick()
