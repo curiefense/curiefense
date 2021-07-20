@@ -20,6 +20,7 @@ use serde_json::json;
 use acl::{check_acl, AclDecision, AclResult, BotHuman};
 use config::{with_config, HSDB};
 use flow::flow_check;
+use git_version::git_version;
 use interface::{challenge_phase01, challenge_phase02, Action, ActionType, Decision, Grasshopper, SimpleDecision};
 use limit::limit_check;
 use logs::Logs;
@@ -27,6 +28,8 @@ use tagging::tag_request;
 use urlmap::match_urlmap;
 use utils::RequestInfo;
 use waf::waf_check;
+
+const GIT_VERSION: &str = git_version!();
 
 fn acl_block(blocking: bool, code: i32, tags: &[String]) -> Decision {
     Decision::Action(Action {
@@ -48,14 +51,14 @@ fn acl_block(blocking: bool, code: i32, tags: &[String]) -> Decision {
 fn challenge_verified<GH: Grasshopper>(gh: &GH, reqinfo: &RequestInfo, logs: &mut Logs) -> bool {
     if let Some(rbzid) = reqinfo.cookies.get("rbzid") {
         if let Some(ua) = reqinfo.headers.get("user-agent") {
-            logs.debug(format!("Checking rbzid cookie {} with user-agent {}",rbzid, ua));
+            logs.debug(format!("Checking rbzid cookie {} with user-agent {}", rbzid, ua));
             return match gh.parse_rbzid(&rbzid.replace('-', "="), ua) {
                 Some(b) => b,
                 None => {
                     logs.error("Something when wrong when calling parse_rbzid");
                     false
                 }
-            }
+            };
         } else {
             logs.warning("Could not find useragent!");
         }
@@ -75,7 +78,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
 ) -> (Decision, Tags) {
     let mut tags = itags;
 
-    logs.debug(format!("Inspection starts (grasshopper active: {})", mgh.is_some()));
+    logs.debug(format!("Inspection starts (grasshopper active: {}, version: {})", mgh.is_some(), GIT_VERSION));
 
     // without grasshopper, default to being human
     let is_human = if let Some(gh) = &mgh {
