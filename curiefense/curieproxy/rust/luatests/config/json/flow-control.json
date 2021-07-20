@@ -147,5 +147,48 @@
         },
         "ttl": 4,
         "id": "d03dabe4b9ca"
+    },
+    {
+        "exclude": [],
+        "include": [
+            "all"
+        ],
+        "name": "Flow Control on header (same uri)",
+        "key": [
+            {
+                "headers": "test"
+            }
+        ],
+        "sequence": [
+            {
+                "method": "GET",
+                "uri": "/flowheader",
+                "cookies": {},
+                "headers": {
+                    "host": "www.example.com"
+                },
+                "args": {
+                    "step": "^1$"
+                }
+            },
+            {
+                "method": "GET",
+                "uri": "/flowheader",
+                "cookies": {},
+                "headers": {
+                    "host": "www.example.com"
+                },
+                "args": {
+                    "step": "^2$"
+                }
+            }
+        ],
+        "active": true,
+        "notes": "",
+        "action": {
+            "type": "default"
+        },
+        "ttl": 4,
+        "id": "c03dabe4b9ca"
     }
 ]
