@@ -194,8 +194,8 @@ export default (Vue as VueConstructor<Vue & {
           return
         }
         Utils.toast(
-            `Selected tag "${this.currentValue}" is invalid!\n` +
-            `Tags must be at least ${this.minimumValueLength} characters long.`,
+            `Selected value "${this.currentValue}" is invalid!\n` +
+            `Values must be at least ${this.minimumValueLength} characters long.`,
             'is-danger',
         )
         this.currentValue = ''

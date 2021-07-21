@@ -373,8 +373,8 @@ describe('AutocompleteInput.vue', () => {
       'input value when input is shorter than the minimumValueLength prop', async () => {
       const minLength = 3
       const selectedValue = 't'
-      const failureMessage = `Selected tag "${selectedValue}" is invalid!\n` +
-        `Tags must be at least ${minLength} characters long.`
+      const failureMessage = `Selected value "${selectedValue}" is invalid!\n` +
+        `Values must be at least ${minLength} characters long.`
       const failureMessageClass = 'is-danger'
       const toastOutput: Options[] = []
       jest.spyOn(bulmaToast, 'toast').mockImplementation((output: Options) => {

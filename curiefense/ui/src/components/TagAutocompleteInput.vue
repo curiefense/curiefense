@@ -134,7 +134,7 @@ export default Vue.extend({
           this.tagsSuggestionsLoading = false
         },
       })
-      this.buildTagsSuggestionsFromData(response.data)
+      this.buildTagsSuggestionsFromData(response?.data || {})
       this.tagsSuggestionsLoading = false
       if (this.tagsAddedWhileSuggestionsLoading.length > 0) {
         this.addUnknownTagsToDB(this.tagsAddedWhileSuggestionsLoading)
@@ -171,12 +171,12 @@ export default Vue.extend({
     },
 
     tagChanged(newTag: string) {
-      this.tag = newTag
+      this.tag = newTag.replace(/\s\s+/g, ' ')
       this.$emit('tag-changed', this.tag)
     },
 
     tagSubmitted(newTag: string) {
-      this.tag = newTag
+      this.tag = newTag.replace(/\s\s+/g, ' ')
       // if submitting a tag we don't recognize -> add it to the DB
       if (!this.tagsSuggestions.find((suggestion) => {
         return suggestion.value.toLowerCase() === this.currentTag.toLowerCase()
