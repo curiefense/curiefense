@@ -412,7 +412,13 @@ pub fn challenge_phase01<GH: Grasshopper>(gh: &GH, ua: &str, tags: Vec<String>) 
         atype: ActionType::Block,
         block_mode: true,
         ban: false,
-        reason: json!({"initiator": "phase01", "reason": "challenge", "tags": tags}),
+        reason: if tags.is_empty() {
+            // this happens for rate limit / flow control / tag action
+            json!({"initiator": "phase01", "reason": "challenge"})
+        } else {
+            // this only happens for acl challenges
+            json!({"initiator": "phase01", "reason": "challenge", "tags": tags})
+        },
         headers: Some(hdrs),
         status: 247,
         content,
