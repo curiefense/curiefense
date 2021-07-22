@@ -348,4 +348,41 @@ describe('Utils.ts', () => {
       toastUndoAnchorElement.click()
     })
   })
+
+  describe('removeExtraWhitespaces function', () => {
+    test('should ignore multiple spaces when emitting tag-changed', async () => {
+      const inputValue = 'some-value                    some-other-value'
+      const wantedValue = 'some-value some-other-value'
+      const actualResult = Utils.removeExtraWhitespaces(inputValue)
+      expect(actualResult).toEqual(wantedValue)
+    })
+
+    test('should ignore tabs when emitting tag-changed', async () => {
+      const inputValue = 'some-value             some-other-value'
+      const wantedValue = 'some-value some-other-value'
+      const actualResult = Utils.removeExtraWhitespaces(inputValue)
+      expect(actualResult).toEqual(wantedValue)
+    })
+
+    test('should ignore new lines when emitting tag-changed', async () => {
+      const inputValue = 'some-value \n\n\n some-other-value'
+      const wantedValue = 'some-value some-other-value'
+      const actualResult = Utils.removeExtraWhitespaces(inputValue)
+      expect(actualResult).toEqual(wantedValue)
+    })
+
+    test('should replace whitespace at end of string without trimming it', async () => {
+      const inputValue = 'some-value some-other-value       \n\n      '
+      const wantedValue = 'some-value some-other-value '
+      const actualResult = Utils.removeExtraWhitespaces(inputValue)
+      expect(actualResult).toEqual(wantedValue)
+    })
+
+    test('should replace whitespace at start of string without trimming it', async () => {
+      const inputValue = '       \n\n      some-value some-other-value'
+      const wantedValue = ' some-value some-other-value'
+      const actualResult = Utils.removeExtraWhitespaces(inputValue)
+      expect(actualResult).toEqual(wantedValue)
+    })
+  })
 })

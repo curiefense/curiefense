@@ -1,5 +1,5 @@
-import {ToastType} from 'bulma-toast'
 import * as bulmaToast from 'bulma-toast'
+import {ToastType} from 'bulma-toast'
 
 const invalidityClasses = ` has-text-danger has-background-danger-light`
 
@@ -117,6 +117,10 @@ const buildToastUndoElement = (message: string | HTMLElement, undoFunction: () =
   return element
 }
 
+const removeExtraWhitespaces = (value: string) => {
+  return value.replace(/\s\s+/g, ' ')
+}
+
 export default {
   name: 'Utils',
   validateInput,
@@ -124,4 +128,5 @@ export default {
   generateUniqueEntityName,
   downloadFile,
   toast,
+  removeExtraWhitespaces,
 }
