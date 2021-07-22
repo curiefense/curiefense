@@ -71,12 +71,10 @@ describe('Utils.ts', () => {
       return false
     }
     beforeEach(() => {
-      event = {
-        target: {
-          className: 'is-big is-bird is-yellow',
-        },
-        type: 'input',
-      }
+      const elem = document.createElement('input')
+      elem.className = 'is-big is-bird is-yellow'
+      event = new Event('input')
+      elem.dispatchEvent(event)
     })
 
     test('should handle boolean validator', async () => {
@@ -129,6 +127,24 @@ describe('Utils.ts', () => {
       expect(event.target.className).toContain('is-big')
       expect(event.target.className).toContain('is-bird')
       expect(event.target.className).toContain('is-yellow')
+    })
+
+    test('should return false if validator returns false', async () => {
+      const wantedResult = false
+      const actualResult = Utils.validateInput(event, invalidValidator)
+      expect(actualResult).toEqual(wantedResult)
+    })
+
+    test('should return true if validator returns true', async () => {
+      const wantedResult = true
+      const actualResult = Utils.validateInput(event, validValidator)
+      expect(actualResult).toEqual(wantedResult)
+    })
+
+    test('should return false if event provided is not an event object', async () => {
+      const wantedResult = false
+      const actualResult = Utils.validateInput(undefined, validValidator)
+      expect(actualResult).toEqual(wantedResult)
     })
   })
 
@@ -282,6 +298,28 @@ describe('Utils.ts', () => {
       expect(toastOutput[0].type).toContain(successMessageClass)
     })
 
+    test('should not throw errors if given undefined message', (done) => {
+      const successMessage: string = undefined
+      try {
+        Utils.toast(successMessage, 'is-success')
+        done()
+      } catch (err) {
+        expect(err).not.toBeDefined()
+        done()
+      }
+    })
+
+    test('should not throw errors if given null message', (done) => {
+      const successMessage: string = null
+      try {
+        Utils.toast(successMessage, 'is-success')
+        done()
+      } catch (err) {
+        expect(err).not.toBeDefined()
+        done()
+      }
+    })
+
     test('should display toast message correctly if given undo function', () => {
       const successMessage = 'yay we did it!'
       const undoFunction = () => {
@@ -321,6 +359,34 @@ describe('Utils.ts', () => {
         toastUndoAnchorElement.innerText +
         toastUndoSuffixElement.innerText
       expect(actualUndoText).toContain(undoMessage)
+    })
+
+    test('should not throw errors if given undefined message if given undo function', (done) => {
+      const undoFunction = () => {
+        return true
+      }
+      const successMessage: string = undefined
+      try {
+        Utils.toast(successMessage, 'is-success', undoFunction)
+        done()
+      } catch (err) {
+        expect(err).not.toBeDefined()
+        done()
+      }
+    })
+
+    test('should not throw errors if given null message if given undo function', (done) => {
+      const undoFunction = () => {
+        return true
+      }
+      const successMessage: string = null
+      try {
+        Utils.toast(successMessage, 'is-success', undoFunction)
+        done()
+      } catch (err) {
+        expect(err).not.toBeDefined()
+        done()
+      }
     })
 
     test('should display toast with an undo link with an anchor tag', () => {
@@ -381,6 +447,20 @@ describe('Utils.ts', () => {
     test('should replace whitespace at start of string without trimming it', async () => {
       const inputValue = '       \n\n      some-value some-other-value'
       const wantedValue = ' some-value some-other-value'
+      const actualResult = Utils.removeExtraWhitespaces(inputValue)
+      expect(actualResult).toEqual(wantedValue)
+    })
+
+    test('should return empty string if given undefined', async () => {
+      const inputValue: string = undefined
+      const wantedValue = ''
+      const actualResult = Utils.removeExtraWhitespaces(inputValue)
+      expect(actualResult).toEqual(wantedValue)
+    })
+
+    test('should return empty string if given null', async () => {
+      const inputValue: string = null
+      const wantedValue = ''
       const actualResult = Utils.removeExtraWhitespaces(inputValue)
       expect(actualResult).toEqual(wantedValue)
     })

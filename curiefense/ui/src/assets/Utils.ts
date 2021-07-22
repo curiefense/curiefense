@@ -5,6 +5,9 @@ const invalidityClasses = ` has-text-danger has-background-danger-light`
 
 // Validates an input based on given validator (Function / Boolean) and adds necessary classes if input is invalid
 const validateInput = (event: Event, validator: Function | boolean) => {
+  if (!(event instanceof Event)) {
+    return false
+  }
   let className = (event.target as HTMLElement)?.className
   let isValid
   className = className.replace(`${invalidityClasses}`, '')
@@ -97,6 +100,7 @@ const toast = (message: string | HTMLElement, type: ToastType, undoFunction?: ()
 const buildToastUndoElement = (message: string | HTMLElement, undoFunction: () => any) => {
   const element = document.createElement('div')
   let textElement
+  message = message ? message : ''
   if (typeof message === 'string') {
     textElement = document.createElement('span')
     textElement.innerText = message
@@ -118,7 +122,7 @@ const buildToastUndoElement = (message: string | HTMLElement, undoFunction: () =
 }
 
 const removeExtraWhitespaces = (value: string) => {
-  return value.replace(/\s\s+/g, ' ')
+  return value?.replace(/\s\s+/g, ' ') || ''
 }
 
 export default {
