@@ -25,7 +25,7 @@ import RequestsUtils from '@/assets/RequestsUtils.ts'
 import AutocompleteInput, {AutocompleteInputEvents, AutocompleteSuggestion} from '@/components/AutocompleteInput.vue'
 import Vue from 'vue'
 import {AxiosResponse} from 'axios'
-import {TagsDatabaseDocument} from '@/types'
+import {TagsNamespaceValue} from '@/types'
 
 export default Vue.extend({
   name: 'TagAutocompleteInput',
@@ -75,7 +75,7 @@ export default Vue.extend({
       db: 'system',
       key: 'tags',
       defaultKeyData: defaultKeyData,
-      defaultDatabaseData: {
+      defaultNamespaceData: {
         tags: defaultKeyData,
       },
       minimumTagLength: 3,
@@ -110,7 +110,7 @@ export default Vue.extend({
 
     async loadAutocompleteSuggestions() {
       this.tagsSuggestionsLoading = true
-      const response: AxiosResponse<TagsDatabaseDocument> = await RequestsUtils.sendRequest({
+      const response: AxiosResponse<TagsNamespaceValue> = await RequestsUtils.sendRequest({
         methodName: 'GET',
         url: `db/${this.db}/k/${this.key}/`,
         onFail: async () => {
@@ -123,7 +123,7 @@ export default Vue.extend({
               await RequestsUtils.sendRequest({
                 methodName: 'POST',
                 url: `db/${this.db}/`,
-                data: this.defaultDatabaseData,
+                data: this.defaultNamespaceData,
               })
               this.tagsSuggestionsLoading = false
             },
@@ -137,7 +137,7 @@ export default Vue.extend({
           this.tagsSuggestionsLoading = false
         },
       })
-      this.buildTagsSuggestionsFromData(response.data)
+      this.buildTagsSuggestionsFromData(response?.data)
       this.tagsSuggestionsLoading = false
       if (this.tagsAddedWhileSuggestionsLoading.length > 0) {
         this.addUnknownTagsToDB(this.tagsAddedWhileSuggestionsLoading)
@@ -145,7 +145,7 @@ export default Vue.extend({
       }
     },
 
-    buildTagsSuggestionsFromData(data: TagsDatabaseDocument) {
+    buildTagsSuggestionsFromData(data: TagsNamespaceValue) {
       data = {...this.defaultKeyData, ...data}
       const legitimateTags = data.legitimate.map((item: string) => {
         return {
@@ -217,7 +217,7 @@ export default Vue.extend({
       // rebuild the tags suggestion list after a successful save
       this.buildTagsSuggestionsFromData(document)
       console.log(
-        `saved to database the following tags list: [${tags.join(',')}],it will now be available for autocomplete!`,
+        `saved to namespace the following tags list: [${tags.join(',')}],it will now be available for autocomplete!`,
       )
     },
   },

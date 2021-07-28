@@ -4,14 +4,14 @@ import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals
 import {mount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
-import {TagsDatabaseDocument} from '@/types'
+import {TagsNamespaceValue} from '@/types'
 
 jest.mock('axios')
 
 describe('TagAutocompleteInput.vue', () => {
   let wrapper: Wrapper<Vue>
   let tagsData: {
-    data: TagsDatabaseDocument,
+    data: TagsNamespaceValue,
   }
   beforeEach(async () => {
     tagsData = {
