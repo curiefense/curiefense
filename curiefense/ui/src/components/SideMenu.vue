@@ -71,7 +71,7 @@ export default Vue.extend({
             },
           },
           '/db': {
-            title: 'Databases',
+            title: 'CurieDB',
           },
           '/publish': {
             title: 'Publish Changes',

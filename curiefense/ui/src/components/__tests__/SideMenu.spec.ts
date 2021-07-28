@@ -80,7 +80,7 @@ describe('SideMenu.vue', () => {
     })
     const wantedInternalMenuItems = [
       {path: '/config', title: 'Policies & Rules'},
-      {path: '/db', title: 'Databases'},
+      {path: '/db', title: 'CurieDB'},
       {path: '/publish', title: 'Publish Changes'},
       {path: `${location.protocol}//${location.hostname}:30000/api/v1/`, title: 'API', external: true},
     ]
@@ -91,7 +91,7 @@ describe('SideMenu.vue', () => {
   test('should render all Configuration menu items when db key exists', () => {
     const wantedInternalMenuItems = [
       {path: '/config', title: 'Policies & Rules'},
-      {path: '/db', title: 'Databases'},
+      {path: '/db', title: 'CurieDB'},
       {path: '/publish', title: 'Publish Changes'},
       {path: swaggerURL, title: 'API', external: true},
     ]
