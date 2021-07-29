@@ -172,12 +172,12 @@ export default Vue.extend({
     },
 
     tagChanged(newTag: string) {
-      this.tag = Utils.removeExtraWhitespaces(newTag)
+      this.tag = Utils.removeExtraWhitespaces(newTag).trim()
       this.$emit('tag-changed', this.tag)
     },
 
     tagSubmitted(newTag: string) {
-      this.tag = Utils.removeExtraWhitespaces(newTag)
+      this.tag = Utils.removeExtraWhitespaces(newTag).trim()
       // if submitting a tag we don't recognize -> add it to the DB
       if (!this.tagsSuggestions.find((suggestion) => {
         return suggestion.value.toLowerCase() === this.currentTag.toLowerCase()
