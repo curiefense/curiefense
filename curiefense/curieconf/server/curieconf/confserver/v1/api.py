@@ -674,86 +674,86 @@ class EntryVersionResource(Resource):
 @ns_db.route("/")
 class DbsResource(Resource):
     def get(self):
-        "Get the list of existing databases"
-        return current_app.backend.db_list()
+        "Get the list of existing namespaces"
+        return current_app.backend.ns_list()
 
 
 @ns_db.route("/v/")
 class DbQueryResource(Resource):
     def get(self):
-        "List all existing versions of databases"
-        return current_app.backend.db_list_versions()
+        "List all existing versions of namespaces"
+        return current_app.backend.ns_list_versions()
 
 
-@ns_db.route("/<string:dbname>/")
+@ns_db.route("/<string:nsname>/")
 class DbResource(Resource):
-    def get(self, dbname):
-        "Get a complete database"
-        return current_app.backend.db_get(dbname, version=None)
+    def get(self, nsname):
+        "Get a complete namespace"
+        return current_app.backend.ns_get(nsname, version=None)
 
     @ns_db.expect(m_db, validate=True)
-    def post(self, dbname):
-        "Create a non-existing database from data"
-        return current_app.backend.db_create(dbname, request.json)
+    def post(self, nsname):
+        "Create a non-existing namespace from data"
+        return current_app.backend.ns_create(nsname, request.json)
 
     @ns_db.expect(m_db, validate=True)
-    def put(self, dbname):
-        "Merge data into a database"
-        return current_app.backend.db_update(dbname, request.json)
+    def put(self, nsname):
+        "Merge data into a namespace"
+        return current_app.backend.ns_update(nsname, request.json)
 
-    def delete(self, dbname):
-        "Delete an existing database"
-        return current_app.backend.db_delete(dbname)
+    def delete(self, nsname):
+        "Delete an existing namespace"
+        return current_app.backend.ns_delete(nsname)
 
 
-@ns_db.route("/<string:dbname>/v/<string:version>/")
+@ns_db.route("/<string:nsname>/v/<string:version>/")
 class DbVersionResource(Resource):
-    def get(self, dbname, version):
-        "Get a given version of a database"
-        return current_app.backend.db_get(dbname, version)
+    def get(self, nsname, version):
+        "Get a given version of a namespace"
+        return current_app.backend.ns_get(nsname, version)
 
 
-@ns_db.route("/<string:dbname>/v/<string:version>/revert/")
+@ns_db.route("/<string:nsname>/v/<string:version>/revert/")
 class DbVersionResource(Resource):
-    def put(self, dbname, version):
-        "Create a new version for a database from an old version"
-        return current_app.backend.db_revert(dbname, version)
+    def put(self, nsname, version):
+        "Create a new version for a namespace from an old version"
+        return current_app.backend.ns_revert(nsname, version)
 
 
-@ns_db.route("/<string:dbname>/q/")
+@ns_db.route("/<string:nsname>/q/")
 class DbQueryResource(Resource):
-    def post(self, dbname):
-        "Run a JSON query on the database and returns the results"
-        return current_app.backend.db_query(dbname, request.json)
+    def post(self, nsname):
+        "Run a JSON query on the namespace and returns the results"
+        return current_app.backend.ns_query(nsname, request.json)
 
 
-@ns_db.route("/<string:dbname>/k/")
+@ns_db.route("/<string:nsname>/k/")
 class KeysResource(Resource):
-    def get(self, dbname):
-        "List all keys of a given database"
-        return current_app.backend.key_list(dbname)
+    def get(self, nsname):
+        "List all keys of a given namespace"
+        return current_app.backend.key_list(nsname)
 
 
-@ns_db.route("/<string:dbname>/k/<string:key>/v/")
+@ns_db.route("/<string:nsname>/k/<string:key>/v/")
 class KeysListVersionsResource(Resource):
-    def get(self, dbname, key):
-        "Get all versions of a given key in database"
-        return current_app.backend.key_list_versions(dbname, key)
+    def get(self, nsname, key):
+        "Get all versions of a given key in namespace"
+        return current_app.backend.key_list_versions(nsname, key)
 
 
-@ns_db.route("/<string:dbname>/k/<string:key>/")
+@ns_db.route("/<string:nsname>/k/<string:key>/")
 class KeyResource(Resource):
-    def get(self, dbname, key):
-        "Retrieve a given key's value from a given database"
-        return current_app.backend.key_get(dbname, key)
+    def get(self, nsname, key):
+        "Retrieve a given key's value from a given namespace"
+        return current_app.backend.key_get(nsname, key)
 
-    def put(self, dbname, key):
+    def put(self, nsname, key):
         "Create or update the value of a key"
-        return current_app.backend.key_set(dbname, key, request.json)
+        return current_app.backend.key_set(nsname, key, request.json)
 
-    def delete(self, dbname, key):
+    def delete(self, nsname, key):
         "Delete a key"
-        return current_app.backend.key_delete(dbname, key)
+        return current_app.backend.key_delete(nsname, key)
 
 
 #############

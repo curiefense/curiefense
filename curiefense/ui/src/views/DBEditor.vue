@@ -189,7 +189,7 @@
 
             <div class="content">
               <div class="field">
-                <label class="label">Document</label>
+                <label class="label">Value</label>
                 <div class="control">
 
                   <div v-if="isJsonEditor"
@@ -197,7 +197,7 @@
                   </div>
                   <textarea
                       v-else
-                      @input="validateInput($event, isNewDocumentValid)"
+                      @input="validateInput($event, isNewValueValid)"
                       title="Document"
                       rows="20"
                       class="is-family-monospace textarea value-input"
@@ -308,7 +308,7 @@ export default Vue.extend({
     },
 
     isFormValid(): boolean {
-      return this.isSelectedNamespaceNewNameValid && this.isSelectedKeyNewNameValid && this.isNewDocumentValid
+      return this.isSelectedNamespaceNewNameValid && this.isSelectedKeyNewNameValid && this.isNewValueValid
     },
 
     isSelectedNamespaceNewNameValid(): boolean {
@@ -325,7 +325,7 @@ export default Vue.extend({
       return !isKeyNameEmpty && !isKeyNameDuplicate
     },
 
-    isNewDocumentValid(): boolean {
+    isNewValueValid(): boolean {
       try {
         JSON.parse(this.document)
       } catch {
