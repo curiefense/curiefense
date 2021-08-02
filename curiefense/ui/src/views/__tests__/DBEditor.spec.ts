@@ -232,7 +232,7 @@ describe('DBEditor.vue', () => {
     const wantedFileType = 'json'
     const wantedFileData = publishInfoData
     const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {});
-    (wrapper.vm as any).document = null
+    (wrapper.vm as any).selectedKeyValue = null
     // force update because downloadFile is mocked after it is read to be used as event handler
     await (wrapper.vm as any).$forceUpdate()
     await Vue.nextTick()
@@ -294,7 +294,7 @@ describe('DBEditor.vue', () => {
 
   describe('key action buttons', () => {
     test('should be able to fork key', async () => {
-      const doc = JSON.parse((wrapper.vm as any).document || '{}')
+      const doc = JSON.parse((wrapper.vm as any).selectedKeyValue || '{}')
       const putSpy = jest.spyOn(axios, 'put')
       putSpy.mockImplementation(() => Promise.resolve())
       const forkKeyButton = wrapper.find('.fork-key-button')
@@ -376,7 +376,7 @@ describe('DBEditor.vue', () => {
       keyNameInput.trigger('input')
       await Vue.nextTick()
       // @ts-ignore
-      wrapper.vm.document = JSON.stringify(value)
+      wrapper.vm.selectedKeyValue = JSON.stringify(value)
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
       saveKeyButton.trigger('click')
@@ -397,7 +397,7 @@ describe('DBEditor.vue', () => {
         buckets: {},
         foo: 'bar',
       };
-      (wrapper.vm as any).document = JSON.stringify(value)
+      (wrapper.vm as any).selectedKeyValue = JSON.stringify(value)
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
       saveKeyButton.trigger('click')
@@ -410,7 +410,7 @@ describe('DBEditor.vue', () => {
         buckets: {},
         foo: 'bar',
       };
-      (wrapper.vm as any).document = JSON.stringify(value)
+      (wrapper.vm as any).selectedKeyValue = JSON.stringify(value)
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
       saveKeyButton.trigger('click')
