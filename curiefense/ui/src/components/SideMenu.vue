@@ -70,7 +70,7 @@ export default Vue.extend({
               '/search': {title: 'Search'},
             },
           },
-          '/db': {
+          '/CurieDB': {
             title: 'CurieDB',
           },
           '/publish': {
