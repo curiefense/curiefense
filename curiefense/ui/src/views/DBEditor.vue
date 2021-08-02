@@ -100,7 +100,7 @@
                 <p class="control">
                   <button class="button is-small download-key-button"
                      @click="downloadKey"
-                     :disabled="!document"
+                     :disabled="!selectedKeyValue"
                      title="Download Key">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
@@ -198,10 +198,10 @@
                   <textarea
                       v-else
                       @input="validateInput($event, isNewValueValid)"
-                      title="Document"
+                      title="Value"
                       rows="20"
                       class="is-family-monospace textarea value-input"
-                      v-model="document">
+                      v-model="selectedKeyValue">
                   </textarea>
                 </div>
               </div>
@@ -292,7 +292,7 @@ export default Vue.extend({
       defaultKeyName: 'publishinfo',
 
       selectedNamespaceData: {} as GenericObject,
-      document: null,
+      selectedKeyValue: null,
 
       gitLog: [] as Commit[],
       loadingGitlog: false,
@@ -327,7 +327,7 @@ export default Vue.extend({
 
     isNewValueValid(): boolean {
       try {
-        JSON.parse(this.document)
+        JSON.parse(this.selectedKeyValue)
       } catch {
         return false
       }
@@ -437,7 +437,7 @@ export default Vue.extend({
     loadKey(key: string) {
       this.selectedKey = key
       this.keyNameInput = this.selectedKey
-      this.document = JSON.stringify(this.selectedNamespaceData[key])
+      this.selectedKeyValue = JSON.stringify(this.selectedNamespaceData[key])
       this.editor?.set(this.selectedNamespaceData[key])
       this.loadGitLog()
     },
@@ -486,7 +486,7 @@ export default Vue.extend({
       this.isDeleteKeyLoading = false
     },
 
-    async addNewKey(newKey?: string, newDocument?: string) {
+    async addNewKey(newKey?: string, newValue?: string) {
       if (!this.selectedNamespace) {
         return
       }
@@ -494,11 +494,11 @@ export default Vue.extend({
       if (!newKey) {
         newKey = Utils.generateUniqueEntityName('new key', this.keys)
       }
-      if (!newDocument) {
-        newDocument = '{}'
+      if (!newValue) {
+        newValue = '{}'
       }
-      await this.saveKey(this.selectedNamespace, newKey, newDocument).then(() => {
-        this.selectedNamespaceData[newKey] = JSON.parse(newDocument)
+      await this.saveKey(this.selectedNamespace, newKey, newValue).then(() => {
+        this.selectedNamespaceData[newKey] = JSON.parse(newValue)
         this.loadKey(newKey)
         this.keys.unshift(newKey)
       })
@@ -508,24 +508,24 @@ export default Vue.extend({
     async forkKey() {
       this.isForkKeyLoading = true
       const newKey = Utils.generateUniqueEntityName(this.selectedKey, this.keys, true)
-      const newDocument = _.cloneDeep(this.document)
-      await this.addNewKey(newKey, newDocument)
+      const newValue = _.cloneDeep(this.selectedKeyValue)
+      await this.addNewKey(newKey, newValue)
       this.isForkKeyLoading = false
     },
 
     downloadKey() {
-      if (!this.document) {
+      if (!this.selectedKeyValue) {
         return
       }
-      Utils.downloadFile(this.selectedKey, 'json', JSON.parse(this.document))
+      Utils.downloadFile(this.selectedKey, 'json', JSON.parse(this.selectedKeyValue))
     },
 
     async saveChanges() {
       this.isSaveDocLoading = true
       if (this.selectedNamespace === this.namespaceNameInput && this.selectedKey === this.keyNameInput) {
         // If namespace name and key name did not change - save normally
-        await this.saveKey(this.selectedNamespace, this.selectedKey, this.document)
-        this.selectedNamespaceData[this.selectedKey] = JSON.parse(this.document)
+        await this.saveKey(this.selectedNamespace, this.selectedKey, this.selectedKeyValue)
+        this.selectedNamespaceData[this.selectedKey] = JSON.parse(this.selectedKeyValue)
       } else if (this.selectedNamespace !== this.namespaceNameInput) {
         // If namespace name changed -> Save the data under the new name and remove the old namespace
         const oldNamespace = this.selectedNamespace
@@ -533,13 +533,13 @@ export default Vue.extend({
         const data = oldDataResponse.data
         const oldKey = this.selectedKey
         delete data[oldKey]
-        data[this.keyNameInput] = JSON.parse(this.document)
+        data[this.keyNameInput] = JSON.parse(this.selectedKeyValue)
         await this.addNewNamespace(this.namespaceNameInput, data)
         await this.deleteNamespace(oldNamespace, true)
       } else {
         // If key name changed -> Save the data under the new name and remove the old key from the namespace
         const oldKey = this.selectedKey
-        await this.addNewKey(this.keyNameInput, this.document)
+        await this.addNewKey(this.keyNameInput, this.selectedKeyValue)
         await this.deleteKey(oldKey, true)
       }
       await this.loadGitLog()
@@ -595,12 +595,12 @@ export default Vue.extend({
             modes: ['code', 'tree'],
             onChange: () => {
               try {
-                this.document = JSON.stringify(this.editor.get())
+                this.selectedKeyValue = JSON.stringify(this.editor.get())
               } catch (err) {
                 // editor.get will throw an error when attempting to get an invalid json
               }
             },
-          }, JSON.parse(this.document))
+          }, JSON.parse(this.selectedKeyValue))
           this.isJsonEditor = true
           console.log('Successfully loaded json editor')
           clearInterval(editorLoaderInterval)

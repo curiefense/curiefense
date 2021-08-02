@@ -672,7 +672,7 @@ class EntryVersionResource(Resource):
 
 
 @ns_db.route("/")
-class DbsResource(Resource):
+class DbResource(Resource):
     def get(self):
         "Get the list of existing namespaces"
         return current_app.backend.ns_list()
@@ -686,7 +686,7 @@ class DbQueryResource(Resource):
 
 
 @ns_db.route("/<string:nsname>/")
-class DbResource(Resource):
+class NSResource(Resource):
     def get(self, nsname):
         "Get a complete namespace"
         return current_app.backend.ns_get(nsname, version=None)
@@ -707,21 +707,21 @@ class DbResource(Resource):
 
 
 @ns_db.route("/<string:nsname>/v/<string:version>/")
-class DbVersionResource(Resource):
+class NSVersionResource(Resource):
     def get(self, nsname, version):
         "Get a given version of a namespace"
         return current_app.backend.ns_get(nsname, version)
 
 
 @ns_db.route("/<string:nsname>/v/<string:version>/revert/")
-class DbVersionResource(Resource):
+class NSVersionResource(Resource):
     def put(self, nsname, version):
         "Create a new version for a namespace from an old version"
         return current_app.backend.ns_revert(nsname, version)
 
 
 @ns_db.route("/<string:nsname>/q/")
-class DbQueryResource(Resource):
+class NSQueryResource(Resource):
     def post(self, nsname):
         "Run a JSON query on the namespace and returns the results"
         return current_app.backend.ns_query(nsname, request.json)

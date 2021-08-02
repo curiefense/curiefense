@@ -7,7 +7,7 @@ NSNAME="${CURIETASKER_NS_NAME:-tasks}"
 
 CURL="curl --silent --show-error --fail"
 
-echo "Determining whether the $NSNAME DB should be created..."
+echo "Determining whether the $NSNAME namespace should be created..."
 RETRIES=0
 STATUS=1
 until [ "$RETRIES" -ge 10 ]
@@ -21,14 +21,14 @@ do
 done
 
 if [ "$STATUS" -eq 1 ]; then
-	echo "Could not determine whether the $NSNAME DB should be created, exiting." > /dev/stderr
+	echo "Could not determine whether the $NSNAME namespace should be created, exiting." > /dev/stderr
 	exit 1
 fi
 
 if echo "$NSLIST" | grep -q "$NSNAME"; then
-	echo "The $NSNAME database already exists."
+	echo "The $NSNAME namespace already exists."
 else
-	echo "Initializing the $NSNAME database..."
+	echo "Initializing the $NSNAME namespace..."
 	RETRIES=0
 	STATUS=1
 	until [ "$RETRIES" -ge 10 ]
