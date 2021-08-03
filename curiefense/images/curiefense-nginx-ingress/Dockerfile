@@ -59,7 +59,7 @@ COPY --from=rustbin /root/curiefense.so /usr/local/lib/lua/5.1/
 
 COPY curieproxy/config /bootstrap-config/config
 COPY curieproxy/lua /lua
-RUN rm -f /lua/session.lua && ln -s /lua/session_rust_nginx.lua /lua/session.lua
+RUN rm -f /lua/session.lua && ln -s /lua/session_nginx.lua /lua/session.lua
 
 ENTRYPOINT ["/curiefense-nginx.sh"]
 

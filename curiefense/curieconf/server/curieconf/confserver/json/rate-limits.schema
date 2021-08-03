@@ -43,14 +43,14 @@
             "description": "Item describing how to count requests using attributes, arguments, cookies, or headers"
         },
         "exclude": {
-            "type": "object",
-            "title": "Excluded Requests",
-            "description": "Item describing requests to exclude from the rate limit rule using attributes, arguments, cookies, or headers"
+          "type": "array",
+          "title": "Excluded tags",
+          "description": "Tags describing requests to exclude from the rate limit rule"
         },
         "include": {
-            "type": "object",
-            "title": "Included Requests",
-            "description": "Item describing requests to include in the rate limit rule using attributes, arguments, cookies, or headers"
+          "type": "array",
+          "title": "Included tags",
+          "description": "Tags describing requests to include in the rate limit rule"
         }
     },
     "required": [ "id", "name", "ttl", "key", "limit" ]

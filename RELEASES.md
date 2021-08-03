@@ -54,6 +54,7 @@ stable releases and sending announcements about them.
 |:-------:|:--------------------------------------------------------------:|
 | 2021 Q1 | Justin Dorfman  ([jdorfman](https://github.com/jdorfman))      |
 | 2021 Q2 | Justin Dorfman  ([jdorfman](https://github.com/jdorfman))      |
+| 2021 Q3 | Justin Dorfman  ([jdorfman](https://github.com/jdorfman))      |
 
 ## Release schedule
 
@@ -64,4 +65,4 @@ deadline of 3 weeks.
 | Version |  Expected  |   Actual   | Difference | End of Life |
 |:-------:|:----------:|:----------:|:----------:|:-----------:|
 | [1.3.0](https://github.com/curiefense/curiefense/releases/tag/v1.3.0)   | 2021/03/02 | 2021/03/02 |  +0 days   |     TBD     |
-| [1.4.0](https://github.com/curiefense/curiefense/milestone/3)   | 2021/06/30 |            |            |             |
+| [1.4.0](https://github.com/curiefense/curiefense/releases/tag/v1.4.0)   | 2021/06/30 | 2021/07/27 |  +27 days  |     TBD     |

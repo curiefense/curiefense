@@ -152,6 +152,7 @@ services:
     restart: always
     volumes:
       - persistent_grafana:/var/lib/grafana
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
     networks:
       - curiemesh
       - confnet
@@ -210,6 +211,7 @@ services:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
       - KIBANA_URL=http://kibana:5601
     volumes:
+      - ./elk/7_x/dashboards.json:/usr/share/filebeat/curiefense/7/dashboard/dashboards.json
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
       - ./filebeat/ilm.json:/usr/share/filebeat/ilm.json
       - ./filebeat/template.json:/usr/share/filebeat/template.json

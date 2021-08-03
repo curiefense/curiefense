@@ -5,6 +5,39 @@
       },
       "active": true,
       "entries_relation": "OR",
+      "id": "hdrfoobar",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "header foo=bar",
+      "notes": "note",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "headers",
+                     [
+                        "foo",
+                        "bar"
+                     ],
+                     "..."
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "hdrfoobar"
+      ]
+   },
+   {
+      "action": {
+         "type": "monitor"
+      },
+      "active": true,
+      "entries_relation": "OR",
       "id": "arg_deny",
       "mdate": "2020-05-23T00:04:41",
       "name": "args deny",

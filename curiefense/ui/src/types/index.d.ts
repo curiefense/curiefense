@@ -146,8 +146,8 @@ declare module CuriefenseClient {
     key: LimitOptionType[]
     ttl: string
     action: ResponseActionType
-    exclude: { [key in LimitRuleType]?: LimitOptionType }
-    include: { [key in LimitRuleType]?: LimitOptionType }
+    exclude: string[]
+    include: string[]
     pairwith: LimitOptionType
   }
 
