@@ -12,7 +12,7 @@ setup(
         "curieconf.confserver",
         "curieconf.confserver.backend",
         "curieconf.confserver.v1",
-        "curieconf.confserver.v2"
+        "curieconf.confserver.v2",
     ],
     package_data={"curieconf.confserver": ["json/*.schema"]},
     scripts=["bin/curieconf_server"],
