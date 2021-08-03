@@ -689,12 +689,18 @@ class DbQueryResource(Resource):
 class NSResource(Resource):
     def get(self, nsname):
         "Get a complete namespace"
-        return current_app.backend.ns_get(nsname, version=None)
+        try:
+            return current_app.backend.ns_get(nsname, version=None)
+        except KeyError:
+            abort(404, "namespace [%s] does not exist" % nsname)
 
     @ns_db.expect(m_db, validate=True)
     def post(self, nsname):
         "Create a non-existing namespace from data"
-        return current_app.backend.ns_create(nsname, request.json)
+        try:
+            return current_app.backend.ns_create(nsname, request.json)
+        except Exception:
+            abort(409, "namespace [%s] already exists" % nsname)
 
     @ns_db.expect(m_db, validate=True)
     def put(self, nsname):
@@ -703,7 +709,10 @@ class NSResource(Resource):
 
     def delete(self, nsname):
         "Delete an existing namespace"
-        return current_app.backend.ns_delete(nsname)
+        try:
+            return current_app.backend.ns_delete(nsname)
+        except KeyError:
+            abort(409, "namespace [%s] does not exist" % nsname)
 
 
 @ns_db.route("/<string:nsname>/v/<string:version>/")
@@ -717,7 +726,10 @@ class NSVersionResource(Resource):
 class NSVersionResource(Resource):
     def put(self, nsname, version):
         "Create a new version for a namespace from an old version"
-        return current_app.backend.ns_revert(nsname, version)
+        try:
+            return current_app.backend.ns_revert(nsname, version)
+        except KeyError:
+            abort(404, "namespace [%s] version [%s] not found" % (nsname, version))
 
 
 @ns_db.route("/<string:nsname>/q/")

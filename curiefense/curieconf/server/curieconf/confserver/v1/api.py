@@ -15,7 +15,7 @@ from pathlib import Path
 import json
 
 
-api_bp = Blueprint("curieconf", "curiefense")
+api_bp = Blueprint("api_v1", __name__)
 api = Api(api_bp, version="1.0", title="Curiefense configuration API server v1.0")
 
 
@@ -672,88 +672,100 @@ class EntryVersionResource(Resource):
 
 
 @ns_db.route("/")
-class DbResource(Resource):
+class DbsResource(Resource):
     def get(self):
-        "Get the list of existing namespaces"
+        "Get the list of existing databases"
         return current_app.backend.ns_list()
 
 
 @ns_db.route("/v/")
 class DbQueryResource(Resource):
     def get(self):
-        "List all existing versions of namespaces"
+        "List all existing versions of databases"
         return current_app.backend.ns_list_versions()
 
 
-@ns_db.route("/<string:nsname>/")
-class NSResource(Resource):
-    def get(self, nsname):
-        "Get a complete namespace"
-        return current_app.backend.ns_get(nsname, version=None)
+@ns_db.route("/<string:dbname>/")
+class DbResource(Resource):
+    def get(self, dbname):
+        "Get a complete database"
+        try:
+            return current_app.backend.ns_get(dbname, version=None)
+        except KeyError:
+            abort(404, "database [%s] does not exist" % dbname)
 
     @ns_db.expect(m_db, validate=True)
-    def post(self, nsname):
-        "Create a non-existing namespace from data"
-        return current_app.backend.ns_create(nsname, request.json)
+    def post(self, dbname):
+        "Create a non-existing database from data"
+        try:
+            return current_app.backend.ns_create(dbname, request.json)
+        except Exception:
+            abort(409, "database [%s] already exists" % dbname)
 
     @ns_db.expect(m_db, validate=True)
-    def put(self, nsname):
-        "Merge data into a namespace"
-        return current_app.backend.ns_update(nsname, request.json)
+    def put(self, dbname):
+        "Merge data into a database"
+        return current_app.backend.ns_update(dbname, request.json)
 
-    def delete(self, nsname):
-        "Delete an existing namespace"
-        return current_app.backend.ns_delete(nsname)
-
-
-@ns_db.route("/<string:nsname>/v/<string:version>/")
-class NSVersionResource(Resource):
-    def get(self, nsname, version):
-        "Get a given version of a namespace"
-        return current_app.backend.ns_get(nsname, version)
+    def delete(self, dbname):
+        "Delete an existing database"
+        try:
+            return current_app.backend.ns_delete(dbname)
+        except KeyError:
+            abort(409, "database [%s] does not exist" % dbname)
 
 
-@ns_db.route("/<string:nsname>/v/<string:version>/revert/")
-class NSVersionResource(Resource):
-    def put(self, nsname, version):
-        "Create a new version for a namespace from an old version"
-        return current_app.backend.ns_revert(nsname, version)
+@ns_db.route("/<string:dbname>/v/<string:version>/")
+class DbVersionResource(Resource):
+    def get(self, dbname, version):
+        "Get a given version of a database"
+        return current_app.backend.ns_get(dbname, version)
 
 
-@ns_db.route("/<string:nsname>/q/")
-class NSQueryResource(Resource):
-    def post(self, nsname):
-        "Run a JSON query on the namespace and returns the results"
-        return current_app.backend.ns_query(nsname, request.json)
+@ns_db.route("/<string:dbname>/v/<string:version>/revert/")
+class DbVersionResource(Resource):
+    def put(self, dbname, version):
+        "Create a new version for a database from an old version"
+        try:
+            return current_app.backend.ns_revert(dbname, version)
+        except KeyError:
+            abort(404, "database [%s] version [%s] not found" % (dbname, version))
 
 
-@ns_db.route("/<string:nsname>/k/")
+@ns_db.route("/<string:dbname>/q/")
+class DbQueryResource(Resource):
+    def post(self, dbname):
+        "Run a JSON query on the database and returns the results"
+        return current_app.backend.ns_query(dbname, request.json)
+
+
+@ns_db.route("/<string:dbname>/k/")
 class KeysResource(Resource):
-    def get(self, nsname):
-        "List all keys of a given namespace"
-        return current_app.backend.key_list(nsname)
+    def get(self, dbname):
+        "List all keys of a given database"
+        return current_app.backend.key_list(dbname)
 
 
-@ns_db.route("/<string:nsname>/k/<string:key>/v/")
+@ns_db.route("/<string:dbname>/k/<string:key>/v/")
 class KeysListVersionsResource(Resource):
-    def get(self, nsname, key):
-        "Get all versions of a given key in namespace"
-        return current_app.backend.key_list_versions(nsname, key)
+    def get(self, dbname, key):
+        "Get all versions of a given key in database"
+        return current_app.backend.key_list_versions(dbname, key)
 
 
-@ns_db.route("/<string:nsname>/k/<string:key>/")
+@ns_db.route("/<string:dbname>/k/<string:key>/")
 class KeyResource(Resource):
-    def get(self, nsname, key):
-        "Retrieve a given key's value from a given namespace"
-        return current_app.backend.key_get(nsname, key)
+    def get(self, dbname, key):
+        "Retrieve a given key's value from a given database"
+        return current_app.backend.key_get(dbname, key)
 
-    def put(self, nsname, key):
+    def put(self, dbname, key):
         "Create or update the value of a key"
-        return current_app.backend.key_set(nsname, key, request.json)
+        return current_app.backend.key_set(dbname, key, request.json)
 
-    def delete(self, nsname, key):
+    def delete(self, dbname, key):
         "Delete a key"
-        return current_app.backend.key_delete(nsname, key)
+        return current_app.backend.key_delete(dbname, key)
 
 
 #############

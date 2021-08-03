@@ -238,10 +238,7 @@ class GitBackend(CurieBackend):
         ]
 
     def get_ns(self, nsname, version=None):
-        try:
-            ns = self.get_tree(version) / nsname
-        except KeyError:
-            abort(404, "namespace [%s] does not exist" % nsname)
+        ns = self.get_tree(version) / nsname
         return json.load(ns.data_stream)
 
     def gitpush(self, url):
@@ -742,7 +739,7 @@ class GitBackend(CurieBackend):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
             if self.exists(nsname):
-                abort(409, "namespace [%s] already exists" % nsname)
+                raise Exception("[%s] already exists" % nsname)
             self.add_json_file(nsname, data)
             self.commit("Added namespace [%s]" % nsname)
         return {"ok": True}
@@ -768,16 +765,13 @@ class GitBackend(CurieBackend):
                 self.del_file(nsname)
                 self.commit("Deleted namespace [%s]" % nsname)
             else:
-                abort(409, "namespace [%s] does not exist" % nsname)
+                raise KeyError("[%s] does not exist" % nsname)
         return {"ok": True}
 
     def ns_revert(self, nsname, version):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
-            try:
-                nsobj = self.get_tree(version) / nsname
-            except KeyError:
-                abort(404, "namespace [%s] version [%s] not found" % (nsname, version))
+            nsobj = self.get_tree(version) / nsname
             self.add_file(nsname, nsobj.data_stream.read())
             self.commit("Reverting namespace [%s] to version [%s]" % (nsname, version))
         return {"ok": True}

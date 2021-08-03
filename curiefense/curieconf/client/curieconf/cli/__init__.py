@@ -575,7 +575,7 @@ def main_options(
         "json", "--output", "-o", help="Output format: json, yaml"
     ),
     baseurl: str = typer.Option(
-        os.environ.get("CURIECONF_BASE_URL", "http://localhost:5000/api/v1/"),
+        os.environ.get("CURIECONF_BASE_URL", "http://localhost:5000/api/v2/"),
         "--base-url",
         "-u",
         help="Base url for API",

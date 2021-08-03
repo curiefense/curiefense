@@ -107,7 +107,7 @@ class ToolsResource(Resource):
 
 
 def get_api(
-    api_root_url="http://localhost:5000/api/v1/", json_encode_body=True, **kargs
+    api_root_url="http://localhost:5000/api/v2/", json_encode_body=True, **kargs
 ):
     api = API(
         api_root_url=api_root_url,

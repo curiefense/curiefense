@@ -2,7 +2,7 @@
 set -o pipefail
 
 # initialize db if needed.
-URL="${CURIECONF_BASE_URL:-http://confserver/api/v1/}"
+URL="${CURIECONF_BASE_URL:-http://confserver/api/v2/}"
 NSNAME="${CURIETASKER_NS_NAME:-tasks}"
 
 CURL="curl --silent --show-error --fail"
