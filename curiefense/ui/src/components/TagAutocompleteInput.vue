@@ -26,6 +26,7 @@ import AutocompleteInput, {AutocompleteInputEvents, AutocompleteSuggestion} from
 import Vue from 'vue'
 import {AxiosResponse} from 'axios'
 import {TagsDatabaseDocument} from '@/types'
+import Utils from '@/assets/Utils'
 
 export default Vue.extend({
   name: 'TagAutocompleteInput',
@@ -137,7 +138,7 @@ export default Vue.extend({
           this.tagsSuggestionsLoading = false
         },
       })
-      this.buildTagsSuggestionsFromData(response.data)
+      this.buildTagsSuggestionsFromData(response?.data || {})
       this.tagsSuggestionsLoading = false
       if (this.tagsAddedWhileSuggestionsLoading.length > 0) {
         this.addUnknownTagsToDB(this.tagsAddedWhileSuggestionsLoading)
@@ -174,12 +175,12 @@ export default Vue.extend({
     },
 
     tagChanged(newTag: string) {
-      this.tag = newTag
+      this.tag = Utils.removeExtraWhitespaces(newTag).trim()
       this.$emit('tag-changed', this.tag)
     },
 
     tagSubmitted(newTag: string) {
-      this.tag = newTag
+      this.tag = Utils.removeExtraWhitespaces(newTag).trim()
       // if submitting a tag we don't recognize -> add it to the DB
       if (!this.tagsSuggestions.find((suggestion) => {
         return suggestion.value.toLowerCase() === this.currentTag.toLowerCase()
