@@ -80,18 +80,18 @@ describe('DBEditor.vue', () => {
       }
     })
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/db/') {
+      if (path === '/conf/api/v2/db/') {
         return Promise.resolve({data: ['system', 'namespaceCopy', 'anotherDB']})
       }
       const db = (wrapper.vm as any).selectedNamespace
       const key = (wrapper.vm as any).selectedKey
-      if (path === `/conf/api/v1/db/new namespace/`) {
+      if (path === `/conf/api/v2/db/new namespace/`) {
         return Promise.resolve({data: {key: {}}})
       }
-      if (path === `/conf/api/v1/db/${db}/`) {
+      if (path === `/conf/api/v2/db/${db}/`) {
         return Promise.resolve({data: dbData})
       }
-      if (path === `/conf/api/v1/db/${db}/k/${key}/v/`) {
+      if (path === `/conf/api/v2/db/${db}/k/${key}/v/`) {
         return Promise.resolve({data: dbKeyLogs})
       }
       return Promise.resolve({data: {}})
@@ -115,7 +115,7 @@ describe('DBEditor.vue', () => {
     consoleOutput = []
     console.log = mockedLog
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/db/') {
+      if (path === '/conf/api/v2/db/') {
         return Promise.resolve({data: []})
       }
       return Promise.resolve({data: {}})
@@ -164,7 +164,7 @@ describe('DBEditor.vue', () => {
     const gitHistory = wrapper.findComponent(GitHistory);
     gitHistory.vm.$emit('restore-version', wantedVersion)
     await Vue.nextTick()
-    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/db/system/v/${wantedVersion.version}/revert/`)
+    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/system/v/${wantedVersion.version}/revert/`)
   })
 
   test('should load last loaded key if still exists after restoring version', (done) => {
@@ -250,7 +250,7 @@ describe('DBEditor.vue', () => {
       const forkNamespaceButton = wrapper.find('.fork-namespace-button')
       forkNamespaceButton.trigger('click')
       await Vue.nextTick()
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/db/copy of system/`, dbData)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/copy of system/`, dbData)
     })
 
     test('should be able to add a new namespace', async () => {
@@ -262,7 +262,7 @@ describe('DBEditor.vue', () => {
       const newNamespaceButton = wrapper.find('.new-namespace-button')
       newNamespaceButton.trigger('click')
       await Vue.nextTick()
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/db/new namespace/`, newNamespace)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/`, newNamespace)
     })
 
     test('should be able to delete a namespace', (done) => {
@@ -277,7 +277,7 @@ describe('DBEditor.vue', () => {
         const deleteNamespaceButton = wrapper.find('.delete-namespace-button')
         deleteNamespaceButton.trigger('click')
         await Vue.nextTick()
-        expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v1/db/${namespaceName}/`)
+        expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v2/db/${namespaceName}/`)
         done()
       })
     })
@@ -300,7 +300,7 @@ describe('DBEditor.vue', () => {
       const forkKeyButton = wrapper.find('.fork-key-button')
       forkKeyButton.trigger('click')
       await Vue.nextTick()
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/db/system/k/copy of publishinfo/`, doc)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/system/k/copy of publishinfo/`, doc)
     })
 
     test('should be able to add a new key', async () => {
@@ -310,7 +310,7 @@ describe('DBEditor.vue', () => {
       const newKeyButton = wrapper.find('.new-key-button')
       newKeyButton.trigger('click')
       await Vue.nextTick()
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/db/system/k/new key/`, newKey)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/system/k/new key/`, newKey)
     })
 
     test('should be able to delete a key', (done) => {
@@ -325,7 +325,7 @@ describe('DBEditor.vue', () => {
         const deleteKeyButton = wrapper.find('.delete-key-button')
         deleteKeyButton.trigger('click')
         await Vue.nextTick()
-        expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v1/db/system/k/${keyName}/`)
+        expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v2/db/system/k/${keyName}/`)
         done()
       })
     })
@@ -383,7 +383,7 @@ describe('DBEditor.vue', () => {
       await Vue.nextTick()
       // allow all requests to finish
       setImmediate(() => {
-        expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/db/newDB/`, wantedResult)
+        expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/newDB/`, wantedResult)
         done()
       })
     })
@@ -402,7 +402,7 @@ describe('DBEditor.vue', () => {
       const saveKeyButton = wrapper.find('.save-button')
       saveKeyButton.trigger('click')
       await Vue.nextTick()
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/db/new namespace/k/key_name/`, value)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/k/key_name/`, value)
     })
 
     test('should be able to save key changes', async () => {
@@ -415,7 +415,7 @@ describe('DBEditor.vue', () => {
       const saveKeyButton = wrapper.find('.save-button')
       saveKeyButton.trigger('click')
       await Vue.nextTick()
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/db/new namespace/k/key/`, value)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/k/key/`, value)
     })
 
     test('should use correct values when saving key changes when using json editor', (done) => {
@@ -430,7 +430,7 @@ describe('DBEditor.vue', () => {
         const saveKeyButton = wrapper.find('.save-button')
         saveKeyButton.trigger('click')
         await Vue.nextTick()
-        expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/db/new namespace/k/key/`, value)
+        expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/new namespace/k/key/`, value)
         done()
       }, 300)
     })
@@ -534,7 +534,7 @@ describe('DBEditor.vue', () => {
   describe('no data', () => {
     test('should display correct message when there is no namespace list data', (done) => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v1/db/') {
+        if (path === '/conf/api/v2/db/') {
           return Promise.resolve({data: []})
         }
         return Promise.resolve({data: {}})
@@ -552,11 +552,11 @@ describe('DBEditor.vue', () => {
 
     test('should display correct message when there is no key data', (done) => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v1/db/') {
+        if (path === '/conf/api/v2/db/') {
           return Promise.resolve({data: ['system', 'namespaceCopy', 'anotherDB']})
         }
         const db = (wrapper.vm as any).selectedNamespace
-        if (path === `/conf/api/v1/db/${db}/`) {
+        if (path === `/conf/api/v2/db/${db}/`) {
           return Promise.resolve({data: {}})
         }
         return Promise.resolve({
@@ -578,7 +578,7 @@ describe('DBEditor.vue', () => {
   describe('loading indicator', () => {
     test('should display loading indicator when namespaces list not loaded', async () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v1/db/') {
+        if (path === '/conf/api/v2/db/') {
           return new Promise(() => {
           })
         }
@@ -592,11 +592,11 @@ describe('DBEditor.vue', () => {
 
     test('should display loading indicator when namespace not loaded', async () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v1/db/') {
+        if (path === '/conf/api/v2/db/') {
           return Promise.resolve({data: ['system', 'namespaceCopy', 'anotherDB']})
         }
         const db = (wrapper.vm as any).selectedNamespace
-        if (path === `/conf/api/v1/db/${db}/`) {
+        if (path === `/conf/api/v2/db/${db}/`) {
           return new Promise(() => {
           })
         }

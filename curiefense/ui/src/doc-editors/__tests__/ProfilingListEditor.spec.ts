@@ -370,7 +370,7 @@ describe('ProfilingListEditor.vue', () => {
     beforeEach(async () => {
       resolveData = {}
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path.includes('/conf/api/v1/tools/fetch')) {
+        if (path.includes('/conf/api/v2/tools/fetch')) {
           return Promise.resolve(resolveData)
         }
         return Promise.resolve({data: {}})
