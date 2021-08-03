@@ -592,14 +592,17 @@ export default (Vue as VueConstructor<Vue & {
     selectedDoc: {
       handler: function(val, oldVal) {
         if (!val || !oldVal || val.id !== oldVal.id) {
-          this.wafacllimitProfileNames()
           this.urlMapsDomainMatches()
-          this.initialDocDomainMatch = this.selectedDoc.match
+          this.initialDocDomainMatch = val.match
         }
       },
       immediate: true,
       deep: true,
     },
+  },
+
+  created() {
+    this.wafacllimitProfileNames()
   },
 })
 </script>

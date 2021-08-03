@@ -672,8 +672,8 @@ describe('DocumentEditor.vue', () => {
       'ttl': '60',
       'limit': '5',
       'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
-      'include': {headers: {}, cookies: {}, args: {}, attrs: {ip: '10.0.0.1', path: 'localhost'}},
-      'exclude': {headers: {}, cookies: {}, args: {foo: 'bar'}, attrs: {}},
+      'include': ['badpeople'],
+      'exclude': ['goodpeople'],
       'key': [{'attrs': 'ip'}],
       'pairwith': {'self': 'self'},
     }]
