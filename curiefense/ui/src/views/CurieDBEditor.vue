@@ -260,7 +260,7 @@ import {AxiosResponse} from 'axios'
 
 export default Vue.extend({
 
-  name: 'DBEditor',
+  name: 'CurieDBEditor',
   props: {},
   components: {
     GitHistory,

@@ -1,4 +1,4 @@
-import DBEditor from '@/views/DBEditor.vue'
+import CurieDBEditor from '@/views/CurieDBEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import Utils from '@/assets/Utils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
@@ -11,7 +11,7 @@ import {Commit} from '@/types'
 jest.mock('axios')
 jest.mock('jsoneditor')
 
-describe('DBEditor.vue', () => {
+describe('CurieDBEditor.vue', () => {
   let wrapper: Wrapper<Vue>
   let dbData: any
   let publishInfoData: any
@@ -96,7 +96,7 @@ describe('DBEditor.vue', () => {
       }
       return Promise.resolve({data: {}})
     })
-    wrapper = mount(DBEditor)
+    wrapper = mount(CurieDBEditor)
     await Vue.nextTick()
   })
   afterEach(() => {
@@ -120,7 +120,7 @@ describe('DBEditor.vue', () => {
       }
       return Promise.resolve({data: {}})
     })
-    wrapper = mount(DBEditor)
+    wrapper = mount(CurieDBEditor)
     // allow all requests to finish
     setImmediate(() => {
       expect(consoleOutput).toContain(`failed loading namespace, none are present!`)
@@ -465,7 +465,7 @@ describe('DBEditor.vue', () => {
       JSONEditor.mockImplementation(() => {
         throw new Error('ouchie')
       })
-      wrapper = mount(DBEditor)
+      wrapper = mount(CurieDBEditor)
       // setTimeout to allow the editor to be fully loaded before we interact with it
       setTimeout(async () => {
         const valueInput = wrapper.find('.value-input')
@@ -539,7 +539,7 @@ describe('DBEditor.vue', () => {
         }
         return Promise.resolve({data: {}})
       })
-      wrapper = mount(DBEditor)
+      wrapper = mount(CurieDBEditor)
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
@@ -563,7 +563,7 @@ describe('DBEditor.vue', () => {
           data: {},
         })
       })
-      wrapper = mount(DBEditor)
+      wrapper = mount(CurieDBEditor)
       // allow all requests to finish
       setImmediate(() => {
         const noDataMessage = wrapper.find('.no-data-message')
@@ -584,7 +584,7 @@ describe('DBEditor.vue', () => {
         }
         return Promise.resolve({data: []})
       })
-      wrapper = mount(DBEditor)
+      wrapper = mount(CurieDBEditor)
       await Vue.nextTick()
       const valueLoadingIndicator = wrapper.find('.value-loading')
       expect(valueLoadingIndicator.element).toBeDefined()
@@ -602,7 +602,7 @@ describe('DBEditor.vue', () => {
         }
         return Promise.resolve({data: {}})
       })
-      wrapper = mount(DBEditor)
+      wrapper = mount(CurieDBEditor)
       await Vue.nextTick()
       const valueLoadingIndicator = wrapper.find('.value-loading')
       expect(valueLoadingIndicator.element).toBeDefined()
