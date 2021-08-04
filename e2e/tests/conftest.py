@@ -24,12 +24,12 @@ def pytest_addoption(parser):
     parser.addoption(
         "--base-ui-url",
         help="Base URL for the UI server",
-        default="http://localhost.89:30080",
+        default="http://localhost:30080",
     )
     parser.addoption(
         "--elasticsearch-url",
         help="Elasticsearch URL (ex. http://localhost:9200)",
-        default="http://localhost.89:9200",
+        default="http://localhost:9200",
     )
     parser.addoption(
         "--module",
