@@ -20,22 +20,8 @@
                 "action": {
                     "type": "default"
                 },
-                "include": {
-                    "headers": {},
-                    "cookies": {},
-                    "args": {},
-                    "attrs": {
-                        "tag": "blacklist"
-                    }
-                },
-                "exclude": {
-                    "headers": {},
-                    "cookies": {},
-                    "args": {},
-                    "attrs": {
-                        "tag": "whitelist"
-                    }
-                },
+                "include": ["blacklist"],
+                "exclude": ["whitelist"],
                 "pairwith": {
                     "self": "self"
                 }
@@ -54,22 +40,8 @@
                 "action": {
                     "type": "default"
                 },
-                "include": {
-                    "headers": {},
-                    "cookies": {},
-                    "args": {},
-                    "attrs": {
-                        "tag": "blacklist"
-                    }
-                },
-                "exclude": {
-                    "headers": {},
-                    "cookies": {},
-                    "args": {},
-                    "attrs": {
-                        "tag": "whitelist"
-                    }
-                },
+                "include": ["blacklist"],
+                "exclude": ["whitelist"],
                 "pairwith": {
                     "self": "self"
                 }
@@ -449,140 +421,229 @@
             {
                 "id": "ed8f6efb",
                 "active": true,
+                "action": {"type": "default"},
                 "name": "Spamhaus DROP",
                 "source": "https://www.spamhaus.org/drop/drop.txt",
                 "mdate": "2020-05-31T05:28:47.410Z",
                 "notes": "; Spamhaus DROP List 2020/05/28 - (c) 2020 The Spamhaus Project\n; https://www.spamhaus.org/drop/drop.txt\n; Last-Modified: Mon, 25 May 2020 19:50:14 GMT\n; Expires: Fri, 29 May 2020 00:24:16 GMT\n",
-                "entries_relation": "OR",
                 "tags": [
                     "blacklists",
                     "spamhaus"
                 ],
-                "entries": [
-                    [
-                        "ip",
-                        "1.10.16.0/20"
-                    ],
-                    [
-                        "ip",
-                        "1.19.0.0/16"
-                    ],
-                    [
-                        "ip",
-                        "1.32.128.0/18"
+                "rule": {
+                    "relation": "OR",
+                    "sections": [
+                        {
+                            "relation": "OR",
+                            "entries": [
+                                [
+                                    "ip",
+                                    "1.10.16.0/20"
+                                ],
+                                [
+                                    "ip",
+                                    "1.19.0.0/16"
+                                ],
+                                [
+                                    "ip",
+                                    "1.32.128.0/18"
+                                ]
+                            ]
+                        }
                     ]
-                                    ]
+                }
             },
             {
                 "id": "fc516979",
                 "active": true,
+                "action": {"type": "default"},
                 "name": "Spamhaus EDROP",
                 "source": "https://www.spamhaus.org/drop/edrop.txt",
                 "mdate": "2020-05-31T05:28:26.822Z",
                 "notes": "; Spamhaus EDROP List 2020/05/28 - (c) 2020 The Spamhaus Project\n; https://www.spamhaus.org/drop/edrop.txt\n; Last-Modified: Tue, 12 May 2020 10:42:24 GMT\n; Expires: Fri, 29 May 2020 04:31:27 GMT\n",
-                "entries_relation": "OR",
                 "tags": [
                     "blacklists",
                     "spamhaus"
                 ],
-                "entries": [
-                    [
-                        "ip",
-                        "113.201.51.0/24"
-                    ],
-                    [
-                        "ip",
-                        "116.79.0.0/16"
-                    ],
-                    [
-                        "ip",
-                        "119.227.224.0/19"
+                "rule": {
+                    "relation": "OR",
+                    "sections": [
+                        {
+                            "relation": "OR",
+                            "entries": [
+                                [
+                                    "ip",
+                                    "113.201.51.0/24"
+                                ],
+                                [
+                                    "ip",
+                                    "116.79.0.0/16"
+                                ],
+                                [
+                                    "ip",
+                                    "119.227.224.0/19"
+                                ]
+                            ]
+                        }
                     ]
-                                    ]
+                }
             },
             {
                 "id": "42460704",
                 "active": true,
+                "action": {"type": "default"},
                 "name": "Our offices",
                 "source": "self-managed",
                 "mdate": "2020-05-23T00:04:41",
                 "notes": "this is my own list",
-                "entries_relation": "OR",
                 "tags": [
                     "internal",
                     "office"
                 ],
-                "entries": [
-                    [
-                        "ip",
-                        "12.13.3.6",
-                        "my office"
-                    ],
-                    [
-                        "ip",
-                        "12.34.56.78/32",
-                        "CenturyLink"
-                    ],
-                    [
-                        "ip",
-                        "98.76.54.32/32",
-                        "Verizon"
+                "rule": {
+                    "relation": "OR",
+                    "sections": [
+                        {
+                            "relation": "OR",
+                            "entries": [
+                                [
+                                    "ip",
+                                    "12.13.3.6",
+                                    "my office"
+                                ],
+                                [
+                                    "ip",
+                                    "12.34.56.78/32",
+                                    "CenturyLink"
+                                ],
+                                [
+                                    "ip",
+                                    "98.76.54.32/32",
+                                    "Verizon"
+                                ]
+                            ]
+                        }
                     ]
-                ]
+                }
             },
             {
                 "id": "13bfc2ee-81c3-449c-ab04-a7d95ba59213",
                 "active": true,
+                "action": {"type": "default"},
                 "name": "Spamhaus IPV6 DROP List",
                 "source": "https://www.spamhaus.org/drop/dropv6.txt",
                 "mdate": "2020-05-31T05:28:12.715Z",
                 "notes": "; Spamhaus IPv6 DROP List 2020/05/31 - (c) 2020 The Spamhaus Project\n; https://www.spamhaus.org/drop/dropv6.txt\n; Last-Modified: Thu, 30 Jan 2020 05:16:30 GMT\n; Expires: Sun, 31 May 2020 04:35:11 GMT\n",
-                "entries_relation": "OR",
                 "tags": [
                     "blacklists",
                     "spamhaus"
                 ],
-                "entries": [
-                    [
-                        "ip",
-                        "2401:c580",
-                        null
-                    ],
-                    [
-                        "ip",
-                        "2402:6680",
-                        null
-                    ],
-                    [
-                        "ip",
-                        "2405:b180",
-                        null
-                    ],
-                    [
-                        "ip",
-                        "2405:b480",
-                        null
-                    ]                ]
+                "rule": {
+                    "relation": "OR",
+                    "sections": [
+                        {
+                            "relation": "OR",
+                            "entries": [
+                                [
+                                    "ip",
+                                    "2401:c580",
+                                    null
+                                ],
+                                [
+                                    "ip",
+                                    "2402:6680",
+                                    null
+                                ],
+                                [
+                                    "ip",
+                                    "2405:b180",
+                                    null
+                                ],
+                                [
+                                    "ip",
+                                    "2405:b480",
+                                    null
+                                ]
+                            ]
+                        }
+                    ]
+                }
+
             },
             {
                 "id": "2716dfe695d8",
                 "active": true,
+                "action": {"type": "default"},
                 "name": "Bad Robots Eisen",
                 "source": "self-managed",
                 "mdate": "2020-06-12T07:21:03.298Z",
                 "notes": "New List Notes and Remarks",
-                "entries_relation": "OR",
                 "tags": [],
-                "entries": [
-                    [
-                        "headers",
-                        [
-                            "user-agent",
-                            "curl|wget"
-                        ],
-                        "# cutl"
+                "rule": {
+                    "relation": "OR",
+                    "sections": [
+                        {
+                            "relation": "OR",
+                            "entries": [
+                                [
+                                    "headers",
+                                    [
+                                        "user-agent",
+                                        "curl|wget"
+                                    ],
+                                    "# cutl"
+                                ]
+                            ]
+                        }
                     ]
-                ]
+                }
+            }
+        ],
+        "flowcontrol": [
+            {
+                "id": "c03dabe4b9ca",
+                "name": "Flow Control Example",
+                "ttl": 60,
+                "key": [
+                    {
+                        "attrs": "ip"
+                    }
+                ],
+                "sequence": [
+                    {
+                        "method": "GET",
+                        "uri": "/login",
+                        "cookies": {},
+                        "headers": {
+                            "host": "www.example.com"
+                        },
+                        "args": {}
+                    },
+                    {
+                        "method": "POST",
+                        "uri": "/login",
+                        "cookies": {},
+                        "headers": {
+                            "host": "www.example.com"
+                        },
+                        "args": {}
+                    }
+                ],
+                "action": {
+                    "type": "ban",
+                    "params": {
+                        "ttl": "123",
+                        "action": {
+                            "type": "default"
+                        }
+                    }
+                },
+                "include": [
+                    "all"
+                ],
+                "exclude": [],
+                "notes": "New Flow Control Notes and Remarks",
+                "active": true
             }
         ]
     },
@@ -594,6 +655,10 @@
         "geolite2country": {
             "format": "base64",
             "blob": "YmFyCg=="
+        },
+        "geolite2city": {
+            "format": "base64",
+            "blob": "OYmPyCg=="
         }
     }
 }
