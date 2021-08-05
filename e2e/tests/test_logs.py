@@ -3,7 +3,7 @@ import string
 import time
 import pytest
 from e2e.core.base_helpers import target, cli, BaseHelper
-from curiefense.e2e.helpers.log_helper import log_fixture
+from e2e.helpers.log_helper import log_fixture
 
 
 @pytest.mark.usefixtures('api_setup')
