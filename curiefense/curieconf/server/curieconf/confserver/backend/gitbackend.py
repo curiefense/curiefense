@@ -491,15 +491,15 @@ class GitBackend(CurieBackend):
         if "wafpolicies" in docs:
             for waf_policy in docs["wafpolicies"]:
                 waf_policies.append(waf_policy["id"])
+            for waf_policy in referenced_waf_policies:
+                if waf_policy not in waf_policies:
+                    res.append(f"WAF Profile {waf_policy} is referenced but not present")
         if "aclpolicies" in docs:
             for acl_policy in docs["aclpolicies"]:
                 acl_policies.append(acl_policy["id"])
-        for acl_policy in referenced_acl_policies:
-            if acl_policy not in acl_policies:
-                res.append(f"ACL Profile {acl_policy} is referenced but not present")
-        for waf_policy in referenced_waf_policies:
-            if waf_policy not in waf_policies:
-                res.append(f"WAF Profile {waf_policy} is referenced but not present")
+            for acl_policy in referenced_acl_policies:
+                if acl_policy not in acl_policies:
+                    res.append(f"ACL Profile {acl_policy} is referenced but not present")
         return res
 
     def documents_list(self, config, version=None):
