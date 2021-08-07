@@ -4,7 +4,7 @@ WORKDIR /app
 COPY curielogger .
 RUN go build -o build/curielogger ./cmd/grpc
 
-FROM alpine
+FROM alpine:3
 RUN apk update && apk add ca-certificates curl bash apache2-utils && rm -rf /var/cache/apk/*
 RUN mkdir -p /etc/curielogger/
 COPY contrib /contrib
