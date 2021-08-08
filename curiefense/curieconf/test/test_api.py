@@ -132,19 +132,19 @@ def test_configs_update(curieapi_small):
             "include": None,
             "exclude": None,
             "key": "1",
-            "pairwith": None
+            "pairwith": None,
         },
         {
             "id": "newid",
-			"name": "barfoo",
-			"description": None,
-			"ttl": "30",
-			"limit": "20",
-			"action": None,
-			"include": None,
-			"exclude": None,
-			"key": "10",
-			"pairwith": None
+            "name": "barfoo",
+            "description": None,
+            "ttl": "30",
+            "limit": "20",
+            "action": None,
+            "include": None,
+            "exclude": None,
+            "key": "10",
+            "pairwith": None,
         },
     ]
     newwafsigs = [
