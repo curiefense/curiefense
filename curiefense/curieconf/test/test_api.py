@@ -124,34 +124,34 @@ def test_configs_update(curieapi_small):
     newlimits = [
         {
             "id": vec_limit["id"],
-			'name': 'foobar',
-			'description': None,
-			'ttl': '3',
-			'limit': '2',
-			'action': None,
-			'include': None,
-			'exclude': None,
-			'key': '1',
-			'pairwith': None
+            "name": "foobar",
+            "description": None,
+            "ttl": "3",
+            "limit": "2",
+            "action": None,
+            "include": None,
+            "exclude": None,
+            "key": "1",
+            "pairwith": None
         },
         {
             "id": "newid",
-			'name': 'barfoo',
-			'description': None,
-			'ttl': '30',
-			'limit': '20',
-			'action': None,
-			'include': None,
-			'exclude': None,
-			'key': '10',
-			'pairwith': None
+			"name": "barfoo",
+			"description": None,
+			"ttl": "30",
+			"limit": "20",
+			"action": None,
+			"include": None,
+			"exclude": None,
+			"key": "10",
+			"pairwith": None
         },
     ]
     newwafsigs = [
         {"id": vec_wafrule["id"], "msg": "XXXX"},
         {
             "id": "newid",
-            'name': None,
+            "name": None,
             "msg": "hola",
             "category": "1",
             "certainity": 2,
@@ -388,7 +388,7 @@ def test_documents_revert(curieapi, doc):
     oldv = r.body[0]["version"]
 
     new = [{**old[0], **{"name": "%i" % time.time()}}]
-    # use 'update' because we can not delete __default__ waf and acl
+    # use "update" because we can not delete __default__ waf and acl
     r = curieapi.documents.update("pytest", doc, body=new)
     assert r.status_code == 200
     r = curieapi.documents.get("pytest", doc)
