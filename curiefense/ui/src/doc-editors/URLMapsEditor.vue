@@ -532,8 +532,8 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     removeMapEntry(index: number) {
-      this.localDoc.map.splice(index, 1)
       this.changeSelectedMapEntry(-1)
+      this.localDoc.map.splice(index, 1)
     },
 
     referToRateLimit() {
@@ -591,7 +591,7 @@ export default (Vue as VueConstructor<Vue & {
   watch: {
     selectedDoc: {
       handler: function(val, oldVal) {
-        if (!val || !oldVal || val.id !== oldVal.id) {
+        if (!val || !oldVal || !_.isEqual(val, oldVal)) {
           this.urlMapsDomainMatches()
           this.initialDocDomainMatch = val.match
         }
