@@ -230,25 +230,7 @@ impl SimpleAction {
                     .unwrap_or(3600),
             ),
             RawActionType::RequestHeader => {
-                let header_line = rawaction
-                    .params
-                    .headers
-                    .clone()
-                    .ok_or_else(|| anyhow::anyhow!("no header for request headers rule {:?}", rawaction))?;
-                let mut splitted = header_line.splitn(2, ": ");
-                let header_name = splitted
-                    .next()
-                    .ok_or_else(|| anyhow::anyhow!("Malformed header line {}", header_line))?;
-                let header_value = splitted
-                    .next()
-                    .ok_or_else(|| anyhow::anyhow!("Malformed header line {}", header_line))?;
-
-                SimpleActionT::RequestHeader(
-                    [(header_name, header_value)]
-                        .iter()
-                        .map(|(k, v)| (k.to_string(), v.to_string()))
-                        .collect(),
-                )
+                SimpleActionT::RequestHeader(rawaction.params.headers.clone().unwrap_or_else(HashMap::default))
             }
             RawActionType::Response => SimpleActionT::Response(
                 rawaction
