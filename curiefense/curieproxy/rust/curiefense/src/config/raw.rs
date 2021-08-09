@@ -188,7 +188,7 @@ pub struct RawActionParams {
     pub block_mode: bool,
     pub action: Option<Box<RawAction>>,
     #[serde(default)]
-    pub headers: Option<String>,
+    pub headers: Option<HashMap<String, String>>,
     pub reason: Option<String>,
     pub content: Option<String>,
     pub location: Option<String>,
