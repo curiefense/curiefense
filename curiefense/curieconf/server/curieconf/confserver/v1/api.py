@@ -48,10 +48,10 @@ m_limit = api.model(
         "ttl": fields.String(required=True),
         "limit": fields.String(required=True),
         "action": fields.Raw(required=True),
-        "include": fields.List(fields.String()),
-        "exclude": fields.List(fields.String()),
         "key": AnyType(required=True),
         "pairwith": fields.Raw(required=True),
+        "include": fields.List(fields.String()),
+        "exclude": fields.List(fields.String()),
     },
 )
 
