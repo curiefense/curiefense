@@ -12,10 +12,10 @@ describe('RequestsUtils.ts', () => {
   let postSpy: any
   let deleteSpy: any
   beforeEach(() => {
-    getSpy = jest.spyOn(axios, 'get').mockImplementation(() => Promise.resolve())
-    putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
-    postSpy = jest.spyOn(axios, 'post').mockImplementation(() => Promise.resolve())
-    deleteSpy = jest.spyOn(axios, 'delete').mockImplementation(() => Promise.resolve())
+    getSpy = jest.spyOn(axios, 'get').mockImplementation(() => Promise.resolve({data: {ok: true}}))
+    putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve({data: {ok: true}}))
+    postSpy = jest.spyOn(axios, 'post').mockImplementation(() => Promise.resolve({data: {ok: true}}))
+    deleteSpy = jest.spyOn(axios, 'delete').mockImplementation(() => Promise.resolve({data: {ok: true}}))
   })
   afterEach(() => {
     jest.clearAllMocks()

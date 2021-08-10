@@ -1,5 +1,7 @@
 import * as bulmaToast from 'bulma-toast'
 import {ToastType} from 'bulma-toast'
+import {AxiosResponse} from 'axios'
+import {GenericObject} from '@/types'
 
 const invalidityClasses = ` has-text-danger has-background-danger-light`
 
@@ -58,10 +60,7 @@ const downloadFile = (fileName: string, fileType: string, data: any) => {
     return
   }
   // Create downloadable content based on file type
-  let content: BlobPart = ''
-  if (fileType === 'json') {
-    content = JSON.stringify(data)
-  }
+  const content: BlobPart = JSON.stringify(data)
   // Create anchor element with download data
   const blob = new Blob([content], {
     type: `application/${fileType}`,
@@ -71,6 +70,30 @@ const downloadFile = (fileName: string, fileType: string, data: any) => {
   link.download = `${fileName}.${fileType}`
   // Click initiates the download
   link.click()
+}
+
+type UploadFileFunction = Promise<{response: Partial<AxiosResponse>, uploadData: GenericObject[]}>
+const uploadFile = (file: File, dataSender: Function, dataValidator: Function): UploadFileFunction => {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    const fileType = file.name.split('.')[1]?.toLowerCase()
+    reader.onload = async (e) => {
+      let uploadData
+      if (fileType === 'json') {
+        try {
+          uploadData = JSON.parse(e.target.result as string)
+        } catch (err) {
+          console.log(err)
+        }
+      }
+      let response: Partial<AxiosResponse> = {data: {}}
+      if (uploadData?.length && dataValidator(uploadData[0])) {
+        response = await dataSender(uploadData)
+      }
+      resolve({response, uploadData})
+    }
+    reader.readAsText(file)
+  })
 }
 
 // Default values for toast messages
@@ -133,4 +156,5 @@ export default {
   downloadFile,
   toast,
   removeExtraWhitespaces,
+  uploadFile,
 }

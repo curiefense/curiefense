@@ -47,7 +47,7 @@ const processRequest = (methodName: MethodNames, apiUrl: string, data: any, conf
   }
   request = request.then((response: AxiosResponse) => {
     // Toast message
-    if (successMessage) {
+    if (successMessage && response.data.ok) {
       Utils.toast(successMessage, 'is-success', undoFunction)
     }
     return response
@@ -59,7 +59,8 @@ const processRequest = (methodName: MethodNames, apiUrl: string, data: any, conf
     if (typeof onFail === 'function') {
       onFail();
     }
-    console.error( error )
+    console.error(error)
+    return {}
   })
   return request
 }

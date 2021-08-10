@@ -46,6 +46,26 @@
                   </button>
                 </p>
                 <div class="control">
+                  <div class="file is-white is-small">
+                    <label class="file-label">
+                      <input class="file-input is-hidden"
+                             type="file"
+                             ref="file"
+                             accept="application/json"
+                             @change="uploadDoc" />
+                      <button class="button is-small"
+                          :class="{'is-loading': isUploading}"
+                          :disabled="isUploading"
+                          @click="$refs.file.click()"
+                          title="Upload document">
+                        <span class="icon is-small">
+                          <i class="fas fa-upload"></i>
+                        </span>
+                      </button>
+                    </label>
+                  </div>
+                </div>
+                <div class="control">
                   <span class="icon is-small is-vcentered">
                     <svg :width="24"
                          :height="24"
@@ -75,16 +95,20 @@
             <div class="column">
               <div class="field is-grouped is-pulled-right">
                 <div class="control" v-if="docIdNames.length">
-                  <div class="select is-small">
+                  <div class="select is-small"
+                       :class="{'is-loading': isUploading}">
                     <select v-model="selectedDocID"
                             title="Switch document ID"
                             @change="switchDocID()"
-                            class="doc-selection">
-                      <option v-for="pair in docIdNames"
-                              :key="pair[0]"
-                              :value="pair[0]">
-                        {{ pair[1] }}
-                      </option>
+                            class="doc-selection"
+                            :disabled="!!loadingDocCounter">
+                      <template v-if="!isUploading && !loadingDocCounter">
+                        <option v-for="pair in docIdNames"
+                                :key="pair[0]"
+                                :value="pair[0]">
+                          {{ pair[1] }}
+                        </option>
+                      </template>
                     </select>
                   </div>
                 </div>
@@ -217,7 +241,7 @@ import FlowControlEditor from '@/doc-editors/FlowControlEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import Vue from 'vue'
-import {BasicDocument, Commit, Document, DocumentType, URLMap} from '@/types'
+import {BasicDocument, Commit, Document, DocumentType, GenericObject, URLMap} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
 export default Vue.extend({
@@ -264,6 +288,7 @@ export default Vue.extend({
       selectedDocID: null,
       cancelSource: axios.CancelToken.source(),
       isDownloadLoading: false,
+      isUploading: false,
       isDocumentInvalid: false,
 
       gitLog: [],
@@ -380,14 +405,14 @@ export default Vue.extend({
 
     async loadConfigs(counterOnly?: boolean) {
       // store configs
-      let configs
-      try {
-        const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
-        configs = response.data
-      } catch (err) {
-        console.log('Error while attempting to get configs')
-        console.log(err)
-      }
+      const response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: 'configs/',
+        onFail() {
+          console.log('Error while attempting to get configs')
+        },
+      })
+      const configs = response.data
       if (!counterOnly) {
         console.log('loaded configs: ', configs)
         this.configs = configs
@@ -510,6 +535,35 @@ export default Vue.extend({
       if (!this.isDownloadLoading) {
         Utils.downloadFile(this.selectedDocType, 'json', this.docs)
       }
+    },
+
+    async uploadDoc( {target}: Event ) {
+      this.isUploading = true
+      const {files} = target as HTMLInputElement
+      if ( files?.length ) {
+        const file = files.item(0)
+        const failureMessage = `Failed while attempting to upload ${file.name}:<br />`
+        const dataSender = (fileData: GenericObject[]) => RequestsUtils.sendRequest({
+          data: fileData,
+          url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/`,
+          methodName: 'PUT',
+          successMessage: `Successfully uploaded ${file.name}`,
+          failureMessage: `${failureMessage}Internal server error`,
+        })
+        const dataValidator = (uploadDataExample: GenericObject) => {
+          return _.isEqual( Object.keys( uploadDataExample ), Object.keys( this.newDoc() ))
+        }
+        const {response, uploadData} = await Utils.uploadFile(file, dataSender, dataValidator)
+        if ( response.data?.ok ) {
+          this.docs = _.unionBy(uploadData, this.docs, 'id')
+          this.updateDocIdNames()
+          this.selectedDocID = this.docIdNames[0][0]
+        } else if ( response.data ) {
+          Utils.toast(`${failureMessage}Invalid file`, 'is-danger')
+        }
+      }
+      (target as HTMLInputElement).value = ''
+      this.isUploading = false
     },
 
     async forkDoc() {

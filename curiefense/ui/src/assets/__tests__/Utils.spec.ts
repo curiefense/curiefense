@@ -4,6 +4,7 @@ import * as bulmaToast from 'bulma-toast'
 import {Options} from 'bulma-toast'
 import axios from 'axios'
 import {JSDOM} from 'jsdom'
+import {GenericObject} from '@/types'
 
 describe('Utils.ts', () => {
   describe('generateUniqueEntityName function', () => {
@@ -237,6 +238,61 @@ describe('Utils.ts', () => {
         expect(consoleOutput).toContain(`Unable to download file, unknown file type`)
         console.log = originalLog
         done()
+      })
+    })
+  })
+
+  describe('uploadFile function', () => {
+    let file: File
+    let dataValidator: (data: GenericObject) => boolean
+    let dataSender: (uploadData: GenericObject) => Promise<void>
+    let fileData: string
+    const pauseFor = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds))
+    beforeEach(() => {
+      fileData = '[{"foo": "bar"}]'
+      file = new File([fileData], 'test-file.json', {lastModified: 0, type: 'application/json'})
+      dataValidator = jest.fn(() => true)
+      dataSender = jest.fn(() => Promise.resolve())
+    })
+    afterEach(() => {
+      jest.clearAllMocks()
+    })
+
+    test('should not throw errors if given valid input', (done) => {
+      try {
+        Utils.uploadFile(file, dataSender, dataValidator)
+        done()
+      } catch (err) {
+        expect(err).not.toBeDefined()
+        done()
+      }
+    })
+
+    test('should send valid file to server', async () => {
+      Utils.uploadFile(file, dataSender, dataValidator)
+      await pauseFor(100)
+      expect(dataSender).toHaveBeenCalledTimes(1)
+    })
+
+    describe('should not send invalid file to server and should show a toast message', () => {
+      test('invalid by validator', async () => {
+        dataValidator = jest.fn(() => false)
+        Utils.uploadFile(file, dataSender, dataValidator)
+        await pauseFor(100)
+        expect(dataSender).toHaveBeenCalledTimes(0)
+      })
+      test('invalid file type', async () => {
+        file = new File([fileData], 'test.pdf', {lastModified: 0, type: 'application/pdf'})
+        Utils.uploadFile(file, dataSender, dataValidator)
+        await pauseFor(100)
+        expect(dataSender).toHaveBeenCalledTimes(0)
+      })
+      test('invalid json', async () => {
+        fileData = '[{"foo": /bar"}]'
+        file = new File([fileData], 'test-invalid.json', {lastModified: 0, type: 'application/json'})
+        Utils.uploadFile(file, dataSender, dataValidator)
+        await pauseFor(100)
+        expect(dataSender).toHaveBeenCalledTimes(0)
       })
     })
   })

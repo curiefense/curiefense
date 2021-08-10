@@ -309,14 +309,14 @@ export default Vue.extend({
 
     async loadConfigs() {
       // store configs
-      let configs
-      try {
-        const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'configs/'})
-        configs = response.data
-      } catch (err) {
-        console.log('Error while attempting to get configs')
-        console.log(err)
-      }
+      const response = await RequestsUtils.sendRequest({
+        methodName: 'GET',
+        url: 'configs/',
+        onFail() {
+          console.log('Error while attempting to get configs')
+        },
+      })
+      const configs = response.data
       console.log('loaded configs: ', configs)
       this.configs = configs
       // pick first branch name as selected

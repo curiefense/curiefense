@@ -7,7 +7,7 @@ import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import _ from 'lodash'
-import {ACLPolicy, Branch, Commit, FlowControl, RateLimit, TagRule, URLMap, WAFPolicy} from '@/types'
+import {ACLPolicy, Branch, Commit, FlowControl, RateLimit, TagRule, GenericObject, URLMap, WAFPolicy} from '@/types'
 
 jest.mock('axios')
 
@@ -1524,6 +1524,52 @@ describe('DocumentEditor.vue', () => {
       downloadDocButton.trigger('click')
       await Vue.nextTick()
       expect(downloadFileSpy).toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
+    })
+
+    describe('upload document', () => {
+      let fileData: string
+      let file: File
+      let event: GenericObject
+      beforeEach(() => {
+        fileData = '[{"foo": "bar"}]'
+        file = new File([fileData], 'test-file.json', {lastModified: 0, type: 'application/json'})
+        event = {
+          target: {
+            files: {
+              0: file,
+              item(n: number): File {
+                return event.target.files[n]
+              },
+              length: 1,
+            },
+          },
+        }
+      })
+      afterEach(() => {
+        jest.clearAllMocks()
+      })
+      test('should attempt to upload document when upload button is clicked', async () => {
+        const uploadSpy = jest.spyOn(Utils, 'uploadFile').mockImplementationOnce(() => Promise.resolve({response: {data: {ok: true}}, uploadData: []}))
+        await (wrapper.vm as any).uploadDoc(event)
+        expect(uploadSpy).toHaveBeenCalledTimes(1)
+        expect((wrapper.vm as any).isUploading).toBeFalsy()
+        expect((wrapper.find('.file-input').element as HTMLInputElement).value).toBeFalsy()
+      })
+      test('should display error if upload failed', async () => {
+        const toastOutput: string[] = []
+        jest.spyOn(Utils, 'uploadFile').mockImplementationOnce(() => Promise.resolve({response: {data: {ok: false}}, uploadData: []}))
+        jest.spyOn(Utils, 'toast').mockImplementationOnce((message) => toastOutput.push(message as string))
+        await (wrapper.vm as any).uploadDoc(event)
+        expect(toastOutput).toContain(`Failed while attempting to upload ${file.name}:<br />Invalid file`)
+      })
+      test('should detect given file as invalid', async () => {
+        jest.spyOn(Utils, 'uploadFile').mockImplementationOnce((file, sender, validator) => {
+          expect(validator(JSON.parse(fileData)[0])).toBeFalsy()
+          return Promise.resolve({response: {data: {ok: true}}, uploadData: []})
+        })
+        await (wrapper.vm as any).uploadDoc(event)
+        expect((wrapper.vm as any).isUploading).toBeFalsy()
+      })
     })
   })
 
