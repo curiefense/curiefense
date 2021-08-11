@@ -12,18 +12,8 @@ vec_limit = {
     "key": [{"attrs": "remote_addr"}],
     "limit": "3",
     "action": {"type": "default"},
-    "include": {
-        "headers": {},
-        "cookies": {},
-        "args": {},
-        "attrs": {"tag": "blacklist"},
-    },
-    "exclude": {
-        "headers": {},
-        "cookies": {},
-        "args": {},
-        "attrs": {"tag": "whitelist"},
-    },
+    "include": ["blacklist"],
+    "exclude": ["whitelist"],
     "pairwith": {"self": "self"},
 }
 
@@ -139,16 +129,23 @@ vec_aclpolicy = {
 
 vec_tagrule = {
     "id": "ed8f6efb",
+    "active": True,
     "name": "Spamhaus DROP",
     "source": "https://www.spamhaus.org/drop/drop.txt",
     "mdate": "2020-05-31T05:28:47.410Z",
     "notes": "; notes",
-    "entries_relation": "OR",
     "tags": ["blacklists", "spamhaus"],
-    "entries": [
-        ["ip", "1.10.16.0/20"],
-        ["ip", "1.19.0.0/16"],
-    ],
+    "rule": {
+        "sections": [
+            {
+                "relation": "OR",
+                "entries": [
+                    ["ip", "1.10.16.0/20"],
+                    ["ip", "1.19.0.0/16"],
+                ],
+            }
+        ]
+    },
 }
 
 
