@@ -29,7 +29,7 @@ fi
 
 
 ESCAPED_REPL_BUCKET="${REPL_BUCKET//\//\\\/}"
-URL="http://localhost/api/v1/db/system/k/publishinfo/"
+URL="http://localhost/api/v2/db/system/k/publishinfo/"
 
 # First, configure a single bucket to match $BUCKET
 STATUS=1
@@ -51,7 +51,7 @@ else
 	echo "Configuration of bucket $BUCKET successful"
 fi
 
-URL="http://localhost/api/v1/tools/publish/master/"
+URL="http://localhost/api/v2/tools/publish/master/"
 
 # Export configuration to $BUCKET
 STATUS=1

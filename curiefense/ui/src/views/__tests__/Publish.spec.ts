@@ -156,10 +156,10 @@ describe('Publish.vue', () => {
       'branch_buckets': [{'name': 'master', 'buckets': ['prod']}, {'name': 'devops', 'buckets': ['devops']}],
     }
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/configs/') {
+      if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
-      if (path === `/conf/api/v1/db/system/k/publishinfo/`) {
+      if (path === `/conf/api/v2/db/system/k/publishinfo/`) {
         return Promise.resolve({data: publishInfoData})
       }
       return Promise.resolve({data: {}})
@@ -349,7 +349,7 @@ describe('Publish.vue', () => {
     })
 
     test('should publish with preset data if not changed', async () => {
-      const wantedPath = `/conf/api/v1/tools/publish/devops/v/${gitData[0].version}/`
+      const wantedPath = `/conf/api/v2/tools/publish/devops/v/${gitData[0].version}/`
       const wantedData = [publishInfoData.buckets[0]]
       publishButton.trigger('click')
       await Vue.nextTick()
@@ -357,7 +357,7 @@ describe('Publish.vue', () => {
     })
 
     test('should publish with new selected version', async () => {
-      const wantedPath = `/conf/api/v1/tools/publish/devops/v/${gitData[0].logs[1].version}/`
+      const wantedPath = `/conf/api/v2/tools/publish/devops/v/${gitData[0].logs[1].version}/`
       const wantedData = [publishInfoData.buckets[0]]
       const commitRow = wrapper.findAll('.commit-row').at(1)
       commitRow.trigger('click')
@@ -368,7 +368,7 @@ describe('Publish.vue', () => {
     })
 
     test('should publish with both the pre-selected the new selected bucket', async () => {
-      const wantedPath = `/conf/api/v1/tools/publish/devops/v/${gitData[0].version}/`
+      const wantedPath = `/conf/api/v2/tools/publish/devops/v/${gitData[0].version}/`
       const wantedData = publishInfoData.buckets
       const bucketRow = wrapper.findAll('.bucket-row').at(1)
       bucketRow.trigger('click')
@@ -379,7 +379,7 @@ describe('Publish.vue', () => {
     })
 
     test('should publish without de-selected bucket', async () => {
-      const wantedPath = `/conf/api/v1/tools/publish/devops/v/${gitData[0].version}/`
+      const wantedPath = `/conf/api/v2/tools/publish/devops/v/${gitData[0].version}/`
       const wantedData = [publishInfoData.buckets[1]]
       const newBucketRow = wrapper.findAll('.bucket-row').at(1)
       newBucketRow.trigger('click')

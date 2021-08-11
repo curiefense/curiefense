@@ -52,7 +52,7 @@ type menuItem = {
 export default Vue.extend({
   name: 'SideMenu',
   data() {
-    const swaggerURL = `${location.protocol}//${location.hostname}:30000/api/v1/`
+    const swaggerURL = `${location.protocol}//${location.hostname}:30000/api/v2/`
     const kibanaURL = `${location.protocol}//${location.hostname}:5601/app/discover`
     const grafanaURL = `${location.protocol}//${location.hostname}:30300/`
     const prometheusURL = `${location.protocol}//${location.hostname}:9090/`
@@ -70,8 +70,8 @@ export default Vue.extend({
               '/search': {title: 'Search'},
             },
           },
-          '/db': {
-            title: 'Databases',
+          '/CurieDB': {
+            title: 'CurieDB',
           },
           '/publish': {
             title: 'Publish Changes',

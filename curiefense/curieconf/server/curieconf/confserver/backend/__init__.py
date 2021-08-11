@@ -117,28 +117,28 @@ class CurieBackend(object):
     def entries_revert(self, config, document, entry, version):
         raise NotImplementedError
 
-    def db_list(self):
+    def ns_list(self):
         raise NotImplementedError
 
-    def db_list_versions(self):
+    def ns_list_versions(self):
         raise NotImplementedError
 
-    def db_get(self, dbname, version=None):
+    def ns_get(self, dbname, version=None):
         raise NotImplementedError
 
-    def db_create(self, dbname, data):
+    def ns_create(self, dbname, data):
         raise NotImplementedError
 
-    def db_update(slef, dbname, data):
+    def ns_update(slef, dbname, data):
         raise NotImplementedError
 
-    def db_delete(self, dbname):
+    def ns_delete(self, dbname):
         raise NotImplementedError
 
-    def db_revert(self, dbname, version):
+    def ns_revert(self, dbname, version):
         raise NotImplementedError
 
-    def db_query(self, dbname, query):
+    def ns_query(self, dbname, query):
         raise NotImplementedError
 
     def key_list(self, dbname):

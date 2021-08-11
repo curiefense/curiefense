@@ -4,7 +4,7 @@ declare module CuriefenseClient {
 
   type GenericObject = { [key: string]: any }
 
-  type TagsDatabaseDocument = {
+  type TagsNamespaceValue = {
     neutral?: string[]
     malicious?: string[]
     legitimate?: string[]

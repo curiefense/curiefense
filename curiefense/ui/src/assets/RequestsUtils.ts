@@ -4,9 +4,9 @@ import Utils from '@/assets/Utils'
 export type MethodNames = 'GET' | 'PUT' | 'POST' | 'DELETE'
 
 const confAPIRoot = '/conf/api'
-const confAPIVersion = 'v1'
+const confAPIVersion = 'v2'
 const logsAPIRoot = '/logs/api'
-const logsAPIVersion = 'v1'
+const logsAPIVersion = 'v2'
 
 const axiosMethodsMap: Record<MethodNames, Function> = {
   'GET': axios.get,

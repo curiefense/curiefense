@@ -17,7 +17,7 @@ describe('SideMenu.vue', () => {
     $route = {
       path: '/config',
     }
-    swaggerURL = 'https://10.0.0.1:30000/api/v1/'
+    swaggerURL = 'https://10.0.0.1:30000/api/v2/'
     kibanaURL = 'https://10.0.0.1:5601/app/discover/'
     grafanaURL = 'https://10.0.0.1:30300/'
     prometheusURL = 'https://10.0.0.1:9090/'
@@ -30,7 +30,7 @@ describe('SideMenu.vue', () => {
       },
     }
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v1/db/system/`) {
+      if (path === `/conf/api/v2/db/system/`) {
         return Promise.resolve({data: dbData})
       }
       return Promise.resolve({data: {}})
@@ -67,7 +67,7 @@ describe('SideMenu.vue', () => {
 
   test('should render all Configuration menu items when db key does not exist', () => {
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v1/db/system/`) {
+      if (path === `/conf/api/v2/db/system/`) {
         return Promise.resolve({data: {}})
       }
       return Promise.resolve({data: {}})
@@ -80,9 +80,9 @@ describe('SideMenu.vue', () => {
     })
     const wantedInternalMenuItems = [
       {path: '/config', title: 'Policies & Rules'},
-      {path: '/db', title: 'Databases'},
+      {path: '/CurieDB', title: 'CurieDB'},
       {path: '/publish', title: 'Publish Changes'},
-      {path: `${location.protocol}//${location.hostname}:30000/api/v1/`, title: 'API', external: true},
+      {path: `${location.protocol}//${location.hostname}:30000/api/v2/`, title: 'API', external: true},
     ]
 
     menuItemShouldContainWantedSectionItems('settings', wantedInternalMenuItems)
@@ -91,7 +91,7 @@ describe('SideMenu.vue', () => {
   test('should render all Configuration menu items when db key exists', () => {
     const wantedInternalMenuItems = [
       {path: '/config', title: 'Policies & Rules'},
-      {path: '/db', title: 'Databases'},
+      {path: '/CurieDB', title: 'CurieDB'},
       {path: '/publish', title: 'Publish Changes'},
       {path: swaggerURL, title: 'API', external: true},
     ]
@@ -101,7 +101,7 @@ describe('SideMenu.vue', () => {
 
   test('should render all Analytics menu items when db key does not exist', async () => {
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === `/conf/api/v1/db/system/`) {
+      if (path === `/conf/api/v2/db/system/`) {
         return Promise.resolve({data: {}})
       }
       return Promise.resolve({data: {}})

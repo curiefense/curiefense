@@ -22,7 +22,7 @@ def main(args=None):
 
     parser.add_argument(
         "--base-url",
-        default=os.environ.get("CURIECONF_BASE_URL", "http://confserver/api/v1/"),
+        default=os.environ.get("CURIECONF_BASE_URL", "http://confserver/api/v2/"),
     )
     parser.add_argument(
         "--task-db-name", default=os.environ.get("CURIETASKER_DB_NAME", "tasks")

@@ -8,25 +8,25 @@
               <div class="field is-grouped">
                 <div class="control" v-if="databases.length">
                   <div class="select is-small">
-                    <select class="database-selection"
-                            title="Switch database"
-                            v-model="selectedDatabase"
-                            @change="switchDatabase">
-                      <option v-for="database in databases"
-                              :key="database"
-                              :value="database">
-                        {{ database }}
+                    <select class="namespace-selection"
+                            title="Switch namespace"
+                            v-model="selectedNamespace"
+                            @change="switchNamespace">
+                      <option v-for="namespace in databases"
+                              :key="namespace"
+                              :value="namespace">
+                        {{ namespace }}
                       </option>
                     </select>
                   </div>
                 </div>
 
                 <p class="control">
-                  <button class="button is-small fork-database-button"
-                          :class="{'is-loading': isForkDatabaseLoading}"
-                          @click="forkDatabase"
-                          :disabled="!selectedDatabase"
-                          title="Duplicate database">
+                  <button class="button is-small fork-namespace-button"
+                          :class="{'is-loading': isForkNamespaceLoading}"
+                          @click="forkNamespace"
+                          :disabled="!selectedNamespace"
+                          title="Duplicate namespace">
                     <span class="icon is-small">
                       <i class="fas fa-clone"></i>
                     </span>
@@ -34,10 +34,10 @@
                 </p>
 
                 <p class="control">
-                  <button class="button is-small download-database-button"
-                     @click="downloadDatabase"
-                     :disabled="!selectedDatabase"
-                     title="Download database">
+                  <button class="button is-small download-namespace-button"
+                     @click="downloadNamespace"
+                     :disabled="!selectedNamespace"
+                     title="Download namespace">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
                     </span>
@@ -45,10 +45,10 @@
                 </p>
 
                 <p class="control">
-                  <button class="button is-small new-database-button"
-                          :class="{'is-loading': isNewDatabaseLoading}"
-                          @click="addNewDatabase()"
-                          title="Add new database">
+                  <button class="button is-small new-namespace-button"
+                          :class="{'is-loading': isNewNamespaceLoading}"
+                          @click="addNewNamespace()"
+                          title="Add new namespace">
                     <span class="icon is-small">
                       <i class="fas fa-plus"></i>
                     </span>
@@ -56,11 +56,11 @@
                 </p>
 
                 <p class="control">
-                  <button class="button is-small has-text-danger delete-database-button"
-                          :class="{'is-loading': isDeleteDatabaseLoading}"
-                          @click="deleteDatabase()"
-                          title="Delete database"
-                          :disabled="selectedDatabase === defaultDatabaseName || databases.length <= 1">
+                  <button class="button is-small has-text-danger delete-namespace-button"
+                          :class="{'is-loading': isDeleteNamespaceLoading}"
+                          @click="deleteNamespace()"
+                          title="Delete namespace"
+                          :disabled="selectedNamespace === defaultNamespaceName || databases.length <= 1">
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
                     </span>
@@ -89,7 +89,7 @@
                   <button class="button is-small fork-key-button"
                           :class="{'is-loading': isForkKeyLoading}"
                           @click="forkKey"
-                          :disabled="!selectedDatabase"
+                          :disabled="!selectedNamespace"
                           title="Duplicate Key">
                     <span class="icon is-small">
                       <i class="fas fa-clone"></i>
@@ -100,7 +100,7 @@
                 <p class="control">
                   <button class="button is-small download-key-button"
                      @click="downloadKey"
-                     :disabled="!document"
+                     :disabled="!selectedKeyValue"
                      title="Download Key">
                     <span class="icon is-small">
                       <i class="fas fa-download"></i>
@@ -112,7 +112,7 @@
                   <button class="button is-small new-key-button"
                           :class="{'is-loading': isNewKeyLoading}"
                           @click="addNewKey()"
-                          :disabled="!selectedDatabase"
+                          :disabled="!selectedNamespace"
                           title="Add New Key">
                     <span class="icon is-small">
                       <i class="fas fa-plus"></i>
@@ -137,7 +137,7 @@
                           :class="{'is-loading': isDeleteKeyLoading}"
                           @click="deleteKey()"
                           title="Delete Key"
-                          :disabled="(selectedDatabase === defaultDatabaseName && selectedKey === defaultKeyName)
+                          :disabled="(selectedNamespace === defaultNamespaceName && selectedKey === defaultKeyName)
                                      || keys.length <= 1">
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
@@ -154,20 +154,20 @@
       <hr/>
 
       <div class="content"
-           v-if="selectedDatabase && selectedKey">
+           v-if="selectedNamespace && selectedKey">
         <div class="card">
           <div class="card-content">
             <div class="content">
               <div class="field">
-                <label class="label">Database</label>
+                <label class="label">Namespace</label>
                 <div class="control">
-                  <input class="input is-small is-fullwidth database-name-input"
-                         title="Database name"
-                         @input="validateInput($event, isSelectedDatabaseNewNameValid)"
+                  <input class="input is-small is-fullwidth namespace-name-input"
+                         title="Namespace name"
+                         @input="validateInput($event, isSelectedNamespaceNewNameValid)"
                          type="text"
-                         placeholder="Database name"
-                         v-model="databaseNameInput"
-                         :disabled="selectedDatabase === defaultDatabaseName">
+                         placeholder="Namespace name"
+                         v-model="namespaceNameInput"
+                         :disabled="selectedNamespace === defaultNamespaceName">
                 </div>
               </div>
             </div>
@@ -182,14 +182,14 @@
                          type="text"
                          placeholder="Key name"
                          v-model="keyNameInput"
-                         :disabled="selectedDatabase === defaultDatabaseName && selectedKey === defaultKeyName">
+                         :disabled="selectedNamespace === defaultNamespaceName && selectedKey === defaultKeyName">
                 </div>
               </div>
             </div>
 
             <div class="content">
               <div class="field">
-                <label class="label">Document</label>
+                <label class="label">Value</label>
                 <div class="control">
 
                   <div v-if="isJsonEditor"
@@ -197,11 +197,11 @@
                   </div>
                   <textarea
                       v-else
-                      @input="validateInput($event, isNewDocumentValid)"
-                      title="Document"
+                      @input="validateInput($event, isNewValueValid)"
+                      title="Value"
                       rows="20"
-                      class="is-family-monospace textarea document-input"
-                      v-model="document">
+                      class="is-family-monospace textarea value-input"
+                      v-model="selectedKeyValue">
                   </textarea>
                 </div>
               </div>
@@ -218,7 +218,7 @@
       <div class="content no-data-wrapper"
            v-else>
         <div v-if="loadingDocCounter > 0">
-          <button class="button is-outlined is-text is-small is-loading document-loading">
+          <button class="button is-outlined is-text is-small is-loading value-loading">
             Loading
           </button>
         </div>
@@ -226,15 +226,15 @@
              class="no-data-message">
           No data found!
           <div>
-            <!--display correct message by priority (Database -> Key)-->
-            <span v-if="!selectedDatabase">
-              Missing database. To create a new one, click
+            <!--display correct message by priority (Namespace -> Key)-->
+            <span v-if="!selectedNamespace">
+              Missing namespace. To create a new one, click
               <a title="Add new"
-                 @click="addNewDatabase()">
+                 @click="addNewNamespace()">
                 here
               </a>
             </span>
-            <span v-if="selectedDatabase && !selectedKey">
+            <span v-if="selectedNamespace && !selectedKey">
               Missing key. To create a new one, click
               <a title="Add new"
                  @click="addNewKey()">
@@ -260,7 +260,7 @@ import {AxiosResponse} from 'axios'
 
 export default Vue.extend({
 
-  name: 'DBEditor',
+  name: 'CurieDBEditor',
   props: {},
   components: {
     GitHistory,
@@ -268,15 +268,15 @@ export default Vue.extend({
   data() {
     return {
       databases: [],
-      selectedDatabase: null,
-      databaseNameInput: '',
-      defaultDatabaseName: 'system',
+      selectedNamespace: null,
+      namespaceNameInput: '',
+      defaultNamespaceName: 'system',
 
       // Loading indicators
       loadingDocCounter: 0,
-      isForkDatabaseLoading: false,
-      isNewDatabaseLoading: false,
-      isDeleteDatabaseLoading: false,
+      isForkNamespaceLoading: false,
+      isNewNamespaceLoading: false,
+      isDeleteNamespaceLoading: false,
       isForkKeyLoading: false,
       isNewKeyLoading: false,
       isDeleteKeyLoading: false,
@@ -291,8 +291,8 @@ export default Vue.extend({
       keyNameInput: '',
       defaultKeyName: 'publishinfo',
 
-      selectedDatabaseData: {} as GenericObject,
-      document: null,
+      selectedNamespaceData: {} as GenericObject,
+      selectedKeyValue: null,
 
       gitLog: [] as Commit[],
       loadingGitlog: false,
@@ -304,18 +304,18 @@ export default Vue.extend({
   computed: {
 
     gitAPIPath(): string {
-      return `${this.apiRoot}/${this.apiVersion}/db/${this.selectedDatabase}/k/${this.selectedKey}/v/`
+      return `${this.apiRoot}/${this.apiVersion}/db/${this.selectedNamespace}/k/${this.selectedKey}/v/`
     },
 
     isFormValid(): boolean {
-      return this.isSelectedDatabaseNewNameValid && this.isSelectedKeyNewNameValid && this.isNewDocumentValid
+      return this.isSelectedNamespaceNewNameValid && this.isSelectedKeyNewNameValid && this.isNewValueValid
     },
 
-    isSelectedDatabaseNewNameValid(): boolean {
-      const newName = this.databaseNameInput?.trim()
-      const isDatabaseNameEmpty = newName === ''
-      const isDatabaseNameDuplicate = this.databases.includes(newName) ? this.selectedDatabase !== newName : false
-      return !isDatabaseNameEmpty && !isDatabaseNameDuplicate
+    isSelectedNamespaceNewNameValid(): boolean {
+      const newName = this.namespaceNameInput?.trim()
+      const isNamespaceNameEmpty = newName === ''
+      const isNamespaceNameDuplicate = this.databases.includes(newName) ? this.selectedNamespace !== newName : false
+      return !isNamespaceNameEmpty && !isNamespaceNameDuplicate
     },
 
     isSelectedKeyNewNameValid(): boolean {
@@ -325,9 +325,9 @@ export default Vue.extend({
       return !isKeyNameEmpty && !isKeyNameDuplicate
     },
 
-    isNewDocumentValid(): boolean {
+    isNewValueValid(): boolean {
       try {
-        JSON.parse(this.document)
+        JSON.parse(this.selectedKeyValue)
       } catch {
         return false
       }
@@ -346,110 +346,110 @@ export default Vue.extend({
       await RequestsUtils.sendRequest({methodName: 'GET', url: 'db/'}).then((response: AxiosResponse<string[]>) => {
         this.databases = response?.data || []
         console.log('Databases: ', this.databases)
-        this.loadFirstDatabase()
+        this.loadFirstNamespace()
       })
       this.setLoadingDocStatus(false)
     },
 
-    loadFirstDatabase() {
-      const database = this.databases?.[0]
-      if (database) {
-        this.loadDatabase(database)
+    loadFirstNamespace() {
+      const namespace = this.databases?.[0]
+      if (namespace) {
+        this.loadNamespace(namespace)
       } else {
-        console.log(`failed loading database, none are present!`)
+        console.log(`failed loading namespace, none are present!`)
       }
     },
 
-    async loadDatabase(database: string) {
+    async loadNamespace(namespace: string) {
       this.setLoadingDocStatus(true)
-      this.selectedDatabase = database
-      this.databaseNameInput = this.selectedDatabase
-      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: `db/${this.selectedDatabase}/`})
-      this.selectedDatabaseData = response?.data || {}
-      this.initDatabaseKeys()
+      this.selectedNamespace = namespace
+      this.namespaceNameInput = this.selectedNamespace
+      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: `db/${this.selectedNamespace}/`})
+      this.selectedNamespaceData = response?.data || {}
+      this.initNamespaceKeys()
       this.setLoadingDocStatus(false)
     },
 
-    switchDatabase() {
-      this.loadDatabase(this.selectedDatabase)
-      Utils.toast(`Switched to database "${this.selectedDatabase}".`, 'is-info')
+    switchNamespace() {
+      this.loadNamespace(this.selectedNamespace)
+      Utils.toast(`Switched to namespace "${this.selectedNamespace}".`, 'is-info')
     },
 
-    async deleteDatabase(database?: string, disableAnnouncementMessages?: boolean) {
-      this.isDeleteDatabaseLoading = true
-      if (!database) {
-        database = this.selectedDatabase
+    async deleteNamespace(namespace?: string, disableAnnouncementMessages?: boolean) {
+      this.isDeleteNamespaceLoading = true
+      if (!namespace) {
+        namespace = this.selectedNamespace
       }
-      const databaseIndex = _.findIndex(this.databases, (db) => {
-        return db === database
+      const namespaceIndex = _.findIndex(this.databases, (db) => {
+        return db === namespace
       })
-      this.databases.splice(databaseIndex, 1)
+      this.databases.splice(namespaceIndex, 1)
       let successMessage
       let failureMessage
       if (!disableAnnouncementMessages) {
-        successMessage = `Database "${database}" was deleted.`
-        failureMessage = `Failed while attempting to delete database "${database}".`
+        successMessage = `Namespace "${namespace}" was deleted.`
+        failureMessage = `Failed while attempting to delete namespace "${namespace}".`
       }
-      await RequestsUtils.sendRequest({methodName: 'DELETE', url: `db/${database}/`, successMessage, failureMessage})
-      if (!this.databases.includes(this.selectedDatabase)) {
-        this.loadFirstDatabase()
+      await RequestsUtils.sendRequest({methodName: 'DELETE', url: `db/${namespace}/`, successMessage, failureMessage})
+      if (!this.databases.includes(this.selectedNamespace)) {
+        this.loadFirstNamespace()
       }
-      this.isDeleteDatabaseLoading = false
+      this.isDeleteNamespaceLoading = false
     },
 
-    async addNewDatabase(newDatabase?: string, data?: { [key: string]: any }) {
-      this.isNewDatabaseLoading = true
-      if (!newDatabase) {
-        newDatabase = Utils.generateUniqueEntityName('new database', this.databases)
+    async addNewNamespace(newNamespace?: string, data?: { [key: string]: any }) {
+      this.isNewNamespaceLoading = true
+      if (!newNamespace) {
+        newNamespace = Utils.generateUniqueEntityName('new namespace', this.databases)
       }
       if (!data) {
         data = {key: {}}
       }
       await RequestsUtils.sendRequest({
         methodName: 'PUT',
-        url: `db/${newDatabase}/`,
+        url: `db/${newNamespace}/`,
         data,
-        successMessage: `Database "${newDatabase}" was saved`,
-        failureMessage: `Failed while attempting to create the new database.`,
+        successMessage: `Namespace "${newNamespace}" was saved`,
+        failureMessage: `Failed while attempting to create the new namespace.`,
       }).then(() => {
-        this.loadDatabase(newDatabase)
-        this.databases.unshift(newDatabase)
+        this.loadNamespace(newNamespace)
+        this.databases.unshift(newNamespace)
       })
-      this.isNewDatabaseLoading = false
+      this.isNewNamespaceLoading = false
     },
 
-    async forkDatabase() {
-      this.isForkDatabaseLoading = true
-      const newDatabase = Utils.generateUniqueEntityName(this.selectedDatabase, this.databases, true)
-      await this.addNewDatabase(newDatabase, this.selectedDatabaseData)
-      this.isForkDatabaseLoading = false
+    async forkNamespace() {
+      this.isForkNamespaceLoading = true
+      const newNamespace = Utils.generateUniqueEntityName(this.selectedNamespace, this.databases, true)
+      await this.addNewNamespace(newNamespace, this.selectedNamespaceData)
+      this.isForkNamespaceLoading = false
     },
 
-    downloadDatabase() {
-      Utils.downloadFile(this.selectedDatabase, 'json', this.selectedDatabaseData)
+    downloadNamespace() {
+      Utils.downloadFile(this.selectedNamespace, 'json', this.selectedNamespaceData)
     },
 
-    initDatabaseKeys() {
-      this.keys = Object.keys(this.selectedDatabaseData)
+    initNamespaceKeys() {
+      this.keys = Object.keys(this.selectedNamespaceData)
       this.loadKey(this.keys[0])
     },
 
     loadKey(key: string) {
       this.selectedKey = key
       this.keyNameInput = this.selectedKey
-      this.document = JSON.stringify(this.selectedDatabaseData[key])
-      this.editor?.set(this.selectedDatabaseData[key])
+      this.selectedKeyValue = JSON.stringify(this.selectedNamespaceData[key])
+      this.editor?.set(this.selectedNamespaceData[key])
       this.loadGitLog()
     },
 
-    saveKey(database: string, key: string, doc: string) {
+    saveKey(namespace: string, key: string, doc: string) {
       const parsedDoc = JSON.parse(doc)
       return RequestsUtils.sendRequest({
         methodName: 'PUT',
-        url: `db/${database}/k/${key}/`,
+        url: `db/${namespace}/k/${key}/`,
         data: parsedDoc,
-        successMessage: `Key "${key}" in database "${database}" was saved.`,
-        failureMessage: `Failed while attempting to save key "${key}" in database "${database}".`,
+        successMessage: `Key "${key}" in namespace "${namespace}" was saved.`,
+        failureMessage: `Failed while attempting to save key "${key}" in namespace "${namespace}".`,
       })
     },
 
@@ -460,7 +460,7 @@ export default Vue.extend({
 
     async deleteKey(key?: string, disableAnnouncementMessages?: boolean) {
       this.isDeleteKeyLoading = true
-      const database = this.selectedDatabase
+      const namespace = this.selectedNamespace
       if (!key) {
         key = this.selectedKey
       }
@@ -471,12 +471,12 @@ export default Vue.extend({
       let successMessage
       let failureMessage
       if (!disableAnnouncementMessages) {
-        successMessage = `Key "${key}" in database "${database}" was deleted.`
-        failureMessage = `Failed while attempting to delete key "${key}" in database "${database}".`
+        successMessage = `Key "${key}" in namespace "${namespace}" was deleted.`
+        failureMessage = `Failed while attempting to delete key "${key}" in namespace "${namespace}".`
       }
       await RequestsUtils.sendRequest({
         methodName: 'DELETE',
-        url: `db/${database}/k/${key}/`,
+        url: `db/${namespace}/k/${key}/`,
         successMessage,
         failureMessage,
       })
@@ -486,19 +486,19 @@ export default Vue.extend({
       this.isDeleteKeyLoading = false
     },
 
-    async addNewKey(newKey?: string, newDocument?: string) {
-      if (!this.selectedDatabase) {
+    async addNewKey(newKey?: string, newValue?: string) {
+      if (!this.selectedNamespace) {
         return
       }
       this.isNewKeyLoading = true
       if (!newKey) {
         newKey = Utils.generateUniqueEntityName('new key', this.keys)
       }
-      if (!newDocument) {
-        newDocument = '{}'
+      if (!newValue) {
+        newValue = '{}'
       }
-      await this.saveKey(this.selectedDatabase, newKey, newDocument).then(() => {
-        this.selectedDatabaseData[newKey] = JSON.parse(newDocument)
+      await this.saveKey(this.selectedNamespace, newKey, newValue).then(() => {
+        this.selectedNamespaceData[newKey] = JSON.parse(newValue)
         this.loadKey(newKey)
         this.keys.unshift(newKey)
       })
@@ -508,38 +508,38 @@ export default Vue.extend({
     async forkKey() {
       this.isForkKeyLoading = true
       const newKey = Utils.generateUniqueEntityName(this.selectedKey, this.keys, true)
-      const newDocument = _.cloneDeep(this.document)
-      await this.addNewKey(newKey, newDocument)
+      const newValue = _.cloneDeep(this.selectedKeyValue)
+      await this.addNewKey(newKey, newValue)
       this.isForkKeyLoading = false
     },
 
     downloadKey() {
-      if (!this.document) {
+      if (!this.selectedKeyValue) {
         return
       }
-      Utils.downloadFile(this.selectedKey, 'json', JSON.parse(this.document))
+      Utils.downloadFile(this.selectedKey, 'json', JSON.parse(this.selectedKeyValue))
     },
 
     async saveChanges() {
       this.isSaveDocLoading = true
-      if (this.selectedDatabase === this.databaseNameInput && this.selectedKey === this.keyNameInput) {
-        // If database name and key name did not change - save normally
-        await this.saveKey(this.selectedDatabase, this.selectedKey, this.document)
-        this.selectedDatabaseData[this.selectedKey] = JSON.parse(this.document)
-      } else if (this.selectedDatabase !== this.databaseNameInput) {
-        // If database name changed -> Save the data under the new name and remove the old database
-        const oldDatabase = this.selectedDatabase
-        const oldDataResponse = await RequestsUtils.sendRequest({methodName: 'GET', url: `db/${oldDatabase}/`})
+      if (this.selectedNamespace === this.namespaceNameInput && this.selectedKey === this.keyNameInput) {
+        // If namespace name and key name did not change - save normally
+        await this.saveKey(this.selectedNamespace, this.selectedKey, this.selectedKeyValue)
+        this.selectedNamespaceData[this.selectedKey] = JSON.parse(this.selectedKeyValue)
+      } else if (this.selectedNamespace !== this.namespaceNameInput) {
+        // If namespace name changed -> Save the data under the new name and remove the old namespace
+        const oldNamespace = this.selectedNamespace
+        const oldDataResponse = await RequestsUtils.sendRequest({methodName: 'GET', url: `db/${oldNamespace}/`})
         const data = oldDataResponse.data
         const oldKey = this.selectedKey
         delete data[oldKey]
-        data[this.keyNameInput] = JSON.parse(this.document)
-        await this.addNewDatabase(this.databaseNameInput, data)
-        await this.deleteDatabase(oldDatabase, true)
+        data[this.keyNameInput] = JSON.parse(this.selectedKeyValue)
+        await this.addNewNamespace(this.namespaceNameInput, data)
+        await this.deleteNamespace(oldNamespace, true)
       } else {
-        // If key name changed -> Save the data under the new name and remove the old key from the database
+        // If key name changed -> Save the data under the new name and remove the old key from the namespace
         const oldKey = this.selectedKey
-        await this.addNewKey(this.keyNameInput, this.document)
+        await this.addNewKey(this.keyNameInput, this.selectedKeyValue)
         await this.deleteKey(oldKey, true)
       }
       await this.loadGitLog()
@@ -548,24 +548,24 @@ export default Vue.extend({
 
     async loadGitLog() {
       this.loadingGitlog = true
-      const url = `db/${this.selectedDatabase}/k/${this.selectedKey}/v/`
+      const url = `db/${this.selectedNamespace}/k/${this.selectedKey}/v/`
       const response = await RequestsUtils.sendRequest({methodName: 'GET', url})
       this.gitLog = response?.data
       this.loadingGitlog = false
     },
 
     async restoreGitVersion(gitVersion: Commit) {
-      const database = this.selectedDatabase
+      const namespace = this.selectedNamespace
       const selectedKey = this.selectedKey
       const versionId = gitVersion.version
-      const urlTrail = `${database}/v/${versionId}/`
+      const urlTrail = `${namespace}/v/${versionId}/`
       await RequestsUtils.sendRequest({
         methodName: 'PUT',
         url: `db/${urlTrail}revert/`,
-        successMessage: `Database [${database}] restored to version [${versionId}]!`,
-        failureMessage: `Failed restoring database [${database}] to version [${versionId}]!`,
+        successMessage: `Namespace [${namespace}] restored to version [${versionId}]!`,
+        failureMessage: `Failed restoring namespace [${namespace}] to version [${versionId}]!`,
       })
-      await this.loadDatabase(database)
+      await this.loadNamespace(namespace)
       // load last loaded key if still exists
       const oldSelectedKey = this.keys.find((key) => {
         return key === selectedKey
@@ -595,12 +595,12 @@ export default Vue.extend({
             modes: ['code', 'tree'],
             onChange: () => {
               try {
-                this.document = JSON.stringify(this.editor.get())
+                this.selectedKeyValue = JSON.stringify(this.editor.get())
               } catch (err) {
                 // editor.get will throw an error when attempting to get an invalid json
               }
             },
-          }, JSON.parse(this.document))
+          }, JSON.parse(this.selectedKeyValue))
           this.isJsonEditor = true
           console.log('Successfully loaded json editor')
           clearInterval(editorLoaderInterval)

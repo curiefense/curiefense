@@ -169,31 +169,31 @@ describe('URLMapsEditor.vue', () => {
         return Promise.resolve({data: []})
       }
       const branch = (wrapper.vm as any).selectedBranch
-      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/urlmaps/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/urlmaps/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(urlMapsDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: urlMapsDocs})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/wafpolicies/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/wafpolicies/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(wafDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: wafDocs})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/ratelimits/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(rateLimitsDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: rateLimitsDocs})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
         return Promise.resolve({data: rateLimitsDocs[0]})
       }
       return Promise.resolve({data: []})

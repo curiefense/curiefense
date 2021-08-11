@@ -353,26 +353,26 @@ describe('DocumentSearch.vue', () => {
       },
     ]
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/configs/') {
+      if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
       const branch = (wrapper.vm as any).selectedBranch
-      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/`) {
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/tagrules/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/tagrules/`) {
         return Promise.resolve({data: profilingListDocs})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/urlmaps/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/urlmaps/`) {
         return Promise.resolve({data: urlMapsDocs})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/flowcontrol/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/flowcontrol/`) {
         return Promise.resolve({data: flowControlDocs})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/ratelimits/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
         return Promise.resolve({data: rateLimitDocs})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/wafpolicies/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/wafpolicies/`) {
         return Promise.resolve({data: wafDocs})
       }
       return Promise.resolve({data: []})
@@ -439,7 +439,7 @@ describe('DocumentSearch.vue', () => {
     consoleOutput = []
     console.log = mockedLog
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/configs/') {
+      if (path === '/conf/api/v2/configs/') {
         return Promise.reject(new Error())
       }
       return Promise.resolve({data: {}})

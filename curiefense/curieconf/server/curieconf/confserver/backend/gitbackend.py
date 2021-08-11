@@ -237,12 +237,9 @@ class GitBackend(CurieBackend):
             for c in self.repo.iter_commits(rev=head, paths=rpath)
         ]
 
-    def get_db(self, dbname, version=None):
-        try:
-            db = self.get_tree(version) / dbname
-        except KeyError:
-            abort(404, "database [%s] does not exist" % dbname)
-        return json.load(db.data_stream)
+    def get_ns(self, nsname, version=None):
+        ns = self.get_tree(version) / nsname
+        return json.load(ns.data_stream)
 
     def gitpush(self, url):
         remotename = "tmpremote"
@@ -724,83 +721,80 @@ class GitBackend(CurieBackend):
             self.commit("Delete entry [%s] of document [%s]" % (entry, document))
         return {"ok": True}
 
-    ### DATABASES
+    ### DATABASE NAMESPACES
 
-    def db_list(self, version=None):
+    def ns_list(self, version=None):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
             t = self.get_tree(version)
             return [obj.name for obj in t.traverse() if obj.type == "blob"]
 
-    def db_list_versions(self):
+    def ns_list_versions(self):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
             return self.get_logs()
 
-    def db_get(self, dbname, version=None):
+    def ns_get(self, nsname, version=None):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
-            return self.get_db(dbname, version)
+            return self.get_ns(nsname, version)
 
-    def db_create(self, dbname, data):
+    def ns_create(self, nsname, data):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
-            if self.exists(dbname):
-                abort(409, "database [%s] already exists" % dbname)
-            self.add_json_file(dbname, data)
-            self.commit("Added database [%s]" % dbname)
+            if self.exists(nsname):
+                raise Exception("[%s] already exists" % nsname)
+            self.add_json_file(nsname, data)
+            self.commit("Added namespace [%s]" % nsname)
         return {"ok": True}
 
-    def db_update(self, dbname, data):
+    def ns_update(self, nsname, data):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
             try:
-                dbobj = self.get_tree() / dbname
+                nsobj = self.get_tree() / nsname
             except KeyError:
-                db = {}
+                ns = {}
             else:
-                db = json.load(dbobj.data_stream)
-            db.update(data)
-            self.add_json_file(dbname, db)
-            self.commit("Updated database [%s]" % dbname)
+                ns = json.load(nsobj.data_stream)
+            ns.update(data)
+            self.add_json_file(nsname, ns)
+            self.commit("Updated namespace [%s]" % nsname)
         return {"ok": True}
 
-    def db_delete(self, dbname):
+    def ns_delete(self, nsname):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
-            if self.exists(dbname):
-                self.del_file(dbname)
-                self.commit("Deleted database [%s]" % dbname)
+            if self.exists(nsname):
+                self.del_file(nsname)
+                self.commit("Deleted namespace [%s]" % nsname)
             else:
-                abort(409, "database [%s] does not exist" % dbname)
+                raise KeyError("[%s] does not exist" % nsname)
         return {"ok": True}
 
-    def db_revert(self, dbname, version):
+    def ns_revert(self, nsname, version):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
-            try:
-                dbobj = self.get_tree(version) / dbname
-            except KeyError:
-                abort(404, "database [%s] version [%s] not found" % (dbname, version))
-            self.add_file(dbname, dbobj.data_stream.read())
-            self.commit("Reverting database [%s] to version [%s]" % (dbname, version))
+            nsobj = self.get_tree(version) / nsname
+            self.add_file(nsname, nsobj.data_stream.read())
+            self.commit("Reverting namespace [%s] to version [%s]" % (nsname, version))
         return {"ok": True}
 
-    def db_query(self, dbname, query):
+    def ns_query(self, nsname, query):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
-            db = self.get_db(dbname)
-            return jmespath.search(query, db)
+            ns = self.get_ns(nsname)
+            return jmespath.search(query, ns)
 
     ### KEYS
 
-    def key_list(self, dbname):
+    def key_list(self, nsname):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
-            db = self.get_db(dbname)
-            return list(db.keys())
+            ns = self.get_ns(nsname)
+            return list(ns.keys())
 
-    def key_list_versions(self, dbname, key):
+    def key_list_versions(self, nsname, key):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
             allvers = self.get_logs()
@@ -809,8 +803,8 @@ class GitBackend(CurieBackend):
             dprec = []
             try:
                 vprec = allvers.pop()
-                db = self.get_db(dbname, version=vprec["version"])
-                dprec = [db[k] for k in db if k == key]
+                ns = self.get_ns(nsname, version=vprec["version"])
+                dprec = [ns[k] for k in ns if k == key]
                 if dprec:
                     res.append(vprec)
             except:
@@ -818,8 +812,8 @@ class GitBackend(CurieBackend):
             while allvers:
                 try:
                     v = allvers.pop()
-                    db = self.get_db(dbname, version=v["version"])
-                    d = [db[k] for k in db if k == key]
+                    ns = self.get_ns(nsname, version=v["version"])
+                    d = [ns[k] for k in ns if k == key]
                     if len(d) != len(dprec):
                         res.append(v)
                     else:
@@ -833,32 +827,32 @@ class GitBackend(CurieBackend):
             res.reverse()
             return res
 
-    def key_get(self, dbname, key, version=None):
+    def key_get(self, nsname, key, version=None):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
-            db = self.get_db(dbname, version)
+            ns = self.get_ns(nsname, version)
             try:
-                return db[key]
+                return ns[key]
             except KeyError:
-                abort(404, "Key [%s] not found in database [%s]" % (key, dbname))
+                abort(404, "Key [%s] not found in namespace [%s]" % (key, nsname))
 
-    def key_set(self, dbname, key, value):
+    def key_set(self, nsname, key, value):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
-            db = self.get_db(dbname)
-            db[key] = value
-            self.add_json_file(dbname, db)
-            self.commit("Setting key [%s] in database [%s]" % (key, dbname))
+            ns = self.get_ns(nsname)
+            ns[key] = value
+            self.add_json_file(nsname, ns)
+            self.commit("Setting key [%s] in namespace [%s]" % (key, nsname))
         return {"ok": True}
 
-    def key_delete(self, dbname, key):
+    def key_delete(self, nsname, key):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
-            db = self.get_db(dbname)
+            ns = self.get_ns(nsname)
             try:
-                del db[key]
+                del ns[key]
             except KeyError:
-                abort(404, "Key [%s] not found in database [%s]" % (key, dbname))
-            self.add_json_file(dbname, db)
-            self.commit("Deleting key [%s] in  database [%s]" % (key, dbname))
+                abort(404, "Key [%s] not found in namespace [%s]" % (key, nsname))
+            self.add_json_file(nsname, ns)
+            self.commit("Deleting key [%s] in  namespace [%s]" % (key, nsname))
         return {"ok": True}
