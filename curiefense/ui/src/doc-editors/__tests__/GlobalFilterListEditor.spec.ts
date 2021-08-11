@@ -1,7 +1,7 @@
-import ProfilingListEditor from '@/doc-editors/ProfilingListEditor.vue'
+import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount, Wrapper} from '@vue/test-utils'
-import {TagRule, TagRuleSectionEntry} from '@/types'
+import {GlobalFilter, GlobalFilterSectionEntry} from '@/types'
 import Vue from 'vue'
 import ResponseAction from '@/components/ResponseAction.vue'
 import TagsAutocompleteInput from '@/components/TagAutocompleteInput.vue'
@@ -11,8 +11,8 @@ import axios from 'axios'
 
 jest.mock('axios')
 
-describe('ProfilingListEditor.vue', () => {
-  let docs: TagRule[]
+describe('GlobalFilterListEditor.vue', () => {
+  let docs: GlobalFilter[]
   let wrapper: Wrapper<Vue>
   beforeEach(() => {
     docs = [{
@@ -70,7 +70,7 @@ describe('ProfilingListEditor.vue', () => {
           }],
       },
     }]
-    wrapper = shallowMount(ProfilingListEditor, {
+    wrapper = shallowMount(GlobalFilterListEditor, {
       propsData: {
         selectedDoc: docs[0],
       },
@@ -128,7 +128,7 @@ describe('ProfilingListEditor.vue', () => {
     describe('sections entries display', () => {
       test('should display correct zero amount of sections', async () => {
         docs[0].rule.sections = []
-        wrapper = shallowMount(ProfilingListEditor, {
+        wrapper = shallowMount(GlobalFilterListEditor, {
           propsData: {
             selectedDoc: docs[0],
           },
@@ -142,7 +142,7 @@ describe('ProfilingListEditor.vue', () => {
         docs[0].rule.sections = [
           {'relation': 'OR', 'entries': []},
         ]
-        wrapper = shallowMount(ProfilingListEditor, {
+        wrapper = shallowMount(GlobalFilterListEditor, {
           propsData: {
             selectedDoc: docs[0],
           },
@@ -156,7 +156,7 @@ describe('ProfilingListEditor.vue', () => {
         docs[0].rule.sections = [
           {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
         ]
-        wrapper = shallowMount(ProfilingListEditor, {
+        wrapper = shallowMount(GlobalFilterListEditor, {
           propsData: {
             selectedDoc: docs[0],
           },
@@ -170,7 +170,7 @@ describe('ProfilingListEditor.vue', () => {
         docs[0].rule.sections = [
           {'relation': 'OR', 'entries': [['ip', '1.1.1.1', null]]},
         ]
-        wrapper = shallowMount(ProfilingListEditor, {
+        wrapper = shallowMount(GlobalFilterListEditor, {
           propsData: {
             selectedDoc: docs[0],
           },
@@ -196,7 +196,7 @@ describe('ProfilingListEditor.vue', () => {
     // non editable if source is not 'self-managed'
     beforeEach(async () => {
       docs[0].source = 'https://example.com'
-      wrapper = shallowMount(ProfilingListEditor, {
+      wrapper = shallowMount(GlobalFilterListEditor, {
         propsData: {
           selectedDoc: docs[0],
         },
@@ -263,7 +263,7 @@ describe('ProfilingListEditor.vue', () => {
 
     test('should set tags input to be an empty string if document tags do not exist', async () => {
       delete docs[0].tags
-      wrapper = shallowMount(ProfilingListEditor, {
+      wrapper = shallowMount(GlobalFilterListEditor, {
         propsData: {
           selectedDoc: docs[0],
         },
@@ -275,7 +275,7 @@ describe('ProfilingListEditor.vue', () => {
 
     test('should set tags input to be an empty string if document tags is empty', async () => {
       docs[0].tags = []
-      wrapper = shallowMount(ProfilingListEditor, {
+      wrapper = shallowMount(GlobalFilterListEditor, {
         propsData: {
           selectedDoc: docs[0],
         },
@@ -354,7 +354,7 @@ describe('ProfilingListEditor.vue', () => {
   })
 
   test('should remove all entries relation data from component when clear button is clicked', async () => {
-    const wantedRule: TagRule['rule'] = {
+    const wantedRule: GlobalFilter['rule'] = {
       relation: docs[0].rule.relation,
       sections: [],
     }
@@ -376,7 +376,7 @@ describe('ProfilingListEditor.vue', () => {
         return Promise.resolve({data: {}})
       })
       docs[0].source = 'https://example.com'
-      wrapper = shallowMount(ProfilingListEditor, {
+      wrapper = shallowMount(GlobalFilterListEditor, {
         propsData: {
           selectedDoc: docs[0],
         },
@@ -385,7 +385,7 @@ describe('ProfilingListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - ipv4 array', async () => {
-      const wantedEntries: TagRuleSectionEntry[] = [
+      const wantedEntries: GlobalFilterSectionEntry[] = [
         [
           'ip',
           '203.208.60.0/24',
@@ -402,7 +402,7 @@ describe('ProfilingListEditor.vue', () => {
           'Crawler',
         ],
       ]
-      const wantedData: TagRule['rule'] = {
+      const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
         sections: [{
           entries: wantedEntries,
@@ -436,7 +436,7 @@ describe('ProfilingListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - ipv6 array', async () => {
-      const wantedEntries: TagRuleSectionEntry[] = [
+      const wantedEntries: GlobalFilterSectionEntry[] = [
         [
           'ip',
           '2603:8080:3d40:f7:d45b:477e:579e:245',
@@ -453,7 +453,7 @@ describe('ProfilingListEditor.vue', () => {
           'Crawler',
         ],
       ]
-      const wantedData: TagRule['rule'] = {
+      const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
         sections: [{
           entries: wantedEntries,
@@ -487,7 +487,7 @@ describe('ProfilingListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - asn array', async () => {
-      const wantedEntries: TagRuleSectionEntry[] = [
+      const wantedEntries: GlobalFilterSectionEntry[] = [
         [
           'asn',
           'as34109',
@@ -504,7 +504,7 @@ describe('ProfilingListEditor.vue', () => {
           'spam',
         ],
       ]
-      const wantedData: TagRule['rule'] = {
+      const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
         sections: [{
           entries: wantedEntries,
@@ -538,7 +538,7 @@ describe('ProfilingListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - ip singles', async () => {
-      const wantedEntries: TagRuleSectionEntry[] = [
+      const wantedEntries: GlobalFilterSectionEntry[] = [
         [
           'ip',
           '203.208.60.0/24',
@@ -555,7 +555,7 @@ describe('ProfilingListEditor.vue', () => {
           null,
         ],
       ]
-      const wantedData: TagRule['rule'] = {
+      const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
         sections: [{
           entries: wantedEntries,
@@ -580,7 +580,7 @@ describe('ProfilingListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - asn singles', async () => {
-      const wantedEntries: TagRuleSectionEntry[] = [
+      const wantedEntries: GlobalFilterSectionEntry[] = [
         [
           'asn',
           'as34109',
@@ -597,7 +597,7 @@ describe('ProfilingListEditor.vue', () => {
           null,
         ],
       ]
-      const wantedData: TagRule['rule'] = {
+      const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
         sections: [{
           entries: wantedEntries,
@@ -622,7 +622,7 @@ describe('ProfilingListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - ip inside object', async () => {
-      const wantedEntries: TagRuleSectionEntry[] = [
+      const wantedEntries: GlobalFilterSectionEntry[] = [
         [
           'ip',
           '203.208.60.0/24',
@@ -639,7 +639,7 @@ describe('ProfilingListEditor.vue', () => {
           'Crawler',
         ],
       ]
-      const wantedData: TagRule['rule'] = {
+      const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
         sections: [{
           entries: wantedEntries,
@@ -676,7 +676,7 @@ describe('ProfilingListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - asn inside object', async () => {
-      const wantedEntries: TagRuleSectionEntry[] = [
+      const wantedEntries: GlobalFilterSectionEntry[] = [
         [
           'asn',
           'as34109',
@@ -693,7 +693,7 @@ describe('ProfilingListEditor.vue', () => {
           'spam',
         ],
       ]
-      const wantedData: TagRule['rule'] = {
+      const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
         sections: [{
           entries: wantedEntries,
@@ -730,7 +730,7 @@ describe('ProfilingListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - ip array', async () => {
-      const wantedEntries: TagRuleSectionEntry[] = [
+      const wantedEntries: GlobalFilterSectionEntry[] = [
         [
           'ip',
           '203.208.60.0/24',
@@ -752,7 +752,7 @@ describe('ProfilingListEditor.vue', () => {
           null,
         ],
       ]
-      const wantedData: TagRule['rule'] = {
+      const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
         sections: [{
           entries: wantedEntries,
@@ -775,7 +775,7 @@ describe('ProfilingListEditor.vue', () => {
     })
 
     test('should update entries relation component with correct data - asn array', async () => {
-      const wantedEntries: TagRuleSectionEntry[] = [
+      const wantedEntries: GlobalFilterSectionEntry[] = [
         [
           'asn',
           'as34109',
@@ -797,7 +797,7 @@ describe('ProfilingListEditor.vue', () => {
           null,
         ],
       ]
-      const wantedData: TagRule['rule'] = {
+      const wantedData: GlobalFilter['rule'] = {
         relation: 'OR',
         sections: [{
           entries: wantedEntries,
@@ -820,7 +820,7 @@ describe('ProfilingListEditor.vue', () => {
     })
 
     test('should not update entries relation component when no data found', async () => {
-      const wantedData: TagRule['rule'] = docs[0].rule
+      const wantedData: GlobalFilter['rule'] = docs[0].rule
       resolveData = {
         data: {
           'type': 'acl',

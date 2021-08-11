@@ -142,12 +142,12 @@ import ResponseAction from '@/components/ResponseAction.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import EntriesRelationList from '@/components/EntriesRelationList.vue'
 import Vue from 'vue'
-import {Category, Relation, TagRule, TagRuleSection, TagRuleSectionEntry} from '@/types'
+import {Category, Relation, GlobalFilter, GlobalFilterSection, GlobalFilterSectionEntry} from '@/types'
 import {AxiosResponse} from 'axios'
 import DateTimeUtils from '@/assets/DateTimeUtils'
 
 export default Vue.extend({
-  name: 'ProfilingListEditor',
+  name: 'GlobalFilterListEditor',
 
   components: {
     ResponseAction,
@@ -192,14 +192,14 @@ export default Vue.extend({
       },
     },
 
-    localDoc(): TagRule {
+    localDoc(): GlobalFilter {
       return _.cloneDeep(this.selectedDoc)
     },
 
     localDocTotalEntries(): number {
       let totalEntries = 0
       if (this.localDoc?.rule?.sections?.length) {
-        totalEntries = _.sumBy(this.localDoc.rule.sections, (section: TagRuleSection) => {
+        totalEntries = _.sumBy(this.localDoc.rule.sections, (section: GlobalFilterSection) => {
           return section.entries?.length
         })
       }
@@ -239,12 +239,12 @@ export default Vue.extend({
       this.emitDocUpdate()
     },
 
-    tryMatch(data: string, regex: RegExp, type: Category): TagRuleSectionEntry[] {
+    tryMatch(data: string, regex: RegExp, type: Category): GlobalFilterSectionEntry[] {
       let matches
       const entries = []
       matches = regex.exec(data)
       while (matches) {
-        const entry: TagRuleSectionEntry = [type, matches[1], null]
+        const entry: GlobalFilterSectionEntry = [type, matches[1], null]
         if (matches.length > 2 && matches.slice(-1)[0]) {
           entry[2] = (matches.slice(-1)[0]).slice(1, 128)
         }
@@ -261,7 +261,7 @@ export default Vue.extend({
       const singleIP = /^((((\d{1,3})\.){3}\d{1,3}(\/\d{1,2})?)|([0-9a-f]+:+){1,8}([0-9a-f]+)?(\/\d{1,3})?)$/
       const singleASN = /(as\d{3,6})/i
       // try every node / element of String type with the regex.
-      const objectParser = (data: any, store: TagRuleSectionEntry[]) => {
+      const objectParser = (data: any, store: GlobalFilterSectionEntry[]) => {
         _.each(data, (item) => {
           if (_.isArray(item) && (item.length === 2 || item.length === 3)) {
             if (_.isString(item[0]) && (item[0].toLowerCase() === 'ip' || item[0].toLowerCase() === 'asn') &&
@@ -286,7 +286,7 @@ export default Vue.extend({
       const url = this.localDoc.source
       RequestsUtils.sendRequest({methodName: 'GET', url: `tools/fetch?url=${url}`}).then((response: AxiosResponse) => {
         const data = response.data
-        let entries: TagRuleSectionEntry[]
+        let entries: GlobalFilterSectionEntry[]
         entries = this.tryMatch(data, lineMatchingIP, 'ip')
         if (entries.length === 0) {
           entries = this.tryMatch(data, lineMatchingASN, 'asn')
@@ -295,7 +295,7 @@ export default Vue.extend({
           objectParser(data, entries)
         }
         if (entries.length > 0) {
-          const newSection: TagRuleSection = {
+          const newSection: GlobalFilterSection = {
             relation: 'OR',
             entries: entries,
           }

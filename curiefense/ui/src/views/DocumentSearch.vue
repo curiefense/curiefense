@@ -139,7 +139,7 @@ import ACLEditor from '@/doc-editors/ACLEditor.vue'
 import WAFEditor from '@/doc-editors/WAFEditor.vue'
 import URLMapsEditor from '@/doc-editors/URLMapsEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
-import ProfilingListEditor from '@/doc-editors/ProfilingListEditor.vue'
+import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlEditor from '@/doc-editors/FlowControlEditor.vue'
 import RequestsUtils from '@/assets/RequestsUtils.ts'
 import Vue, {VueConstructor} from 'vue'
@@ -195,9 +195,9 @@ export default Vue.extend({
         title: titles['flowcontrol'],
         fields: 'id, name, notes, include, exclude',
       },
-      'tagrules': {
-        component: ProfilingListEditor,
-        title: titles['tagrules'],
+      'globalfilters': {
+        component: GlobalFilterListEditor,
+        title: titles['globalfilters'],
         fields: 'id, name, notes, tags',
       },
       'ratelimits': {
@@ -360,7 +360,7 @@ export default Vue.extend({
               const excludeTags = doc.exclude.filter(Boolean).join(', ').toLowerCase()
               doc.tags = [includeTags, excludeTags].filter(Boolean).join(', ')
             }
-            if (doctype === 'tagrules') {
+            if (doctype === 'globalfilters') {
               doc.tags = doc.tags.filter(Boolean).join(', ').toLowerCase()
             }
             // Build connections based on document type

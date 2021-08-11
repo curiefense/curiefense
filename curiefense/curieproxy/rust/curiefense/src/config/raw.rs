@@ -37,24 +37,24 @@ pub enum Relation {
 
 /// this is partial, as a ton of data is not needed
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RawProfilingSection {
+pub struct RawGlobalFilterSection {
     pub id: String,
     pub name: String,
     pub active: bool,
     pub tags: Vec<String>,
-    pub rule: RawProfilingRule,
+    pub rule: RawGlobalFilterRule,
     pub action: Option<RawAction>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RawProfilingRule {
+pub struct RawGlobalFilterRule {
     pub relation: Relation,
-    pub sections: Vec<RawProfilingSSection>,
+    pub sections: Vec<RawGlobalFilterSSection>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
-pub enum ProfilingEntryType {
+pub enum GlobalFilterEntryType {
     Args,
     Cookies,
     Headers,
@@ -69,13 +69,13 @@ pub enum ProfilingEntryType {
 
 /// a special datatype for deserializing tuples with 2 elements, and optional extra elements
 #[derive(Debug, Serialize, Clone)]
-pub struct RawProfilingSSectionEntry {
-    pub tp: ProfilingEntryType,
+pub struct RawGlobalFilterSSectionEntry {
+    pub tp: GlobalFilterEntryType,
     pub vl: serde_json::Value,
     pub comment: Option<String>,
 }
 
-impl<'de> Deserialize<'de> for RawProfilingSSectionEntry {
+impl<'de> Deserialize<'de> for RawGlobalFilterSSectionEntry {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -83,10 +83,10 @@ impl<'de> Deserialize<'de> for RawProfilingSSectionEntry {
         struct MyTupleVisitor;
 
         impl<'de> Visitor<'de> for MyTupleVisitor {
-            type Value = RawProfilingSSectionEntry;
+            type Value = RawGlobalFilterSSectionEntry;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-                formatter.write_str("a profiling section entry")
+                formatter.write_str("a global filter section entry")
             }
 
             fn visit_seq<V>(self, mut seq: V) -> Result<Self::Value, V::Error>
@@ -98,7 +98,7 @@ impl<'de> Deserialize<'de> for RawProfilingSSectionEntry {
                 // comment might not be present
                 let comment = seq.next_element()?;
 
-                Ok(RawProfilingSSectionEntry { tp, vl, comment })
+                Ok(RawGlobalFilterSSectionEntry { tp, vl, comment })
             }
         }
 
@@ -107,9 +107,9 @@ impl<'de> Deserialize<'de> for RawProfilingSSectionEntry {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RawProfilingSSection {
+pub struct RawGlobalFilterSSection {
     pub relation: Relation,
-    pub entries: Vec<RawProfilingSSectionEntry>,
+    pub entries: Vec<RawGlobalFilterSSectionEntry>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

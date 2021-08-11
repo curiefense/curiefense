@@ -1,4 +1,4 @@
-import {ACLPolicy, FlowControl, RateLimit, TagRule, URLMap, WAFPolicy, WAFRule} from '@/types'
+import {ACLPolicy, FlowControl, RateLimit, GlobalFilter, URLMap, WAFPolicy, WAFRule} from '@/types'
 
 const titles: { [key: string]: string } = {
   'admin': 'Admin',
@@ -41,8 +41,8 @@ const titles: { [key: string]: string } = {
   'wafpolicies-singular': 'WAF Policy',
   'wafrules': 'WAF Rules',
   'wafrules-singular': 'WAF Rule',
-  'tagrules': 'Tag Rules',
-  'tagrules-singular': 'Tag Rule',
+  'globalfilters': 'Global Filters',
+  'globalfilters-singular': 'Global Filter',
   'flowcontrol': 'Flow Control',
   'flowcontrol-singular': 'Flow Control',
 }
@@ -110,10 +110,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  tagrules(): TagRule {
+  globalfilters(): GlobalFilter {
     return {
       'id': generateUUID2(),
-      'name': 'New Tag Rule',
+      'name': 'New Global Filter',
       'source': 'self-managed',
       'mdate': (new Date()).toISOString(),
       'notes': 'New List Notes and Remarks',

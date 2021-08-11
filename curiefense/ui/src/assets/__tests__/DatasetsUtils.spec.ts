@@ -51,12 +51,12 @@ describe('RequestsUtils.ts', () => {
       expect(document['cookies']['regex']).toEqual([])
     })
 
-    test('should generate a new Tag Rule', async () => {
+    test('should generate a new Global Filter', async () => {
       // eslint-disable-next-line max-len
       const regexISODate = /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d)/
-      const document = DatasetsUtils.newDocEntryFactory.tagrules()
+      const document = DatasetsUtils.newDocEntryFactory.globalfilters()
       expect(regexUUID2.test(document['id'])).toBeTruthy()
-      expect(document['name']).toEqual('New Tag Rule')
+      expect(document['name']).toEqual('New Global Filter')
       expect(document['source']).toEqual('self-managed')
       expect(typeof document['mdate'] === 'string').toBeTruthy()
       expect(regexISODate.test(document['mdate'])).toBeTruthy()

@@ -193,18 +193,8 @@
         "action": {
             "type": "default"
         },
-        "include": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
-        "exclude": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [],
+        "exclude": [],
         "key": [
             {
                 "attrs": "ip"

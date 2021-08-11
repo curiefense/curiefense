@@ -3,7 +3,7 @@ import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals
 import {shallowMount, Wrapper} from '@vue/test-utils'
 import axios from 'axios'
 import Vue from 'vue'
-import {ACLPolicy, BasicDocument, Branch, FlowControl, RateLimit, TagRule, URLMap, WAFPolicy} from '@/types'
+import {ACLPolicy, BasicDocument, Branch, FlowControl, RateLimit, GlobalFilter, URLMap, WAFPolicy} from '@/types'
 
 jest.useFakeTimers()
 jest.mock('axios')
@@ -13,7 +13,7 @@ describe('DocumentSearch.vue', () => {
   let mockRouter
   let gitData: Branch[]
   let aclDocs: ACLPolicy[]
-  let profilingListDocs: TagRule[]
+  let profilingListDocs: GlobalFilter[]
   let urlMapsDocs: URLMap[]
   let flowControlDocs: FlowControl[]
   let rateLimitDocs: RateLimit[]
@@ -360,7 +360,7 @@ describe('DocumentSearch.vue', () => {
       if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/`) {
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/tagrules/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/`) {
         return Promise.resolve({data: profilingListDocs})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/urlmaps/`) {
@@ -423,8 +423,8 @@ describe('DocumentSearch.vue', () => {
   test('should display all documents on startup', () => {
     expect(isItemInFilteredDocs(aclDocs[0], 'aclpolicies')).toBeTruthy()
     expect(isItemInFilteredDocs(aclDocs[1], 'aclpolicies')).toBeTruthy()
-    expect(isItemInFilteredDocs(profilingListDocs[0], 'tagrules')).toBeTruthy()
-    expect(isItemInFilteredDocs(profilingListDocs[1], 'tagrules')).toBeTruthy()
+    expect(isItemInFilteredDocs(profilingListDocs[0], 'globalfilters')).toBeTruthy()
+    expect(isItemInFilteredDocs(profilingListDocs[1], 'globalfilters')).toBeTruthy()
     expect(isItemInFilteredDocs(urlMapsDocs[0], 'urlmaps')).toBeTruthy()
     expect(isItemInFilteredDocs(flowControlDocs[0], 'flowcontrol')).toBeTruthy()
     expect(isItemInFilteredDocs(wafDocs[0], 'wafpolicies')).toBeTruthy()
@@ -505,7 +505,7 @@ describe('DocumentSearch.vue', () => {
 
       expect(isItemInFilteredDocs(aclDocs[0], 'aclpolicies')).toBeTruthy()
       expect(isItemInFilteredDocs(aclDocs[1], 'aclpolicies')).toBeTruthy()
-      expect(isItemInFilteredDocs(profilingListDocs[0], 'tagrules')).toBeTruthy()
+      expect(isItemInFilteredDocs(profilingListDocs[0], 'globalfilters')).toBeTruthy()
       expect(isItemInFilteredDocs(urlMapsDocs[0], 'urlmaps')).toBeTruthy()
       expect(isItemInFilteredDocs(wafDocs[0], 'wafpolicies')).toBeTruthy()
       expect(isItemInFilteredDocs(rateLimitDocs[0], 'ratelimits')).toBeTruthy()
@@ -526,7 +526,7 @@ describe('DocumentSearch.vue', () => {
       await Vue.nextTick()
       expect(isItemInFilteredDocs(aclDocs[0], 'aclpolicies')).toBeTruthy()
       expect(isItemInFilteredDocs(aclDocs[1], 'aclpolicies')).toBeTruthy()
-      expect(isItemInFilteredDocs(profilingListDocs[0], 'tagrules')).toBeTruthy()
+      expect(isItemInFilteredDocs(profilingListDocs[0], 'globalfilters')).toBeTruthy()
       expect(isItemInFilteredDocs(urlMapsDocs[0], 'urlmaps')).toBeTruthy()
       expect(isItemInFilteredDocs(wafDocs[0], 'wafpolicies')).toBeTruthy()
       expect(isItemInFilteredDocs(rateLimitDocs[0], 'ratelimits')).toBeTruthy()
@@ -593,7 +593,7 @@ describe('DocumentSearch.vue', () => {
       (searchInput.element as HTMLInputElement).value = 'default'
       searchInput.trigger('input')
       await Vue.nextTick()
-      expect(isItemInFilteredDocs(profilingListDocs[0], 'tagrules')).toBeTruthy()
+      expect(isItemInFilteredDocs(profilingListDocs[0], 'globalfilters')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(1)
     })
 

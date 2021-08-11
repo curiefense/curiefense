@@ -7,7 +7,7 @@ import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import _ from 'lodash'
-import {ACLPolicy, Branch, Commit, FlowControl, RateLimit, TagRule, URLMap, WAFPolicy} from '@/types'
+import {ACLPolicy, Branch, Commit, FlowControl, RateLimit, GlobalFilter, URLMap, WAFPolicy} from '@/types'
 
 jest.mock('axios')
 
@@ -19,7 +19,7 @@ describe('DocumentEditor.vue', () => {
   let aclDocs: ACLPolicy[]
   let aclDocsLogs: Commit[][]
   let aclGitOldVersion: ACLPolicy[]
-  let profilingListDocs: TagRule[]
+  let profilingListDocs: GlobalFilter[]
   let profilingListDocsLogs: Commit[][]
   let urlMapsDocs: URLMap[]
   let urlMapsDocsLogs: Commit[][]
@@ -714,19 +714,19 @@ describe('DocumentEditor.vue', () => {
       if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/e/5828321c37e0/v/`) {
         return Promise.resolve({data: aclDocsLogs[1]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/tagrules/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(profilingListDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: profilingListDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/tagrules/e/xlbp148c/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/e/xlbp148c/`) {
         return Promise.resolve({data: profilingListDocs[0]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/tagrules/e/07656fbe/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/e/07656fbe/`) {
         return Promise.resolve({data: profilingListDocs[1]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/tagrules/e/${docID}/v/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/e/${docID}/v/`) {
         return Promise.resolve({data: profilingListDocsLogs[0]})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/urlmaps/`) {
@@ -895,7 +895,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct branch from route when changes', async (done) => {
       mockRoute.params = {
         branch: 'zzz_branch',
-        doc_type: 'tagrules',
+        doc_type: 'globalfilters',
         doc_id: '07656fbe',
       }
       // allow all requests to finish
@@ -909,7 +909,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct document type from route when changes', async (done) => {
       mockRoute.params = {
         branch: 'zzz_branch',
-        doc_type: 'tagrules',
+        doc_type: 'globalfilters',
         doc_id: '07656fbe',
       }
       // allow all requests to finish
@@ -923,7 +923,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct document id from route when changes', async (done) => {
       mockRoute.params = {
         branch: 'zzz_branch',
-        doc_type: 'tagrules',
+        doc_type: 'globalfilters',
         doc_id: '07656fbe',
       }
       // allow all requests to finish
