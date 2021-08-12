@@ -137,10 +137,10 @@ m_aclpolicy = api.model(
     },
 )
 
-# Global Filter
+# Tag Rule
 
 m_tagrule = api.model(
-    "Global Filter",
+    "Tag Rule",
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
