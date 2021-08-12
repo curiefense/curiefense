@@ -12,6 +12,7 @@ setup(
     install_requires=[
         "wheel",
         "cloudstorage [amazon, google, local]",
+        "pydash==5.0.2",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
