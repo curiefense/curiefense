@@ -20,6 +20,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
+      - name: Setup utils
+        # python3.8-dev is needed to install wheel
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install python3-venv docker-compose python3.8-dev -y
+
       - name: Run tests
         run: |
             export BASEDIR=$(git rev-parse --show-toplevel)
