@@ -13,6 +13,7 @@ describe('URLMapsEditor.vue', () => {
   let aclDocs: ACLPolicy[]
   let wafDocs: WAFPolicy[]
   let rateLimitsDocs: RateLimit[]
+  let selectedBranch: string
   let wrapper: Wrapper<Vue>
   let mockRouter
   let axiosGetSpy: any
@@ -164,6 +165,7 @@ describe('URLMapsEditor.vue', () => {
         'pairwith': {'self': 'self'},
       },
     ]
+    selectedBranch = 'master'
     axiosGetSpy = jest.spyOn(axios, 'get').mockImplementation((path, config) => {
       if (!wrapper) {
         return Promise.resolve({data: []})
@@ -204,7 +206,7 @@ describe('URLMapsEditor.vue', () => {
     wrapper = shallowMount(URLMapsEditor, {
       propsData: {
         selectedDoc: urlMapsDocs[0],
-        selectedBranch: 'master',
+        selectedBranch: selectedBranch,
       },
       mocks: {
         $router: mockRouter,
@@ -215,22 +217,75 @@ describe('URLMapsEditor.vue', () => {
     jest.clearAllMocks()
   })
 
-  test('should not send new requests to API if document data does not update', async () => {
+  test('should not send new requests to API if selected branch does not update', async (done) => {
     jest.resetAllMocks()
-    urlMapsDocs[0] = _.cloneDeep(urlMapsDocs[0])
+    const branch = _.cloneDeep(selectedBranch)
     wrapper.setProps({
-      selectedDoc: urlMapsDocs[0],
+      selectedBranch: branch,
     })
-    await Vue.nextTick()
-    expect(axiosGetSpy).toHaveBeenCalledTimes(0)
+    // allow all requests to finish
+    setImmediate(() => {
+      expect(axiosGetSpy).toHaveBeenCalledTimes(0)
+      done()
+    })
   })
 
-  test('should send a single new request to API if document data updates with new data and same ID', async () => {
+  test('should not send new requests to API if selected branch updates to empty string', async (done) => {
     jest.resetAllMocks()
+    wrapper.setProps({
+      selectedBranch: '',
+    })
+    // allow all requests to finish
+    setImmediate(() => {
+      expect(axiosGetSpy).toHaveBeenCalledTimes(0)
+      done()
+    })
+  })
+
+  test('should not send new requests to API if selected branch updates to null', async (done) => {
+    jest.resetAllMocks()
+    wrapper.setProps({
+      selectedBranch: null,
+    })
+    // allow all requests to finish
+    setImmediate(() => {
+      expect(axiosGetSpy).toHaveBeenCalledTimes(0)
+      done()
+    })
+  })
+
+  test('should not send new requests to API if selected branch updates to undefined', async (done) => {
+    jest.resetAllMocks()
+    wrapper.setProps({
+      selectedBranch: undefined,
+    })
+    // allow all requests to finish
+    setImmediate(() => {
+      expect(axiosGetSpy).toHaveBeenCalledTimes(0)
+      done()
+    })
+  })
+
+  test('should send a single new request to API if selected branch updates', async (done) => {
+    jest.resetAllMocks()
+    const branch = 'devops'
+    wrapper.setProps({
+      selectedBranch: branch,
+    })
+    // allow all requests to finish
+    setImmediate(() => {
+      expect(axiosGetSpy).toHaveBeenCalledTimes(1)
+      done()
+    })
+  })
+
+  test('should change the initial domain match if document data updates with new data and same ID', async () => {
+    jest.resetAllMocks()
+    const wantedDomainMatch = 'example.com'
     urlMapsDocs[0] = {
       'id': '__default__',
       'name': 'new name',
-      'match': 'example.com',
+      'match': wantedDomainMatch,
       'map': [
         {
           'name': 'one',
@@ -256,16 +311,27 @@ describe('URLMapsEditor.vue', () => {
       selectedDoc: urlMapsDocs[0],
     })
     await Vue.nextTick()
-    expect(axiosGetSpy).toHaveBeenCalledTimes(1)
+    expect((wrapper.vm as any).initialDocDomainMatch).toEqual(wantedDomainMatch)
   })
 
-  test('should send a single new request to API if document data updates with new ID', async () => {
+  test('should change the initial domain match if document data updates with new ID', async () => {
     jest.resetAllMocks()
+    const wantedDomainMatch = urlMapsDocs[1].match
     wrapper.setProps({
       selectedDoc: urlMapsDocs[1],
     })
     await Vue.nextTick()
-    expect(axiosGetSpy).toHaveBeenCalledTimes(1)
+    expect((wrapper.vm as any).initialDocDomainMatch).toEqual(wantedDomainMatch)
+  })
+
+  test('should change the initial domain match to empty string if document data does not exist', async () => {
+    jest.resetAllMocks()
+    const wantedDomainMatch = ''
+    wrapper.setProps({
+      selectedDoc: null,
+    })
+    await Vue.nextTick()
+    expect((wrapper.vm as any).initialDocDomainMatch).toEqual(wantedDomainMatch)
   })
 
   describe('form data', () => {
@@ -491,7 +557,7 @@ describe('URLMapsEditor.vue', () => {
       await referralButton.trigger('click')
       await Vue.nextTick()
       expect(mockRouter.push).toHaveBeenCalledTimes(1)
-      expect(mockRouter.push).toHaveBeenCalledWith('/config/master/ratelimits')
+      expect(mockRouter.push).toHaveBeenCalledWith(`/config/${selectedBranch}/ratelimits`)
     })
   })
 
@@ -1028,7 +1094,7 @@ describe('URLMapsEditor.vue', () => {
     wrapper = shallowMount(URLMapsEditor, {
       propsData: {
         selectedDoc: urlMapsDocs[0],
-        selectedBranch: 'master',
+        selectedBranch: selectedBranch,
       },
       attachTo: elem,
     })

@@ -414,30 +414,30 @@ export default (Vue as VueConstructor<Vue & {
       }
     },
 
-    isURLValid( url: string ) {
+    isURLValid(url: string) {
       const URL_REGEX = /^[A-Za-z0-9]+[A-Za-z0-9%-._~:/?#[\]@!$&'()*+,;=]*$/g
-      return URL_REGEX.test( url )
+      return URL_REGEX.test(url)
     },
 
     isSelectedDomainMatchValid(): boolean {
       const newDomainMatch = this.localDoc.match?.trim()
       const isDomainMatchEmpty = newDomainMatch === ''
       const isDomainMatchDuplicate = this.domainNames.includes(
-        newDomainMatch,
+          newDomainMatch,
       ) ? this.initialDocDomainMatch !== newDomainMatch : false
-      const domainMatchContainsInvalidCharacters = !newDomainMatch.length || this.isURLValid( newDomainMatch )
+      const domainMatchContainsInvalidCharacters = !newDomainMatch.length || this.isURLValid(newDomainMatch)
       return !isDomainMatchEmpty && !isDomainMatchDuplicate && domainMatchContainsInvalidCharacters
     },
 
     isSelectedMapEntryMatchValid(index: number): boolean {
       const newMapEntryMatch = this.localDoc.map[index] ? this.localDoc.map[index].match.trim() : ''
-      let isValid = newMapEntryMatch.startsWith( '/' )
-      if ( isValid ) {
+      let isValid = newMapEntryMatch.startsWith('/')
+      if (isValid) {
         const unslashedValue = newMapEntryMatch.substring(1)
-        const mapEntryMatchContainsInvalidCharacters = !unslashedValue.length || this.isURLValid( unslashedValue )
+        const mapEntryMatchContainsInvalidCharacters = !unslashedValue.length || this.isURLValid(unslashedValue)
         const isMapEntryMatchEmpty = newMapEntryMatch === ''
         const isMapEntryMatchDuplicate = this.entriesMatchNames.includes(
-          newMapEntryMatch,
+            newMapEntryMatch,
         ) ? this.initialMapEntryMatch !== newMapEntryMatch : false
         isValid = !isMapEntryMatchEmpty && !isMapEntryMatchDuplicate && mapEntryMatchContainsInvalidCharacters
       }
@@ -461,7 +461,7 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     addRateLimitToEntry(mapEntry: URLMapEntryMatch, id: string) {
-      if ( id ) {
+      if (id) {
         mapEntry.limit_ids.push(id)
         this.limitNewEntryModeMapEntryId = null
         this.limitMapEntryId = null
@@ -577,10 +577,9 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     urlMapsDomainMatches() {
-      const branch = this.selectedBranch
       RequestsUtils.sendRequest({
         methodName: 'GET',
-        url: `configs/${branch}/d/urlmaps/`,
+        url: `configs/${this.selectedBranch}/d/urlmaps/`,
         config: {headers: {'x-fields': 'match'}},
       }).then((response: AxiosResponse<URLMap[]>) => {
         this.domainNames = _.map(response.data, 'match')
@@ -590,14 +589,19 @@ export default (Vue as VueConstructor<Vue & {
 
   watch: {
     selectedDoc: {
-      handler: function(val, oldVal) {
-        if (!val || !oldVal || !_.isEqual(val, oldVal)) {
-          this.urlMapsDomainMatches()
-          this.initialDocDomainMatch = val.match
-        }
+      handler: function(val) {
+        this.initialDocDomainMatch = val?.match || ''
       },
       immediate: true,
       deep: true,
+    },
+    selectedBranch: {
+      handler: function(val, oldVal) {
+        if (val && (!oldVal || !_.isEqual(val, oldVal))) {
+          this.urlMapsDomainMatches()
+        }
+      },
+      immediate: true,
     },
   },
 
