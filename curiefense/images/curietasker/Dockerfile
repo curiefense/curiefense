@@ -9,7 +9,7 @@ RUN apt-get update && \
 	apt-get autoremove --purge -y && \
 	rm -rf /var/lib/apt/lists/*
 
-COPY curieconf-server/curieconf/confserver/json/tag-rules.schema /tag-rules.schema
+COPY curieconf-server/curieconf/confserver/v2/json/global-filters.schema /global-filters.schema
 COPY curieconf-utils /curieconf-utils
 RUN cd /curieconf-utils ; pip3 install --no-cache-dir .
 COPY curieconf-client /curieconf-client
