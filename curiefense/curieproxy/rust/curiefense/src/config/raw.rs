@@ -65,6 +65,8 @@ pub enum ProfilingEntryType {
     Country,
     Method,
     Ip,
+    Company,
+    Authority,
 }
 
 /// a special datatype for deserializing tuples with 2 elements, and optional extra elements

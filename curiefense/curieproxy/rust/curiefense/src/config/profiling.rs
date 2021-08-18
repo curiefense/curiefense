@@ -64,6 +64,8 @@ pub enum ProfilingEntryE {
     Country(SingleEntry),
     Method(SingleEntry),
     Asn(u32),
+    Company(SingleEntry),
+    Authority(SingleEntry),
 }
 
 /// tries to aggregate ip ranges
@@ -289,6 +291,8 @@ impl ProfilingSection {
                 ProfilingEntryType::Country => single_re(logs, ProfilingEntryE::Country, val),
                 ProfilingEntryType::Method => single_re(logs, ProfilingEntryE::Method, val),
                 ProfilingEntryType::Asn => single(|rawasn| Ok(ProfilingEntryE::Asn(rawasn.parse()?)), val),
+                ProfilingEntryType::Company => single_re(logs, ProfilingEntryE::Company, val),
+                ProfilingEntryType::Authority => single_re(logs, ProfilingEntryE::Authority, val),
             }
         }
         fn convert_subsection(logs: &mut Logs, ss: RawProfilingSSection) -> anyhow::Result<ProfilingSSection> {

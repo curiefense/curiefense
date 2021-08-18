@@ -59,6 +59,14 @@ fn check_entry(rinfo: &RequestInfo, sub: &ProfilingEntry) -> bool {
         ProfilingEntryE::Args(arg) => check_pair(arg, &rinfo.rinfo.qinfo.args),
         ProfilingEntryE::Cookies(arg) => check_pair(arg, &rinfo.cookies),
         ProfilingEntryE::Asn(asn) => rinfo.rinfo.geoip.asn.map(|casn| casn == *asn).unwrap_or(false),
+        ProfilingEntryE::Company(cmp) => rinfo
+            .rinfo
+            .geoip
+            .company
+            .as_ref()
+            .map(|ccmp| check_single(cmp, ccmp.as_str()))
+            .unwrap_or(false),
+        ProfilingEntryE::Authority(at) => check_single(at, &rinfo.rinfo.host),
     };
     c ^ sub.negated
 }
