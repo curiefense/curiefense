@@ -1,13 +1,13 @@
 import pytest
-from e2e.core.base_helpers import cli, target, section
+from e2e.core.base_helper import cli, target, section
 from e2e.helpers.acl_helper import acl
 from e2e.helpers.waf_policies_helper import wafparam_config, ignore_alphanum, restrict
 from e2e.helpers.waf_rules_helper import wafrules
 
 
 @pytest.mark.usefixtures('api_setup')
-@pytest.mark.waf_rules_tests
 @pytest.mark.all_modules
+@pytest.mark.waf_rules_tests
 class TestWafRules:
     def test_wafsig(self, wafparam_config, target, section, wafrules, ignore_alphanum):
         ruleid, rulestr = wafrules

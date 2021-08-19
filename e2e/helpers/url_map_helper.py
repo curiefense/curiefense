@@ -1,7 +1,6 @@
 import pytest
-from e2e.core.base_helpers import cli, target, BaseHelper
+from e2e.core.base_helper import cli, target, BaseHelper
 from e2e.helpers.acl_helper import acl
-import time
 
 
 class UrlMapHelper:
@@ -108,6 +107,7 @@ class UrlMapHelper:
             }
         ]
         return url_map
+
 
 @pytest.fixture(scope="class")
 def urlmap_config(cli, acl):

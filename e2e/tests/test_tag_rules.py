@@ -1,12 +1,12 @@
 import pytest
-from e2e.core.base_helpers import cli, target, section, BaseHelper
+from e2e.core.base_helper import cli, target, section, BaseHelper
 from e2e.helpers.tag_rules_helper import tagrules_config, active, TagRulesHelper
 from e2e.helpers.acl_helper import acl
 
 
 @pytest.mark.usefixtures('api_setup', 'tagrules_config', 'active')
-@pytest.mark.tag_rules_tests
 @pytest.mark.all_modules
+@pytest.mark.tag_rules_tests
 class TestTagRules:
     def test_cookies(self, target):
         assert (
