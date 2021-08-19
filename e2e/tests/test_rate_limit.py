@@ -1,6 +1,6 @@
 import pytest
 import time
-from e2e.core.base_helpers import cli, target, section, BaseHelper
+from e2e.core.base_helper import cli, target, section, BaseHelper
 from e2e.helpers.rl_helper import ratelimit_config, RateLimitHelper
 
 
@@ -300,48 +300,6 @@ class TestRateLimit:
         param2 = {"srcip": BaseHelper.IP4_JP}
         RateLimitHelper.ratelimit_countby_helper(target, "provider", param1, param2)
 
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_countby_uri(self, target):
-        param1 = {}
-        param2 = {}
-        RateLimitHelper.ratelimit_countby_helper(target, "uri", param1, param2, nocount=True)
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_countby_path(self, target):
-        param1 = {}
-        param2 = {}
-        RateLimitHelper.ratelimit_countby_helper(target, "path", param1, param2, nocount=True)
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_countby_query(self, target):
-        param1 = {"suffix": "?QUERY-1"}
-        param2 = {"suffix": "?QUERY-2"}
-        RateLimitHelper.ratelimit_countby_helper(target, "query", param1, param2)
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_countby_method(self, target):
-        param1 = {"method": "HEAD"}
-        param2 = {"method": "GET"}
-        RateLimitHelper.ratelimit_countby_helper(target, "method", param1, param2)
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_countby_company(self, target):
-        param1 = {"srcip": BaseHelper.IP4_US}
-        param2 = {"srcip": BaseHelper.IP4_JP}
-        RateLimitHelper.ratelimit_countby_helper(target, "company", param1, param2)
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_countby_country(self, target):
-        param1 = {"srcip": BaseHelper.IP4_US}
-        param2 = {"srcip": BaseHelper.IP4_JP}
-        RateLimitHelper.ratelimit_countby_helper(target, "country", param1, param2)
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_countby_authority(self, target):
-        param1 = {"headers": {"Host": "authority-1"}}
-        param2 = {"headers": {"Host": "authority-2"}}
-        RateLimitHelper.ratelimit_countby_helper(target, "authority", param1, param2)
-
     def test_ratelimit_countby2_section(self, target, section):
         param1 = {section: {"countby1": "1"}}
         param2 = {section: {"countby2": "1"}}
@@ -413,70 +371,3 @@ class TestRateLimit:
         assert target.is_reachable(
             f"/countby-{section}-{othersection}/2/5", **param12
         ), f"Request #5 with {section} countby 1&2 should be allowed"
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_event_section(self, target, section):
-        params = [{section: {"event": f"{i}"}} for i in range(1, 5)]
-        RateLimitHelper.ratelimit_event_param_helper(target, section, params)
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_event_ipv4(self, target):
-        params = [{"srcip": f"199.0.0.{i}"} for i in range(1, 5)]
-        RateLimitHelper.ratelimit_event_param_helper(target, "ipv4", params)
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_event_ipv6(self, target):
-        params = [
-            {"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(1, 5)
-        ]
-        RateLimitHelper.ratelimit_event_param_helper(target, "ipv6", params)
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_event_provider(self, target):
-        # "provider" means "asn"
-        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
-                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.ratelimit_event_param_helper(target, "provider", params)
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_event_uri(self, target):
-        # URI is different for each query, nothing more needs changing
-        params = [{"suffix": f"{i}"} for i in range(1, 5)]
-        RateLimitHelper.ratelimit_event_param_helper(target, "uri", params)
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_event_path(self, target):
-        # Path is different for each query, nothing more needs changing
-        params = [{"suffix": f"{i}"} for i in range(1, 5)]
-        RateLimitHelper.ratelimit_event_param_helper(target, "path", params)
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_event_query(self, target):
-        params = [{"suffix": f"?QUERY-{i}"} for i in range(1, 5)]
-        RateLimitHelper.ratelimit_event_param_helper(target, "query", params)
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_event_method(self, target):
-        params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.ratelimit_event_param_helper(target, "method", params)
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_event_company(self, target):
-        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
-                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.ratelimit_event_param_helper(
-            target,
-            "company",
-            params,
-        )
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_event_country(self, target):
-        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
-                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.ratelimit_event_param_helper(target, "country", params)
-
-    # Todo : Try to change test - asserion is hidden
-    def test_ratelimit_event_authority(self, target):
-        params = [{"headers": {"Host": f"authority-{i}"}} for i in range(1, 5)]
-        RateLimitHelper.ratelimit_event_param_helper(target, "authority", params)
