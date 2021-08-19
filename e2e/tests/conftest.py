@@ -14,7 +14,7 @@ def pytest_addoption(parser):
         "--base-conf-url",
         help="Base url for confserver API",
         type=str,
-        default="http://localhost:30000/api/v2/",
+        default="http://localhost:30000/api/v1/",
     )
     parser.addoption(
         "--base-protected-url",
