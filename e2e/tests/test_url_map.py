@@ -1,12 +1,12 @@
 import pytest
-from e2e.core.base_helpers import cli, target
+from e2e.core.base_helper import cli, target
 from e2e.helpers.url_map_helper import urlmap_config
 from e2e.helpers.acl_helper import acl
 
 
 @pytest.mark.usefixtures('api_setup', 'urlmap_config')
-@pytest.mark.url_map_tests
 @pytest.mark.all_modules
+@pytest.mark.url_map_tests
 class TestUrlMap:
     def test_nofilter(self, target):
         assert target.is_reachable("/nofilter/")

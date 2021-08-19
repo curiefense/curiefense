@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 import random
 import string
 import socket
+from bs4 import BeautifulSoup
 
 log = logging.getLogger('e2e')
 
@@ -31,11 +32,21 @@ class BaseHelper:
     IP6_2 = "0000:0000:0000:0000:0000:0000:0000:0002"
 
     @staticmethod
-    def generate_random_string(num: int):
+    def generate_random_string(num: int) -> str:
         return ''.join(random.choice(string.ascii_lowercase) for i in range(num))
+
+    @staticmethod
+    def generate_random_mixed_string(num: int) -> str:
+        return ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(num))
+
+    @staticmethod
+    def verify_pattern_in_html(page_content, pattern: str) -> bool:
+        soup = BeautifulSoup(page_content, 'html.parser')
+        return pattern in str(soup)
 
 
 class CliHelper:
+
     def __init__(self, base_url):
         self._base_url = base_url
         self._initial_version_cache = None
@@ -106,7 +117,7 @@ class TargetHelper:
         self._base_url = base_url
 
     def query(
-        self, path="/", suffix="", method="GET", headers=None, srcip=None, **kwargs
+            self, path="/", suffix="", method="GET", headers=None, srcip=None, **kwargs
     ):
         # specifying a path helps spot tests easily in the access log
         if headers is None:
@@ -124,6 +135,42 @@ class TargetHelper:
 
     def authority(self) -> str:
         return urlparse(self._base_url).netloc
+
+
+class LogHelper:
+    def __init__(self, base_url, es_url):
+        self._base_url = base_url
+        self._es_url = es_url + "/_search"
+
+    def check_log_pattern(self, field, pattern):
+        time.sleep(12)  # waits for log file to be updated
+        data = {
+            "query": {"bool": {"must": {"match": {field: pattern}}}}
+        }
+        res = requests.get(self._es_url, json=data)
+        nbhits = res.json()["hits"]["total"]["value"]
+        if nbhits == 1:
+            return True
+        else:
+            print("Pattern %r" % (pattern,))
+            print("Request result %r" % (res,))
+            return False
+
+    def check_log_pattern_updates(self, field, pattern):
+        time.sleep(12)  # waits for log file to be updated
+        data = {
+            "query": {"bool": {"must": {"match": {field: pattern}}}}
+        }
+        res = requests.get(self._es_url, json=data)
+        nbhits = res.json()["hits"]["total"]["value"]
+        return nbhits
+
+
+@pytest.fixture(scope="session")
+def log_fixture(request):
+    url = request.config.getoption("--base-ui-url").rstrip("/")
+    es_url = request.config.getoption("--elasticsearch-url").rstrip("/")
+    return LogHelper(url, es_url)
 
 
 @pytest.fixture(scope='session')
@@ -146,7 +193,3 @@ def target(request):
 @pytest.fixture(scope="function", params=["headers", "cookies", "params"])
 def section(request):
     return request.param
-
-
-
-
