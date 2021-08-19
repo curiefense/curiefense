@@ -1,12 +1,12 @@
 import pytest
-from e2e.core.base_helpers import cli, target, section, default_config, BaseHelper
+from e2e.core.base_helper import cli, target, section, default_config, BaseHelper
 from e2e.helpers.acl_helper import acl
 from e2e.helpers.waf_policies_helper import wafparam_config, ignore_alphanum, name_regex, restrict
 
 
 @pytest.mark.usefixtures('api_setup', 'default_config')
-@pytest.mark.waf_policies_tests
 @pytest.mark.all_modules
+@pytest.mark.waf_policies_tests
 class TestWAFLengthCount:
     def test_length_overlong(self, target, section):
         # default limit: len 1024

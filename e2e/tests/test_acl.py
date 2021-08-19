@@ -1,5 +1,5 @@
 import pytest
-from e2e.core.base_helpers import target, cli, BaseHelper
+from e2e.core.base_helper import target, cli, BaseHelper
 from e2e.helpers.acl_helper import acl
 
 

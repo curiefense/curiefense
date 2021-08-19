@@ -26,3 +26,16 @@
 
 # This follows examples from the pytest doc: tests are class methods, even
 # though they don't use self
+
+
+##################################################################################################################
+# To run e2e test on your instance/local machine:
+
+# 1 - Set your Ip/localhost in default values in conftest.py
+
+# 2 - From e2e folder in terminal, execute:
+#
+#     pytest -m module_name --html=./reports/report_name.html --self-contained-html
+#
+# 3 - Module names appear in pytest.ini file
+# 4 - Report will be automatically generated in reports folder

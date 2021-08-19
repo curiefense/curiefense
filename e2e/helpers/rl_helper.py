@@ -1,9 +1,181 @@
 import pytest
-from e2e.core.base_helpers import cli, target, BaseHelper
+from e2e.core.base_helper import cli, target, log_fixture, BaseHelper
 import time
 
 
 class RateLimitHelper:
+
+    @staticmethod
+    def check_503_response(target, path, ttl, limit):
+        for i in range(limit):
+            response = target.query(f"/{path}")
+            assert response.status_code == 200
+        response = target.query(f"/{path}")
+        assert response.status_code == 503
+        time.sleep(ttl)
+        response = target.query(f"/{path}")
+        assert response.status_code == 200
+
+    @staticmethod
+    def check_rate_limits_action_503_with_params(target, path, ttl, limit, params):
+        for i in range(limit):
+            response = target.query(f"/{path}", **params[i])
+            assert response.status_code == 200
+        response = target.query(f"/{path}", **params[limit])
+        assert response.status_code == 503
+        time.sleep(ttl)
+        response = target.query(f"/{path}", **params[limit + 1])
+        assert response.status_code == 200
+
+    @staticmethod
+    def check_503_response_change_path(target, path, ttl, limit):
+        for i in range(limit):
+            response = target.query(f"/{path}{i}")
+            assert response.status_code == 200
+        response = target.query(f"/{path}{limit}")
+        assert response.status_code == 503
+        time.sleep(ttl)
+        response = target.query(f"/{path}{limit + 1}")
+        assert response.status_code == 200
+
+    @staticmethod
+    def check_rate_limits_action_tag_only_with_pattern(log_fixture, target, path, field, pattern, limit):
+        val_of_log = 0
+        for i in range(limit):
+            response = target.query(f"/{path}")
+            assert response.status_code == 200
+            val_of_log = log_fixture.check_log_pattern_updates(field, pattern)
+        response = target.query(f"/{path}")
+        assert response.status_code == 200
+        assert log_fixture.check_log_pattern_updates(field, pattern) == val_of_log + 1
+
+    @staticmethod
+    def check_rl_action_tag_with_pattern_with_params(log_fixture, target, path, field, pattern, limit, params):
+        val_of_log = 0
+        for i in range(limit):
+            response = target.query(f"/{path}", **params[i])
+            assert response.status_code == 200
+            val_of_log = log_fixture.check_log_pattern_updates(field, pattern)
+            print("inside - " + str(val_of_log))
+        response = target.query(f"/{path}", **params[limit])
+        a = log_fixture.check_log_pattern_updates(field, pattern)
+        print("outside - " + str(a))
+        assert response.status_code == 200
+        assert a == val_of_log + 1
+
+    @staticmethod
+    def check_rate_limits_response_action(target, path, response_body, status, ttl, limit):
+        for i in range(limit):
+            response = target.query(f"/{path}")
+            assert response.status_code == 200
+            assert response_body not in response.text
+        response = target.query(f"/{path}")
+        assert response.status_code == int(status)
+        assert response_body in response.text
+        time.sleep(ttl)
+        response = target.query(f"/{path}")
+        assert response.status_code == 200
+        assert response_body not in response.text
+
+    @staticmethod
+    def check_rl_response_action_with_params(target, path, response_body, status, ttl, limit, params):
+        for i in range(limit):
+            response = target.query(f"/{path}", **params[i])
+            assert response.status_code == 200
+            assert response_body not in response.text
+        response = target.query(f"/{path}", **params[limit])
+        assert response.status_code == int(status)
+        assert response_body in response.text
+        time.sleep(ttl)
+        response = target.query(f"/{path}", **params[limit + 1])
+        assert response.status_code == 200
+        assert response_body not in response.text
+
+    @staticmethod
+    def check_rate_limit_challenge_action(target, path, ttl, limit):
+        for i in range(limit):
+            response = target.query(f"/{path}")
+            assert response.status_code == 200
+            assert not BaseHelper.verify_pattern_in_html(response.content, "<html><head><meta")
+        response = target.query(f"/{path}")
+        assert response.status_code == 247
+        assert BaseHelper.verify_pattern_in_html(response.content, "<html><head><meta")
+        time.sleep(ttl)
+        response = target.query(f"/{path}")
+        assert response.status_code == 200
+        assert not BaseHelper.verify_pattern_in_html(response.content, "<html><head><meta")
+
+    @staticmethod
+    def check_rate_limit_challenge_action_with_params(target, path, ttl, limit, params):
+        for i in range(limit):
+            response = target.query(f"/{path}", **params[i])
+            assert response.status_code == 200
+            assert not BaseHelper.verify_pattern_in_html(response.content, "<html><head><meta")
+        response = target.query(f"/{path}", **params[limit])
+        assert response.status_code == 247
+        assert BaseHelper.verify_pattern_in_html(response.content, "<html><head><meta")
+        time.sleep(ttl)
+        response = target.query(f"/{path}", **params[limit + 1])
+        assert response.status_code == 200
+        assert not BaseHelper.verify_pattern_in_html(response.content, "<html><head><meta")
+
+    @staticmethod
+    def check_rate_limit_redirect_action(target, path, status, ttl, limit, location):
+        for i in range(limit):
+            response = target.query(f"/{path}")
+            assert response.status_code == 200
+            assert 'location' not in response.headers
+        response = target.query(f"/{path}")
+        assert response.status_code == int(status)
+        assert 'location' in response.headers
+        assert response.headers['location'] == location
+        time.sleep(ttl)
+        response = target.query(f"/{path}")
+        assert response.status_code == 200
+        assert 'location' not in response.headers
+
+    @staticmethod
+    def check_rl_redirect_action_with_params(target, path, status, ttl, limit, location, params):
+        for i in range(limit):
+            response = target.query(f"/{path}", **params[i])
+            assert response.status_code == 200
+            assert 'location' not in response.headers
+        response = target.query(f"/{path}", **params[limit])
+        assert response.status_code == int(status)
+        assert 'location' in response.headers
+        assert response.headers['location'] == location
+        time.sleep(ttl)
+        response = target.query(f"/{path}", **params[limit + 1])
+        assert response.status_code == 200
+        assert 'location' not in response.headers
+
+    @staticmethod
+    def check_rate_limits_action_503_without_params(target, path, ttl, limit):
+        for i in range(limit):
+            response = target.query(path)
+            assert response.status_code == 200
+        response = target.query(path)
+        print(response.status_code)
+        assert response.status_code == 503
+        time.sleep(ttl)
+        response = target.query(path)
+        assert response.status_code == 200
+
+    @staticmethod
+    def check_rate_limits_action_503_for_geo_attr(target, path, ttl, limit, params):
+        for i in range(limit):
+            response = target.query(f"/{path}", **params[i])
+            assert response.status_code == 200
+        response = target.query(f"/{path}", **params[limit])
+        assert response.status_code == 503
+        time.sleep(ttl)
+        response = target.query(f"/{path}", **params[limit + 1])
+        assert response.status_code == 200
+
+    @staticmethod
+    def remove_include_exclude_from_ratelimit_json(rule):
+        rule["include"], rule["exclude"] = [], []
+        return rule
 
     @staticmethod
     def ratelimit_countby_helper(target, name, param1, param2, nocount=False):
@@ -47,19 +219,19 @@ class RateLimitHelper:
         for i in range(limit - 1):
             assert target.is_reachable(
                 f"/event-{name}/1/", **params[i]
-            ), f"Request for value #{i+1} with {name} event should be allowed"
+            ), f"Request for value #{i + 1} with {name} event should be allowed"
         assert not target.is_reachable(
             f"/event-{name}/1/", **params[limit - 1]
         ), f"Request for value #{limit} with {name} event should be denied"
         for i in range(limit):
             assert not target.is_reachable(
                 f"/event-{name}/1/", **params[i]
-            ), f"Request for value #{i+1} with {name} event should be denied"
+            ), f"Request for value #{i + 1} with {name} event should be denied"
         time.sleep(10)
         for i in range(limit - 1):
             assert target.is_reachable(
                 f"/event-{name}/1/", **params[i]
-            ), f"Request for value #{i+1} with {name} event should be allowed"
+            ), f"Request for value #{i + 1} with {name} event should be allowed"
 
     @staticmethod
     def gen_rl_rules(authority):
