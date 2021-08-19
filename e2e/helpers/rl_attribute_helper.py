@@ -1012,6 +1012,168 @@ class RateLimitCookieHelper:
             key=[{"attrs": "authority"}]
         ),
         add_rl_rule(
+            path="test_ban_action_by_company_sub_503_count_uri",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "company"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "uri"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_company_sub_503_count_path",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "company"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "path"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_company_sub_503_count_query",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "company"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "query"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_company_sub_503_count_method",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "company"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "method"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_company_sub_503_count_authority",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "company"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "authority"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_country_sub_503_count_uri",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "country"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "uri"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_country_sub_503_count_path",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "country"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "path"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_country_sub_503_count_query",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "country"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "query"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_country_sub_503_count_method",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "country"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "method"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_country_sub_503_count_authority",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "country"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "authority"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_authority_sub_503_count_ip",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "authority"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "ip"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_authority_sub_503_count_uri",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "authority"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "uri"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_authority_sub_503_count_path",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "authority"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "path"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_authority_sub_503_count_query",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "authority"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "query"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_authority_sub_503_count_method",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "authority"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "method"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_authority_sub_503_count_asn",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "authority"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "asn"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_authority_sub_503_count_company",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "authority"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "company"}]
+        ),
+        add_rl_rule(
+            path="test_ban_action_by_authority_sub_503_count_country",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "authority"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "country"}]
+        ),
+        add_rl_rule(
             path="test_ban_action_by_ip_sub_chl_count_path",
             ttl=3,
             limit=2,
