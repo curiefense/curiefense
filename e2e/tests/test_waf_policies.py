@@ -85,15 +85,6 @@ class TestWAFPolicies:
         else:
             assert response.status_code == 403, f"Got {response.status_code} instead of 403"
 
-
-
-
-
-
-
-
-
-
     def test_allowlisted_value(
             self, section, name_regex, restrict, target
         ):
