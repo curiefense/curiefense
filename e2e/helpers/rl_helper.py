@@ -38,6 +38,7 @@ class RateLimitHelper:
         response = target.query(f"/{path}{limit + 1}")
         assert response.status_code == 200
 
+
     @staticmethod
     def check_rate_limits_action_tag_only_with_pattern(log_fixture, target, path, field, pattern, limit):
         val_of_log = 0
@@ -107,6 +108,34 @@ class RateLimitHelper:
 
     @staticmethod
     def check_rate_limit_challenge_action_with_params(target, path, ttl, limit, params):
+        for i in range(limit):
+            response = target.query(f"/{path}", **params[i])
+            assert response.status_code == 200
+            assert not BaseHelper.verify_pattern_in_html(response.content, "<html><head><meta")
+        response = target.query(f"/{path}", **params[limit])
+        assert response.status_code == 247
+        assert BaseHelper.verify_pattern_in_html(response.content, "<html><head><meta")
+        time.sleep(ttl)
+        response = target.query(f"/{path}", **params[limit + 1])
+        assert response.status_code == 200
+        assert not BaseHelper.verify_pattern_in_html(response.content, "<html><head><meta")
+
+    @staticmethod
+    def check_challenge_response_change_path(target, path, ttl, limit):
+        for i in range(limit):
+            response = target.query(f"/{path}{i}")
+            assert response.status_code == 200
+            assert not BaseHelper.verify_pattern_in_html(response.content, "<html><head><meta")
+        response = target.query(f"/{path}{limit}")
+        assert response.status_code == 247
+        assert BaseHelper.verify_pattern_in_html(response.content, "<html><head><meta")
+        time.sleep(ttl)
+        response = target.query(f"/{path}{limit + 1}")
+        assert response.status_code == 200
+        assert not BaseHelper.verify_pattern_in_html(response.content, "<html><head><meta")
+
+    @staticmethod
+    def check_rate_limits_action_challenge_for_geo_attr(target, path, ttl, limit, params):
         for i in range(limit):
             response = target.query(f"/{path}", **params[i])
             assert response.status_code == 200
