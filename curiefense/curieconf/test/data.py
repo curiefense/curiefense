@@ -127,7 +127,7 @@ vec_aclpolicy = {
 }
 
 
-vec_tagrule = {
+vec_globalfilter = {
     "id": "ed8f6efb",
     "active": True,
     "name": "Spamhaus DROP",
@@ -159,7 +159,7 @@ vec_documents = {
     "wafrules": vec_wafrule,
     "wafpolicies": vec_wafpolicy,
     "aclpolicies": vec_aclpolicy,
-    "tagrules": vec_tagrule,
+    "globalfilters": vec_globalfilter,
 }
 
 vec_blobs = {
