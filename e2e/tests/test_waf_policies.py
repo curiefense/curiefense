@@ -10,10 +10,11 @@ from e2e.helpers.waf_policies_helper import wafparam_config, ignore_alphanum, na
 class TestWAFLengthCount:
     def test_length_overlong(self, target, section):
         # default limit: len 1024
-        assert not target.is_reachable(
+        response = target.query(
             f"/overlong-{section}",
             **{section: {f"Long-{section}": f"Overlong_{section}" * 100}},
-        ), f"Reachable despite overlong {section}"
+        )
+        assert response.status_code == 403, f"Reachable despite overlong {section}"
 
     def test_length_short(self, target, section):
         assert target.is_reachable(
