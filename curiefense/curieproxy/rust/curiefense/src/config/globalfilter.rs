@@ -64,6 +64,8 @@ pub enum GlobalFilterEntryE {
     Country(SingleEntry),
     Method(SingleEntry),
     Asn(u32),
+    Company(SingleEntry),
+    Authority(SingleEntry),
 }
 
 /// tries to aggregate ip ranges
@@ -289,6 +291,8 @@ impl GlobalFilterSection {
                 GlobalFilterEntryType::Country => single_re(logs, GlobalFilterEntryE::Country, val),
                 GlobalFilterEntryType::Method => single_re(logs, GlobalFilterEntryE::Method, val),
                 GlobalFilterEntryType::Asn => single(|rawasn| Ok(GlobalFilterEntryE::Asn(rawasn.parse()?)), val),
+                GlobalFilterEntryType::Company => single_re(logs, GlobalFilterEntryE::Company, val),
+                GlobalFilterEntryType::Authority => single_re(logs, GlobalFilterEntryE::Authority, val),
             }
         }
         fn convert_subsection(logs: &mut Logs, ss: RawGlobalFilterSSection) -> anyhow::Result<GlobalFilterSSection> {
