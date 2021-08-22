@@ -1197,7 +1197,7 @@ class TestRateLimitAttribute:
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_company_sub_chl_auth",
+                                                                        "test_ban_action_by_company_sub_chl_count_auth",
                                                                         4, 2, params)
 
         #  Action: Ban | Subaction: Challenge | Event:Attribute - Country | Count: Uri
@@ -1237,7 +1237,7 @@ class TestRateLimitAttribute:
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_country_sub_chl_auth",
+                                                                        "test_ban_action_by_country_sub_chl_count_auth",
                                                                         4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Ip
