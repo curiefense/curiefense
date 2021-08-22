@@ -158,9 +158,6 @@ class TestRateLimitAttribute:
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_ipv4_attribute_count_by_company",
                                                                  3, 8, params)
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_ipv4_attribute_count_by_company",
-                                                                  3, 8, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Authority
     def test_503_action_event_ipv4_attribute_count_by_authority(self, target):
