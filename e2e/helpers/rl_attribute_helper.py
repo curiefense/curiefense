@@ -1664,6 +1664,16 @@ class RateLimitCookieHelper:
             subaction="challenge",
         ),
         add_rl_rule(
+            path="test_ban_action_by_auth_sub_chl_count_method",
+            ttl=3,
+            limit=2,
+            pairwith=({"attrs": "authority"}),
+            action_ext=({"type": "ban"}),
+            param_ext={"ttl": str(4)},
+            key=[{"attrs": "method"}],
+            subaction="challenge",
+        ),
+        add_rl_rule(
             path="test_ban_action_by_auth_sub_chl_count_company",
             ttl=3,
             limit=2,
