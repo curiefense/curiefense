@@ -329,7 +329,7 @@ class TestRateLimitAttribute:
                                                                   3, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Path
-    def test_503_action_event_methodattribute_count_by_path(self, target):
+    def test_503_action_event_method_attribute_count_by_path(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
         RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
                                                                   "test_503_action_method_attribute_count_by_path",
@@ -613,7 +613,8 @@ class TestRateLimitAttribute:
     def test_ban_action_event_ip_subaction_503_count_by_authority(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_action_by_ip_sub_503_count_authority",
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_ip_sub_503_count_authority",
                                                                  4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute -  Asn | Count: Uri
@@ -946,6 +947,38 @@ class TestRateLimitAttribute:
                                                                       "test_ban_action_by_ip_sub_chl_count_path",
                                                                       4, 2, params)
 
+    #  Action: Ban | Subaction: Challenge | Event:Attribute -  Ip | Count: Uri
+    def test_ban_action_event_ip_subaction_challenge_count_by_uri(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_ip_sub_chl_count_uri",
+                                                                      4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute -  Ip | Count: Query
+    def test_ban_action_event_ip_subaction_challenge_count_by_query(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_ip_sub_chl_count_query",
+                                                                      4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute -  Ip | Count: Method
+    def test_ban_action_event_ip_subaction_challenge_count_by_method(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_ip_sub_chl_count_method",
+                                                                      4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute -  Ip | Count: Authority
+    def test_ban_action_event_ip_subaction_challenge_count_by_authority(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_ip_sub_chl_count_authority",
+                                                                      4, 2, params)
+
     #  Action: Ban | Subaction: Challenge | Event:Attribute -  Asn | Count: Uri
     def test_ban_action_event_asn_subaction_challenge_count_by_uri(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
@@ -953,6 +986,315 @@ class TestRateLimitAttribute:
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
                                                                       "test_ban_action_by_provider_sub_chl_count_uri",
                                                                       4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute -  Asn | Count: Path
+    def test_ban_action_event_asn_subaction_challenge_count_by_path(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_provider_sub_chl_count_path",
+                                                                      4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Asn | Count: Query
+    def test_ban_action_event_asn_subaction_challenge_count_by_query(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_provider_sub_chl_count_query",
+                                                                      4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Asn | Count: Method
+    def test_ban_action_event_asn_subaction_challenge_count_by_method(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_provider_sub_chl_count_method",
+                                                                      4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Asn | Count: Authority
+    def test_ban_action_event_asn_subaction_challenge_count_by_authority(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_provider_sub_chl_count_authority",
+                                                                      4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Uri | Count: Ip
+    def test_ban_action_event_uri_subaction_challenge_count_by_ip(self, cli, target):
+        RateLimitHelper.check_challenge_response_change_path(target, "test_ban_action_by_uri_sub_chl_count_ip", 4, 2)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Uri | Count: Asn
+    def test_ban_action_event_uri_subaction_challenge_count_by_asn(self, cli, target):
+        RateLimitHelper.check_challenge_response_change_path(target, "test_ban_action_by_uri_sub_chl_count_asn", 4, 2)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Uri | Count: Method
+    def test_ban_action_event_uri_subaction_challenge_count_by_method(self, cli, target):
+        RateLimitHelper.check_challenge_response_change_path(target, "test_ban_action_by_uri_sub_chl_count_method",
+                                                             4, 2)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Uri | Count: Company
+    def test_ban_action_event_uri_subaction_challenge_count_by_company(self, cli, target):
+        RateLimitHelper.check_challenge_response_change_path(target,
+                                                             "test_ban_action_by_uri_sub_chl_count_company", 4, 2)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Uri | Count: Authority
+    def test_ban_action_event_uri_subaction_challenge_count_by_authority(self, cli, target):
+        RateLimitHelper.check_challenge_response_change_path(target,
+                                                             "test_ban_action_by_uri_sub_chl_count_authority", 4, 2)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Path | Count: Ip
+    def test_ban_action_event_path_subaction_challenge_count_by_ip(self, cli, target):
+        RateLimitHelper.check_challenge_response_change_path(target, "test_ban_action_by_path_sub_chl_count_ip", 4, 2)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Path | Count: Asn
+    def test_ban_action_event_path_subaction_challenge_count_by_asn(self, cli, target):
+        RateLimitHelper.check_challenge_response_change_path(target, "test_ban_action_by_path_sub_chl_count_asn", 4, 2)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Path | Count: Method
+    def test_ban_action_event_path_subaction_challenge_count_by_method(self, cli, target):
+        RateLimitHelper.check_challenge_response_change_path(target, "test_ban_action_by_path_sub_chl_count_method",
+                                                             4, 2)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Path | Count: Company
+    def test_ban_action_event_path_subaction_challenge_count_by_company(self, cli, target):
+        RateLimitHelper.check_challenge_response_change_path(target,
+                                                             "test_ban_action_by_path_sub_chl_count_company", 4, 2)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Path | Count: Authority
+    def test_ban_action_event_path_subaction_challenge_count_by_authority(self, cli, target):
+        RateLimitHelper.check_challenge_response_change_path(target,
+                                                             "test_ban_action_by_path_sub_chl_count_authority", 4, 2)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Query | Count: Ip
+    def test_ban_action_event_query_subaction_challenge_count_by_ip(self, cli, target):
+        params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_query_sub_chl_count_ip",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Query | Count: Asn
+    def test_ban_action_event_query_subaction_challenge_count_by_asn(self, cli, target):
+        params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_query_sub_chl_count_asn",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Query | Count: Method
+    def test_ban_action_event_query_subaction_challenge_count_by_method(self, cli, target):
+        params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_query_sub_chl_count_method",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Query | Count: Company
+    def test_ban_action_event_query_subaction_challenge_count_by_company(self, cli, target):
+        params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_query_sub_chl_count_company",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Query | Count: Authority
+    def test_ban_action_event_query_subaction_challenge_count_by_authority(self, cli, target):
+        params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_query_sub_chl_count_auth",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Method | Count: Ip
+    def test_ban_action_event_method_subaction_challenge_count_by_ip(self, cli, target):
+        params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_method_sub_chl_count_ip", 4,
+                                                                        2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Method | Count: Uri
+    def test_ban_action_event_method_subaction_challenge_count_by_uri(self, cli, target):
+        params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_method_sub_chl_count_uri",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Method | Count: Path
+    def test_ban_action_event_method_subaction_challenge_count_by_path(self, cli, target):
+        params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_method_sub_chl_count_path",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Method | Count: Query
+    def test_ban_action_event_method_subaction_challenge_count_by_query(self, cli, target):
+        params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_method_sub_chl_count_query",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Method | Count: Asn
+    def test_ban_action_event_method_subaction_challenge_count_by_asn(self, cli, target):
+        params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_method_sub_chl_count_asn",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Method | Count: Company
+    def test_ban_action_event_method_subaction_challenge_count_by_company(self, cli, target):
+        params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_method_sub_chl_count_comp",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Method | Count: Country
+    def test_ban_action_event_method_subaction_challenge_count_by_country(self, cli, target):
+        params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_method_sub_chl_count_country",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Method | Count: Authority
+    def test_ban_action_event_method_subaction_challenge_count_by_authority(self, cli, target):
+        params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_method_sub_chl_count_auth",
+                                                                        4, 2, params)
+
+
+
+
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Company | Count: Uri
+    def test_ban_action_event_company_subaction_challenge_count_by_uri(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_company_sub_chl_count_uri",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Company | Count: Path
+    def test_ban_action_event_company_subaction_challenge_count_by_path(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_company_sub_chl_count_path",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Company | Count: Query
+    def test_ban_action_event_company_subaction_challenge_count_by_query(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_company_sub_chl_count_query",
+                                                            4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Company | Count: Method
+    def test_ban_action_event_company_subaction_challenge_count_by_method(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_company_sub_chl_count_method",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Company | Count: Authority
+    def test_ban_action_event_company_subaction_challenge_count_by_authority(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_company_sub_chl_auth",
+                                                                        4, 2, params)
+
+        #  Action: Ban | Subaction: Challenge | Event:Attribute - Country | Count: Uri
+    def test_ban_action_event_country_subaction_challenge_count_by_uri(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_country_sub_chl_count_uri",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Country | Count: Path
+    def test_ban_action_event_country_subaction_challenge_count_by_path(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_country_sub_chl_count_path",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Country | Count: Query
+    def test_ban_action_event_country_subaction_challenge_count_by_query(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_country_sub_chl_count_query",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Country | Count: Method
+    def test_ban_action_event_country_subaction_challenge_count_by_method(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_country_sub_chl_count_method",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Country | Count: Authority
+    def test_ban_action_event_country_subaction_challenge_count_by_authority(self, cli, target):
+        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
+                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_country_sub_chl_auth",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Ip
+    def test_ban_action_event_authority_subaction_challenge_count_by_ip(self, cli, target):
+        params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_auth_sub_chl_count_ip",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Uri
+    def test_ban_action_event_authority_subaction_challenge_count_by_uri(self, cli, target):
+        params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_auth_sub_chl_count_uri",
+                                                                            4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Query
+    def test_ban_action_event_authority_subaction_challenge_count_by_query(self, cli, target):
+        params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_auth_sub_chl_count_query",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Path
+    def test_ban_action_event_authority_subaction_challenge_count_by_path(self, cli, target):
+        params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_auth_sub_chl_count_path",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Method
+    def test_ban_action_event_authority_subaction_challenge_count_by_method(self, cli, target):
+        params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_auth_sub_chl_count_method",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Asn
+    def test_ban_action_event_authority_subaction_challenge_count_by_asn(self, cli, target):
+        params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_auth_sub_chl_count_asn",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Country
+    def test_ban_action_event_authority_subaction_challenge_count_by_country(self, cli, target):
+        params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_auth_sub_chl_count_country",
+                                                                        4, 2, params)
+
+    #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Company
+    def test_ban_action_event_authority_subaction_challenge_count_by_company(self, cli, target):
+        params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
+        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
+                                                                        "test_ban_action_by_auth_sub_chl_count_company",
+                                                                        4, 2, params)
 
     #  Action: Ban | Subaction: Tag only | Event:Attribute -  Ip | Count: Path
     def test_ban_action_event_ip_subaction_tag_count_by_path(self, cli, target, log_fixture):
@@ -974,6 +1316,12 @@ class TestRateLimitAttribute:
                                                                      "test-ban-action-by-provider-sub-tag-count-uri",
                                                                      1, params)
 
+
+
+
+
+
+
     #  Action: Ban | Subaction: Response| Event:Attribute -  Ip | Count: Path
     def test_ban_action_event_ip_subaction_response_count_by_path(self, cli, target, log_fixture):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
@@ -989,6 +1337,14 @@ class TestRateLimitAttribute:
                                                              "test_ban_action_by_provider_sub_res_count_uri",
                                                              "response_attr_ip_by_uri",
                                                              "503", 3, 2, params)
+
+
+
+
+
+
+
+
 
     #  Action: Ban | Subaction: Redirect| Event:Attribute -  Ip | Count: Path
     def test_ban_action_event_ip_subaction_redirect_count_by_path(self, cli, target, log_fixture):
