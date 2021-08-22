@@ -1341,7 +1341,6 @@ class TestRateLimitAttribute:
                                                                       4, 2, params)
 
         #  Action: Ban | Subaction: Challenge | Event:Attribute - Country | Count: Uri
-
     def test_ban_action_event_country_subaction_challenge_count_by_uri(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
