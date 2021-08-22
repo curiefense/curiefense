@@ -121,6 +121,7 @@ function session_rust_nginx.log(handle)
       remoteaddressport=remote_port,
       directlocaladdress=handle.var.server_addr,
       directremoteaddressport=remote_port,
+      directremoteaddress=handle.var.remote_addr,
     }
 
     req.upstream = {}

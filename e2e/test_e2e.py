@@ -29,6 +29,7 @@
 # pylint: disable=no-self-use
 
 
+from typing import List, Optional
 from urllib.parse import urlparse
 import json
 import logging
@@ -293,12 +294,55 @@ class TestACL:
 
 def gen_rl_rules(authority):
     rl_rules = []
+    prof_rules = []
     map_path = {}
+
+    def build_profiling_rule(id: str, name: str, prefix: str, **kwargs) -> List[str]:
+        for n in ["cookies", "headers", "args", "attrs"]:
+            r: Optional[str] = kwargs.get("%s_%s" % (prefix, n))
+            if r is None:
+                continue
+            if isinstance(r, dict):
+                (k, v) = list(r.items())[0]
+                if n == "attrs":
+                    if k == "tags":
+                        return [v]
+                    entry = [k, v, "annotation"]
+                else:
+                    entry = [n, [k, v], "annotation"]
+            else:
+                entry = [n, r, "annotation"]
+            prof_rules.append(
+                {
+                    "id": id,
+                    "name": name,
+                    "source": "self-managed",
+                    "mdate": "2020-11-22T00:00:00.000Z",
+                    "notes": "E2E test tag rules",
+                    "entries_relation": "OR",
+                    "active": True,
+                    "tags": [id],
+                    "rule": {
+                        "relation": "OR",
+                        "sections": [
+                            {
+                                "relation": "OR",
+                                "entries": [entry],
+                            },
+                        ],
+                    },
+                }
+            )
+            return [id]
+        return []
 
     def add_rl_rule(
         path, action_ext=None, subaction_ext=None, param_ext=None, **kwargs
     ):
         rule_id = f"e2e1{len(rl_rules):0>9}"
+        incl_id = f"incl{len(rl_rules):0>9}"
+        excl_id = f"excl{len(rl_rules):0>9}"
+
         if subaction_ext is None:
             subaction_ext = {}
         if action_ext is None:
@@ -306,6 +350,8 @@ def gen_rl_rules(authority):
         if param_ext is None:
             param_ext = {}
         map_path[path] = rule_id
+        incl = build_profiling_rule(incl_id, incl_id, "incl", **kwargs)
+        excl = build_profiling_rule(excl_id, excl_id, "excl", **kwargs)
         rl_rules.append(
             {
                 "id": rule_id,
@@ -325,18 +371,8 @@ def gen_rl_rules(authority):
                     },
                     **action_ext,
                 },
-                "include": {
-                    "cookies": kwargs.get("incl_cookies", {}),
-                    "headers": kwargs.get("incl_headers", {}),
-                    "args": kwargs.get("incl_args", {}),
-                    "attrs": kwargs.get("incl_attrs", {}),
-                },
-                "exclude": {
-                    "cookies": kwargs.get("excl_cookies", {}),
-                    "headers": kwargs.get("excl_headers", {}),
-                    "args": kwargs.get("excl_args", {}),
-                    "attrs": kwargs.get("excl_attrs", {}),
-                },
+                "include": incl,
+                "exclude": excl,
                 "key": kwargs.get("key", [{"attrs": "ip"}]),
                 "pairwith": kwargs.get("pairwith", {"self": "self"}),
             }
@@ -520,7 +556,7 @@ def gen_rl_rules(authority):
                     "acl_active": True,
                     "waf_profile": "__default__",
                     "waf_active": True,
-                    "limit_ids": ["e2e100000000"],
+                    "limit_ids": [],
                 }
             ]
             + [
@@ -537,7 +573,7 @@ def gen_rl_rules(authority):
             ],
         }
     ]
-    return (rl_rules, rl_urlmap)
+    return (rl_rules, rl_urlmap, prof_rules)
 
 
 @pytest.fixture(scope="class")
@@ -545,10 +581,15 @@ def ratelimit_config(cli, target):
     cli.revert_and_enable()
     # Add new RL rules
     rl_rules = cli.call(f"doc get {TEST_CONFIG_NAME} ratelimits")
-    (new_rules, new_urlmap) = gen_rl_rules(target.authority())
+    (new_rules, new_urlmap, new_profiling) = gen_rl_rules(target.authority())
     rl_rules.extend(new_rules)
+    # Apply new profiling
+    cli.call(
+        f"doc update {TEST_CONFIG_NAME} tagrules /dev/stdin", inputjson=new_profiling
+    )
+    # Apply rl_rules
     cli.call(f"doc update {TEST_CONFIG_NAME} ratelimits /dev/stdin", inputjson=rl_rules)
-    # Apply NEW_URLMAP
+    # Apply new_urlmap
     cli.call(f"doc update {TEST_CONFIG_NAME} urlmaps /dev/stdin", inputjson=new_urlmap)
     cli.publish_and_apply()
 

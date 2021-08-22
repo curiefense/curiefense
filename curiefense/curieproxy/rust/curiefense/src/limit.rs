@@ -4,7 +4,7 @@ use redis::RedisResult;
 use crate::config::limit::Limit;
 use crate::interface::{SimpleActionT, SimpleDecision, Tags};
 use crate::redis::redis_conn;
-use crate::utils::{check_selector_cond, select_string, RequestInfo};
+use crate::utils::{select_string, RequestInfo};
 
 fn build_key(url_map_name: &str, reqinfo: &RequestInfo, limit: &Limit) -> Option<String> {
     let mut key = url_map_name.to_string() + &limit.id;
