@@ -585,7 +585,8 @@ def ratelimit_config(cli, target):
     rl_rules.extend(new_rules)
     # Apply new profiling
     cli.call(
-        f"doc update {TEST_CONFIG_NAME} tagrules /dev/stdin", inputjson=new_profiling
+        f"doc update {TEST_CONFIG_NAME} globalfilters /dev/stdin",
+        inputjson=new_profiling,
     )
     # Apply rl_rules
     cli.call(f"doc update {TEST_CONFIG_NAME} ratelimits /dev/stdin", inputjson=rl_rules)
@@ -1092,7 +1093,7 @@ class TestRateLimit:
 
 # --- Tag rules tests (formerly profiling lists) ---
 
-TEST_TAGRULES = {
+TEST_GLOBALFILTERS = {
     "id": "e2e000000000",
     "name": "e2e test tag rules",
     "source": "self-managed",
@@ -1110,9 +1111,9 @@ TEST_TAGRULES = {
                     ["cookies", ["e2e", "value"], "annotation"],
                     ["headers", ["e2e", "value"], "annotation"],
                     ["method", "(POST|PUT)", "annotation"],
-                    ["path", "/e2e-tagrules-path/", "annotation"],
+                    ["path", "/e2e-globalfilters-path/", "annotation"],
                     ["query", "e2e=value", "annotation"],
-                    ["uri", "/e2e-tagrules-uri", "annotation"],
+                    ["uri", "/e2e-globalfilters-uri", "annotation"],
                     ["ip", IP6_1, "annotation"],
                     ["ip", IP4_US, "annotation"],
                     [
@@ -1141,85 +1142,93 @@ def active(request):
 
 
 @pytest.fixture(scope="class")
-def tagrules_config(cli, acl, active):
+def globalfilters_config(cli, acl, active):
     cli.revert_and_enable()
     acl.set_acl({"force_deny": "e2e-test", "bypass": "all"})
-    # Apply TEST_TAGRULES
-    TEST_TAGRULES["active"] = active
+    # Apply TEST_GLOBALFILTERS
+    TEST_GLOBALFILTERS["active"] = active
     # 'updating' wafpolicies with a list containing a single entry adds this
     # entry, without removing pre-existing ones.
     cli.call(
-        f"doc update {TEST_CONFIG_NAME} tagrules /dev/stdin", inputjson=[TEST_TAGRULES]
+        f"doc update {TEST_CONFIG_NAME} globalfilters /dev/stdin",
+        inputjson=[TEST_GLOBALFILTERS],
     )
     cli.publish_and_apply()
 
 
-class TestTagRules:
-    def test_cookies(self, target, tagrules_config, active):
+class TestGlobalFilters:
+    def test_cookies(self, target, globalfilters_config, active):
         assert (
-            target.is_reachable("/e2e-tagrules-cookies", cookies={"e2e": "value"})
+            target.is_reachable("/e2e-globalfilters-cookies", cookies={"e2e": "value"})
             is not active
         )
         assert (
-            target.is_reachable("/e2e-tagrules-cookies", cookies={"e2e": "allowed"})
+            target.is_reachable(
+                "/e2e-globalfilters-cookies", cookies={"e2e": "allowed"}
+            )
             is True
         )
 
-    def test_headers(self, target, tagrules_config, active):
+    def test_headers(self, target, globalfilters_config, active):
         assert (
-            target.is_reachable("/e2e-tagrules-headers", headers={"e2e": "value"})
+            target.is_reachable("/e2e-globalfilters-headers", headers={"e2e": "value"})
             is not active
         )
         assert (
-            target.is_reachable("/e2e-tagrules-headers", headers={"e2e": "allowed"})
+            target.is_reachable(
+                "/e2e-globalfilters-headers", headers={"e2e": "allowed"}
+            )
             is True
         )
 
-    def test_method(self, target, tagrules_config, active):
-        assert target.is_reachable("/e2e-tagrules-method-GET", method="GET") is True
+    def test_method(self, target, globalfilters_config, active):
         assert (
-            target.is_reachable("/e2e-tagrules-method-POST", method="POST")
+            target.is_reachable("/e2e-globalfilters-method-GET", method="GET") is True
+        )
+        assert (
+            target.is_reachable("/e2e-globalfilters-method-POST", method="POST")
             is not active
         )
         assert (
-            target.is_reachable("/e2e-tagrules-method-PUT", method="PUT") is not active
+            target.is_reachable("/e2e-globalfilters-method-PUT", method="PUT")
+            is not active
         )
 
-    def test_path(self, target, tagrules_config, active):
-        assert target.is_reachable("/e2e-tagrules-path/") is not active
-        assert target.is_reachable("/e2e-tagrules-valid-path/") is True
+    def test_path(self, target, globalfilters_config, active):
+        assert target.is_reachable("/e2e-globalfilters-path/") is not active
+        assert target.is_reachable("/e2e-globalfilters-valid-path/") is True
 
-    def test_query(self, target, tagrules_config, active):
+    def test_query(self, target, globalfilters_config, active):
         assert (
-            target.is_reachable("/e2e-tagrules-query", params={"e2e": "value"})
+            target.is_reachable("/e2e-globalfilters-query", params={"e2e": "value"})
             is not active
         )
         assert (
-            target.is_reachable("/e2e-tagrules-query", params={"e2e": "allowed"})
+            target.is_reachable("/e2e-globalfilters-query", params={"e2e": "allowed"})
             is True
         )
 
-    def test_uri(self, target, tagrules_config, active):
-        assert target.is_reachable("/e2e-tagrules-uri") is not active
-        assert target.is_reachable("/e2e-tagrules-allowed-uri") is True
+    def test_uri(self, target, globalfilters_config, active):
+        assert target.is_reachable("/e2e-globalfilters-uri") is not active
+        assert target.is_reachable("/e2e-globalfilters-allowed-uri") is True
 
-    def test_ipv4(self, target, tagrules_config, active):
+    def test_ipv4(self, target, globalfilters_config, active):
         assert target.is_reachable("/tag-ipv4-1", srcip=IP4_US) is not active
         assert target.is_reachable("/tag-ipv4-2", srcip=IP4_ORANGE) is True
 
-    def test_ipv6(self, target, tagrules_config, active):
+    def test_ipv6(self, target, globalfilters_config, active):
         assert target.is_reachable("/tag-ipv6-1", srcip=IP6_1) is not active
         assert target.is_reachable("/tag-ipv6-2", srcip=IP6_2) is True
 
-    def test_country(self, target, tagrules_config, active):
+    def test_country(self, target, globalfilters_config, active):
         # JP address (Softbank)
         assert target.is_reachable("/tag-country", srcip=IP4_JP) is not active
 
-    def test_asn(self, target, tagrules_config, active):
+    def test_asn(self, target, globalfilters_config, active):
         # ASN 13335
         assert target.is_reachable("/tag-asn", srcip=IP4_CLOUDFLARE) is not active
 
-    def test_and(self, target, tagrules_config, active):
+    def test_and(self, target, globalfilters_config, active):
         assert (
             target.is_reachable("/e2e-and/", cookies={"e2e-and": "value"}) is not active
         )
