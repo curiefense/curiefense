@@ -172,7 +172,7 @@ export default Vue.extend({
   data() {
     const titles = DatasetsUtils.titles
     // Order is important
-    // We load [urlmaps] before [aclpolicies, wafpolicies, ratelimits] so we can pull all references correctly
+    // We load [urlmaps] before [aclprofiles, wafpolicies, ratelimits] so we can pull all references correctly
     const componentsMap: {
       [key in DocumentType]?: {
         component: VueConstructor
@@ -185,9 +185,9 @@ export default Vue.extend({
         title: titles['urlmaps'],
         fields: 'id, name, map',
       },
-      'aclpolicies': {
+      'aclprofiles': {
         component: ACLEditor,
-        title: titles['aclpolicies'],
+        title: titles['aclprofiles'],
         fields: 'id, name, allow, allow_bot, deny_bot, bypass, deny, force_deny',
       },
       'flowcontrol': {
@@ -281,7 +281,7 @@ export default Vue.extend({
 
       componentsMap: componentsMap,
 
-      // Referenced IDs of [aclpolicies, wafpolicies, ratelimits] in [urlmaps]
+      // Referenced IDs of [aclprofiles, wafpolicies, ratelimits] in [urlmaps]
       referencedACL: {} as ReferencesMap,
       referencedWAF: {} as ReferencesMap,
       referencedLimit: {} as ReferencesMap,
@@ -339,7 +339,7 @@ export default Vue.extend({
             const doc = response.data[j]
             doc.docType = doctype
             // Build tags based on document type
-            if (doctype === 'aclpolicies') {
+            if (doctype === 'aclprofiles') {
               const forceDenyTags = doc.force_deny.filter(Boolean).join(', ').toLowerCase()
               const bypassTags = doc.bypass.filter(Boolean).join(', ').toLowerCase()
               const allowBotTags = doc.allow_bot.filter(Boolean).join(', ').toLowerCase()
@@ -368,7 +368,7 @@ export default Vue.extend({
               this.buildURLMapConnections(doc)
               this.saveWafAclLimitConnections(doc)
             }
-            if (doctype === 'aclpolicies') {
+            if (doctype === 'aclprofiles') {
               this.buildWafAclLimitConnections(doc, this.referencedACL)
             }
             if (doctype === 'wafpolicies') {
@@ -458,7 +458,7 @@ export default Vue.extend({
       if (doc.connectedACL && doc.connectedACL.length > 0) {
         const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedACL.join('<br/>'))
         connections = connections.concat(
-            `<b>${this.componentsMap['aclpolicies'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
+            `<b>${this.componentsMap['aclprofiles'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
       }
       if (doc.connectedWAF && doc.connectedWAF.length > 0) {
         const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedWAF.join('<br/>'))

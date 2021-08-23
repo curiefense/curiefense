@@ -1,1 +1,39 @@
-istio-system-istio-ingressgateway-patterns.txt
+^Curiefense installed.
+^Now starting istio pilot.
+^Run mode is \[SYNC_ONCE\]
+^Run mode is \[PERIODIC_SYNC\]
+^Synchronizing once
+^Creating configuration \[/config/configs/\S+\]
+^Pulling new version of \[config/\S+\]
+^\s*\S+: \S+$
+^Pulling \S+\.json$
+^Synchronizing conf every 10 seconds
+^Sleeping
+^'/bootstrap-config\S*' -> '/config/\S+'
+^\S+T\S+Z	info	
+^\s*$
+^\s*\S+:$
+^\S+T\S+Z	warn	Missing JWT token, can't use in process SDS ./var/run/secrets/tokens/istio-tokenstat ./var/run/secrets/tokens/istio-token: no such file or directory
+^\S+T\S+Z	warn	failed to read pod labels: open ./etc/istio/pod/labels: no such file or directory
+^\S+T\S+Z	warn	Unable to unmarshal --proxyAdminPort: invalid character '-' in numeric literal
+^\[Envoy \(Epoch 0\)\] \[[^]]+\]\[\S+\]\[warning\]\[config\] \[\S+\] Listener connection limit runtime key envoy.resource_limits.listener.\S*.connection_limit is empty. There are currently no limitations on the number of accepted connections for listener \S*.
+^\[Envoy \(Epoch 0\)\] \[[^]]+\]\[\S+\]\[warning\]\[main\] \[\S+\] there is no configured limit to the number of allowed active connections. Set a limit via the runtime key overload.global_downstream_max_connections
+^\[Envoy \(Epoch 0\)\] \[[^]]+\]\[\S+\]\[warning\]\[config\] \[\S+\] gRPC config stream closed: \S+
+^\[Envoy \(Epoch 0\)\] [[^]]+\]\[\S+\]\[warning\]\[config\] \[\S+\] gRPC config stream closed: \S+, no healthy upstream
+^\[Envoy \(Epoch 0\)\] \[[^]]+\]\[\S+\]\[warning\]\[config\] \[\S+\] Unable to establish new stream
+^\[Envoy \(Epoch 0\)\] \[[^]]+\]\[\S+\]\[warning\]\[filter\] \[\S+\] Mixer Report failed with: UNAVAILABLE:no healthy upstream
+^\[Envoy \(Epoch 0\)\] \[[^]]+\]\[\S+\]\[warning\]\[lua\] \[\S+\] script log: CIDR \S+ could not be parsed
+^\[\S+-\S+-\S+ \S+:\S+:\S+\.\S+\]\[\S+\]\[warning\]\[main\] \[\S+\] there is no configured limit to the number of allowed active connections. Set a limit via the runtime key overload.global_downstream_max_connections
+^\[\S+-\S+-\S+ \S+:\S+:\S+\.\S+\]\[\S+\]\[warning\]\[runtime\] \[\S+\] Unable to use runtime singleton for feature envoy.http.headermap.lazy_map_min_size
+^\[\S+-\S+-\S+ \S+:\S+:\S+\.\S+\]\[\S+\]\[warning\]\[misc\] \[\S+\] Configuration does not parse cleanly as v3. v2 configuration is deprecated and will be removed from Envoy at the start of Q1 2021: envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager
+^\[\S+-\S+-\S+ \S+:\S+:\S+\.\S+\]\[\S+\]\[warning\]\[misc\] \[\S+\] Configuration does not parse cleanly as v3. v2 configuration is deprecated and will be removed from Envoy at the start of Q1 2021: envoy.config.accesslog.v2.HttpGrpcAccessLogConfig
+^\[\S+-\S+-\S+ \S+:\S+:\S+\.\S+\]\[\S+\]\[warning\]\[misc\] \[\S+\] Configuration does not parse cleanly as v3. v2 configuration is deprecated and will be removed from Envoy at the start of Q1 2021: envoy.config.filter.http.lua.v2.Lua
+^\[\S+-\S+-\S+ \S+:\S+:\S+\.\S+\]\[\S+\]\[warning\]\[misc\] \[\S+\] Configuration does not parse cleanly as v3. v2 configuration is deprecated and will be removed from Envoy at the start of Q1 2021: Unknown field in: \{
+^\[\S+-\S+-\S+ \S+:\S+:\S+\.\S+\]\[\S+\]\[warning\]\[misc\] \[\S+\] Deprecated field: type envoy.api.v2.listener.FilterChain Using deprecated option 'envoy.api.v2.listener.FilterChain.tls_context' from file listener_components.proto. This configuration will be removed from Envoy soon. Please see https://www.envoyproxy.io/docs/envoy/latest/version_history/version_history for details. If continued use of this field is absolutely necessary, see https://www.envoyproxy.io/docs/envoy/latest/configuration/operations/runtime#using-runtime-overrides-for-deprecated-features for how to apply a temporary and highly discouraged override.
+^\[\S+-\S+-\S+ \S+:\S+:\S+\.\S+\]\[\S+\]\[info\]
+^\[\S+-\S+-\S+ \S+:\S+:\S+\.\S+\]\[\S+\]\[debug\]
+^\s+- \S+: \S+$
+^\s*[{}[]+,?$
+^\s*\]+,?$
+^\s+"\*"$
+^\s+"inline_code": "local

@@ -20,10 +20,10 @@ describe('RequestsUtils.ts', () => {
   })
 
   describe('newDocEntryFactory', () => {
-    test('should generate a new ACL Policy', async () => {
-      const document = DatasetsUtils.newDocEntryFactory.aclpolicies()
+    test('should generate a new ACL Profile', async () => {
+      const document = DatasetsUtils.newDocEntryFactory.aclprofiles()
       expect(regexUUID2.test(document['id'])).toBeTruthy()
-      expect(document['name']).toEqual('New ACL Policy')
+      expect(document['name']).toEqual('New ACL Profile')
       expect(document['allow']).toEqual([])
       expect(document['allow_bot']).toEqual([])
       expect(document['deny_bot']).toEqual([])

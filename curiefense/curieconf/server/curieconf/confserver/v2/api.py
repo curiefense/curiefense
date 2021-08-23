@@ -121,10 +121,10 @@ m_wafpolicy = api.model(
     },
 )
 
-# aclpolicy
+# aclprofile
 
-m_aclpolicy = api.model(
-    "ACL Policy",
+m_aclprofile = api.model(
+    "ACL Profile",
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
@@ -181,7 +181,7 @@ models = {
     "urlmaps": m_urlmap,
     "wafrules": m_wafrule,
     "wafpolicies": m_wafpolicy,
-    "aclpolicies": m_aclpolicy,
+    "aclprofiles": m_aclprofile,
     "globalfilters": m_globalfilter,
     "flowcontrol": m_flowcontrol,
 }
@@ -325,9 +325,9 @@ def validateJson(json_data, schema_type):
 
 base_path = Path(__file__).parent
 # base_path = "/etc/curiefense/json/"
-acl_policy_file_path = (base_path / "../json/acl-policy.schema").resolve()
-with open(acl_policy_file_path) as json_file:
-    acl_policy_schema = json.load(json_file)
+acl_profile_file_path = (base_path / "./json/acl-profile.schema").resolve()
+with open(acl_profile_file_path) as json_file:
+    acl_profile_schema = json.load(json_file)
 ratelimits_file_path = (base_path / "../json/rate-limits.schema").resolve()
 with open(ratelimits_file_path) as json_file:
     ratelimits_schema = json.load(json_file)
@@ -351,7 +351,7 @@ schema_type_map = {
     "ratelimits": ratelimits_schema,
     "urlmaps": urlmaps_schema,
     "wafpolicies": waf_policy_schema,
-    "aclpolicies": acl_policy_schema,
+    "aclprofiles": acl_profile_schema,
     "globalfilters": globalfilters_schema,
     "flowcontrol": flowcontrol_schema,
     "wafrules": waf_rule_schema,

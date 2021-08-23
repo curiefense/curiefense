@@ -1,1 +1,4 @@
-curiefense-redis-patterns.txt
+^\S+ \S+ \S+ \S+ \S+ # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+^\S+ \S+ \S+ \S+ \S+ # Redis version=\S+, bits=64, commit=\S+, modified=\S+, pid=\S+, just start
+^\S+ \S+ \S+ \S+ \S+ # Configuration loaded
+^\S+ \S+ \S+ \S+ \S+ # Server initialized
