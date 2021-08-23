@@ -31,10 +31,10 @@ declare module CuriefenseClient {
     limit_ids: string[]
   }
 
-  type TagRuleSectionEntry = [Category, string | string[], string?]
+  type GlobalFilterSectionEntry = [Category, string | string[], string?]
 
-  type TagRuleSection = {
-    entries: TagRuleSectionEntry[]
+  type GlobalFilterSection = {
+    entries: GlobalFilterSectionEntry[]
     relation: Relation
   }
 
@@ -68,9 +68,9 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
-  type Document = BasicDocument & (ACLPolicy | FlowControl | TagRule | RateLimit | URLMap | WAFPolicy | WAFRule)
+  type Document = BasicDocument & (ACLPolicy | FlowControl | GlobalFilter | RateLimit | URLMap | WAFPolicy | WAFRule)
 
-  type DocumentType = 'aclpolicies' | 'flowcontrol' | 'tagrules' | 'ratelimits' | 'urlmaps' | 'wafpolicies' | 'wafrules'
+  type DocumentType = 'aclpolicies' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'urlmaps' | 'wafpolicies' | 'wafrules'
 
   // Document types helpers - END
 
@@ -116,7 +116,7 @@ declare module CuriefenseClient {
     }
   }
 
-  type TagRule = {
+  type GlobalFilter = {
     id: string
     name: string
     source: string
@@ -127,7 +127,7 @@ declare module CuriefenseClient {
     action: ResponseActionType
     rule: {
       relation: Relation
-      sections: TagRuleSection[]
+      sections: GlobalFilterSection[]
     }
   }
 

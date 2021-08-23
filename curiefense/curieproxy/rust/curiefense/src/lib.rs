@@ -98,7 +98,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
     // do all config queries in the lambda once
     // there is a lot of copying taking place, to minimize the lock time
     // this decision should be backed with benchmarks
-    let ((nm, urlmap), (ntags, profiling_dec), flows) = match with_config(configpath, logs, |slogs, cfg| {
+    let ((nm, urlmap), (ntags, globalfilter_dec), flows) = match with_config(configpath, logs, |slogs, cfg| {
         let murlmap = match_urlmap(&reqinfo, cfg, slogs).map(|(nm, um)| (nm, um.clone()));
         let nflows = cfg.flows.clone();
         let ntags = tag_request(is_human, &cfg, &reqinfo);
@@ -136,7 +136,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
     }
     logs.debug("challenge phase2 ignored");
 
-    if let SimpleDecision::Action(action, reason) = profiling_dec {
+    if let SimpleDecision::Action(action, reason) = globalfilter_dec {
         let decision = action.to_decision(is_human, &mgh, &reqinfo.headers, reason);
         if decision.is_final() {
             return (decision, tags);

@@ -365,7 +365,7 @@ mod tests {
             match logs.logs.len() {
                 2 => {
                     assert!(logs.logs[0].message.to_string().contains("CFGLOAD"));
-                    assert!(logs.logs[1].message.to_string().contains("profiling-lists.json"));
+                    assert!(logs.logs[1].message.to_string().contains("globalfilter-lists.json"));
                 }
                 10 => {
                     assert!(logs.logs[0]

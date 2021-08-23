@@ -1,7 +1,7 @@
 pub mod flow;
 pub mod hostmap;
 pub mod limit;
-pub mod profiling;
+pub mod globalfilter;
 pub mod raw;
 pub mod utils;
 pub mod waf;
@@ -18,8 +18,8 @@ use crate::logs::Logs;
 use flow::{flow_resolve, FlowElement, SequenceKey};
 use hostmap::{HostMap, UrlMap};
 use limit::{limit_order, Limit};
-use profiling::ProfilingSection;
-use raw::{AclProfile, RawFlowEntry, RawHostMap, RawLimit, RawProfilingSection, RawUrlMap, RawWafProfile};
+use globalfilter::GlobalFilterSection;
+use raw::{AclProfile, RawFlowEntry, RawHostMap, RawLimit, RawGlobalFilterSection, RawUrlMap, RawWafProfile};
 use utils::Matching;
 use waf::{resolve_signatures, WafProfile, WafSignatures};
 
@@ -66,7 +66,7 @@ where
 #[derive(Debug, Clone)]
 pub struct Config {
     pub urlmaps: Vec<Matching<HostMap>>,
-    pub profiling: Vec<ProfilingSection>,
+    pub globalfilters: Vec<GlobalFilterSection>,
     pub default: Option<HostMap>,
     pub last_mod: SystemTime,
     pub container_name: Option<String>,
@@ -150,7 +150,7 @@ impl Config {
         last_mod: SystemTime,
         rawmaps: Vec<RawHostMap>,
         rawlimits: Vec<RawLimit>,
-        rawprofiling: Vec<RawProfilingSection>,
+        rawglobalfilters: Vec<RawGlobalFilterSection>,
         rawacls: Vec<AclProfile>,
         rawwafprofiles: Vec<RawWafProfile>,
         container_name: Option<String>,
@@ -198,13 +198,13 @@ impl Config {
             }
         }
 
-        let profiling = ProfilingSection::resolve(logs, rawprofiling);
+        let globalfilters = GlobalFilterSection::resolve(logs, rawglobalfilters);
 
         let flows = flow_resolve(logs, rawflows);
 
         Config {
             urlmaps,
-            profiling,
+            globalfilters,
             default,
             last_mod,
             container_name,
@@ -228,7 +228,7 @@ impl Config {
             Ok(vs) => vs,
             Err(rr) => {
                 // if it is not a json array, abort early and do not resolve anything
-                logs.error(format!("when loading {}: {}", fullpath, rr));
+                logs.error(format!("when parsing {}: {}", fullpath, rr));
                 return Vec::new();
             }
         };
@@ -236,7 +236,7 @@ impl Config {
         for value in values {
             // for each entry, try to resolve it as a raw configuration value, failing otherwise
             match serde_json::from_value(value) {
-                Err(rr) => logs.error(format!("when loading {}: {}", fullpath, rr)),
+                Err(rr) => logs.error(format!("when resolving entry from {}: {}", fullpath, rr)),
                 Ok(v) => out.push(v),
             }
         }
@@ -259,7 +259,7 @@ impl Config {
         bjson.push("json");
 
         let urlmap = Config::load_config_file(logs, &bjson, "urlmap.json");
-        let profiling = Config::load_config_file(logs, &bjson, "profiling-lists.json");
+        let globalfilters = Config::load_config_file(logs, &bjson, "globalfilter-lists.json");
         let limits = Config::load_config_file(logs, &bjson, "limits.json");
         let acls = Config::load_config_file(logs, &bjson, "acl-profiles.json");
         let wafprofiles = Config::load_config_file(logs, &bjson, "waf-profiles.json");
@@ -278,7 +278,7 @@ impl Config {
             last_mod,
             urlmap,
             limits,
-            profiling,
+            globalfilters,
             acls,
             wafprofiles,
             container_name,
@@ -290,7 +290,7 @@ impl Config {
     pub fn empty() -> Config {
         Config {
             urlmaps: Vec::new(),
-            profiling: Vec::new(),
+            globalfilters: Vec::new(),
             last_mod: SystemTime::UNIX_EPOCH,
             default: None,
             container_name: None,

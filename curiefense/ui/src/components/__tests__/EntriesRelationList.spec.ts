@@ -3,13 +3,13 @@ import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals
 import {mount, Wrapper, WrapperArray} from '@vue/test-utils'
 import _ from 'lodash'
 import Vue from 'vue'
-import {TagRule, TagRuleSection} from '@/types'
+import {GlobalFilter, GlobalFilterSection} from '@/types'
 
 describe('EntriesRelationList.vue', () => {
   let wrapper: Wrapper<Vue>
-  let ruleData: TagRule['rule']
-  let entryData1: TagRuleSection
-  let entryData2: TagRuleSection
+  let ruleData: GlobalFilter['rule']
+  let entryData1: GlobalFilterSection
+  let entryData2: GlobalFilterSection
   beforeEach(() => {
     entryData1 = {
       relation: 'OR',
@@ -44,7 +44,7 @@ describe('EntriesRelationList.vue', () => {
         entryData2,
       ],
     }
-    const onUpdate = (rule: TagRule['rule']) => {
+    const onUpdate = (rule: GlobalFilter['rule']) => {
       wrapper.setProps({rule})
     }
     wrapper = mount(EntriesRelationList, {
@@ -185,7 +185,7 @@ describe('EntriesRelationList.vue', () => {
           entryData1,
         ],
       }
-      const onUpdate = (rule: TagRule['rule']) => {
+      const onUpdate = (rule: GlobalFilter['rule']) => {
         wrapper.setProps({rule})
       }
       wrapper = mount(EntriesRelationList, {

@@ -137,10 +137,10 @@ m_aclpolicy = api.model(
     },
 )
 
-# Tag Rule
+# Global Filter
 
-m_tagrule = api.model(
-    "Tag Rule",
+m_globalfilter = api.model(
+    "Global Filter",
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
@@ -182,7 +182,7 @@ models = {
     "wafrules": m_wafrule,
     "wafpolicies": m_wafpolicy,
     "aclpolicies": m_aclpolicy,
-    "tagrules": m_tagrule,
+    "globalfilters": m_globalfilter,
     "flowcontrol": m_flowcontrol,
 }
 
@@ -256,10 +256,7 @@ m_document_list_entry = api.model(
 
 m_config_documents = api.model(
     "Config Documents",
-    {
-        x: fields.List(fields.Nested(models[x], default=[]))
-        for x in utils.DOCUMENTS_PATH
-    },
+    {x: fields.List(fields.Nested(models[x], default=[])) for x in models},
 )
 
 m_config_blobs = api.model(
@@ -340,9 +337,9 @@ with open(urlmaps_file_path) as json_file:
 waf_policy_file_path = (base_path / "../json/waf-policy.schema").resolve()
 with open(waf_policy_file_path) as json_file:
     waf_policy_schema = json.load(json_file)
-tagrules_file_path = (base_path / "../json/tag-rules.schema").resolve()
-with open(tagrules_file_path) as json_file:
-    tagrules_schema = json.load(json_file)
+globalfilters_file_path = (base_path / "./json/global-filters.schema").resolve()
+with open(globalfilters_file_path) as json_file:
+    globalfilters_schema = json.load(json_file)
 flowcontrol_file_path = (base_path / "../json/flow-control.schema").resolve()
 with open(flowcontrol_file_path) as json_file:
     flowcontrol_schema = json.load(json_file)
@@ -355,7 +352,7 @@ schema_type_map = {
     "urlmaps": urlmaps_schema,
     "wafpolicies": waf_policy_schema,
     "aclpolicies": acl_policy_schema,
-    "tagrules": tagrules_schema,
+    "globalfilters": globalfilters_schema,
     "flowcontrol": flowcontrol_schema,
     "wafrules": waf_rule_schema,
 }

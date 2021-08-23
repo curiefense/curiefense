@@ -417,7 +417,7 @@
                 "force_deny": []
             }
         ],
-        "tagrules": [
+        "globalfilters": [
             {
                 "id": "ed8f6efb",
                 "active": true,

@@ -1,6 +1,7 @@
 import codecs
 import base64
 import json
+import pydash as _
 
 DOCUMENTS_PATH = {
     "ratelimits": "config/json/limits.json",
@@ -8,7 +9,7 @@ DOCUMENTS_PATH = {
     "wafrules": "config/json/waf-signatures.json",
     "wafpolicies": "config/json/waf-profiles.json",
     "aclpolicies": "config/json/acl-profiles.json",
-    "tagrules": "config/json/profiling-lists.json",
+    "globalfilters": "config/json/globalfilter-lists.json",
     "flowcontrol": "config/json/flow-control.json",
 }
 
@@ -23,6 +24,32 @@ BLOBS_BOOTSTRAP = {
     "geolite2country": b"",
     "geolite2city": b"",
 }
+
+
+def vconvert(conf_type_name, vfrom):
+    """
+    Convert configuration types terminology from demand API version to
+    the actual one. It is needed to support multiple API versions in parallel.
+
+    Args:
+        conf_type_name (string): Configuration type to convert.
+        vfrom (string): Version of the API from which to convert.
+
+    Returns
+        string: converted conf type
+    """
+    apimap = {
+        "v1": {
+            "urlmaps": "securitypolicies",
+            "wafrules": "contentfilterrules",
+            "wafpolicies": "contentfilterprofiles",
+            "aclpolicies": "aclprofiles",
+            "tagrules": "globalfilters",
+            "flowcontrol": "flowcontrolpolicies",
+        }
+    }
+
+    return _.get(apimap, f"{vfrom}.{conf_type_name}", conf_type_name)
 
 
 def jblob2bytes(jblob):
