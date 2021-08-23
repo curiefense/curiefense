@@ -38,7 +38,6 @@ class RateLimitHelper:
         response = target.query(f"/{path}{limit + 1}")
         assert response.status_code == 200
 
-
     @staticmethod
     def check_rate_limits_action_tag_only_with_pattern(log_fixture, target, path, field, pattern, limit):
         val_of_log = 0
@@ -57,12 +56,10 @@ class RateLimitHelper:
             response = target.query(f"/{path}", **params[i])
             assert response.status_code == 200
             val_of_log = log_fixture.check_log_pattern_updates(field, pattern)
-            print("inside - " + str(val_of_log))
         response = target.query(f"/{path}", **params[limit])
-        a = log_fixture.check_log_pattern_updates(field, pattern)
-        print("outside - " + str(a))
+        new_val_of_log = log_fixture.check_log_pattern_updates(field, pattern)
         assert response.status_code == 200
-        assert a == val_of_log + 1
+        assert new_val_of_log == val_of_log + 1
 
     @staticmethod
     def check_rate_limits_response_action(target, path, response_body, status, ttl, limit):
@@ -135,20 +132,6 @@ class RateLimitHelper:
         assert not BaseHelper.verify_pattern_in_html(response.content, "<html><head><meta")
 
     @staticmethod
-    def check_rate_limits_action_challenge_for_geo_attr(target, path, ttl, limit, params):
-        for i in range(limit):
-            response = target.query(f"/{path}", **params[i])
-            assert response.status_code == 200
-            assert not BaseHelper.verify_pattern_in_html(response.content, "<html><head><meta")
-        response = target.query(f"/{path}", **params[limit])
-        assert response.status_code == 247
-        assert BaseHelper.verify_pattern_in_html(response.content, "<html><head><meta")
-        time.sleep(ttl)
-        response = target.query(f"/{path}", **params[limit + 1])
-        assert response.status_code == 200
-        assert not BaseHelper.verify_pattern_in_html(response.content, "<html><head><meta")
-
-    @staticmethod
     def check_rate_limit_redirect_action(target, path, status, ttl, limit, location):
         for i in range(limit):
             response = target.query(f"/{path}")
@@ -177,29 +160,6 @@ class RateLimitHelper:
         response = target.query(f"/{path}", **params[limit + 1])
         assert response.status_code == 200
         assert 'location' not in response.headers
-
-    @staticmethod
-    def check_rate_limits_action_503_without_params(target, path, ttl, limit):
-        for i in range(limit):
-            response = target.query(path)
-            assert response.status_code == 200
-        response = target.query(path)
-        print(response.status_code)
-        assert response.status_code == 503
-        time.sleep(ttl)
-        response = target.query(path)
-        assert response.status_code == 200
-
-    @staticmethod
-    def check_rate_limits_action_503_for_geo_attr(target, path, ttl, limit, params):
-        for i in range(limit):
-            response = target.query(f"/{path}", **params[i])
-            assert response.status_code == 200
-        response = target.query(f"/{path}", **params[limit])
-        assert response.status_code == 503
-        time.sleep(ttl)
-        response = target.query(f"/{path}", **params[limit + 1])
-        assert response.status_code == 200
 
     @staticmethod
     def remove_include_exclude_from_ratelimit_json(rule):

@@ -71,367 +71,367 @@ class TestRateLimitAttribute:
     #  Action: 503  | Event: Attribute-Query | Count: Ip
     def test_503_action_event_query_attribute_count_by_ip(self, target):
         params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_query_attribute_count_by_ip/",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_query_attribute_count_by_ip/",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-Query | Count: Asn
     def test_503_action_event_query_attribute_count_by_asn(self, target):
         params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_query_attribute_count_by_asn",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_query_attribute_count_by_asn",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-Query | Count: Method
     def test_503_action_event_query_attribute_count_by_method(self, target):
         params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_query_attribute_count_by_method",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_query_attribute_count_by_method",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-Query | Count: Company
     def test_503_action_event_query_attribute_count_by_company(self, target):
         params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_query_attribute_count_by_company",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_query_attribute_count_by_company",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-Query | Count: Country
     def test_503_action_event_query_attribute_count_by_country(self, target):
         params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_query_attribute_count_by_country",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_query_attribute_count_by_country",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-Query | Count: Authority
     def test_503_action_event_query_attribute_count_by_authority(self, target):
         params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_query_attribute_count_by_authority",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_query_attribute_count_by_authority",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Path
     def test_503_action_event_ipv4_attribute_count_by_path(self, target):
         params = [{"srcip": f"199.0.0.{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_ipv4_attribute_count_by_path",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_ipv4_attribute_count_by_path",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Uri
     def test_503_action_event_ipv4_attribute_count_by_uri(self, target):
         params = [{"srcip": f"199.0.0.{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_ipv4_attribute_count_by_uri",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_ipv4_attribute_count_by_uri",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Query
     def test_503_action_event_ipv4_attribute_count_by_query(self, target):
         params = [{"srcip": f"199.0.0.{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_ipv4_attribute_count_by_query",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_ipv4_attribute_count_by_query",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Method
     def test_503_action_event_ipv4_attribute_count_by_method(self, target):
         params = [{"srcip": f"199.0.0.{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_ipv4_attribute_count_by_method",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_ipv4_attribute_count_by_method",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Asn
     def test_503_action_event_ipv4_attribute_count_by_asn(self, target):
         params = [{"srcip": f"199.0.0.{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_ipv4_attribute_count_by_asn",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_ipv4_attribute_count_by_asn",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Country
     def test_503_action_event_ipv4_attribute_count_by_country(self, target):
         params = [{"srcip": f"199.0.0.{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_ipv4_attribute_count_by_country",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_ipv4_attribute_count_by_country",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Company
     def test_503_action_event_ipv4_attribute_count_by_company(self, target):
         params = [{"srcip": f"199.0.0.{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_ipv4_attribute_count_by_company",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_ipv4_attribute_count_by_company",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Authority
     def test_503_action_event_ipv4_attribute_count_by_authority(self, target):
         params = [{"srcip": f"199.0.0.{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_ipv4_attribute_count_by_authority",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_ipv4_attribute_count_by_authority",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-ipv6 | Count: Path
     def test_503_action_event_ipv6_attribute_count_by_path(self, target):
         params = [{"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_ipv6_attribute_count_by_path",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_ipv6_attribute_count_by_path",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-ipv6 | Count: Method
     def test_503_action_event_ipv6_attribute_count_by_method(self, target):
         params = [{"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_ipv6_attribute_count_by_method",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_ipv6_attribute_count_by_method",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-ipv6 | Count: Query
     def test_503_action_event_ipv6_attribute_count_by_query(self, target):
         params = [{"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_ipv6_attribute_count_by_query",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_ipv6_attribute_count_by_query",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-ipv6 | Count: Authority
     def test_503_action_event_ipv6_attribute_count_by_authority(self, target):
         params = [{"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_ipv6_attribute_count_by_authority",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_ipv6_attribute_count_by_authority",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-ipv6 | Count: Uri
     def test_503_action_event_ipv6_attribute_count_by_uri(self, target):
         params = [{"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_ipv6_attribute_count_by_uri",
-                                                                  3, 8, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_ipv6_attribute_count_by_uri",
+                                                                 3, 8, params)
 
     #  Action: 503  | Event: Attribute-asn | Count: Path
     def test_503_action_event_asn_attribute_count_by_path(self, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_asn_attribute_count_by_path",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_asn_attribute_count_by_path",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-asn | Count: Uri
     def test_503_action_event_asn_attribute_count_by_uri(self, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_asn_attribute_count_by_uri",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_asn_attribute_count_by_uri",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-asn | Count: Query
     def test_503_action_event_asn_attribute_count_by_query(self, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_asn_attribute_count_by_query",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_asn_attribute_count_by_query",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-asn | Count: Method
     def test_503_action_event_asn_attribute_count_by_method(self, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_asn_attribute_count_by_method",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_asn_attribute_count_by_method",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-asn | Count: Authority
     def test_503_action_event_asn_attribute_count_by_authority(self, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_asn_attribute_count_by_authority",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_asn_attribute_count_by_authority",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-company | Count: Path
     def test_503_action_event_company_attribute_count_by_path(self, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_company_attribute_count_by_path",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_company_attribute_count_by_path",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-company | Count: Uri
     def test_503_action_event_company_attribute_count_by_uri(self, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_company_attribute_count_by_uri",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_company_attribute_count_by_uri",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-company | Count: Query
     def test_503_action_event_company_attribute_count_by_query(self, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_company_attribute_count_by_query",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_company_attribute_count_by_query",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-company | Count: Method
     def test_503_action_event_company_attribute_count_by_method(self, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_company_attribute_count_by_method",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_company_attribute_count_by_method",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-company | Count: Authority
     def test_503_action_event_company_attribute_count_by_authority(self, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_company_attribute_count_by_authority",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_company_attribute_count_by_authority",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-country | Count: Path
     def test_503_action_event_country_attribute_count_by_path(self, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_country_attribute_count_by_path",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_country_attribute_count_by_path",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-country | Count: Uri
     def test_503_action_event_country_attribute_count_by_uri(self, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_country_attribute_count_by_uri",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_country_attribute_count_by_uri",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-country | Count: Query
     def test_503_action_event_country_attribute_count_by_query(self, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_country_attribute_count_by_query",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_country_attribute_count_by_query",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-country | Count: Method
     def test_503_action_event_country_attribute_count_by_method(self, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_country_attribute_count_by_method",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_country_attribute_count_by_method",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-country | Count: Authority
     def test_503_action_event_country_attribute_count_by_authority(self, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_country_attribute_count_by_authority",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_country_attribute_count_by_authority",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Ip
     def test_503_action_event_method_attribute_count_by_ip(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_method_attribute_count_by_ip",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_method_attribute_count_by_ip",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Path
     def test_503_action_event_method_attribute_count_by_path(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_method_attribute_count_by_path",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_method_attribute_count_by_path",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Uri
     def test_503_action_event_method_attribute_count_by_uri(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_method_attribute_count_by_uri",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_method_attribute_count_by_uri",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Ip
     def test_503_action_event_method_attribute_count_by_query(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_method_attribute_count_by_query",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_method_attribute_count_by_query",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Ip
     def test_503_action_event_method_attribute_count_by_company(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_method_attribute_count_by_company",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_method_attribute_count_by_company",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Ip
     def test_503_action_event_method_attribute_count_by_country(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_method_attribute_count_by_country",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_method_attribute_count_by_country",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Asn
     def test_503_action_event_method_attribute_count_by_asn(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_method_attribute_count_by_asn",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_method_attribute_count_by_asn",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Authority
     def test_503_action_event_method_attribute_count_by_authority(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_method_attribute_count_by_authority",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_method_attribute_count_by_authority",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-authority | Count: Ip
     def test_503_action_event_authority_attribute_count_by_ip(self, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_authority_attribute_count_by_ip",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_authority_attribute_count_by_ip",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-authority | Count: Path
     def test_503_action_event_authority_attribute_count_by_path(self, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_authority_attribute_count_by_path",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_authority_attribute_count_by_path",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-authority | Count: Uri
     def test_503_action_event_authority_attribute_count_by_uri(self, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_authority_attribute_count_by_uri",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_authority_attribute_count_by_uri",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-authority | Count: Query
     def test_503_action_event_authority_attribute_count_by_query(self, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_authority_attribute_count_by_query",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_authority_attribute_count_by_query",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-authority | Count: Method
     def test_503_action_event_authority_attribute_count_by_method(self, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_authority_attribute_count_by_method",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_authority_attribute_count_by_method",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-authority | Count: Asn
     def test_503_action_event_authority_attribute_count_by_asn(self, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_authority_attribute_count_by_asn",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_authority_attribute_count_by_asn",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-authority | Count: Company
     def test_503_action_event_authority_attribute_count_by_company(self, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_authority_attribute_count_by_company",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_authority_attribute_count_by_company",
+                                                                 3, 2, params)
 
     #  Action: 503  | Event: Attribute-authority | Count: Country
     def test_503_action_event_authority_attribute_count_by_country(self, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_503_action_authority_attribute_count_by_country",
-                                                                  3, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_503_action_authority_attribute_count_by_country",
+                                                                 3, 2, params)
 
     #  Action: Challenge  | Event: Attribute-ip | Count: Path
     def test_challenge_action_event_ip_attribute_count_by_path(self, target):
@@ -750,194 +750,194 @@ class TestRateLimitAttribute:
     #  Action: Ban | Subaction: 503 | Event:Attribute - Method | Count: Ip
     def test_ban_action_event_method_subaction_503_count_by_ip(self, cli, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_method_sub_503_count_ip", 4, 2,
-                                                                  params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_method_sub_503_count_ip", 4, 2,
+                                                                 params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Method | Count: Asn
     def test_ban_action_event_method_subaction_503_count_by_asn(self, cli, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_method_sub_503_count_asn", 4, 2,
-                                                                  params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_method_sub_503_count_asn", 4, 2,
+                                                                 params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Method | Count: Uri
     def test_ban_action_event_method_subaction_503_count_by_uri(self, cli, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_method_sub_503_count_uri", 4,
-                                                                  2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_method_sub_503_count_uri", 4,
+                                                                 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Method | Count: Path
     def test_ban_action_event_method_subaction_503_count_by_path(self, cli, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_method_sub_503_count_path", 4,
-                                                                  2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_method_sub_503_count_path", 4,
+                                                                 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Method | Count: Query
     def test_ban_action_event_method_subaction_503_count_by_query(self, cli, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_method_sub_503_count_query",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_method_sub_503_count_query",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Method | Count: Country
     def test_ban_action_event_method_subaction_503_count_by_country(self, cli, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_method_sub_503_count_country", 4,
-                                                                  2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_method_sub_503_count_country", 4,
+                                                                 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Method | Count: Company
     def test_ban_action_event_method_subaction_503_count_by_company(self, cli, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_method_sub_503_count_company", 4,
-                                                                  2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_method_sub_503_count_company", 4,
+                                                                 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Method | Count: Authority
     def test_ban_action_event_method_subaction_503_count_by_authority(self, cli, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_method_sub_503_count_authority",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_method_sub_503_count_authority",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Company | Count: uri
     def test_ban_action_event_company_subaction_503_count_by_uri(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_company_sub_503_count_uri",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_company_sub_503_count_uri",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Company | Count: path
     def test_ban_action_event_company_subaction_503_count_by_path(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_company_sub_503_count_path",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_company_sub_503_count_path",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Company | Count: query
     def test_ban_action_event_company_subaction_503_count_by_query(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_company_sub_503_count_query",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_company_sub_503_count_query",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Company | Count: method
     def test_ban_action_event_company_subaction_503_count_by_method(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_company_sub_503_count_method",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_company_sub_503_count_method",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Company | Count: authority
     def test_ban_action_event_company_subaction_503_count_by_authority(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_company_sub_503_count_authority",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_company_sub_503_count_authority",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Country | Count: uri
     def test_ban_action_event_country_subaction_503_count_by_uri(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_country_sub_503_count_uri",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_country_sub_503_count_uri",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Country | Count: path
     def test_ban_action_event_country_subaction_503_count_by_path(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_country_sub_503_count_path",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_country_sub_503_count_path",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Country | Count: query
     def test_ban_action_event_country_subaction_503_count_by_query(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_country_sub_503_count_query",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_country_sub_503_count_query",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Country | Count: method
     def test_ban_action_event_country_subaction_503_count_by_method(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_country_sub_503_count_method",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_country_sub_503_count_method",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Country | Count: authority
     def test_ban_action_event_country_subaction_503_count_by_authority(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_country_sub_503_count_authority",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_country_sub_503_count_authority",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Authority | Count: ip
     def test_ban_action_event_authority_subaction_503_count_by_ip(self, cli, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_authority_sub_503_count_ip",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_authority_sub_503_count_ip",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Authority | Count: path
     def test_ban_action_event_authority_subaction_503_count_by_path(self, cli, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_authority_sub_503_count_path",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_authority_sub_503_count_path",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Authority | Count: uri
     def test_ban_action_event_authority_subaction_503_count_by_uri(self, cli, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_authority_sub_503_count_uri",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_authority_sub_503_count_uri",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Authority | Count: query
     def test_ban_action_event_authority_subaction_503_count_by_query(self, cli, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_authority_sub_503_count_query",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_authority_sub_503_count_query",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Authority | Count: method
     def test_ban_action_event_authority_subaction_503_count_by_method(self, cli, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_authority_sub_503_count_method",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_authority_sub_503_count_method",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Authority | Count: Asn
     def test_ban_action_event_authority_subaction_503_count_by_asn(self, cli, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_authority_sub_503_count_asn",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_authority_sub_503_count_asn",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Authority | Count: country
     def test_ban_action_event_authority_subaction_503_count_by_country(self, cli, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_authority_sub_503_count_country",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_authority_sub_503_count_country",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Authority | Count: company
     def test_ban_action_event_authority_subaction_503_count_by_company(self, cli, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_authority_sub_503_count_company",
-                                                                  4, 2, params)
+        RateLimitHelper.check_rate_limits_action_503_with_params(target,
+                                                                 "test_ban_action_by_authority_sub_503_count_company",
+                                                                 4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute -  Ip | Count: Path
     def test_ban_action_event_ip_subaction_challenge_count_by_path(self, cli, target):
@@ -1068,233 +1068,230 @@ class TestRateLimitAttribute:
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Query | Count: Ip
     def test_ban_action_event_query_subaction_challenge_count_by_ip(self, cli, target):
         params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_query_sub_chl_count_ip",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_query_sub_chl_count_ip",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Query | Count: Asn
     def test_ban_action_event_query_subaction_challenge_count_by_asn(self, cli, target):
         params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_query_sub_chl_count_asn",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_query_sub_chl_count_asn",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Query | Count: Method
     def test_ban_action_event_query_subaction_challenge_count_by_method(self, cli, target):
         params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_query_sub_chl_count_method",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_query_sub_chl_count_method",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Query | Count: Company
     def test_ban_action_event_query_subaction_challenge_count_by_company(self, cli, target):
         params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_query_sub_chl_count_company",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_query_sub_chl_count_company",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Query | Count: Authority
     def test_ban_action_event_query_subaction_challenge_count_by_authority(self, cli, target):
         params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_query_sub_chl_count_auth",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_query_sub_chl_count_auth",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Method | Count: Ip
     def test_ban_action_event_method_subaction_challenge_count_by_ip(self, cli, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_method_sub_chl_count_ip", 4,
-                                                                        2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_method_sub_chl_count_ip", 4,
+                                                                      2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Method | Count: Uri
     def test_ban_action_event_method_subaction_challenge_count_by_uri(self, cli, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_method_sub_chl_count_uri",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_method_sub_chl_count_uri",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Method | Count: Path
     def test_ban_action_event_method_subaction_challenge_count_by_path(self, cli, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_method_sub_chl_count_path",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_method_sub_chl_count_path",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Method | Count: Query
     def test_ban_action_event_method_subaction_challenge_count_by_query(self, cli, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_method_sub_chl_count_query",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_method_sub_chl_count_query",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Method | Count: Asn
     def test_ban_action_event_method_subaction_challenge_count_by_asn(self, cli, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_method_sub_chl_count_asn",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_method_sub_chl_count_asn",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Method | Count: Company
     def test_ban_action_event_method_subaction_challenge_count_by_company(self, cli, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_method_sub_chl_count_comp",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_method_sub_chl_count_comp",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Method | Count: Country
     def test_ban_action_event_method_subaction_challenge_count_by_country(self, cli, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_method_sub_chl_count_country",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_method_sub_chl_count_country",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Method | Count: Authority
     def test_ban_action_event_method_subaction_challenge_count_by_authority(self, cli, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_method_sub_chl_count_auth",
-                                                                        4, 2, params)
-
-
-
-
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_method_sub_chl_count_auth",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Company | Count: Uri
     def test_ban_action_event_company_subaction_challenge_count_by_uri(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_company_sub_chl_count_uri",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_company_sub_chl_count_uri",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Company | Count: Path
     def test_ban_action_event_company_subaction_challenge_count_by_path(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_company_sub_chl_count_path",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_company_sub_chl_count_path",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Company | Count: Query
     def test_ban_action_event_company_subaction_challenge_count_by_query(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_company_sub_chl_count_query",
-                                                            4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_company_sub_chl_count_query",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Company | Count: Method
     def test_ban_action_event_company_subaction_challenge_count_by_method(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_company_sub_chl_count_method",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_company_sub_chl_count_method",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Company | Count: Authority
     def test_ban_action_event_company_subaction_challenge_count_by_authority(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_company_sub_chl_count_auth",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_company_sub_chl_count_auth",
+                                                                      4, 2, params)
 
         #  Action: Ban | Subaction: Challenge | Event:Attribute - Country | Count: Uri
+
     def test_ban_action_event_country_subaction_challenge_count_by_uri(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_country_sub_chl_count_uri",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_country_sub_chl_count_uri",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Country | Count: Path
     def test_ban_action_event_country_subaction_challenge_count_by_path(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_country_sub_chl_count_path",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_country_sub_chl_count_path",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Country | Count: Query
     def test_ban_action_event_country_subaction_challenge_count_by_query(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_country_sub_chl_count_query",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_country_sub_chl_count_query",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Country | Count: Method
     def test_ban_action_event_country_subaction_challenge_count_by_method(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_country_sub_chl_count_method",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_country_sub_chl_count_method",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Country | Count: Authority
     def test_ban_action_event_country_subaction_challenge_count_by_authority(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_country_sub_chl_count_auth",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_country_sub_chl_count_auth",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Ip
     def test_ban_action_event_authority_subaction_challenge_count_by_ip(self, cli, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_auth_sub_chl_count_ip",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_auth_sub_chl_count_ip",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Uri
     def test_ban_action_event_authority_subaction_challenge_count_by_uri(self, cli, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_auth_sub_chl_count_uri",
-                                                                            4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_auth_sub_chl_count_uri",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Query
     def test_ban_action_event_authority_subaction_challenge_count_by_query(self, cli, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_auth_sub_chl_count_query",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_auth_sub_chl_count_query",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Path
     def test_ban_action_event_authority_subaction_challenge_count_by_path(self, cli, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_auth_sub_chl_count_path",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_auth_sub_chl_count_path",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Method
     def test_ban_action_event_authority_subaction_challenge_count_by_method(self, cli, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_auth_sub_chl_count_method",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_auth_sub_chl_count_method",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Asn
     def test_ban_action_event_authority_subaction_challenge_count_by_asn(self, cli, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_auth_sub_chl_count_asn",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_auth_sub_chl_count_asn",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Country
     def test_ban_action_event_authority_subaction_challenge_count_by_country(self, cli, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_auth_sub_chl_count_country",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_auth_sub_chl_count_country",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Challenge | Event:Attribute - Authority | Count: Company
     def test_ban_action_event_authority_subaction_challenge_count_by_company(self, cli, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_challenge_for_geo_attr(target,
-                                                                        "test_ban_action_by_auth_sub_chl_count_company",
-                                                                        4, 2, params)
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
+                                                                      "test_ban_action_by_auth_sub_chl_count_company",
+                                                                      4, 2, params)
 
     #  Action: Ban | Subaction: Tag only | Event:Attribute -  Ip | Count: Path
     def test_ban_action_event_ip_subaction_tag_count_by_path(self, cli, target, log_fixture):
@@ -1316,12 +1313,6 @@ class TestRateLimitAttribute:
                                                                      "test-ban-action-by-provider-sub-tag-count-uri",
                                                                      1, params)
 
-
-
-
-
-
-
     #  Action: Ban | Subaction: Response| Event:Attribute -  Ip | Count: Path
     def test_ban_action_event_ip_subaction_response_count_by_path(self, cli, target, log_fixture):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
@@ -1337,14 +1328,6 @@ class TestRateLimitAttribute:
                                                              "test_ban_action_by_provider_sub_res_count_uri",
                                                              "response_attr_ip_by_uri",
                                                              "503", 3, 2, params)
-
-
-
-
-
-
-
-
 
     #  Action: Ban | Subaction: Redirect| Event:Attribute -  Ip | Count: Path
     def test_ban_action_event_ip_subaction_redirect_count_by_path(self, cli, target, log_fixture):
