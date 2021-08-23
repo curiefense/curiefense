@@ -11,7 +11,7 @@
 ^Compressing objects: .* done.
 ^Writing objects: .* done.
 ^Total \S+ \(delta \S+\), reused \S+ \(delta \S+\)
-^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "(PUT|GET|POST|DELETE) /api/v1/\S* HTTP/1.[01]" (200|308) .*
+^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "(PUT|GET|POST|DELETE) /api/v2/\S* HTTP/1.[01]" (200|308) .*
 ^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "GET / HTTP/1.[01]" 404 .*
 ^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "GET /favicon.ico HTTP/1.[01]" 404 .*
 ^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "GET /swaggerui/\S* HTTP/1.[01]" .*
@@ -66,7 +66,7 @@
 ^spawned uWSGI master process \(pid: \S+
 ^spawned uWSGI worker \S+ \(pid: \S+ cores: \S+
 ^running "unix_signal:15 gracefully_kill_them_all" \(master-start\)...
-^\[pid: \S+|app: \S+|req: \S+/\S+\] \S+ \(\) \{\S+ vars in \S+ bytes\} [[^]]+] (GET|PUT|DELETE|POST) /api/v1/\S* => generated \S+ bytes in \S+ msecs (HTTP/1.[01] 200)
+^\[pid: \S+|app: \S+|req: \S+/\S+\] \S+ \(\) \{\S+ vars in \S+ bytes\} [[^]]+] (GET|PUT|DELETE|POST) /api/v2/\S* => generated \S+ bytes in \S+ msecs (HTTP/1.[01] 200)
 ^Config directory /config/confdb is empty
 ^Cloning configuration from /bootstrap/confdb.bundle
 ^Cloning into bare repository '/config/confdb'...

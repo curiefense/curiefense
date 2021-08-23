@@ -272,7 +272,7 @@ export default Vue.extend({
       branches: 0,
 
       componentsMap: {
-        'aclpolicies': {component: ACLEditor},
+        'aclprofiles': {component: ACLEditor},
         'flowcontrol': {component: FlowControlEditor},
         'globalfilters': {component: GlobalFilterListEditor},
         'ratelimits': {component: RateLimitsEditor},
@@ -327,7 +327,7 @@ export default Vue.extend({
     },
 
     isDocReferenced(): boolean {
-      if (this.selectedDocType === 'aclpolicies') {
+      if (this.selectedDocType === 'aclprofiles') {
         return this.referencedIDsACL.includes(this.selectedDocID)
       }
       if (this.selectedDocType === 'wafpolicies') {

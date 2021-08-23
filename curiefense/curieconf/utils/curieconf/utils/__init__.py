@@ -8,7 +8,7 @@ DOCUMENTS_PATH = {
     "urlmaps": "config/json/urlmap.json",
     "wafrules": "config/json/waf-signatures.json",
     "wafpolicies": "config/json/waf-profiles.json",
-    "aclpolicies": "config/json/acl-profiles.json",
+    "aclprofiles": "config/json/acl-profiles.json",
     "globalfilters": "config/json/globalfilter-lists.json",
     "flowcontrol": "config/json/flow-control.json",
 }

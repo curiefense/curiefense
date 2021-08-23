@@ -1,4 +1,4 @@
-^\S+T\S+Z	info	
+^\S+T\S+Z	info
 ^\S+: \S+$
 ^\s*$
 ^\s*\S+:$
@@ -30,6 +30,6 @@ Starting gRPC server on port 9091
 ^ConfigDefaultNamespace:  istio-system
 ^ConfigWaitTimeout:  \S+
 ^LoggingOptions: log.Options\{OutputPaths:\[\]string\{"stdout"\}, ErrorOutputPaths:\[\]string\{"stderr"\}, RotateOutputPath:"", RotationMaxSize:\S+, RotationMaxAge:\S+, RotationMaxBackups:\S+, JSONEncoding:false, LogGrpc:true, outputLevels:"default:info", logCallers:"", stackTraceLevels:"default:none"\}
-^TracingOptions: tracing.Options\{ZipkinURL:"http://zipkin.istio-system:9411/api/v1/spans", JaegerURL:"", LogTraceSpans:false, SamplingRate:0\}
+^TracingOptions: tracing.Options\{ZipkinURL:"http://zipkin.istio-system:9411/api/v2/spans", JaegerURL:"", LogTraceSpans:false, SamplingRate:0\}
 ^IntrospectionOptions: ctrlz.Options\{Port:\S+, Address:"localhost"\}
 ^LoadSheddingOptions: loadshedding.Options\{Mode:2, AverageLatencyThreshold:\S+, SamplesPerSecond:\S+, SampleHalfLife:\S+, LatencyEnforcementThreshold:\S+, MaxRequestsPerSecond:\S+, BurstSize:\S+\}
