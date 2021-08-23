@@ -7,7 +7,7 @@ import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import _ from 'lodash'
-import {ACLPolicy, Branch, Commit, FlowControl, RateLimit, GlobalFilter, URLMap, WAFPolicy} from '@/types'
+import {ACLPolicy, Branch, Commit, FlowControl, RateLimit, GlobalFilter, SecurityPolicy, WAFPolicy} from '@/types'
 
 jest.mock('axios')
 
@@ -21,8 +21,8 @@ describe('DocumentEditor.vue', () => {
   let aclGitOldVersion: ACLPolicy[]
   let profilingListDocs: GlobalFilter[]
   let profilingListDocsLogs: Commit[][]
-  let urlMapsDocs: URLMap[]
-  let urlMapsDocsLogs: Commit[][]
+  let securityPoliciesDocs: SecurityPolicy[]
+  let securityPoliciesDocsLogs: Commit[][]
   let flowControlDocs: FlowControl[]
   let wafDocs: WAFPolicy[]
   let rateLimitsDocs: RateLimit[]
@@ -579,7 +579,7 @@ describe('DocumentEditor.vue', () => {
         },
       ],
     ]
-    urlMapsDocs = [
+    securityPoliciesDocs = [
       {
         'id': '__default__',
         'name': 'default entry',
@@ -597,7 +597,7 @@ describe('DocumentEditor.vue', () => {
         ],
       },
     ]
-    urlMapsDocsLogs = [
+    securityPoliciesDocsLogs = [
       [
         {
           'version': '1662043d2a18d6ad2c9c94d6f826593ff5506354',
@@ -729,17 +729,17 @@ describe('DocumentEditor.vue', () => {
       if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/e/${docID}/v/`) {
         return Promise.resolve({data: profilingListDocsLogs[0]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/urlmaps/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve({data: _.map(urlMapsDocs, (i) => _.pick(i, 'id', 'name'))})
+          return Promise.resolve({data: _.map(securityPoliciesDocs, (i) => _.pick(i, 'id', 'name'))})
         }
-        return Promise.resolve({data: urlMapsDocs})
+        return Promise.resolve({data: securityPoliciesDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/urlmaps/e/__default__/`) {
-        return Promise.resolve({data: urlMapsDocs[0]})
+      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/e/__default__/`) {
+        return Promise.resolve({data: securityPoliciesDocs[0]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/urlmaps/e/${docID}/v/`) {
-        return Promise.resolve({data: urlMapsDocsLogs[0]})
+      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/e/${docID}/v/`) {
+        return Promise.resolve({data: securityPoliciesDocsLogs[0]})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/flowcontrol/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
@@ -955,7 +955,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct document type from route without changing branch or document id', async (done) => {
       mockRoute.params = {
         branch: 'master',
-        doc_type: 'urlmaps',
+        doc_type: 'securitypolicies',
         doc_id: '__default__',
       }
       // allow all requests to finish
@@ -1037,14 +1037,14 @@ describe('DocumentEditor.vue', () => {
       test('should load correct git history when document type changes', (done) => {
         mockRoute.params = {
           branch: 'master',
-          doc_type: 'urlmaps',
+          doc_type: 'securitypolicies',
           doc_id: '__default__',
         }
         // allow all requests to finish
         setImmediate(() => {
           const gitHistory = wrapper.findComponent(GitHistory)
           expect(gitHistory).toBeTruthy()
-          expect((gitHistory.vm as any).gitLog).toEqual(urlMapsDocsLogs[0])
+          expect((gitHistory.vm as any).gitLog).toEqual(securityPoliciesDocsLogs[0])
           done()
         })
       })
@@ -1294,8 +1294,8 @@ describe('DocumentEditor.vue', () => {
   })
 
   describe('buttons', () => {
-    test('should refresh referenced IDs lists after saving url map entity', (done) => {
-      // switch to url map entity type
+    test('should refresh referenced IDs lists after saving security policy entity', (done) => {
+      // switch to security policy entity type
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const options = docTypeSelection.findAll('option')
@@ -1309,7 +1309,7 @@ describe('DocumentEditor.vue', () => {
         const saveDocumentButton = wrapper.find('.save-document-button')
         saveDocumentButton.trigger('click')
         await Vue.nextTick()
-        expect(getSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/urlmaps/`)
+        expect(getSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/securitypolicies/`)
         done()
       })
     })
@@ -1338,8 +1338,8 @@ describe('DocumentEditor.vue', () => {
       expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclpolicies/e/`, forkedDoc)
     })
 
-    test('should change url map match when forking url map document', (done) => {
-      // switching to url maps
+    test('should change security policy match when forking security policy document', (done) => {
+      // switching to security policies
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const options = docTypeSelection.findAll('option')
@@ -1356,7 +1356,7 @@ describe('DocumentEditor.vue', () => {
         const forkDocumentButton = wrapper.find('.fork-document-button')
         forkDocumentButton.trigger('click')
         await Vue.nextTick()
-        expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/urlmaps/e/`, forkedDoc)
+        expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/securitypolicies/e/`, forkedDoc)
         done()
       })
     })
@@ -1413,7 +1413,7 @@ describe('DocumentEditor.vue', () => {
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
-    test('should not be able to delete an ACL Policy document if it is referenced by a url map', async () => {
+    test('should not be able to delete an ACL Policy document if it is referenced by a security policy', async () => {
       // switch to a different document
       const docSelection = wrapper.find('.doc-selection')
       docSelection.trigger('click')
@@ -1429,7 +1429,7 @@ describe('DocumentEditor.vue', () => {
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
-    test('should not be able to delete an WAF Policy document if it is referenced by a url map', async () => {
+    test('should not be able to delete an WAF Policy document if it is referenced by a security policy', async () => {
       // switch to WAF Policies
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
@@ -1446,7 +1446,7 @@ describe('DocumentEditor.vue', () => {
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
-    test('should not be able to delete a Rate Limit document if it is referenced by a url map', async () => {
+    test('should not be able to delete a Rate Limit document if it is referenced by a security policy', async () => {
       // switch to Rate Limits
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')

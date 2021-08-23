@@ -21,7 +21,7 @@ declare module CuriefenseClient {
     exclusions: { [key: string]: number }
   }
 
-  type URLMapEntryMatch = {
+  type SecurityPolicyEntryMatch = {
     match: string
     name: string
     acl_profile: string
@@ -68,9 +68,9 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
-  type Document = BasicDocument & (ACLPolicy | FlowControl | GlobalFilter | RateLimit | URLMap | WAFPolicy | WAFRule)
+  type Document = BasicDocument & (ACLPolicy | FlowControl | GlobalFilter | RateLimit | SecurityPolicy | WAFPolicy | WAFRule)
 
-  type DocumentType = 'aclpolicies' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'urlmaps' | 'wafpolicies' | 'wafrules'
+  type DocumentType = 'aclpolicies' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'securitypolicies' | 'wafpolicies' | 'wafrules'
 
   // Document types helpers - END
 
@@ -131,11 +131,11 @@ declare module CuriefenseClient {
     }
   }
 
-  type URLMap = {
+  type SecurityPolicy = {
     id: string
     name: string
     match: string
-    map: URLMapEntryMatch[]
+    map: SecurityPolicyEntryMatch[]
   }
 
   type RateLimit = {

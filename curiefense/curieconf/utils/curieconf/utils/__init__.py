@@ -5,7 +5,7 @@ import pydash as _
 
 DOCUMENTS_PATH = {
     "ratelimits": "config/json/limits.json",
-    "urlmaps": "config/json/urlmap.json",
+    "securitypolicies": "config/json/securitypolicy.json",
     "wafrules": "config/json/waf-signatures.json",
     "wafpolicies": "config/json/waf-profiles.json",
     "aclpolicies": "config/json/acl-profiles.json",
@@ -40,7 +40,7 @@ def vconvert(conf_type_name, vfrom):
     """
     apimap = {
         "v1": {
-            "urlmaps": "securitypolicies",
+            "securitypolicies": "securitypolicies",
             "wafrules": "contentfilterrules",
             "wafpolicies": "contentfilterprofiles",
             "aclpolicies": "aclprofiles",

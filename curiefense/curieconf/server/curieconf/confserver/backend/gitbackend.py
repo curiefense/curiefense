@@ -483,8 +483,8 @@ class GitBackend(CurieBackend):
         referenced_waf_policies = []
         waf_policies = []
         acl_policies = []
-        if "urlmaps" in docs:
-            for umap in docs["urlmaps"]:
+        if "securitypolicies" in docs:
+            for umap in docs["securitypolicies"]:
                 for umapmap in umap["map"]:
                     referenced_waf_policies.append(umapmap["waf_profile"])
                     referenced_acl_policies.append(umapmap["acl_profile"])

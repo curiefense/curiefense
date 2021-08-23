@@ -5,7 +5,7 @@ use curiefense::config::waf::WafProfile;
 use curiefense::config::Config;
 use curiefense::logs::Logs;
 use curiefense::requestfields::RequestField;
-use curiefense::urlmap::match_urlmap;
+use curiefense::securitypolicy::match_securitypolicy;
 use curiefense::utils::{GeoIp, QueryInfo, RInfo, RequestInfo, RequestMeta};
 
 use criterion::*;
@@ -14,7 +14,7 @@ use std::collections::{HashMap, HashSet};
 
 fn gen_bogus_config(sz: usize) -> Config {
     let mut def = Config::empty();
-    def.urlmaps = (0..sz)
+    def.securitypolicies = (0..sz)
         .map(|i| Matching {
             matcher: Regex::new(&format!("^dummyhost_{}$", i)).unwrap(),
             inner: HostMap {
@@ -37,11 +37,11 @@ fn gen_bogus_config(sz: usize) -> Config {
         force_deny: HashSet::new(),
     };
 
-    let dummy_entries: Vec<Matching<UrlMap>> = (0..sz)
+    let dummy_entries: Vec<Matching<SecurityPolicy>> = (0..sz)
         .map(|i| Matching {
             matcher: Regex::new(&format!("/dummy/url/{}", i)).unwrap(),
-            inner: UrlMap {
-                name: format!("Dummy urlmap {}", i),
+            inner: SecurityPolicy {
+                name: format!("Dummy securitypolicy {}", i),
                 acl_active: false,
                 acl_profile: acl_profile.clone(),
                 waf_active: false,
@@ -55,7 +55,7 @@ fn gen_bogus_config(sz: usize) -> Config {
         id: "__default__".into(),
         name: "__default__".into(),
         entries: dummy_entries,
-        default: Some(UrlMap {
+        default: Some(SecurityPolicy {
             name: "selected".into(),
             acl_active: false,
             acl_profile,
@@ -104,14 +104,14 @@ fn gen_rinfo() -> RequestInfo {
 }
 
 fn forms_string_map(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Url map search");
+    let mut group = c.benchmark_group("Security Policy search");
     let rinfo = gen_rinfo();
     for sz in [10, 100, 500, 1000].iter() {
         group.bench_with_input(BenchmarkId::from_parameter(sz), sz, |b, &size| {
             let cfg = gen_bogus_config(size);
             b.iter(|| {
                 let mut logs = Logs::default();
-                let (_, umap) = match_urlmap(black_box(&rinfo), black_box(&cfg), &mut logs).unwrap();
+                let (_, umap) = match_securitypolicy(black_box(&rinfo), black_box(&cfg), &mut logs).unwrap();
                 assert_eq!(umap.name, "selected");
             })
         });

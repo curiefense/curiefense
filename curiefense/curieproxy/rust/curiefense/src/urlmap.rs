@@ -1,25 +1,25 @@
-use crate::config::hostmap::{HostMap, UrlMap};
+use crate::config::hostmap::{HostMap, SecurityPolicy};
 use crate::config::Config;
 use crate::logs::Logs;
 use crate::utils::RequestInfo;
 
-/// finds the urlmap matching a given request, based on the configuration
+/// finds the securitypolicy matching a given request, based on the configuration
 /// there are cases where default values do not exist (even though the UI should prevent that)
 ///
 /// note that the url is matched using the url-decoded path!
 ///
-/// returns the matching url map, along with the id of the selected host map
-pub fn match_urlmap<'a>(ri: &RequestInfo, cfg: &'a Config, logs: &mut Logs) -> Option<(String, &'a UrlMap)> {
+/// returns the matching security policy, along with the id of the selected host map
+pub fn match_securitypolicy<'a>(ri: &RequestInfo, cfg: &'a Config, logs: &mut Logs) -> Option<(String, &'a SecurityPolicy)> {
     // find the first matching hostmap, or use the default, if it exists
     let hostmap: &HostMap = cfg
-        .urlmaps
+        .securitypolicies
         .iter()
         .find(|e| e.matcher.is_match(&ri.rinfo.host))
         .map(|m| &m.inner)
         .or_else(|| cfg.default.as_ref())?;
     logs.debug(format!("Selected hostmap {}", hostmap.name));
-    // find the first matching urlmap, or use the default, if it exists
-    let urlmap: &UrlMap = match hostmap
+    // find the first matching securitypolicy, or use the default, if it exists
+    let securitypolicy: &SecurityPolicy = match hostmap
         .entries
         .iter()
         .find(|e| e.matcher.is_match(&ri.rinfo.qinfo.qpath))
@@ -32,6 +32,6 @@ pub fn match_urlmap<'a>(ri: &RequestInfo, cfg: &'a Config, logs: &mut Logs) -> O
         }
         Some(x) => x,
     };
-    logs.debug(format!("Selected hostmap entry {}", urlmap.name));
-    Some((hostmap.name.clone(), urlmap))
+    logs.debug(format!("Selected hostmap entry {}", securitypolicy.name));
+    Some((hostmap.name.clone(), securitypolicy))
 }

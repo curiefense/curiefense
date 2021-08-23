@@ -331,7 +331,7 @@ with open(acl_policy_file_path) as json_file:
 ratelimits_file_path = (base_path / "../json/rate-limits.schema").resolve()
 with open(ratelimits_file_path) as json_file:
     ratelimits_schema = json.load(json_file)
-urlmaps_file_path = (base_path / "../json/url-maps.schema").resolve()
+urlmaps_file_path = (base_path / "./json/url-maps.schema").resolve()
 with open(urlmaps_file_path) as json_file:
     urlmaps_schema = json.load(json_file)
 waf_policy_file_path = (base_path / "../json/waf-policy.schema").resolve()

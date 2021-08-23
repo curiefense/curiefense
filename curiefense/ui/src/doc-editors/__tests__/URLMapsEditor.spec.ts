@@ -1,15 +1,15 @@
-import URLMapsEditor from '@/doc-editors/URLMapsEditor.vue'
+import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount, Wrapper} from '@vue/test-utils'
-import {ACLPolicy, RateLimit, URLMap, WAFPolicy} from '@/types'
+import {ACLPolicy, RateLimit, SecurityPolicy, WAFPolicy} from '@/types'
 import axios from 'axios'
 import Vue from 'vue'
 import _ from 'lodash'
 
 jest.mock('axios')
 
-describe('URLMapsEditor.vue', () => {
-  let urlMapsDocs: URLMap[]
+describe('SecurityPoliciesEditor.vue', () => {
+  let securityPoliciesDocs: SecurityPolicy[]
   let aclDocs: ACLPolicy[]
   let wafDocs: WAFPolicy[]
   let rateLimitsDocs: RateLimit[]
@@ -17,7 +17,7 @@ describe('URLMapsEditor.vue', () => {
   let mockRouter
   let axiosGetSpy: any
   beforeEach(() => {
-    urlMapsDocs = [
+    securityPoliciesDocs = [
       {
         'id': '__default__',
         'name': 'default entry',
@@ -175,11 +175,11 @@ describe('URLMapsEditor.vue', () => {
         }
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/urlmaps/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve({data: _.map(urlMapsDocs, (i) => _.pick(i, 'id', 'name'))})
+          return Promise.resolve({data: _.map(securityPoliciesDocs, (i) => _.pick(i, 'id', 'name'))})
         }
-        return Promise.resolve({data: urlMapsDocs})
+        return Promise.resolve({data: securityPoliciesDocs})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/wafpolicies/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
@@ -201,9 +201,9 @@ describe('URLMapsEditor.vue', () => {
     mockRouter = {
       push: jest.fn(),
     }
-    wrapper = shallowMount(URLMapsEditor, {
+    wrapper = shallowMount(SecurityPoliciesEditor, {
       propsData: {
-        selectedDoc: urlMapsDocs[0],
+        selectedDoc: securityPoliciesDocs[0],
         selectedBranch: 'master',
       },
       mocks: {
@@ -216,9 +216,9 @@ describe('URLMapsEditor.vue', () => {
   })
 
   test('should not send new requests to API if document data updates but document ID does not', async () => {
-    // 4 requests - ACL Policies, WAF Policies, Rate Limits, URL Maps
+    // 4 requests - ACL Policies, WAF Policies, Rate Limits, Security Policies
     expect(axiosGetSpy).toHaveBeenCalledTimes(4)
-    urlMapsDocs[0] = {
+    securityPoliciesDocs[0] = {
       'id': '__default__',
       'name': 'new name',
       'match': 'example.com',
@@ -244,17 +244,17 @@ describe('URLMapsEditor.vue', () => {
       ],
     }
     wrapper.setProps({
-      selectedDoc: urlMapsDocs[0],
+      selectedDoc: securityPoliciesDocs[0],
     })
     await Vue.nextTick()
     expect(axiosGetSpy).toHaveBeenCalledTimes(4)
   })
 
   test('should send a single new request to API if document data updates with new ID', async () => {
-    // 4 requests - ACL Policies, WAF Policies, Rate Limits, URL Maps
+    // 4 requests - ACL Policies, WAF Policies, Rate Limits, Security Policies
     expect(axiosGetSpy).toHaveBeenCalledTimes(4)
     wrapper.setProps({
-      selectedDoc: urlMapsDocs[1],
+      selectedDoc: securityPoliciesDocs[1],
     })
     await Vue.nextTick()
     expect(axiosGetSpy).toHaveBeenCalledTimes(5)
@@ -262,53 +262,53 @@ describe('URLMapsEditor.vue', () => {
 
   describe('form data', () => {
     test('should have correct ID displayed', () => {
-      expect(wrapper.find('.document-id').text()).toEqual(urlMapsDocs[0].id)
+      expect(wrapper.find('.document-id').text()).toEqual(securityPoliciesDocs[0].id)
     })
 
     test('should have correct name in input', () => {
       const element = wrapper.find('.document-name').element as HTMLInputElement
-      expect(element.value).toEqual(urlMapsDocs[0].name)
+      expect(element.value).toEqual(securityPoliciesDocs[0].name)
     })
 
     test('should have correct domain match in input', () => {
       const element = wrapper.find('.document-domain-name').element as HTMLInputElement
-      expect(element.value).toEqual(urlMapsDocs[0].match)
+      expect(element.value).toEqual(securityPoliciesDocs[0].match)
     })
 
     test('should have correct amount of entry rows in table', () => {
       const table = wrapper.find('.entries-table')
       const entryRows = table.findAll('.entry-row')
-      expect(entryRows.length).toEqual(urlMapsDocs[0].map.length)
+      expect(entryRows.length).toEqual(securityPoliciesDocs[0].map.length)
     })
 
     test('should have correct entry data displayed in non-expanded rows (first row)', () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(0)
       const entryName = entryRow.find('.entry-name')
-      expect(entryName.text()).toEqual(urlMapsDocs[0].map[0].name)
+      expect(entryName.text()).toEqual(securityPoliciesDocs[0].map[0].name)
       const entryMatch = entryRow.find('.entry-match')
-      expect(entryMatch.text()).toEqual(urlMapsDocs[0].map[0].match)
+      expect(entryMatch.text()).toEqual(securityPoliciesDocs[0].map[0].match)
       const entryWAF = entryRow.find('.entry-waf')
       expect(entryWAF.text()).toEqual('default waf')
       const entryACL = entryRow.find('.entry-acl')
       expect(entryACL.text()).toEqual('default acl')
       const entryRateLimitCount = entryRow.find('.entry-rate-limits-count')
-      expect(entryRateLimitCount.text()).toEqual(String(urlMapsDocs[0].map[0].limit_ids.length))
+      expect(entryRateLimitCount.text()).toEqual(String(securityPoliciesDocs[0].map[0].limit_ids.length))
     })
 
     test('should have correct entry data displayed in non-expanded rows (second row)', () => {
       const table = wrapper.find('.entries-table')
       const entryRow = table.findAll('.entry-row').at(1)
       const entryName = entryRow.find('.entry-name')
-      expect(entryName.text()).toEqual(urlMapsDocs[0].map[1].name)
+      expect(entryName.text()).toEqual(securityPoliciesDocs[0].map[1].name)
       const entryMatch = entryRow.find('.entry-match')
-      expect(entryMatch.text()).toEqual(urlMapsDocs[0].map[1].match)
+      expect(entryMatch.text()).toEqual(securityPoliciesDocs[0].map[1].match)
       const entryWAF = entryRow.find('.entry-waf')
       expect(entryWAF.text()).toEqual('example waf')
       const entryACL = entryRow.find('.entry-acl')
       expect(entryACL.text()).toEqual('an ACL')
       const entryRateLimitCount = entryRow.find('.entry-rate-limits-count')
-      expect(entryRateLimitCount.text()).toEqual(String(urlMapsDocs[0].map[1].limit_ids.length))
+      expect(entryRateLimitCount.text()).toEqual(String(securityPoliciesDocs[0].map[1].limit_ids.length))
     })
 
     test('should have correct entry data displayed in expanded row', async () => {
@@ -318,17 +318,17 @@ describe('URLMapsEditor.vue', () => {
       await Vue.nextTick()
       const currentEntryRow = table.findAll('.current-entry-row').at(0)
       const entryName = currentEntryRow.find('.current-entry-name')
-      expect((entryName.element as HTMLInputElement).value).toEqual(urlMapsDocs[0].map[0].name)
+      expect((entryName.element as HTMLInputElement).value).toEqual(securityPoliciesDocs[0].map[0].name)
       const entryMatch = currentEntryRow.find('.current-entry-match')
-      expect((entryMatch.element as HTMLInputElement).value).toEqual(urlMapsDocs[0].map[0].match)
+      expect((entryMatch.element as HTMLInputElement).value).toEqual(securityPoliciesDocs[0].map[0].match)
       const entryWAFSelection = currentEntryRow.find('.current-entry-waf-selection')
       expect((entryWAFSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
       const entryWAFActive = currentEntryRow.find('.current-entry-waf-active')
-      expect((entryWAFActive.element as HTMLInputElement).checked).toEqual(urlMapsDocs[0].map[0].waf_active)
+      expect((entryWAFActive.element as HTMLInputElement).checked).toEqual(securityPoliciesDocs[0].map[0].waf_active)
       const entryACLSelection = currentEntryRow.find('.current-entry-acl-selection')
       expect((entryACLSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
       const entryACLActive = currentEntryRow.find('.current-entry-acl-active')
-      expect((entryACLActive.element as HTMLInputElement).checked).toEqual(urlMapsDocs[0].map[0].acl_active)
+      expect((entryACLActive.element as HTMLInputElement).checked).toEqual(securityPoliciesDocs[0].map[0].acl_active)
     })
 
     test('should have correct entry rate limit data displayed in expanded row', async () => {
@@ -339,7 +339,7 @@ describe('URLMapsEditor.vue', () => {
       const currentEntryRow = table.findAll('.current-entry-row').at(0)
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const entryRateLimitsRows = entryRateLimitsTable.findAll('.rate-limit-row')
-      expect(entryRateLimitsRows.length).toEqual(urlMapsDocs[0].map[0].limit_ids.length)
+      expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[0].map[0].limit_ids.length)
       const rateLimitName = entryRateLimitsRows.at(0).find('.rate-limit-name')
       expect(rateLimitName.text()).toEqual(rateLimitsDocs[0].name)
       const rateLimitDescription = entryRateLimitsRows.at(0).find('.rate-limit-description')
@@ -351,9 +351,9 @@ describe('URLMapsEditor.vue', () => {
     })
 
     test('should not have rate limit data displayed if no corresponding rate limit exists', async () => {
-      urlMapsDocs[1].map[0].limit_ids.push('invalid')
+      securityPoliciesDocs[1].map[0].limit_ids.push('invalid')
       wrapper.setProps({
-        selectedDoc: urlMapsDocs[1],
+        selectedDoc: securityPoliciesDocs[1],
       })
       await Vue.nextTick()
       const table = wrapper.find('.entries-table')
@@ -363,7 +363,7 @@ describe('URLMapsEditor.vue', () => {
       const currentEntryRow = table.findAll('.current-entry-row').at(0)
       const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
       const entryRateLimitsRows = entryRateLimitsTable.findAll('.rate-limit-row')
-      expect(entryRateLimitsRows.length).toEqual(urlMapsDocs[1].map[0].limit_ids.length - 1)
+      expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[1].map[0].limit_ids.length - 1)
       const rateLimitName0 = entryRateLimitsRows.at(0).find('.rate-limit-name')
       expect(rateLimitName0.text()).toEqual(rateLimitsDocs[0].name)
       const rateLimitName1 = entryRateLimitsRows.at(1).find('.rate-limit-name')
@@ -413,7 +413,7 @@ describe('URLMapsEditor.vue', () => {
       await Vue.nextTick()
       const newRateLimitSelection = entryRateLimitsTable.find('.new-rate-limit-selection')
       const options = newRateLimitSelection.findAll('option')
-      expect(options.length).toEqual(rateLimitsDocs.length - urlMapsDocs[0].map[0].limit_ids.length)
+      expect(options.length).toEqual(rateLimitsDocs.length - securityPoliciesDocs[0].map[0].limit_ids.length)
       expect(options.at(0).text()).toEqual(`${rateLimitsDocs[1].name} ${rateLimitsDocs[1].description}`)
     })
 
@@ -435,7 +435,7 @@ describe('URLMapsEditor.vue', () => {
       confirmAddButton.trigger('click')
       await Vue.nextTick()
       const entryRateLimitsRows = entryRateLimitsTable.findAll('.rate-limit-row')
-      expect(entryRateLimitsRows.length).toEqual(urlMapsDocs[0].map[0].limit_ids.length + 1)
+      expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[0].map[0].limit_ids.length + 1)
     })
 
     test('should not add a rate limit if nothing is selected in dropdown', async () => {
@@ -452,7 +452,7 @@ describe('URLMapsEditor.vue', () => {
       confirmAddButton.trigger('click')
       await Vue.nextTick()
       const entryRateLimitsRows = entryRateLimitsTable.findAll('.rate-limit-row')
-      expect(entryRateLimitsRows.length).toEqual(urlMapsDocs[0].map[0].limit_ids.length)
+      expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[0].map[0].limit_ids.length)
     })
 
     test('should remove selected rate limit from table', async () => {
@@ -466,7 +466,7 @@ describe('URLMapsEditor.vue', () => {
       removeButton.trigger('click')
       await wrapper.vm.$forceUpdate()
       const entryRateLimitsRows = entryRateLimitsTable.findAll('.rate-limit-row')
-      expect(entryRateLimitsRows.length).toEqual(urlMapsDocs[0].map[0].limit_ids.length - 1)
+      expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[0].map[0].limit_ids.length - 1)
     })
 
     test('should change route when create new rate limit is clicked', async () => {
@@ -490,14 +490,14 @@ describe('URLMapsEditor.vue', () => {
   describe('form validation', () => {
     beforeEach(async () => {
       wrapper.setProps({
-        selectedDoc: urlMapsDocs[1],
+        selectedDoc: securityPoliciesDocs[1],
       })
       await Vue.nextTick()
     })
 
     test('should emit form is invalid when changing match to already existing one', async () => {
       const input = wrapper.find('.document-domain-name');
-      (input.element as HTMLInputElement).value = urlMapsDocs[0].match
+      (input.element as HTMLInputElement).value = securityPoliciesDocs[0].match
       input.trigger('input')
       await Vue.nextTick()
       expect(wrapper.emitted('form-invalid')).toBeTruthy()
@@ -515,7 +515,7 @@ describe('URLMapsEditor.vue', () => {
 
     test('should emit form is valid when changing match to valid one', async () => {
       const input = wrapper.find('.document-domain-name');
-      (input.element as HTMLInputElement).value = urlMapsDocs[0].match
+      (input.element as HTMLInputElement).value = securityPoliciesDocs[0].match
       input.trigger('input')
       await Vue.nextTick();
       (input.element as HTMLInputElement).value = 'example.com'
@@ -532,7 +532,7 @@ describe('URLMapsEditor.vue', () => {
       await Vue.nextTick()
       const currentEntryRow = table.findAll('.current-entry-row').at(0)
       const entryMatch = currentEntryRow.find('.current-entry-match');
-      (entryMatch.element as HTMLInputElement).value = urlMapsDocs[1].map[1].match
+      (entryMatch.element as HTMLInputElement).value = securityPoliciesDocs[1].map[1].match
       entryMatch.trigger('input')
       await Vue.nextTick()
       expect(wrapper.emitted('form-invalid')).toBeTruthy()
@@ -800,7 +800,7 @@ describe('URLMapsEditor.vue', () => {
           table = wrapper.find('.entries-table')
           currentEntryRow = table.findAll('.current-entry-row').at(0)
           const entryMatch = currentEntryRow.find('.current-entry-match')
-          expect((entryMatch.element as HTMLInputElement).value).toEqual(urlMapsDocs[0].map[0].match)
+          expect((entryMatch.element as HTMLInputElement).value).toEqual(securityPoliciesDocs[0].map[0].match)
         })
       })
     })
@@ -825,7 +825,7 @@ describe('URLMapsEditor.vue', () => {
         await Vue.nextTick()
         const table = wrapper.find('.entries-table')
         const entryRows = table.findAll('.entry-row')
-        expect(entryRows.length).toEqual(urlMapsDocs[0].map.length + 1)
+        expect(entryRows.length).toEqual(securityPoliciesDocs[0].map.length + 1)
       })
 
       test('should have correct copied data after forking an entry', async () => {
@@ -841,11 +841,11 @@ describe('URLMapsEditor.vue', () => {
         const entryWAFSelection = currentEntryRow.find('.current-entry-waf-selection')
         expect((entryWAFSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         const entryWAFActive = currentEntryRow.find('.current-entry-waf-active')
-        expect((entryWAFActive.element as HTMLInputElement).checked).toEqual(urlMapsDocs[0].map[1].waf_active)
+        expect((entryWAFActive.element as HTMLInputElement).checked).toEqual(securityPoliciesDocs[0].map[1].waf_active)
         const entryACLSelection = currentEntryRow.find('.current-entry-acl-selection')
         expect((entryACLSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         const entryACLActive = currentEntryRow.find('.current-entry-acl-active')
-        expect((entryACLActive.element as HTMLInputElement).checked).toEqual(urlMapsDocs[0].map[1].acl_active)
+        expect((entryACLActive.element as HTMLInputElement).checked).toEqual(securityPoliciesDocs[0].map[1].acl_active)
       })
 
       test('should have correct copied rate limit data after forking an entry', async () => {
@@ -855,7 +855,7 @@ describe('URLMapsEditor.vue', () => {
         const currentEntryRow = table.findAll('.current-entry-row').at(0)
         const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
         const entryRateLimitsRows = entryRateLimitsTable.findAll('.rate-limit-row')
-        expect(entryRateLimitsRows.length).toEqual(urlMapsDocs[0].map[1].limit_ids.length)
+        expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[0].map[1].limit_ids.length)
         const rateLimitName = entryRateLimitsRows.at(0).find('.rate-limit-name')
         expect(rateLimitName.text()).toEqual(rateLimitsDocs[1].name)
         const rateLimitDescription = entryRateLimitsRows.at(0).find('.rate-limit-description')
@@ -906,14 +906,14 @@ describe('URLMapsEditor.vue', () => {
         const entryWAFSelection = currentEntryRow.find('.current-entry-waf-selection')
         expect((entryWAFSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         const entryWAFActive = currentEntryRow.find('.current-entry-waf-active')
-        expect((entryWAFActive.element as HTMLInputElement).checked).toEqual(urlMapsDocs[0].map[1].waf_active)
+        expect((entryWAFActive.element as HTMLInputElement).checked).toEqual(securityPoliciesDocs[0].map[1].waf_active)
         const entryACLSelection = currentEntryRow.find('.current-entry-acl-selection')
         expect((entryACLSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         const entryACLActive = currentEntryRow.find('.current-entry-acl-active')
-        expect((entryACLActive.element as HTMLInputElement).checked).toEqual(urlMapsDocs[0].map[1].acl_active)
+        expect((entryACLActive.element as HTMLInputElement).checked).toEqual(securityPoliciesDocs[0].map[1].acl_active)
         const entryRateLimitsTable = currentEntryRow.find('.current-entry-rate-limits-table')
         const entryRateLimitsRows = entryRateLimitsTable.findAll('.rate-limit-row')
-        expect(entryRateLimitsRows.length).toEqual(urlMapsDocs[0].map[1].limit_ids.length)
+        expect(entryRateLimitsRows.length).toEqual(securityPoliciesDocs[0].map[1].limit_ids.length)
       })
     })
 
@@ -923,7 +923,7 @@ describe('URLMapsEditor.vue', () => {
         await wrapper.vm.$forceUpdate()
         const table = wrapper.find('.entries-table')
         const entryRows = table.findAll('.entry-row')
-        expect(entryRows.length).toEqual(urlMapsDocs[0].map.length - 1)
+        expect(entryRows.length).toEqual(securityPoliciesDocs[0].map.length - 1)
       })
 
       test('should close map entry after clicking remove button', async () => {
@@ -943,9 +943,9 @@ describe('URLMapsEditor.vue', () => {
     if (document.body) {
       document.body.appendChild(elem)
     }
-    wrapper = shallowMount(URLMapsEditor, {
+    wrapper = shallowMount(SecurityPoliciesEditor, {
       propsData: {
-        selectedDoc: urlMapsDocs[0],
+        selectedDoc: securityPoliciesDocs[0],
         selectedBranch: 'master',
       },
       attachTo: elem,

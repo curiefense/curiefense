@@ -166,7 +166,11 @@ def test_configs_update(curieapi_small):
         "documents": {"ratelimits": newlimits, "wafrules": newwafsigs},
         "delete_blobs": {"bltor": False, "blvpnip": True, "geolite2asn": True},
         "delete_documents": {
-            "urlmaps": {"sqdqsd": True, "fezfzf": True, vec_urlmap["id"]: False},
+            "securitypolicies": {
+                "sqdqsd": True,
+                "fezfzf": True,
+                vec_securitypolicy["id"]: False,
+            },
             "wafrules": {vec_wafrule["id"]: True},
         },
     }
@@ -181,7 +185,7 @@ def test_configs_update(curieapi_small):
     assert compare_jblob(r.body["blobs"]["geolite2asn"], {})
     assert r.body["documents"]["ratelimits"] == newlimits
     assert r.body["documents"]["wafrules"] == newwafsigs[1:]
-    assert r.body["documents"]["urlmaps"] == [vec_urlmap]
+    assert r.body["documents"]["securitypolicies"] == [vec_securitypolicy]
 
 
 ##  ___ _    ___  ___ ___

@@ -93,10 +93,13 @@ class CliHelper:
     def revert_and_enable(self, acl=True, waf=True):
         version = self.initial_version()
         self.call(f"conf revert {TEST_CONFIG_NAME} {version}")
-        urlmap = self.call(f"doc get {TEST_CONFIG_NAME} urlmaps")
-        urlmap[0]["map"][0]["acl_active"] = acl
-        urlmap[0]["map"][0]["waf_active"] = waf
-        self.call(f"doc update {TEST_CONFIG_NAME} urlmaps /dev/stdin", inputjson=urlmap)
+        securitypolicy = self.call(f"doc get {TEST_CONFIG_NAME} securitypolicies")
+        securitypolicy[0]["map"][0]["acl_active"] = acl
+        securitypolicy[0]["map"][0]["waf_active"] = waf
+        self.call(
+            f"doc update {TEST_CONFIG_NAME} securitypolicies /dev/stdin",
+            inputjson=securitypolicy,
+        )
 
     def publish_and_apply(self):
         buckets = self.call("key get system publishinfo")
@@ -543,7 +546,7 @@ def gen_rl_rules(authority):
         param_ext={"headers": {"foo": "bar"}},
     )
 
-    rl_urlmap = [
+    rl_securitypolicy = [
         {
             "id": "__default__",
             "name": "default entry",
@@ -573,7 +576,7 @@ def gen_rl_rules(authority):
             ],
         }
     ]
-    return (rl_rules, rl_urlmap, prof_rules)
+    return (rl_rules, rl_securitypolicy, prof_rules)
 
 
 @pytest.fixture(scope="class")
@@ -581,7 +584,7 @@ def ratelimit_config(cli, target):
     cli.revert_and_enable()
     # Add new RL rules
     rl_rules = cli.call(f"doc get {TEST_CONFIG_NAME} ratelimits")
-    (new_rules, new_urlmap, new_profiling) = gen_rl_rules(target.authority())
+    (new_rules, new_securitypolicy, new_profiling) = gen_rl_rules(target.authority())
     rl_rules.extend(new_rules)
     # Apply new profiling
     cli.call(
@@ -590,8 +593,11 @@ def ratelimit_config(cli, target):
     )
     # Apply rl_rules
     cli.call(f"doc update {TEST_CONFIG_NAME} ratelimits /dev/stdin", inputjson=rl_rules)
-    # Apply new_urlmap
-    cli.call(f"doc update {TEST_CONFIG_NAME} urlmaps /dev/stdin", inputjson=new_urlmap)
+    # Apply new_securitypolicy
+    cli.call(
+        f"doc update {TEST_CONFIG_NAME} securitypolicies /dev/stdin",
+        inputjson=new_securitypolicy,
+    )
     cli.publish_and_apply()
 
 
@@ -1240,7 +1246,7 @@ class TestGlobalFilters:
         )
 
 
-# --- URL Maps tests ---
+# --- Security Policies tests ---
 
 
 ACL_BYPASSALL = {
@@ -1269,10 +1275,10 @@ WAF_SHORT_HEADERS = {
     "cookies": {"names": [], "regex": []},
 }
 
-URLMAP = [
+SECURITYPOLICY = [
     {
         "id": "e2e000000001",
-        "name": "e2e URL map",
+        "name": "e2e Security Policy",
         "match": ".*",
         "map": [
             {
@@ -1340,7 +1346,7 @@ URLMAP = [
 
 
 @pytest.fixture(scope="class")
-def urlmap_config(cli, acl):
+def securitypolicy_config(cli, acl):
     cli.revert_and_enable()
     # Add ACL entry
     default_acl = cli.empty_acl()
@@ -1355,43 +1361,46 @@ def urlmap_config(cli, acl):
     cli.call(
         f"doc update {TEST_CONFIG_NAME} wafpolicies /dev/stdin", inputjson=wafpolicy
     )
-    # Add urlmap entry URLMAP
-    cli.call(f"doc update {TEST_CONFIG_NAME} urlmaps /dev/stdin", inputjson=URLMAP)
+    # Add securitypolicy entry SECURITYPOLICY
+    cli.call(
+        f"doc update {TEST_CONFIG_NAME} securitypolicies /dev/stdin",
+        inputjson=SECURITYPOLICY,
+    )
     cli.publish_and_apply()
 
 
-class TestURLMap:
-    def test_nofilter(self, target, urlmap_config):
+class TestSecurityPolicy:
+    def test_nofilter(self, target, securitypolicy_config):
         assert target.is_reachable("/nofilter/")
         assert target.is_reachable(
             "/nofilter/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_waffilter(self, target, urlmap_config):
+    def test_waffilter(self, target, securitypolicy_config):
         assert target.is_reachable("/waf/")
         assert not target.is_reachable(
             "/waf/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_aclfilter(self, target, urlmap_config):
+    def test_aclfilter(self, target, securitypolicy_config):
         assert not target.is_reachable("/acl/")
         assert not target.is_reachable(
             "/acl/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_nondefault_aclfilter_bypassall(self, target, urlmap_config):
+    def test_nondefault_aclfilter_bypassall(self, target, securitypolicy_config):
         assert target.is_reachable("/acl-bypassall/")
         assert target.is_reachable(
             "/acl-bypassall/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_aclwaffilter(self, target, urlmap_config):
+    def test_aclwaffilter(self, target, securitypolicy_config):
         assert not target.is_reachable("/acl-waf/")
         assert not target.is_reachable(
             "/acl/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_nondefault_wafpolicy_short_headers(self, target, urlmap_config):
+    def test_nondefault_wafpolicy_short_headers(self, target, securitypolicy_config):
         assert target.is_reachable(
             "/waf-short-headers/", headers={"Short-header": "0123456789" * 5}
         )

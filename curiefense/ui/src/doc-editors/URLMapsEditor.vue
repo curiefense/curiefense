@@ -126,7 +126,7 @@
                                        type="text"
                                        @input="emitDocUpdate();
                                                validateInput($event, isSelectedMapEntryMatchValid(mapIndex))"
-                                       title="A unique matching regex value, not overlapping other URL Map definitions"
+                                       title="A unique matching regex value, not overlapping other Security Policy definitions"
                                        placeholder="Matching domain(s) regex"
                                        required
                                        :disabled="localDoc.id === '__default__' && initialMapEntryMatch === '/'"
@@ -344,7 +344,7 @@ import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import RequestsUtils from '@/assets/RequestsUtils.ts'
 import Vue, {VueConstructor} from 'vue'
-import {ACLPolicy, RateLimit, URLMap, URLMapEntryMatch, WAFPolicy} from '@/types'
+import {ACLPolicy, RateLimit, SecurityPolicy, SecurityPolicyEntryMatch, WAFPolicy} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 
@@ -354,7 +354,7 @@ export default (Vue as VueConstructor<Vue & {
     mapEntryMatch: HTMLInputElement[]
   }
 }>).extend({
-  name: 'URLMapsEditor',
+  name: 'SecurityPoliciesEditor',
 
   props: {
     selectedDoc: Object,
@@ -367,12 +367,12 @@ export default (Vue as VueConstructor<Vue & {
     return {
       mapEntryIndex: -1,
 
-      // for URLMap drop downs
+      // for SecurityPolicy drop downs
       wafProfileNames: [] as [WAFPolicy['id'], WAFPolicy['name']][],
       aclProfileNames: [] as [ACLPolicy['id'], ACLPolicy['name']][],
       limitRuleNames: [] as RateLimit[],
-      domainNames: [] as URLMap['match'][],
-      entriesMatchNames: [] as URLMapEntryMatch['match'][],
+      domainNames: [] as SecurityPolicy['match'][],
+      entriesMatchNames: [] as SecurityPolicyEntryMatch['match'][],
 
       limitNewEntryModeMapEntryId: null,
       limitMapEntryId: null,
@@ -383,7 +383,7 @@ export default (Vue as VueConstructor<Vue & {
   },
 
   computed: {
-    localDoc(): URLMap {
+    localDoc(): SecurityPolicy {
       return _.cloneDeep(this.selectedDoc)
     },
 
@@ -460,7 +460,7 @@ export default (Vue as VueConstructor<Vue & {
       })
     },
 
-    addRateLimitToEntry(mapEntry: URLMapEntryMatch, id: string) {
+    addRateLimitToEntry(mapEntry: SecurityPolicyEntryMatch, id: string) {
       if ( id ) {
         mapEntry.limit_ids.push(id)
         this.limitNewEntryModeMapEntryId = null
@@ -469,7 +469,7 @@ export default (Vue as VueConstructor<Vue & {
       }
     },
 
-    removeRateLimitFromEntry(mapEntry: URLMapEntryMatch, index: number) {
+    removeRateLimitFromEntry(mapEntry: SecurityPolicyEntryMatch, index: number) {
       mapEntry.limit_ids.splice(index, 1)
       this.emitDocUpdate()
     },
@@ -484,13 +484,13 @@ export default (Vue as VueConstructor<Vue & {
       return this.limitNewEntryModeMapEntryId === id
     },
 
-    existingRateLimitIDs(mapEntry: URLMapEntryMatch): RateLimit['id'][] {
+    existingRateLimitIDs(mapEntry: SecurityPolicyEntryMatch): RateLimit['id'][] {
       return _.filter(mapEntry.limit_ids, (limitId) => {
         return this.limitDetails(limitId) !== undefined
       })
     },
 
-    addNewProfile(map: URLMapEntryMatch, idx: number) {
+    addNewProfile(map: SecurityPolicyEntryMatch, idx: number) {
       const mapEntry = _.cloneDeep(map)
       const randomUniqueString = DatasetsUtils.generateUUID2()
       mapEntry.name = 'New Security Profile'
@@ -576,13 +576,13 @@ export default (Vue as VueConstructor<Vue & {
       })
     },
 
-    urlMapsDomainMatches() {
+    securityPoliciesDomainMatches() {
       const branch = this.selectedBranch
       RequestsUtils.sendRequest({
         methodName: 'GET',
-        url: `configs/${branch}/d/urlmaps/`,
+        url: `configs/${branch}/d/securitypolicies/`,
         config: {headers: {'x-fields': 'match'}},
-      }).then((response: AxiosResponse<URLMap[]>) => {
+      }).then((response: AxiosResponse<SecurityPolicy[]>) => {
         this.domainNames = _.map(response.data, 'match')
       })
     },
@@ -592,7 +592,7 @@ export default (Vue as VueConstructor<Vue & {
     selectedDoc: {
       handler: function(val, oldVal) {
         if (!val || !oldVal || val.id !== oldVal.id) {
-          this.urlMapsDomainMatches()
+          this.securityPoliciesDomainMatches()
           this.initialDocDomainMatch = val.match
         }
       },

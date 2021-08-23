@@ -6,8 +6,8 @@ use crate::interface::{SimpleActionT, SimpleDecision, Tags};
 use crate::redis::redis_conn;
 use crate::utils::{select_string, RequestInfo};
 
-fn build_key(url_map_name: &str, reqinfo: &RequestInfo, limit: &Limit) -> Option<String> {
-    let mut key = url_map_name.to_string() + &limit.id;
+fn build_key(security_policy_name: &str, reqinfo: &RequestInfo, limit: &Limit) -> Option<String> {
+    let mut key = security_policy_name.to_string() + &limit.id;
     for kpart in limit.key.iter().map(|r| select_string(reqinfo, r)) {
         key += &kpart?;
     }
@@ -101,7 +101,7 @@ fn limit_match(tags: &Tags, elem: &Limit) -> bool {
 
 pub fn limit_check(
     logs: &mut Logs,
-    url_map_name: &str,
+    security_policy_name: &str,
     reqinfo: &RequestInfo,
     limits: &[Limit],
     tags: &mut Tags,
@@ -127,7 +127,7 @@ pub fn limit_check(
             continue;
         }
 
-        let key = match build_key(url_map_name, reqinfo, limit) {
+        let key = match build_key(security_policy_name, reqinfo, limit) {
             None => return SimpleDecision::Pass,
             Some(k) => k,
         };
