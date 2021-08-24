@@ -13,6 +13,7 @@ describe('URLMapsEditor.vue', () => {
   let aclDocs: ACLPolicy[]
   let wafDocs: WAFPolicy[]
   let rateLimitsDocs: RateLimit[]
+  let selectedBranch: string
   let wrapper: Wrapper<Vue>
   let mockRouter
   let axiosGetSpy: any
@@ -164,6 +165,7 @@ describe('URLMapsEditor.vue', () => {
         'pairwith': {'self': 'self'},
       },
     ]
+    selectedBranch = 'master'
     axiosGetSpy = jest.spyOn(axios, 'get').mockImplementation((path, config) => {
       if (!wrapper) {
         return Promise.resolve({data: []})
@@ -204,7 +206,7 @@ describe('URLMapsEditor.vue', () => {
     wrapper = shallowMount(URLMapsEditor, {
       propsData: {
         selectedDoc: urlMapsDocs[0],
-        selectedBranch: 'master',
+        selectedBranch: selectedBranch,
       },
       mocks: {
         $router: mockRouter,
@@ -212,16 +214,78 @@ describe('URLMapsEditor.vue', () => {
     })
   })
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks()
   })
 
-  test('should not send new requests to API if document data updates but document ID does not', async () => {
-    // 4 requests - ACL Policies, WAF Policies, Rate Limits, URL Maps
-    expect(axiosGetSpy).toHaveBeenCalledTimes(4)
+  test('should not send new requests to API if selected branch does not update', async (done) => {
+    jest.resetAllMocks()
+    const branch = _.cloneDeep(selectedBranch)
+    wrapper.setProps({
+      selectedBranch: branch,
+    })
+    // allow all requests to finish
+    setImmediate(() => {
+      expect(axiosGetSpy).toHaveBeenCalledTimes(0)
+      done()
+    })
+  })
+
+  test('should not send new requests to API if selected branch updates to empty string', async (done) => {
+    jest.resetAllMocks()
+    wrapper.setProps({
+      selectedBranch: '',
+    })
+    // allow all requests to finish
+    setImmediate(() => {
+      expect(axiosGetSpy).toHaveBeenCalledTimes(0)
+      done()
+    })
+  })
+
+  test('should not send new requests to API if selected branch updates to null', async (done) => {
+    jest.resetAllMocks()
+    wrapper.setProps({
+      selectedBranch: null,
+    })
+    // allow all requests to finish
+    setImmediate(() => {
+      expect(axiosGetSpy).toHaveBeenCalledTimes(0)
+      done()
+    })
+  })
+
+  test('should not send new requests to API if selected branch updates to undefined', async (done) => {
+    jest.resetAllMocks()
+    wrapper.setProps({
+      selectedBranch: undefined,
+    })
+    // allow all requests to finish
+    setImmediate(() => {
+      expect(axiosGetSpy).toHaveBeenCalledTimes(0)
+      done()
+    })
+  })
+
+  test('should send a single new request to API if selected branch updates', async (done) => {
+    jest.resetAllMocks()
+    const branch = 'devops'
+    wrapper.setProps({
+      selectedBranch: branch,
+    })
+    // allow all requests to finish
+    setImmediate(() => {
+      expect(axiosGetSpy).toHaveBeenCalledTimes(1)
+      done()
+    })
+  })
+
+  test('should change the initial domain match if document data updates with new data and same ID', async () => {
+    jest.resetAllMocks()
+    const wantedDomainMatch = 'example.com'
     urlMapsDocs[0] = {
       'id': '__default__',
       'name': 'new name',
-      'match': 'example.com',
+      'match': wantedDomainMatch,
       'map': [
         {
           'name': 'one',
@@ -247,17 +311,27 @@ describe('URLMapsEditor.vue', () => {
       selectedDoc: urlMapsDocs[0],
     })
     await Vue.nextTick()
-    expect(axiosGetSpy).toHaveBeenCalledTimes(4)
+    expect((wrapper.vm as any).initialDocDomainMatch).toEqual(wantedDomainMatch)
   })
 
-  test('should send a single new request to API if document data updates with new ID', async () => {
-    // 4 requests - ACL Policies, WAF Policies, Rate Limits, URL Maps
-    expect(axiosGetSpy).toHaveBeenCalledTimes(4)
+  test('should change the initial domain match if document data updates with new ID', async () => {
+    jest.resetAllMocks()
+    const wantedDomainMatch = urlMapsDocs[1].match
     wrapper.setProps({
       selectedDoc: urlMapsDocs[1],
     })
     await Vue.nextTick()
-    expect(axiosGetSpy).toHaveBeenCalledTimes(5)
+    expect((wrapper.vm as any).initialDocDomainMatch).toEqual(wantedDomainMatch)
+  })
+
+  test('should change the initial domain match to empty string if document data does not exist', async () => {
+    jest.resetAllMocks()
+    const wantedDomainMatch = ''
+    wrapper.setProps({
+      selectedDoc: null,
+    })
+    await Vue.nextTick()
+    expect((wrapper.vm as any).initialDocDomainMatch).toEqual(wantedDomainMatch)
   })
 
   describe('form data', () => {
@@ -483,7 +557,7 @@ describe('URLMapsEditor.vue', () => {
       await referralButton.trigger('click')
       await Vue.nextTick()
       expect(mockRouter.push).toHaveBeenCalledTimes(1)
-      expect(mockRouter.push).toHaveBeenCalledWith('/config/master/ratelimits')
+      expect(mockRouter.push).toHaveBeenCalledWith(`/config/${selectedBranch}/ratelimits`)
     })
   })
 
@@ -918,6 +992,56 @@ describe('URLMapsEditor.vue', () => {
     })
 
     describe('remove', () => {
+      beforeEach(async () => {
+        urlMapsDocs[0] = {
+          'id': '__default__',
+          'name': 'new name',
+          'match': 'example.com',
+          'map': [
+            {
+              'name': 'one',
+              'match': '/one',
+              'acl_profile': '5828321c37e0',
+              'acl_active': false,
+              'waf_profile': '009e846e819e',
+              'waf_active': true,
+              'limit_ids': ['365757ec0689'],
+            },
+            {
+              'name': 'two',
+              'match': '/two',
+              'acl_profile': '__default__',
+              'acl_active': true,
+              'waf_profile': '__default__',
+              'waf_active': false,
+              'limit_ids': ['f971e92459e2'],
+            },
+            {
+              'name': 'three',
+              'match': '/three',
+              'acl_profile': '__default__',
+              'acl_active': true,
+              'waf_profile': '__default__',
+              'waf_active': false,
+              'limit_ids': ['f971e92459e2'],
+            },
+            {
+              'name': 'four',
+              'match': '/four',
+              'acl_profile': '__default__',
+              'acl_active': true,
+              'waf_profile': '__default__',
+              'waf_active': false,
+              'limit_ids': ['f971e92459e2'],
+            },
+          ],
+        }
+        wrapper.setProps({
+          selectedDoc: urlMapsDocs[0],
+        })
+        await Vue.nextTick()
+      })
+
       test('should remove map entry after clicking remove button', async () => {
         removeButton.trigger('click')
         await wrapper.vm.$forceUpdate()
@@ -935,6 +1059,30 @@ describe('URLMapsEditor.vue', () => {
         const currentEntryRows = table.findAll('.current-entry-row')
         expect(currentEntryRows.length).toEqual(0)
       })
+
+      test('should not change any other entry after clicking remove button', async () => {
+        removeButton.trigger('click')
+        await wrapper.vm.$forceUpdate()
+        const table = wrapper.find('.entries-table')
+        const entryRows = table.findAll('.entry-row')
+        let entryName
+        let entryMatch
+        // 0 = first element of map
+        entryName = entryRows.at(0).find('.entry-name')
+        expect(entryName.text()).toEqual(urlMapsDocs[0].map[0].name)
+        entryMatch = entryRows.at(0).find('.entry-match')
+        expect(entryMatch.text()).toEqual(urlMapsDocs[0].map[0].match)
+        // 1 = third element of map (second was removed)
+        entryName = entryRows.at(1).find('.entry-name')
+        expect(entryName.text()).toEqual(urlMapsDocs[0].map[2].name)
+        entryMatch = entryRows.at(1).find('.entry-match')
+        expect(entryMatch.text()).toEqual(urlMapsDocs[0].map[2].match)
+        // 2 = fourth element of map (second was removed)
+        entryName = entryRows.at(2).find('.entry-name')
+        expect(entryName.text()).toEqual(urlMapsDocs[0].map[3].name)
+        entryMatch = entryRows.at(2).find('.entry-match')
+        expect(entryMatch.text()).toEqual(urlMapsDocs[0].map[3].match)
+      })
     })
   })
 
@@ -946,7 +1094,7 @@ describe('URLMapsEditor.vue', () => {
     wrapper = shallowMount(URLMapsEditor, {
       propsData: {
         selectedDoc: urlMapsDocs[0],
-        selectedBranch: 'master',
+        selectedBranch: selectedBranch,
       },
       attachTo: elem,
     })
