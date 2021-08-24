@@ -464,7 +464,10 @@ describe('DocumentSearch.vue', () => {
     options.at(1).setSelected()
     await Vue.nextTick()
     const searchInput = wrapper.find('.search-input');
-    (searchInput.element as HTMLInputElement).value = 'security policy'
+    // Using not a full name ('security policy') because the search is happening
+    // by RegEx so 'securitypolicies' will not match with 'security policies'.
+    // So it's ok to use partial string for searching test.
+    (searchInput.element as HTMLInputElement).value = 'security pol'
     searchInput.trigger('input')
     await Vue.nextTick()
 
