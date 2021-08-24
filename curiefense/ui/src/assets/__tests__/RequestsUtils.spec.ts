@@ -11,14 +11,18 @@ describe('RequestsUtils.ts', () => {
   let putSpy: any
   let postSpy: any
   let deleteSpy: any
+  let originalLog: () => void
   beforeEach(() => {
     getSpy = jest.spyOn(axios, 'get').mockImplementation(() => Promise.resolve())
     putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
     postSpy = jest.spyOn(axios, 'post').mockImplementation(() => Promise.resolve())
     deleteSpy = jest.spyOn(axios, 'delete').mockImplementation(() => Promise.resolve())
+    originalLog = console.error
+    console.error = () => {}
   })
   afterEach(() => {
     jest.clearAllMocks()
+    console.error = originalLog
   })
 
   function buildFuncDescribe(func: Function, baseUrl: string, urlTrail: string) {

@@ -125,7 +125,7 @@ export default (Vue as VueConstructor<Vue & {
 
     // Filtering the suggestions based on the input
     matches(): AutocompleteSuggestion[] {
-      return this.suggestions?.filter((suggestion: AutocompleteSuggestion) => {
+      return this.suggestions.filter((suggestion: AutocompleteSuggestion) => {
         return suggestion.value.toLowerCase().includes(this.currentValue.toLowerCase())
       })
     },

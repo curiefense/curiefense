@@ -2,7 +2,7 @@ import CurieDBEditor from '@/views/CurieDBEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import Utils from '@/assets/Utils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
-import {mount, Wrapper} from '@vue/test-utils'
+import {mount, shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import JSONEditor from 'jsoneditor'
@@ -64,7 +64,7 @@ describe('CurieDBEditor.vue', () => {
     JSONEditor.mockImplementation((container, options) => {
       let value = {}
       let onChangeFunc: Function
-      if (options.onChange) {
+      if (options?.onChange) {
         onChangeFunc = options.onChange
       }
       return {
@@ -138,6 +138,19 @@ describe('CurieDBEditor.vue', () => {
     // allow all requests to finish
     setImmediate(() => {
       expect((wrapper.vm as any).selectedNamespace).toEqual(wantedValue)
+      done()
+    })
+  })
+
+  test('should set empty object when receiving no database data from the server', async (done) => {
+    jest.spyOn(axios, 'get').mockImplementation((path) => {
+      const data = path === '/conf/api/v1/db/' ? ['system', 'databaseCopy', 'anotherDB'] : undefined
+      return Promise.resolve({data})
+    })
+    wrapper = shallowMount(CurieDBEditor)
+    // allow all requests to finish
+    setImmediate(() => {
+      expect((wrapper.vm as any).selectedNamespaceData).toEqual({})
       done()
     })
   })
@@ -242,6 +255,18 @@ describe('CurieDBEditor.vue', () => {
     expect(downloadFileSpy).not.toHaveBeenCalledWith(wantedFileName, wantedFileType, wantedFileData)
   })
 
+  test('should not attempt to download key when no document selected', async () => {
+    const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {})
+    // force update because downloadFile is mocked after it is read to be used as event handler
+    await (wrapper.vm as any).$forceUpdate()
+    await Vue.nextTick()
+    wrapper.setData({selectedKeyValue: null})
+    const downloadKeyButton = wrapper.find('.download-key-button')
+    downloadKeyButton.trigger('click')
+    await Vue.nextTick()
+    expect(downloadFileSpy).toHaveBeenCalledTimes(0)
+  })
+
   describe('namespace action buttons', () => {
     test('should be able to fork namespace', async () => {
       const dbData = (wrapper.vm as any).selectedNamespaceData
@@ -311,6 +336,15 @@ describe('CurieDBEditor.vue', () => {
       newKeyButton.trigger('click')
       await Vue.nextTick()
       expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/db/system/k/new key/`, newKey)
+    })
+
+    test('should not be able to add a new key when no database selected', async () => {
+      const putSpy = jest.spyOn(axios, 'put')
+      putSpy.mockImplementation( Promise.resolve );
+      wrapper.setData({selectedNamespace: null})
+      const newKeyButton = wrapper.find('.new-key-button')
+      await newKeyButton.trigger('click')
+      expect(putSpy).toHaveBeenCalledTimes(0)
     })
 
     test('should be able to delete a key', (done) => {
@@ -572,6 +606,20 @@ describe('CurieDBEditor.vue', () => {
         expect(noDataMessage.text().toLowerCase()).toContain('missing key.')
         done()
       })
+    })
+
+    test('should not pass the key to JSONEditor if the editor is not yet loaded', async () => {
+      const mockFn = jest.fn()
+      wrapper.setData({editor: {set: mockFn}})
+      await Vue.nextTick();
+      (wrapper.vm as any).loadKey()
+      await Vue.nextTick()
+      expect(mockFn).toHaveBeenCalledTimes(1)
+      mockFn.mockClear()
+      wrapper.setData({editor: null});
+      (wrapper.vm as any).loadKey()
+      await Vue.nextTick()
+      expect(mockFn).toHaveBeenCalledTimes(0)
     })
   })
 

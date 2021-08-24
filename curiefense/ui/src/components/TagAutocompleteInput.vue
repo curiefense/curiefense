@@ -198,7 +198,7 @@ export default Vue.extend({
       }
       // get current tags from DB
       const response = await RequestsUtils.sendRequest({methodName: 'GET', url: `db/${this.db}/k/${this.key}/`})
-      const document = {...this.defaultKeyData, ...response.data}
+      const document = {...this.defaultKeyData, ...response?.data}
       // add each new tag to neutral group if does not exist anywhere
       for (let i = 0; i < tags.length; i++) {
         // set both the temporary tag and the tag in array to lowercase for easier logging later

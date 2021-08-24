@@ -514,6 +514,7 @@ export default Vue.extend({
 
     async forkDoc() {
       if ( !this.selectedDoc ) {
+        console.log('Error while attempting to fork document')
         return
       }
       this.setLoadingDocStatus(true)

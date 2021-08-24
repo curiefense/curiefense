@@ -36,7 +36,7 @@ describe('AutocompleteInput.vue', () => {
     ]
     wrapper = mount(AutocompleteInput, {
       propsData: {
-        suggestions: suggestions,
+        suggestions,
         autoFocus: true,
         clearInputAfterSelection: false,
       },
@@ -140,6 +140,7 @@ describe('AutocompleteInput.vue', () => {
 
   test('should clear autocomplete input when selected', async () => {
     wrapper.setProps({clearInputAfterSelection: true})
+    await Vue.nextTick()
     const input = wrapper.find('.autocomplete-input');
     (input.element as HTMLInputElement).value = 'value'
     input.trigger('input')
@@ -200,7 +201,7 @@ describe('AutocompleteInput.vue', () => {
     }
     wrapper = mount(AutocompleteInput, {
       propsData: {
-        suggestions: suggestions,
+        suggestions,
         autoFocus: true,
         clearInputAfterSelection: false,
       },
@@ -227,7 +228,7 @@ describe('AutocompleteInput.vue', () => {
     }
     wrapper = mount(AutocompleteInput, {
       propsData: {
-        suggestions: suggestions,
+        suggestions,
         autoFocus: false,
         clearInputAfterSelection: false,
       },
@@ -435,7 +436,7 @@ describe('AutocompleteInput.vue', () => {
     beforeEach(async () => {
       wrapper = mount(AutocompleteInput, {
         propsData: {
-          suggestions: suggestions,
+          suggestions,
           autoFocus: true,
           selectionType: 'multiple',
         },

@@ -967,4 +967,20 @@ describe('URLMapsEditor.vue', () => {
       done()
     })
   })
+
+  test('should not watch selected doc if doc id was not changed or doc is falsy', async () => {
+    const {initialDocDomainMatch} = wrapper.vm as any
+    wrapper.setProps({selectedDoc: urlMapsDocs[1]})
+    await Vue.nextTick()
+    const secondDocDomainMatch = (wrapper.vm as any).initialDocDomainMatch
+    expect(secondDocDomainMatch).not.toEqual(initialDocDomainMatch)
+    wrapper.setProps({selectedDoc: urlMapsDocs[0]})
+    await Vue.nextTick()
+    const thirdDocDomainMatch = (wrapper.vm as any).initialDocDomainMatch
+    expect(secondDocDomainMatch).not.toEqual(thirdDocDomainMatch)
+    wrapper.setProps({selectedDoc: {...urlMapsDocs[1], id: urlMapsDocs[0].id}})
+    await Vue.nextTick()
+    const fifthDocDomainMatch = (wrapper.vm as any).initialDocDomainMatch
+    expect(fifthDocDomainMatch).toEqual(thirdDocDomainMatch)
+  })
 })

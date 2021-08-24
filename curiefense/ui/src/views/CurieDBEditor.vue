@@ -256,7 +256,6 @@ import GitHistory from '@/components/GitHistory.vue'
 import JSONEditor from 'jsoneditor'
 import Vue from 'vue'
 import {Commit, GenericObject} from '@/types'
-import {AxiosResponse} from 'axios'
 
 export default Vue.extend({
 
@@ -343,11 +342,10 @@ export default Vue.extend({
 
     async loadDatabases() {
       this.setLoadingDocStatus(true)
-      await RequestsUtils.sendRequest({methodName: 'GET', url: 'db/'}).then((response: AxiosResponse<string[]>) => {
-        this.databases = response?.data || []
-        console.log('Databases: ', this.databases)
-        this.loadFirstNamespace()
-      })
+      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: 'db/'})
+      this.databases = response?.data || []
+      console.log('Databases: ', this.databases)
+      this.loadFirstNamespace()
       this.setLoadingDocStatus(false)
     },
 

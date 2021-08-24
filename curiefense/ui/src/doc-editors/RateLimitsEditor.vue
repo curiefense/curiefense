@@ -381,8 +381,8 @@ export default Vue.extend({
     },
 
     newURLMapConnectionEntries(): URLMapEntryMatch[] {
-      const urlMap = this.newURLMapConnections.find((urlMap) => {
-        return urlMap.id === this.newURLMapConnectionData.map?.id
+      const urlMap = this.newURLMapConnections.find(({id}) => {
+        return id === this.newURLMapConnectionData.map?.id
       })
       return urlMap?.map?.filter((urlMapEntry) => {
         return !urlMapEntry.limit_ids.includes(this.localDoc.id)

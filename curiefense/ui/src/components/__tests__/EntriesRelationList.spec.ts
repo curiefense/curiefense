@@ -4,6 +4,7 @@ import {mount, Wrapper, WrapperArray} from '@vue/test-utils'
 import _ from 'lodash'
 import Vue from 'vue'
 import {GlobalFilter, GlobalFilterSection} from '@/types'
+import Utils from '@/assets/Utils'
 
 describe('EntriesRelationList.vue', () => {
   let wrapper: Wrapper<Vue>
@@ -222,6 +223,16 @@ describe('EntriesRelationList.vue', () => {
       expect(nextPageButton.attributes('disabled')).toBeTruthy()
     })
 
+    test('should not increase current page index if currently in last page', async () => {
+      const nextPageButton = checkedTable.find('.pagination-next')
+      nextPageButton.trigger('click')
+      await Vue.nextTick()
+      const {sectionsCurrentPageIndex} = wrapper.vm as any
+      nextPageButton.trigger('click')
+      await Vue.nextTick()
+      expect((wrapper.vm as any).sectionsCurrentPageIndex[0]).toEqual( sectionsCurrentPageIndex[0] )
+    })
+
     test('should correctly render prev page when next prev button is clicked', async () => {
       const nextPageButton = checkedTable.find('.pagination-next')
       nextPageButton.trigger('click')
@@ -242,8 +253,14 @@ describe('EntriesRelationList.vue', () => {
 
   describe('rule prop validator', () => {
     let validator: Function
+    let originalLog: () => void
     beforeEach(() => {
+      originalLog = console.error
+      console.error = () => {}
       validator = (wrapper.vm as any).$options.props.rule.validator
+    })
+    afterEach(() => {
+      console.error = originalLog
     })
 
     test('should return true for data in the correct schema', () => {
@@ -766,6 +783,68 @@ describe('EntriesRelationList.vue', () => {
       await Vue.nextTick()
       // check
       expect((wrapper.vm as any).entriesErrors.length).toEqual(0)
+    })
+    test('should display errored line number if there are more than 1 line', async () => {
+      // change entry type to ip
+      options.at(4).setSelected()
+      await Vue.nextTick()
+      const ipList = ['1.1.1.1.', '2.2.2.2']
+      newEntryTextarea.setValue(ipList[0])
+      await Vue.nextTick()
+      expect(newEntryRow.find('.invalid-ips').text()).toBe(ipList[0])
+      newEntryTextarea.setValue(ipList.join('\n'))
+      await Vue.nextTick()
+      expect(newEntryRow.find('.invalid-ips').text()).toBe(`(line 1) ${ipList[0]}`)
+    })
+    test('should display section number containing duplicates', async () => {
+      const originalToast = Utils.toast
+      const toastOutput: string[] = []
+      const mockedToast = (output: any) => toastOutput.push(output)
+      Utils.toast = mockedToast
+      const rule = {
+        relation: 'AND',
+        sections: [
+          {
+            relation: 'OR',
+            entries: [
+              [
+                'ip',
+                '1.1.1.1',
+              ],
+              [
+                'ip',
+                '1.1.1.1',
+              ],
+            ],
+          },
+        ],
+      }
+      wrapper = mount(EntriesRelationList, {
+        propsData: {
+          rule,
+        },
+      });
+      (wrapper.vm as any).validateDuplicates()
+      await Vue.nextTick()
+      expect(toastOutput).toContain('There are duplicate entries in the list:<br />IP Address = 1.1.1.1')
+      rule.sections.push({
+        relation: 'OR',
+        entries: [
+          [
+            'ip',
+            '1.1.1.1',
+          ],
+        ],
+      })
+      wrapper = mount(EntriesRelationList, {
+        propsData: {
+          rule,
+        },
+      });
+      (wrapper.vm as any).validateDuplicates()
+      await Vue.nextTick()
+      expect(toastOutput).toContain('There are duplicate entries in the list:<br />Section 1: IP Address = 1.1.1.1')
+      Utils.toast = originalToast
     })
   })
 })

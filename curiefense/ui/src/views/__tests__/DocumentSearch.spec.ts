@@ -434,10 +434,12 @@ describe('DocumentSearch.vue', () => {
 
   test('should log message when receiving no configs from the server', (done) => {
     const originalLog = console.log
+    const originalError = console.error
     let consoleOutput = [] as string[]
     const mockedLog = (output: string) => consoleOutput.push(output)
     consoleOutput = []
     console.log = mockedLog
+    console.error = () => {}
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === '/conf/api/v2/configs/') {
         return Promise.reject(new Error())
@@ -449,6 +451,7 @@ describe('DocumentSearch.vue', () => {
     setImmediate(() => {
       expect(consoleOutput).toContain(`Error while attempting to get configs`)
       console.log = originalLog
+      console.error = originalError
       done()
     })
   })

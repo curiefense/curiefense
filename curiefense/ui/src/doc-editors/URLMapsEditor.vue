@@ -593,7 +593,7 @@ export default (Vue as VueConstructor<Vue & {
       handler: function(val, oldVal) {
         if (!val || !oldVal || val.id !== oldVal.id) {
           this.urlMapsDomainMatches()
-          this.initialDocDomainMatch = val.match
+          this.initialDocDomainMatch = val?.match
         }
       },
       immediate: true,

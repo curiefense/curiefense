@@ -13,6 +13,7 @@ describe('TagAutocompleteInput.vue', () => {
   let tagsData: {
     data: TagsNamespaceValue,
   }
+  let originalLog: () => void
   beforeEach(async () => {
     tagsData = {
       data: {
@@ -40,9 +41,12 @@ describe('TagAutocompleteInput.vue', () => {
       },
     })
     await Vue.nextTick()
+    originalLog = console.error
+    console.error = () => {}
   })
   afterEach(() => {
     jest.clearAllMocks()
+    console.error = originalLog
   })
 
   test('should send correct tags to AutocompleteInput ordered alphabetically regardless of group', async () => {

@@ -506,5 +506,10 @@ describe('RateLimitsEditor.vue', () => {
       await Vue.nextTick()
       expect(putSpy).not.toHaveBeenCalled()
     })
+
+    test('should set newURLMapConnectionEntries property as undefined if urlMaps is empty', async () => {
+      wrapper.setData({urlMaps: []})
+      expect((wrapper.vm as any).newURLMapConnectionEntries).toBeFalsy()
+    })
   })
 })
