@@ -40,7 +40,7 @@ def vconvert(conf_type_name, vfrom):
     """
     apimap = {
         "v1": {
-            "securitypolicies": "securitypolicies",
+            "urlmaps": "securitypolicies",
             "wafrules": "contentfilterrules",
             "wafpolicies": "contentfilterprofiles",
             "aclpolicies": "aclprofiles",
