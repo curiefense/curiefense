@@ -45,12 +45,13 @@ class BaseHelper:
         return pattern in str(soup)
 
 
-class CliHelper:
+class CliHelper():
 
     def __init__(self, base_url, api_config):
         self._base_url = base_url
         self._api_config = api_config
         self._initial_version_cache = None
+        self._api_config = api_config
 
     def call(self, args, inputjson=None):
         logging.info("Calling CLI with arguments: %s", args)
