@@ -546,7 +546,7 @@ export default (Vue as VueConstructor<Vue & {
 
       RequestsUtils.sendRequest({
         methodName: 'GET',
-        url: `configs/${branch}/d/wafpolicies/`,
+        url: `configs/${branch}/t/wafpolicies/`,
         config: {headers: {'x-fields': 'id, name'}},
       }).then((response: AxiosResponse<WAFPolicy[]>) => {
         this.wafProfileNames = _.sortBy(_.map(response.data, (entity) => {
@@ -558,7 +558,7 @@ export default (Vue as VueConstructor<Vue & {
 
       RequestsUtils.sendRequest({
         methodName: 'GET',
-        url: `configs/${branch}/d/aclpolicies/`,
+        url: `configs/${branch}/t/aclpolicies/`,
         config: {headers: {'x-fields': 'id, name'}},
       }).then((response: AxiosResponse<ACLPolicy[]>) => {
         this.aclProfileNames = _.sortBy(_.map(response.data, (entity) => {
@@ -570,7 +570,7 @@ export default (Vue as VueConstructor<Vue & {
 
       RequestsUtils.sendRequest({
         methodName: 'GET',
-        url: `configs/${branch}/d/ratelimits/`,
+        url: `configs/${branch}/t/ratelimits/`,
       }).then((response: AxiosResponse<RateLimit[]>) => {
         this.limitRuleNames = response.data
       })
@@ -580,7 +580,7 @@ export default (Vue as VueConstructor<Vue & {
       const branch = this.selectedBranch
       RequestsUtils.sendRequest({
         methodName: 'GET',
-        url: `configs/${branch}/d/urlmaps/`,
+        url: `configs/${branch}/t/urlmaps/`,
         config: {headers: {'x-fields': 'match'}},
       }).then((response: AxiosResponse<URLMap[]>) => {
         this.domainNames = _.map(response.data, 'match')

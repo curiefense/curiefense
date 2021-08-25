@@ -357,22 +357,22 @@ describe('DocumentSearch.vue', () => {
         return Promise.resolve({data: gitData})
       }
       const branch = (wrapper.vm as any).selectedBranch
-      if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/`) {
+      if (path === `/conf/api/v2/configs/${branch}/t/aclpolicies/`) {
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/`) {
+      if (path === `/conf/api/v2/configs/${branch}/t/globalfilters/`) {
         return Promise.resolve({data: profilingListDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/urlmaps/`) {
+      if (path === `/conf/api/v2/configs/${branch}/t/urlmaps/`) {
         return Promise.resolve({data: urlMapsDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/flowcontrol/`) {
+      if (path === `/conf/api/v2/configs/${branch}/t/flowcontrol/`) {
         return Promise.resolve({data: flowControlDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
+      if (path === `/conf/api/v2/configs/${branch}/t/ratelimits/`) {
         return Promise.resolve({data: rateLimitDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/wafpolicies/`) {
+      if (path === `/conf/api/v2/configs/${branch}/t/wafpolicies/`) {
         return Promise.resolve({data: wafDocs})
       }
       return Promise.resolve({data: []})

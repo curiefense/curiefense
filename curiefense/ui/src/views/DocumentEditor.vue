@@ -289,12 +289,12 @@ export default Vue.extend({
 
     documentAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`
+      return `${apiPrefix}/configs/${this.selectedBranch}/t/${this.selectedDocType}/e/${this.selectedDocID}/`
     },
 
     gitAPIPath(): string {
       const apiPrefix = `${this.apiRoot}/${this.apiVersion}`
-      return `${apiPrefix}/configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/v/`
+      return `${apiPrefix}/configs/${this.selectedBranch}/t/${this.selectedDocType}/e/${this.selectedDocID}/v/`
     },
 
     branchNames(): string[] {
@@ -410,7 +410,7 @@ export default Vue.extend({
       if (this.selectedDoc && Object.keys(this.selectedDoc).length === 2) {
         this.selectedDoc = (await RequestsUtils.sendRequest({
           methodName: 'GET',
-          url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
+          url: `configs/${this.selectedBranch}/t/${this.selectedDocType}/e/${this.selectedDocID}/`,
         })).data
       }
       this.setLoadingDocStatus(false)
@@ -421,7 +421,7 @@ export default Vue.extend({
       const branch = this.selectedBranch
       const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
-        url: `configs/${branch}/d/${doctype}/`,
+        url: `configs/${branch}/t/${doctype}/`,
         data: {headers: {'x-fields': 'id, name'}},
         onFail: () => {
           console.log('Error while attempting to load documents')
@@ -435,7 +435,7 @@ export default Vue.extend({
       this.cancelSource = axios.CancelToken.source()
       RequestsUtils.sendRequest({
         methodName: 'GET',
-        url: `configs/${branch}/d/${doctype}/`,
+        url: `configs/${branch}/t/${doctype}/`,
         config: {cancelToken: this.cancelSource.token},
       }).then((response: AxiosResponse) => {
         this.docs = response?.data || []
@@ -459,7 +459,7 @@ export default Vue.extend({
       const config = this.selectedBranch
       const document = this.selectedDocType
       const entry = this.selectedDocID
-      const url = `configs/${config}/d/${document}/e/${entry}/v/`
+      const url = `configs/${config}/t/${document}/e/${entry}/v/`
       if (config && document && entry) {
         RequestsUtils.sendRequest({methodName: 'GET', url}).then((response: AxiosResponse<Commit[]>) => {
           this.gitLog = response?.data
@@ -561,7 +561,7 @@ export default Vue.extend({
       if (!methodName) {
         methodName = 'PUT'
       }
-      let url = `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/`
+      let url = `configs/${this.selectedBranch}/t/${this.selectedDocType}/e/`
       if (methodName !== 'POST') {
         url += `${this.selectedDocID}/`
       }
@@ -594,7 +594,7 @@ export default Vue.extend({
       const failureMessage = `Failed while attempting to delete the ${docTypeText}.`
       await RequestsUtils.sendRequest({
         methodName: 'DELETE',
-        url: `configs/${this.selectedBranch}/d/${this.selectedDocType}/e/${this.selectedDocID}/`,
+        url: `configs/${this.selectedBranch}/t/${this.selectedDocType}/e/${this.selectedDocID}/`,
         successMessage,
         failureMessage,
       }).then(() => {
@@ -611,7 +611,7 @@ export default Vue.extend({
     },
 
     async loadReferencedDocsIDs() {
-      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: `configs/${this.selectedBranch}/d/urlmaps/`})
+      const response = await RequestsUtils.sendRequest({methodName: 'GET', url: `configs/${this.selectedBranch}/t/urlmaps/`})
       const docs = response?.data
       const referencedACL: string[] = []
       const referencedWAF: string[] = []
@@ -633,7 +633,7 @@ export default Vue.extend({
       const doctype: DocumentType = this.selectedDocType
       const docTitle = this.titles[doctype]
       const versionId = gitVersion.version
-      const urlTrail = `configs/${branch}/d/${doctype}/v/${versionId}/`
+      const urlTrail = `configs/${branch}/t/${doctype}/v/${versionId}/`
 
       await RequestsUtils.sendRequest({
         methodName: 'PUT',

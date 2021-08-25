@@ -49,28 +49,28 @@ class BlobsResource(Resource):
 
 class DocumentsResource(Resource):
     actions = dict(
-        list=GET("configs/{}/d/"),
-        list_versions=GET("configs/{}/d/{}/v/"),
-        get_version=GET("configs/{}/d/{}/v/{}/"),
-        get=GET("configs/{}/d/{}/"),
-        create=POST("configs/{}/d/{}/"),
-        update=PUT("configs/{}/d/{}/"),
-        delete=DELETE("configs/{}/d/{}/"),
-        revert=PUT("configs/{}/d/{}/v/{}/revert/"),
+        list=GET("configs/{}/t/"),
+        list_versions=GET("configs/{}/t/{}/v/"),
+        get_version=GET("configs/{}/t/{}/v/{}/"),
+        get=GET("configs/{}/t/{}/"),
+        create=POST("configs/{}/t/{}/"),
+        update=PUT("configs/{}/t/{}/"),
+        delete=DELETE("configs/{}/t/{}/"),
+        revert=PUT("configs/{}/t/{}/v/{}/revert/"),
     )
 
 
 class EntriesResource(Resource):
     actions = dict(
-        list=GET("configs/{}/d/{}/e/"),
-        get=GET("configs/{}/d/{}/e/{}/"),
-        list_versions=GET("configs/{}/d/{}/e/{}/v/"),
-        get_version=GET("configs/{}/d/{}/e/{}/v/{}/"),
-        create=POST("configs/{}/d/{}/e/"),
-        update=PUT("configs/{}/d/{}/e/{}/"),
-        edit=PUT("configs/{}/d/{}/e/{}/edit/"),
-        delete=DELETE("configs/{}/d/{}/e/{}/"),
-        revert=PUT("configs/{}/d/{}/e/{}/v/{}/revert/"),
+        list=GET("configs/{}/t/{}/e/"),
+        get=GET("configs/{}/t/{}/e/{}/"),
+        list_versions=GET("configs/{}/t/{}/e/{}/v/"),
+        get_version=GET("configs/{}/t/{}/e/{}/v/{}/"),
+        create=POST("configs/{}/t/{}/e/"),
+        update=PUT("configs/{}/t/{}/e/{}/"),
+        edit=PUT("configs/{}/t/{}/e/{}/edit/"),
+        delete=DELETE("configs/{}/t/{}/e/{}/"),
+        revert=PUT("configs/{}/t/{}/e/{}/v/{}/revert/"),
     )
 
 
