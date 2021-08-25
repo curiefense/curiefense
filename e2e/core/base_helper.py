@@ -51,6 +51,7 @@ class CliHelper():
         self._base_url = base_url
         self._api_config = api_config
         self._initial_version_cache = None
+        self._api_config = api_config
 
     def call(self, args, inputjson=None):
         logging.info("Calling CLI with arguments: %s", args)
