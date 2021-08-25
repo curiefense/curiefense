@@ -76,7 +76,7 @@ describe('GitHistory.vue', () => {
       'author': 'Curiefense API',
     },
   ]
-  const apiPath = '/conf/api/v2/configs/master/d/aclpolicies/e/__default__/v/'
+  const apiPath = '/conf/api/v2/configs/master/t/aclpolicies/e/__default__/v/'
   let wrapper: Wrapper<Vue>
   beforeEach(() => {
     wrapper = mount(GitHistory, {

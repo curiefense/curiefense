@@ -492,7 +492,7 @@ export default Vue.extend({
       const entryMatch = this.newURLMapConnectionEntries[this.newURLMapConnectionData.entryIndex].match
       const methodName = 'PUT'
       const selectedDocType = 'urlmaps'
-      const urlTrail = `configs/${this.selectedBranch}/d/${selectedDocType}/e/${id}/`
+      const urlTrail = `configs/${this.selectedBranch}/t/${selectedDocType}/e/${id}/`
       const doc = _.find(this.urlMaps, (urlMap) => {
         return urlMap.id === id
       })
@@ -512,7 +512,7 @@ export default Vue.extend({
     removeURLMapConnection(id: URLMap['id'], entryMatch: URLMapEntryMatch['match']) {
       const methodName = 'PUT'
       const selectedDocType = 'urlmaps'
-      const urlTrail = `configs/${this.selectedBranch}/d/${selectedDocType}/e/${id}/`
+      const urlTrail = `configs/${this.selectedBranch}/t/${selectedDocType}/e/${id}/`
       const doc = _.find(this.urlMaps, (urlMap) => {
         return urlMap.id === id
       })
@@ -540,7 +540,7 @@ export default Vue.extend({
     loadURLMaps() {
       RequestsUtils.sendRequest({
         methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/urlmaps/`,
+        url: `configs/${this.selectedBranch}/t/urlmaps/`,
       }).then((response: AxiosResponse<URLMap[]>) => {
         this.urlMaps = _.sortBy(response.data)
         this.getConnectedURLMapsEntries()

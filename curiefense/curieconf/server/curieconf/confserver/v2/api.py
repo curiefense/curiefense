@@ -506,7 +506,7 @@ class BlobRevertResource(Resource):
 #################
 
 
-@ns_configs.route("/<string:config>/d/")
+@ns_configs.route("/<string:config>/t/")
 class DocumentsResource(Resource):
     @ns_configs.marshal_with(m_document_list_entry, skip_none=True)
     def get(self, config):
@@ -515,7 +515,7 @@ class DocumentsResource(Resource):
         return res
 
 
-@ns_configs.route("/<string:config>/d/<string:document>/")
+@ns_configs.route("/<string:config>/t/<string:document>/")
 class DocumentResource(Resource):
     @ns_configs.marshal_with(m_document_mask, mask="*", skip_none=True)
     def get(self, config, document):
@@ -549,7 +549,7 @@ class DocumentResource(Resource):
         return res
 
 
-@ns_configs.route("/<string:config>/d/<string:document>/v/")
+@ns_configs.route("/<string:config>/t/<string:document>/v/")
 class DocumentListVersionResource(Resource):
     def get(self, config, document):
         "Retrieve the existing versions of a given document"
@@ -559,7 +559,7 @@ class DocumentListVersionResource(Resource):
         return marshal(res, m_version_log, skip_none=True)
 
 
-@ns_configs.route("/<string:config>/d/<string:document>/v/<string:version>/")
+@ns_configs.route("/<string:config>/t/<string:document>/v/<string:version>/")
 class DocumentVersionResource(Resource):
     def get(self, config, document, version):
         "Get a given version of a document"
@@ -569,7 +569,7 @@ class DocumentVersionResource(Resource):
         return marshal(res, models[document], skip_none=True)
 
 
-@ns_configs.route("/<string:config>/d/<string:document>/v/<string:version>/revert/")
+@ns_configs.route("/<string:config>/t/<string:document>/v/<string:version>/revert/")
 class DocumentRevertResource(Resource):
     def put(self, config, document, version):
         "Create a new version for a document from an old version"
@@ -581,7 +581,7 @@ class DocumentRevertResource(Resource):
 ###############
 
 
-@ns_configs.route("/<string:config>/d/<string:document>/e/")
+@ns_configs.route("/<string:config>/t/<string:document>/e/")
 class EntriesResource(Resource):
     def get(self, config, document):
         "Retrieve the list of entries in a document"
@@ -599,7 +599,7 @@ class EntriesResource(Resource):
         return res
 
 
-@ns_configs.route("/<string:config>/d/<string:document>/e/<string:entry>/")
+@ns_configs.route("/<string:config>/t/<string:document>/e/<string:entry>/")
 class EntryResource(Resource):
     def get(self, config, document, entry):
         "Retrieve an entry from a document"
@@ -628,7 +628,7 @@ class EntryResource(Resource):
         return res
 
 
-@ns_configs.route("/<string:config>/d/<string:document>/e/<string:entry>/edit/")
+@ns_configs.route("/<string:config>/t/<string:document>/e/<string:entry>/edit/")
 class EntryEditResource(Resource):
     def put(self, config, document, entry):
         "Update an entry in a document"
@@ -641,7 +641,7 @@ class EntryEditResource(Resource):
         return res
 
 
-@ns_configs.route("/<string:config>/d/<string:document>/e/<string:entry>/v/")
+@ns_configs.route("/<string:config>/t/<string:document>/e/<string:entry>/v/")
 class EntryListVersionResource(Resource):
     def get(self, config, document, entry):
         "Get the list of existing versions of a given entry in a document"
@@ -652,7 +652,7 @@ class EntryListVersionResource(Resource):
 
 
 @ns_configs.route(
-    "/<string:config>/d/<string:document>/e/<string:entry>/v/<string:version>/"
+    "/<string:config>/t/<string:document>/e/<string:entry>/v/<string:version>/"
 )
 class EntryVersionResource(Resource):
     def get(self, config, document, entry, version):

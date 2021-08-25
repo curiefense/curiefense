@@ -332,7 +332,7 @@ export default Vue.extend({
         try {
           const response = await RequestsUtils.sendRequest({
             methodName: 'GET',
-            url: `configs/${branch}/d/${doctype}/`,
+            url: `configs/${branch}/t/${doctype}/`,
             config: {headers: {'x-fields': this.componentsMap[doctype].fields}},
           })
           for (let j = 0; j < response.data.length; j++) {

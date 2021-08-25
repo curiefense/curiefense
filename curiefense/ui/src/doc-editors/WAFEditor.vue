@@ -533,7 +533,7 @@ export default Vue.extend({
 
       RequestsUtils.sendRequest({
         methodName: 'GET',
-        url: `configs/${branch}/d/wafrules/`,
+        url: `configs/${branch}/t/wafrules/`,
         config: {headers: {'x-fields': 'id'}},
       }).then((response: AxiosResponse<WAFRule[]>) => {
         this.wafRuleIDsSuggestions = _.sortBy(_.map(response.data, (entity) => {

@@ -65,7 +65,7 @@ describe('WAFEditor.vue', () => {
         return Promise.resolve({data: []})
       }
       const branch = (wrapper.vm as any).selectedBranch
-      if (path === `/conf/api/v2/configs/${branch}/d/wafrules/`) {
+      if (path === `/conf/api/v2/configs/${branch}/t/wafrules/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(wafRulesDocs, (i) => _.pick(i, 'id', 'name'))})
         }

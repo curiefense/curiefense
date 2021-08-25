@@ -86,7 +86,7 @@ describe('RateLimitsEditor.vue', () => {
         return Promise.resolve({data: []})
       }
       const branch = (wrapper.vm as any).selectedBranch
-      if (path === `/conf/api/v2/configs/${branch}/d/urlmaps/`) {
+      if (path === `/conf/api/v2/configs/${branch}/t/urlmaps/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(urlMapsDocs, (i) => _.pick(i, 'id', 'name'))})
         }
@@ -465,7 +465,7 @@ describe('RateLimitsEditor.vue', () => {
 
     test('should send request to change URL Map when new connection is added', async () => {
       const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
-      const wantedUrl = `/conf/api/v2/configs/${(wrapper.vm as any).selectedBranch}/d/urlmaps/e/${urlMapsDocs[1].id}/`
+      const wantedUrl = `/conf/api/v2/configs/${(wrapper.vm as any).selectedBranch}/t/urlmaps/e/${urlMapsDocs[1].id}/`
       const wantedDoc = JSON.parse(JSON.stringify(urlMapsDocs[1]))
       wantedDoc.map[1].limit_ids.push(rateLimitsDocs[0].id)
       const newConnectionButton = wrapper.find('.new-connection-button')
@@ -484,7 +484,7 @@ describe('RateLimitsEditor.vue', () => {
 
     test('should send request to change URL Map when removing connection was confirmed', async () => {
       const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
-      const wantedUrl = `/conf/api/v2/configs/${(wrapper.vm as any).selectedBranch}/d/urlmaps/e/${urlMapsDocs[0].id}/`
+      const wantedUrl = `/conf/api/v2/configs/${(wrapper.vm as any).selectedBranch}/t/urlmaps/e/${urlMapsDocs[0].id}/`
       const wantedDoc = JSON.parse(JSON.stringify(urlMapsDocs[0]))
       wantedDoc.map[0].limit_ids = []
       const removeConnectionButton = wrapper.findAll('.remove-connection-button').at(0)
