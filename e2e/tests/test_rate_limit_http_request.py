@@ -13,47 +13,47 @@ class TestRateLimitHttp:
     #  Action: 503  | Event: http | Count: Ip
     def test_503_action_event_http_request_count_by_ip(self, target):
         RateLimitHelper.check_503_response(target,
-                                           "test_503_action_event_http_request_count_by_ip", 3, 8)
+                                           "test_503_action_event_http_request_count_by_ip", 2, 5)
 
     #  Action: 503  | Event: http | Count: Path
     def test_503_action_event_http_request_count_by_path(self, target):
         RateLimitHelper.check_503_response(target,
-                                           "test_503_action_event_http_request_count_by_path", 3, 8)
+                                           "test_503_action_event_http_request_count_by_path", 2, 5)
 
     #  Action: 503  | Event: http | Count: Uri
     def test_503_action_event_http_request_count_by_uri(self, target):
         RateLimitHelper.check_503_response(target,
-                                           "test_503_action_event_http_request_count_by_uri", 3, 8)
+                                           "test_503_action_event_http_request_count_by_uri", 2, 5)
 
     #  Action: 503  | Event: http | Count: Asn
     def test_503_action_event_http_request_count_by_asn(self, target):
         RateLimitHelper.check_503_response(target,
-                                           "test_503_action_event_http_request_count_by_asn", 3, 8)
+                                           "test_503_action_event_http_request_count_by_asn", 2, 5)
 
     #  Action: 503  | Event: http | Count: Query
     def test_503_action_event_http_request_count_by_query(self, target):
         RateLimitHelper.check_503_response(target,
-                                           "test_503_action_event_http_request_count_by_query", 3, 8)
+                                           "test_503_action_event_http_request_count_by_query", 2, 5)
 
     #  Action: 503  | Event: http | Count: Method
     def test_503_action_event_http_request_count_by_method(self, target):
         RateLimitHelper.check_503_response(target,
-                                           "test_503_action_event_http_request_count_by_method", 3, 8)
+                                           "test_503_action_event_http_request_count_by_method", 2, 5)
 
-    #  Action: 503  | Event: http | Count: ompany
+    #  Action: 503  | Event: http | Count: Company
     def test_503_action_event_http_request_count_by_company(self, target):
         RateLimitHelper.check_503_response(target,
-                                           "test_503_action_event_http_request_count_by_company", 3, 8)
+                                           "test_503_action_event_http_request_count_by_company", 2, 5)
 
     #  Action: 503  | Event: http | Count: Country
     def test_503_action_event_http_request_count_by_country(self, target):
         RateLimitHelper.check_503_response(target,
-                                           "test_503_action_event_http_request_count_by_country", 3, 8)
+                                           "test_503_action_event_http_request_count_by_country", 2, 5)
 
     #  Action: 503  | Event: http | Count: Authority
     def test_503_action_event_http_request_count_by_authority(self, target):
         RateLimitHelper.check_503_response(target,
-                                           "test_503_action_event_http_request_count_by_authority", 3, 8)
+                                           "test_503_action_event_http_request_count_by_authority", 2, 5)
 
     #  Action: Tag only  | Event: http | Count: Ip
     def test_tag_only_action_event_http_request_count_by_ip(self, target, log_fixture):
@@ -112,47 +112,47 @@ class TestRateLimitHttp:
     #  Action: Response | Event: http | Count: Ip
     def test_response_action_event_http_request_count_by_ip(self, cli, target):
         RateLimitHelper.check_rate_limits_response_action(target, "test_response_http_ip", "response_body_ip",
-                                                          "302", 9, 15)
+                                                          "302", 3, 4)
 
     #  Action: Response | Event: http | Count: Uri
     def test_response_action_event_http_request_count_by_uri(self, cli, target):
         RateLimitHelper.check_rate_limits_response_action(target, "test_response_http_uri", "response_body_uri",
-                                                          "503", 9, 15)
+                                                          "503", 3, 4)
 
     #  Action: Response | Event: http | Count: Query
     def test_response_action_event_http_request_count_by_query(self, cli, target):
         RateLimitHelper.check_rate_limits_response_action(target, "test_response_http_query", "response_body_query",
-                                                          "302", 9, 15)
+                                                          "302", 3, 4)
 
     #  Action: Response | Event: http | Count: Path
     def test_response_action_event_http_request_count_by_path(self, cli, target):
         RateLimitHelper.check_rate_limits_response_action(target, "test_response_http_path", "response_body_path",
-                                                          "302", 9, 15)
+                                                          "302", 3, 4)
 
     #  Action: Response | Event: http | Count: Asn
     def test_response_action_event_http_request_count_by_asn(self, cli, target):
         RateLimitHelper.check_rate_limits_response_action(target, "test_response_http_asn", "response_body_asn",
-                                                          "302", 9, 15)
+                                                          "302", 3, 4)
 
     #  Action: Response | Event: http | Count: Method
     def test_response_action_event_http_request_count_by_method(self, cli, target):
         RateLimitHelper.check_rate_limits_response_action(target, "test_response_http_method",
-                                                          "response_body_method", "302", 9, 15)
+                                                          "response_body_method", "302", 3, 4)
 
     #  Action: Response | Event: http | Count: Company
     def test_response_action_event_http_request_count_by_company(self, cli, target):
         RateLimitHelper.check_rate_limits_response_action(target, "test_response_http_company",
-                                                          "response_body_company", "302", 9, 15)
+                                                          "response_body_company", "302", 3, 4)
 
     #  Action: Response | Event: http | Count: Country
     def test_response_action_event_http_request_count_by_country(self, cli, target):
         RateLimitHelper.check_rate_limits_response_action(target, "test_response_http_country",
-                                                          "response_body_country", "302", 9, 15)
+                                                          "response_body_country", "302", 3, 4)
 
     #  Action: Response | Event: http | Count: Authority
     def test_response_action_event_http_request_count_by_authority(self, cli, target):
         RateLimitHelper.check_rate_limits_response_action(target, "test_response_http_authority",
-                                                          "response_body_authority", "302", 9, 15)
+                                                          "response_body_authority", "302", 3, 4)
 
     #  Action: Challenge | Event: http | Count: Ip
     def test_challenge_action_event_http_request_count_by_ip(self, cli, target):
@@ -237,39 +237,39 @@ class TestRateLimitHttp:
 
     #  Action: Ban | Subaction: 503 | Event: http | Count: Ip
     def test_ban_action_event_http_request_subaction_503_count_by_ip(self, cli, target):
-        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_ip", 8, 10)
+        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_ip", 4, 4)
 
     #  Action: Ban | Subaction: 503 | Event: http | Count: Uri
     def test_ban_action_event_http_request_subaction_503_count_by_uri(self, cli, target):
-        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_uri", 8, 10)
+        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_uri", 4, 4)
 
     #  Action: Ban | Subaction: 503 | Event: http | Count: Query
     def test_ban_action_event_http_request_subaction_503_count_by_query(self, cli, target):
-        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_query", 8, 10)
+        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_query", 4, 4)
 
     #  Action: Ban | Subaction: 503 | Event: http | Count: Path
     def test_ban_action_event_http_request_subaction_503_count_by_path(self, cli, target):
-        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_path", 8, 10)
+        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_path", 4, 4)
 
     #  Action: Ban | Subaction: 503 | Event: http | Count: Asn
     def test_ban_action_event_http_request_subaction_503_count_by_asn(self, cli, target):
-        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_asn", 8, 10)
+        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_asn", 4, 4)
 
     #  Action: Ban | Subaction: 503 | Event: http | Count: Method
     def test_ban_action_event_http_request_subaction_503_count_by_method(self, cli, target):
-        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_method", 8, 10)
+        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_method", 4, 4)
 
     #  Action: Ban | Subaction: 503 | Event: http | Count: Company
     def test_ban_action_event_http_request_subaction_503_count_by_company(self, cli, target):
-        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_company", 8, 10)
+        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_company", 4, 4)
 
     #  Action: Ban | Subaction: 503 | Event: http | Count: Country
     def test_ban_action_event_http_request_subaction_503_count_by_country(self, cli, target):
-        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_country", 8, 10)
+        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_country", 4, 4)
 
     #  Action: Ban | Subaction: 503 | Event: http | Count: Authority
     def test_ban_action_event_http_request_subaction_503_count_by_authority(self, cli, target):
-        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_authority", 8, 10)
+        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_authority", 4, 4)
 
     #  Action: Ban | Subaction: Challenge | Event: http | Count: Ip
     def test_ban_action_event_http_request_subaction_challenge_count_by_ip(self, cli, target):
@@ -431,45 +431,45 @@ class TestRateLimitHttp:
     #  Action: Ban | Subaction: Redirect | Event: http | Count: Ip
     def test_ban_action_event_http_request_subaction_redirect_count_by_ip(self, cli, target, log_fixture):
         RateLimitHelper.check_rate_limit_redirect_action(target, "test_ban_http_sub_redirect_count_by_ip",
-                                                         "200", 11, 20, "https://google.com")
+                                                         "200", 5, 7, "https://google.com")
 
     #  Action: Ban | Subaction: Redirect | Event: http | Count: Asn
     def test_ban_action_event_http_request_subaction_redirect_count_by_asn(self, cli, target, log_fixture):
         RateLimitHelper.check_rate_limit_redirect_action(target, "test_ban_http_sub_redirect_count_by_asn",
-                                                         "200", 11, 20, "https://google.com")
+                                                         "200", 5, 7, "https://google.com")
 
     #  Action: Ban | Subaction: Redirect | Event: http | Count: Country
     def test_ban_action_event_http_request_subaction_redirect_count_by_country(self, cli, target, log_fixture):
         RateLimitHelper.check_rate_limit_redirect_action(target, "test_ban_http_sub_redirect_count_by_country",
-                                                         "200", 11, 20, "https://google.com")
+                                                         "200", 5, 7, "https://google.com")
 
     #  Action: Ban | Subaction: Redirect | Event: http | Count: Uri
     def test_ban_action_event_http_request_subaction_redirect_count_by_uri(self, cli, target, log_fixture):
         RateLimitHelper.check_rate_limit_redirect_action(target, "test_ban_http_sub_redirect_count_by_uri",
-                                                         "200", 11, 20, "https://google.com")
+                                                         "200", 5, 7, "https://google.com")
 
     #  Action: Ban | Subaction: Redirect | Event: http | Count: Path
     def test_ban_action_event_http_request_subaction_redirect_count_by_path(self, cli, target, log_fixture):
         RateLimitHelper.check_rate_limit_redirect_action(target, "test_ban_http_sub_redirect_count_by_path",
-                                                         "200", 11, 20, "https://google.com")
+                                                         "200", 5, 7, "https://google.com")
 
     #  Action: Ban | Subaction: Redirect | Event: http | Count: Query
     def test_ban_action_event_http_request_subaction_redirect_count_by_query(self, cli, target, log_fixture):
         RateLimitHelper.check_rate_limit_redirect_action(target, "test_ban_http_sub_redirect_count_by_query",
-                                                         "200", 11, 20, "https://google.com")
+                                                         "200", 5, 7, "https://google.com")
 
     #  Action: Ban | Subaction: Redirect | Event: http | Count: Method
     def test_ban_action_event_http_request_subaction_redirect_count_by_method(self, cli, target, log_fixture):
         RateLimitHelper.check_rate_limit_redirect_action(target, "test_ban_http_sub_redirect_count_by_method",
-                                                         "200", 11, 20, "https://google.com")
+                                                         "200", 5, 7, "https://google.com")
 
     #  Action: Ban | Subaction: Redirect | Event: http | Count: Company
     def test_ban_action_event_http_request_subaction_redirect_count_by_company(self, cli, target, log_fixture):
         RateLimitHelper.check_rate_limit_redirect_action(target, "test_ban_http_sub_redirect_count_by_company",
-                                                         "200", 11, 20, "https://google.com")
+                                                         "200", 5, 7, "https://google.com")
 
     #  Action: Ban | Subaction: Redirect | Event: http | Count: Authority
     def test_ban_action_event_http_request_subaction_redirect_count_by_authority(self, cli, target, log_fixture):
         RateLimitHelper.check_rate_limit_redirect_action(target, "test_ban_http_sub_redirect_count_by_authority",
-                                                         "200", 11, 20, "https://google.com")
+                                                         "200", 5, 7, "https://google.com")
 

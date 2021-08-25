@@ -45,11 +45,12 @@ class BaseHelper:
         return pattern in str(soup)
 
 
-class CliHelper:
+class CliHelper():
 
-    def __init__(self, base_url):
+    def __init__(self, base_url, api_config):
         self._base_url = base_url
         self._initial_version_cache = None
+        self._api_config = api_config
 
     def call(self, args, inputjson=None):
         logging.info("Calling CLI with arguments: %s", args)
@@ -93,10 +94,10 @@ class CliHelper:
     def revert_and_enable(self, acl=True, waf=True):
         version = self.initial_version()
         self.call(f"conf revert {BaseHelper.TEST_CONFIG_NAME} {version}")
-        urlmap = self.call(f"doc get {BaseHelper.TEST_CONFIG_NAME} urlmaps")
+        urlmap = self.call(f"doc get {BaseHelper.TEST_CONFIG_NAME} {self._api_config['url_map']}")
         urlmap[0]["map"][0]["acl_active"] = acl
         urlmap[0]["map"][0]["waf_active"] = waf
-        self.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} urlmaps /dev/stdin", inputjson=urlmap)
+        self.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} {self._api_config['url_map']} /dev/stdin", inputjson=urlmap)
 
     def publish_and_apply(self):
         buckets = self.call("key get system publishinfo")
@@ -174,8 +175,8 @@ def log_fixture(request):
 
 
 @pytest.fixture(scope='session')
-def cli(request):
-    return CliHelper(request.config.getoption('--base-conf-url'))
+def cli(request, api_config):
+    return CliHelper(request.config.getoption('--base-conf-url'), api_config)
 
 
 @pytest.fixture(scope="class")

@@ -7,7 +7,8 @@ from e2e.helpers.acl_helper import acl
 @pytest.mark.acl_tests
 @pytest.mark.all_modules
 class TestACL:
-    def test_enforce_deny_all(self, acl, target, cli):
+
+    def test_enforce_deny_all1(self, acl, target, cli):
         acl.reset_acl_to_default_values()
         acl.set_acl({"force_deny": "all"})
         cli.publish_and_apply()

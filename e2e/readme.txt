@@ -7,10 +7,10 @@
 #
 # To run this with minikube (does not support IPv6):
 #
-# pytest -m all_modules --base-protected-url http://$(minikube ip):30081 --base-conf-url http://$(minikube ip):30000/api/v1/ --base-ui-url http://$(minikube ip):30080 --elasticsearch-url http://$IP:30200 .      # pylint: disable=line-too-long
+# pytest -m all_modules --base-protected-url http://$(minikube ip):30081 --base-conf-url http://$(minikube ip):30000/api/v2/ --base-ui-url http://$(minikube ip):30080 --elasticsearch-url http://$IP:30200 .      # pylint: disable=line-too-long
 #
 # To run this with docker-compose:
-# pytest -m all_modules --base-protected-url http://localhost:30081/ --base-conf-url http://localhost:30000/api/v1/ --base-ui-url http://localhost:30080 --elasticsearch-url http://localhost:9200 .      # pylint: disable=line-too-long
+# pytest -m all_modules --base-protected-url http://localhost:30081/ --base-conf-url http://localhost:30000/api/v2/ --base-ui-url http://localhost:30080 --elasticsearch-url http://localhost:9200 .      # pylint: disable=line-too-long
 
 # pylint: disable=too-many-lines,too-many-public-methods
 # pylint: disable=too-many-arguments,too-few-public-methods,too-many-statements
@@ -39,3 +39,4 @@
 #
 # 3 - Module names appear in pytest.ini file
 # 4 - Report will be automatically generated in reports folder
+# 5 - V1/V2 adjustments are made automatically
