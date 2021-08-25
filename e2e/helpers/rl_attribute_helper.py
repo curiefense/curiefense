@@ -1794,7 +1794,7 @@ class RateLimitCookieHelper:
 
 
 @pytest.fixture(scope="class")
-def ratelimit_attribute_config(cli, target):
+def ratelimit_attribute_config(cli, target, api_config):
     cli.revert_and_enable()
     # Add new RL rules
     rl_rules = cli.call(f"doc get {BaseHelper.TEST_CONFIG_NAME} ratelimits")
@@ -1807,5 +1807,5 @@ def ratelimit_attribute_config(cli, target):
     rl_rules.extend(rules_without_include_exclude)
     cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} ratelimits /dev/stdin", inputjson=rl_rules)
     # Apply NEW_URLMAP
-    cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} urlmaps /dev/stdin", inputjson=new_urlmap)
+    cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['url_map']} /dev/stdin", inputjson=new_urlmap)
     cli.publish_and_apply()

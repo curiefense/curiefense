@@ -14,7 +14,7 @@ def pytest_addoption(parser):
         "--base-conf-url",
         help="Base url for confserver API",
         type=str,
-        default="http://localhost:30000/api/v1/",
+        default="http://localhost:30000/api/v2/",
     )
     parser.addoption(
         "--base-protected-url",
@@ -36,6 +36,10 @@ def pytest_addoption(parser):
         action="store",
         default="all",
         help="please enter module name as a must param: --module")
+    parser.addoption(
+        "--api_version",
+        action="store",
+        help="please enter api version as a must param: --api_version")
 
 
 @pytest.fixture(scope='session')
@@ -46,6 +50,18 @@ def module(request):
             config_data = json.load(config_file)
             module = config_data['module']
     return module
+
+
+@pytest.fixture(scope='session')
+def api_config(request):
+    api_version = request.config.getoption('--base-conf-url').split("/")[-2]
+    api_config_files = {
+        'v1': 'v1_config.json',
+        'v2': 'v2_config.json'
+    }
+    with open(os.path.join(config.HOME_PATH, 'data/api_config', api_config_files[api_version])) as api_config:
+        api_config_file = json.load(api_config)
+    return api_config_file
 
 
 @pytest.fixture(scope='session')

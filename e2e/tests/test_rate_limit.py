@@ -7,6 +7,7 @@ from e2e.helpers.rl_helper import ratelimit_config, RateLimitHelper
 @pytest.mark.usefixtures('api_setup', 'ratelimit_config')
 @pytest.mark.rate_limit_tests
 @pytest.mark.all_modules
+@pytest.mark.abcd
 class TestRateLimit:
     def test_ratelimit_scope_include(self, target, section):
         # rate limit: max 3 requests within 10 seconds
