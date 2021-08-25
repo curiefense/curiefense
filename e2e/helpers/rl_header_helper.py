@@ -61,64 +61,64 @@ class RateLimitHeaderHelper:
         # RL scope
         add_rl_rule(
             path="test_503_action_header_count_by_ip",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_503_ip"}),
             key=[{"attrs": 'ip'}]
         ),
         add_rl_rule(
             path="test_503_action_header_count_by_asn",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_503_asn"}),
             key=[{"attrs": 'asn'}]
         ),
         add_rl_rule(
             path="test_503_action_header_count_by_path",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_503_path"}),
             key=[{"attrs": 'path'}]
         ),
         add_rl_rule(
             path="test_503_action_header_count_by_query",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_503_query"}),
             key=[{"attrs": 'query'}]
         ),
         add_rl_rule(
             path="test_503_action_header_count_by_country",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_503_country"}),
             key=[{"attrs": 'country'}]
         ),
         add_rl_rule(
             path="test_503_action_header_count_by_company",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_503_company"}),
             key=[{"attrs": 'company'}]
         ),
         add_rl_rule(
             path="test_503_action_header_count_by_uri",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_503_uri"}),
             key=[{"attrs": 'uri'}]
         ),
         add_rl_rule(
             path="test_503_action_header_count_by_method",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_503_method"}),
             key=[{"attrs": 'method'}]
         ),
         add_rl_rule(
             path="test_503_action_header_count_by_authority",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_503_authority"}),
             key=[{"attrs": 'authority'}]
         ),
@@ -197,8 +197,8 @@ class RateLimitHeaderHelper:
 
         add_rl_rule(
             path="test_res_header_ip",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=5,
             pairwith=({"headers": "header_event_res_ip"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_ip"},
@@ -207,8 +207,8 @@ class RateLimitHeaderHelper:
 
         add_rl_rule(
             path="test_res_header_uri",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=5,
             pairwith=({"headers": "header_event_res_uri"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "503", "content": "response_body_uri"},
@@ -217,8 +217,8 @@ class RateLimitHeaderHelper:
 
         add_rl_rule(
             path="test_res_header_query",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=5,
             pairwith=({"headers": "header_event_res_query"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_query"},
@@ -227,8 +227,8 @@ class RateLimitHeaderHelper:
 
         add_rl_rule(
             path="test_res_header_path",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=5,
             pairwith=({"headers": "header_event_res_path"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_path"},
@@ -237,8 +237,8 @@ class RateLimitHeaderHelper:
 
         add_rl_rule(
             path="test_res_header_method",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=5,
             pairwith=({"headers": "header_event_res_method"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_method"},
@@ -247,8 +247,8 @@ class RateLimitHeaderHelper:
 
         add_rl_rule(
             path="test_res_header_asn",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=5,
             pairwith=({"headers": "header_event_res_asn"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_asn"},
@@ -257,8 +257,8 @@ class RateLimitHeaderHelper:
 
         add_rl_rule(
             path="test_res_header_country",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=5,
             pairwith=({"headers": "header_event_res_country"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_country"},
@@ -267,8 +267,8 @@ class RateLimitHeaderHelper:
 
         add_rl_rule(
             path="test_res_header_company",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=5,
             pairwith=({"headers": "header_event_res_company"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_company"},
@@ -277,8 +277,8 @@ class RateLimitHeaderHelper:
 
         add_rl_rule(
             path="test_res_header_authority",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=5,
             pairwith=({"headers": "header_event_res_authority"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_authority"},
@@ -444,83 +444,83 @@ class RateLimitHeaderHelper:
 
         add_rl_rule(
             path="test_ban_header_sub_503_count_by_ip",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_ban_503_ip"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "ip"}]
         ),
         add_rl_rule(
             path="test_ban_header_sub_503_count_by_uri",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_ban_503_uri"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "uri"}]
         ),
         add_rl_rule(
             path="test_ban_header_sub_503_count_by_query",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_ban_503_query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "query"}]
         ),
         add_rl_rule(
             path="test_ban_header_sub_503_count_by_path",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_ban_503_path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
             path="test_ban_header_sub_503_count_by_asn",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_ban_503_asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "asn"}]
         ),
         add_rl_rule(
             path="test_ban_header_sub_503_count_by_method",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_ban_503_method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "method"}]
         ),
         add_rl_rule(
             path="test_ban_header_sub_503_count_by_company",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_ban_503_company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "company"}]
         ),
         add_rl_rule(
             path="test_ban_header_sub_503_count_by_country",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_ban_503_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "country"}]
         ),
         add_rl_rule(
             path="test_ban_header_sub_503_count_by_authority",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             pairwith=({"headers": "header_event_ban_503_authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "authority"}]
         ),
         add_rl_rule(
@@ -805,99 +805,99 @@ class RateLimitHeaderHelper:
         ),
         add_rl_rule(
             path="test_ban_header_sub_redirect_count_by_ip",
-            ttl=10,
-            limit=20,
+            ttl=2,
+            limit=5,
             pairwith=({"headers": "header_event_ban_red_ip"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "ip"}]
         ),
         add_rl_rule(
             path="test_ban_header_sub_redirect_count_by_asn",
-            ttl=10,
-            limit=20,
+            ttl=2,
+            limit=5,
             pairwith=({"headers": "header_event_ban_red_asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "asn"}]
         ),
         add_rl_rule(
             path="test_ban_header_sub_redirect_count_by_country",
-            ttl=10,
-            limit=20,
+            ttl=2,
+            limit=5,
             pairwith=({"headers": "header_event_ban_red_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "country"}]
         ),
         add_rl_rule(
             path="test_ban_header_sub_redirect_count_by_path",
-            ttl=10,
-            limit=20,
+            ttl=2,
+            limit=5,
             pairwith=({"headers": "header_event_ban_red_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
             path="test_ban_header_sub_redirect_count_by_query",
-            ttl=10,
-            limit=20,
+            ttl=2,
+            limit=5,
             pairwith=({"headers": "header_event_ban_red_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "query"}]
         ),
         add_rl_rule(
             path="test_ban_header_sub_redirect_count_by_uri",
-            ttl=10,
-            limit=20,
+            ttl=2,
+            limit=5,
             pairwith=({"headers": "header_event_ban_red_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "uri"}]
         ),
         add_rl_rule(
             path="test_ban_header_sub_redirect_count_by_method",
-            ttl=10,
-            limit=20,
+            ttl=2,
+            limit=5,
             pairwith=({"headers": "header_event_ban_red_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "method"}]
         ),
         add_rl_rule(
             path="test_ban_header_sub_redirect_count_by_company",
-            ttl=10,
-            limit=20,
+            ttl=2,
+            limit=5,
             pairwith=({"headers": "header_event_ban_red_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "company"}]
         ),
         add_rl_rule(
             path="test_ban_header_sub_redirect_count_by_authority",
-            ttl=10,
-            limit=20,
+            ttl=2,
+            limit=5,
             pairwith=({"headers": "header_event_ban_red_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "authority"}]
@@ -936,7 +936,7 @@ class RateLimitHeaderHelper:
 
 
 @pytest.fixture(scope="class")
-def ratelimit_header_config(cli, target):
+def ratelimit_header_config(cli, target, api_config):
     cli.revert_and_enable()
     # Add new RL rules
     rl_rules = cli.call(f"doc get {BaseHelper.TEST_CONFIG_NAME} ratelimits")
@@ -949,5 +949,5 @@ def ratelimit_header_config(cli, target):
     rl_rules.extend(rules_without_include_exclude)
     cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} ratelimits /dev/stdin", inputjson=rl_rules)
     # Apply NEW_URLMAP
-    cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} urlmaps /dev/stdin", inputjson=new_urlmap)
+    cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['url_map']} /dev/stdin", inputjson=new_urlmap)
     cli.publish_and_apply()

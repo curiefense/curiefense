@@ -110,7 +110,7 @@ class UrlMapHelper:
 
 
 @pytest.fixture(scope="class")
-def urlmap_config(cli, acl):
+def urlmap_config(cli, acl, api_config):
     cli.revert_and_enable()
     # Add ACL entry
     default_acl = cli.empty_acl()
@@ -126,5 +126,5 @@ def urlmap_config(cli, acl):
         f"doc update {BaseHelper.TEST_CONFIG_NAME} wafpolicies /dev/stdin", inputjson=wafpolicy
     )
     # Add urlmap entry URLMAP
-    cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} urlmaps /dev/stdin", inputjson=UrlMapHelper.url_map_json())
+    cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['url_map']} /dev/stdin", inputjson=UrlMapHelper.url_map_json())
     cli.publish_and_apply()

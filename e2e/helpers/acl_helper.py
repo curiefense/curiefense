@@ -21,7 +21,7 @@ class ACLHelper:
         self._cli.publish_and_apply()
 
     def reset_acl_to_default_values(self):
-        default_values = {"allow": '', "allow_bot": '', "deny_bot": '', "bypass": '', "deny": '', "force_deny": ''}
+        default_values = {"allow": [], "allow_bot": [], "deny_bot": [], "bypass": [], "deny": [], "force_deny": []}
         self.set_acl(default_values)
 
 

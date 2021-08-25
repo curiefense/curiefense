@@ -61,50 +61,50 @@ class RateLimitCookieHelper:
         # RL scope
         add_rl_rule(
             path="test_503_action_argument_count_by_ip",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=3,
             pairwith=({"args": "arg_event_503_ip"}),
             key=[{"attrs": 'ip'}]
         ),
         add_rl_rule(
             path="test_503_action_argument_count_by_asn",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=3,
             pairwith=({"args": "arg_event_503_asn"}),
             key=[{"attrs": 'asn'}]
         ),
         add_rl_rule(
             path="test_503_action_argument_count_by_path",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=3,
             pairwith=({"args": "arg_event_503_path"}),
             key=[{"attrs": 'path'}]
         ),
         add_rl_rule(
             path="test_503_action_argument_count_by_country",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=3,
             pairwith=({"args": "arg_event_503_country"}),
             key=[{"attrs": 'country'}]
         ),
         add_rl_rule(
             path="test_503_action_argument_count_by_company",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=3,
             pairwith=({"args": "arg_event_503_company"}),
             key=[{"attrs": 'company'}]
         ),
         add_rl_rule(
             path="test_503_action_argument_count_by_method",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=3,
             pairwith=({"args": "arg_event_503_method"}),
             key=[{"attrs": 'method'}]
         ),
         add_rl_rule(
             path="test_503_action_argument_count_by_authority",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=3,
             pairwith=({"args": "arg_event_503_authority"}),
             key=[{"attrs": 'authority'}]
         ),
@@ -168,8 +168,8 @@ class RateLimitCookieHelper:
 
         add_rl_rule(
             path="test_res_argument_ip",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=5,
             pairwith=({"args": "arg_event_res_ip"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_ip"},
@@ -177,8 +177,8 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_res_argument_path",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=5,
             pairwith=({"args": "arg_event_res_path"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_path"},
@@ -187,8 +187,8 @@ class RateLimitCookieHelper:
 
         add_rl_rule(
             path="test_res_argument_method",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=5,
             pairwith=({"args": "arg_event_res_method"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_method"},
@@ -197,8 +197,8 @@ class RateLimitCookieHelper:
 
         add_rl_rule(
             path="test_res_argument_asn",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=5,
             pairwith=({"args": "arg_event_res_asn"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_asn"},
@@ -207,8 +207,8 @@ class RateLimitCookieHelper:
 
         add_rl_rule(
             path="test_res_argument_country",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=5,
             pairwith=({"args": "arg_event_res_country"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_country"},
@@ -217,8 +217,8 @@ class RateLimitCookieHelper:
 
         add_rl_rule(
             path="test_res_argument_company",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=5,
             pairwith=({"args": "arg_event_res_company"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_company"},
@@ -227,8 +227,8 @@ class RateLimitCookieHelper:
 
         add_rl_rule(
             path="test_res_argument_authority",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=5,
             pairwith=({"args": "arg_event_res_authority"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_authority"},
@@ -358,65 +358,65 @@ class RateLimitCookieHelper:
 
         add_rl_rule(
             path="test_ban_argument_sub_503_count_by_ip",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             pairwith=({"args": "arg_event_ban_503_ip"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "ip"}]
         ),
         add_rl_rule(
             path="test_ban_argument_sub_503_count_by_path",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             pairwith=({"args": "arg_event_ban_503_path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
             path="test_ban_argument_sub_503_count_by_asn",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             pairwith=({"args": "arg_event_ban_503_asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "asn"}]
         ),
         add_rl_rule(
             path="test_ban_argument_sub_503_count_by_method",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             pairwith=({"args": "arg_event_ban_503_method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "method"}]
         ),
         add_rl_rule(
             path="test_ban_argument_sub_503_count_by_company",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             pairwith=({"args": "arg_event_ban_503_company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "company"}]
         ),
         add_rl_rule(
             path="test_ban_argument_sub_503_count_by_country",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             pairwith=({"args": "arg_event_ban_503_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "country"}]
         ),
         add_rl_rule(
             path="test_ban_argument_sub_503_count_by_authority",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             pairwith=({"args": "arg_event_ban_503_authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "authority"}]
         ),
         add_rl_rule(
@@ -748,7 +748,7 @@ class RateLimitCookieHelper:
 
 
 @pytest.fixture(scope="class")
-def ratelimit_argument_config(cli, target):
+def ratelimit_argument_config(cli, target, api_config):
     cli.revert_and_enable()
     # Add new RL rules
     rl_rules = cli.call(f"doc get {BaseHelper.TEST_CONFIG_NAME} ratelimits")
@@ -761,5 +761,5 @@ def ratelimit_argument_config(cli, target):
     rl_rules.extend(rules_without_include_exclude)
     cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} ratelimits /dev/stdin", inputjson=rl_rules)
     # Apply NEW_URLMAP
-    cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} urlmaps /dev/stdin", inputjson=new_urlmap)
+    cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['url_map']} /dev/stdin", inputjson=new_urlmap)
     cli.publish_and_apply()

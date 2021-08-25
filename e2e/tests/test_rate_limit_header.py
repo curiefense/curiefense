@@ -12,57 +12,57 @@ class TestRateLimitHeader:
 
     #  Action: 503  | Event: Header | Count: Ip
     def test_503_action_event_header_count_by_ip(self, target):
-        params = [{"headers": {"header_event_503_ip": f"val-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_header_count_by_ip", 3,
-                                                                 8, params)
+        params = [{"headers": {"header_event_503_ip": f"val-{i}"}} for i in range(4 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_header_count_by_ip", 2,
+                                                                 4, params)
 
     #  Action: 503  | Event: Header | Count: Path
     def test_503_action_event_header_count_by_path(self, target):
-        params = [{"headers": {"header_event_503_path": f"val-{i}"}} for i in range(8 + 2)]
+        params = [{"headers": {"header_event_503_path": f"val-{i}"}} for i in range(4 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_header_count_by_path",
-                                                                 3, 8, params)
+                                                                 2, 4, params)
 
     #  Action: 503  | Event: Header | Count: Uri
     def test_503_action_event_header_count_by_uri(self, target):
-        params = [{"headers": {"header_event_503_uri": f"val-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_header_count_by_uri", 3,
-                                                                 8, params)
+        params = [{"headers": {"header_event_503_uri": f"val-{i}"}} for i in range(4 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_header_count_by_uri", 2,
+                                                                 4, params)
 
     #  Action: 503  | Event: Header | Count: Asn
     def test_503_action_event_header_count_by_asn(self, target):
-        params = [{"headers": {"header_event_503_asn": f"val-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_header_count_by_asn", 3,
-                                                                 8, params)
+        params = [{"headers": {"header_event_503_asn": f"val-{i}"}} for i in range(4 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_header_count_by_asn", 2,
+                                                                 4, params)
 
     #  Action: 503  | Event: Header | Count: Query
     def test_503_action_event_header_count_by_query(self, target):
-        params = [{"headers": {"header_event_503_query": f"val-{i}"}} for i in range(8 + 2)]
+        params = [{"headers": {"header_event_503_query": f"val-{i}"}} for i in range(4 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_header_count_by_query",
-                                                                 3, 8, params)
+                                                                 2, 4, params)
 
     #  Action: 503  | Event: Header | Count: Method
     def test_503_action_event_header_count_by_method(self, target):
-        params = [{"headers": {"header_event_503_method": f"val-{i}"}} for i in range(8 + 2)]
+        params = [{"headers": {"header_event_503_method": f"val-{i}"}} for i in range(4 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_header_count_by_method",
-                                                                 3, 8, params)
+                                                                 2, 4, params)
 
     #  Action: 503  | Event: Header | Count: Company
     def test_503_action_event_header_count_by_company(self, target):
-        params = [{"headers": {"header_event_503_company": f"val-{i}"}} for i in range(8 + 2)]
+        params = [{"headers": {"header_event_503_company": f"val-{i}"}} for i in range(4 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_header_count_by_company",
-                                                                 3, 8, params)
+                                                                 2, 4, params)
 
     #  Action: 503  | Event: Header | Count: Country
     def test_503_action_event_header_count_by_country(self, target):
-        params = [{"headers": {"header_event_503_country": f"val-{i}"}} for i in range(8 + 2)]
+        params = [{"headers": {"header_event_503_country": f"val-{i}"}} for i in range(4 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_header_count_by_country",
-                                                                 3, 8, params)
+                                                                 2, 4, params)
 
     #  Action: 503  | Event: Header | Count: Authority
     def test_503_action_event_header_count_by_authority(self, target):
-        params = [{"headers": {"header_event_503_authority": f"val-{i}"}} for i in range(8 + 2)]
+        params = [{"headers": {"header_event_503_authority": f"val-{i}"}} for i in range(4 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_header_count_by_authority",
-                                                                 3, 8, params)
+                                                                 2, 4, params)
 
     #  Action: Tag only  | Event: Header | Count: Ip
     def test_tag_only_action_event_header_count_by_ip(self, target, log_fixture):
@@ -129,57 +129,57 @@ class TestRateLimitHeader:
 
     #  Action: Response  | Event: Header | Count: Ip
     def test_response_action_event_header_count_by_ip(self, cli, target):
-        params = [{"headers": {"header_event_res_ip": f"val-{i}"}} for i in range(15 + 2)]
+        params = [{"headers": {"header_event_res_ip": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_header_ip",
-                                                             "response_body_ip", "302", 9, 15, params)
+                                                             "response_body_ip", "302", 3, 5, params)
 
     #  Action: Response  | Event: Header | Count: Uri
     def test_response_action_event_header_count_by_uri(self, cli, target):
-        params = [{"headers": {"header_event_res_uri": f"val-{i}"}} for i in range(15 + 2)]
+        params = [{"headers": {"header_event_res_uri": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_header_uri",
-                                                             "response_body_uri", "503", 9, 15, params)
+                                                             "response_body_uri", "503", 3, 5, params)
 
     #  Action: Response  | Event: Header | Count: Query
     def test_response_action_event_header_count_by_query(self, cli, target):
-        params = [{"headers": {"header_event_res_query": f"val-{i}"}} for i in range(15 + 2)]
+        params = [{"headers": {"header_event_res_query": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_header_query",
-                                                             "response_body_query", "302", 9, 15, params)
+                                                             "response_body_query", "302", 3, 5, params)
 
     #  Action: Response  | Event: Header | Count: Path
     def test_response_action_event_header_count_by_path(self, cli, target):
-        params = [{"headers": {"header_event_res_path": f"val-{i}"}} for i in range(15 + 2)]
+        params = [{"headers": {"header_event_res_path": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_header_path",
-                                                             "response_body_path", "302", 9, 15, params)
+                                                             "response_body_path", "302", 3, 5, params)
 
     #  Action: Response  | Event: Header | Count: Asn
     def test_response_action_event_header_count_by_asn(self, cli, target):
-        params = [{"headers": {"header_event_res_asn": f"val-{i}"}} for i in range(15 + 2)]
+        params = [{"headers": {"header_event_res_asn": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_header_asn",
-                                                             "response_body_asn", "302", 9, 15, params)
+                                                             "response_body_asn", "302", 3, 5, params)
 
     #  Action: Response  | Event: Header | Count: Method
     def test_response_action_event_header_count_by_method(self, cli, target):
-        params = [{"headers": {"header_event_res_method": f"val-{i}"}} for i in range(15 + 2)]
+        params = [{"headers": {"header_event_res_method": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_header_method",
-                                                             "response_body_method", "302", 9, 15, params)
+                                                             "response_body_method", "302", 3, 5, params)
 
     #  Action: Response  | Event: Header | Count: Company
     def test_response_action_event_header_count_by_company(self, cli, target):
-        params = [{"headers": {"header_event_res_company": f"val-{i}"}} for i in range(15 + 2)]
+        params = [{"headers": {"header_event_res_company": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_header_company",
-                                                             "response_body_company", "302", 9, 15, params)
+                                                             "response_body_company", "302", 3, 5, params)
 
     #  Action: Response  | Event: Header | Count: Country
     def test_response_action_event_header_count_by_country(self, cli, target):
-        params = [{"headers": {"header_event_res_country": f"val-{i}"}} for i in range(15 + 2)]
+        params = [{"headers": {"header_event_res_country": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_header_country",
-                                                             "response_body_country", "302", 9, 15, params)
+                                                             "response_body_country", "302", 3, 5, params)
 
     #  Action: Response  | Event: Header | Count: Authority
     def test_response_action_event_header_count_by_authority(self, cli, target):
-        params = [{"headers": {"header_event_res_authority": f"val-{i}"}} for i in range(15 + 2)]
+        params = [{"headers": {"header_event_res_authority": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_header_authority",
-                                                             "response_body_authority", "302", 9, 15, params)
+                                                             "response_body_authority", "302", 3, 5, params)
 
     #  Action: Challenge  | Event: Header | Count: Ip
     def test_challenge_action_event_header_count_by_ip(self, cli, target):
@@ -291,57 +291,57 @@ class TestRateLimitHeader:
 
     #  Action: Ban | Subaction: 503 | Event: Header | Count: Ip
     def test_ban_action_event_header_subaction_503_count_by_ip(self, cli, target):
-        params = [{"headers": {"header_event_ban_503_ip": f"val-{i}"}} for i in range(10 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_ip", 8, 10,
+        params = [{"headers": {"header_event_ban_503_ip": f"val-{i}"}} for i in range(4 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_ip", 4, 4,
                                                                  params)
 
     #  Action: Ban | Subaction: 503 | Event: Header | Count: Uri
     def test_ban_action_event_header_subaction_503_count_by_uri(self, cli, target):
-        params = [{"headers": {"header_event_ban_503_uri": f"val-{i}"}} for i in range(10 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_uri", 8, 10,
+        params = [{"headers": {"header_event_ban_503_uri": f"val-{i}"}} for i in range(4 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_uri", 4, 4,
                                                                  params)
 
     #  Action: Ban | Subaction: 503 | Event: Header | Count: Query
     def test_ban_action_event_header_subaction_503_count_by_query(self, cli, target):
-        params = [{"headers": {"header_event_ban_503_query": f"val-{i}"}} for i in range(10 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_query", 8,
-                                                                 10, params)
+        params = [{"headers": {"header_event_ban_503_query": f"val-{i}"}} for i in range(4 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_query", 4,
+                                                                 4, params)
 
     #  Action: Ban | Subaction: 503 | Event: Header | Count: Path
     def test_ban_action_event_header_subaction_503_count_by_path(self, cli, target):
-        params = [{"headers": {"header_event_ban_503_path": f"val-{i}"}} for i in range(10 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_path", 8,
-                                                                 10, params)
+        params = [{"headers": {"header_event_ban_503_path": f"val-{i}"}} for i in range(4 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_path", 4,
+                                                                 4, params)
 
     #  Action: Ban | Subaction: 503 | Event: Header | Count: Asn
     def test_ban_action_event_header_subaction_503_count_by_asn(self, cli, target):
-        params = [{"headers": {"header_event_ban_503_asn": f"val-{i}"}} for i in range(10 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_asn", 8,
-                                                                 10, params)
+        params = [{"headers": {"header_event_ban_503_asn": f"val-{i}"}} for i in range(4 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_asn", 4,
+                                                                 4, params)
 
     #  Action: Ban | Subaction: 503 | Event: Header | Count: Method
     def test_ban_action_event_header_subaction_503_count_by_method(self, cli, target):
-        params = [{"headers": {"header_event_ban_503_method": f"val-{i}"}} for i in range(10 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_method", 8,
-                                                                 10, params)
+        params = [{"headers": {"header_event_ban_503_method": f"val-{i}"}} for i in range(4 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_method", 4,
+                                                                 4, params)
 
     #  Action: Ban | Subaction: 503 | Event: Header | Count: Company
     def test_ban_action_event_header_subaction_503_count_by_company(self, cli, target):
-        params = [{"headers": {"header_event_ban_503_company": f"val-{i}"}} for i in range(10 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_company", 8,
-                                                                 10, params)
+        params = [{"headers": {"header_event_ban_503_company": f"val-{i}"}} for i in range(4 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_company", 4,
+                                                                 4, params)
 
     #  Action: Ban | Subaction: 503 | Event: Header | Count: Country
     def test_ban_action_event_header_subaction_503_count_by_country(self, cli, target):
-        params = [{"headers": {"header_event_ban_503_country": f"val-{i}"}} for i in range(10 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_country", 8,
-                                                                 10, params)
+        params = [{"headers": {"header_event_ban_503_country": f"val-{i}"}} for i in range(4 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_country", 4,
+                                                                 4, params)
 
     #  Action: Ban | Subaction: 503 | Event: Header | Count: Authority
     def test_ban_action_event_header_subaction_503_count_by_authority(self, cli, target):
-        params = [{"headers": {"header_event_ban_503_authority": f"val-{i}"}} for i in range(10 + 2)]
+        params = [{"headers": {"header_event_ban_503_authority": f"val-{i}"}} for i in range(4 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_header_sub_503_count_by_authority",
-                                                                 8, 10, params)
+                                                                 4, 4, params)
 
     #  Action: Ban | Subaction: Challenge | Event: Header | Count: Ip
     def test_ban_action_event_header_subaction_challenge_count_by_ip(self, cli, target):
@@ -534,55 +534,55 @@ class TestRateLimitHeader:
 
     #  Action: Ban | Subaction: Redirect | Event: Header | Count: Ip
     def test_ban_action_event_header_subaction_redirect_count_by_ip(self, cli, target, log_fixture):
-        params = [{"headers": {"header_event_ban_red_ip": f"val-{i}"}} for i in range(20 + 2)]
+        params = [{"headers": {"header_event_ban_red_ip": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_redirect_action_with_params(target, "test_ban_header_sub_redirect_count_by_ip",
-                                                             "200", 11, 20, "https://google.com", params)
+                                                             "200", 4, 5, "https://google.com", params)
 
     #  Action: Ban | Subaction: Redirect | Event: Header | Count: Asn
     def test_ban_action_event_header_subaction_redirect_count_by_asn(self, cli, target, log_fixture):
-        params = [{"headers": {"header_event_ban_red_asn": f"val-{i}"}} for i in range(20 + 2)]
+        params = [{"headers": {"header_event_ban_red_asn": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_redirect_action_with_params(target, "test_ban_header_sub_redirect_count_by_asn",
-                                                             "200", 11, 20, "https://google.com", params)
+                                                             "200", 4, 5, "https://google.com", params)
 
     #  Action: Ban | Subaction: Redirect | Event: Header | Count: Country
     def test_ban_action_event_header_subaction_redirect_count_by_country(self, cli, target, log_fixture):
-        params = [{"headers": {"header_event_ban_red_country": f"val-{i}"}} for i in range(20 + 2)]
+        params = [{"headers": {"header_event_ban_red_country": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_redirect_action_with_params(target, "test_ban_header_sub_redirect_count_by_country",
-                                                             "200", 11, 20, "https://google.com", params)
+                                                             "200", 4, 5, "https://google.com", params)
 
     #  Action: Ban | Subaction: Redirect | Event: Header | Count: Uri
     def test_ban_action_event_header_subaction_redirect_count_by_uri(self, cli, target, log_fixture):
-        params = [{"headers": {"header_event_ban_red_uri": f"val-{i}"}} for i in range(20 + 2)]
+        params = [{"headers": {"header_event_ban_red_uri": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_redirect_action_with_params(target, "test_ban_header_sub_redirect_count_by_uri",
-                                                             "200", 11, 20, "https://google.com", params)
+                                                             "200", 4, 5, "https://google.com", params)
 
     #  Action: Ban | Subaction: Redirect | Event: Header | Count: Path
     def test_ban_action_event_header_subaction_redirect_count_by_path(self, cli, target, log_fixture):
-        params = [{"headers": {"header_event_ban_red_asn": f"val-{i}"}} for i in range(20 + 2)]
+        params = [{"headers": {"header_event_ban_red_asn": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_redirect_action_with_params(target, "test_ban_header_sub_redirect_count_by_path",
-                                                             "200", 11, 20, "https://google.com", params)
+                                                             "200", 4, 5, "https://google.com", params)
 
     #  Action: Ban | Subaction: Redirect | Event: Header | Count: Query
     def test_ban_action_event_header_subaction_redirect_count_by_query(self, cli, target, log_fixture):
-        params = [{"headers": {"header_event_ban_red_country": f"val-{i}"}} for i in range(20 + 2)]
+        params = [{"headers": {"header_event_ban_red_country": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_redirect_action_with_params(target, "test_ban_header_sub_redirect_count_by_query",
-                                                             "200", 11, 20, "https://google.com", params)
+                                                             "200", 4, 5, "https://google.com", params)
 
     #  Action: Ban | Subaction: Redirect | Event: Header | Count: Method
     def test_ban_action_event_header_subaction_redirect_count_by_method(self, cli, target, log_fixture):
-        params = [{"headers": {"header_event_ban_red_method": f"val-{i}"}} for i in range(20 + 2)]
+        params = [{"headers": {"header_event_ban_red_method": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_redirect_action_with_params(target, "test_ban_header_sub_redirect_count_by_method",
-                                                             "200", 11, 20, "https://google.com", params)
+                                                             "200", 4, 5, "https://google.com", params)
 
     #  Action: Ban | Subaction: Redirect | Event: Header | Count: Company
     def test_ban_action_event_header_subaction_redirect_count_by_company(self, cli, target, log_fixture):
-        params = [{"headers": {"header_event_ban_red_company": f"val-{i}"}} for i in range(20 + 2)]
+        params = [{"headers": {"header_event_ban_red_company": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_redirect_action_with_params(target, "test_ban_header_sub_redirect_count_by_company",
-                                                             "200", 11, 20, "https://google.com", params)
+                                                             "200", 4, 5, "https://google.com", params)
 
     #  Action: Ban | Subaction: Redirect | Event: Header | Count: Authority
     def test_ban_action_event_header_subaction_redirect_count_by_authority(self, cli, target, log_fixture):
-        params = [{"headers": {"header_event_ban_red_authority": f"val-{i}"}} for i in range(20 + 2)]
+        params = [{"headers": {"header_event_ban_red_authority": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_redirect_action_with_params(target, "test_ban_header_sub_redirect_count_by_authority",
-                                                             "200", 11, 20, "https://google.com", params)
+                                                             "200", 4, 5, "https://google.com", params)
 

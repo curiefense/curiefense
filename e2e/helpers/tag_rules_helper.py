@@ -58,7 +58,7 @@ def active(request):
 
 
 @pytest.fixture(scope="class")
-def tagrules_config(cli, acl, active):
+def tagrules_config(cli, acl, active, api_config):
     cli.revert_and_enable()
     acl.set_acl({"force_deny": "e2e-test", "bypass": "all"})
     # Apply TEST_TAGRULES
@@ -66,6 +66,6 @@ def tagrules_config(cli, acl, active):
     # 'updating' wafpolicies with a list containing a single entry adds this
     # entry, without removing pre-existing ones.
     cli.call(
-        f"doc update {BaseHelper.TEST_CONFIG_NAME} tagrules /dev/stdin", inputjson=[TagRulesHelper.tag_rules_json()]
+        f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['tag_rules']} /dev/stdin", inputjson=[TagRulesHelper.tag_rules_json()]
     )
     cli.publish_and_apply()

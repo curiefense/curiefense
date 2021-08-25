@@ -12,45 +12,45 @@ class TestRateLimitArgument:
 
     #  Action: 503  | Event: Argument | Count: Ip
     def test_503_action_event_argument_count_by_ip(self, target):
-        params = [{"params": {"arg_event_503_ip": f"val-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_argument_count_by_ip", 3,
-                                                                 8, params)
+        params = [{"params": {"arg_event_503_ip": f"val-{i}"}} for i in range(3 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_argument_count_by_ip", 2,
+                                                                 3, params)
 
     #  Action: 503  | Event: Argument | Count: Path
     def test_503_action_event_argument_count_by_path(self, target):
-        params = [{"params": {"arg_event_503_path": f"val-{i}"}} for i in range(8 + 2)]
+        params = [{"params": {"arg_event_503_path": f"val-{i}"}} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_argument_count_by_path",
-                                                                 3, 8, params)
+                                                                 2, 3, params)
 
     #  Action: 503  | Event: Argument | Count: Asn
     def test_503_action_event_argument_count_by_asn(self, target):
-        params = [{"params": {"arg_event_503_asn": f"val-{i}"}} for i in range(8 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_argument_count_by_asn", 3,
-                                                                 8, params)
+        params = [{"params": {"arg_event_503_asn": f"val-{i}"}} for i in range(3 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_argument_count_by_asn", 2,
+                                                                 3, params)
 
     #  Action: 503  | Event: Argument | Count: Method
     def test_503_action_event_argument_count_by_method(self, target):
-        params = [{"params": {"arg_event_503_method": f"val-{i}"}} for i in range(8 + 2)]
+        params = [{"params": {"arg_event_503_method": f"val-{i}"}} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_argument_count_by_method",
-                                                                 3, 8, params)
+                                                                 2, 3, params)
 
     #  Action: 503  | Event: Argument | Count: Company
     def test_503_action_event_argument_count_by_company(self, target):
-        params = [{"params": {"arg_event_503_company": f"val-{i}"}} for i in range(8 + 2)]
+        params = [{"params": {"arg_event_503_company": f"val-{i}"}} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_argument_count_by_company",
-                                                                 3, 8, params)
+                                                                 2, 3, params)
 
     #  Action: 503  | Event: Argument | Count: Country
     def test_503_action_event_argument_count_by_country(self, target):
-        params = [{"params": {"arg_event_503_country": f"val-{i}"}} for i in range(8 + 2)]
+        params = [{"params": {"arg_event_503_country": f"val-{i}"}} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_argument_count_by_country",
-                                                                 3, 8, params)
+                                                                 2, 3, params)
 
     #  Action: 503  | Event: Argument | Count: Authority
     def test_503_action_event_argument_count_by_authority(self, target):
-        params = [{"params": {"arg_event_503_authority": f"val-{i}"}} for i in range(8 + 2)]
+        params = [{"params": {"arg_event_503_authority": f"val-{i}"}} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_argument_count_by_authority",
-                                                                 3, 8, params)
+                                                                 2, 3, params)
 
     #  Action: Tag only  | Event: Argument | Count: Ip
     def test_tag_only_action_event_argument_count_by_ip(self, target, log_fixture):
@@ -103,45 +103,45 @@ class TestRateLimitArgument:
 
     #  Action: Response  | Event: Argument | Count: Ip
     def test_response_action_event_argument_count_by_ip(self, cli, target):
-        params = [{"params": {"arg_event_res_ip": f"val-{i}"}} for i in range(15 + 2)]
+        params = [{"params": {"arg_event_res_ip": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_argument_ip",
-                                                             "response_body_ip", "302", 9, 15, params)
+                                                             "response_body_ip", "302", 3, 5, params)
 
     #  Action: Response  | Event: Argument | Count: Path
     def test_response_action_event_argument_count_by_path(self, cli, target):
-        params = [{"params": {"arg_event_res_path": f"val-{i}"}} for i in range(15 + 2)]
+        params = [{"params": {"arg_event_res_path": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_argument_path",
-                                                             "response_body_path", "302", 9, 15, params)
+                                                             "response_body_path", "302", 3, 5, params)
 
     #  Action: Response  | Event: Argument | Count: Asn
     def test_response_action_event_argument_count_by_asn(self, cli, target):
-        params = [{"params": {"arg_event_res_asn": f"val-{i}"}} for i in range(15 + 2)]
+        params = [{"params": {"arg_event_res_asn": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_argument_asn",
-                                                             "response_body_asn", "302", 9, 15, params)
+                                                             "response_body_asn", "302", 3, 5, params)
 
     #  Action: Response  | Event: Argument | Count: Method
     def test_response_action_event_argument_count_by_method(self, cli, target):
-        params = [{"params": {"arg_event_res_method": f"val-{i}"}} for i in range(15 + 2)]
+        params = [{"params": {"arg_event_res_method": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_argument_method",
-                                                             "response_body_method", "302", 9, 15, params)
+                                                             "response_body_method", "302", 3, 5, params)
 
     #  Action: Response  | Event: Argument | Count: Company
     def test_response_action_event_argument_count_by_company(self, cli, target):
-        params = [{"params": {"arg_event_res_company": f"val-{i}"}} for i in range(15 + 2)]
+        params = [{"params": {"arg_event_res_company": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_argument_company",
-                                                             "response_body_company", "302", 9, 15, params)
+                                                             "response_body_company", "302", 3, 5, params)
 
     #  Action: Response  | Event: Argument | Count: Country
     def test_response_action_event_argument_count_by_country(self, cli, target):
-        params = [{"params": {"arg_event_res_country": f"val-{i}"}} for i in range(15 + 2)]
+        params = [{"params": {"arg_event_res_country": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_argument_country",
-                                                             "response_body_country", "302", 9, 15, params)
+                                                             "response_body_country", "302", 3, 5, params)
 
     #  Action: Response  | Event: Argument | Count: Authority
     def test_response_action_event_argument_count_by_authority(self, cli, target):
-        params = [{"params": {"arg_event_res_authority": f"val-{i}"}} for i in range(15 + 2)]
+        params = [{"params": {"arg_event_res_authority": f"val-{i}"}} for i in range(5 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_argument_authority",
-                                                             "response_body_authority", "302", 9, 15, params)
+                                                             "response_body_authority", "302", 3, 5, params)
 
     #  Action: Challenge  | Event: Argument | Count: Ip
     def test_challenge_action_event_argument_count_by_ip(self, cli, target):
@@ -229,45 +229,45 @@ class TestRateLimitArgument:
 
     #  Action: Ban | Subaction: 503 | Event: Argument | Count: Ip
     def test_ban_action_event_argument_subaction_503_count_by_ip(self, cli, target):
-        params = [{"params": {"arg_event_ban_503_ip": f"val-{i}"}} for i in range(10 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_argument_sub_503_count_by_ip", 8, 10,
+        params = [{"params": {"arg_event_ban_503_ip": f"val-{i}"}} for i in range(4 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_argument_sub_503_count_by_ip", 4, 4,
                                                                  params)
 
     #  Action: Ban | Subaction: 503 | Event: Argument | Count: Path
     def test_ban_action_event_argument_subaction_503_count_by_path(self, cli, target):
-        params = [{"params": {"arg_event_ban_503_path": f"val-{i}"}} for i in range(10 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_argument_sub_503_count_by_path", 8,
-                                                                 10, params)
+        params = [{"params": {"arg_event_ban_503_path": f"val-{i}"}} for i in range(4 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_argument_sub_503_count_by_path", 4,
+                                                                 4, params)
 
     #  Action: Ban | Subaction: 503 | Event: Argument | Count: Asn
     def test_ban_action_event_argument_subaction_503_count_by_asn(self, cli, target):
-        params = [{"params": {"arg_event_ban_503_asn": f"val-{i}"}} for i in range(10 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_argument_sub_503_count_by_asn", 8,
-                                                                 10, params)
+        params = [{"params": {"arg_event_ban_503_asn": f"val-{i}"}} for i in range(4 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_argument_sub_503_count_by_asn", 4,
+                                                                 4, params)
 
     #  Action: Ban | Subaction: 503 | Event: Argument | Count: Method
     def test_ban_action_event_argument_subaction_503_count_by_method(self, cli, target):
-        params = [{"params": {"arg_event_ban_503_method": f"val-{i}"}} for i in range(10 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_argument_sub_503_count_by_method", 8,
-                                                                 10, params)
+        params = [{"params": {"arg_event_ban_503_method": f"val-{i}"}} for i in range(4 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_argument_sub_503_count_by_method", 4,
+                                                                 4, params)
 
     #  Action: Ban | Subaction: 503 | Event: Argument | Count: Company
     def test_ban_action_event_argument_subaction_503_count_by_company(self, cli, target):
-        params = [{"params": {"arg_event_ban_503_company": f"val-{i}"}} for i in range(10 + 2)]
+        params = [{"params": {"arg_event_ban_503_company": f"val-{i}"}} for i in range(4 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_argument_sub_503_count_by_company",
-                                                                 8, 10, params)
+                                                                 4, 4, params)
 
     #  Action: Ban | Subaction: 503 | Event: Argument | Count: Country
     def test_ban_action_event_argument_subaction_503_count_by_country(self, cli, target):
-        params = [{"params": {"arg_event_ban_503_country": f"val-{i}"}} for i in range(10 + 2)]
+        params = [{"params": {"arg_event_ban_503_country": f"val-{i}"}} for i in range(4 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_argument_sub_503_count_by_country",
-                                                                 8, 10, params)
+                                                                 4, 4, params)
 
     #  Action: Ban | Subaction: 503 | Event: Argument | Count: Authority
     def test_ban_action_event_argument_subaction_503_count_by_authority(self, cli, target):
-        params = [{"params": {"arg_event_ban_503_authority": f"val-{i}"}} for i in range(10 + 2)]
+        params = [{"params": {"arg_event_ban_503_authority": f"val-{i}"}} for i in range(4 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_argument_sub_503_count_by_authority",
-                                                                 8, 10, params)
+                                                                 4, 4, params)
 
     #  Action: Ban | Subaction: Challenge | Event: Argument | Count: Ip
     def test_ban_action_event_argument_subaction_challenge_count_by_ip(self, cli, target):

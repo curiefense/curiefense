@@ -61,65 +61,57 @@ class RateLimitHTTPHelper:
         # RL scope
         add_rl_rule(
             path="test_503_action_event_http_request_count_by_ip",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=5,
             key=[{"attrs": 'ip'}]
         ),
-
-        add_rl_rule(
-            path="test_503_action_event_http_request_count_by_header",
-            ttl=3,
-            limit=8,
-            key=[{"attrs": 'ip'}]
-        ),
-
 
         add_rl_rule(
             path="test_503_action_event_http_request_count_by_asn",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=5,
             key=[{"attrs": 'asn'}]
         ),
         add_rl_rule(
             path="test_503_action_event_http_request_count_by_path",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=5,
             key=[{"attrs": 'path'}]
         ),
         add_rl_rule(
             path="test_503_action_event_http_request_count_by_query",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=5,
             key=[{"attrs": 'query'}]
         ),
         add_rl_rule(
             path="test_503_action_event_http_request_count_by_country",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=5,
             key=[{"attrs": 'country'}]
         ),
         add_rl_rule(
             path="test_503_action_event_http_request_count_by_company",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=5,
             key=[{"attrs": 'company'}]
         ),
         add_rl_rule(
             path="test_503_action_event_http_request_count_by_uri",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=5,
             key=[{"attrs": 'uri'}]
         ),
         add_rl_rule(
             path="test_503_action_event_http_request_count_by_method",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=5,
             key=[{"attrs": 'method'}]
         ),
         add_rl_rule(
             path="test_503_action_event_http_request_count_by_authority",
-            ttl=3,
-            limit=8,
+            ttl=2,
+            limit=5,
             key=[{"attrs": 'authority'}]
         ),
         add_rl_rule(
@@ -188,8 +180,8 @@ class RateLimitHTTPHelper:
 
         add_rl_rule(
             path="test_response_http_ip",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=4,
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_ip"},
             key=[{"attrs": "ip"}]
@@ -197,8 +189,8 @@ class RateLimitHTTPHelper:
 
         add_rl_rule(
             path="test_response_http_uri",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=4,
             action_ext=({"type": "response"}),
             param_ext={"status": "503", "content": "response_body_uri"},
             key=[{"attrs": "uri"}]
@@ -206,8 +198,8 @@ class RateLimitHTTPHelper:
 
         add_rl_rule(
             path="test_response_http_query",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=4,
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_query"},
             key=[{"attrs": "query"}]
@@ -215,8 +207,8 @@ class RateLimitHTTPHelper:
 
         add_rl_rule(
             path="test_response_http_path",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=4,
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_path"},
             key=[{"attrs": "path"}]
@@ -224,8 +216,8 @@ class RateLimitHTTPHelper:
 
         add_rl_rule(
             path="test_response_http_method",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=4,
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_method"},
             key=[{"attrs": "method"}]
@@ -233,8 +225,8 @@ class RateLimitHTTPHelper:
 
         add_rl_rule(
             path="test_response_http_asn",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=4,
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_asn"},
             key=[{"attrs": "asn"}]
@@ -242,8 +234,8 @@ class RateLimitHTTPHelper:
 
         add_rl_rule(
             path="test_response_http_country",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=4,
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_country"},
             key=[{"attrs": "country"}]
@@ -251,8 +243,8 @@ class RateLimitHTTPHelper:
 
         add_rl_rule(
             path="test_response_http_company",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=4,
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_company"},
             key=[{"attrs": "company"}]
@@ -260,8 +252,8 @@ class RateLimitHTTPHelper:
 
         add_rl_rule(
             path="test_response_http_authority",
-            ttl=9,
-            limit=15,
+            ttl=3,
+            limit=4,
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_authority"},
             key=[{"attrs": "authority"}]
@@ -408,74 +400,74 @@ class RateLimitHTTPHelper:
 
         add_rl_rule(
             path="test_ban_http_subaction_503_count_by_ip",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "ip"}]
         ),
         add_rl_rule(
             path="test_ban_http_subaction_503_count_by_uri",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "uri"}]
         ),
         add_rl_rule(
             path="test_ban_http_subaction_503_count_by_query",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "query"}]
         ),
         add_rl_rule(
             path="test_ban_http_subaction_503_count_by_path",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
             path="test_ban_http_subaction_503_count_by_asn",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "asn"}]
         ),
         add_rl_rule(
             path="test_ban_http_subaction_503_count_by_method",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "method"}]
         ),
         add_rl_rule(
             path="test_ban_http_subaction_503_count_by_company",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "company"}]
         ),
         add_rl_rule(
             path="test_ban_http_subaction_503_count_by_country",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "country"}]
         ),
         add_rl_rule(
             path="test_ban_http_subaction_503_count_by_authority",
-            ttl=7,
-            limit=10,
+            ttl=2,
+            limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(8)},
+            param_ext={"ttl": str(4)},
             key=[{"attrs": "authority"}]
         ),
         add_rl_rule(
@@ -742,103 +734,94 @@ class RateLimitHTTPHelper:
         ),
         add_rl_rule(
             path="test_ban_http_sub_redirect_count_by_ip",
-            ttl=10,
-            limit=20,
+            ttl=3,
+            limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "ip"}]
         ),
         add_rl_rule(
             path="test_ban_http_sub_redirect_count_by_asn",
-            ttl=10,
-            limit=20,
+            ttl=3,
+            limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "asn"}]
         ),
         add_rl_rule(
             path="test_ban_http_sub_redirect_count_by_country",
-            ttl=10,
-            limit=20,
+            ttl=3,
+            limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "country"}]
         ),
         add_rl_rule(
             path="test_ban_http_sub_redirect_count_by_path",
-            ttl=10,
-            limit=20,
+            ttl=3,
+            limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
             path="test_ban_http_sub_redirect_count_by_query",
-            ttl=10,
-            limit=20,
+            ttl=3,
+            limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "query"}]
         ),
         add_rl_rule(
             path="test_ban_http_sub_redirect_count_by_uri",
-            ttl=10,
-            limit=20,
+            ttl=3,
+            limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "uri"}]
         ),
         add_rl_rule(
             path="test_ban_http_sub_redirect_count_by_company",
-            ttl=10,
-            limit=20,
+            ttl=3,
+            limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "company"}]
         ),
         add_rl_rule(
             path="test_ban_http_sub_redirect_count_by_method",
-            ttl=10,
-            limit=20,
+            ttl=3,
+            limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "method"}]
         ),
         add_rl_rule(
             path="test_ban_http_sub_redirect_count_by_authority",
-            ttl=10,
-            limit=20,
+            ttl=3,
+            limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(11)},
+            param_ext={"ttl": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "authority"}]
         )
-
-
-
-
-
-
-
-
-
         rl_urlmap = [
             {
                 "id": "__default__",
@@ -873,7 +856,7 @@ class RateLimitHTTPHelper:
 
 
 @pytest.fixture(scope="class")
-def ratelimit_http_config(cli, target):
+def ratelimit_http_config(cli, target, api_config):
     cli.revert_and_enable()
     # Add new RL rules
     rl_rules = cli.call(f"doc get {BaseHelper.TEST_CONFIG_NAME} ratelimits")
@@ -886,5 +869,5 @@ def ratelimit_http_config(cli, target):
     rl_rules.extend(rules_without_include_exclude)
     cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} ratelimits /dev/stdin", inputjson=rl_rules)
     # Apply NEW_URLMAP
-    cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} urlmaps /dev/stdin", inputjson=new_urlmap)
+    cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['url_map']} /dev/stdin", inputjson=new_urlmap)
     cli.publish_and_apply()
