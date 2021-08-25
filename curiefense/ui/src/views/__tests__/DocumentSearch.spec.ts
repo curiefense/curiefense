@@ -288,7 +288,7 @@ describe('DocumentSearch.vue', () => {
         'notes': '',
         'exclude': [],
         'include': ['all'],
-        'name': 'flow control',
+        'name': 'flow control policy',
         'key': [
           {'headers': 'something'},
         ],

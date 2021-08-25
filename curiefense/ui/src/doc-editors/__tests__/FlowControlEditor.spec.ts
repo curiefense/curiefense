@@ -18,7 +18,7 @@ describe('FlowControlEditor.vue', () => {
       {
         'exclude': ['devops', 'internal'],
         'include': ['china'],
-        'name': 'flow control',
+        'name': 'flow control policy',
         'key': [
           {
             'attrs': 'ip',
@@ -50,7 +50,7 @@ describe('FlowControlEditor.vue', () => {
           },
         ],
         'active': true,
-        'notes': 'New Flow Control Notes and Remarks',
+        'notes': 'New Flow Control Policy Notes and Remarks',
         'action': {
           'type': 'default',
         },

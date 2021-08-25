@@ -99,10 +99,10 @@ describe('RequestsUtils.ts', () => {
     test('should generate a new Rate Limit', async () => {
       const document = DatasetsUtils.newDocEntryFactory.flowcontrol()
       expect(regexUUID2.test(document['id'])).toBeTruthy()
-      expect(document['name']).toEqual('New Flow Control')
+      expect(document['name']).toEqual('New Flow Control Policy')
       expect(document['ttl']).toEqual(60)
       expect(document['active']).toEqual(true)
-      expect(document['notes']).toEqual('New Flow Control Notes and Remarks')
+      expect(document['notes']).toEqual('New Flow Control Policy Notes and Remarks')
       expect(document['key']).toEqual([{'attrs': 'ip'}])
       expect(document['action']).toEqual({'type': 'default'})
       expect(document['exclude']).toEqual([])

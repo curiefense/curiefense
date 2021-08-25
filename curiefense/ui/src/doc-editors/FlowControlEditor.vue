@@ -7,14 +7,14 @@
             <div class="field">
               <label class="label is-small">
                 Name
-                <span class="has-text-grey is-pulled-right document-id" title="Flow control id">
+                <span class="has-text-grey is-pulled-right document-id" title="Flow control policy id">
                     {{ localDoc.id }}
                   </span>
               </label>
               <div class="control">
                 <input class="input is-small document-name"
-                       title="Flow control name"
-                       placeholder="Flow control name"
+                       title="Flow control policy name"
+                       placeholder="Flow control policy name"
                        @change="emitDocUpdate"
                        v-model="localDoc.name"/>
               </div>
@@ -35,8 +35,8 @@
               <div class="control suffix seconds-suffix">
                 <input class="input is-small document-ttl"
                        type="number"
-                       title="Flow control duration"
-                       placeholder="Flow control duration"
+                       title="Flow control policy duration"
+                       placeholder="Flow control policy duration"
                        @change="emitDocUpdate"
                        v-model.number="localDoc.ttl">
               </div>

@@ -43,8 +43,8 @@ const titles: { [key: string]: string } = {
   'wafrules-singular': 'WAF Rule',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
-  'flowcontrol': 'Flow Control',
-  'flowcontrol-singular': 'Flow Control',
+  'flowcontrol': 'Flow Control Policy',
+  'flowcontrol-singular': 'Flow Control Policy',
 }
 
 const limitOptionsTypes = {
@@ -175,10 +175,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
   flowcontrol(): FlowControl {
     return {
       'id': generateUUID2(),
-      'name': 'New Flow Control',
+      'name': 'New Flow Control Policy',
       'ttl': 60,
       'active': true,
-      'notes': 'New Flow Control Notes and Remarks',
+      'notes': 'New Flow Control Policy Notes and Remarks',
       'key': [
         {
           'attrs': 'ip',
