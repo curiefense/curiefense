@@ -9,7 +9,7 @@ DOCUMENTS_PATH = {
     "wafrules": "config/json/waf-signatures.json",
     "wafpolicies": "config/json/waf-profiles.json",
     "aclpolicies": "config/json/acl-profiles.json",
-    "globalfilters": "config/json/globalfilter-lists.json",
+    "tagrules": "config/json/globalfilter-lists.json",
     "flowcontrol": "config/json/flow-control.json",
 }
 
