@@ -36,6 +36,10 @@ def pytest_addoption(parser):
         action="store",
         default="all",
         help="please enter module name as a must param: --module")
+    parser.addoption(
+        "--api_version",
+        action="store",
+        help="please enter api version as a must param: --api_version")
 
 
 @pytest.fixture(scope='session')
