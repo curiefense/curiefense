@@ -66,7 +66,7 @@ def test_config_create_fail_clean(curieapi_empty):
     conf = {
         "meta": {"id": "pytest", "description": "pytest"},
         "documents": {
-            "aclpolicies": [
+            "aclprofiles": [
                 {"id": "qsmkldjqsdk", "name": "aqzdzd"},
                 {"id": "sqd", "name": "qds"},
             ],
@@ -82,7 +82,7 @@ def test_config_create_fail_clean(curieapi_empty):
     curieapi_empty.configs.create(
         body={"meta": {"id": "pytest3", "description": "pytest3"}}
     )
-    r = curieapi_empty.documents.get("pytest3", "aclpolicies")
+    r = curieapi_empty.documents.get("pytest3", "aclprofiles")
     assert r.body == []
 
 

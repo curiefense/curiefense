@@ -57,4 +57,4 @@ There are many ways to get involved with Curiefense.
 
 <br>
 
-This project is named after the famous scientist [Marie Curie](https://www.curiefense.io/marie-curie). It began in intensive work sessions at Malakoff France, close to her home and laboratory in the outskirts of Paris, and is being released on her birthday (November 7th).
+This project is named after the famous scientist [Marie Salomea Skłodowska Curie](https://www.curiefense.io/marie-curie). It began in intensive work sessions at Malakoff France, close to her home and laboratory in the outskirts of Paris, and is being released on her birthday (November 7th).

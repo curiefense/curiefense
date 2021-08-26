@@ -3,10 +3,10 @@ import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {describe, test, expect, beforeEach} from '@jest/globals'
 import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
-import {ACLPolicy} from '@/types'
+import {ACLProfile} from '@/types'
 
 describe('ACLEditor.vue', () => {
-  let docs: ACLPolicy[]
+  let docs: ACLProfile[]
   let wrapper: Wrapper<Vue>
   beforeEach(() => {
     docs = [

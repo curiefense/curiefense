@@ -3,7 +3,7 @@ import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals
 import {shallowMount, Wrapper} from '@vue/test-utils'
 import axios from 'axios'
 import Vue from 'vue'
-import {ACLPolicy, BasicDocument, Branch, FlowControl, RateLimit, GlobalFilter, SecurityPolicy, WAFPolicy} from '@/types'
+import {ACLProfile, BasicDocument, Branch, FlowControl, RateLimit, GlobalFilter, SecurityPolicy, WAFPolicy} from '@/types'
 
 jest.useFakeTimers()
 jest.mock('axios')
@@ -12,7 +12,7 @@ describe('DocumentSearch.vue', () => {
   let wrapper: Wrapper<Vue>
   let mockRouter
   let gitData: Branch[]
-  let aclDocs: ACLPolicy[]
+  let aclDocs: ACLProfile[]
   let profilingListDocs: GlobalFilter[]
   let securityPoliciesDocs: SecurityPolicy[]
   let flowControlDocs: FlowControl[]
@@ -22,7 +22,7 @@ describe('DocumentSearch.vue', () => {
     gitData = [
       {
         'id': 'master',
-        'description': 'Update entry [__default__] of document [aclpolicies]',
+        'description': 'Update entry [__default__] of document [aclprofiles]',
         'date': '2020-11-10T15:49:17+02:00',
         'logs': [
           {
@@ -31,7 +31,7 @@ describe('DocumentSearch.vue', () => {
             'parents': [
               'fc47a6cd9d7f254dd97875a04b87165cc484e075',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -41,7 +41,7 @@ describe('DocumentSearch.vue', () => {
             'parents': [
               '5aba4a5b9d6faea1896ee8965c7aa651f76af63c',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -51,7 +51,7 @@ describe('DocumentSearch.vue', () => {
             'parents': [
               '277c5d7bd0e2eb4b9d2944f7eefdfadf37ba8581',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -61,7 +61,7 @@ describe('DocumentSearch.vue', () => {
             'parents': [
               '878b47deeddac94625fe7c759786f2df885ec541',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -71,7 +71,7 @@ describe('DocumentSearch.vue', () => {
             'parents': [
               '93c180513fe7edeaf1c0ca69a67aa2a11374da4f',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -81,7 +81,7 @@ describe('DocumentSearch.vue', () => {
             'parents': [
               '1662043d2a18d6ad2c9c94d6f826593ff5506354',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -357,7 +357,7 @@ describe('DocumentSearch.vue', () => {
         return Promise.resolve({data: gitData})
       }
       const branch = (wrapper.vm as any).selectedBranch
-      if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
         return Promise.resolve({data: aclDocs})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/`) {
@@ -421,8 +421,8 @@ describe('DocumentSearch.vue', () => {
   })
 
   test('should display all documents on startup', () => {
-    expect(isItemInFilteredDocs(aclDocs[0], 'aclpolicies')).toBeTruthy()
-    expect(isItemInFilteredDocs(aclDocs[1], 'aclpolicies')).toBeTruthy()
+    expect(isItemInFilteredDocs(aclDocs[0], 'aclprofiles')).toBeTruthy()
+    expect(isItemInFilteredDocs(aclDocs[1], 'aclprofiles')).toBeTruthy()
     expect(isItemInFilteredDocs(profilingListDocs[0], 'globalfilters')).toBeTruthy()
     expect(isItemInFilteredDocs(profilingListDocs[1], 'globalfilters')).toBeTruthy()
     expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
@@ -477,7 +477,7 @@ describe('DocumentSearch.vue', () => {
 
     // check that security policy exists without duplicated connections
     expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
-    expect(connectionsCell.text()).toContain(`ACL Policies:${wantedIDsACL.join('')}`)
+    expect(connectionsCell.text()).toContain(`ACL Profiles:${wantedIDsACL.join('')}`)
     expect(connectionsCell.text()).toContain(`WAF Policies:${wantedIDsWAF.join('')}`)
     expect(connectionsCell.text()).toContain(`Rate Limits:${wantedIDsRateLimit.join('')}`)
     expect(doc.connectedACL).toEqual(wantedIDsACL)
@@ -506,8 +506,8 @@ describe('DocumentSearch.vue', () => {
       options.at(0).setSelected()
       await Vue.nextTick()
 
-      expect(isItemInFilteredDocs(aclDocs[0], 'aclpolicies')).toBeTruthy()
-      expect(isItemInFilteredDocs(aclDocs[1], 'aclpolicies')).toBeTruthy()
+      expect(isItemInFilteredDocs(aclDocs[0], 'aclprofiles')).toBeTruthy()
+      expect(isItemInFilteredDocs(aclDocs[1], 'aclprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(profilingListDocs[0], 'globalfilters')).toBeTruthy()
       expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
       expect(isItemInFilteredDocs(wafDocs[0], 'wafpolicies')).toBeTruthy()
@@ -527,8 +527,9 @@ describe('DocumentSearch.vue', () => {
       (searchInput.element as HTMLInputElement).value = 'default'
       searchInput.trigger('input')
       await Vue.nextTick()
-      expect(isItemInFilteredDocs(aclDocs[0], 'aclpolicies')).toBeTruthy()
-      expect(isItemInFilteredDocs(aclDocs[1], 'aclpolicies')).toBeTruthy()
+
+      expect(isItemInFilteredDocs(aclDocs[0], 'aclprofiles')).toBeTruthy()
+      expect(isItemInFilteredDocs(aclDocs[1], 'aclprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(profilingListDocs[0], 'globalfilters')).toBeTruthy()
       expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
       expect(isItemInFilteredDocs(wafDocs[0], 'wafpolicies')).toBeTruthy()
@@ -612,7 +613,7 @@ describe('DocumentSearch.vue', () => {
       (searchInput.element as HTMLInputElement).value = 'china'
       searchInput.trigger('input')
       await Vue.nextTick()
-      expect(isItemInFilteredDocs(aclDocs[0], 'aclpolicies')).toBeTruthy()
+      expect(isItemInFilteredDocs(aclDocs[0], 'aclprofiles')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(1)
     })
 
@@ -628,7 +629,7 @@ describe('DocumentSearch.vue', () => {
       (searchInput.element as HTMLInputElement).value = 'default'
       searchInput.trigger('input')
       await Vue.nextTick()
-      expect(isItemInFilteredDocs(aclDocs[1], 'aclpolicies')).toBeTruthy()
+      expect(isItemInFilteredDocs(aclDocs[1], 'aclprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
       expect(isItemInFilteredDocs(rateLimitDocs[0], 'ratelimits')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(3)

@@ -282,14 +282,14 @@
                             <hr/>
                             <div class="field">
                               <label class="label is-small">
-                                ACL Policy
+                                ACL Profile
                               </label>
                               <div class="control is-expanded">
                                 <div class="select is-fullwidth is-small">
                                   <select v-model="mapEntry.acl_profile"
                                           @change="emitDocUpdate"
                                           class="current-entry-acl-selection"
-                                          title="ACL policy">
+                                          title="ACL profile">
                                     <option v-for="acl in aclProfileNames" :value="acl[0]" :key="acl[0]">
                                       {{ acl[1] }}
                                     </option>
@@ -344,7 +344,7 @@ import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import RequestsUtils from '@/assets/RequestsUtils.ts'
 import Vue, {VueConstructor} from 'vue'
-import {ACLPolicy, RateLimit, SecurityPolicy, SecurityPolicyEntryMatch, WAFPolicy} from '@/types'
+import {ACLProfile, RateLimit, SecurityPolicy, SecurityPolicyEntryMatch, WAFPolicy} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 
@@ -369,7 +369,7 @@ export default (Vue as VueConstructor<Vue & {
 
       // for SecurityPolicy drop downs
       wafProfileNames: [] as [WAFPolicy['id'], WAFPolicy['name']][],
-      aclProfileNames: [] as [ACLPolicy['id'], ACLPolicy['name']][],
+      aclProfileNames: [] as [ACLProfile['id'], ACLProfile['name']][],
       limitRuleNames: [] as RateLimit[],
       domainNames: [] as SecurityPolicy['match'][],
       entriesMatchNames: [] as SecurityPolicyEntryMatch['match'][],
@@ -558,9 +558,9 @@ export default (Vue as VueConstructor<Vue & {
 
       RequestsUtils.sendRequest({
         methodName: 'GET',
-        url: `configs/${branch}/d/aclpolicies/`,
+        url: `configs/${branch}/d/aclprofiles/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<ACLPolicy[]>) => {
+      }).then((response: AxiosResponse<ACLProfile[]>) => {
         this.aclProfileNames = _.sortBy(_.map(response.data, (entity) => {
           return [entity.id, entity.name]
         }), (e) => {

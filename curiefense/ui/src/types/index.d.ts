@@ -54,7 +54,7 @@ declare module CuriefenseClient {
     }
   }
 
-  type ACLPolicyFilter = 'allow' | 'allow_bot' | 'deny_bot' | 'bypass' | 'force_deny' | 'deny'
+  type ACLProfileFilter = 'allow' | 'allow_bot' | 'deny_bot' | 'bypass' | 'force_deny' | 'deny'
 
   type IncludeExcludeType = 'include' | 'exclude'
 
@@ -68,9 +68,9 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
-  type Document = BasicDocument & (ACLPolicy | FlowControl | GlobalFilter | RateLimit | SecurityPolicy | WAFPolicy | WAFRule)
+  type Document = BasicDocument & (ACLProfile | FlowControl | GlobalFilter | RateLimit | SecurityPolicy | WAFPolicy | WAFRule)
 
-  type DocumentType = 'aclpolicies' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'securitypolicies' | 'wafpolicies' | 'wafrules'
+  type DocumentType = 'aclprofiles' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'securitypolicies' | 'wafpolicies' | 'wafrules'
 
   // Document types helpers - END
 
@@ -81,7 +81,7 @@ declare module CuriefenseClient {
     name: string
   }
 
-  type ACLPolicy = {
+  type ACLProfile = {
     id: string
     name: string
     allow: string[]

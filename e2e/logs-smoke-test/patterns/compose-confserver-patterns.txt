@@ -1,1 +1,99 @@
-curiefense-confserver-patterns.txt
+^Config already present in /config/confdb, exiting
+^Configuration of bucket \S+ successful
+^Trying to request export to bucket \S+
+^Export to bucket \S+ successful
+^Trying to configure bucket \S+\.\.\.
+^Checking for script in /app/prestart.sh
+^Running script /app/prestart.sh
+^Enumerating objects: \S+ done.
+^Counting objects: .* done.
+^Delta compression using up to \S+ threads
+^Compressing objects: .* done.
+^Writing objects: .* done.
+^Total \S+ \(delta \S+\), reused \S+ \(delta \S+\)
+^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "(PUT|GET|POST|DELETE) /api/v2/\S* HTTP/1.[01]" (200|308) .*
+^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "GET / HTTP/1.[01]" 404 .*
+^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "GET /favicon.ico HTTP/1.[01]" 404 .*
+^[0-9]+.[0-9]+.[0-9]+.[0-9]+ - - \[\S+ \S+\] "GET /swaggerui/\S* HTTP/1.[01]" .*
+^\{"ok": ?true.*
+^\[uWSGI\] getting INI configuration from /app/uwsgi.ini
+^\[uWSGI\] getting INI configuration from /etc/uwsgi/uwsgi.ini
+^;uWSGI instance configuration
+^\[uwsgi\]\s*$
+^cheaper = 2
+^ini = /app/uwsgi.ini
+^module = main
+^callable = app
+^processes = 16
+^ini = /etc/uwsgi/uwsgi.ini
+^socket = /uwsgi/uwsgi.sock
+^chown-socket = nginx:nginx
+^chmod-socket = 664
+^hook-master-start = unix_signal:15 gracefully_kill_them_all
+^need-app = true
+^die-on-term = true
+^show-config = true
+^;end of configuration
+^\s*$
+^\*+ Starting uWSGI \S+ \(64bit\) on \[\S+ \S+\s+\S+ \S+ \S+\] \*+
+^compiled with version: 8.3.0 on \S+ \S+ \S+ \S+:\S+:\S+
+^os: Linux-\s+ #S+ \S+ \S+ \S+ \S+ \S+ \S+
+^nodename: \S+
+^machine: x86_64
+^clock source: unix
+^pcre jit disabled
+^detected number of CPU cores: \S+
+^current working directory: /app
+^detected binary path: /usr/local/bin/uwsgi
+^your memory page size is \S+ bytes
+^detected max file descriptor number: \S+
+^lock engine: pthread robust mutexes
+^thunder lock: disabled \(you can enable it with --thunder-lock\)
+^uwsgi socket 0 bound to UNIX address /uwsgi/uwsgi.sock fd 3
+^uWSGI running as root, you can use --uid/--gid/--chroot options
+^\*+ WARNING: you are running uWSGI as root !!! \(use the --uid flag\) \*+
+^Python version: \S+ \(default, \S+ \S+ \S+ \S+  \[GCC \S+
+^\S+ \S+ \[warn\] \S+: \S+ an upstream response is buffered to a temporary file /var/cache/nginx/uwsgi_temp/\S+ while reading upstream
+^\S+ \S+ \[warn\] \S+: \S+ a client request body is buffered to a temporary file /var/cache/nginx/client_temp/\S+
+^\*+ Python threads support is disabled. You can enable it with --enable-threads \*+
+^Python main interpreter initialized at \S+
+^your server socket listen backlog is limited to 100 connections
+^your mercy for graceful operations on workers is 60 seconds
+^mapped \S+ bytes \S+ KB\) for \S+ cores
+^\*+ Operational MODE: preforking \*+
+^WSGI app 0 \(mountpoint=''\) ready in \S+ seconds on interpreter \S+ pid: \S+ \(default app\)
+^\*+ uWSGI is running in multiple interpreter mode \*+
+^spawned uWSGI master process \(pid: \S+
+^spawned uWSGI worker \S+ \(pid: \S+ cores: \S+
+^running "unix_signal:15 gracefully_kill_them_all" \(master-start\)...
+^\[pid: \S+|app: \S+|req: \S+/\S+\] \S+ \(\) \{\S+ vars in \S+ bytes\} [[^]]+] (GET|PUT|DELETE|POST) /api/v2/\S* => generated \S+ bytes in \S+ msecs (HTTP/1.[01] 200)
+^Config directory /config/confdb is empty
+^Cloning configuration from /bootstrap/confdb.bundle
+^Cloning into bare repository '/config/confdb'...
+^Initialized empty Git repository in /config/confdb/
+^Cloning into 'bootstrap-repo'...
+^warning: You appear to have cloned an empty repository.
+^done.
+^Switched to a new branch '\S+'
+^\[_internal_db \(root-commit\) \S+\] Initial empty content
+^\[_internal_db \S+\] Added database \[system\]
+^ \S+ files? changed, \S+ insertions?\(\+\)
+^ \S+ files? changed, \S+ insertions?\(\+\), \S+ deletions\(-\)
+^ create mode 100644 system
+^HEAD is now at \S+ Initial empty content
+^\[_internal_base \S+\] Initial empty config
+^ create mode 100644 config/.*.json
+^ create mode 100644 config/.*.mmdb
+^Your branch is based on 'origin/master', but the upstream is gone.
+^  \(use "git branch --unset-upstream" to fixup\)
+^\[master \S+\] Create config \[master\]
+^ rewrite config/.*.json \(\S+%\)
+^To /config/confdb
+^ \* \[new branch\]      \S+ -> \S+
+^os: Linux-.*
+^\S+-\S+-\S+ \S+:\S+:\S+,\S+ INFO
+^\S+-\S+-\S+ \S+:\S+:\S+,\S+ CRIT Server 'unix_http_server' running without any HTTP authentication checking
+^Gracefully killing worker \S+ \(pid: \S+\)...
+^worker \S+ buried after \S+ seconds
+^goodbye to uWSGI.$
+^\S+ \S+ \S+ \S+:\S+:\S+ \S+ - graceful shutdown triggered...$

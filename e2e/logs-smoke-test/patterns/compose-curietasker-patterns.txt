@@ -1,1 +1,6 @@
-curiefense-curietasker-patterns.txt
+^Determining whether the tasks DB should be created...
+^Initializing the tasks database...
+^\{"ok": true\}
+^The tasks database has been created.
+^The tasks database already exists.
+^\S+ \S+ INFO : 

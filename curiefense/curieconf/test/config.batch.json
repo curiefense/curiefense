@@ -377,7 +377,7 @@
                 }
             }
         ],
-        "aclpolicies": [
+        "aclprofiles": [
             {
                 "id": "__default__",
                 "name": "default-acl",

@@ -1,7 +1,7 @@
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount, Wrapper} from '@vue/test-utils'
-import {ACLPolicy, RateLimit, SecurityPolicy, WAFPolicy} from '@/types'
+import {ACLProfile, RateLimit, SecurityPolicy, WAFPolicy} from '@/types'
 import axios from 'axios'
 import Vue from 'vue'
 import _ from 'lodash'
@@ -10,7 +10,7 @@ jest.mock('axios')
 
 describe('SecurityPoliciesEditor.vue', () => {
   let securityPoliciesDocs: SecurityPolicy[]
-  let aclDocs: ACLPolicy[]
+  let aclDocs: ACLProfile[]
   let wafDocs: WAFPolicy[]
   let rateLimitsDocs: RateLimit[]
   let wrapper: Wrapper<Vue>
@@ -169,7 +169,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         return Promise.resolve({data: []})
       }
       const branch = (wrapper.vm as any).selectedBranch
-      if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
         }
@@ -216,7 +216,7 @@ describe('SecurityPoliciesEditor.vue', () => {
   })
 
   test('should not send new requests to API if document data updates but document ID does not', async () => {
-    // 4 requests - ACL Policies, WAF Policies, Rate Limits, Security Policies
+    // 4 requests - ACL Profiles, WAF Policies, Rate Limits, Security Policies
     expect(axiosGetSpy).toHaveBeenCalledTimes(4)
     securityPoliciesDocs[0] = {
       'id': '__default__',
@@ -251,7 +251,7 @@ describe('SecurityPoliciesEditor.vue', () => {
   })
 
   test('should send a single new request to API if document data updates with new ID', async () => {
-    // 4 requests - ACL Policies, WAF Policies, Rate Limits, Security Policies
+    // 4 requests - ACL Profiles, WAF Policies, Rate Limits, Security Policies
     expect(axiosGetSpy).toHaveBeenCalledTimes(4)
     wrapper.setProps({
       selectedDoc: securityPoliciesDocs[1],
