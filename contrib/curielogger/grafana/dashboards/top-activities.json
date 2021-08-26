@@ -164,10 +164,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "topk(5, sum( rate(curiemetric_session_details_total[1m])) by (urlmap))",
+          "expr": "topk(5, sum( rate(curiemetric_session_details_total[1m])) by (securitypolicy))",
           "instant": false,
           "interval": "",
-          "legendFormat": "{{ urlmap }}",
+          "legendFormat": "{{ securitypolicy }}",
           "refId": "B"
         }
       ],
@@ -175,7 +175,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "URLMaps",
+      "title": "SecurityPolicies",
       "tooltip": {
         "shared": true,
         "sort": 0,

@@ -10,7 +10,7 @@ pub mod redis;
 pub mod requestfields;
 pub mod session;
 pub mod tagging;
-pub mod urlmap;
+pub mod securitypolicy;
 pub mod utils;
 pub mod waf;
 
@@ -24,7 +24,7 @@ use interface::{challenge_phase01, challenge_phase02, Action, ActionType, Decisi
 use limit::limit_check;
 use logs::Logs;
 use tagging::tag_request;
-use urlmap::match_urlmap;
+use securitypolicy::match_securitypolicy;
 use utils::RequestInfo;
 use waf::waf_check;
 
@@ -98,15 +98,15 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
     // do all config queries in the lambda once
     // there is a lot of copying taking place, to minimize the lock time
     // this decision should be backed with benchmarks
-    let ((nm, urlmap), (ntags, globalfilter_dec), flows) = match with_config(configpath, logs, |slogs, cfg| {
-        let murlmap = match_urlmap(&reqinfo, cfg, slogs).map(|(nm, um)| (nm, um.clone()));
+    let ((nm, securitypolicy), (ntags, globalfilter_dec), flows) = match with_config(configpath, logs, |slogs, cfg| {
+        let msecuritypolicy = match_securitypolicy(&reqinfo, cfg, slogs).map(|(nm, um)| (nm, um.clone()));
         let nflows = cfg.flows.clone();
         let ntags = tag_request(is_human, &cfg, &reqinfo);
-        (murlmap, ntags, nflows)
+        (msecuritypolicy, ntags, nflows)
     }) {
         Some((Some(stuff), itags, iflows)) => (stuff, itags, iflows),
         Some((None, _, _)) => {
-            logs.debug("Could not find a matching urlmap");
+            logs.debug("Could not find a matching securitypolicy");
             return (Decision::Pass, tags);
         }
         None => {
@@ -116,12 +116,12 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
     };
     logs.debug("request tagged");
     tags.extend(ntags);
-    tags.insert_qualified("urlmap", &nm);
-    tags.insert_qualified("urlmap-entry", &urlmap.name);
-    tags.insert_qualified("aclid", &urlmap.acl_profile.id);
-    tags.insert_qualified("aclname", &urlmap.acl_profile.name);
-    tags.insert_qualified("wafid", &urlmap.waf_profile.id);
-    tags.insert_qualified("wafname", &urlmap.waf_profile.name);
+    tags.insert_qualified("securitypolicy", &nm);
+    tags.insert_qualified("securitypolicy-entry", &securitypolicy.name);
+    tags.insert_qualified("aclid", &securitypolicy.acl_profile.id);
+    tags.insert_qualified("aclname", &securitypolicy.acl_profile.name);
+    tags.insert_qualified("wafid", &securitypolicy.waf_profile.id);
+    tags.insert_qualified("wafname", &securitypolicy.waf_profile.name);
 
     if let Some(dec) = mgh.as_ref().and_then(|gh| {
         reqinfo
@@ -157,16 +157,16 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
     logs.debug("flow checks done");
 
     // limit checks
-    let limit_check = limit_check(logs, &urlmap.name, &reqinfo, &urlmap.limits, &mut tags);
+    let limit_check = limit_check(logs, &securitypolicy.name, &reqinfo, &securitypolicy.limits, &mut tags);
     if let SimpleDecision::Action(action, reason) = limit_check {
         let decision = action.to_decision(is_human, &mgh, &reqinfo.headers, reason);
         if decision.is_final() {
             return (decision, tags);
         }
     }
-    logs.debug(format!("limit checks done ({} limits)", urlmap.limits.len()));
+    logs.debug(format!("limit checks done ({} limits)", securitypolicy.limits.len()));
 
-    let acl_result = check_acl(&tags, &urlmap.acl_profile);
+    let acl_result = check_acl(&tags, &securitypolicy.acl_profile);
     logs.debug(format!("ACL result: {:?}", acl_result));
     // store the check_acl result here
     let blockcode: Option<(i32, Vec<String>)> = match acl_result {
@@ -222,7 +222,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
     logs.debug(format!("ACL checks done {:?}", blockcode));
 
     // if the acl is active, and we had a block result, immediately block
-    if urlmap.acl_active {
+    if securitypolicy.acl_active {
         if let Some((cde, tgs)) = blockcode {
             return (acl_block(true, cde, &tgs), tags);
         }
@@ -230,7 +230,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
 
     // otherwise, run waf_check
     let waf_result = match HSDB.read() {
-        Ok(rd) => waf_check(&reqinfo, &urlmap.waf_profile, rd),
+        Ok(rd) => waf_check(&reqinfo, &securitypolicy.waf_profile, rd),
         Err(rr) => {
             logs.error(format!("Could not get lock on HSDB: {}", rr));
             Ok(())
@@ -250,7 +250,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
             }
             Err(wb) => {
                 let mut action = wb.to_action();
-                action.block_mode = urlmap.waf_active;
+                action.block_mode = securitypolicy.waf_active;
                 Decision::Action(action)
             }
         },

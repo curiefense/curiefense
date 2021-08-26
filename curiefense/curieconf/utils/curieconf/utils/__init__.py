@@ -5,7 +5,7 @@ import pydash as _
 
 DOCUMENTS_PATH = {
     "ratelimits": "config/json/limits.json",
-    "urlmaps": "config/json/urlmap.json",
+    "securitypolicies": "config/json/securitypolicy.json",
     "wafrules": "config/json/waf-signatures.json",
     "wafpolicies": "config/json/waf-profiles.json",
     "aclprofiles": "config/json/acl-profiles.json",

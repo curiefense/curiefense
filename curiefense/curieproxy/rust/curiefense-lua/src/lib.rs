@@ -303,9 +303,9 @@ fn curiefense(lua: &Lua) -> LuaResult<LuaTable> {
         })?,
     )?;
     exports.set(
-        "session_match_urlmap",
+        "session_match_securitypolicy",
         lua.create_function(|lua: &Lua, session_id: LuaValue| {
-            wrap_session_json(lua, session_id, |_, uuid| session::session_match_urlmap(uuid))
+            wrap_session_json(lua, session_id, |_, uuid| session::session_match_securitypolicy(uuid))
         })?,
     )?;
     exports.set(

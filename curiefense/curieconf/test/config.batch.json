@@ -47,7 +47,7 @@
                 }
             }
         ],
-        "urlmaps": [
+        "securitypolicies": [
             {
                 "id": "__default__",
                 "name": "default entry",

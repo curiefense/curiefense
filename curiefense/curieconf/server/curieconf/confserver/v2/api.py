@@ -56,7 +56,7 @@ m_limit = api.model(
 )
 
 
-# urlmap
+# securitypolicy
 
 m_secprofilemap = api.model(
     "Security Profile Map",
@@ -75,8 +75,8 @@ m_map = api.model(
     "Security Profile Map", {"*": fields.Wildcard(fields.Nested(m_secprofilemap))}
 )
 
-m_urlmap = api.model(
-    "URL Map",
+m_securitypolicy = api.model(
+    "Security Policy",
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
@@ -178,7 +178,7 @@ m_flowcontrol = api.model(
 
 models = {
     "ratelimits": m_limit,
-    "urlmaps": m_urlmap,
+    "securitypolicies": m_securitypolicy,
     "wafrules": m_wafrule,
     "wafpolicies": m_wafpolicy,
     "aclprofiles": m_aclprofile,
@@ -331,9 +331,9 @@ with open(acl_profile_file_path) as json_file:
 ratelimits_file_path = (base_path / "../json/rate-limits.schema").resolve()
 with open(ratelimits_file_path) as json_file:
     ratelimits_schema = json.load(json_file)
-urlmaps_file_path = (base_path / "../json/url-maps.schema").resolve()
-with open(urlmaps_file_path) as json_file:
-    urlmaps_schema = json.load(json_file)
+securitypolicies_file_path = (base_path / "./json/security-policies.schema").resolve()
+with open(securitypolicies_file_path) as json_file:
+    securitypolicies_schema = json.load(json_file)
 waf_policy_file_path = (base_path / "../json/waf-policy.schema").resolve()
 with open(waf_policy_file_path) as json_file:
     waf_policy_schema = json.load(json_file)
@@ -349,7 +349,7 @@ with open(waf_rule_file_path) as json_file:
 
 schema_type_map = {
     "ratelimits": ratelimits_schema,
-    "urlmaps": urlmaps_schema,
+    "securitypolicies": securitypolicies_schema,
     "wafpolicies": waf_policy_schema,
     "aclprofiles": acl_profile_schema,
     "globalfilters": globalfilters_schema,

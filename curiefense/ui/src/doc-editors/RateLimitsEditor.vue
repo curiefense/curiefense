@@ -161,8 +161,8 @@
             </div>
           </div>
           <div>
-            <div class="has-text-left has-text-weight-bold pb-3">Connections to URL Maps</div>
-            <table class="table connected-url-maps-table">
+            <div class="has-text-left has-text-weight-bold pb-3">Connections to Security Policies</div>
+            <table class="table connected-security-policies-table">
               <thead>
               <tr>
                 <th class="is-size-7 width-200px">Name</th>
@@ -170,57 +170,57 @@
                 <th class="is-size-7 width-300px">Domain Match</th>
                 <th class="is-size-7 width-300px">Entry Match</th>
                 <th class="is-size-7 width-80px has-text-centered">
-                  <a v-if="!newURLMapConnectionOpened"
+                  <a v-if="!newSecurityPolicyConnectionOpened"
                      class="has-text-grey-dark is-small new-connection-button"
                      title="Add new connection"
                      tabindex="0"
-                     @click="openNewURLMapConnection"
+                     @click="openNewSecurityPolicyConnection"
                      @keypress.space.prevent
-                     @keypress.space="openNewURLMapConnection"
-                     @keypress.enter="openNewURLMapConnection">
+                     @keypress.space="openNewSecurityPolicyConnection"
+                     @keypress.enter="openNewSecurityPolicyConnection">
                     <span class="icon is-small"><i class="fas fa-plus"></i></span>
                   </a>
                   <a v-else
                      class="has-text-grey-dark is-small new-connection-button"
                      title="Cancel adding new connection"
                      tabindex="0"
-                     @click="closeNewURLMapConnection"
+                     @click="closeNewSecurityPolicyConnection"
                      @keypress.space.prevent
-                     @keypress.space="closeNewURLMapConnection"
-                     @keypress.enter="closeNewURLMapConnection">
+                     @keypress.space="closeNewSecurityPolicyConnection"
+                     @keypress.enter="closeNewSecurityPolicyConnection">
                     <span class="icon is-small"><i class="fas fa-minus"></i></span>
                   </a>
                 </th>
               </tr>
               </thead>
               <tbody>
-              <tr v-if="newURLMapConnectionOpened"
+              <tr v-if="newSecurityPolicyConnectionOpened"
                   class="has-background-warning-light new-connection-row">
-                <template v-if="newURLMapConnections.length > 0">
+                <template v-if="newSecurityPolicyConnections.length > 0">
                   <td>
                     <div class="select is-small">
-                      <select v-model="newURLMapConnectionData.map"
-                              @change="newURLMapConnectionData.entryIndex = 0"
+                      <select v-model="newSecurityPolicyConnectionData.map"
+                              @change="newSecurityPolicyConnectionData.entryIndex = 0"
                               class="new-connection-map"
                               title="Type">
-                        <option v-for="map in newURLMapConnections" :key="map.id" :value="map">
+                        <option v-for="map in newSecurityPolicyConnections" :key="map.id" :value="map">
                           {{ map.name }}
                         </option>
                       </select>
                     </div>
                   </td>
                   <td>
-                    {{ newURLMapConnectionData.map.id }}
+                    {{ newSecurityPolicyConnectionData.map.id }}
                   </td>
                   <td>
-                    {{ newURLMapConnectionData.map.match }}
+                    {{ newSecurityPolicyConnectionData.map.match }}
                   </td>
                   <td>
                     <div class="select is-small">
-                      <select v-model="newURLMapConnectionData.entryIndex"
+                      <select v-model="newSecurityPolicyConnectionData.entryIndex"
                               class="new-connection-entry-index"
                               title="Type">
-                        <option v-for="(mapEntry, index) in newURLMapConnectionEntries"
+                        <option v-for="(mapEntry, index) in newSecurityPolicyConnectionEntries"
                                 :key="mapEntry.match"
                                 :value="index">
                           {{ mapEntry.match }}
@@ -231,23 +231,23 @@
                   <td class="has-text-centered">
                     <button title="Add new connection"
                             class="button is-light is-small add-new-connection"
-                            @click="addNewURLMapConnection">
+                            @click="addNewSecurityPolicyConnection">
                       <span class="icon is-small"><i class="fas fa-plus fa-xs"></i></span>
                     </button>
                   </td>
                 </template>
                 <template v-else>
                   <td colspan="5">
-                    All URL Maps entries are currently connected to this Rate Limit
+                    All Security Policies entries are currently connected to this Rate Limit
                   </td>
                 </template>
               </tr>
-              <tr v-for="(connection, index) in connectedURLMapsEntries" :key="index">
+              <tr v-for="(connection, index) in connectedSecurityPoliciesEntries" :key="index">
                 <td class="is-size-7 is-vcentered py-3 width-200px connected-entry-row"
                     :title="connection[0]">
                   <a title="Add new"
-                     class="url-map-referral-button"
-                     @click="referToURLMap(connection.id)">
+                     class="security-policy-referral-button"
+                     @click="referToSecurityPolicy(connection.id)">
                     {{ connection.name }}
                   </a>
                 </td>
@@ -266,7 +266,7 @@
                 <td class="is-size-7 is-vcentered width-80px height-50px">
                     <span v-show="currentEntryDeleteIndex !== index">
                     <a tabindex="0"
-                       title="Remove connection to the URL Map"
+                       title="Remove connection to the Security Policy"
                        class="is-small has-text-grey remove-connection-button"
                        @click="setEntryDeleteIndex(index)"
                        @keypress.space.prevent
@@ -279,10 +279,10 @@
                       <a class="is-size-7 has-text-grey add-button confirm-remove-connection-button"
                          title="Confirm"
                          tabindex="0"
-                         @click="removeURLMapConnection(connection.id, connection.entryMatch)"
+                         @click="removeSecurityPolicyConnection(connection.id, connection.entryMatch)"
                          @keypress.space.prevent
-                         @keypress.space="removeURLMapConnection(connection.id, connection.entryMatch)"
-                         @keypress.enter="removeURLMapConnection(connection.id, connection.entryMatch)">
+                         @keypress.space="removeSecurityPolicyConnection(connection.id, connection.entryMatch)"
+                         @keypress.enter="removeSecurityPolicyConnection(connection.id, connection.entryMatch)">
                       <i class="fas fa-check"></i> Confirm
                     </a>
                     <br/>
@@ -313,7 +313,7 @@ import ResponseAction from '@/components/ResponseAction.vue'
 import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import Vue from 'vue'
-import {IncludeExcludeType, LimitOptionType, LimitRuleType, RateLimit, URLMap, URLMapEntryMatch} from '@/types'
+import {IncludeExcludeType, LimitOptionType, LimitRuleType, RateLimit, SecurityPolicy, SecurityPolicyEntryMatch} from '@/types'
 import {Dictionary} from 'vue-router/types/router'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
@@ -336,17 +336,17 @@ export default Vue.extend({
       filters: ['include', 'exclude'] as IncludeExcludeType[],
       addNewTagColName: null,
       titles: DatasetsUtils.titles,
-      urlMaps: [] as URLMap[],
+      securityPolicies: [] as SecurityPolicy[],
       currentEntryDeleteIndex: -1,
-      newURLMapConnectionData: {
+      newSecurityPolicyConnectionData: {
         map: null,
         entryIndex: 0,
       } as {
-        map: URLMap,
+        map: SecurityPolicy,
         entryIndex: number,
       },
-      newURLMapConnectionOpened: false,
-      connectedURLMapsEntries: [],
+      newSecurityPolicyConnectionOpened: false,
+      connectedSecurityPoliciesEntries: [],
       keysAreValid: true,
     }
   },
@@ -372,20 +372,20 @@ export default Vue.extend({
       },
     },
 
-    newURLMapConnections(): URLMap[] {
-      return this.urlMaps.filter((urlMap) => {
-        return !urlMap.map.every((urlMapEntry) => {
-          return urlMapEntry.limit_ids.includes(this.localDoc.id)
+    newSecurityPolicyConnections(): SecurityPolicy[] {
+      return this.securityPolicies.filter((securityPolicy) => {
+        return !securityPolicy.map.every((securityPolicyEntry) => {
+          return securityPolicyEntry.limit_ids.includes(this.localDoc.id)
         })
       })
     },
 
-    newURLMapConnectionEntries(): URLMapEntryMatch[] {
-      const urlMap = this.newURLMapConnections.find((urlMap) => {
-        return urlMap.id === this.newURLMapConnectionData.map?.id
+    newSecurityPolicyConnectionEntries(): SecurityPolicyEntryMatch[] {
+      const securityPolicy = this.newSecurityPolicyConnections.find((securityPolicy) => {
+        return securityPolicy.id === this.newSecurityPolicyConnectionData.map?.id
       })
-      return urlMap?.map?.filter((urlMapEntry) => {
-        return !urlMapEntry.limit_ids.includes(this.localDoc.id)
+      return securityPolicy?.map?.filter((securityPolicyEntry) => {
+        return !securityPolicyEntry.limit_ids.includes(this.localDoc.id)
       })
     },
   },
@@ -456,18 +456,18 @@ export default Vue.extend({
       this.eventOption = {[option.type]: option.key}
     },
 
-    getConnectedURLMapsEntries() {
-      this.connectedURLMapsEntries = _.sortBy(_.flatMap(_.filter(this.urlMaps, (urlMap) => {
-        return _.some(urlMap.map, (mapEntry: URLMapEntryMatch) => {
+    getConnectedSecurityPoliciesEntries() {
+      this.connectedSecurityPoliciesEntries = _.sortBy(_.flatMap(_.filter(this.securityPolicies, (securityPolicy) => {
+        return _.some(securityPolicy.map, (mapEntry: SecurityPolicyEntryMatch) => {
           return mapEntry.limit_ids.includes(this.localDoc.id)
         })
-      }), (urlMap) => {
-        return _.compact(_.map(urlMap.map, (mapEntry) => {
+      }), (securityPolicy) => {
+        return _.compact(_.map(securityPolicy.map, (mapEntry) => {
           if (mapEntry.limit_ids.includes(this.localDoc.id)) {
             return {
-              name: urlMap.name,
-              id: urlMap.id,
-              domainMatch: urlMap.match,
+              name: securityPolicy.name,
+              id: securityPolicy.id,
+              domainMatch: securityPolicy.match,
               entryMatch: mapEntry.match,
             }
           } else {
@@ -477,44 +477,44 @@ export default Vue.extend({
       }))
     },
 
-    openNewURLMapConnection() {
-      this.newURLMapConnectionOpened = true
-      this.newURLMapConnectionData.map = this.newURLMapConnections.length > 0 ? this.newURLMapConnections[0] : null
-      this.newURLMapConnectionData.entryIndex = 0
+    openNewSecurityPolicyConnection() {
+      this.newSecurityPolicyConnectionOpened = true
+      this.newSecurityPolicyConnectionData.map = this.newSecurityPolicyConnections.length > 0 ? this.newSecurityPolicyConnections[0] : null
+      this.newSecurityPolicyConnectionData.entryIndex = 0
     },
 
-    closeNewURLMapConnection() {
-      this.newURLMapConnectionOpened = false
+    closeNewSecurityPolicyConnection() {
+      this.newSecurityPolicyConnectionOpened = false
     },
 
-    addNewURLMapConnection() {
-      const id = this.newURLMapConnectionData.map?.id
-      const entryMatch = this.newURLMapConnectionEntries[this.newURLMapConnectionData.entryIndex].match
+    addNewSecurityPolicyConnection() {
+      const id = this.newSecurityPolicyConnectionData.map?.id
+      const entryMatch = this.newSecurityPolicyConnectionEntries[this.newSecurityPolicyConnectionData.entryIndex].match
       const methodName = 'PUT'
-      const selectedDocType = 'urlmaps'
+      const selectedDocType = 'securitypolicies'
       const urlTrail = `configs/${this.selectedBranch}/d/${selectedDocType}/e/${id}/`
-      const doc = _.find(this.urlMaps, (urlMap) => {
-        return urlMap.id === id
+      const doc = _.find(this.securityPolicies, (securityPolicy) => {
+        return securityPolicy.id === id
       })
       const mapEntry = _.find(doc.map, (mapEntry) => {
         return mapEntry.match === entryMatch
       })
       mapEntry.limit_ids.push(this.localDoc.id)
-      this.closeNewURLMapConnection()
+      this.closeNewSecurityPolicyConnection()
       const docTypeText = this.titles[selectedDocType + '-singular']
       const successMessage = `The connection to the ${docTypeText} was added.`
       const failureMessage = `Failed while attempting to add the connection to the ${docTypeText}.`
       RequestsUtils.sendRequest({methodName, url: urlTrail, data: doc, successMessage, failureMessage}).then(() => {
-        this.getConnectedURLMapsEntries()
+        this.getConnectedSecurityPoliciesEntries()
       })
     },
 
-    removeURLMapConnection(id: URLMap['id'], entryMatch: URLMapEntryMatch['match']) {
+    removeSecurityPolicyConnection(id: SecurityPolicy['id'], entryMatch: SecurityPolicyEntryMatch['match']) {
       const methodName = 'PUT'
-      const selectedDocType = 'urlmaps'
+      const selectedDocType = 'securitypolicies'
       const urlTrail = `configs/${this.selectedBranch}/d/${selectedDocType}/e/${id}/`
-      const doc = _.find(this.urlMaps, (urlMap) => {
-        return urlMap.id === id
+      const doc = _.find(this.securityPolicies, (securityPolicy) => {
+        return securityPolicy.id === id
       })
       const mapEntry = _.find(doc.map, (mapEntry) => {
         return mapEntry.match === entryMatch
@@ -528,23 +528,23 @@ export default Vue.extend({
       const failureMessage = `Failed while attempting to remove the connection to the ${docTypeText}.`
       RequestsUtils.sendRequest({methodName, url: urlTrail, data: doc, successMessage, failureMessage}).then(() => {
         this.setEntryDeleteIndex(-1)
-        this.getConnectedURLMapsEntries()
+        this.getConnectedSecurityPoliciesEntries()
       })
     },
 
     setEntryDeleteIndex(index: number) {
-      this.closeNewURLMapConnection()
+      this.closeNewSecurityPolicyConnection()
       this.currentEntryDeleteIndex = index
     },
 
-    loadURLMaps() {
+    loadSecurityPolicies() {
       RequestsUtils.sendRequest({
         methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/urlmaps/`,
-      }).then((response: AxiosResponse<URLMap[]>) => {
-        this.urlMaps = _.sortBy(response.data)
-        this.getConnectedURLMapsEntries()
-        this.newURLMapConnectionData.map = this.newURLMapConnections.length > 0 ? this.newURLMapConnections[0] : null
+        url: `configs/${this.selectedBranch}/d/securitypolicies/`,
+      }).then((response: AxiosResponse<SecurityPolicy[]>) => {
+        this.securityPolicies = _.sortBy(response.data)
+        this.getConnectedSecurityPoliciesEntries()
+        this.newSecurityPolicyConnectionData.map = this.newSecurityPolicyConnections.length > 0 ? this.newSecurityPolicyConnections[0] : null
       })
     },
 
@@ -569,12 +569,12 @@ export default Vue.extend({
       this.emitDocUpdate()
     },
 
-    referToURLMap(id: string) {
-      this.$router.push(`/config/${this.selectedBranch}/urlmaps/${id}`)
+    referToSecurityPolicy(id: string) {
+      this.$router.push(`/config/${this.selectedBranch}/securitypolicies/${id}`)
     },
   },
   created() {
-    this.loadURLMaps()
+    this.loadSecurityPolicies()
   },
   mounted() {
     this.checkKeysValidity()
@@ -582,7 +582,7 @@ export default Vue.extend({
   watch: {
     selectedDoc: {
       handler: function() {
-        this.getConnectedURLMapsEntries()
+        this.getConnectedSecurityPoliciesEntries()
         this.$forceUpdate()
       },
       immediate: true,

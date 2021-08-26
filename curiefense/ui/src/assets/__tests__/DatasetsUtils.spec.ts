@@ -68,10 +68,10 @@ describe('RequestsUtils.ts', () => {
       expect(document['rule']['sections']).toEqual([])
     })
 
-    test('should generate a new URL Map', async () => {
-      const document = DatasetsUtils.newDocEntryFactory.urlmaps()
+    test('should generate a new Security Policy', async () => {
+      const document = DatasetsUtils.newDocEntryFactory.securitypolicies()
       expect(regexUUID2.test(document['id'])).toBeTruthy()
-      expect(document['name']).toEqual('New URL Map')
+      expect(document['name']).toEqual('New Security Policy')
       expect(document['match']).toEqual(`${document['id']}.example.com`)
       expect(document['map'][0]['match']).toEqual('/')
       expect(document['map'][0]['name']).toEqual('default')

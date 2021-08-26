@@ -27,7 +27,7 @@ Takes five arguments:
     - `path`: the "path" part of the HTTP request, containing the full, raw URI (ie. something like `/a/b?c=d&e=f`);
     - `method`: the HTTP verb (such as `GET`, `POST`, etc.);
     - `authority`: optionnaly, the `:authority` HTTP2 header, if available.
-    
+
  * *headers*, a Lua table containing the HTTP headers (keys are the header names, values the header values).
  * *body*, optionnaly, the HTTP request body. Note that large bodies will have a performance impact, and should be size-limited before calling this function.
  * *ip*, the string-encoded IP address in canonical format.
@@ -47,7 +47,7 @@ Takes five arguments:
     - `path`: the "path" part of the HTTP request, containing the full, raw URI (ie. something like `/a/b?c=d&e=f`);
     - `method`: the HTTP verb (such as `GET`, `POST`, etc.);
     - `authority`: optionnaly, the `:authority` HTTP2 header, if available.
-    
+
  * *headers*, a Lua table containing the HTTP headers (keys are the header names, values the header values).
  * *body*, optionnaly, the HTTP request body. Note that large bodies will have a performance impact, and should be size-limited before calling this function.
  * *ip*, the string-encoded IP address in canonical format.
@@ -74,7 +74,7 @@ In order to test drive it:
 +    response, err = curiefense.inspect_waf(
 +        meta, headers, body_content, ip_str, "__default__"
      )
- 
+
      if err then
 ```
 
@@ -92,7 +92,7 @@ Most functions need other functions to be called before being available:
  * the `rust_init_config` **MUST** be called before any other function is called
  * the `rust_session_init` must be called before any function taking a `session_id` as an argument
  * once the `rust_session_clean` function is called, the corresponding `session_id` is invalidated and will not work anymore
- * the `rust_session_match_urlmap` must be called before most matching functions, as described in the following documentation
+ * the `rust_session_match_securitypolicy` must be called before most matching functions, as described in the following documentation
 
 ### `init_config`
 
@@ -123,7 +123,7 @@ Takes a single argument: the *session id*.
 
 Returns a JSON-encoded object, which is identical to the object sent to `session_init`, except for the list of tags which could have been updated as a result of calling any of the other functions.
 
-### `session_match_urlmap`
+### `session_match_securitypolicy`
 
 Takes a single argument: the *session id*.
 
@@ -133,7 +133,7 @@ Returns a JSON-encoded object, that looks like:
 {
    "acl_profile" : "34511ea458ac",
    "acl_active" : true,
-   "urlmap" : "default entry",
+   "securitypolicy" : "default entry",
    "name" : "admin path",
    "waf_profile" : "__default__",
    "limit_ids" : [],
@@ -141,12 +141,12 @@ Returns a JSON-encoded object, that looks like:
 }
 ```
 
-It has the same format as a configuration *urlmap entry*, except:
+It has the same format as a configuration *securitypolicy entry*, except:
 
  * there is no `match` field
- * the `urlmap` field contains the name of the matched *urlmap*
+ * the `securitypolicy` field contains the name of the matched *securitypolicy*
 
-This function updates the tags with the urlmap specific tags.
+This function updates the tags with the securitypolicy specific tags.
 
 ### `session_tag_request`
 
@@ -162,7 +162,7 @@ Returns a decision (see below).
 
 ### `session_limit_check`
 
-**`session_match_urlmap` must have been called before using this function!**
+**`session_match_securitypolicy` must have been called before using this function!**
 
 Takes a single argument: the *session id*.
 
@@ -170,7 +170,7 @@ Returns a decision (see below).
 
 ### `session_acl_check`
 
-**`session_match_urlmap` must have been called before using this function!**
+**`session_match_securitypolicy` must have been called before using this function!**
 
 Takes a single argument: the *session id*.
 
@@ -212,7 +212,7 @@ Force deny (results in the request being dropped).
 
 ### `session_waf_check`
 
-**`session_match_urlmap` must have been called before using this function!**
+**`session_match_securitypolicy` must have been called before using this function!**
 
 Takes a single argument: the *session id*.
 
@@ -284,7 +284,7 @@ Example, when actions needs to be taken:
          "x-request-id" : "e56d8114-df7e-4e9d-b0c0-2ac9cf302118"
       },
       "tags" : [
-         "urlmap-entry:test-path",
+         "securitypolicy-entry:test-path",
          "container:a84fe3412aab",
          "aclname:demo-acl",
          "api",
@@ -292,7 +292,7 @@ Example, when actions needs to be taken:
          "wafid:default-waf",
          "ip:172-19-0-1",
          "asn:nil",
-         "urlmap:default-entry",
+         "securitypolicy:default-entry",
          "geo:nil",
          "all"
       ]
@@ -537,13 +537,13 @@ Geo fields are empty because I am using a local address right now.
     "all",
     "wafid:default-waf",
     "geo:nil",
-    "urlmap:default-entry",
+    "securitypolicy:default-entry",
     "aclid:34511ea458a8",
     "aclname:demo-acl",
     "api",
     "ip:172-19-0-1",
     "container:1ee49a1d1589",
-    "urlmap-entry:test-path"
+    "securitypolicy-entry:test-path"
   ],
   "tls": {
     "ciphersuite": "ECDHE-RSA-AES256-GCM-SHA384",

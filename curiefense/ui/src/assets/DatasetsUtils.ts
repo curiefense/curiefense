@@ -1,4 +1,4 @@
-import {ACLProfile, FlowControlPolicy, RateLimit, GlobalFilter, URLMap, WAFPolicy, WAFRule} from '@/types'
+import {ACLProfile, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, WAFPolicy, WAFRule} from '@/types'
 
 const titles: { [key: string]: string } = {
   'admin': 'Admin',
@@ -35,8 +35,8 @@ const titles: { [key: string]: string } = {
   'aclprofiles-singular': 'ACL Profile',
   'ratelimits': 'Rate Limits',
   'ratelimits-singular': 'Rate Limit',
-  'urlmaps': 'URL Maps',
-  'urlmaps-singular': 'URL Map',
+  'securitypolicies': 'Security Policies',
+  'securitypolicies-singular': 'Security Policy',
   'wafpolicies': 'WAF Policies',
   'wafpolicies-singular': 'WAF Policy',
   'wafrules': 'WAF Rules',
@@ -129,11 +129,11 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  urlmaps(): URLMap {
+  securitypolicies(): SecurityPolicy {
     const id = generateUUID2()
     return {
       'id': id,
-      'name': 'New URL Map',
+      'name': 'New Security Policy',
       'match': `${id}.example.com`,
       'map': [
         {
