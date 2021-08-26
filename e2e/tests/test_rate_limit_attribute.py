@@ -940,7 +940,7 @@ class TestRateLimitAttribute:
                                                                  4, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Company | Count: method
-    def check_rate_limits_action_503_with_params(self, cli, target):
+    def test_check_rate_limits_action_503_with_params(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,

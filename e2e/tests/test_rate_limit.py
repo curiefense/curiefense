@@ -276,25 +276,21 @@ class TestRateLimit:
             "/scope-other-authority-exclude/not-excluded"
         ), "Request #4 for non excluded authority should be denied"
 
-    # Todo : Try to change test - asserion is hidden
     def test_ratelimit_countby_section(self, target, section):
         param1 = {section: {"countby": "1"}}
         param2 = {section: {"countby": "2"}}
         RateLimitHelper.ratelimit_countby_helper(target, section, param1, param2)
 
-    # Todo : Try to change test - asserion is hidden
     def test_ratelimit_countby_ipv4(self, target):
         param1 = {"srcip": BaseHelper.IP4_US}
         param2 = {"srcip": BaseHelper.IP4_JP}
         RateLimitHelper.ratelimit_countby_helper(target, "ipv4", param1, param2)
 
-    # Todo : Try to change test - asserion is hidden
     def test_ratelimit_countby_ipv6(self, target):
         param1 = {"srcip": BaseHelper.IP6_1}
         param2 = {"srcip": BaseHelper.IP6_2}
         RateLimitHelper.ratelimit_countby_helper(target, "ipv6", param1, param2)
 
-    # Todo : Try to change test - asserion is hidden
     def test_ratelimit_countby_provider(self, target):
         # "provider" means "asn"
         param1 = {"srcip": BaseHelper.IP4_US}

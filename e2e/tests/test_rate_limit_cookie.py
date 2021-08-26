@@ -294,7 +294,7 @@ class TestRateLimitCookie:
     def test_ban_action_event_cookie_subaction_503_count_by_ip(self, cli, target):
         params = [{"cookies": {"cookie_event_ban_503_ip": f"val-{i}"}} for i in range(4 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_cookie_sub_503_count_by_ip", 4, 4,
-
+                                                                 params)
 
     #  Action: Redirect | Subaction: 503 | Event: Cookie | Count: Uri
     def test_ban_action_event_cookie_subaction_503_count_by_uri(self, cli, target):
