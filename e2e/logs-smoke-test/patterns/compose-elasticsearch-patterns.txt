@@ -1,1 +1,9 @@
-curiefense-elasticsearch-patterns.txt
+"level": "INFO", 
+This can result in part of the JVM being swapped out.
+Increase RLIMIT_MEMLOCK, soft limit: 65536, hard limit: 65536
+These can be adjusted by modifying /etc/security/limits.conf,
+If you are logged in interactively, you will have to re-login for the new limits to take effect.
+gateway.auto_import_dangling_indices is disabled, dangling indices will not be automatically detected or imported and must be managed manually
+memory locking requested for elasticsearch process but memory is not locked
+index name \[\.kibana.*\] starts with a dot '.', in the next major version, index names starting with a dot are reserved for hidden indices and system indices
+Unable to lock JVM Memory: error=12, reason=Cannot allocate memory

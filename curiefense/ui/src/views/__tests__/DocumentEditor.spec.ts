@@ -7,7 +7,7 @@ import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import _ from 'lodash'
-import {ACLPolicy, Branch, Commit, FlowControl, RateLimit, GlobalFilter, URLMap, WAFPolicy} from '@/types'
+import {ACLProfile, Branch, Commit, FlowControl, RateLimit, GlobalFilter, URLMap, WAFPolicy} from '@/types'
 
 jest.mock('axios')
 
@@ -16,9 +16,9 @@ describe('DocumentEditor.vue', () => {
   let mockRoute: any
   let mockRouter: any
   let gitData: Branch[]
-  let aclDocs: ACLPolicy[]
+  let aclDocs: ACLProfile[]
   let aclDocsLogs: Commit[][]
-  let aclGitOldVersion: ACLPolicy[]
+  let aclGitOldVersion: ACLProfile[]
   let profilingListDocs: GlobalFilter[]
   let profilingListDocsLogs: Commit[][]
   let urlMapsDocs: URLMap[]
@@ -30,7 +30,7 @@ describe('DocumentEditor.vue', () => {
     gitData = [
       {
         'id': 'master',
-        'description': 'Update entry [__default__] of document [aclpolicies]',
+        'description': 'Update entry [__default__] of document [aclprofiles]',
         'date': '2020-11-10T15:49:17+02:00',
         'logs': [
           {
@@ -39,7 +39,7 @@ describe('DocumentEditor.vue', () => {
             'parents': [
               'fc47a6cd9d7f254dd97875a04b87165cc484e075',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -49,7 +49,7 @@ describe('DocumentEditor.vue', () => {
             'parents': [
               '5aba4a5b9d6faea1896ee8965c7aa651f76af63c',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -59,7 +59,7 @@ describe('DocumentEditor.vue', () => {
             'parents': [
               '277c5d7bd0e2eb4b9d2944f7eefdfadf37ba8581',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -69,7 +69,7 @@ describe('DocumentEditor.vue', () => {
             'parents': [
               '878b47deeddac94625fe7c759786f2df885ec541',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -79,7 +79,7 @@ describe('DocumentEditor.vue', () => {
             'parents': [
               '93c180513fe7edeaf1c0ca69a67aa2a11374da4f',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -89,7 +89,7 @@ describe('DocumentEditor.vue', () => {
             'parents': [
               '1662043d2a18d6ad2c9c94d6f826593ff5506354',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -198,7 +198,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '7a24bd37e93e812fa5173c4b2fb0068ad8e4ffdd',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -208,7 +208,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '886baf66ddd032744ac34b848c8412386a160fb3',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -218,7 +218,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             'af98cb28fc4db3a76c3a51d697b6037e8695dd7b',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -228,7 +228,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             'cda70058b632405600db1fbc5cf8dfd90514ec30',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -238,7 +238,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '78d2193cdaa2818734894ab5bbb85cf932d4f217',
           ],
-          'message': 'Revert document [aclpolicies] to version [6c439c1626b15011c8eac9117026e0bb4c9f3a1e]',
+          'message': 'Revert document [aclprofiles] to version [6c439c1626b15011c8eac9117026e0bb4c9f3a1e]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -248,7 +248,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '6c439c1626b15011c8eac9117026e0bb4c9f3a1e',
           ],
-          'message': 'Revert document [aclpolicies] to version [7a2448715e1ea8b97fc742cd51ec65703c9d0ef2]',
+          'message': 'Revert document [aclprofiles] to version [7a2448715e1ea8b97fc742cd51ec65703c9d0ef2]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -258,7 +258,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '7a2448715e1ea8b97fc742cd51ec65703c9d0ef2',
           ],
-          'message': 'Revert document [aclpolicies] to version [95c050c78a8ad2e66d946e216f3506a0f7b32278]',
+          'message': 'Revert document [aclprofiles] to version [95c050c78a8ad2e66d946e216f3506a0f7b32278]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -268,7 +268,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '95c050c78a8ad2e66d946e216f3506a0f7b32278',
           ],
-          'message': 'Revert document [aclpolicies] to version [b9cdba04b4ca00119bd148822ce0bc6a3761f017]',
+          'message': 'Revert document [aclprofiles] to version [b9cdba04b4ca00119bd148822ce0bc6a3761f017]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -278,7 +278,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             'b9cdba04b4ca00119bd148822ce0bc6a3761f017',
           ],
-          'message': 'Revert document [aclpolicies] to version [134f8b24c3218e837243ae596a079cfc1ab671db]',
+          'message': 'Revert document [aclprofiles] to version [134f8b24c3218e837243ae596a079cfc1ab671db]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -288,7 +288,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '134f8b24c3218e837243ae596a079cfc1ab671db',
           ],
-          'message': 'Revert document [aclpolicies] to version [fa54d53d087ad9d6b4b189188a1cfa68da718d79]',
+          'message': 'Revert document [aclprofiles] to version [fa54d53d087ad9d6b4b189188a1cfa68da718d79]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -298,7 +298,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             'fa54d53d087ad9d6b4b189188a1cfa68da718d79',
           ],
-          'message': 'Revert document [aclpolicies] to version [0ff9c981493ee6d05720398425006fd8b0b1b856]',
+          'message': 'Revert document [aclprofiles] to version [0ff9c981493ee6d05720398425006fd8b0b1b856]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -308,7 +308,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '0ff9c981493ee6d05720398425006fd8b0b1b856',
           ],
-          'message': 'Revert document [aclpolicies] to version [efe3914cd898ef76bb0b9d12346090a1d112953c]',
+          'message': 'Revert document [aclprofiles] to version [efe3914cd898ef76bb0b9d12346090a1d112953c]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -318,7 +318,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             'efe3914cd898ef76bb0b9d12346090a1d112953c',
           ],
-          'message': 'Revert document [aclpolicies] to version [7b92d1c84d07ea51e9e5500ae86c327f554c7072]',
+          'message': 'Revert document [aclprofiles] to version [7b92d1c84d07ea51e9e5500ae86c327f554c7072]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -328,7 +328,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '7b92d1c84d07ea51e9e5500ae86c327f554c7072',
           ],
-          'message': 'Revert document [aclpolicies] to version [0eed6e6f205bccbff485527c3dab5ed5134beae9]',
+          'message': 'Revert document [aclprofiles] to version [0eed6e6f205bccbff485527c3dab5ed5134beae9]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -338,7 +338,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '0eed6e6f205bccbff485527c3dab5ed5134beae9',
           ],
-          'message': 'Revert document [aclpolicies] to version [7ebf09f77d8928025a889225233effc75de786d9]',
+          'message': 'Revert document [aclprofiles] to version [7ebf09f77d8928025a889225233effc75de786d9]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -348,7 +348,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '7ebf09f77d8928025a889225233effc75de786d9',
           ],
-          'message': 'Revert document [aclpolicies] to version [8fc02c8a78fae8ac6bf7522222170b6541bae502]',
+          'message': 'Revert document [aclprofiles] to version [8fc02c8a78fae8ac6bf7522222170b6541bae502]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -358,7 +358,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '8fc02c8a78fae8ac6bf7522222170b6541bae502',
           ],
-          'message': 'Revert document [aclpolicies] to version [1e350194f779279bbb9a3a80e89fa2bc45a06f16]',
+          'message': 'Revert document [aclprofiles] to version [1e350194f779279bbb9a3a80e89fa2bc45a06f16]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -368,7 +368,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '1e350194f779279bbb9a3a80e89fa2bc45a06f16',
           ],
-          'message': 'Revert document [aclpolicies] to version [99788d931b6018e8f940cc98c3c51aceb07fc77f]',
+          'message': 'Revert document [aclprofiles] to version [99788d931b6018e8f940cc98c3c51aceb07fc77f]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -378,7 +378,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '99788d931b6018e8f940cc98c3c51aceb07fc77f',
           ],
-          'message': 'Revert document [aclpolicies] to version [7dd9580c00bef1049ee9a531afb13db9ef3ee956]',
+          'message': 'Revert document [aclprofiles] to version [7dd9580c00bef1049ee9a531afb13db9ef3ee956]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -388,7 +388,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
           ],
-          'message': 'Revert document [aclpolicies] to version [fc47a6cd9d7f254dd97875a04b87165cc484e075]',
+          'message': 'Revert document [aclprofiles] to version [fc47a6cd9d7f254dd97875a04b87165cc484e075]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -398,7 +398,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             'fc47a6cd9d7f254dd97875a04b87165cc484e075',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -408,7 +408,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '5aba4a5b9d6faea1896ee8965c7aa651f76af63c',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -418,7 +418,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '277c5d7bd0e2eb4b9d2944f7eefdfadf37ba8581',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -428,7 +428,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '878b47deeddac94625fe7c759786f2df885ec541',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -438,7 +438,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '93c180513fe7edeaf1c0ca69a67aa2a11374da4f',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -448,7 +448,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '1662043d2a18d6ad2c9c94d6f826593ff5506354',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -470,7 +470,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '1662043d2a18d6ad2c9c94d6f826593ff5506354',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -690,28 +690,28 @@ describe('DocumentEditor.vue', () => {
       }
       const branch = (wrapper.vm as any).selectedBranch
       const docID = (wrapper.vm as any).selectedDocID
-      if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/e/__default__/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/__default__/`) {
         return Promise.resolve({data: aclDocs[0]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/e/5828321c37e0/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/5828321c37e0/`) {
         return Promise.resolve({data: aclDocs[1]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
         return Promise.resolve({data: aclGitOldVersion})
       }
-      if (path === `/conf/api/v2/configs/master/d/aclpolicies/e/__default__/v/`) {
+      if (path === `/conf/api/v2/configs/master/d/aclprofiles/e/__default__/v/`) {
         return Promise.resolve({data: aclDocsLogs[0]})
       }
-      if (path === `/conf/api/v2/configs/zzz_branch/d/aclpolicies/e/__default__/v/`) {
+      if (path === `/conf/api/v2/configs/zzz_branch/d/aclprofiles/e/__default__/v/`) {
         return Promise.resolve({data: aclDocsLogs[1]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/e/5828321c37e0/v/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/5828321c37e0/v/`) {
         return Promise.resolve({data: aclDocsLogs[1]})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/`) {
@@ -779,10 +779,10 @@ describe('DocumentEditor.vue', () => {
     mockRoute = {
       params: {
         branch: 'master',
-        doc_type: 'aclpolicies',
+        doc_type: 'aclprofiles',
         doc_id: '__default__',
       },
-      path: `/config/master/aclpolicies/__default__`,
+      path: `/config/master/aclprofiles/__default__`,
     }
     mockRouter = {
       push: jest.fn(),
@@ -817,7 +817,7 @@ describe('DocumentEditor.vue', () => {
     const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', wantedVersion)
     await Vue.nextTick()
-    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclpolicies/v/${wantedVersion.version}/revert/`)
+    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/v/${wantedVersion.version}/revert/`)
   })
 
   test('should log message when receiving no configs from the server', (done) => {
@@ -882,7 +882,7 @@ describe('DocumentEditor.vue', () => {
       const routeChangeSpy = jest.spyOn(mockRouter, 'push')
       mockRoute.params = {
         branch: 'master',
-        doc_type: 'aclpolicies',
+        doc_type: 'aclprofiles',
         doc_id: '__default__',
       }
       // allow all requests to finish
@@ -937,7 +937,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct branch from route without changing document type or id', async (done) => {
       mockRoute.params = {
         branch: 'zzz_branch',
-        doc_type: 'aclpolicies',
+        doc_type: 'aclprofiles',
         doc_id: '__default__',
       }
       // allow all requests to finish
@@ -973,7 +973,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct document id from route without changing branch or document type', async (done) => {
       mockRoute.params = {
         branch: 'master',
-        doc_type: 'aclpolicies',
+        doc_type: 'aclprofiles',
         doc_id: '5828321c37e0',
       }
       // allow all requests to finish
@@ -1022,7 +1022,7 @@ describe('DocumentEditor.vue', () => {
       test('should load correct git history when branch changes', (done) => {
         mockRoute.params = {
           branch: 'zzz_branch',
-          doc_type: 'aclpolicies',
+          doc_type: 'aclprofiles',
           doc_id: '__default__',
         }
         // allow all requests to finish
@@ -1052,7 +1052,7 @@ describe('DocumentEditor.vue', () => {
       test('should load correct git history when document id changes', (done) => {
         mockRoute.params = {
           branch: 'master',
-          doc_type: 'aclpolicies',
+          doc_type: 'aclprofiles',
           doc_id: '5828321c37e0',
         }
         // allow all requests to finish
@@ -1115,7 +1115,7 @@ describe('DocumentEditor.vue', () => {
       gitData = [
         {
           'id': 'master',
-          'description': 'Update entry [__default__] of document [aclpolicies]',
+          'description': 'Update entry [__default__] of document [aclprofiles]',
           'date': '2020-11-10T15:49:17+02:00',
           'logs': [{
             'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
@@ -1123,7 +1123,7 @@ describe('DocumentEditor.vue', () => {
             'parents': [
               'fc47a6cd9d7f254dd97875a04b87165cc484e075',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           }],
@@ -1160,7 +1160,7 @@ describe('DocumentEditor.vue', () => {
       gitData = [
         {
           'id': 'master',
-          'description': 'Update entry [__default__] of document [aclpolicies]',
+          'description': 'Update entry [__default__] of document [aclprofiles]',
           'date': '2020-11-10T15:49:17+02:00',
           'logs': [{
             'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
@@ -1168,7 +1168,7 @@ describe('DocumentEditor.vue', () => {
             'parents': [
               'fc47a6cd9d7f254dd97875a04b87165cc484e075',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           }],
@@ -1322,7 +1322,7 @@ describe('DocumentEditor.vue', () => {
       const saveDocumentButton = wrapper.find('.save-document-button')
       saveDocumentButton.trigger('click')
       await Vue.nextTick()
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclpolicies/e/${doc.id}/`, doc)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/${doc.id}/`, doc)
     })
 
     test('should be able to fork document', async () => {
@@ -1335,7 +1335,7 @@ describe('DocumentEditor.vue', () => {
       const forkDocumentButton = wrapper.find('.fork-document-button')
       forkDocumentButton.trigger('click')
       await Vue.nextTick()
-      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclpolicies/e/`, forkedDoc)
+      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/`, forkedDoc)
     })
 
     test('should change url map match when forking url map document', (done) => {
@@ -1362,14 +1362,14 @@ describe('DocumentEditor.vue', () => {
     })
 
     test('should be able to add a new document', async () => {
-      const newDoc = DatasetsUtils.newDocEntryFactory.aclpolicies()
+      const newDoc = DatasetsUtils.newDocEntryFactory.aclprofiles()
       newDoc.id = expect.any(String)
       const postSpy = jest.spyOn(axios, 'post')
       postSpy.mockImplementation(() => Promise.resolve())
       const newDocumentButton = wrapper.find('.new-document-button')
       newDocumentButton.trigger('click')
       await Vue.nextTick()
-      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclpolicies/e/`, newDoc)
+      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/`, newDoc)
     })
 
     test('should be able to add multiple new documents in a row with different IDs', async () => {
@@ -1399,7 +1399,7 @@ describe('DocumentEditor.vue', () => {
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       deleteDocumentButton.trigger('click')
       await Vue.nextTick()
-      expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclpolicies/e/${docID}/`)
+      expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/`)
     })
 
     test('should not be able to delete a document if its id is __default__', async () => {
@@ -1413,7 +1413,7 @@ describe('DocumentEditor.vue', () => {
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
-    test('should not be able to delete an ACL Policy document if it is referenced by a url map', async () => {
+    test('should not be able to delete an ACL Profile document if it is referenced by a url map', async () => {
       // switch to a different document
       const docSelection = wrapper.find('.doc-selection')
       docSelection.trigger('click')
@@ -1471,7 +1471,7 @@ describe('DocumentEditor.vue', () => {
         }
         const branch = (wrapper.vm as any).selectedBranch
         const docID = (wrapper.vm as any).selectedDocID
-        if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/`) {
+        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
           if (config && config.headers && config.headers['x-fields'] === 'id, name') {
             return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
           }
@@ -1479,16 +1479,16 @@ describe('DocumentEditor.vue', () => {
             return Promise.resolve({data: aclDocs})
           }, 5000)
         }
-        if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/e/__default__/`) {
+        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/__default__/`) {
           return Promise.resolve({data: aclDocs[0]})
         }
-        if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/e/5828321c37e0/`) {
+        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/5828321c37e0/`) {
           return Promise.resolve({data: aclDocs[1]})
         }
-        if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
+        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
           return Promise.resolve({data: aclGitOldVersion})
         }
-        if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/e/${docID}/v/`) {
+        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/v/`) {
           return Promise.resolve({data: aclDocsLogs[0]})
         }
         return Promise.resolve({data: []})
@@ -1512,7 +1512,7 @@ describe('DocumentEditor.vue', () => {
     })
 
     test('should attempt to download document when download button is clicked', async () => {
-      const wantedFileName = 'aclpolicies'
+      const wantedFileName = 'aclprofiles'
       const wantedFileType = 'json'
       const wantedFileData = aclDocs
       const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
@@ -1639,7 +1639,7 @@ describe('DocumentEditor.vue', () => {
           return Promise.resolve({data: gitData})
         }
         const branch = (wrapper.vm as any).selectedBranch
-        if (path === `/conf/api/v2/configs/${branch}/d/aclpolicies/`) {
+        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
           return new Promise(() => {
           })
         }

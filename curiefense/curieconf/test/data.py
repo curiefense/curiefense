@@ -115,7 +115,7 @@ vec_wafpolicy = {
 }
 
 
-vec_aclpolicy = {
+vec_aclprofile = {
     "id": "__default__",
     "name": "default-acl",
     "allow": ["allow-change"],
@@ -158,7 +158,7 @@ vec_documents = {
     "urlmaps": vec_urlmap,
     "wafrules": vec_wafrule,
     "wafpolicies": vec_wafpolicy,
-    "aclpolicies": vec_aclpolicy,
+    "aclprofiles": vec_aclprofile,
     "globalfilters": vec_globalfilter,
 }
 

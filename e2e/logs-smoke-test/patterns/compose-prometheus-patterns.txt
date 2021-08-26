@@ -1,1 +1,1 @@
-curiefense-prometheus-patterns.txt
+^level=info ts=
