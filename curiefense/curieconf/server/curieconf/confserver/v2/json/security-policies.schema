@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Security Policy",
-    "description": "Security profile by URL path map",
+    "description": "Security Policy by URL path map",
     "type": "object",
     "properties": {
         "id": {
