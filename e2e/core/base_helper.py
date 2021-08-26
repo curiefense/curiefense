@@ -89,7 +89,7 @@ class CliHelper():
 
     def empty_acl(self):
         version = self.initial_version()
-        return self.call(f"doc get master aclpolicies --version {version}")
+        return self.call(f"doc get master {self._api_config['acl_setting']} --version {version}")
 
     def revert_and_enable(self, acl=True, waf=True):
         version = self.initial_version()

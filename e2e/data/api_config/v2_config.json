@@ -1,4 +1,5 @@
 {
   "url_map": "securitypolicies",
-  "tag_rules": "globalfilters"
+  "tag_rules": "globalfilters",
+  "acl_setting": "aclprofiles"
 }
