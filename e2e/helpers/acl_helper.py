@@ -13,7 +13,8 @@ class ACLHelper:
         for key, value in updates.items():
             acl[0][key].append(value)
         self._cli.call(
-            f"doc update {BaseHelper.TEST_CONFIG_NAME} {self._api_config['acl_setting']} /dev/stdin", inputjson=acl
+            f"doc update {BaseHelper.TEST_CONFIG_NAME} {self._api_config['acl_setting']} /dev/stdin",
+            inputjson=acl
         )
 
     def reset_and_set_acl(self, updates: dict):
@@ -22,7 +23,14 @@ class ACLHelper:
         self._cli.publish_and_apply()
 
     def reset_acl_to_default_values(self):
-        default_values = {"allow": [], "allow_bot": [], "deny_bot": [], "bypass": [], "deny": [], "force_deny": []}
+        default_values = {
+            "allow": [],
+            "allow_bot": [],
+            "deny_bot": [],
+            "bypass": [],
+            "deny": [],
+            "force_deny": []
+        }
         self.set_acl(default_values)
 
 
