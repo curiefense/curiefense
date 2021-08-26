@@ -1,4 +1,4 @@
-import {ACLPolicy, FlowControl, RateLimit, GlobalFilter, URLMap, WAFPolicy, WAFRule} from '@/types'
+import {ACLProfile, FlowControl, RateLimit, GlobalFilter, URLMap, WAFPolicy, WAFRule} from '@/types'
 
 const titles: { [key: string]: string } = {
   'admin': 'Admin',
@@ -31,8 +31,8 @@ const titles: { [key: string]: string } = {
   'cookies-entry': 'Cookie',
   'args-entry': 'Argument',
   'attrs-entry': 'Attribute',
-  'aclpolicies': 'ACL Policies',
-  'aclpolicies-singular': 'ACL Policy',
+  'aclprofiles': 'ACL Profiles',
+  'aclprofiles-singular': 'ACL Profile',
   'ratelimits': 'Rate Limits',
   'ratelimits-singular': 'Rate Limit',
   'urlmaps': 'URL Maps',
@@ -68,10 +68,10 @@ function generateUUID2(): string {
 }
 
 const newDocEntryFactory: { [key: string]: Function } = {
-  aclpolicies(): ACLPolicy {
+  aclprofiles(): ACLProfile {
     return {
       'id': generateUUID2(),
-      'name': 'New ACL Policy',
+      'name': 'New ACL Profile',
       'allow': [],
       'allow_bot': [],
       'deny_bot': [],

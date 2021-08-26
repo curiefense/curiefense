@@ -88,7 +88,7 @@ class CliHelper:
 
     def empty_acl(self):
         version = self.initial_version()
-        return self.call(f"doc get master aclpolicies --version {version}")
+        return self.call(f"doc get master aclprofiles --version {version}")
 
     def revert_and_enable(self, acl=True, waf=True):
         version = self.initial_version()
@@ -196,7 +196,7 @@ class ACLHelper:
         for key, value in updates.items():
             acl[0][key].append(value)
         self._cli.call(
-            f"doc update {TEST_CONFIG_NAME} aclpolicies /dev/stdin", inputjson=acl
+            f"doc update {TEST_CONFIG_NAME} aclprofiles /dev/stdin", inputjson=acl
         )
 
     def reset_and_set_acl(self, updates: dict):
@@ -1347,7 +1347,7 @@ def urlmap_config(cli, acl):
     default_acl[0]["force_deny"].append("all")
     default_acl.append(ACL_BYPASSALL)
     cli.call(
-        f"doc update {TEST_CONFIG_NAME} aclpolicies /dev/stdin", inputjson=default_acl
+        f"doc update {TEST_CONFIG_NAME} aclprofiles /dev/stdin", inputjson=default_acl
     )
     # Add waf profile entry
     wafpolicy = cli.call(f"doc get {TEST_CONFIG_NAME} wafpolicies")

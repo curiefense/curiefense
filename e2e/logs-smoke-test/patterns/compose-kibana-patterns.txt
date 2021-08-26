@@ -1,1 +1,45 @@
-curiefense-kibana-patterns.txt
+"method":"\S+","statusCode":200
+"method":"\S+","statusCode":204
+"method":"\S+","statusCode":304
+"method":"\S+","statusCode":302
+^\{"type":"log","@timestamp":"\S+","tags":\["error","elasticsearch","data"\],"pid":\S+,"message":"\[ConnectionError\]: connect ECONNREFUSED \S+:9200"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["error","elasticsearch","monitoring"\],"pid":\S+,"message":"Request error, retrying\nGET http://elasticsearch:9200/_xpack => connect ECONNREFUSED \S+:9200"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["error","savedobjects-service"\],"pid":\S+,"message":"Unable to retrieve version information from Elasticsearch nodes."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","http","server","Kibana"\],"pid":\S+,"message":"http server running at http://0:5601"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","plugins","crossClusterReplication"\],"pid":\S+,"message":"Your basic license does not support crossClusterReplication. Please upgrade your license."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","plugins","monitoring","monitoring","kibana-monitoring"\],"pid":\S+,"message":"Monitoring status upload endpoint is not enabled in Elasticsearch:Monitoring stats collection is stopped"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","plugins","monitoring","monitoring","kibana-monitoring"\],"pid":\S+,"message":"Starting monitoring stats collection"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","plugins","monitoring","monitoring"\],"pid":\S+,"message":"config sourced from: production cluster"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","plugins-service"\],"pid":\S+,"message":"Plugin \S+ is disabled."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","plugins-service"\],"pid":\S+,"message":"Plugin \S+ has been disabled since the following direct or transitive dependencies
+^\{"type":"log","@timestamp":"\S+","tags":\["info","plugins",\S+\],"pid":\S+,"message":"You cannot use .* because license information is not available at this time."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","plugins-system"\],"pid":\S+,"message":"Setting up \[\S+\] plugins: \[\S+\]"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","plugins-system"\],"pid":\S+,"message":"Starting \[\S+\] plugins: \[\S+\]"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","plugins","taskManager","taskManager"\],"pid":\S+,"message":"TaskManager is identified by the Kibana UUID: \S+"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","plugins","watcher"\],"pid":\S+,"message":"Your basic license does not support watcher. Please upgrade your license."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","savedobjects-service"\],"pid":\S+,"message":"Creating index .kibana_1."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","savedobjects-service"\],"pid":\S+,"message":"Creating index .kibana_task_manager_1."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","savedobjects-service"\],"pid":\S+,"message":"Finished in \S+ms."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","savedobjects-service"\],"pid":\S+,"message":"Pointing alias .kibana_task_manager to .kibana_task_manager_1."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","savedobjects-service"\],"pid":\S+,"message":"Pointing alias .kibana to .kibana_1."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","savedobjects-service"\],"pid":\S+,"message":"Starting saved objects migrations"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["info","savedobjects-service"\],"pid":\S+,"message":"Waiting until all Elasticsearch nodes are compatible with Kibana before starting saved objects migrations..."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["listening","info"\],"pid":\S+,"message":"Server running at http://0:5601"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["warning","config","deprecation"\],"pid":\S+,"message":"Config key \[monitoring.cluster_alerts.email_notifications.email_address\] will be required for email notifications to work in 8.0.*\}
+^\{"type":"log","@timestamp":"\S+","tags":\["warning","elasticsearch","monitoring"\],"pid":\S+,"message":"No living connections"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["warning","elasticsearch","monitoring"\],"pid":\S+,"message":"Unable to revive connection: http://elasticsearch:9200/"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["warning","plugins","actions","actions"\],"pid":\S+,"message":"APIs are disabled due to the Encrypted Saved Objects plugin using an ephemeral encryption key.
+^\{"type":"log","@timestamp":"\S+","tags":\["warning","plugins","alerts","plugins","alerting"\],"pid":\S+,"message":"APIs are disabled due to the Encrypted Saved Objects plugin using an ephemeral encryption key. Please set xpack.encryptedSavedObjects.encryptionKey in kibana.yml."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["warning","plugins","encryptedSavedObjects","config"\],"pid":\S+,"message":"Generating a random key for xpack.encryptedSavedObjects.encryptionKey. To be able
+^\{"type":"log","@timestamp":"\S+","tags":\["warning","plugins","ingestManager"\],"pid":\S+,"message":"Fleet APIs are disabled due to the Encrypted Saved Objects plugin using an ephemeral encryption key. Please set xpack.encryptedSavedObjects.encryptionKey in kibana.yml."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["warning","plugins","licensing"\],"pid":\S+,"message":"License information could not be obtained from Elasticsearch due to Error: No Living connections error"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["warning","plugins","monitoring","monitoring"\],"pid":\S+,"message":"X-Pack Monitoring Cluster Alerts will not be available: No Living connections"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["warning","plugins","monitoring","monitoring"\],"pid":\S+,"message":"X-Pack Monitoring Cluster Alerts will not be available: X-Pack plugin is not installed on the Elasticsearch cluster."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["warning","plugins","reporting","config"\],"pid":\S+,"message":"Chromium sandbox provides an additional layer of protection, but is not supported for Linux CentOS 8.2.2004 OS. Automatically setting 'xpack.reporting.capture.browser.chromium.disableSandbox: true'."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["warning","plugins","reporting","config"\],"pid":\S+,"message":"Found 'server.host: \S+ in Kibana configuration. This is incompatible with Reporting. To enable Reporting to work, 'xpack.reporting.kibanaServer.hostname: 0.0.0.0' is being automatically to the configuration. You can change the setting to 'server.host: 0.0.0.0' or add 'xpack.reporting.kibanaServer.hostname: 0.0.0.0' in kibana.yml to prevent this message."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["warning","plugins","reporting","config"\],"pid":\S+,"message":"Generating a random key for xpack.reporting.encryptionKey. To prevent sessions from being invalidated on restart, please set xpack.reporting.encryptionKey in kibana.yml"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["warning","plugins","reporting"\],"pid":\S+,"message":"Enabling the Chromium sandbox provides an additional layer of protection."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["warning","plugins","security","config"\],"pid":\S+,"message":"Generating a random key for xpack.security.encryptionKey. To prevent sessions from being invalidated on restart, please set xpack.security.encryptionKey in kibana.yml"\}
+^\{"type":"log","@timestamp":"\S+","tags":\["warning","plugins","security","config"\],"pid":\S+,"message":"Session cookies will be transmitted over insecure connections. This is not recommended."\}
+^\{"type":"log","@timestamp":"\S+","tags":\["error","elasticsearch","monitoring"\],"pid":\S+,"message":"Request error, retrying\nGET http://elasticsearch:9200/_xpack => connect ECONNREFUSED 10.111.185.254:9200"\}
+^\{"type":"response","@timestamp":"\S+","tags":\[\],"pid":\S+,"method":"get","statusCode":404,"req":\{"url":"/api/saved_objects/index-pattern/curiefense","method":"get","headers":\{"host":"kibana:5601","user-agent":"curl/\S+","accept":"\S+","content-type":"application/json"\},"remoteAddress":"\S+","userAgent":"curl/\S+"\},"res":\{"statusCode":404,"responseTime":\S+,"contentLength":\S+\},"message":"GET /api/saved_objects/index-pattern/curiefense 404 \S+ - \S+"\}
