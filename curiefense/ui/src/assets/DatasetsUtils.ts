@@ -1,4 +1,5 @@
 import {ACLProfile, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, WAFPolicy, WAFRule} from '@/types'
+import {httpRequestMethods} from '@/types/const'
 
 const titles: { [key: string]: string } = {
   'admin': 'Admin',
@@ -68,7 +69,7 @@ function generateUUID2(): string {
 }
 
 const defaultFlowControlSequenceItem = {
-  'method': 'GET',
+  'method': httpRequestMethods[0],
   'uri': '/',
   'cookies': {},
   'headers': {

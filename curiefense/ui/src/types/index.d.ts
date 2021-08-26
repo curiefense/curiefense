@@ -1,5 +1,5 @@
 /* eslint-disable */
-
+import {httpRequestMethods} from './const'
 declare module CuriefenseClient {
 
   type GenericObject = { [key: string]: any }
@@ -151,6 +151,8 @@ declare module CuriefenseClient {
     pairwith: LimitOptionType
   }
 
+  type HttpRequestMethods = typeof httpRequestMethods[number]
+
   type FlowControlPolicy = {
     id: string
     name: string
@@ -165,7 +167,7 @@ declare module CuriefenseClient {
       args: GenericObject
       cookies: GenericObject
       headers: GenericObject
-      method: string
+      method: HttpRequestMethods
       uri: string
     }[]
   }

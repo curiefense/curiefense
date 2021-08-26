@@ -53,7 +53,19 @@
     "sequence": {
       "type": "array",
       "title": "Sequence",
-      "description": "Array of sections describing steps of restricted flow"
+      "description": "Array of sections describing steps of restricted flow",
+      "items": {
+        "type": "object",
+        "properties": {
+          "method": { "enum": ["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "TRACE", "OPTIONS", "PATCH"] },
+          "uri": { "type": "string" },
+          "cookies": { "type": "object" },
+          "headers": { "type": "object" },
+          "args": { "type": "object" }
+        },
+        "required": ["method", "uri"]
+      },
+      "uniqueItems": true
     }
   },
   "additionalProperties": true,

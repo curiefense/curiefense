@@ -154,11 +154,15 @@
                         Method
                       </td>
                       <td colspan="2">
-                        <div class="control is-fullwidth">
-                          <input class="input is-small method-entry-input"
-                                 title="Method"
-                                 v-model="sequenceItem.method"
-                                 @input="emitDocUpdate"/>
+                        <div class="select is-small is-fullwidth">
+                          <select v-model="sequenceItem.method"
+                                  title="Method"
+                                  class="select method-entry-input"
+                                  @change="emitDocUpdate">
+                            <option v-for="method in httpRequestMethods" :key="method" :value="method">
+                              {{ method }}
+                            </option>
+                          </select>
                         </div>
                       </td>
                       <td class="width-80px"></td>
@@ -310,9 +314,9 @@
                 </div>
                 <div v-if="localDoc.sequence.length > 1 && sequenceIndex !== localDoc.sequence.length - 1"
                      class="control is-expanded relation-wrapper">
-              <span class="tag is-small is-relative">
-                THEN
-              </span>
+                  <span class="tag is-small is-relative">
+                    THEN
+                  </span>
                 </div>
               </div>
               <button class="button is-small new-sequence-button"
@@ -336,6 +340,7 @@ import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import Vue from 'vue'
 import {ArgsCookiesHeadersType, FlowControlPolicy, IncludeExcludeType, LimitOptionType, LimitRuleType} from '@/types'
+import {httpRequestMethods} from '@/types/const'
 import {Dictionary} from 'vue-router/types/router'
 
 export default Vue.extend({
@@ -370,6 +375,7 @@ export default Vue.extend({
         name: '',
         value: '',
       },
+      httpRequestMethods,
     }
   },
 
