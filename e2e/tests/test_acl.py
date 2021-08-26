@@ -82,4 +82,3 @@ class TestACL:
         cli.publish_and_apply()
         assert not target.is_reachable("/acl-ipv6", srcip=BaseHelper.IP6_1)
         assert target.is_reachable("/")
-
