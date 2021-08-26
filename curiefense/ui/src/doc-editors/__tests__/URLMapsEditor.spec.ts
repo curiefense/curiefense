@@ -1,7 +1,7 @@
 import URLMapsEditor from '@/doc-editors/URLMapsEditor.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount, Wrapper} from '@vue/test-utils'
-import {ACLPolicy, RateLimit, URLMap, WAFPolicy} from '@/types'
+import {ACLPolicy, RateLimit, URLMap, ContentFilterProfile} from '@/types'
 import axios from 'axios'
 import Vue from 'vue'
 import _ from 'lodash'
@@ -11,7 +11,7 @@ jest.mock('axios')
 describe('URLMapsEditor.vue', () => {
   let urlMapsDocs: URLMap[]
   let aclDocs: ACLPolicy[]
-  let wafDocs: WAFPolicy[]
+  let contentFilterDocs: ContentFilterProfile[]
   let rateLimitsDocs: RateLimit[]
   let wrapper: Wrapper<Vue>
   let mockRouter
@@ -28,8 +28,8 @@ describe('URLMapsEditor.vue', () => {
             'match': '/',
             'acl_profile': '__default__',
             'acl_active': false,
-            'waf_profile': '__default__',
-            'waf_active': false,
+            'content_filter_profile': '__default__',
+            'content_filter_active': false,
             'limit_ids': ['f971e92459e2'],
           },
           {
@@ -37,8 +37,8 @@ describe('URLMapsEditor.vue', () => {
             'match': '/login',
             'acl_profile': '5828321c37e0',
             'acl_active': false,
-            'waf_profile': '009e846e819e',
-            'waf_active': false,
+            'content_filter_profile': '009e846e819e',
+            'content_filter_active': false,
             'limit_ids': ['365757ec0689'],
           },
         ],
@@ -53,8 +53,8 @@ describe('URLMapsEditor.vue', () => {
             'match': '/',
             'acl_profile': '__default__',
             'acl_active': false,
-            'waf_profile': '__default__',
-            'waf_active': false,
+            'content_filter_profile': '__default__',
+            'content_filter_active': false,
             'limit_ids': ['f971e92459e2', '365757ec0689'],
           },
           {
@@ -62,8 +62,8 @@ describe('URLMapsEditor.vue', () => {
             'match': '/login',
             'acl_profile': '5828321c37e0',
             'acl_active': false,
-            'waf_profile': '009e846e819e',
-            'waf_active': false,
+            'content_filter_profile': '009e846e819e',
+            'content_filter_active': false,
             'limit_ids': [],
           },
         ],
@@ -108,10 +108,10 @@ describe('URLMapsEditor.vue', () => {
         ],
       },
     ]
-    wafDocs = [
+    contentFilterDocs = [
       {
         'id': '__default__',
-        'name': 'default waf',
+        'name': 'default content filter',
         'ignore_alphanum': true,
         'max_header_length': 1024,
         'max_cookie_length': 2048,
@@ -125,7 +125,7 @@ describe('URLMapsEditor.vue', () => {
       },
       {
         'id': '009e846e819e',
-        'name': 'example waf',
+        'name': 'example content filter',
         'ignore_alphanum': true,
         'max_header_length': 1024,
         'max_cookie_length': 2048,
@@ -181,11 +181,11 @@ describe('URLMapsEditor.vue', () => {
         }
         return Promise.resolve({data: urlMapsDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/wafpolicies/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve({data: _.map(wafDocs, (i) => _.pick(i, 'id', 'name'))})
+          return Promise.resolve({data: _.map(contentFilterDocs, (i) => _.pick(i, 'id', 'name'))})
         }
-        return Promise.resolve({data: wafDocs})
+        return Promise.resolve({data: contentFilterDocs})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
@@ -216,7 +216,7 @@ describe('URLMapsEditor.vue', () => {
   })
 
   test('should not send new requests to API if document data updates but document ID does not', async () => {
-    // 4 requests - ACL Policies, WAF Policies, Rate Limits, URL Maps
+    // 4 requests - ACL Policies, Content Filter Profiles, Rate Limits, URL Maps
     expect(axiosGetSpy).toHaveBeenCalledTimes(4)
     urlMapsDocs[0] = {
       'id': '__default__',
@@ -228,8 +228,8 @@ describe('URLMapsEditor.vue', () => {
           'match': '/one',
           'acl_profile': '5828321c37e0',
           'acl_active': false,
-          'waf_profile': '009e846e819e',
-          'waf_active': true,
+          'content_filter_profile': '009e846e819e',
+          'content_filter_active': true,
           'limit_ids': ['365757ec0689'],
         },
         {
@@ -237,8 +237,8 @@ describe('URLMapsEditor.vue', () => {
           'match': '/two',
           'acl_profile': '__default__',
           'acl_active': true,
-          'waf_profile': '__default__',
-          'waf_active': false,
+          'content_filter_profile': '__default__',
+          'content_filter_active': false,
           'limit_ids': ['f971e92459e2'],
         },
       ],
@@ -251,7 +251,7 @@ describe('URLMapsEditor.vue', () => {
   })
 
   test('should send a single new request to API if document data updates with new ID', async () => {
-    // 4 requests - ACL Policies, WAF Policies, Rate Limits, URL Maps
+    // 4 requests - ACL Policies, Content Filter Profiles, Rate Limits, URL Maps
     expect(axiosGetSpy).toHaveBeenCalledTimes(4)
     wrapper.setProps({
       selectedDoc: urlMapsDocs[1],
@@ -288,8 +288,8 @@ describe('URLMapsEditor.vue', () => {
       expect(entryName.text()).toEqual(urlMapsDocs[0].map[0].name)
       const entryMatch = entryRow.find('.entry-match')
       expect(entryMatch.text()).toEqual(urlMapsDocs[0].map[0].match)
-      const entryWAF = entryRow.find('.entry-waf')
-      expect(entryWAF.text()).toEqual('default waf')
+      const entryContentFilter = entryRow.find('.entry-content-filter')
+      expect(entryContentFilter.text()).toEqual('default content filter')
       const entryACL = entryRow.find('.entry-acl')
       expect(entryACL.text()).toEqual('default acl')
       const entryRateLimitCount = entryRow.find('.entry-rate-limits-count')
@@ -303,8 +303,8 @@ describe('URLMapsEditor.vue', () => {
       expect(entryName.text()).toEqual(urlMapsDocs[0].map[1].name)
       const entryMatch = entryRow.find('.entry-match')
       expect(entryMatch.text()).toEqual(urlMapsDocs[0].map[1].match)
-      const entryWAF = entryRow.find('.entry-waf')
-      expect(entryWAF.text()).toEqual('example waf')
+      const entryContentFilter = entryRow.find('.entry-content-filter')
+      expect(entryContentFilter.text()).toEqual('example content filter')
       const entryACL = entryRow.find('.entry-acl')
       expect(entryACL.text()).toEqual('an ACL')
       const entryRateLimitCount = entryRow.find('.entry-rate-limits-count')
@@ -321,10 +321,10 @@ describe('URLMapsEditor.vue', () => {
       expect((entryName.element as HTMLInputElement).value).toEqual(urlMapsDocs[0].map[0].name)
       const entryMatch = currentEntryRow.find('.current-entry-match')
       expect((entryMatch.element as HTMLInputElement).value).toEqual(urlMapsDocs[0].map[0].match)
-      const entryWAFSelection = currentEntryRow.find('.current-entry-waf-selection')
-      expect((entryWAFSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
-      const entryWAFActive = currentEntryRow.find('.current-entry-waf-active')
-      expect((entryWAFActive.element as HTMLInputElement).checked).toEqual(urlMapsDocs[0].map[0].waf_active)
+      const entryContentFilterSelection = currentEntryRow.find('.current-entry-content-filter-selection')
+      expect((entryContentFilterSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
+      const entryContentFilterActive = currentEntryRow.find('.current-entry-content-filter-active')
+      expect((entryContentFilterActive.element as HTMLInputElement).checked).toEqual(urlMapsDocs[0].map[0].content_filter_active)
       const entryACLSelection = currentEntryRow.find('.current-entry-acl-selection')
       expect((entryACLSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
       const entryACLActive = currentEntryRow.find('.current-entry-acl-active')
@@ -838,10 +838,10 @@ describe('URLMapsEditor.vue', () => {
         const entryMatch = currentEntryRow.find('.current-entry-match')
         const validMatch = expect.stringContaining('/new/path/to/match/profile/')
         expect((entryMatch.element as HTMLInputElement).value).toEqual(validMatch)
-        const entryWAFSelection = currentEntryRow.find('.current-entry-waf-selection')
-        expect((entryWAFSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
-        const entryWAFActive = currentEntryRow.find('.current-entry-waf-active')
-        expect((entryWAFActive.element as HTMLInputElement).checked).toEqual(urlMapsDocs[0].map[1].waf_active)
+        const entryContentFilterSelection = currentEntryRow.find('.current-entry-content-filter-selection')
+        expect((entryContentFilterSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
+        const entryContentFilterActive = currentEntryRow.find('.current-entry-content-filter-active')
+        expect((entryContentFilterActive.element as HTMLInputElement).checked).toEqual(urlMapsDocs[0].map[1].content_filter_active)
         const entryACLSelection = currentEntryRow.find('.current-entry-acl-selection')
         expect((entryACLSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         const entryACLActive = currentEntryRow.find('.current-entry-acl-active')
@@ -903,10 +903,10 @@ describe('URLMapsEditor.vue', () => {
         entryMatch = currentEntryRow.find('.current-entry-match')
         const validMatch = expect.stringContaining('/new/path/to/match/profile/')
         expect((entryMatch.element as HTMLInputElement).value).toEqual(validMatch)
-        const entryWAFSelection = currentEntryRow.find('.current-entry-waf-selection')
-        expect((entryWAFSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
-        const entryWAFActive = currentEntryRow.find('.current-entry-waf-active')
-        expect((entryWAFActive.element as HTMLInputElement).checked).toEqual(urlMapsDocs[0].map[1].waf_active)
+        const entryContentFilterSelection = currentEntryRow.find('.current-entry-content-filter-selection')
+        expect((entryContentFilterSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
+        const entryContentFilterActive = currentEntryRow.find('.current-entry-content-filter-active')
+        expect((entryContentFilterActive.element as HTMLInputElement).checked).toEqual(urlMapsDocs[0].map[1].content_filter_active)
         const entryACLSelection = currentEntryRow.find('.current-entry-acl-selection')
         expect((entryACLSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         const entryACLActive = currentEntryRow.find('.current-entry-acl-active')

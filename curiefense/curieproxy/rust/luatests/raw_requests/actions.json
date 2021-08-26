@@ -18,13 +18,13 @@
         "ip:12-13-14-15",
         "sante",
         "urlmap-entry:default",
-        "wafname:default-waf",
+        "contentfiltername:default-contentfilter",
         "urlmap:default-entry",
         "aclname:default-acl",
         "aclid:--default--",
         "asn:7018",
         "tagbyip",
-        "wafid:--default--",
+        "contentfilterid:--default--",
         "bot"
       ]
     }

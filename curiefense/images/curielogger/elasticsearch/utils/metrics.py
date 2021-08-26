@@ -34,8 +34,8 @@ def split_static_tag(tag):
         "container",
         "aclid",
         "aclname",
-        "wafid",
-        "wafname",
+        "contentfilterid",
+        "contentfiltername",
         "proxy",
         "ip",
         "asn",
@@ -43,8 +43,7 @@ def split_static_tag(tag):
         "secprofile",
         "urlmap-entry",
         "urlmap_entry",
-        "urlmap" "wafid",
-        "wafname",
+        "urlmap"
     )
 
     parts = tag.split(":", 1)

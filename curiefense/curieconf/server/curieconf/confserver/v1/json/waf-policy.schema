@@ -1,0 +1,94 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "WAF Profile",
+    "description": "WAF Profile",
+    "definitions": {
+        "waf-entry-match": {
+            "type": "object",
+            "properties": {
+                "key": { "type": ["null", "string"] },
+                "reg": { "type": ["null", "string"] },
+                "restrict": { "type": "boolean" },
+                "mask": { "type": "boolean" },
+                "exclusions": {
+                    "type": ["object", "null"],
+                    "additionalProperties": { "type": "integer" }
+                }
+            }
+        }
+    },
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique id"
+        },
+        "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name",
+            "description": "Name of entity shown in UI"
+        },
+        "ignore_alphanum": {
+            "type": "boolean",
+            "title": "Ignore Alphanumeric",
+            "description": "When true, arguments, headers or cookies, which contain only alpha numeric characters, will be ignored"
+        },
+        "max_header_length": {
+            "type": "number",
+            "title": "Max Header Length",
+            "description": "Max length of characters allowed for each header in the request"
+        },
+        "max_cookie_length": {
+            "type": "number",
+            "title": "Max Cookie Length",
+            "description": "Max length of characters allowed for each cookie in the request"
+        },
+        "max_arg_length": {
+            "type": "number",
+            "title": "Max Argument Length",
+            "description": "Max length of characters allowed for each argument in the request"
+        },
+        "max_headers_count": {
+            "type": "number",
+            "title": "Max Headers Count",
+            "description": "Max amount of headers allowed in the request"
+        },
+        "max_cookies_count": {
+            "type": "number",
+            "title": "Max Cookies Count",
+            "description": "Max amount of cookies allowed in the request"
+        },
+        "max_args_count": {
+            "type": "number",
+            "title": "Max Arguments Count",
+            "description": "Max amount of arguments allowed in the request"
+        },
+        "args": {
+            "type": "object",
+            "properties": {
+                "names": { "type": "array", "items": { "$ref": "#/definitions/waf-entry-match" } },
+                "regex": { "type": "array", "items": { "$ref": "#/definitions/waf-entry-match" } }
+            },
+            "required": [ "names", "regex"]
+        },
+        "headers": {
+            "type": "object",
+            "properties": {
+                "names": { "type": "array", "items": { "$ref": "#/definitions/waf-entry-match" } },
+                "regex": { "type": "array", "items": { "$ref": "#/definitions/waf-entry-match" } }
+            },
+            "required": [ "names", "regex" ]
+        },
+        "cookies": {
+            "type": "object",
+            "properties": {
+                "names": { "type": "array", "items": { "$ref": "#/definitions/waf-entry-match" } },
+                "regex": { "type": "array", "items": { "$ref": "#/definitions/waf-entry-match" } }
+            },
+            "required": [ "names", "regex" ]
+        }
+    },
+    "required": [ "id", "name", "ignore_alphanum", "max_header_length", "max_cookie_length", "max_arg_length", "max_headers_count", "max_cookies_count", "max_args_count", "args", "headers", "cookies" ]
+}

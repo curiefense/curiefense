@@ -1,0 +1,42 @@
+[
+  {
+    "id": "100016",
+    "name": "100016",
+    "msg": "SQLi Attempt (SQL Built-in Function Call Detected)",
+    "operand": "xp_(makecab|cmdshell|execresultset|regaddmultistring|regread|enumdsn|availablemedia|regdeletekey|loginconfig|regremovemultistring|regwrite|regdeletevalue|dirtree|regenumkeys|filelist|terminate|servicecontrol|ntsec_enumdomains|terminate_process|ntsec|regenumvalues|cmdshell)",
+    "severity": 5,
+    "certainity": 5,
+    "category": "sqli",
+    "subcategory": "built-in function invocation"
+  },
+  {
+    "id": "100017",
+    "name": "100017",
+    "msg": "SQLi Attempt (SQL Built-in Function Call Detected)",
+    "operand": "(information_schema|connection_id|iif|benchmark|sha1|md5)(\\s)?\\(",
+    "severity": 5,
+    "certainity": 5,
+    "category": "sqli",
+    "subcategory": "built-in function invocation"
+  },
+  {
+    "id": "100010",
+    "name": "100010",
+    "msg": "alphanum operand",
+    "operand": "AZDGSDQZE16Z",
+    "severity": 5,
+    "certainity": 5,
+    "category": "generic",
+    "subcategory": "generic"
+  },
+  {
+    "id": "100099",
+    "name": "100099",
+    "msg": "RFI/LFI/OSCI",
+    "operand": "/nettracker/",
+    "severity": 5,
+    "certainity": 5,
+    "category": "generic",
+    "subcategory": "generic"
+  }
+]

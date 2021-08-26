@@ -4,7 +4,7 @@ pub mod limit;
 pub mod globalfilter;
 pub mod raw;
 pub mod utils;
-pub mod waf;
+pub mod contentfilter;
 
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -19,13 +19,13 @@ use flow::{flow_resolve, FlowElement, SequenceKey};
 use hostmap::{HostMap, UrlMap};
 use limit::{limit_order, Limit};
 use globalfilter::GlobalFilterSection;
-use raw::{AclProfile, RawFlowEntry, RawHostMap, RawLimit, RawGlobalFilterSection, RawUrlMap, RawWafProfile};
+use raw::{AclProfile, RawFlowEntry, RawHostMap, RawLimit, RawGlobalFilterSection, RawUrlMap, RawContentFilterProfile};
 use utils::Matching;
-use waf::{resolve_signatures, WafProfile, WafSignatures};
+use contentfilter::{resolve_rules, ContentFilterProfile, ContentFilterRules};
 
 lazy_static! {
     pub static ref CONFIG: RwLock<Config> = RwLock::new(Config::empty());
-    pub static ref HSDB: RwLock<Option<WafSignatures>> = RwLock::new(None);
+    pub static ref HSDB: RwLock<Option<ContentFilterRules>> = RwLock::new(None);
 }
 
 pub fn with_config<R, F>(basepath: &str, logs: &mut Logs, f: F) -> Option<R>
@@ -71,7 +71,7 @@ pub struct Config {
     pub last_mod: SystemTime,
     pub container_name: Option<String>,
     pub flows: HashMap<SequenceKey, Vec<FlowElement>>,
-    pub waf_profiles: HashMap<String, WafProfile>,
+    pub content_filter_profiles: HashMap<String, ContentFilterProfile>,
 }
 
 fn from_map<V: Clone>(mp: &HashMap<String, V>, k: &str) -> Result<V, String> {
@@ -88,7 +88,7 @@ impl Config {
         rawmaps: Vec<RawUrlMap>,
         limits: &HashMap<String, Limit>,
         acls: &HashMap<String, AclProfile>,
-        wafprofiles: &HashMap<String, WafProfile>,
+        contentfilterprofiles: &HashMap<String, ContentFilterProfile>,
     ) -> (Vec<Matching<UrlMap>>, Option<UrlMap>) {
         let mut default: Option<UrlMap> = None;
         let mut entries: Vec<Matching<UrlMap>> = Vec::new();
@@ -101,11 +101,11 @@ impl Config {
                     AclProfile::default()
                 }
             };
-            let waf_profile: WafProfile = match wafprofiles.get(&rawmap.waf_profile) {
+            let content_filter_profile: ContentFilterProfile = match contentfilterprofiles.get(&rawmap.content_filter_profile) {
                 Some(p) => p.clone(),
                 None => {
-                    logs.warning(format!("Unknown WAF profile {}", &rawmap.waf_profile));
-                    WafProfile::default()
+                    logs.warning(format!("Unknown Content Filter profile {}", &rawmap.content_filter_profile));
+                    ContentFilterProfile::default()
                 }
             };
             let mut olimits: Vec<Limit> = Vec::new();
@@ -121,8 +121,8 @@ impl Config {
             let urlmap = UrlMap {
                 acl_active: rawmap.acl_active,
                 acl_profile,
-                waf_active: rawmap.waf_active,
-                waf_profile,
+                content_filter_active: rawmap.content_filter_active,
+                content_filter_profile,
                 limits: olimits,
                 name: rawmap.name,
             };
@@ -152,7 +152,7 @@ impl Config {
         rawlimits: Vec<RawLimit>,
         rawglobalfilters: Vec<RawGlobalFilterSection>,
         rawacls: Vec<AclProfile>,
-        rawwafprofiles: Vec<RawWafProfile>,
+        rawcontentfilterprofiles: Vec<RawContentFilterProfile>,
         container_name: Option<String>,
         rawflows: Vec<RawFlowEntry>,
     ) -> Config {
@@ -160,12 +160,12 @@ impl Config {
         let mut urlmaps: Vec<Matching<HostMap>> = Vec::new();
 
         let limits = Limit::resolve(logs, rawlimits);
-        let waf_profiles = WafProfile::resolve(logs, rawwafprofiles);
+        let content_filter_profiles = ContentFilterProfile::resolve(logs, rawcontentfilterprofiles);
         let acls = rawacls.into_iter().map(|a| (a.id.clone(), a)).collect();
 
         // build the entries while looking for the default entry
         for rawmap in rawmaps {
-            let (entries, default_entry) = Config::resolve_url_maps(logs, rawmap.map, &limits, &acls, &waf_profiles);
+            let (entries, default_entry) = Config::resolve_url_maps(logs, rawmap.map, &limits, &acls, &content_filter_profiles);
             if default_entry.is_none() {
                 logs.warning(format!(
                     "HostMap entry '{}', id '{}' does not have a default entry",
@@ -209,7 +209,7 @@ impl Config {
             last_mod,
             container_name,
             flows,
-            waf_profiles,
+            content_filter_profiles,
         }
     }
 
@@ -243,7 +243,7 @@ impl Config {
         out
     }
 
-    pub fn reload(&self, logs: &mut Logs, basepath: &str) -> Option<(Config, WafSignatures)> {
+    pub fn reload(&self, logs: &mut Logs, basepath: &str) -> Option<(Config, ContentFilterRules)> {
         let last_mod = std::fs::metadata(basepath)
             .and_then(|x| x.modified())
             .unwrap_or_else(|rr| {
@@ -262,16 +262,16 @@ impl Config {
         let globalfilters = Config::load_config_file(logs, &bjson, "globalfilter-lists.json");
         let limits = Config::load_config_file(logs, &bjson, "limits.json");
         let acls = Config::load_config_file(logs, &bjson, "acl-profiles.json");
-        let wafprofiles = Config::load_config_file(logs, &bjson, "waf-profiles.json");
-        let wafsignatures = Config::load_config_file(logs, &bjson, "waf-signatures.json");
+        let contentfilterprofiles = Config::load_config_file(logs, &bjson, "contentfilter-profiles.json");
+        let contentfilterrules = Config::load_config_file(logs, &bjson, "contentfilter-rules.json");
         let flows = Config::load_config_file(logs, &bjson, "flow-control.json");
 
         let container_name = std::fs::read_to_string("/etc/hostname")
             .ok()
             .map(|s| s.trim().to_string());
-        let hsdb = resolve_signatures(wafsignatures).unwrap_or_else(|rr| {
+        let hsdb = resolve_rules(contentfilterrules).unwrap_or_else(|rr| {
             logs.error(rr);
-            WafSignatures::empty()
+            ContentFilterRules::empty()
         });
         let config = Config::resolve(
             logs,
@@ -280,7 +280,7 @@ impl Config {
             limits,
             globalfilters,
             acls,
-            wafprofiles,
+            contentfilterprofiles,
             container_name,
             flows,
         );
@@ -295,7 +295,7 @@ impl Config {
             default: None,
             container_name: None,
             flows: HashMap::new(),
-            waf_profiles: HashMap::new(),
+            content_filter_profiles: HashMap::new(),
         }
     }
 }

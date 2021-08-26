@@ -136,7 +136,7 @@
 <script lang="ts">
 import _ from 'lodash'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
-import WAFEditor from '@/doc-editors/WAFEditor.vue'
+import ContentFilterEditor from '@/doc-editors/ContentFilterEditor.vue'
 import URLMapsEditor from '@/doc-editors/URLMapsEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
@@ -154,7 +154,7 @@ type SearchDocument = Document & {
   tags: string
   connections: string[]
   connectedACL: string[]
-  connectedWAF: string[]
+  connectedContentFilter: string[]
   connectedRateLimits: string[]
   connectedURLMaps: string[]
   map: URLMapEntryMatch[]
@@ -172,7 +172,7 @@ export default Vue.extend({
   data() {
     const titles = DatasetsUtils.titles
     // Order is important
-    // We load [urlmaps] before [aclpolicies, wafpolicies, ratelimits] so we can pull all references correctly
+    // We load [urlmaps] before [aclpolicies, contentfilterprofiles, ratelimits] so we can pull all references correctly
     const componentsMap: {
       [key in DocumentType]?: {
         component: VueConstructor
@@ -205,9 +205,9 @@ export default Vue.extend({
         title: titles['ratelimits'],
         fields: 'id, name, description',
       },
-      'wafpolicies': {
-        component: WAFEditor,
-        title: titles['wafpolicies'],
+      'contentfilterprofiles': {
+        component: ContentFilterEditor,
+        title: titles['contentfilterprofiles'],
         fields: 'id, name',
       },
     }
@@ -281,9 +281,9 @@ export default Vue.extend({
 
       componentsMap: componentsMap,
 
-      // Referenced IDs of [aclpolicies, wafpolicies, ratelimits] in [urlmaps]
+      // Referenced IDs of [aclpolicies, contentfilterprofiles, ratelimits] in [urlmaps]
       referencedACL: {} as ReferencesMap,
-      referencedWAF: {} as ReferencesMap,
+      referencedContentFilter: {} as ReferencesMap,
       referencedLimit: {} as ReferencesMap,
     }
   },
@@ -366,16 +366,16 @@ export default Vue.extend({
             // Build connections based on document type
             if (doctype === 'urlmaps') {
               this.buildURLMapConnections(doc)
-              this.saveWafAclLimitConnections(doc)
+              this.saveContentFilterAclLimitConnections(doc)
             }
             if (doctype === 'aclpolicies') {
-              this.buildWafAclLimitConnections(doc, this.referencedACL)
+              this.buildContentFilterAclLimitConnections(doc, this.referencedACL)
             }
-            if (doctype === 'wafpolicies') {
-              this.buildWafAclLimitConnections(doc, this.referencedWAF)
+            if (doctype === 'contentfilterprofiles') {
+              this.buildContentFilterAclLimitConnections(doc, this.referencedContentFilter)
             }
             if (doctype === 'ratelimits') {
-              this.buildWafAclLimitConnections(doc, this.referencedLimit)
+              this.buildContentFilterAclLimitConnections(doc, this.referencedLimit)
             }
             this.docs.push(doc)
           }
@@ -388,15 +388,15 @@ export default Vue.extend({
 
     buildURLMapConnections(doc: SearchDocument) {
       const connectedACL: string[] = []
-      const connectedWAF: string[] = []
+      const connectedContentFilter: string[] = []
       const connectedRateLimits: string[] = []
       for (let i = 0; i < doc.map.length; i++) {
         const map = doc.map[i]
         if (!connectedACL.includes(map.acl_profile)) {
           connectedACL.push(map.acl_profile)
         }
-        if (!connectedWAF.includes(map.waf_profile)) {
-          connectedWAF.push(map.waf_profile)
+        if (!connectedContentFilter.includes(map.content_filter_profile)) {
+          connectedContentFilter.push(map.content_filter_profile)
         }
         for (let j = 0; j < map.limit_ids.length; j++) {
           if (!connectedRateLimits.includes(map.limit_ids[j])) {
@@ -405,12 +405,12 @@ export default Vue.extend({
         }
       }
       doc.connectedACL = connectedACL
-      doc.connectedWAF = connectedWAF
+      doc.connectedContentFilter = connectedContentFilter
       doc.connectedRateLimits = connectedRateLimits
-      doc.connections = [].concat(connectedACL, connectedWAF, connectedRateLimits)
+      doc.connections = [].concat(connectedACL, connectedContentFilter, connectedRateLimits)
     },
 
-    buildWafAclLimitConnections(doc: SearchDocument, referencesMap: ReferencesMap) {
+    buildContentFilterAclLimitConnections(doc: SearchDocument, referencesMap: ReferencesMap) {
       if (!referencesMap[doc.id] || referencesMap[doc.id].length === 0) {
         return
       }
@@ -418,7 +418,7 @@ export default Vue.extend({
       doc.connections = referencesMap[doc.id]
     },
 
-    saveWafAclLimitConnections(doc: SearchDocument) {
+    saveContentFilterAclLimitConnections(doc: SearchDocument) {
       for (let i = 0; i < doc.map.length; i++) {
         const map = doc.map[i]
         // initialize array if needed
@@ -428,11 +428,11 @@ export default Vue.extend({
         // add map id to referenced acl
         this.referencedACL[map.acl_profile].push(doc.id)
         // initialize array if needed
-        if (!this.referencedWAF[map.waf_profile] || this.referencedWAF[map.waf_profile].length === 0) {
-          this.referencedWAF[map.waf_profile] = []
+        if (!this.referencedContentFilter[map.content_filter_profile] || this.referencedContentFilter[map.content_filter_profile].length === 0) {
+          this.referencedContentFilter[map.content_filter_profile] = []
         }
-        // add map id to referenced waf
-        this.referencedWAF[map.waf_profile].push(doc.id)
+        // add map id to referenced content filter
+        this.referencedContentFilter[map.content_filter_profile].push(doc.id)
         for (let j = 0; j < map.limit_ids.length; j++) {
           // initialize array if needed
           if (!this.referencedLimit[map.limit_ids[j]] || this.referencedLimit[map.limit_ids[j]].length === 0) {
@@ -460,10 +460,10 @@ export default Vue.extend({
         connections = connections.concat(
             `<b>${this.componentsMap['aclpolicies'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
       }
-      if (doc.connectedWAF && doc.connectedWAF.length > 0) {
-        const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedWAF.join('<br/>'))
+      if (doc.connectedContentFilter && doc.connectedContentFilter.length > 0) {
+        const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedContentFilter.join('<br/>'))
         connections = connections.concat(
-            `<b>${this.componentsMap['wafpolicies'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
+            `<b>${this.componentsMap['contentfilterprofiles'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
       }
       if (doc.connectedRateLimits && doc.connectedRateLimits.length > 0) {
         const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedRateLimits.join('<br/>'))

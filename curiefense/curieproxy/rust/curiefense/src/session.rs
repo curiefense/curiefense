@@ -16,7 +16,7 @@ use crate::requestfields::RequestField;
 use crate::tagging::tag_request;
 use crate::urlmap::match_urlmap;
 use crate::utils::{find_geoip, QueryInfo, RInfo, RequestInfo, RequestMeta};
-use crate::waf::waf_check;
+use crate::contentfilter::content_filter_check;
 
 // Session stuff, the key is the session id
 lazy_static! {
@@ -168,9 +168,9 @@ pub fn session_init(encoded_request_map: &str) -> anyhow::Result<String> {
 pub struct SessionUrlMap {
     pub name: String,
     pub acl_profile: String,
-    pub waf_profile: String,
+    pub content_filter_profile: String,
     pub acl_active: bool,
-    pub waf_active: bool,
+    pub content_filter_active: bool,
     pub limit_ids: Vec<String>,
     pub urlmap: String,
 }
@@ -198,16 +198,16 @@ pub fn session_match_urlmap(session_id: &str) -> anyhow::Result<SessionUrlMap> {
         tags.insert_qualified("urlmap-entry", &urlmap.name);
         tags.insert_qualified("aclid", &urlmap.acl_profile.id);
         tags.insert_qualified("aclname", &urlmap.acl_profile.name);
-        tags.insert_qualified("wafid", &urlmap.waf_profile.id);
-        tags.insert_qualified("wafname", &urlmap.waf_profile.name);
+        tags.insert_qualified("contentfilterid", &urlmap.content_filter_profile.id);
+        tags.insert_qualified("contentfiltername", &urlmap.content_filter_profile.name);
         Ok(())
     })?;
     let raw_urlmap = SessionUrlMap {
         name: urlmap.name,
         acl_profile: urlmap.acl_profile.id,
-        waf_profile: urlmap.waf_profile.id,
+        content_filter_profile: urlmap.content_filter_profile.id,
         acl_active: urlmap.acl_active,
-        waf_active: urlmap.waf_active,
+        content_filter_active: urlmap.content_filter_active,
         limit_ids: urlmap.limits.into_iter().map(|l| l.id).collect(),
         urlmap: hostmap_name,
     };
@@ -252,14 +252,14 @@ pub fn session_acl_check(session_id: &str) -> anyhow::Result<AclResult> {
     })
 }
 
-pub fn session_waf_check(session_id: &str) -> anyhow::Result<Decision> {
+pub fn session_content_filter_check(session_id: &str) -> anyhow::Result<Decision> {
     let uuid: Uuid = session_id.parse()?;
 
     let hsdb = HSDB.read().map_err(|rr| anyhow::anyhow!("{}", rr))?;
 
     with_request_info(uuid, |rinfo| {
         with_urlmap(uuid, |urlmap| {
-            Ok(match waf_check(rinfo, &urlmap.waf_profile, hsdb) {
+            Ok(match content_filter_check(rinfo, &urlmap.content_filter_profile, hsdb) {
                 Ok(()) => Decision::Pass,
                 Err(rr) => Decision::Action(rr.to_action()),
             })

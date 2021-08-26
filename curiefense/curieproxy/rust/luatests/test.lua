@@ -200,8 +200,8 @@ local function test_flow(request_path)
   end
 end
 
--- running waf only filter
-local function run_inspect_waf(raw_request_map)
+-- running content filter only filter
+local function run_inspect_content_filter(raw_request_map)
     local meta = {}
     local headers = {}
     for k, v in pairs(raw_request_map.headers) do
@@ -218,26 +218,26 @@ local function run_inspect_waf(raw_request_map)
       ip = headers["x-forwarded-for"]
     end
 
-    local response, merr = curiefense.inspect_waf(meta, headers, raw_request_map.body, ip, raw_request_map.waf_id)
+    local response, merr = curiefense.inspect_content_filter(meta, headers, raw_request_map.body, ip, raw_request_map.content_filter_id)
     if merr then
       error(merr)
     end
     return response
 end
 
--- testing waf only filtering
-local function test_waf(request_path)
+-- testing content filter only filtering
+local function test_content_filter(request_path)
   print("Testing " .. request_path)
   local raw_request_maps = load_json_file(request_path)
   for _, raw_request_map in pairs(raw_request_maps) do
-    local response = run_inspect_waf(raw_request_map)
+    local response = run_inspect_content_filter(raw_request_map)
     local r = cjson.decode(response)
 
     local good = true
 
     for _, log in ipairs(r.logs) do
-        if log["message"] == "WAF profile not found" then
-          print("waf profile not found")
+        if log["message"] == "Content Filter profile not found" then
+          print("content filter profile not found")
           good = false
         end
     end
@@ -264,9 +264,9 @@ local function test_waf(request_path)
   end
 end
 
-for file in lfs.dir[[luatests/waf_only]] do
+for file in lfs.dir[[luatests/contentfilter_only]] do
   if ends_with(file, ".json") then
-    test_waf("luatests/waf_only/" .. file)
+    test_content_filter("luatests/contentfilter_only/" .. file)
   end
 end
 

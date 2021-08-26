@@ -1,4 +1,4 @@
-import {ACLPolicy, FlowControl, RateLimit, GlobalFilter, URLMap, WAFPolicy, WAFRule} from '@/types'
+import {ACLPolicy, FlowControl, RateLimit, GlobalFilter, URLMap, ContentFilterProfile, ContentFilterRule} from '@/types'
 
 const titles: { [key: string]: string } = {
   'admin': 'Admin',
@@ -37,10 +37,10 @@ const titles: { [key: string]: string } = {
   'ratelimits-singular': 'Rate Limit',
   'urlmaps': 'URL Maps',
   'urlmaps-singular': 'URL Map',
-  'wafpolicies': 'WAF Policies',
-  'wafpolicies-singular': 'WAF Policy',
-  'wafrules': 'WAF Rules',
-  'wafrules-singular': 'WAF Rule',
+  'contentfilterprofiles': 'Content Filter Profiles',
+  'contentfilterprofiles-singular': 'Content Filter Profile',
+  'contentfilterrules': 'Content Filter Rules',
+  'contentfilterrules-singular': 'Content Filter Rule',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
   'flowcontrol': 'Flow Control',
@@ -81,10 +81,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  wafpolicies(): WAFPolicy {
+  contentfilterprofiles(): ContentFilterPolicy {
     return {
       'id': generateUUID2(),
-      'name': 'New WAF Policy',
+      'name': 'New Content Filter Profile',
       'ignore_alphanum': true,
 
       'max_header_length': 1024,
@@ -140,9 +140,9 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'match': '/',
           'name': 'default',
           'acl_profile': '__default__',
-          'waf_profile': '__default__',
+          'contentfilter_profile': '__default__',
           'acl_active': true,
-          'waf_active': true,
+          'contentfilter_active': true,
           'limit_ids': [],
         },
       ],
@@ -193,10 +193,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  wafrules(): WAFRule {
+  contentfilterrules(): ContentFilterRule {
     return {
       'id': generateUUID2(),
-      'name': 'New WAF Rule',
+      'name': 'New Content Filter Rule',
       'operand': '',
     }
   },

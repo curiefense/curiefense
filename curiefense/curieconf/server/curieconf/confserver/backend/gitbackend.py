@@ -480,21 +480,21 @@ class GitBackend(CurieBackend):
         # check consistency
         res = []
         referenced_acl_policies = []
-        referenced_waf_policies = []
-        waf_policies = []
+        referenced_content_filter_profiles = []
+        content_filter_profiles = []
         acl_policies = []
         if "urlmaps" in docs:
             for umap in docs["urlmaps"]:
                 for umapmap in umap["map"]:
-                    referenced_waf_policies.append(umapmap["waf_profile"])
+                    referenced_content_filter_profiles.append(umapmap["content_filter_profile"])
                     referenced_acl_policies.append(umapmap["acl_profile"])
-        if "wafpolicies" in docs:
-            for waf_policy in docs["wafpolicies"]:
-                waf_policies.append(waf_policy["id"])
-            for waf_policy in referenced_waf_policies:
-                if waf_policy not in waf_policies:
+        if "contentfilterprofiles" in docs:
+            for content_filter_profile in docs["contentfilterprofiles"]:
+                content_filter_profiles.append(content_filter_profile["id"])
+            for content_filter_profile in referenced_content_filter_profiles:
+                if content_filter_profile not in content_filter_profiles:
                     res.append(
-                        f"WAF Profile {waf_policy} is referenced but not present"
+                        f"Content Filter Profile {content_filter_profile} is referenced but not present"
                     )
         if "aclpolicies" in docs:
             for acl_policy in docs["aclpolicies"]:

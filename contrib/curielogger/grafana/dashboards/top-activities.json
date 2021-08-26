@@ -649,10 +649,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "topk(5, sum(rate(curiemetric_session_details_total{blocked=\"true\"} [1m])) by (wafid) )",
+          "expr": "topk(5, sum(rate(curiemetric_session_details_total{blocked=\"true\"} [1m])) by (contentfilterid) )",
           "instant": false,
           "interval": "",
-          "legendFormat": "{{ wafid }}",
+          "legendFormat": "{{ contentfilterid }}",
           "refId": "B"
         }
       ],
@@ -660,7 +660,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Blocking WAF IDs",
+      "title": "Blocking Content Filter IDs",
       "tooltip": {
         "shared": true,
         "sort": 0,

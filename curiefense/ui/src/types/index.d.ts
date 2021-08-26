@@ -12,7 +12,7 @@ declare module CuriefenseClient {
 
   // Document types helpers - START
 
-  type WAFEntryMatch = {
+  type ContentFilterEntryMatch = {
     key: string
     reg: string
     restrict: boolean
@@ -25,9 +25,9 @@ declare module CuriefenseClient {
     match: string
     name: string
     acl_profile: string
-    waf_profile: string
+    content_filter_profile: string
     acl_active: boolean
-    waf_active: boolean
+    content_filter_active: boolean
     limit_ids: string[]
   }
 
@@ -68,9 +68,9 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
-  type Document = BasicDocument & (ACLPolicy | FlowControl | GlobalFilter | RateLimit | URLMap | WAFPolicy | WAFRule)
+  type Document = BasicDocument & (ACLPolicy | FlowControl | GlobalFilter | RateLimit | URLMap | ContentFilterProfile | ContentFilterRule)
 
-  type DocumentType = 'aclpolicies' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'urlmaps' | 'wafpolicies' | 'wafrules'
+  type DocumentType = 'aclpolicies' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'urlmaps' | 'contentfilterprofiles' | 'contentfilterrules'
 
   // Document types helpers - END
 
@@ -92,7 +92,7 @@ declare module CuriefenseClient {
     deny: string[]
   }
 
-  type WAFPolicy = {
+  type ContentFilterProfile = {
     id: string
     name: string
     ignore_alphanum: boolean
@@ -103,16 +103,16 @@ declare module CuriefenseClient {
     max_cookies_count: number
     max_args_count: number
     args: {
-      names: WAFEntryMatch[]
-      regex: WAFEntryMatch[]
+      names: ContentFilterEntryMatch[]
+      regex: ContentFilterEntryMatch[]
     }
     headers: {
-      names: WAFEntryMatch[]
-      regex: WAFEntryMatch[]
+      names: ContentFilterEntryMatch[]
+      regex: ContentFilterEntryMatch[]
     }
     cookies: {
-      names: WAFEntryMatch[]
-      regex: WAFEntryMatch[]
+      names: ContentFilterEntryMatch[]
+      regex: ContentFilterEntryMatch[]
     }
   }
 
@@ -170,7 +170,7 @@ declare module CuriefenseClient {
     }[]
   }
 
-  type WAFRule = {
+  type ContentFilterRule = {
     id: string
     name: string
     category?: string

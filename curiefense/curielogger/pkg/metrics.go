@@ -22,16 +22,16 @@ const (
 
 var (
 	staticTags = map[string]bool{
-		"ip":           true,
-		"asn":          true,
-		"geo":          true,
-		"aclid":        true,
-		"aclname":      true,
-		"wafid":        true,
-		"wafname":      true,
-		"urlmap":       true,
-		"urlmap-entry": true,
-		"container":    true,
+		"ip":                true,
+		"asn":               true,
+		"geo":               true,
+		"aclid":             true,
+		"aclname":           true,
+		"contentfilterid":   true,
+		"contentfiltername": true,
+		"urlmap":            true,
+		"urlmap-entry":      true,
+		"container":         true,
 	}
 )
 
@@ -85,8 +85,8 @@ func NewMetrics(v *viper.Viper) *Metrics {
 			"geo",
 			"aclid",
 			"aclname",
-			"wafid",
-			"wafname",
+			"contentfilterid",
+			"contentfiltername",
 			"urlmap",
 			"urlmap_entry",
 			"container",
@@ -201,8 +201,8 @@ func makeLabels(statusCode int, method, path, upstream, blocked string, tags []s
 		"geo":                 tm["geo"],
 		"aclid":               tm["aclid"],
 		"aclname":             tm["aclname"],
-		"wafid":               tm["wafid"],
-		"wafname":             tm["wafname"],
+		"contentfilterid":     tm["contentfilterid"],
+		"contentfiltername":   tm["contentfiltername"],
 		"urlmap":              tm["urlmap"],
 		"urlmap_entry":        tm["urlmap-entry"],
 		"container":           tm["container"],

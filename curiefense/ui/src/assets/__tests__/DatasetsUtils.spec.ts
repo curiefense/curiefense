@@ -32,10 +32,10 @@ describe('RequestsUtils.ts', () => {
       expect(document['deny']).toEqual([])
     })
 
-    test('should generate a new WAF Policy', async () => {
-      const document = DatasetsUtils.newDocEntryFactory.wafpolicies()
+    test('should generate a new Content Filter Profile', async () => {
+      const document = DatasetsUtils.newDocEntryFactory.contentfilterprofiles()
       expect(regexUUID2.test(document['id'])).toBeTruthy()
-      expect(document['name']).toEqual('New WAF Policy')
+      expect(document['name']).toEqual('New Content Filter Profile')
       expect(document['ignore_alphanum']).toEqual(true)
       expect(document['max_header_length']).toEqual(1024)
       expect(document['max_cookie_length']).toEqual(1024)
@@ -76,9 +76,9 @@ describe('RequestsUtils.ts', () => {
       expect(document['map'][0]['match']).toEqual('/')
       expect(document['map'][0]['name']).toEqual('default')
       expect(document['map'][0]['acl_profile']).toEqual('__default__')
-      expect(document['map'][0]['waf_profile']).toEqual('__default__')
+      expect(document['map'][0]['content_filter_profile']).toEqual('__default__')
       expect(document['map'][0]['acl_active']).toEqual(true)
-      expect(document['map'][0]['waf_active']).toEqual(true)
+      expect(document['map'][0]['content_filter_active']).toEqual(true)
       expect(document['map'][0]['limit_ids']).toEqual([])
     })
 
@@ -110,10 +110,10 @@ describe('RequestsUtils.ts', () => {
       expect(document['sequence']).toEqual([])
     })
 
-    test('should generate a new WAF Rule', async () => {
-      const document = DatasetsUtils.newDocEntryFactory.wafrules()
+    test('should generate a new Content Filter Rule', async () => {
+      const document = DatasetsUtils.newDocEntryFactory.contentfilterrules()
       expect(regexUUID2.test(document['id'])).toBeTruthy()
-      expect(document['name']).toEqual('New WAF Rule')
+      expect(document['name']).toEqual('New Content Filter Rule')
       expect(document['operand']).toEqual('')
     })
   })

@@ -51,7 +51,7 @@
                 <th class="is-size-7">Name</th>
                 <th class="is-size-7" colspan="2"><span>Match</span>&nbsp;<span><i
                     class="fas fa-sort-alpha-down"></i></span></th>
-                <th class="is-size-7">WAF</th>
+                <th class="is-size-7">Content Filter</th>
                 <th class="is-size-7">ACL</th>
                 <th class="is-size-7" title="Rate limit">RL</th>
                 <th></th>
@@ -72,10 +72,10 @@
                     :title="mapEntry.match">
                   {{ mapEntry.match }}
                 </td>
-                <td class="is-size-7 entry-waf"
-                    :class="mapEntry.waf_active ? 'has-text-success' : 'has-text-danger'"
-                    :title="mapEntry.waf_active ? 'Active mode' : 'Learning mode'">
-                  {{ wafProfileName(mapEntry.waf_profile) ? wafProfileName(mapEntry.waf_profile)[1] : '' }}
+                <td class="is-size-7 entry-content-filter"
+                    :class="mapEntry.content_filter_active ? 'has-text-success' : 'has-text-danger'"
+                    :title="mapEntry.content_filter_active ? 'Active mode' : 'Learning mode'">
+                  {{ contentFilterProfileName(mapEntry.content_filter_profile) ? contentFilterProfileName(mapEntry.content_filter_profile)[1] : '' }}
                 </td>
                 <td class="is-size-7 entry-acl"
                     :class="mapEntry.acl_active ? 'has-text-success' : 'has-text-danger'"
@@ -254,17 +254,17 @@
                           </div>
                           <div class="column is-4">
                             <div class="field">
-                              <label class="label is-small">WAF Policy</label>
+                              <label class="label is-small">Content Filter Profile</label>
                               <div class="control is-expanded">
                                 <div class="select is-fullwidth is-small">
-                                  <select v-model="mapEntry.waf_profile"
+                                  <select v-model="mapEntry.content_filter_profile"
                                           @change="emitDocUpdate"
-                                          class="current-entry-waf-selection"
-                                          title="WAF policy">
-                                    <option v-for="waf in wafProfileNames"
-                                            :value="waf[0]"
-                                            :key="waf[0]">
-                                      {{ waf[1] }}
+                                          class="current-entry-content-filter-selection"
+                                          title="Content Filter profile">
+                                    <option v-for="contentfilter in contentFilterProfileNames"
+                                            :value="contentfilter[0]"
+                                            :key="contentfilter[0]">
+                                      {{ contentfilter[1] }}
                                     </option>
                                   </select>
                                 </div>
@@ -274,8 +274,8 @@
                               <label class="checkbox is-size-7">
                                 <input type="checkbox"
                                        @change="emitDocUpdate"
-                                       class="current-entry-waf-active"
-                                       v-model="mapEntry.waf_active">
+                                       class="current-entry-content-filter-active"
+                                       v-model="mapEntry.content_filter_active">
                                 Active Mode
                               </label>
                             </div>
@@ -344,7 +344,7 @@ import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import RequestsUtils from '@/assets/RequestsUtils.ts'
 import Vue, {VueConstructor} from 'vue'
-import {ACLPolicy, RateLimit, URLMap, URLMapEntryMatch, WAFPolicy} from '@/types'
+import {ACLPolicy, RateLimit, URLMap, URLMapEntryMatch, ContentFilterProfile} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 
@@ -368,7 +368,7 @@ export default (Vue as VueConstructor<Vue & {
       mapEntryIndex: -1,
 
       // for URLMap drop downs
-      wafProfileNames: [] as [WAFPolicy['id'], WAFPolicy['name']][],
+      contentFilterProfileNames: [] as [ContentFilterProfile['id'], ContentFilterProfile['name']][],
       aclProfileNames: [] as [ACLPolicy['id'], ACLPolicy['name']][],
       limitRuleNames: [] as RateLimit[],
       domainNames: [] as URLMap['match'][],
@@ -448,8 +448,8 @@ export default (Vue as VueConstructor<Vue & {
       return _.find(this.aclProfileNames, (profile) => profile[0] === id)
     },
 
-    wafProfileName(id: string): string[] {
-      return _.find(this.wafProfileNames, (profile) => {
+    contentFilterProfileName(id: string): string[] {
+      return _.find(this.contentFilterProfileNames, (profile) => {
         return profile[0] === id
       })
     },
@@ -541,15 +541,15 @@ export default (Vue as VueConstructor<Vue & {
       this.$router.push(`/config/${this.selectedBranch}/ratelimits`)
     },
 
-    wafacllimitProfileNames() {
+    contentfilteracllimitProfileNames() {
       const branch = this.selectedBranch
 
       RequestsUtils.sendRequest({
         methodName: 'GET',
-        url: `configs/${branch}/d/wafpolicies/`,
+        url: `configs/${branch}/d/contentfilterprofiles/`,
         config: {headers: {'x-fields': 'id, name'}},
-      }).then((response: AxiosResponse<WAFPolicy[]>) => {
-        this.wafProfileNames = _.sortBy(_.map(response.data, (entity) => {
+      }).then((response: AxiosResponse<ContentFilterProfile[]>) => {
+        this.contentFilterProfileNames = _.sortBy(_.map(response.data, (entity) => {
           return [entity.id, entity.name]
         }), (e) => {
           return e[1]
@@ -602,7 +602,7 @@ export default (Vue as VueConstructor<Vue & {
   },
 
   created() {
-    this.wafacllimitProfileNames()
+    this.contentfilteracllimitProfileNames()
   },
 })
 </script>

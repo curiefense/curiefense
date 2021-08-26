@@ -55,9 +55,9 @@
                 "map": [
                     {
                         "limit_ids": [],
-                        "waf_active": true,
+                        "content_filter_active": true,
                         "acl_active": true,
-                        "waf_profile": "__default__",
+                        "content_filter_profile": "__default__",
                         "acl_profile": "__default__",
                         "name": "default",
                         "match": "/"
@@ -71,37 +71,37 @@
                 "map": [
                     {
                         "limit_ids": [],
-                        "waf_active": true,
+                        "content_filter_active": true,
                         "acl_active": true,
-                        "waf_profile": "__default__",
+                        "content_filter_profile": "__default__",
                         "acl_profile": "__default__",
                         "name": "Deny Custom Sig",
                         "match": "/deny-custom-sig"
                     },
                     {
                         "limit_ids": [],
-                        "waf_active": true,
+                        "content_filter_active": true,
                         "acl_active": true,
-                        "waf_profile": "__default__",
+                        "content_filter_profile": "__default__",
                         "acl_profile": "__default__",
                         "name": "Allow Custom Sig",
                         "match": "/allow-custom-sig"
                     },
                     {
                         "limit_ids": [],
-                        "waf_active": true,
+                        "content_filter_active": true,
                         "acl_active": true,
-                        "waf_profile": "__default__",
+                        "content_filter_profile": "__default__",
                         "acl_profile": "__default__",
                         "name": "Admin",
                         "match": "/admin"
                     },
                     {
                         "limit_ids": [],
-                        "waf_active": true,
+                        "content_filter_active": true,
                         "acl_active": true,
                         "acl_profile": "__default__",
-                        "waf_profile": "__default__",
+                        "content_filter_profile": "__default__",
                         "name": "default",
                         "match": "/"
                     }
@@ -114,18 +114,18 @@
                 "map": [
                     {
                         "limit_ids": [],
-                        "waf_active": true,
+                        "content_filter_active": true,
                         "acl_active": true,
-                        "waf_profile": "__default__",
+                        "content_filter_profile": "__default__",
                         "acl_profile": "__default__",
                         "name": "default",
                         "match": "/"
                     },
                     {
                         "limit_ids": [],
-                        "waf_active": true,
+                        "content_filter_active": true,
                         "acl_active": true,
-                        "waf_profile": "__default__",
+                        "content_filter_profile": "__default__",
                         "acl_profile": "__default__",
                         "name": "Admin",
                         "match": "/admin"
@@ -133,7 +133,7 @@
                 ]
             }
         ],
-        "wafrules": [
+        "contentfilterrules": [
             {
                 "id": "100000",
                 "name": "100000",
@@ -145,10 +145,10 @@
                 "subcategory": "statement injection"
             }
         ],
-        "wafpolicies": [
+        "contentfilterprofiles": [
             {
                 "id": "__default__",
-                "name": "default waf",
+                "name": "default content filter",
                 "ignore_alphanum": true,
                 "max_header_length": 1024,
                 "max_cookie_length": 1024,
@@ -263,7 +263,7 @@
             },
             {
                 "id": "CgXowRvO6zGjW9WMpoESC",
-                "name": "waf 002",
+                "name": "content filter 002",
                 "ignore_alphanum": true,
                 "max_header_length": 1024,
                 "max_cookie_length": 1024,

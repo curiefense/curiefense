@@ -65,8 +65,8 @@ m_secprofilemap = api.model(
         "match": fields.String(required=True),
         "acl_profile": fields.String(required=True),
         "acl_active": fields.Boolean(required=True),
-        "waf_profile": fields.String(required=True),
-        "waf_active": fields.Boolean(required=True),
+        "content_filter_profile": fields.String(required=True),
+        "content_filter_active": fields.Boolean(required=True),
         "limit_ids": fields.List(fields.Raw()),
     },
 )
@@ -85,10 +85,10 @@ m_urlmap = api.model(
     },
 )
 
-# wafrule
+# content filter rule
 
-m_wafrule = api.model(
-    "WAF Rule",
+m_contentfilterrule = api.model(
+    "Content Filter Rule",
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
@@ -101,10 +101,10 @@ m_wafrule = api.model(
     },
 )
 
-# wafpolicy
+# content filter profile
 
-m_wafpolicy = api.model(
-    "WAF Policy",
+m_contentfilterprofile = api.model(
+    "Content Filter Profile",
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
@@ -179,8 +179,8 @@ m_flowcontrol = api.model(
 models = {
     "ratelimits": m_limit,
     "urlmaps": m_urlmap,
-    "wafrules": m_wafrule,
-    "wafpolicies": m_wafpolicy,
+    "contentfilterrules": m_contentfilterrule,
+    "contentfilterprofiles": m_contentfilterprofile,
     "aclpolicies": m_aclpolicy,
     "globalfilters": m_globalfilter,
     "flowcontrol": m_flowcontrol,
@@ -334,27 +334,27 @@ with open(ratelimits_file_path) as json_file:
 urlmaps_file_path = (base_path / "../json/url-maps.schema").resolve()
 with open(urlmaps_file_path) as json_file:
     urlmaps_schema = json.load(json_file)
-waf_policy_file_path = (base_path / "../json/waf-policy.schema").resolve()
-with open(waf_policy_file_path) as json_file:
-    waf_policy_schema = json.load(json_file)
+content_filter_profile_file_path = (base_path / "./json/content-filter-profile.schema").resolve()
+with open(content_filter_profile_file_path) as json_file:
+    content_filter_profile_schema = json.load(json_file)
 globalfilters_file_path = (base_path / "./json/global-filters.schema").resolve()
 with open(globalfilters_file_path) as json_file:
     globalfilters_schema = json.load(json_file)
 flowcontrol_file_path = (base_path / "../json/flow-control.schema").resolve()
 with open(flowcontrol_file_path) as json_file:
     flowcontrol_schema = json.load(json_file)
-waf_rule_file_path = (base_path / "../json/waf-rule.schema").resolve()
-with open(waf_rule_file_path) as json_file:
-    waf_rule_schema = json.load(json_file)
+content_filter_rule_file_path = (base_path / "./json/content-filter-rule.schema").resolve()
+with open(content_filter_rule_file_path) as json_file:
+    content_filter_rule_schema = json.load(json_file)
 
 schema_type_map = {
     "ratelimits": ratelimits_schema,
     "urlmaps": urlmaps_schema,
-    "wafpolicies": waf_policy_schema,
+    "contentfilterprofiles": content_filter_profile_schema,
     "aclpolicies": acl_policy_schema,
     "globalfilters": globalfilters_schema,
     "flowcontrol": flowcontrol_schema,
-    "wafrules": waf_rule_schema,
+    "contentfilterrules": content_filter_rule_schema,
 }
 
 
@@ -512,7 +512,7 @@ class DocumentsResource(Resource):
     def get(self, config):
         "Retrieve the list of existing documents in this configuration"
         res = current_app.backend.documents_list(config)
-        return res
+        return res #TODO ronyk
 
 
 @ns_configs.route("/<string:config>/d/<string:document>/")

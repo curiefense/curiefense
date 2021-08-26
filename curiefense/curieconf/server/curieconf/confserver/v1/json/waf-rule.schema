@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "WAF Rule",
+    "description": "WAF Rule",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique id"
+        },
+        "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name",
+            "description": "Name of entity shown in UI"
+        },
+        "operand": {
+            "type": "string",
+            "minLength": 0,
+            "title": "Operand",
+            "description": "Matching domain(s) regex"
+        }
+    },
+    "required": [ "id", "name" ]
+}
