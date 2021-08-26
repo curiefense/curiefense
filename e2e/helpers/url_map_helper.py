@@ -117,7 +117,7 @@ def urlmap_config(cli, acl, api_config):
     default_acl[0]["force_deny"].append("all")
     default_acl.append(UrlMapHelper.acl_bypass_json())
     cli.call(
-        f"doc update {BaseHelper.TEST_CONFIG_NAME} aclpolicies /dev/stdin", inputjson=default_acl
+        f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['acl_setting']} /dev/stdin", inputjson=default_acl
     )
     # Add waf profile entry
     wafpolicy = cli.call(f"doc get {BaseHelper.TEST_CONFIG_NAME} wafpolicies")

@@ -3,8 +3,9 @@ from e2e.core.base_helper import cli, BaseHelper
 
 
 class ACLHelper:
-    def __init__(self, cli):
+    def __init__(self, cli, api_config):
         self._cli = cli
+        self._api_config = api_config
 
     def set_acl(self, updates: dict):
         acl = self._cli.empty_acl()
@@ -12,7 +13,7 @@ class ACLHelper:
         for key, value in updates.items():
             acl[0][key].append(value)
         self._cli.call(
-            f"doc update {BaseHelper.TEST_CONFIG_NAME} aclpolicies /dev/stdin", inputjson=acl
+            f"doc update {BaseHelper.TEST_CONFIG_NAME} {self._api_config['acl_setting']} /dev/stdin", inputjson=acl
         )
 
     def reset_and_set_acl(self, updates: dict):
@@ -26,5 +27,5 @@ class ACLHelper:
 
 
 @pytest.fixture(scope="session")
-def acl(cli):
-    return ACLHelper(cli)
+def acl(cli, api_config):
+    return ACLHelper(cli, api_config)
