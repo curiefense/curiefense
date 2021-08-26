@@ -43,7 +43,7 @@ const titles: { [key: string]: string } = {
   'wafrules-singular': 'WAF Rule',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
-  'flowcontrol': 'Flow Control Policy',
+  'flowcontrol': 'Flow Control Policies',
   'flowcontrol-singular': 'Flow Control Policy',
 }
 
