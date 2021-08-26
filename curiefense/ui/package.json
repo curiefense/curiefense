@@ -16,6 +16,7 @@
   "dependencies": {
     "@mdi/font": "^5.9.55",
     "@mdi/js": "^5.9.55",
+    "@shopify/draggable": "^1.0.0-beta.8",
     "axios": ">=0.21.1",
     "bootstrap": "^4.6.0",
     "bulma": "^0.9.2",

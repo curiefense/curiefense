@@ -3,12 +3,12 @@ import LimitOption from '@/components/LimitOption.vue'
 import ResponseAction from '@/components/ResponseAction.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {beforeEach, describe, expect, test, jest} from '@jest/globals'
-import {shallowMount, Wrapper} from '@vue/test-utils'
+import {shallowMount, Wrapper, WrapperArray} from '@vue/test-utils'
 import Vue from 'vue'
+import axios from 'axios'
+import {FlowControl, DraggableEvent} from '@/types'
 
 jest.mock('axios')
-import axios from 'axios'
-import {FlowControl} from '@/types'
 
 describe('FlowControlEditor.vue', () => {
   let docs: FlowControl[]
@@ -542,6 +542,81 @@ describe('FlowControlEditor.vue', () => {
         await wrapper.vm.$forceUpdate()
         const entriesRows = wrapper.findAll('.sequence-entries-table').at(0).findAll('.sequence-entry-row')
         expect(entriesRows.length).toEqual(3)
+      })
+    })
+
+    describe('draggable sorting', () => {
+      let draggableEvent: DraggableEvent
+      let sequences: WrapperArray<Vue>
+      const [targetIndex, sourceIndex] = [0, 1]
+      const cancelFn = jest.fn()
+      beforeEach(() => {
+        sequences = wrapper.findAll('.sequence')
+        const source = sequences.at(sourceIndex) as unknown as HTMLElement
+        const target = sequences.at(targetIndex) as unknown as HTMLElement
+        draggableEvent = {
+          data: {
+            source: {
+              ...source,
+              getAttribute() {
+                return String(sourceIndex)
+              },
+            },
+            over: {
+              ...target,
+              getAttribute() {
+                return String(targetIndex)
+              },
+            },
+          },
+          originalEvent: {
+            target: {
+              closest: (selector: string) => selector === 'div' ? {
+                classList: {
+                  contains: (className: string) => className !== 'dragging-icon',
+                },
+              } : true,
+            } as unknown as EventTarget,
+          },
+          cancel: cancelFn,
+        };
+        (wrapper.vm as any).setDropTarget(draggableEvent)
+      })
+      test('should be able to keep and clear hovered sequence index', async () => {
+        const sequenceDragIcon = sequences.at(sourceIndex).find('.dragging-icon')
+        sequenceDragIcon.trigger('mouseover')
+        await Vue.nextTick()
+        expect((wrapper.vm as any).hoverSequenceIndex).toEqual(sourceIndex)
+        sequenceDragIcon.trigger('mouseleave')
+        await Vue.nextTick()
+        expect((wrapper.vm as any).hoverSequenceIndex).toBeUndefined()
+      })
+      test('should keep drop target', async () => {
+        expect((wrapper.vm as any).dropTarget).toEqual(draggableEvent.data.over)
+      })
+      test('should swap sequence items', async () => {
+        const {sequence} = (wrapper.vm as any).localDoc
+        const [target, source] = [sequence[targetIndex], sequence[sourceIndex]];
+        (wrapper.vm as any).swapSequenceItems(draggableEvent)
+        await Vue.nextTick()
+        expect(sequence[targetIndex]).toEqual(source)
+        expect(sequence[sourceIndex]).toEqual(target)
+      })
+      test('should not drag when attempting to reorder using incorrect html element', async () => {
+        (wrapper.vm as any).onDragStart(draggableEvent)
+        expect(cancelFn).toHaveBeenCalled()
+        await Vue.nextTick()
+        jest.clearAllMocks()
+        draggableEvent.originalEvent = {
+          target: {
+            closest: (selector: string) => selector === 'div' ? {
+              classList: {
+                contains: (className: string) => className === 'dragging-icon',
+              },
+            } : false,
+          } as unknown as EventTarget,
+        }
+        expect(cancelFn).not.toHaveBeenCalled()
       })
     })
   })
