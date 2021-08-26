@@ -335,11 +335,11 @@ import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import Vue from 'vue'
-import {ArgsCookiesHeadersType, FlowControl, IncludeExcludeType, LimitOptionType, LimitRuleType} from '@/types'
+import {ArgsCookiesHeadersType, FlowControlPolicy, IncludeExcludeType, LimitOptionType, LimitRuleType} from '@/types'
 import {Dictionary} from 'vue-router/types/router'
 
 export default Vue.extend({
-  name: 'FlowControl',
+  name: 'FlowControlPolicy',
 
   props: {
     selectedDoc: Object,
@@ -382,7 +382,7 @@ export default Vue.extend({
   },
 
   computed: {
-    localDoc(): FlowControl {
+    localDoc(): FlowControlPolicy {
       return _.cloneDeep(this.selectedDoc)
     },
 

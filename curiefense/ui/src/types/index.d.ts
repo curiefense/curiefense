@@ -68,7 +68,7 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
-  type Document = BasicDocument & (ACLProfile | FlowControl | GlobalFilter | RateLimit | URLMap | WAFPolicy | WAFRule)
+  type Document = BasicDocument & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | URLMap | WAFPolicy | WAFRule)
 
   type DocumentType = 'aclprofiles' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'urlmaps' | 'wafpolicies' | 'wafrules'
 
@@ -151,7 +151,7 @@ declare module CuriefenseClient {
     pairwith: LimitOptionType
   }
 
-  type FlowControl = {
+  type FlowControlPolicy = {
     id: string
     name: string
     ttl: number

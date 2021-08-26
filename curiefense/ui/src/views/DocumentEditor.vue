@@ -213,7 +213,7 @@ import WAFSigsEditor from '@/doc-editors/WAFSigsEditor.vue'
 import URLMapsEditor from '@/doc-editors/URLMapsEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
-import FlowControlEditor from '@/doc-editors/FlowControlEditor.vue'
+import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import Vue from 'vue'
@@ -273,7 +273,7 @@ export default Vue.extend({
 
       componentsMap: {
         'aclprofiles': {component: ACLEditor},
-        'flowcontrol': {component: FlowControlEditor},
+        'flowcontrol': {component: FlowControlPolicyEditor},
         'globalfilters': {component: GlobalFilterListEditor},
         'ratelimits': {component: RateLimitsEditor},
         'urlmaps': {component: URLMapsEditor},

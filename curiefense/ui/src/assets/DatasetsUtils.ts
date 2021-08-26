@@ -1,4 +1,4 @@
-import {ACLProfile, FlowControl, RateLimit, GlobalFilter, URLMap, WAFPolicy, WAFRule} from '@/types'
+import {ACLProfile, FlowControlPolicy, RateLimit, GlobalFilter, URLMap, WAFPolicy, WAFRule} from '@/types'
 
 const titles: { [key: string]: string } = {
   'admin': 'Admin',
@@ -172,7 +172,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  flowcontrol(): FlowControl {
+  flowcontrol(): FlowControlPolicy {
     return {
       'id': generateUUID2(),
       'name': 'New Flow Control Policy',
