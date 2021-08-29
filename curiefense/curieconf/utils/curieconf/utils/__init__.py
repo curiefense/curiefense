@@ -53,7 +53,8 @@ def vconvert(conf_type_name, vfrom, invert=False):
     }
 
     if invert:
-        apimap = _.objects.invert(apimap)
+        for key in apimap.keys():
+            apimap[key] = _.objects.invert(apimap[key])
 
     return _.get(apimap, f"{vfrom}.{conf_type_name}", conf_type_name)
 
