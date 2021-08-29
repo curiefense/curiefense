@@ -81,7 +81,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  contentfilterprofiles(): ContentFilterPolicy {
+  contentfilterprofiles(): ContentFilterProfile {
     return {
       'id': generateUUID2(),
       'name': 'New Content Filter Profile',
@@ -140,9 +140,9 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'match': '/',
           'name': 'default',
           'acl_profile': '__default__',
-          'contentfilter_profile': '__default__',
+          'content_filter_profile': '__default__',
           'acl_active': true,
-          'contentfilter_active': true,
+          'content_filter_active': true,
           'limit_ids': [],
         },
       ],

@@ -9,8 +9,8 @@ import pydash as _
 DOCUMENTS_PATH = {
     "ratelimits": "config/json/limits.json",
     "urlmaps": "config/json/urlmap.json",
-    "contentfilterrules": "config/json/content-filter-rules.json",
-    "contentfilterprofiles": "config/json/content-filter-profiles.json",
+    "contentfilterrules": "config/json/contentfilter-rules.json",
+    "contentfilterprofiles": "config/json/contentfilter-profiles.json",
     "aclpolicies": "config/json/acl-profiles.json",
     "globalfilters": "config/json/globalfilter-lists.json",
     "flowcontrol": "config/json/flow-control.json",

@@ -35,7 +35,7 @@ pub enum ContentFilterBlock {
     Mismatch(ContentFilterMatched),
     SqlInjection(ContentFilterMatched, String), // fingerprint
     Xss(ContentFilterMatched),
-    Policies(Vec<ContentFilterMatched>),
+    Policies(Vec<ContentFilterMatch>),
 }
 
 impl ContentFilterBlock {

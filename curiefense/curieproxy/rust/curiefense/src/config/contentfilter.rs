@@ -1,4 +1,4 @@
-use crate::config::raw::{RawContentFilterEntryMatch, RawContentFilterProfile, RawContentFilterProperties, ContentFilterSignature};
+use crate::config::raw::{RawContentFilterEntryMatch, RawContentFilterProfile, RawContentFilterProperties, ContentFilterRule};
 use crate::logs::Logs;
 
 use hyperscan::prelude::{pattern, Builder, CompileFlags, Pattern, Patterns, VectoredDatabase};
