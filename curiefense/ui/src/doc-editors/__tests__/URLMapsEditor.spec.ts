@@ -111,7 +111,7 @@ describe('URLMapsEditor.vue', () => {
     contentFilterDocs = [
       {
         'id': '__default__',
-        'name': 'default content filter',
+        'name': 'default contentfilter',
         'ignore_alphanum': true,
         'max_header_length': 1024,
         'max_cookie_length': 2048,
@@ -289,7 +289,7 @@ describe('URLMapsEditor.vue', () => {
       const entryMatch = entryRow.find('.entry-match')
       expect(entryMatch.text()).toEqual(urlMapsDocs[0].map[0].match)
       const entryContentFilter = entryRow.find('.entry-content-filter')
-      expect(entryContentFilter.text()).toEqual('default content filter')
+      expect(entryContentFilter.text()).toEqual('default contentfilter')
       const entryACL = entryRow.find('.entry-acl')
       expect(entryACL.text()).toEqual('default acl')
       const entryRateLimitCount = entryRow.find('.entry-rate-limits-count')

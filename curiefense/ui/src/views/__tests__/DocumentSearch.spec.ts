@@ -339,7 +339,7 @@ describe('DocumentSearch.vue', () => {
     contentFilterDocs = [
       {
         'id': '01b2abccc275',
-        'name': 'default content filter',
+        'name': 'default contentfilter',
         'ignore_alphanum': true,
         'max_header_length': 1024,
         'max_cookie_length': 1024,

@@ -28,7 +28,7 @@ impl Default for ContentFilterProfile {
     fn default() -> Self {
         ContentFilterProfile {
             id: "__default__".to_string(),
-            name: "default content filter".to_string(),
+            name: "default contentfilter".to_string(),
             ignore_alphanum: true,
             sections: Section {
                 headers: ContentFilterSection {
