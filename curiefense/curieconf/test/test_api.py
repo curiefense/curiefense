@@ -66,7 +66,7 @@ def test_config_create_fail_clean(curieapi_empty):
     conf = {
         "meta": {"id": "pytest", "description": "pytest"},
         "documents": {
-            "aclpolicies": [
+            "aclprofiles": [
                 {"id": "qsmkldjqsdk", "name": "aqzdzd"},
                 {"id": "sqd", "name": "qds"},
             ],
@@ -82,7 +82,7 @@ def test_config_create_fail_clean(curieapi_empty):
     curieapi_empty.configs.create(
         body={"meta": {"id": "pytest3", "description": "pytest3"}}
     )
-    r = curieapi_empty.documents.get("pytest3", "aclpolicies")
+    r = curieapi_empty.documents.get("pytest3", "aclprofiles")
     assert r.body == []
 
 
@@ -166,7 +166,11 @@ def test_configs_update(curieapi_small):
         "documents": {"ratelimits": newlimits, "contentfilterrules": new_content_filter_rules},
         "delete_blobs": {"bltor": False, "blvpnip": True, "geolite2asn": True},
         "delete_documents": {
-            "urlmaps": {"sqdqsd": True, "fezfzf": True, vec_urlmap["id"]: False},
+            "securitypolicies": {
+                "sqdqsd": True,
+                "fezfzf": True,
+                vec_securitypolicy["id"]: False,
+            },
             "contentfilterrules": {vec_contentfilterrule["id"]: True},
         },
     }
@@ -181,7 +185,7 @@ def test_configs_update(curieapi_small):
     assert compare_jblob(r.body["blobs"]["geolite2asn"], {})
     assert r.body["documents"]["ratelimits"] == newlimits
     assert r.body["documents"]["contentfilterrules"] == new_content_filter_rules[1:]
-    assert r.body["documents"]["urlmaps"] == [vec_urlmap]
+    assert r.body["documents"]["securitypolicies"] == [vec_securitypolicy]
 
 
 ##  ___ _    ___  ___ ___

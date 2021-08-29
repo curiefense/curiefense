@@ -48,8 +48,8 @@ path = "benches/body_parse.rs"
 harness = false
 
 [[bench]]
-name = "url_maps"
-path = "benches/url_maps.rs"
+name = "security_policies"
+path = "benches/security_policies.rs"
 harness = false
 
 [[bench]]

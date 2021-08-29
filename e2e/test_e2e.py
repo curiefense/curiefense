@@ -88,15 +88,18 @@ class CliHelper:
 
     def empty_acl(self):
         version = self.initial_version()
-        return self.call(f"doc get master aclpolicies --version {version}")
+        return self.call(f"doc get master aclprofiles --version {version}")
 
     def revert_and_enable(self, acl=True, content_filter=True):
         version = self.initial_version()
         self.call(f"conf revert {TEST_CONFIG_NAME} {version}")
-        urlmap = self.call(f"doc get {TEST_CONFIG_NAME} urlmaps")
-        urlmap[0]["map"][0]["acl_active"] = acl
-        urlmap[0]["map"][0]["content_filter_active"] = content_filter
-        self.call(f"doc update {TEST_CONFIG_NAME} urlmaps /dev/stdin", inputjson=urlmap)
+        securitypolicy = self.call(f"doc get {TEST_CONFIG_NAME} securitypolicies")
+        securitypolicy[0]["map"][0]["acl_active"] = acl
+        securitypolicy[0]["map"][0]["content_filter_active"] = content_filter
+        self.call(
+            f"doc update {TEST_CONFIG_NAME} securitypolicies /dev/stdin",
+            inputjson=securitypolicy,
+        )
 
     def publish_and_apply(self):
         buckets = self.call("key get system publishinfo")
@@ -196,7 +199,7 @@ class ACLHelper:
         for key, value in updates.items():
             acl[0][key].append(value)
         self._cli.call(
-            f"doc update {TEST_CONFIG_NAME} aclpolicies /dev/stdin", inputjson=acl
+            f"doc update {TEST_CONFIG_NAME} aclprofiles /dev/stdin", inputjson=acl
         )
 
     def reset_and_set_acl(self, updates: dict):
@@ -543,7 +546,7 @@ def gen_rl_rules(authority):
         param_ext={"headers": {"foo": "bar"}},
     )
 
-    rl_urlmap = [
+    rl_securitypolicy = [
         {
             "id": "__default__",
             "name": "default entry",
@@ -573,7 +576,7 @@ def gen_rl_rules(authority):
             ],
         }
     ]
-    return (rl_rules, rl_urlmap, prof_rules)
+    return (rl_rules, rl_securitypolicy, prof_rules)
 
 
 @pytest.fixture(scope="class")
@@ -581,7 +584,7 @@ def ratelimit_config(cli, target):
     cli.revert_and_enable()
     # Add new RL rules
     rl_rules = cli.call(f"doc get {TEST_CONFIG_NAME} ratelimits")
-    (new_rules, new_urlmap, new_profiling) = gen_rl_rules(target.authority())
+    (new_rules, new_securitypolicy, new_profiling) = gen_rl_rules(target.authority())
     rl_rules.extend(new_rules)
     # Apply new profiling
     cli.call(
@@ -590,8 +593,11 @@ def ratelimit_config(cli, target):
     )
     # Apply rl_rules
     cli.call(f"doc update {TEST_CONFIG_NAME} ratelimits /dev/stdin", inputjson=rl_rules)
-    # Apply new_urlmap
-    cli.call(f"doc update {TEST_CONFIG_NAME} urlmaps /dev/stdin", inputjson=new_urlmap)
+    # Apply new_securitypolicy
+    cli.call(
+        f"doc update {TEST_CONFIG_NAME} securitypolicies /dev/stdin",
+        inputjson=new_securitypolicy,
+    )
     cli.publish_and_apply()
 
 
@@ -1240,7 +1246,7 @@ class TestGlobalFilters:
         )
 
 
-# --- URL Maps tests ---
+# --- Security Policies tests ---
 
 
 ACL_BYPASSALL = {
@@ -1269,10 +1275,10 @@ CONTENT_FILTER_SHORT_HEADERS = {
     "cookies": {"names": [], "regex": []},
 }
 
-URLMAP = [
+SECURITYPOLICY = [
     {
         "id": "e2e000000001",
-        "name": "e2e URL map",
+        "name": "e2e Security Policy",
         "match": ".*",
         "map": [
             {
@@ -1340,14 +1346,14 @@ URLMAP = [
 
 
 @pytest.fixture(scope="class")
-def urlmap_config(cli, acl):
+def securitypolicy_config(cli, acl):
     cli.revert_and_enable()
     # Add ACL entry
     default_acl = cli.empty_acl()
     default_acl[0]["force_deny"].append("all")
     default_acl.append(ACL_BYPASSALL)
     cli.call(
-        f"doc update {TEST_CONFIG_NAME} aclpolicies /dev/stdin", inputjson=default_acl
+        f"doc update {TEST_CONFIG_NAME} aclprofiles /dev/stdin", inputjson=default_acl
     )
     # Add content filter profile entry
     contentfilterprofile = cli.call(f"doc get {TEST_CONFIG_NAME} contentfilterprofiles")
@@ -1355,43 +1361,46 @@ def urlmap_config(cli, acl):
     cli.call(
         f"doc update {TEST_CONFIG_NAME} contentfilterprofiles /dev/stdin", inputjson=contentfilterprofile
     )
-    # Add urlmap entry URLMAP
-    cli.call(f"doc update {TEST_CONFIG_NAME} urlmaps /dev/stdin", inputjson=URLMAP)
+    # Add securitypolicy entry SECURITYPOLICY
+    cli.call(
+        f"doc update {TEST_CONFIG_NAME} securitypolicies /dev/stdin",
+        inputjson=SECURITYPOLICY,
+    )
     cli.publish_and_apply()
 
 
-class TestURLMap:
-    def test_nofilter(self, target, urlmap_config):
+class TestSecurityPolicy:
+    def test_nofilter(self, target, securitypolicy_config):
         assert target.is_reachable("/nofilter/")
         assert target.is_reachable(
             "/nofilter/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_content_filter(self, target, urlmap_config):
+    def test_content_filter(self, target, securitypolicy_config):
         assert target.is_reachable("/content-filter/")
         assert not target.is_reachable(
             "/content-filter/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_aclfilter(self, target, urlmap_config):
+    def test_aclfilter(self, target, securitypolicy_config):
         assert not target.is_reachable("/acl/")
         assert not target.is_reachable(
             "/acl/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_nondefault_aclfilter_bypassall(self, target, urlmap_config):
+    def test_nondefault_aclfilter_bypassall(self, target, securitypolicy_config):
         assert target.is_reachable("/acl-bypassall/")
         assert target.is_reachable(
             "/acl-bypassall/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_acl_content_filter(self, target, urlmap_config):
+    def test_acl_content_filter(self, target, securitypolicy_config):
         assert not target.is_reachable("/acl-content-filter/")
         assert not target.is_reachable(
             "/acl/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_nondefault_content_filter_profile_short_headers(self, target, urlmap_config):
+    def test_nondefault_content_filter_profile_short_headers(self, target, securitypolicy_config):
         assert target.is_reachable(
             "/content-filter-short-headers/", headers={"Short-header": "0123456789" * 5}
         )

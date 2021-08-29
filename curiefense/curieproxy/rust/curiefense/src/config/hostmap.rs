@@ -8,13 +8,13 @@ use crate::config::contentfilter::ContentFilterProfile;
 pub struct HostMap {
     pub id: String,
     pub name: String,
-    pub entries: Vec<Matching<UrlMap>>,
-    pub default: Option<UrlMap>,
+    pub entries: Vec<Matching<SecurityPolicy>>,
+    pub default: Option<SecurityPolicy>,
 }
 
 /// a map entry, with links to the acl and content filter profiles
 #[derive(Debug, Clone)]
-pub struct UrlMap {
+pub struct SecurityPolicy {
     pub name: String,
     pub acl_active: bool,
     pub acl_profile: AclProfile,

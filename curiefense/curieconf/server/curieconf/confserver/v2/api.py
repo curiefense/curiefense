@@ -56,7 +56,7 @@ m_limit = api.model(
 )
 
 
-# urlmap
+# securitypolicy
 
 m_secprofilemap = api.model(
     "Security Profile Map",
@@ -75,8 +75,8 @@ m_map = api.model(
     "Security Profile Map", {"*": fields.Wildcard(fields.Nested(m_secprofilemap))}
 )
 
-m_urlmap = api.model(
-    "URL Map",
+m_securitypolicy = api.model(
+    "Security Policy",
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
@@ -121,10 +121,10 @@ m_contentfilterprofile = api.model(
     },
 )
 
-# aclpolicy
+# aclprofile
 
-m_aclpolicy = api.model(
-    "ACL Policy",
+m_aclprofile = api.model(
+    "ACL Profile",
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
@@ -178,10 +178,10 @@ m_flowcontrol = api.model(
 
 models = {
     "ratelimits": m_limit,
-    "urlmaps": m_urlmap,
+    "securitypolicies": m_securitypolicy,
     "contentfilterrules": m_contentfilterrule,
     "contentfilterprofiles": m_contentfilterprofile,
-    "aclpolicies": m_aclpolicy,
+    "aclprofiles": m_aclprofile,
     "globalfilters": m_globalfilter,
     "flowcontrol": m_flowcontrol,
 }
@@ -325,15 +325,15 @@ def validateJson(json_data, schema_type):
 
 base_path = Path(__file__).parent
 # base_path = "/etc/curiefense/json/"
-acl_policy_file_path = (base_path / "../json/acl-policy.schema").resolve()
-with open(acl_policy_file_path) as json_file:
-    acl_policy_schema = json.load(json_file)
+acl_profile_file_path = (base_path / "./json/acl-profile.schema").resolve()
+with open(acl_profile_file_path) as json_file:
+    acl_profile_schema = json.load(json_file)
 ratelimits_file_path = (base_path / "../json/rate-limits.schema").resolve()
 with open(ratelimits_file_path) as json_file:
     ratelimits_schema = json.load(json_file)
-urlmaps_file_path = (base_path / "../json/url-maps.schema").resolve()
-with open(urlmaps_file_path) as json_file:
-    urlmaps_schema = json.load(json_file)
+securitypolicies_file_path = (base_path / "./json/security-policies.schema").resolve()
+with open(securitypolicies_file_path) as json_file:
+    securitypolicies_schema = json.load(json_file)
 content_filter_profile_file_path = (base_path / "./json/content-filter-profile.schema").resolve()
 with open(content_filter_profile_file_path) as json_file:
     content_filter_profile_schema = json.load(json_file)
@@ -349,9 +349,9 @@ with open(content_filter_rule_file_path) as json_file:
 
 schema_type_map = {
     "ratelimits": ratelimits_schema,
-    "urlmaps": urlmaps_schema,
+    "securitypolicies": securitypolicies_schema,
     "contentfilterprofiles": content_filter_profile_schema,
-    "aclpolicies": acl_policy_schema,
+    "aclprofiles": acl_profile_schema,
     "globalfilters": globalfilters_schema,
     "flowcontrol": flowcontrol_schema,
     "contentfilterrules": content_filter_rule_schema,

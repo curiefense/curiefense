@@ -4,7 +4,7 @@ import ResponseAction from '@/components/ResponseAction.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {mount, shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
-import {RateLimit, URLMap} from '@/types'
+import {RateLimit, SecurityPolicy} from '@/types'
 import axios from 'axios'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import _ from 'lodash'
@@ -13,7 +13,7 @@ jest.mock('axios')
 
 describe('RateLimitsEditor.vue', () => {
   let rateLimitsDocs: RateLimit[]
-  let urlMapsDocs: URLMap[]
+  let securityPoliciesDocs: SecurityPolicy[]
   let mockRouter
   let wrapper: Wrapper<Vue>
   beforeEach(() => {
@@ -29,7 +29,7 @@ describe('RateLimitsEditor.vue', () => {
       'key': [{'attrs': 'ip'}],
       'pairwith': {'self': 'self'},
     }]
-    urlMapsDocs = [
+    securityPoliciesDocs = [
       {
         'id': '__default__',
         'name': 'default entry',
@@ -86,11 +86,11 @@ describe('RateLimitsEditor.vue', () => {
         return Promise.resolve({data: []})
       }
       const branch = (wrapper.vm as any).selectedBranch
-      if (path === `/conf/api/v2/configs/${branch}/d/urlmaps/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve({data: _.map(urlMapsDocs, (i) => _.pick(i, 'id', 'name'))})
+          return Promise.resolve({data: _.map(securityPoliciesDocs, (i) => _.pick(i, 'id', 'name'))})
         }
-        return Promise.resolve({data: urlMapsDocs})
+        return Promise.resolve({data: securityPoliciesDocs})
       }
       return Promise.resolve({data: []})
     })
@@ -406,20 +406,20 @@ describe('RateLimitsEditor.vue', () => {
     })
   })
 
-  describe('connected URL Maps', () => {
+  describe('connected Security Policies', () => {
     afterEach(() => {
       jest.clearAllMocks()
     })
 
-    test('should display all connected URL Maps', () => {
-      const connectedURLMapsEntriesRows = wrapper.findAll('.connected-entry-row')
-      expect(connectedURLMapsEntriesRows.length).toEqual(2)
+    test('should display all connected Security Policies', () => {
+      const connectedSecurityPoliciesEntriesRows = wrapper.findAll('.connected-entry-row')
+      expect(connectedSecurityPoliciesEntriesRows.length).toEqual(2)
     })
 
-    test('should have a link to each connected URL map', async () => {
-      const wantedRoute = `/config/${(wrapper.vm as any).selectedBranch}/urlmaps/${urlMapsDocs[0].id}`
-      const connectedURLMapsEntryRow = wrapper.findAll('.connected-entry-row').at(0)
-      const referralButton = connectedURLMapsEntryRow.find('.url-map-referral-button')
+    test('should have a link to each connected Security Policy', async () => {
+      const wantedRoute = `/config/${(wrapper.vm as any).selectedBranch}/securitypolicies/${securityPoliciesDocs[0].id}`
+      const connectedSecurityPoliciesEntryRow = wrapper.findAll('.connected-entry-row').at(0)
+      const referralButton = connectedSecurityPoliciesEntryRow.find('.security-policy-referral-button')
       await referralButton.trigger('click')
       await Vue.nextTick()
       expect(mockRouter.push).toHaveBeenCalledTimes(1)
@@ -435,9 +435,9 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should show an appropriate message when there are no available new connections', async () => {
-      const wantedMessage = `All URL Maps entries are currently connected to this Rate Limit`
-      urlMapsDocs[0].map[1].limit_ids.push(rateLimitsDocs[0].id)
-      urlMapsDocs[1].map[1].limit_ids.push(rateLimitsDocs[0].id)
+      const wantedMessage = `All Security Policies entries are currently connected to this Rate Limit`
+      securityPoliciesDocs[0].map[1].limit_ids.push(rateLimitsDocs[0].id)
+      securityPoliciesDocs[1].map[1].limit_ids.push(rateLimitsDocs[0].id)
       wrapper = shallowMount(RateLimitsEditor, {
         propsData: {
           selectedDoc: rateLimitsDocs[0],
@@ -463,10 +463,10 @@ describe('RateLimitsEditor.vue', () => {
       expect(newConnectionRow.exists()).toBeFalsy()
     })
 
-    test('should send request to change URL Map when new connection is added', async () => {
+    test('should send request to change Security Policy when new connection is added', async () => {
       const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
-      const wantedUrl = `/conf/api/v2/configs/${(wrapper.vm as any).selectedBranch}/d/urlmaps/e/${urlMapsDocs[1].id}/`
-      const wantedDoc = JSON.parse(JSON.stringify(urlMapsDocs[1]))
+      const wantedUrl = `/conf/api/v2/configs/${(wrapper.vm as any).selectedBranch}/d/securitypolicies/e/${securityPoliciesDocs[1].id}/`
+      const wantedDoc = JSON.parse(JSON.stringify(securityPoliciesDocs[1]))
       wantedDoc.map[1].limit_ids.push(rateLimitsDocs[0].id)
       const newConnectionButton = wrapper.find('.new-connection-button')
       newConnectionButton.trigger('click')
@@ -482,10 +482,10 @@ describe('RateLimitsEditor.vue', () => {
       expect(putSpy).toHaveBeenCalledWith(wantedUrl, wantedDoc)
     })
 
-    test('should send request to change URL Map when removing connection was confirmed', async () => {
+    test('should send request to change Security Policy when removing connection was confirmed', async () => {
       const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
-      const wantedUrl = `/conf/api/v2/configs/${(wrapper.vm as any).selectedBranch}/d/urlmaps/e/${urlMapsDocs[0].id}/`
-      const wantedDoc = JSON.parse(JSON.stringify(urlMapsDocs[0]))
+      const wantedUrl = `/conf/api/v2/configs/${(wrapper.vm as any).selectedBranch}/d/securitypolicies/e/${securityPoliciesDocs[0].id}/`
+      const wantedDoc = JSON.parse(JSON.stringify(securityPoliciesDocs[0]))
       wantedDoc.map[0].limit_ids = []
       const removeConnectionButton = wrapper.findAll('.remove-connection-button').at(0)
       removeConnectionButton.trigger('click')
@@ -496,7 +496,7 @@ describe('RateLimitsEditor.vue', () => {
       expect(putSpy).toHaveBeenCalledWith(wantedUrl, wantedDoc)
     })
 
-    test('should not send request to change URL Map when removing connection was cancelled', async () => {
+    test('should not send request to change Security Policy when removing connection was cancelled', async () => {
       const putSpy = jest.spyOn(axios, 'put').mockImplementation(() => Promise.resolve())
       const removeConnectionButton = wrapper.findAll('.remove-connection-button').at(0)
       removeConnectionButton.trigger('click')

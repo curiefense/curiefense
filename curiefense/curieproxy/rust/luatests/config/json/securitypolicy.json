@@ -1,0 +1,149 @@
+[
+    {
+        "match": "__default__",
+        "id": "__default__",
+        "name": "default entry",
+        "map": [
+            {
+                "match": "^/direct",
+                "name": "direct association",
+                "acl_profile": "FROMTAGS",
+                "content_filter_profile": "__default__",
+                "acl_active": true,
+                "content_filter_active": false,
+                "limit_ids": []
+            },
+            {
+                "match": "^/content-filter/noinjection",
+                "name": "content filter noinjection tests",
+                "acl_profile": "__default__",
+                "content_filter_profile": "noinject",
+                "acl_active": true,
+                "content_filter_active": true,
+                "limit_ids": []
+            },
+            {
+                "match": "^/content-filter/omitted",
+                "name": "content filter omit tests",
+                "acl_profile": "__default__",
+                "content_filter_profile": "omitted",
+                "acl_active": true,
+                "content_filter_active": true,
+                "limit_ids": []
+            },
+            {
+                "match": "^/content-filter/args",
+                "name": "content filter args tests",
+                "acl_profile": "__default__",
+                "content_filter_profile": "argschecks",
+                "acl_active": true,
+                "content_filter_active": true,
+                "limit_ids": []
+            },
+            {
+                "match": "^/limits/simple",
+                "name": "limits simple",
+                "acl_profile": "__default__",
+                "content_filter_profile": "__default__",
+                "acl_active": true,
+                "content_filter_active": true,
+                "limit_ids": [
+                    "limitsimple"
+                ]
+            },
+            {
+                "match": "^/limits/country",
+                "name": "limits country",
+                "acl_profile": "__default__",
+                "content_filter_profile": "__default__",
+                "acl_active": true,
+                "content_filter_active": true,
+                "limit_ids": [
+                    "limitcountry"
+                ]
+            },
+            {
+                "match": "^/limits/include",
+                "name": "limits simple",
+                "acl_profile": "__default__",
+                "content_filter_profile": "__default__",
+                "acl_active": true,
+                "content_filter_active": true,
+                "limit_ids": [
+                    "limitinclude"
+                ]
+            },
+            {
+                "match": "^/limits/method",
+                "name": "limits simple",
+                "acl_profile": "__default__",
+                "content_filter_profile": "__default__",
+                "acl_active": true,
+                "content_filter_active": true,
+                "limit_ids": [
+                    "4d1d9d405fc9"
+                ]
+            },
+            {
+                "match": "^/limits/exclude",
+                "name": "limits simple",
+                "acl_profile": "__default__",
+                "content_filter_profile": "__default__",
+                "acl_active": true,
+                "content_filter_active": true,
+                "limit_ids": [
+                    "limitexclude"
+                ]
+            },
+            {
+                "match": "^/rr/",
+                "name": "content filter restrict tests",
+                "acl_profile": "__default__",
+                "content_filter_profile": "rr",
+                "acl_active": false,
+                "content_filter_active": true,
+                "limit_ids": []
+            },
+            {
+                "name": "content-filter-short-headers",
+                "match": "^/content-filter-short-headers/",
+                "acl_profile": "__default__",
+                "acl_active": false,
+                "content_filter_profile": "e2e000000002",
+                "content_filter_active": true,
+                "limit_ids": []
+            },
+            {
+                "name": "scope-country-include",
+                "match": "/scope-country-include/",
+                "acl_profile": "__default__",
+                "acl_active": true,
+                "content_filter_profile": "__default__",
+                "content_filter_active": true,
+                "limit_ids": [
+                    "e2e1000000007"
+                ]
+            },
+            {
+                "name": "ban-test",
+                "match": "/limits/ban-test",
+                "acl_profile": "__default__",
+                "acl_active": true,
+                "content_filter_profile": "__default__",
+                "content_filter_active": true,
+                "limit_ids": [
+                    "f971e92459e2"
+                ]
+            },
+            {
+                "match": "/",
+                "name": "default",
+                "acl_profile": "__default__",
+                "content_filter_profile": "__default__",
+                "acl_active": false,
+                "content_filter_active": false,
+                "limit_ids": []
+            }
+        ]
+    }
+]

@@ -9,8 +9,8 @@
         "contentfiltername:default-contentfilter",
         "container:1e219d8ed6b4",
         "all",
-        "urlmap:default-entry",
-        "urlmap-entry:default",
+        "securitypolicy:default-entry",
+        "securitypolicy-entry:default",
         "aclid:--default--",
         "geo:united-states",
         "bot",
@@ -32,8 +32,8 @@
   {
     "response": {
       "tags": [
-        "urlmap:default-entry",
-        "urlmap-entry:default",
+        "securitypolicy:default-entry",
+        "securitypolicy-entry:default",
         "ip:23-129-64-253",
         "sante",
         "all",
@@ -66,9 +66,9 @@
         "contentfilterid:--default--",
         "contentfiltername:default-contentfilter",
         "asn:396507",
-        "urlmap-entry:default",
+        "securitypolicy-entry:default",
         "ip:23-129-64-253",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "aclid:--default--",
         "all",
         "aclname:default-acl",
@@ -98,8 +98,8 @@
         "container:1e219d8ed6b4",
         "all",
         "geo:united-states",
-        "urlmap-entry:default",
-        "urlmap:default-entry",
+        "securitypolicy-entry:default",
+        "securitypolicy:default-entry",
         "aclname:default-acl",
         "contentfilterid:--default--",
         "contentfiltername:default-contentfilter",
@@ -131,9 +131,9 @@
         "container:1e219d8ed6b4",
         "asn:16625",
         "geo:united-states",
-        "urlmap-entry:content-filter-omit-tests",
+        "securitypolicy-entry:content-filter-omit-tests",
         "ip:23-5-64-253",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "aclid:--default--",
         "bot",
         "aclname:default-acl"
@@ -158,8 +158,8 @@
         "asn:16625",
         "all",
         "geo:united-states",
-        "urlmap-entry:content-filter-omit-tests",
-        "urlmap:default-entry",
+        "securitypolicy-entry:content-filter-omit-tests",
+        "securitypolicy:default-entry",
         "sante",
         "container:1e219d8ed6b4",
         "ip:23-5-64-253",
@@ -189,10 +189,10 @@
         "sante",
         "asn:nil",
         "ip:13-129-64-253",
-        "urlmap-entry:default",
+        "securitypolicy-entry:default",
         "aclid:--default--",
         "container:1e219d8ed6b4",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "aclname:default-acl",
         "bot",
         "geo:united-states"
@@ -217,12 +217,12 @@
         "contentfilterid:omitted",
         "asn:nil",
         "all",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "ip:13-129-64-253",
         "sante",
         "container:1e219d8ed6b4",
         "geo:united-states",
-        "urlmap-entry:content-filter-omit-tests",
+        "securitypolicy-entry:content-filter-omit-tests",
         "aclid:--default--",
         "bot",
         "aclname:default-acl"
@@ -243,14 +243,14 @@
   {
     "response": {
       "tags": [
-        "urlmap-entry:default",
+        "securitypolicy-entry:default",
         "contentfilterid:--default--",
         "contentfiltername:default-contentfilter",
         "ip:13-129-64-253",
         "sante",
         "geo:united-states",
         "all",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "container:1e219d8ed6b4",
         "aclid:--default--",
         "aclname:default-acl",
@@ -273,12 +273,12 @@
   {
     "response": {
       "tags": [
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "sante",
         "aclname:default-acl",
         "ip:13-129-64-253",
         "all",
-        "urlmap-entry:content-filter-omit-tests",
+        "securitypolicy-entry:content-filter-omit-tests",
         "asn:nil",
         "contentfiltername:omit-id-100016",
         "contentfilterid:omitted",
@@ -305,8 +305,8 @@
       "tags": [
         "container:1e219d8ed6b4",
         "all",
-        "urlmap:default-entry",
-        "urlmap-entry:content-filter-noinjection-tests",
+        "securitypolicy:default-entry",
+        "securitypolicy-entry:content-filter-noinjection-tests",
         "aclname:default-acl",
         "ip:23-129-64-253",
         "aclid:--default--",
@@ -332,10 +332,10 @@
     "response": {
       "tags": [
         "aclid:--default--",
-        "urlmap-entry:content-filter-omit-tests",
+        "securitypolicy-entry:content-filter-omit-tests",
         "contentfiltername:omit-id-100016",
         "sante",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "aclname:default-acl",
         "container:1e219d8ed6b4",
         "ip:13-129-64-253",
@@ -363,13 +363,13 @@
       "tags": [
         "container:1e219d8ed6b4",
         "asn:nil",
-        "urlmap-entry:content-filter-noinjection-tests",
+        "securitypolicy-entry:content-filter-noinjection-tests",
         "contentfiltername:omit-libinjection",
         "aclid:--default--",
         "sante",
         "ip:13-129-64-253",
         "all",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "contentfilterid:noinject",
         "geo:united-states",
         "bot",
@@ -389,7 +389,7 @@
   {
     "response": {
       "tags": [
-        "urlmap-entry:content-filter-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "aclid:--default--",
         "contentfiltername:args-checkes",
         "contentfilterid:argschecks",
@@ -399,7 +399,7 @@
         "ip:13-129-64-253",
         "asn:nil",
         "all",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "bot",
         "geo:united-states"
       ],
@@ -421,12 +421,12 @@
         "container:1e219d8ed6b4",
         "ip:13-129-64-253",
         "all",
-        "urlmap-entry:content-filter-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "aclid:--default--",
         "contentfiltername:args-checkes",
         "contentfilterid:argschecks",
         "aclname:default-acl",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "sante",
         "geo:united-states",
         "bot",
@@ -446,12 +446,12 @@
     "response": {
       "tags": [
         "all",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "aclname:default-acl",
         "sante",
         "contentfiltername:args-checkes",
         "contentfilterid:argschecks",
-        "urlmap-entry:content-filter-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "asn:nil",
         "aclid:--default--",
         "container:1e219d8ed6b4",
@@ -481,8 +481,8 @@
         "ip:13-129-64-253",
         "sante",
         "asn:nil",
-        "urlmap-entry:content-filter-args-tests",
-        "urlmap:default-entry",
+        "securitypolicy-entry:content-filter-args-tests",
+        "securitypolicy:default-entry",
         "bot",
         "all"
       ],
@@ -500,14 +500,14 @@
     "response": {
       "tags": [
         "asn:nil",
-        "urlmap-entry:content-filter-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "aclid:--default--",
         "sante",
         "aclname:default-acl",
         "contentfiltername:args-checkes",
         "contentfilterid:argschecks",
         "ip:13-129-64-253",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "geo:united-states",
         "all",
         "bot",
@@ -530,10 +530,10 @@
         "asn:nil",
         "sante",
         "aclname:default-acl",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "all",
         "geo:united-states",
-        "urlmap-entry:content-filter-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "ip:13-129-64-253",
         "contentfiltername:args-checkes",
         "contentfilterid:argschecks",
@@ -553,12 +553,12 @@
   {
     "response": {
       "tags": [
-        "urlmap-entry:content-filter-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "sante",
         "geo:united-states",
         "all",
         "container:1e219d8ed6b4",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "aclid:--default--",
         "aclname:default-acl",
         "ip:13-129-64-253",
@@ -586,9 +586,9 @@
         "aclid:--default--",
         "contentfiltername:args-checkes",
         "contentfilterid:argschecks",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "all",
-        "urlmap-entry:content-filter-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "aclname:default-acl",
         "geo:united-states",
         "bot",
@@ -609,10 +609,10 @@
   {
     "response": {
       "tags": [
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "all",
         "container:1e219d8ed6b4",
-        "urlmap-entry:content-filter-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "aclid:--default--",
         "contentfiltername:args-checkes",
         "contentfilterid:argschecks",
@@ -642,9 +642,9 @@
         "container:1e219d8ed6b4",
         "all",
         "sante",
-        "urlmap-entry:content-filter-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "ip:13-129-64-253",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "asn:nil",
         "contentfiltername:args-checkes",
         "contentfilterid:argschecks",
@@ -670,12 +670,12 @@
         "aclid:--default--",
         "aclname:default-acl",
         "geo:united-states",
-        "urlmap-entry:content-filter-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "sante",
         "container:1e219d8ed6b4",
         "contentfiltername:args-checkes",
         "contentfilterid:argschecks",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "bot",
         "all"
       ],
@@ -699,9 +699,9 @@
         "container:1e219d8ed6b4",
         "geo:united-states",
         "sante",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "asn:nil",
-        "urlmap-entry:content-filter-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "contentfiltername:args-checkes",
         "contentfilterid:argschecks",
         "bot"
@@ -720,9 +720,9 @@
     "response": {
       "tags": [
         "geo:united-states",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "container:1e219d8ed6b4",
-        "urlmap-entry:content-filter-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "aclname:default-acl",
         "contentfiltername:args-checkes",
         "contentfilterid:argschecks",
@@ -749,7 +749,7 @@
         "asn:nil",
         "container:1e219d8ed6b4",
         "geo:united-states",
-        "urlmap-entry:content-filter-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "aclid:--default--",
         "sante",
         "ip:13-129-64-253",
@@ -758,7 +758,7 @@
         "contentfiltername:args-checkes",
         "contentfilterid:argschecks",
         "bot",
-        "urlmap:default-entry"
+        "securitypolicy:default-entry"
       ],
       "action": "pass"
     },
@@ -775,10 +775,10 @@
       "tags": [
         "asn:nil",
         "aclid:--default--",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "sante",
         "aclname:default-acl",
-        "urlmap-entry:default",
+        "securitypolicy-entry:default",
         "ip:13-129-64-253",
         "geo:united-states",
         "contentfilterid:--default--",
@@ -804,7 +804,7 @@
     "response": {
       "tags": [
         "aclid:--default--",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "geo:united-states",
         "aclname:default-acl",
         "all",
@@ -815,7 +815,7 @@
         "container:1e219d8ed6b4",
         "sante",
         "bot",
-        "urlmap-entry:content-filter-short-headers"
+        "securitypolicy-entry:content-filter-short-headers"
       ],
       "action": "pass"
     },
@@ -832,11 +832,11 @@
     "response": {
       "tags": [
         "ip:13-129-64-253",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "geo:united-states",
         "sante",
         "container:1e219d8ed6b4",
-        "urlmap-entry:content-filter-short-headers",
+        "securitypolicy-entry:content-filter-short-headers",
         "aclid:--default--",
         "contentfiltername:e2e-content-filter-short-headers",
         "contentfilterid:e2e000000002",
@@ -862,8 +862,8 @@
     "response": {
       "tags": [
         "ip:13-129-64-253",
-        "urlmap:default-entry",
-        "urlmap-entry:content-filter-restrict-tests",
+        "securitypolicy:default-entry",
+        "securitypolicy-entry:content-filter-restrict-tests",
         "container:1e219d8ed6b4",
         "aclid:--default--",
         "asn:nil",
@@ -892,7 +892,7 @@
   {
     "response": {
       "tags": [
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "aclname:default-acl",
         "contentfilterid:rr",
         "contentfiltername:rr",
@@ -901,7 +901,7 @@
         "container:1e219d8ed6b4",
         "geo:united-states",
         "aclid:--default--",
-        "urlmap-entry:content-filter-restrict-tests",
+        "securitypolicy-entry:content-filter-restrict-tests",
         "ip:13-129-64-253",
         "bot",
         "asn:nil"

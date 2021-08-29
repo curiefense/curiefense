@@ -16,10 +16,10 @@ use std::time::SystemTime;
 
 use crate::logs::Logs;
 use flow::{flow_resolve, FlowElement, SequenceKey};
-use hostmap::{HostMap, UrlMap};
+use hostmap::{HostMap, SecurityPolicy};
 use limit::{limit_order, Limit};
 use globalfilter::GlobalFilterSection;
-use raw::{AclProfile, RawFlowEntry, RawHostMap, RawLimit, RawGlobalFilterSection, RawUrlMap, RawContentFilterProfile};
+use raw::{AclProfile, RawFlowEntry, RawHostMap, RawLimit, RawGlobalFilterSection, RawSecurityPolicy, RawContentFilterProfile};
 use utils::Matching;
 use contentfilter::{resolve_rules, ContentFilterProfile, ContentFilterRules};
 
@@ -65,7 +65,7 @@ where
 
 #[derive(Debug, Clone)]
 pub struct Config {
-    pub urlmaps: Vec<Matching<HostMap>>,
+    pub securitypolicies: Vec<Matching<HostMap>>,
     pub globalfilters: Vec<GlobalFilterSection>,
     pub default: Option<HostMap>,
     pub last_mod: SystemTime,
@@ -83,15 +83,15 @@ fn from_map<V: Clone>(mp: &HashMap<String, V>, k: &str) -> Result<V, String> {
 
 #[allow(clippy::too_many_arguments)]
 impl Config {
-    fn resolve_url_maps(
+    fn resolve_security_policies(
         logs: &mut Logs,
-        rawmaps: Vec<RawUrlMap>,
+        rawmaps: Vec<RawSecurityPolicy>,
         limits: &HashMap<String, Limit>,
         acls: &HashMap<String, AclProfile>,
         contentfilterprofiles: &HashMap<String, ContentFilterProfile>,
-    ) -> (Vec<Matching<UrlMap>>, Option<UrlMap>) {
-        let mut default: Option<UrlMap> = None;
-        let mut entries: Vec<Matching<UrlMap>> = Vec::new();
+    ) -> (Vec<Matching<SecurityPolicy>>, Option<SecurityPolicy>) {
+        let mut default: Option<SecurityPolicy> = None;
+        let mut entries: Vec<Matching<SecurityPolicy>> = Vec::new();
 
         for rawmap in rawmaps {
             let acl_profile: AclProfile = match acls.get(&rawmap.acl_profile) {
@@ -118,7 +118,7 @@ impl Config {
             // limits 0 are tried first, than in decreasing order of the limit field
             olimits.sort_unstable_by(limit_order);
             let mapname = rawmap.name.clone();
-            let urlmap = UrlMap {
+            let securitypolicy = SecurityPolicy {
                 acl_active: rawmap.acl_active,
                 acl_profile,
                 content_filter_active: rawmap.content_filter_active,
@@ -126,22 +126,22 @@ impl Config {
                 limits: olimits,
                 name: rawmap.name,
             };
-            if rawmap.match_ == "__default__" || (rawmap.match_ == "/" && urlmap.name == "default") {
+            if rawmap.match_ == "__default__" || (rawmap.match_ == "/" && securitypolicy.name == "default") {
                 if default.is_some() {
                     logs.warning("Multiple __default__ maps");
                 }
-                default = Some(urlmap);
+                default = Some(securitypolicy);
             } else {
                 match Regex::new(&rawmap.match_) {
                     Err(rr) => logs.warning(format!(
                         "Invalid regex {} in entry {}: {}",
                         &rawmap.match_, &mapname, rr
                     )),
-                    Ok(matcher) => entries.push(Matching { matcher, inner: urlmap }),
+                    Ok(matcher) => entries.push(Matching { matcher, inner: securitypolicy }),
                 };
             }
         }
-        entries.sort_by_key(|x: &Matching<UrlMap>| usize::MAX - x.matcher.as_str().len());
+        entries.sort_by_key(|x: &Matching<SecurityPolicy>| usize::MAX - x.matcher.as_str().len());
         (entries, default)
     }
 
@@ -157,7 +157,7 @@ impl Config {
         rawflows: Vec<RawFlowEntry>,
     ) -> Config {
         let mut default: Option<HostMap> = None;
-        let mut urlmaps: Vec<Matching<HostMap>> = Vec::new();
+        let mut securitypolicies: Vec<Matching<HostMap>> = Vec::new();
 
         let limits = Limit::resolve(logs, rawlimits);
         let content_filter_profiles = ContentFilterProfile::resolve(logs, rawcontentfilterprofiles);
@@ -165,7 +165,7 @@ impl Config {
 
         // build the entries while looking for the default entry
         for rawmap in rawmaps {
-            let (entries, default_entry) = Config::resolve_url_maps(logs, rawmap.map, &limits, &acls, &content_filter_profiles);
+            let (entries, default_entry) = Config::resolve_security_policies(logs, rawmap.map, &limits, &acls, &content_filter_profiles);
             if default_entry.is_none() {
                 logs.warning(format!(
                     "HostMap entry '{}', id '{}' does not have a default entry",
@@ -190,7 +190,7 @@ impl Config {
             } else {
                 match Regex::new(&rawmap.match_) {
                     Err(rr) => logs.error(format!("Invalid regex {} in entry {}: {}", &rawmap.match_, mapname, rr)),
-                    Ok(matcher) => urlmaps.push(Matching {
+                    Ok(matcher) => securitypolicies.push(Matching {
                         matcher,
                         inner: hostmap,
                     }),
@@ -203,7 +203,7 @@ impl Config {
         let flows = flow_resolve(logs, rawflows);
 
         Config {
-            urlmaps,
+            securitypolicies,
             globalfilters,
             default,
             last_mod,
@@ -258,7 +258,7 @@ impl Config {
         let mut bjson = PathBuf::from(basepath);
         bjson.push("json");
 
-        let urlmap = Config::load_config_file(logs, &bjson, "urlmap.json");
+        let securitypolicy = Config::load_config_file(logs, &bjson, "securitypolicy.json");
         let globalfilters = Config::load_config_file(logs, &bjson, "globalfilter-lists.json");
         let limits = Config::load_config_file(logs, &bjson, "limits.json");
         let acls = Config::load_config_file(logs, &bjson, "acl-profiles.json");
@@ -276,7 +276,7 @@ impl Config {
         let config = Config::resolve(
             logs,
             last_mod,
-            urlmap,
+            securitypolicy,
             limits,
             globalfilters,
             acls,
@@ -289,7 +289,7 @@ impl Config {
 
     pub fn empty() -> Config {
         Config {
-            urlmaps: Vec::new(),
+            securitypolicies: Vec::new(),
             globalfilters: Vec::new(),
             last_mod: SystemTime::UNIX_EPOCH,
             default: None,

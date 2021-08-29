@@ -479,15 +479,15 @@ class GitBackend(CurieBackend):
                 del docs[dname]
         # check consistency
         res = []
-        referenced_acl_policies = []
+        referenced_acl_profiles = []
         referenced_content_filter_profiles = []
         content_filter_profiles = []
-        acl_policies = []
+        acl_profiles = []
         if "urlmaps" in docs:
             for umap in docs["urlmaps"]:
                 for umapmap in umap["map"]:
                     referenced_content_filter_profiles.append(umapmap["content_filter_profile"])
-                    referenced_acl_policies.append(umapmap["acl_profile"])
+                    referenced_acl_profiles.append(umapmap["acl_profile"])
         if "contentfilterprofiles" in docs:
             for content_filter_profile in docs["contentfilterprofiles"]:
                 content_filter_profiles.append(content_filter_profile["id"])
@@ -496,13 +496,13 @@ class GitBackend(CurieBackend):
                     res.append(
                         f"Content Filter Profile {content_filter_profile} is referenced but not present"
                     )
-        if "aclpolicies" in docs:
-            for acl_policy in docs["aclpolicies"]:
-                acl_policies.append(acl_policy["id"])
-            for acl_policy in referenced_acl_policies:
-                if acl_policy not in acl_policies:
+        if "aclprofiles" in docs:
+            for acl_profile in docs["aclprofiles"]:
+                acl_profiles.append(acl_profile["id"])
+            for acl_profile in referenced_acl_profiles:
+                if acl_profile not in acl_profiles:
                     res.append(
-                        f"ACL Profile {acl_policy} is referenced but not present"
+                        f"ACL Profile {acl_profile} is referenced but not present"
                     )
         return res
 

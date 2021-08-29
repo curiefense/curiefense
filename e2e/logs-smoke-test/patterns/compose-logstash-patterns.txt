@@ -1,1 +1,23 @@
-curiefense-logstash-patterns.txt
+Using bundled JDK: /usr/share/logstash/jdk
+OpenJDK 64-Bit Server VM warning: Option UseConcMarkSweepGC was deprecated in version 9.0 and will likely be removed in a future release.
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by org.jruby.ext.openssl.SecurityHelper \(file:/tmp/jruby.*\) to field java.security.MessageDigest.provider
+WARNING: Please consider reporting this to the maintainers of org.jruby.ext.openssl.SecurityHelper
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+Sending Logstash logs to /usr/share/logstash/logs which is now configured via log4j2.properties
+\[\S+\]\[WARN \]\[logstash.monitoringextension.pipelineregisterhook\] xpack.monitoring.enabled has not been defined, but found elasticsearch configuration. Please explicitly set `xpack.monitoring.enabled: true` in logstash.yml
+\[\S+\]\[WARN \]\[deprecation.logstash.monitoringextension.pipelineregisterhook\] Internal collectors option for Logstash monitoring is deprecated and targeted for removal in the next major version.
+Please configure Metricbeat to monitor Logstash. Documentation can be found at: 
+https://www.elastic.co/guide/en/logstash/current/monitoring-with-metricbeat.html
+\[\S+\]\[WARN \]\[deprecation.logstash.outputs.elasticsearch\] Relying on default value of `pipeline.ecs_compatibility`, which may change in a future major release of Logstash. To avoid unexpected changes when upgrading Logstash, please explicitly declare your desired ECS Compatibility mode.
+\[\S+\]\[WARN \]\[logstash.licensechecker.licensereader\] Restored connection to ES instance \{:url=>"http://elasticsearch:9200/"\}
+\[\S+\]\[WARN \]\[logstash.licensechecker.licensereader\] Detected a 6.x and above cluster: the `type` event field won't be used to determine the document _type \{:es_version=>7\}
+\[\S+\]\[WARN \]\[deprecation.logstash.outputs.elasticsearchmonitoring\] Relying on default value of `pipeline.ecs_compatibility`, which may change in a future major release of Logstash. To avoid unexpected changes when upgrading Logstash, please explicitly declare your desired ECS Compatibility mode.
+\[\S+\]\[WARN \]\[deprecation.logstash.outputs.elasticsearch\] Relying on default value of `pipeline.ecs_compatibility`, which may change in a future major release of Logstash. To avoid unexpected changes when upgrading Logstash, please explicitly declare your desired ECS Compatibility mode.
+\[\S+\]\[WARN \]\[logstash.outputs.elasticsearchmonitoring\]\[.monitoring-logstash\] Restored connection to ES instance \{:url=>"http://elasticsearch:9200/"\}
+\[\S+\]\[WARN \]\[logstash.outputs.elasticsearch\]\[main\] Restored connection to ES instance \{:url=>"http://elasticsearch:9200/"\}
+\[\S+\]\[WARN \]\[logstash.outputs.elasticsearchmonitoring\]\[.monitoring-logstash\] Detected a 6.x and above cluster: the `type` event field won't be used to determine the document _type \{:es_version=>7\}
+\[\S+\]\[WARN \]\[logstash.outputs.elasticsearch\]\[main\] Detected a 6.x and above cluster: the `type` event field won't be used to determine the document _type \{:es_version=>7\}
+\[\S+\]\[WARN \]\[logstash.javapipeline    \]\[.monitoring-logstash\] 'pipeline.ordered' is enabled and is likely less efficient, consider disabling if preserving event order is not necessary
+\[\S+\]\[INFO \]

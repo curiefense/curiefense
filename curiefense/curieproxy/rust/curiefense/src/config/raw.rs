@@ -3,21 +3,21 @@ use serde::de::{self, Deserializer, SeqAccess, Visitor};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
-/// a mapping of the configuration file for url map entries
-/// it is called "urlmap" in the lua code
+/// a mapping of the configuration file for security policy entries
+/// it is called "securitypolicy" in the lua code
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RawHostMap {
     #[serde(rename = "match")]
     pub match_: String,
     pub id: String,
     pub name: String,
-    pub map: Vec<RawUrlMap>,
+    pub map: Vec<RawSecurityPolicy>,
 }
 
-/// a mapping of the configuration file for url maps
-/// it is called "urlmap-entry" in the lua code
+/// a mapping of the configuration file for security policies
+/// it is called "securitypolicy-entry" in the lua code
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RawUrlMap {
+pub struct RawSecurityPolicy {
     #[serde(rename = "match")]
     pub match_: String,
     pub name: String,

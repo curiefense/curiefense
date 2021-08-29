@@ -1,5 +1,5 @@
 /* eslint-disable */
-
+import {httpRequestMethods} from './const'
 declare module CuriefenseClient {
 
   type GenericObject = { [key: string]: any }
@@ -21,7 +21,7 @@ declare module CuriefenseClient {
     exclusions: { [key: string]: number }
   }
 
-  type URLMapEntryMatch = {
+  type SecurityPolicyEntryMatch = {
     match: string
     name: string
     acl_profile: string
@@ -54,7 +54,7 @@ declare module CuriefenseClient {
     }
   }
 
-  type ACLPolicyFilter = 'allow' | 'allow_bot' | 'deny_bot' | 'bypass' | 'force_deny' | 'deny'
+  type ACLProfileFilter = 'allow' | 'allow_bot' | 'deny_bot' | 'bypass' | 'force_deny' | 'deny'
 
   type IncludeExcludeType = 'include' | 'exclude'
 
@@ -68,9 +68,9 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
-  type Document = BasicDocument & (ACLPolicy | FlowControl | GlobalFilter | RateLimit | URLMap | ContentFilterProfile | ContentFilterRule)
+  type Document = BasicDocument & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy | ContentFilterProfile | ContentFilterRule)
 
-  type DocumentType = 'aclpolicies' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'urlmaps' | 'contentfilterprofiles' | 'contentfilterrules'
+  type DocumentType = 'aclprofiles' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'securitypolicies' | 'contentfilterprofiles' | 'contentfilterrules'
 
   // Document types helpers - END
 
@@ -81,7 +81,7 @@ declare module CuriefenseClient {
     name: string
   }
 
-  type ACLPolicy = {
+  type ACLProfile = {
     id: string
     name: string
     allow: string[]
@@ -131,11 +131,11 @@ declare module CuriefenseClient {
     }
   }
 
-  type URLMap = {
+  type SecurityPolicy = {
     id: string
     name: string
     match: string
-    map: URLMapEntryMatch[]
+    map: SecurityPolicyEntryMatch[]
   }
 
   type RateLimit = {
@@ -151,7 +151,9 @@ declare module CuriefenseClient {
     pairwith: LimitOptionType
   }
 
-  type FlowControl = {
+  type HttpRequestMethods = typeof httpRequestMethods[number]
+
+  type FlowControlPolicy = {
     id: string
     name: string
     ttl: number
@@ -165,7 +167,7 @@ declare module CuriefenseClient {
       args: GenericObject
       cookies: GenericObject
       headers: GenericObject
-      method: string
+      method: HttpRequestMethods
       uri: string
     }[]
   }

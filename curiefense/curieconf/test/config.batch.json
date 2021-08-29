@@ -47,7 +47,7 @@
                 }
             }
         ],
-        "urlmaps": [
+        "securitypolicies": [
             {
                 "id": "__default__",
                 "name": "default entry",
@@ -377,7 +377,7 @@
                 }
             }
         ],
-        "aclpolicies": [
+        "aclprofiles": [
             {
                 "id": "__default__",
                 "name": "default-acl",
@@ -602,7 +602,7 @@
         "flowcontrol": [
             {
                 "id": "c03dabe4b9ca",
-                "name": "Flow Control Example",
+                "name": "Flow Control Policy Example",
                 "ttl": 60,
                 "key": [
                     {

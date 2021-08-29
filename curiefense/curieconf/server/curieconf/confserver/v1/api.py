@@ -325,13 +325,13 @@ def validateJson(json_data, schema_type):
 
 base_path = Path(__file__).parent
 # base_path = "/etc/curiefense/json/"
-acl_policy_file_path = (base_path / "../json/acl-policy.schema").resolve()
+acl_policy_file_path = (base_path / "./json/acl-policy.schema").resolve()
 with open(acl_policy_file_path) as json_file:
     acl_policy_schema = json.load(json_file)
 ratelimits_file_path = (base_path / "../json/rate-limits.schema").resolve()
 with open(ratelimits_file_path) as json_file:
     ratelimits_schema = json.load(json_file)
-urlmaps_file_path = (base_path / "../json/url-maps.schema").resolve()
+urlmaps_file_path = (base_path / "./json/url-maps.schema").resolve()
 with open(urlmaps_file_path) as json_file:
     urlmaps_schema = json.load(json_file)
 content_filter_profile_file_path = (base_path / "./json/waf-policy.schema").resolve()

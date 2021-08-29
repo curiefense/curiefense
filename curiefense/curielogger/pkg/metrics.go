@@ -22,16 +22,16 @@ const (
 
 var (
 	staticTags = map[string]bool{
-		"ip":                true,
-		"asn":               true,
-		"geo":               true,
-		"aclid":             true,
-		"aclname":           true,
-		"contentfilterid":   true,
-		"contentfiltername": true,
-		"urlmap":            true,
-		"urlmap-entry":      true,
-		"container":         true,
+		"ip":                   true,
+		"asn":                  true,
+		"geo":                  true,
+		"aclid":                true,
+		"aclname":              true,
+		"contentfilterid":      true,
+		"contentfiltername":    true,
+		"securitypolicy":       true,
+		"securitypolicy-entry": true,
+		"container":            true,
 	}
 )
 
@@ -87,8 +87,8 @@ func NewMetrics(v *viper.Viper) *Metrics {
 			"aclname",
 			"contentfilterid",
 			"contentfiltername",
-			"urlmap",
-			"urlmap_entry",
+			"securitypolicy",
+			"securitypolicy_entry",
 			"container",
 		}),
 		requestBytes: promauto.NewCounter(prometheus.CounterOpts{
@@ -203,8 +203,8 @@ func makeLabels(statusCode int, method, path, upstream, blocked string, tags []s
 		"aclname":             tm["aclname"],
 		"contentfilterid":     tm["contentfilterid"],
 		"contentfiltername":   tm["contentfiltername"],
-		"urlmap":              tm["urlmap"],
-		"urlmap_entry":        tm["urlmap-entry"],
+		"securitypolicy":      tm["securitypolicy"],
+		"securitypolicy_entry":tm["securitypolicy-entry"],
 		"container":           tm["container"],
 	}
 }

@@ -1,1 +1,1 @@
-curiefense-grafana-patterns.txt
+^t=\S+ lvl=info

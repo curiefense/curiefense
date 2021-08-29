@@ -2,7 +2,7 @@
   {
     "response": {
       "tags": [
-        "urlmap-entry:default",
+        "securitypolicy-entry:default",
         "contentfilterid:--default--",
         "asn:396507",
         "sante",
@@ -10,7 +10,7 @@
         "actionchallenge",
         "aclname:default-acl",
         "aclid:--default--",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "geo:united-states",
         "contentfiltername:default-contentfilter",
         "bot",
@@ -31,7 +31,7 @@
   {
     "response": {
       "tags": [
-        "urlmap-entry:default",
+        "securitypolicy-entry:default",
         "contentfilterid:--default--",
         "asn:396507",
         "sante",
@@ -39,7 +39,7 @@
         "actionresponse",
         "aclname:default-acl",
         "aclid:--default--",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "geo:united-states",
         "contentfiltername:default-contentfilter",
         "bot",
@@ -60,7 +60,7 @@
   {
     "response": {
       "tags": [
-        "urlmap-entry:default",
+        "securitypolicy-entry:default",
         "contentfilterid:--default--",
         "contentfiltername:default-contentfilter",
         "asn:396507",
@@ -69,7 +69,7 @@
         "actiondefault",
         "aclname:default-acl",
         "aclid:--default--",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "geo:united-states",
         "bot",
         "ip:23-129-64-253"
@@ -89,7 +89,7 @@
   {
     "response": {
       "tags": [
-        "urlmap-entry:default",
+        "securitypolicy-entry:default",
         "contentfilterid:--default--",
         "contentfiltername:default-contentfilter",
         "asn:396507",
@@ -98,7 +98,7 @@
         "actionredirect",
         "aclname:default-acl",
         "aclid:--default--",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "geo:united-states",
         "bot",
         "ip:23-129-64-253"
@@ -118,7 +118,7 @@
   {
     "response": {
       "tags": [
-        "urlmap-entry:default",
+        "securitypolicy-entry:default",
         "contentfilterid:--default--",
         "contentfiltername:default-contentfilter",
         "asn:396507",
@@ -127,7 +127,7 @@
         "actiondefault",
         "aclname:default-acl",
         "aclid:--default--",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "geo:united-states",
         "bot",
         "ip:23-129-64-253"
