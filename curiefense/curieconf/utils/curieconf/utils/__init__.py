@@ -4,6 +4,7 @@ import base64
 import json
 
 import pydash as _
+from flask_restplus import fields
 
 DOCUMENTS_PATH = {
     "ratelimits": "config/json/limits.json",
@@ -26,7 +27,6 @@ BLOBS_BOOTSTRAP = {
     "geolite2country": b"",
     "geolite2city": b"",
 }
-
 
 def vconvert(conf_type_name, vfrom, invert=False):
     """
@@ -57,6 +57,44 @@ def vconvert(conf_type_name, vfrom, invert=False):
             apimap[key] = _.objects.invert(apimap[key])
 
     return _.get(apimap, f"{vfrom}.{conf_type_name}", conf_type_name)
+
+def _field_invert_names(field):
+    """
+    Helper function to recurse over child fields incase of Nested/Wildcard/List fields.
+
+    Args:
+        field (fields.Raw): field to recurse. Being mutated.
+
+    Returns
+        fields.Raw: converted field
+    """
+
+    if isinstance(field, fields.Nested):
+        field.model = model_invert_names(field.model)
+    elif isinstance(field, fields.List) or isinstance(field, fields.Wildcard):
+        field.container = _field_invert_names(field.container)
+    return field
+
+def model_invert_names(model):
+    """
+    Invert key names in a model using fields attribute if exists.
+
+    Args:
+        model (Model): model to invert.
+
+    Returns
+        Model: inverted model
+    """
+
+    mod = model.clone(model.name)
+    for key in list(mod):
+        _field_invert_names(mod[key])
+        if mod[key].attribute:
+            new_key = mod[key].attribute
+            mod[new_key] = mod[key]
+            mod[new_key].attribute = key
+            del mod[key]
+    return mod
 
 def dict_to_path_value(map, path='', starting_path_list=None):
     """
