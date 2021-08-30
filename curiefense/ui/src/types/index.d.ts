@@ -1,5 +1,5 @@
 /* eslint-disable */
-
+import {httpRequestMethods} from './const'
 declare module CuriefenseClient {
 
   type GenericObject = { [key: string]: any }
@@ -21,7 +21,7 @@ declare module CuriefenseClient {
     exclusions: { [key: string]: number }
   }
 
-  type URLMapEntryMatch = {
+  type SecurityPolicyEntryMatch = {
     match: string
     name: string
     acl_profile: string
@@ -68,9 +68,9 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
-  type Document = BasicDocument & (ACLProfile | FlowControl | GlobalFilter | RateLimit | URLMap | WAFPolicy | WAFRule)
+  type Document = BasicDocument & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy | WAFPolicy | WAFRule)
 
-  type DocumentType = 'aclprofiles' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'urlmaps' | 'wafpolicies' | 'wafrules'
+  type DocumentType = 'aclprofiles' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'securitypolicies' | 'wafpolicies' | 'wafrules'
 
   // Document types helpers - END
 
@@ -131,11 +131,11 @@ declare module CuriefenseClient {
     }
   }
 
-  type URLMap = {
+  type SecurityPolicy = {
     id: string
     name: string
     match: string
-    map: URLMapEntryMatch[]
+    map: SecurityPolicyEntryMatch[]
   }
 
   type RateLimit = {
@@ -151,7 +151,9 @@ declare module CuriefenseClient {
     pairwith: LimitOptionType
   }
 
-  type FlowControl = {
+  type HttpRequestMethods = typeof httpRequestMethods[number]
+
+  type FlowControlPolicy = {
     id: string
     name: string
     ttl: number
@@ -165,7 +167,7 @@ declare module CuriefenseClient {
       args: GenericObject
       cookies: GenericObject
       headers: GenericObject
-      method: string
+      method: HttpRequestMethods
       uri: string
     }[]
   }

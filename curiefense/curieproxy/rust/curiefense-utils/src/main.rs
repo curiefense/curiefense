@@ -7,9 +7,9 @@ fn main() {
     let path = &args[1];
     let mut logs = Logs::default();
     with_config(path, &mut logs, |_, cfg| {
-        println!("url maps:");
-        for urlmap in &cfg.urlmaps {
-            println!("{:?}", urlmap);
+        println!("security policies:");
+        for securitypolicy in &cfg.securitypolicies {
+            println!("{:?}", securitypolicy);
         }
     });
     for l in logs.to_stringvec() {

@@ -6,7 +6,7 @@ use std::sync::RwLock;
 use uuid::Uuid;
 
 use crate::acl::{check_acl, AclResult};
-use crate::config::hostmap::UrlMap;
+use crate::config::hostmap::SecurityPolicy;
 use crate::config::{with_config_default_path, Config, CONFIG, HSDB};
 use crate::flow::flow_check;
 use crate::interface::{Decision, Tags};
@@ -14,7 +14,7 @@ use crate::limit::limit_check;
 use crate::logs::Logs;
 use crate::requestfields::RequestField;
 use crate::tagging::tag_request;
-use crate::urlmap::match_urlmap;
+use crate::securitypolicy::match_securitypolicy;
 use crate::utils::{find_geoip, QueryInfo, RInfo, RequestInfo, RequestMeta};
 use crate::waf::waf_check;
 
@@ -23,7 +23,7 @@ lazy_static! {
     static ref RAW: RwLock<HashMap<Uuid, serde_json::Value>> = RwLock::new(HashMap::new());
     static ref RINFOS: RwLock<HashMap<Uuid, RequestInfo>> = RwLock::new(HashMap::new());
     static ref TAGS: RwLock<HashMap<Uuid, Tags>> = RwLock::new(HashMap::new());
-    static ref URLMAP: RwLock<HashMap<Uuid, UrlMap>> = RwLock::new(HashMap::new());
+    static ref SECURITYPOLICY: RwLock<HashMap<Uuid, SecurityPolicy>> = RwLock::new(HashMap::new());
 }
 
 /// json representation of the useful fields in the request map
@@ -102,7 +102,7 @@ pub fn clean_session(session_id: &str) -> anyhow::Result<()> {
     if let Ok(mut w) = TAGS.write() {
         w.remove(&uuid);
     }
-    if let Ok(mut w) = URLMAP.write() {
+    if let Ok(mut w) = SECURITYPOLICY.write() {
         w.remove(&uuid);
     }
     Ok(())
@@ -165,53 +165,53 @@ pub fn session_init(encoded_request_map: &str) -> anyhow::Result<String> {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct SessionUrlMap {
+pub struct SessionSecurityPolicy {
     pub name: String,
     pub acl_profile: String,
     pub waf_profile: String,
     pub acl_active: bool,
     pub waf_active: bool,
     pub limit_ids: Vec<String>,
-    pub urlmap: String,
+    pub securitypolicy: String,
 }
 
-/// returns a RawUrlMap object (minus the match field), and updates the internal structure for the url map
-pub fn session_match_urlmap(session_id: &str) -> anyhow::Result<SessionUrlMap> {
+/// returns a RawSecurityPolicy object (minus the match field), and updates the internal structure for the security policy
+pub fn session_match_securitypolicy(session_id: &str) -> anyhow::Result<SessionSecurityPolicy> {
     let mut logs = Logs::default();
     let uuid: Uuid = session_id.parse()?;
     // this is done this way in order to release the config lock before writing the tags
     // this might not be optimal though, perhaps it is faster to keep the locks and avoir copies
-    let (hostmap_name, urlmap) = with_config(|cfg| {
-        with_request_info(uuid, |rinfo| match match_urlmap(&rinfo, &cfg, &mut logs) {
-            Some((hn, urlmap)) => {
-                let mut wurlmap = URLMAP
+    let (hostmap_name, securitypolicy) = with_config(|cfg| {
+        with_request_info(uuid, |rinfo| match match_securitypolicy(&rinfo, &cfg, &mut logs) {
+            Some((hn, securitypolicy)) => {
+                let mut wsecuritypolicy = SECURITYPOLICY
                     .write()
                     .map_err(|rr| anyhow::anyhow!("Could not get TAGS write lock {}", rr))?;
-                wurlmap.insert(uuid, urlmap.clone());
-                Ok((hn, urlmap.clone()))
+                wsecuritypolicy.insert(uuid, securitypolicy.clone());
+                Ok((hn, securitypolicy.clone()))
             }
-            None => Err(anyhow::anyhow!("No matching URL map")),
+            None => Err(anyhow::anyhow!("No matching Security Policy")),
         })
     })?;
     with_tags_mut(uuid, |tags| {
-        tags.insert_qualified("urlmap", &hostmap_name);
-        tags.insert_qualified("urlmap-entry", &urlmap.name);
-        tags.insert_qualified("aclid", &urlmap.acl_profile.id);
-        tags.insert_qualified("aclname", &urlmap.acl_profile.name);
-        tags.insert_qualified("wafid", &urlmap.waf_profile.id);
-        tags.insert_qualified("wafname", &urlmap.waf_profile.name);
+        tags.insert_qualified("securitypolicy", &hostmap_name);
+        tags.insert_qualified("securitypolicy-entry", &securitypolicy.name);
+        tags.insert_qualified("aclid", &securitypolicy.acl_profile.id);
+        tags.insert_qualified("aclname", &securitypolicy.acl_profile.name);
+        tags.insert_qualified("wafid", &securitypolicy.waf_profile.id);
+        tags.insert_qualified("wafname", &securitypolicy.waf_profile.name);
         Ok(())
     })?;
-    let raw_urlmap = SessionUrlMap {
-        name: urlmap.name,
-        acl_profile: urlmap.acl_profile.id,
-        waf_profile: urlmap.waf_profile.id,
-        acl_active: urlmap.acl_active,
-        waf_active: urlmap.waf_active,
-        limit_ids: urlmap.limits.into_iter().map(|l| l.id).collect(),
-        urlmap: hostmap_name,
+    let raw_securitypolicy = SessionSecurityPolicy {
+        name: securitypolicy.name,
+        acl_profile: securitypolicy.acl_profile.id,
+        waf_profile: securitypolicy.waf_profile.id,
+        acl_active: securitypolicy.acl_active,
+        waf_active: securitypolicy.waf_active,
+        limit_ids: securitypolicy.limits.into_iter().map(|l| l.id).collect(),
+        securitypolicy: hostmap_name,
     };
-    Ok(raw_urlmap)
+    Ok(raw_securitypolicy)
 }
 
 pub fn session_tag_request(session_id: &str) -> anyhow::Result<bool> {
@@ -231,13 +231,13 @@ pub fn session_limit_check(session_id: &str) -> anyhow::Result<Decision> {
     let uuid: Uuid = session_id.parse()?;
 
     // copy limits, without keeping a read lock
-    let limits = with_urlmap(uuid, |urlmap| Ok(urlmap.limits.clone()))?;
+    let limits = with_securitypolicy(uuid, |securitypolicy| Ok(securitypolicy.limits.clone()))?;
     let mut logs = Logs::default();
 
     let sdecision = with_request_info(uuid, |rinfo| {
-        with_urlmap(uuid, |urlmap| {
+        with_securitypolicy(uuid, |securitypolicy| {
             with_tags_mut(uuid, |mut tags| {
-                Ok(limit_check(&mut logs, &urlmap.name, &rinfo, &limits, &mut tags))
+                Ok(limit_check(&mut logs, &securitypolicy.name, &rinfo, &limits, &mut tags))
             })
         })
     });
@@ -247,8 +247,8 @@ pub fn session_limit_check(session_id: &str) -> anyhow::Result<Decision> {
 pub fn session_acl_check(session_id: &str) -> anyhow::Result<AclResult> {
     let uuid: Uuid = session_id.parse()?;
 
-    with_urlmap(uuid, |urlmap| {
-        with_tags(uuid, |tags| Ok(check_acl(tags, &urlmap.acl_profile)))
+    with_securitypolicy(uuid, |securitypolicy| {
+        with_tags(uuid, |tags| Ok(check_acl(tags, &securitypolicy.acl_profile)))
     })
 }
 
@@ -258,8 +258,8 @@ pub fn session_waf_check(session_id: &str) -> anyhow::Result<Decision> {
     let hsdb = HSDB.read().map_err(|rr| anyhow::anyhow!("{}", rr))?;
 
     with_request_info(uuid, |rinfo| {
-        with_urlmap(uuid, |urlmap| {
-            Ok(match waf_check(rinfo, &urlmap.waf_profile, hsdb) {
+        with_securitypolicy(uuid, |securitypolicy| {
+            Ok(match waf_check(rinfo, &securitypolicy.waf_profile, hsdb) {
                 Ok(()) => Decision::Pass,
                 Err(rr) => Decision::Action(rr.to_action()),
             })
@@ -301,13 +301,13 @@ where
     f(rinfo)
 }
 
-fn with_urlmap<F, A>(uuid: Uuid, f: F) -> anyhow::Result<A>
+fn with_securitypolicy<F, A>(uuid: Uuid, f: F) -> anyhow::Result<A>
 where
-    F: FnOnce(&UrlMap) -> anyhow::Result<A>,
+    F: FnOnce(&SecurityPolicy) -> anyhow::Result<A>,
 {
-    let maps = URLMAP
+    let maps = SECURITYPOLICY
         .read()
-        .map_err(|rr| anyhow::anyhow!("Could not get URLMAP read lock {}", rr))?;
+        .map_err(|rr| anyhow::anyhow!("Could not get SECURITYPOLICY read lock {}", rr))?;
     let umap = maps.get(&uuid).ok_or_else(|| anyhow::anyhow!("Unknown session id"))?;
     f(umap)
 }

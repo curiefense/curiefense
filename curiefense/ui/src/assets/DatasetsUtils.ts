@@ -1,4 +1,5 @@
-import {ACLProfile, FlowControl, RateLimit, GlobalFilter, URLMap, WAFPolicy, WAFRule} from '@/types'
+import {ACLProfile, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, WAFPolicy, WAFRule} from '@/types'
+import {httpRequestMethods} from '@/types/const'
 
 const titles: { [key: string]: string } = {
   'admin': 'Admin',
@@ -35,16 +36,16 @@ const titles: { [key: string]: string } = {
   'aclprofiles-singular': 'ACL Profile',
   'ratelimits': 'Rate Limits',
   'ratelimits-singular': 'Rate Limit',
-  'urlmaps': 'URL Maps',
-  'urlmaps-singular': 'URL Map',
+  'securitypolicies': 'Security Policies',
+  'securitypolicies-singular': 'Security Policy',
   'wafpolicies': 'WAF Policies',
   'wafpolicies-singular': 'WAF Policy',
   'wafrules': 'WAF Rules',
   'wafrules-singular': 'WAF Rule',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
-  'flowcontrol': 'Flow Control',
-  'flowcontrol-singular': 'Flow Control',
+  'flowcontrol': 'Flow Control Policies',
+  'flowcontrol-singular': 'Flow Control Policy',
 }
 
 const limitOptionsTypes = {
@@ -65,6 +66,16 @@ function generateUUID(): string {
 
 function generateUUID2(): string {
   return generateUUID().split('-')[4]
+}
+
+const defaultFlowControlSequenceItem = {
+  'method': httpRequestMethods[0],
+  'uri': '/',
+  'cookies': {},
+  'headers': {
+    'host': 'www.example.com',
+  },
+  'args': {},
 }
 
 const newDocEntryFactory: { [key: string]: Function } = {
@@ -129,11 +140,11 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  urlmaps(): URLMap {
+  securitypolicies(): SecurityPolicy {
     const id = generateUUID2()
     return {
       'id': id,
-      'name': 'New URL Map',
+      'name': 'New Security Policy',
       'match': `${id}.example.com`,
       'map': [
         {
@@ -172,13 +183,13 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  flowcontrol(): FlowControl {
+  flowcontrol(): FlowControlPolicy {
     return {
       'id': generateUUID2(),
-      'name': 'New Flow Control',
+      'name': 'New Flow Control Policy',
       'ttl': 60,
       'active': true,
-      'notes': 'New Flow Control Notes and Remarks',
+      'notes': 'New Flow Control Policy Notes and Remarks',
       'key': [
         {
           'attrs': 'ip',
@@ -189,7 +200,13 @@ const newDocEntryFactory: { [key: string]: Function } = {
       },
       'exclude': [],
       'include': ['all'],
-      'sequence': [],
+      'sequence': [
+        {...defaultFlowControlSequenceItem},
+        {
+          ...defaultFlowControlSequenceItem,
+          method: 'POST',
+        },
+      ],
     }
   },
 
@@ -210,4 +227,5 @@ export default {
   generateUUID,
   generateUUID2,
   newDocEntryFactory,
+  defaultFlowControlSequenceItem,
 }

@@ -3,7 +3,7 @@ import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals
 import {shallowMount, Wrapper} from '@vue/test-utils'
 import axios from 'axios'
 import Vue from 'vue'
-import {ACLProfile, BasicDocument, Branch, FlowControl, RateLimit, GlobalFilter, URLMap, WAFPolicy} from '@/types'
+import {ACLProfile, BasicDocument, Branch, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, WAFPolicy} from '@/types'
 
 jest.useFakeTimers()
 jest.mock('axios')
@@ -14,8 +14,8 @@ describe('DocumentSearch.vue', () => {
   let gitData: Branch[]
   let aclDocs: ACLProfile[]
   let profilingListDocs: GlobalFilter[]
-  let urlMapsDocs: URLMap[]
-  let flowControlDocs: FlowControl[]
+  let securityPoliciesDocs: SecurityPolicy[]
+  let flowControlPolicyDocs: FlowControlPolicy[]
   let rateLimitDocs: RateLimit[]
   let wafDocs: WAFPolicy[]
   beforeEach((done) => {
@@ -246,7 +246,7 @@ describe('DocumentSearch.vue', () => {
         },
       },
     ]
-    urlMapsDocs = [
+    securityPoliciesDocs = [
       {
         'id': '__default__',
         'name': 'default entry',
@@ -282,13 +282,13 @@ describe('DocumentSearch.vue', () => {
         ],
       },
     ]
-    flowControlDocs = [
+    flowControlPolicyDocs = [
       {
         'active': true,
         'notes': '',
         'exclude': [],
         'include': ['all'],
-        'name': 'flow control',
+        'name': 'flow control policy',
         'key': [
           {'headers': 'something'},
         ],
@@ -363,11 +363,11 @@ describe('DocumentSearch.vue', () => {
       if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/`) {
         return Promise.resolve({data: profilingListDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/urlmaps/`) {
-        return Promise.resolve({data: urlMapsDocs})
+      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
+        return Promise.resolve({data: securityPoliciesDocs})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/flowcontrol/`) {
-        return Promise.resolve({data: flowControlDocs})
+        return Promise.resolve({data: flowControlPolicyDocs})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
         return Promise.resolve({data: rateLimitDocs})
@@ -425,8 +425,8 @@ describe('DocumentSearch.vue', () => {
     expect(isItemInFilteredDocs(aclDocs[1], 'aclprofiles')).toBeTruthy()
     expect(isItemInFilteredDocs(profilingListDocs[0], 'globalfilters')).toBeTruthy()
     expect(isItemInFilteredDocs(profilingListDocs[1], 'globalfilters')).toBeTruthy()
-    expect(isItemInFilteredDocs(urlMapsDocs[0], 'urlmaps')).toBeTruthy()
-    expect(isItemInFilteredDocs(flowControlDocs[0], 'flowcontrol')).toBeTruthy()
+    expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
+    expect(isItemInFilteredDocs(flowControlPolicyDocs[0], 'flowcontrol')).toBeTruthy()
     expect(isItemInFilteredDocs(wafDocs[0], 'wafpolicies')).toBeTruthy()
     expect(isItemInFilteredDocs(rateLimitDocs[0], 'ratelimits')).toBeTruthy()
     expect(numberOfFilteredDocs()).toEqual(8)
@@ -457,14 +457,17 @@ describe('DocumentSearch.vue', () => {
     const wantedIDsACL = ['5828321c37e0', '__default__']
     const wantedIDsWAF = ['__default__']
     const wantedIDsRateLimit = ['f971e92459e2']
-    // switch filter type to url map
+    // switch filter type to security policy
     const searchTypeSelection = wrapper.find('.search-type-selection')
     searchTypeSelection.trigger('click')
     const options = searchTypeSelection.findAll('option')
     options.at(1).setSelected()
     await Vue.nextTick()
     const searchInput = wrapper.find('.search-input');
-    (searchInput.element as HTMLInputElement).value = 'url map'
+    // Using a partial name instead of 'security policy'
+    // The search is executing a RegEx which means 'securitypolicies' would not
+    // match 'security policies'
+    (searchInput.element as HTMLInputElement).value = 'security pol'
     searchInput.trigger('input')
     await Vue.nextTick()
 
@@ -472,8 +475,8 @@ describe('DocumentSearch.vue', () => {
     const connectionsCell = wrapper.find('.doc-connections-cell')
     const doc = (wrapper.vm as any).filteredDocs[0]
 
-    // check that url map exists without duplicated connections
-    expect(isItemInFilteredDocs(urlMapsDocs[0], 'urlmaps')).toBeTruthy()
+    // check that security policy exists without duplicated connections
+    expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
     expect(connectionsCell.text()).toContain(`ACL Profiles:${wantedIDsACL.join('')}`)
     expect(connectionsCell.text()).toContain(`WAF Policies:${wantedIDsWAF.join('')}`)
     expect(connectionsCell.text()).toContain(`Rate Limits:${wantedIDsRateLimit.join('')}`)
@@ -506,7 +509,7 @@ describe('DocumentSearch.vue', () => {
       expect(isItemInFilteredDocs(aclDocs[0], 'aclprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(aclDocs[1], 'aclprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(profilingListDocs[0], 'globalfilters')).toBeTruthy()
-      expect(isItemInFilteredDocs(urlMapsDocs[0], 'urlmaps')).toBeTruthy()
+      expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
       expect(isItemInFilteredDocs(wafDocs[0], 'wafpolicies')).toBeTruthy()
       expect(isItemInFilteredDocs(rateLimitDocs[0], 'ratelimits')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(6)
@@ -528,7 +531,7 @@ describe('DocumentSearch.vue', () => {
       expect(isItemInFilteredDocs(aclDocs[0], 'aclprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(aclDocs[1], 'aclprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(profilingListDocs[0], 'globalfilters')).toBeTruthy()
-      expect(isItemInFilteredDocs(urlMapsDocs[0], 'urlmaps')).toBeTruthy()
+      expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
       expect(isItemInFilteredDocs(wafDocs[0], 'wafpolicies')).toBeTruthy()
       expect(isItemInFilteredDocs(rateLimitDocs[0], 'ratelimits')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(6)
@@ -546,7 +549,7 @@ describe('DocumentSearch.vue', () => {
       (searchInput.element as HTMLInputElement).value = 'flow'
       searchInput.trigger('input')
       await Vue.nextTick()
-      expect(isItemInFilteredDocs(flowControlDocs[0], 'flowcontrol')).toBeTruthy()
+      expect(isItemInFilteredDocs(flowControlPolicyDocs[0], 'flowcontrol')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(1)
     })
 
@@ -562,7 +565,7 @@ describe('DocumentSearch.vue', () => {
       (searchInput.element as HTMLInputElement).value = 'c03dabe4b9ca'
       searchInput.trigger('input')
       await Vue.nextTick()
-      expect(isItemInFilteredDocs(flowControlDocs[0], 'flowcontrol')).toBeTruthy()
+      expect(isItemInFilteredDocs(flowControlPolicyDocs[0], 'flowcontrol')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(1)
     })
 
@@ -578,7 +581,7 @@ describe('DocumentSearch.vue', () => {
       (searchInput.element as HTMLInputElement).value = 'default entry'
       searchInput.trigger('input')
       await Vue.nextTick()
-      expect(isItemInFilteredDocs(urlMapsDocs[0], 'urlmaps')).toBeTruthy()
+      expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(1)
     })
 
@@ -627,7 +630,7 @@ describe('DocumentSearch.vue', () => {
       searchInput.trigger('input')
       await Vue.nextTick()
       expect(isItemInFilteredDocs(aclDocs[1], 'aclprofiles')).toBeTruthy()
-      expect(isItemInFilteredDocs(urlMapsDocs[0], 'urlmaps')).toBeTruthy()
+      expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
       expect(isItemInFilteredDocs(rateLimitDocs[0], 'ratelimits')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(3)
     })
@@ -660,7 +663,7 @@ describe('DocumentSearch.vue', () => {
       const goToLinkButton = firstDataRow.find('.go-to-link-button')
       await goToLinkButton.trigger('click')
       expect(mockRouter.push).toHaveBeenCalledTimes(1)
-      expect(mockRouter.push).toHaveBeenCalledWith('/config/master/urlmaps/__default__')
+      expect(mockRouter.push).toHaveBeenCalledWith('/config/master/securitypolicies/__default__')
     })
   })
 })

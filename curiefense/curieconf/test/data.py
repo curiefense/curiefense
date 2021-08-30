@@ -18,7 +18,7 @@ vec_limit = {
 }
 
 
-vec_urlmap = {
+vec_securitypolicy = {
     "id": "__default__",
     "name": "default entry",
     "match": "__default__",
@@ -155,7 +155,7 @@ vec_geolite2country = {"format": "base64", "blob": "AAAABBBB"}
 
 vec_documents = {
     "ratelimits": vec_limit,
-    "urlmaps": vec_urlmap,
+    "securitypolicies": vec_securitypolicy,
     "wafrules": vec_wafrule,
     "wafpolicies": vec_wafpolicy,
     "aclprofiles": vec_aclprofile,

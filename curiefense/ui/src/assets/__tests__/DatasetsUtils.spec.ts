@@ -68,10 +68,10 @@ describe('RequestsUtils.ts', () => {
       expect(document['rule']['sections']).toEqual([])
     })
 
-    test('should generate a new URL Map', async () => {
-      const document = DatasetsUtils.newDocEntryFactory.urlmaps()
+    test('should generate a new Security Policy', async () => {
+      const document = DatasetsUtils.newDocEntryFactory.securitypolicies()
       expect(regexUUID2.test(document['id'])).toBeTruthy()
-      expect(document['name']).toEqual('New URL Map')
+      expect(document['name']).toEqual('New Security Policy')
       expect(document['match']).toEqual(`${document['id']}.example.com`)
       expect(document['map'][0]['match']).toEqual('/')
       expect(document['map'][0]['name']).toEqual('default')
@@ -96,18 +96,25 @@ describe('RequestsUtils.ts', () => {
       expect(document['include']).toEqual(['blocklist'])
     })
 
-    test('should generate a new Rate Limit', async () => {
-      const document = DatasetsUtils.newDocEntryFactory.flowcontrol()
+    test('should generate a new Flow Control', async () => {
+      const {newDocEntryFactory, defaultFlowControlSequenceItem} = DatasetsUtils
+      const document = newDocEntryFactory.flowcontrol()
       expect(regexUUID2.test(document['id'])).toBeTruthy()
-      expect(document['name']).toEqual('New Flow Control')
+      expect(document['name']).toEqual('New Flow Control Policy')
       expect(document['ttl']).toEqual(60)
       expect(document['active']).toEqual(true)
-      expect(document['notes']).toEqual('New Flow Control Notes and Remarks')
+      expect(document['notes']).toEqual('New Flow Control Policy Notes and Remarks')
       expect(document['key']).toEqual([{'attrs': 'ip'}])
       expect(document['action']).toEqual({'type': 'default'})
       expect(document['exclude']).toEqual([])
       expect(document['include']).toEqual(['all'])
-      expect(document['sequence']).toEqual([])
+      expect(document['sequence']).toEqual([
+        {...defaultFlowControlSequenceItem},
+        {
+          ...defaultFlowControlSequenceItem,
+          method: 'POST',
+        },
+      ])
     })
 
     test('should generate a new WAF Rule', async () => {
