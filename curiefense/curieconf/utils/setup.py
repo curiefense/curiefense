@@ -13,7 +13,6 @@ setup(
         "wheel",
         "cloudstorage [amazon, google, local]",
         "pydash==5.0.2",
-        "flask-restplus",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
