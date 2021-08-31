@@ -80,7 +80,7 @@ def test_vconvert_invert_false():
     assert utils.vconvert("something", "v1", False) == "something"
 
 
-def test_vconvert_invert_false():
+def test_vconvert_invert_true():
     assert utils.vconvert("securitypolicies", "v1", True) == "urlmaps"
     assert utils.vconvert("contentfilterrules", "v1", True) == "wafrules"
     assert utils.vconvert("contentfilterprofiles", "v1", True) == "wafpolicies"

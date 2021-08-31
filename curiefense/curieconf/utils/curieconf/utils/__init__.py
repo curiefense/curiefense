@@ -216,7 +216,7 @@ def vconvert(conf_type_name, vfrom, invert=False):
     Args:
         conf_type_name (string): Configuration type to convert.
         vfrom (string): Version of the API from which to convert.
-        invert (boolean): return name in requested API version by the actual API name.
+        invert (boolean): Inverts to return api version name from backend name.
 
     Returns
         string: converted conf type

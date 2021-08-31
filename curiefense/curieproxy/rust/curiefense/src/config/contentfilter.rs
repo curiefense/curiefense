@@ -1,4 +1,4 @@
-use crate::config::raw::{RawContentFilterEntryMatch, RawContentFilterProfile, RawContentFilterProperties, ContentFilterRule, RawContentFilterGroup};
+use crate::config::raw::{RawContentFilterEntryMatch, RawContentFilterProfile, RawContentFilterProperties, ContentFilterRule};
 use crate::logs::Logs;
 
 use hyperscan::prelude::{pattern, Builder, CompileFlags, Pattern, Patterns, VectoredDatabase};
@@ -123,91 +123,29 @@ impl ContentFilterRules {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct ContentFilterGroup {
-    pub id: String,
-    pub name: String,
-    pub description: String,
-    pub content_filter_rules_ids: HashSet<String>,
-}
-
-impl ContentFilterGroup {
-    pub fn resolve(
-        logs: &mut Logs,
-        raws: Vec<RawContentFilterGroup>,
-        hsdb: &mut ContentFilterRules
-    ) -> HashMap<String, ContentFilterGroup> {
-        for raw in raws {
-            for (k, v) in raw.content_filter_rules_ids {
-                match hsdb.ids.get(&k) {
-                    Some(rule) => rule.groups.insert(k.clone());,
-                    None => ();,
-                }
-            }
-        }
-        raws.into_iter().map(|raw| (
-            raw.id.clone(),
-            ContentFilterGroup {
-                id: raw.id,
-                name: raw.name,
-                description: raw.description,
-                content_filter_rules_ids: match raw.content_filter_rules_ids {
-                    Some(p) => p.into_iter()
-                        .map(|mp| mp.into_iter().map(|(a, _)| a))
-                        .flatten()
-                        .collect()
-                    None => HashSet::new()
-                },
-            },
-        )).collect()
-    }
-}
-
-fn mk_entry_match(
-    em: RawContentFilterEntryMatch,
-    content_filter_groups: HashMap<String, ContentFilterGroup>
-) -> anyhow::Result<(String, ContentFilterEntryMatch)> {
+fn mk_entry_match(em: RawContentFilterEntryMatch) -> anyhow::Result<(String, ContentFilterEntryMatch)> {
     Ok((
         em.key,
         ContentFilterEntryMatch {
             restrict: em.restrict,
-            exclusions: em.exclusions
+            exclusions: em
+                .exclusions
                 .into_iter()
-                .map(|(k, v)| {
-                    if v == "rule" {
-                        [k].iter().cloned().collect::<HashSet<String>>()
-                    }
-                    else {
-                        match content_filter_groups.get(&k) {
-                            Some(p) => p.content_filter_rules_ids.clone(),
-                            None => HashSet::new()
-                        }
-                    }
-                })
+                .map(|mp| mp.into_iter().map(|(a, _)| a))
                 .flatten()
-                .collect::<HashSet<_>>();,
+                .collect(),
             reg: em.reg.map(|s| Regex::new(&s)).transpose()?, // lol not Haskell
         },
     ))
 }
 
-fn mk_section(
-    props: RawContentFilterProperties,
-    max_length: usize, max_count: usize,
-    content_filter_groups: HashMap<String, ContentFilterGroup>
-) -> anyhow::Result<ContentFilterSection> {
-    let mnames: anyhow::Result<HashMap<String, ContentFilterEntryMatch>> = props
-        .names
-        .into_iter()
-        .map(|e| {
-            mk_entry_match(e, content_filter_groups)
-        })
-        .collect();
+fn mk_section(props: RawContentFilterProperties, max_length: usize, max_count: usize) -> anyhow::Result<ContentFilterSection> {
+    let mnames: anyhow::Result<HashMap<String, ContentFilterEntryMatch>> = props.names.into_iter().map(mk_entry_match).collect();
     let mregex: anyhow::Result<Vec<(Regex, ContentFilterEntryMatch)>> = props
         .regex
         .into_iter()
         .map(|e| {
-            let (s, v) = mk_entry_match(e, content_filter_groups)?;
+            let (s, v) = mk_entry_match(e)?;
             let re = Regex::new(&s)?;
             Ok((re, v))
         })
@@ -220,10 +158,7 @@ fn mk_section(
     })
 }
 
-fn convert_entry(
-    entry: RawContentFilterProfile,
-    content_filter_groups: HashMap<String, ContentFilterGroup>
-) -> anyhow::Result<(String, ContentFilterProfile)> {
+fn convert_entry(entry: RawContentFilterProfile) -> anyhow::Result<(String, ContentFilterProfile)> {
     Ok((
         entry.id.clone(),
         ContentFilterProfile {
@@ -231,27 +166,20 @@ fn convert_entry(
             name: entry.name,
             ignore_alphanum: entry.ignore_alphanum,
             sections: Section {
-                headers: mk_section(entry.headers, entry.max_header_length, entry.max_headers_count,
-                    content_filter_groups)?,
-                cookies: mk_section(entry.cookies, entry.max_cookie_length, entry.max_cookies_count,
-                    content_filter_groups)?,
-                args: mk_section(entry.args, entry.max_arg_length, entry.max_args_count,
-                    content_filter_groups)?,
+                headers: mk_section(entry.headers, entry.max_header_length, entry.max_headers_count)?,
+                cookies: mk_section(entry.cookies, entry.max_cookie_length, entry.max_cookies_count)?,
+                args: mk_section(entry.args, entry.max_arg_length, entry.max_args_count)?,
             },
         },
     ))
 }
 
 impl ContentFilterProfile {
-    pub fn resolve(
-        logs: &mut Logs,
-        raw: Vec<RawContentFilterProfile>,
-        content_filter_groups: HashMap<String, ContentFilterGroup>
-    ) -> HashMap<String, ContentFilterProfile> {
+    pub fn resolve(logs: &mut Logs, raw: Vec<RawContentFilterProfile>) -> HashMap<String, ContentFilterProfile> {
         let mut out = HashMap::new();
         for rp in raw {
             let id = rp.id.clone();
-            match convert_entry(rp, content_filter_groups) {
+            match convert_entry(rp) {
                 Ok((k, v)) => {
                     out.insert(k, v);
                 }
@@ -262,19 +190,6 @@ impl ContentFilterProfile {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct ContentFilterRule {
-    pub id: String,
-    pub name: String,
-    pub msg: String,
-    pub operand: String,
-    pub severity: u8,
-    pub certainity: u8,
-    pub category: String,
-    pub subcategory: String,
-    pub groups: HashSet<String>,
-}
-
 fn convert_rule(entry: &ContentFilterRule) -> anyhow::Result<Pattern> {
     Pattern::with_flags(
         &entry.operand,
@@ -283,24 +198,10 @@ fn convert_rule(entry: &ContentFilterRule) -> anyhow::Result<Pattern> {
 }
 
 pub fn resolve_rules(raws: Vec<ContentFilterRule>) -> anyhow::Result<ContentFilterRules> {
-    let rules = raws.into_iter().map(|raw| (
-        raw.id.clone(),
-        ContentFilterRule {
-            id: raw.id,
-            name: raw.name,
-            msg: raw.msg,
-            operand: raw.operand,
-            severity: raw.severity,
-            certainity: raw.certainity,
-            category: raw.category,
-            subcategory: raw.subcategory,
-            groups: HashSet::new(),
-        },
-    )).collect();
-    let patterns: anyhow::Result<Vec<Pattern>> = rules.iter().map(convert_rule).collect();
+    let patterns: anyhow::Result<Vec<Pattern>> = raws.iter().map(convert_rule).collect();
     let ptrns: Patterns = Patterns::from_iter(patterns?);
     Ok(ContentFilterRules {
         db: ptrns.build::<Vectored>()?,
-        ids: rules,
+        ids: raws,
     })
 }
