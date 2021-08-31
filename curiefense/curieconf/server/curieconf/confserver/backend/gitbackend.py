@@ -486,7 +486,9 @@ class GitBackend(CurieBackend):
         if "urlmaps" in docs:
             for umap in docs["urlmaps"]:
                 for umapmap in umap["map"]:
-                    referenced_content_filter_profiles.append(umapmap["content_filter_profile"])
+                    referenced_content_filter_profiles.append(
+                        umapmap["content_filter_profile"]
+                    )
                     referenced_acl_profiles.append(umapmap["acl_profile"])
         if "contentfilterprofiles" in docs:
             for content_filter_profile in docs["contentfilterprofiles"]:

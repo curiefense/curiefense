@@ -83,7 +83,7 @@ impl ContentFilterBlock {
                 "section": wmatch.section,
                 "name": wmatch.name,
                 "initiator": "content_filter",
-                "value": "WSS", // ronyk : xss?
+                "value": "WSS",
                 "matched": wmatch.value
             }),
             ContentFilterBlock::Mismatch(wmatch) => json!({

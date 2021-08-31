@@ -11,8 +11,12 @@ setup(
     packages=["curieconf.utils"],
     install_requires=[
         "wheel",
+        "google-crc32c==1.1.2",
         "cloudstorage [amazon, google, local]",
         "pydash==5.0.2",
+        "flask==1.1.2",
+        "flask-restplus==0.13.0",
+        "werkzeug==0.16.1",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

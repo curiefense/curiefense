@@ -43,7 +43,7 @@ def split_static_tag(tag):
         "secprofile",
         "securitypolicy-entry",
         "securitypolicy_entry",
-        "securitypolicy"
+        "securitypolicy",
     )
 
     parts = tag.split(":", 1)

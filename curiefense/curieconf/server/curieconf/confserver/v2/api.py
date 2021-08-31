@@ -334,7 +334,9 @@ with open(ratelimits_file_path) as json_file:
 securitypolicies_file_path = (base_path / "./json/security-policies.schema").resolve()
 with open(securitypolicies_file_path) as json_file:
     securitypolicies_schema = json.load(json_file)
-content_filter_profile_file_path = (base_path / "./json/content-filter-profile.schema").resolve()
+content_filter_profile_file_path = (
+    base_path / "./json/content-filter-profile.schema"
+).resolve()
 with open(content_filter_profile_file_path) as json_file:
     content_filter_profile_schema = json.load(json_file)
 globalfilters_file_path = (base_path / "./json/global-filters.schema").resolve()
@@ -343,7 +345,9 @@ with open(globalfilters_file_path) as json_file:
 flowcontrol_file_path = (base_path / "../json/flow-control.schema").resolve()
 with open(flowcontrol_file_path) as json_file:
     flowcontrol_schema = json.load(json_file)
-content_filter_rule_file_path = (base_path / "./json/content-filter-rule.schema").resolve()
+content_filter_rule_file_path = (
+    base_path / "./json/content-filter-rule.schema"
+).resolve()
 with open(content_filter_rule_file_path) as json_file:
     content_filter_rule_schema = json.load(json_file)
 
@@ -512,7 +516,7 @@ class DocumentsResource(Resource):
     def get(self, config):
         "Retrieve the list of existing documents in this configuration"
         res = current_app.backend.documents_list(config)
-        return res #TODO ronyk
+        return res
 
 
 @ns_configs.route("/<string:config>/d/<string:document>/")

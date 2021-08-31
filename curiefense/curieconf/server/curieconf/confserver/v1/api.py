@@ -9,7 +9,6 @@ from collections import defaultdict
 import datetime
 from curieconf import utils
 from curieconf.utils import cloud
-from curieconf.confserver import utils as apiutils
 import requests
 from jsonschema import validate
 from pathlib import Path
@@ -257,7 +256,12 @@ m_document_list_entry = api.model(
 
 m_config_documents = api.model(
     "Config Documents",
-    {x: fields.List(fields.Nested(models[x], default=[]), attribute=apiutils.vconvert(x, "v1")) for x in models},
+    {
+        x: fields.List(
+            fields.Nested(models[x], default=[]), attribute=utils.vconvert(x, "v1")
+        )
+        for x in models
+    },
 )
 
 m_config_blobs = api.model(
@@ -514,7 +518,7 @@ class DocumentsResource(Resource):
         res = current_app.backend.documents_list(config)
         # convert to v1 names
         for doc in res:
-            doc['name'] = apiutils.vconvert(doc['name'], "v1", True)
+            doc["name"] = utils.vconvert(doc["name"], "v1", True)
         return res
 
 
@@ -525,16 +529,18 @@ class DocumentResource(Resource):
         "Get a complete document"
         if document not in models:
             abort(404, "document does not exist")
-        res = current_app.backend.documents_get(config, apiutils.vconvert(document, "v1"))
+        res = current_app.backend.documents_get(config, utils.vconvert(document, "v1"))
         return marshal(res, models[document], skip_none=True)
 
     def post(self, config, document):
         "Create a new complete document"
         if document not in models:
             abort(404, "document does not exist")
-        data = marshal(request.json, apiutils.model_invert_names(models[document]), skip_none=True)
+        data = marshal(
+            request.json, utils.model_invert_names(models[document]), skip_none=True
+        )
         res = current_app.backend.documents_create(
-            config, apiutils.vconvert(document, "v1"), data
+            config, utils.vconvert(document, "v1"), data
         )
         return res
 
@@ -542,9 +548,11 @@ class DocumentResource(Resource):
         "Update an existing document"
         if document not in models:
             abort(404, "document does not exist")
-        data = marshal(request.json, apiutils.model_invert_names(models[document]), skip_none=True)
+        data = marshal(
+            request.json, utils.model_invert_names(models[document]), skip_none=True
+        )
         res = current_app.backend.documents_update(
-            config, apiutils.vconvert(document, "v1"), data
+            config, utils.vconvert(document, "v1"), data
         )
         return res
 
@@ -553,7 +561,7 @@ class DocumentResource(Resource):
         if document not in models:
             abort(404, "document does not exist")
         res = current_app.backend.documents_delete(
-            config, apiutils.vconvert(document, "v1")
+            config, utils.vconvert(document, "v1")
         )
         return res
 
@@ -565,7 +573,7 @@ class DocumentListVersionResource(Resource):
         if document not in models:
             abort(404, "document does not exist")
         res = current_app.backend.documents_list_versions(
-            config, apiutils.vconvert(document, "v1")
+            config, utils.vconvert(document, "v1")
         )
         return marshal(res, m_version_log, skip_none=True)
 
@@ -577,7 +585,7 @@ class DocumentVersionResource(Resource):
         if document not in models:
             abort(404, "document does not exist")
         res = current_app.backend.documents_get(
-            config, apiutils.vconvert(document, "v1"), version
+            config, utils.vconvert(document, "v1"), version
         )
         return marshal(res, models[document], skip_none=True)
 
@@ -587,7 +595,7 @@ class DocumentRevertResource(Resource):
     def put(self, config, document, version):
         "Create a new version for a document from an old version"
         return current_app.backend.documents_revert(
-            config, apiutils.vconvert(document, "v1"), version
+            config, utils.vconvert(document, "v1"), version
         )
 
 
@@ -602,16 +610,18 @@ class EntriesResource(Resource):
         "Retrieve the list of entries in a document"
         if document not in models:
             abort(404, "document does not exist")
-        res = current_app.backend.entries_list(config, apiutils.vconvert(document, "v1"))
+        res = current_app.backend.entries_list(config, utils.vconvert(document, "v1"))
         return res  # XXX: marshal
 
     def post(self, config, document):
         "Create an entry in a document"
         if document not in models:
             abort(404, "document does not exist")
-        data = marshal(request.json, apiutils.model_invert_names(models[document]), skip_none=True)
+        data = marshal(
+            request.json, utils.model_invert_names(models[document]), skip_none=True
+        )
         res = current_app.backend.entries_create(
-            config, apiutils.vconvert(document, "v1"), data
+            config, utils.vconvert(document, "v1"), data
         )
         return res
 
@@ -623,7 +633,7 @@ class EntryResource(Resource):
         if document not in models:
             abort(404, "document does not exist")
         res = current_app.backend.entries_get(
-            config, apiutils.vconvert(document, "v1"), entry
+            config, utils.vconvert(document, "v1"), entry
         )
         return marshal(res, models[document], skip_none=True)
 
@@ -633,9 +643,11 @@ class EntryResource(Resource):
             abort(404, "document does not exist")
         isValid = validateJson(request.json, document)
         if isValid:
-            data = marshal(request.json, apiutils.model_invert_names(models[document]), skip_none=True)
+            data = marshal(
+                request.json, utils.model_invert_names(models[document]), skip_none=True
+            )
             res = current_app.backend.entries_update(
-                config, apiutils.vconvert(document, "v1"), entry, data
+                config, utils.vconvert(document, "v1"), entry, data
             )
             return res
         else:
@@ -646,7 +658,7 @@ class EntryResource(Resource):
         if document not in models:
             abort(404, "document does not exist")
         res = current_app.backend.entries_delete(
-            config, apiutils.vconvert(document, "v1"), entry
+            config, utils.vconvert(document, "v1"), entry
         )
         return res
 
@@ -663,11 +675,13 @@ class EntryEditResource(Resource):
         # Convert v1 field names to backend names
         converted_names_data = []
         for edit in data:
-            mapped = pydash.objects.set_({}, edit['path'], edit['value'])
+            mapped = pydash.objects.set_({}, edit["path"], edit["value"])
             marshaled_map = marshal(mapped, models[document], skip_none=True)
-            apiutils.dict_to_path_value(marshaled_map, starting_path_list=converted_names_data)
+            utils.dict_to_path_value(
+                marshaled_map, starting_path_list=converted_names_data
+            )
         res = current_app.backend.entries_edit(
-            config, apiutils.vconvert(document, "v1"), entry, data
+            config, utils.vconvert(document, "v1"), entry, data
         )
         return res
 
@@ -679,7 +693,7 @@ class EntryListVersionResource(Resource):
         if document not in models:
             abort(404, "document does not exist")
         res = current_app.backend.entries_list_versions(
-            config, apiutils.vconvert(document, "v1"), entry
+            config, utils.vconvert(document, "v1"), entry
         )
         return marshal(res, m_version_log, skip_none=True)
 
@@ -693,7 +707,7 @@ class EntryVersionResource(Resource):
         if document not in models:
             abort(404, "document does not exist")
         res = current_app.backend.entries_get(
-            config, apiutils.vconvert(document, "v1"), entry, version
+            config, utils.vconvert(document, "v1"), entry, version
         )
         return marshal(res, models[document], skip_none=True)
 

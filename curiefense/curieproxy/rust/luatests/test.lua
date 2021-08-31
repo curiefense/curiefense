@@ -218,7 +218,8 @@ local function run_inspect_content_filter(raw_request_map)
       ip = headers["x-forwarded-for"]
     end
 
-    local response, merr = curiefense.inspect_content_filter(meta, headers, raw_request_map.body, ip, raw_request_map.content_filter_id)
+    local response, merr = curiefense.inspect_content_filter(meta, headers, raw_request_map.body, ip, 
+        raw_request_map.content_filter_id)
     if merr then
       error(merr)
     end

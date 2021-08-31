@@ -163,7 +163,10 @@ def test_configs_update(curieapi_small):
     update = {
         "meta": {"id": "renamed_pytest"},
         "blobs": {"geolite2country": jblob},
-        "documents": {"ratelimits": newlimits, "contentfilterrules": new_content_filter_rules},
+        "documents": {
+            "ratelimits": newlimits,
+            "contentfilterrules": new_content_filter_rules,
+        },
         "delete_blobs": {"bltor": False, "blvpnip": True, "geolite2asn": True},
         "delete_documents": {
             "securitypolicies": {

@@ -1359,7 +1359,8 @@ def securitypolicy_config(cli, acl):
     contentfilterprofile = cli.call(f"doc get {TEST_CONFIG_NAME} contentfilterprofiles")
     contentfilterprofile.append(CONTENT_FILTER_SHORT_HEADERS)
     cli.call(
-        f"doc update {TEST_CONFIG_NAME} contentfilterprofiles /dev/stdin", inputjson=contentfilterprofile
+        f"doc update {TEST_CONFIG_NAME} contentfilterprofiles /dev/stdin",
+        inputjson=contentfilterprofile,
     )
     # Add securitypolicy entry SECURITYPOLICY
     cli.call(
@@ -1400,12 +1401,15 @@ class TestSecurityPolicy:
             "/acl/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_nondefault_content_filter_profile_short_headers(self, target, securitypolicy_config):
+    def test_nondefault_content_filter_profile_short_headers(
+        self, target, securitypolicy_config
+    ):
         assert target.is_reachable(
             "/content-filter-short-headers/", headers={"Short-header": "0123456789" * 5}
         )
         assert not target.is_reachable(
-            "/content-filter-short-headers/", headers={"Long-header": "0123456789" * 5 + "A"}
+            "/content-filter-short-headers/",
+            headers={"Long-header": "0123456789" * 5 + "A"},
         )
 
 
@@ -1491,7 +1495,8 @@ def content_filter_param_config(cli, request, ignore_alphanum):
         contentfilterprofile[0][k] = CONTENT_FILTER_PARAM_CONSTRAINTS
     contentfilterprofile[0]["ignore_alphanum"] = ignore_alphanum
     cli.call(
-        f"doc update {TEST_CONFIG_NAME} contentfilterprofiles /dev/stdin", inputjson=contentfilterprofile
+        f"doc update {TEST_CONFIG_NAME} contentfilterprofiles /dev/stdin",
+        inputjson=contentfilterprofile,
     )
 
     cli.publish_and_apply()
@@ -1569,7 +1574,14 @@ def content_filter_rules(request):
 
 
 class TestContentFilterRules:
-    def test_content_filter_rule(self, content_filter_param_config, target, section, content_filter_rules, ignore_alphanum):
+    def test_content_filter_rule(
+        self,
+        content_filter_param_config,
+        target,
+        section,
+        content_filter_rules,
+        ignore_alphanum,
+    ):
         ruleid, rulestr = content_filter_rules
         has_nonalpha = "." in rulestr
         if ignore_alphanum and not has_nonalpha:
