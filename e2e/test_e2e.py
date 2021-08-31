@@ -93,12 +93,12 @@ class CliHelper:
         version = self.initial_version()
         return self.call(f"doc get master aclprofiles --version {version}")
 
-    def revert_and_enable(self, acl=True, waf=True):
+    def revert_and_enable(self, acl=True, content_filter=True):
         version = self.initial_version()
         self.call(f"conf revert {TEST_CONFIG_NAME} {version}")
         securitypolicy = self.call(f"doc get {TEST_CONFIG_NAME} securitypolicies")
         securitypolicy[0]["map"][0]["acl_active"] = acl
-        securitypolicy[0]["map"][0]["waf_active"] = waf
+        securitypolicy[0]["map"][0]["content_filter_active"] = content_filter
         self.call(
             f"doc update {TEST_CONFIG_NAME} securitypolicies /dev/stdin",
             inputjson=securitypolicy,
@@ -560,8 +560,8 @@ def gen_rl_rules(authority):
                     "match": "/",
                     "acl_profile": "__default__",
                     "acl_active": True,
-                    "waf_profile": "__default__",
-                    "waf_active": True,
+                    "content_filter_profile": "__default__",
+                    "content_filter_active": True,
                     "limit_ids": [],
                 }
             ]
@@ -571,8 +571,8 @@ def gen_rl_rules(authority):
                     "match": f"/{k}/",
                     "acl_profile": "__default__",
                     "acl_active": True,
-                    "waf_profile": "__default__",
-                    "waf_active": True,
+                    "content_filter_profile": "__default__",
+                    "content_filter_active": True,
                     "limit_ids": [v],
                 }
                 for k, v in map_path.items()
@@ -1156,7 +1156,7 @@ def globalfilters_config(cli, acl, active):
     acl.set_acl({"force_deny": "e2e-test", "passthrough": "all"})
     # Apply TEST_GLOBALFILTERS
     TEST_GLOBALFILTERS["active"] = active
-    # 'updating' wafpolicies with a list containing a single entry adds this
+    # 'updating' contentfilterprofiles with a list containing a single entry adds this
     # entry, without removing pre-existing ones.
     cli.call(
         f"doc update {TEST_CONFIG_NAME} globalfilters /dev/stdin",
@@ -1263,9 +1263,9 @@ ACL_BYPASSALL = {
     "deny": [],
 }
 
-WAF_SHORT_HEADERS = {
+CONTENT_FILTER_SHORT_HEADERS = {
     "id": "e2e000000002",
-    "name": "e2e waf short headers",
+    "name": "e2e content filter short headers",
     "ignore_alphanum": True,
     "max_header_length": 50,
     "max_cookie_length": 1024,
@@ -1289,8 +1289,8 @@ SECURITYPOLICY = [
                 "match": "/acl/",
                 "acl_profile": "__default__",
                 "acl_active": True,
-                "waf_profile": "__default__",
-                "waf_active": False,
+                "content_filter_profile": "__default__",
+                "content_filter_active": False,
                 "limit_ids": [],
                 "isnew": True,
             },
@@ -1299,38 +1299,38 @@ SECURITYPOLICY = [
                 "match": "/acl-passthroughall/",
                 "acl_profile": "e2e00ac10000",
                 "acl_active": True,
-                "waf_profile": "__default__",
-                "waf_active": True,
+                "content_filter_profile": "__default__",
+                "content_filter_active": True,
                 "limit_ids": [],
                 "isnew": True,
             },
             {
-                "name": "acl-waf",
-                "match": "/acl-waf/",
+                "name": "acl-content-filter",
+                "match": "/acl-content-filter/",
                 "acl_profile": "__default__",
                 "acl_active": True,
-                "waf_profile": "__default__",
-                "waf_active": True,
+                "content_filter_profile": "__default__",
+                "content_filter_active": True,
                 "limit_ids": [],
                 "isnew": True,
             },
             {
-                "name": "waf",
-                "match": "/waf/",
+                "name": "content-filter",
+                "match": "/content-filter/",
                 "acl_profile": "__default__",
                 "acl_active": False,
-                "waf_profile": "__default__",
-                "waf_active": True,
+                "content_filter_profile": "__default__",
+                "content_filter_active": True,
                 "limit_ids": [],
                 "isnew": True,
             },
             {
-                "name": "waf-short-headers",
-                "match": "/waf-short-headers/",
+                "name": "content-filter-short-headers",
+                "match": "/content-filter-short-headers/",
                 "acl_profile": "__default__",
                 "acl_active": False,
-                "waf_profile": "e2e000000002",
-                "waf_active": True,
+                "content_filter_profile": "e2e000000002",
+                "content_filter_active": True,
                 "limit_ids": [],
                 "isnew": True,
             },
@@ -1339,8 +1339,8 @@ SECURITYPOLICY = [
                 "match": "/nofilter/",
                 "acl_profile": "__default__",
                 "acl_active": False,
-                "waf_profile": "__default__",
-                "waf_active": False,
+                "content_filter_profile": "__default__",
+                "content_filter_active": False,
                 "limit_ids": [],
             },
         ],
@@ -1358,11 +1358,12 @@ def securitypolicy_config(cli, acl):
     cli.call(
         f"doc update {TEST_CONFIG_NAME} aclprofiles /dev/stdin", inputjson=default_acl
     )
-    # Add waf profile entry
-    wafpolicy = cli.call(f"doc get {TEST_CONFIG_NAME} wafpolicies")
-    wafpolicy.append(WAF_SHORT_HEADERS)
+    # Add content filter profile entry
+    contentfilterprofile = cli.call(f"doc get {TEST_CONFIG_NAME} contentfilterprofiles")
+    contentfilterprofile.append(CONTENT_FILTER_SHORT_HEADERS)
     cli.call(
-        f"doc update {TEST_CONFIG_NAME} wafpolicies /dev/stdin", inputjson=wafpolicy
+        f"doc update {TEST_CONFIG_NAME} contentfilterprofiles /dev/stdin",
+        inputjson=contentfilterprofile,
     )
     # Add securitypolicy entry SECURITYPOLICY
     cli.call(
@@ -1379,10 +1380,10 @@ class TestSecurityPolicy:
             "/nofilter/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_waffilter(self, target, securitypolicy_config):
-        assert target.is_reachable("/waf/")
+    def test_content_filter(self, target, securitypolicy_config):
+        assert target.is_reachable("/content-filter/")
         assert not target.is_reachable(
-            "/waf/", headers={"Long-header": "Overlong_header" * 100}
+            "/content-filter/", headers={"Long-header": "Overlong_header" * 100}
         )
 
     def test_aclfilter(self, target, securitypolicy_config):
@@ -1397,25 +1398,28 @@ class TestSecurityPolicy:
             "/acl-passthroughall/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_aclwaffilter(self, target, securitypolicy_config):
-        assert not target.is_reachable("/acl-waf/")
+    def test_acl_content_filter(self, target, securitypolicy_config):
+        assert not target.is_reachable("/acl-content-filter/")
         assert not target.is_reachable(
             "/acl/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_nondefault_wafpolicy_short_headers(self, target, securitypolicy_config):
+    def test_nondefault_content_filter_profile_short_headers(
+        self, target, securitypolicy_config
+    ):
         assert target.is_reachable(
-            "/waf-short-headers/", headers={"Short-header": "0123456789" * 5}
+            "/content-filter-short-headers/", headers={"Short-header": "0123456789" * 5}
         )
         assert not target.is_reachable(
-            "/waf-short-headers/", headers={"Long-header": "0123456789" * 5 + "A"}
+            "/content-filter-short-headers/",
+            headers={"Long-header": "0123456789" * 5 + "A"},
         )
 
 
-# --- WAF Policies tests (formerly WAF profiles) ---
+# --- Content Filter Profiles tests (formerly WAF profiles) ---
 
 
-class TestWAFLengthCount:
+class TestContentFilterLengthCount:
     def test_length_overlong(self, default_config, target, section):
         # default limit: len 1024
         assert not target.is_reachable(
@@ -1446,7 +1450,7 @@ class TestWAFLengthCount:
         ), f"Reachable despite too many {section}"
 
 
-WAF_PARAM_CONSTRAINTS = {
+CONTENT_FILTER_PARAM_CONSTRAINTS = {
     "names": [
         {
             "key": "name-norestrict",
@@ -1486,15 +1490,16 @@ def ignore_alphanum(request):
 
 
 @pytest.fixture(scope="class")
-def wafparam_config(cli, request, ignore_alphanum):
+def content_filter_param_config(cli, request, ignore_alphanum):
     cli.revert_and_enable()
-    # Apply WAF_PARAM_CONSTRAINTS
-    wafpolicy = cli.call(f"doc get {TEST_CONFIG_NAME} wafpolicies")
+    # Apply CONTENT_FILTER_PARAM_CONSTRAINTS
+    contentfilterprofile = cli.call(f"doc get {TEST_CONFIG_NAME} contentfilterprofiles")
     for k in ("args", "headers", "cookies"):
-        wafpolicy[0][k] = WAF_PARAM_CONSTRAINTS
-    wafpolicy[0]["ignore_alphanum"] = ignore_alphanum
+        contentfilterprofile[0][k] = CONTENT_FILTER_PARAM_CONSTRAINTS
+    contentfilterprofile[0]["ignore_alphanum"] = ignore_alphanum
     cli.call(
-        f"doc update {TEST_CONFIG_NAME} wafpolicies /dev/stdin", inputjson=wafpolicy
+        f"doc update {TEST_CONFIG_NAME} contentfilterprofiles /dev/stdin",
+        inputjson=contentfilterprofile,
     )
 
     cli.publish_and_apply()
@@ -1510,9 +1515,9 @@ def restrict(request):
     return request.param
 
 
-class TestWAFParamsConstraints:
+class TestContentFilterParamsConstraints:
     def test_allowlisted_value(
-        self, wafparam_config, section, name_regex, restrict, target
+        self, content_filter_param_config, section, name_regex, restrict, target
     ):
         paramname = name_regex + "-" + restrict
         assert target.is_reachable(
@@ -1520,7 +1525,7 @@ class TestWAFParamsConstraints:
         ), f"Not reachable despite allowlisted {section} value"
 
     def test_non_allowlisted_value_restrict(
-        self, wafparam_config, section, name_regex, target, ignore_alphanum
+        self, content_filter_param_config, section, name_regex, target, ignore_alphanum
     ):
         paramname = name_regex + "-restrict"
         if ignore_alphanum:
@@ -1534,52 +1539,59 @@ class TestWAFParamsConstraints:
                 **{section: {paramname: "invalid"}},
             ), f"Reachable despite blocklisted {section} value (restrict is enabled)"
 
-    def test_non_allowlisted_value_norestrict_nowafmatch(
-        self, wafparam_config, section, name_regex, target
+    def test_non_allowlisted_value_norestrict_no_content_filter_match(
+        self, content_filter_param_config, section, name_regex, target
     ):
         paramname = name_regex + "-norestrict"
         assert target.is_reachable(
             f"/blocklisted-value-{paramname}", **{section: {paramname: "invalid"}}
         ), f"Not reachable despite 'restricted' not checked (non-matching {section} value)"
 
-    def test_non_allowlisted_value_norestrict_wafmatch(
-        self, wafparam_config, section, name_regex, target
+    def test_non_allowlisted_value_norestrict_content_filter_match(
+        self, content_filter_param_config, section, name_regex, target
     ):
         paramname = name_regex + "-norestrict"
         assert not target.is_reachable(
-            f"/blocklisted-value-{paramname}-wafmatch",
+            f"/blocklisted-value-{paramname}-content-filter-match",
             **{section: {paramname: "../../../../../"}},
-        ), f"Reachable despite matching wafsig 100116 (non-matching {section} value)"
+        ), f"Reachable despite matching content filter rule 100116 (non-matching {section} value)"
 
-    def test_non_allowlisted_value_norestrict_wafmatch_excludesig(
-        self, wafparam_config, section, name_regex, target
+    def test_non_allowlisted_value_norestrict_content_filter_match_excludesig(
+        self, content_filter_param_config, section, name_regex, target
     ):
         paramname = name_regex + "-norestrict"
         assert target.is_reachable(
-            f"/blocklisted-value-{paramname}-wafmatch-excludedsig",
+            f"/blocklisted-value-{paramname}-content-filter-match-excludedsig",
             **{section: {paramname: "htaccess"}},
         ), f"Not reachable despite excludesig for rule 100140 ({section} value)"
 
 
-# --- WAF Rules tests (formerly WAF Signatures) ---
+# --- Content Filter Rules tests (formerly WAF Signatures) ---
 
 
 @pytest.fixture(
     scope="function", params=[(100140, "htaccess"), (100112, "../../../../../")]
 )
-def wafrules(request):
+def content_filter_rules(request):
     return request.param
 
 
-class TestWAFRules:
-    def test_wafsig(self, wafparam_config, target, section, wafrules, ignore_alphanum):
-        ruleid, rulestr = wafrules
+class TestContentFilterRules:
+    def test_content_filter_rule(
+        self,
+        content_filter_param_config,
+        target,
+        section,
+        content_filter_rules,
+        ignore_alphanum,
+    ):
+        ruleid, rulestr = content_filter_rules
         has_nonalpha = "." in rulestr
         if ignore_alphanum and not has_nonalpha:
             assert target.is_reachable(
-                f"/wafsig-{section}", **{section: {"key": rulestr}}
+                f"/content-filter-rule-{section}", **{section: {"key": rulestr}}
             ), f"Unreachable despite ignore_alphanum=True for rule {ruleid}"
         else:
             assert not target.is_reachable(
-                f"/wafsig-{section}", **{section: {"key": rulestr}}
+                f"/content-filter-rule-{section}", **{section: {"key": rulestr}}
             ), f"Reachable despite matching rule {ruleid}"

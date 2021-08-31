@@ -12,7 +12,7 @@ pub mod session;
 pub mod tagging;
 pub mod securitypolicy;
 pub mod utils;
-pub mod waf;
+pub mod contentfilter;
 
 use interface::Tags;
 use serde_json::json;
@@ -26,7 +26,7 @@ use logs::Logs;
 use tagging::tag_request;
 use securitypolicy::match_securitypolicy;
 use utils::RequestInfo;
-use waf::waf_check;
+use contentfilter::content_filter_check;
 
 fn acl_block(blocking: bool, code: i32, tags: &[String]) -> Decision {
     Decision::Action(Action {
@@ -120,8 +120,8 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
     tags.insert_qualified("securitypolicy-entry", &securitypolicy.name);
     tags.insert_qualified("aclid", &securitypolicy.acl_profile.id);
     tags.insert_qualified("aclname", &securitypolicy.acl_profile.name);
-    tags.insert_qualified("wafid", &securitypolicy.waf_profile.id);
-    tags.insert_qualified("wafname", &securitypolicy.waf_profile.name);
+    tags.insert_qualified("contentfilterid", &securitypolicy.content_filter_profile.id);
+    tags.insert_qualified("contentfiltername", &securitypolicy.content_filter_profile.name);
 
     if let Some(dec) = mgh.as_ref().and_then(|gh| {
         reqinfo
@@ -228,20 +228,20 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
         }
     }
 
-    // otherwise, run waf_check
-    let waf_result = match HSDB.read() {
-        Ok(rd) => waf_check(&reqinfo, &securitypolicy.waf_profile, rd),
+    // otherwise, run content_filter_check
+    let content_filter_result = match HSDB.read() {
+        Ok(rd) => content_filter_check(&reqinfo, &securitypolicy.content_filter_profile, rd),
         Err(rr) => {
             logs.error(format!("Could not get lock on HSDB: {}", rr));
             Ok(())
         }
     };
-    logs.debug("WAF checks done");
+    logs.debug("Content Filter checks done");
 
     (
-        match waf_result {
+        match content_filter_result {
             Ok(()) => {
-                // if waf was ok, but we had an acl decision, return the monitored acl decision for logged purposes
+                // if content filter was ok, but we had an acl decision, return the monitored acl decision for logged purposes
                 if let Some((cde, tgs)) = blockcode {
                     acl_block(false, cde, &tgs)
                 } else {
@@ -250,7 +250,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
             }
             Err(wb) => {
                 let mut action = wb.to_action();
-                action.block_mode = securitypolicy.waf_active;
+                action.block_mode = securitypolicy.content_filter_active;
                 Decision::Action(action)
             }
         },
@@ -259,31 +259,31 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
 }
 
 // generic entry point when the request map has already been parsed
-pub fn waf_check_generic_request_map(
+pub fn content_filter_check_generic_request_map(
     configpath: &str,
     reqinfo: &RequestInfo,
-    waf_id: &str,
+    content_filter_id: &str,
     logs: &mut Logs,
 ) -> Decision {
-    logs.debug("WAF inspection starts");
-    let waf_profile = match with_config(configpath, logs, |_slogs, cfg| cfg.waf_profiles.get(waf_id).cloned()) {
+    logs.debug("Content Filter inspection starts");
+    let content_filter_profile = match with_config(configpath, logs, |_slogs, cfg| cfg.content_filter_profiles.get(content_filter_id).cloned()) {
         Some(Some(prof)) => prof,
         _ => {
-            logs.error("WAF profile not found");
+            logs.error("Content Filter profile not found");
             return Decision::Pass;
         }
     };
 
-    let waf_result = match HSDB.read() {
-        Ok(rd) => waf_check(&reqinfo, &waf_profile, rd),
+    let content_filter_result = match HSDB.read() {
+        Ok(rd) => content_filter_check(&reqinfo, &content_filter_profile, rd),
         Err(rr) => {
             logs.error(format!("Could not get lock on HSDB: {}", rr));
             Ok(())
         }
     };
-    logs.debug("WAF checks done");
+    logs.debug("Content Filter checks done");
 
-    match waf_result {
+    match content_filter_result {
         Ok(()) => Decision::Pass,
         Err(wb) => Decision::Action(wb.to_action()),
     }

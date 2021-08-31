@@ -3,7 +3,7 @@
     "response": {
       "tags": [
         "securitypolicy-entry:default",
-        "wafid:--default--",
+        "contentfilterid:--default--",
         "asn:396507",
         "sante",
         "all",
@@ -12,7 +12,7 @@
         "aclid:--default--",
         "securitypolicy:default-entry",
         "geo:united-states",
-        "wafname:default-waf",
+        "contentfiltername:default-contentfilter",
         "bot",
         "ip:23-129-64-253"
       ],
@@ -32,7 +32,7 @@
     "response": {
       "tags": [
         "securitypolicy-entry:default",
-        "wafid:--default--",
+        "contentfilterid:--default--",
         "asn:396507",
         "sante",
         "all",
@@ -41,7 +41,7 @@
         "aclid:--default--",
         "securitypolicy:default-entry",
         "geo:united-states",
-        "wafname:default-waf",
+        "contentfiltername:default-contentfilter",
         "bot",
         "ip:23-129-64-253"
       ],
@@ -61,8 +61,8 @@
     "response": {
       "tags": [
         "securitypolicy-entry:default",
-        "wafid:--default--",
-        "wafname:default-waf",
+        "contentfilterid:--default--",
+        "contentfiltername:default-contentfilter",
         "asn:396507",
         "sante",
         "all",
@@ -90,8 +90,8 @@
     "response": {
       "tags": [
         "securitypolicy-entry:default",
-        "wafid:--default--",
-        "wafname:default-waf",
+        "contentfilterid:--default--",
+        "contentfiltername:default-contentfilter",
         "asn:396507",
         "sante",
         "all",
@@ -119,8 +119,8 @@
     "response": {
       "tags": [
         "securitypolicy-entry:default",
-        "wafid:--default--",
-        "wafname:default-waf",
+        "contentfilterid:--default--",
+        "contentfiltername:default-contentfilter",
         "asn:396507",
         "sante",
         "all",

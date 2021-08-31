@@ -1,4 +1,4 @@
-import {ACLProfile, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, WAFPolicy, WAFRule} from '@/types'
+import {ACLProfile, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, ContentFilterProfile, ContentFilterRule} from '@/types'
 import {httpRequestMethods} from '@/types/const'
 
 const titles: { [key: string]: string } = {
@@ -38,10 +38,10 @@ const titles: { [key: string]: string } = {
   'ratelimits-singular': 'Rate Limit',
   'securitypolicies': 'Security Policies',
   'securitypolicies-singular': 'Security Policy',
-  'wafpolicies': 'WAF Policies',
-  'wafpolicies-singular': 'WAF Policy',
-  'wafrules': 'WAF Rules',
-  'wafrules-singular': 'WAF Rule',
+  'contentfilterprofiles': 'Content Filter Profiles',
+  'contentfilterprofiles-singular': 'Content Filter Profile',
+  'contentfilterrules': 'Content Filter Rules',
+  'contentfilterrules-singular': 'Content Filter Rule',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
   'flowcontrol': 'Flow Control Policies',
@@ -92,10 +92,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  wafpolicies(): WAFPolicy {
+  contentfilterprofiles(): ContentFilterProfile {
     return {
       'id': generateUUID2(),
-      'name': 'New WAF Policy',
+      'name': 'New Content Filter Profile',
       'ignore_alphanum': true,
 
       'max_header_length': 1024,
@@ -151,9 +151,9 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'match': '/',
           'name': 'default',
           'acl_profile': '__default__',
-          'waf_profile': '__default__',
+          'content_filter_profile': '__default__',
           'acl_active': true,
-          'waf_active': true,
+          'content_filter_active': true,
           'limit_ids': [],
         },
       ],
@@ -210,10 +210,10 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  wafrules(): WAFRule {
+  contentfilterrules(): ContentFilterRule {
     return {
       'id': generateUUID2(),
-      'name': 'New WAF Rule',
+      'name': 'New Content Filter Rule',
       'operand': '',
     }
   },

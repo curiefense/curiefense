@@ -13,7 +13,7 @@ import requests
 from jsonschema import validate
 from pathlib import Path
 import json
-
+import pydash
 
 api_bp = Blueprint("api_v1", __name__)
 api = Api(api_bp, version="1.0", title="Curiefense configuration API server v1.0")
@@ -65,8 +65,8 @@ m_secprofilemap = api.model(
         "match": fields.String(required=True),
         "acl_profile": fields.String(required=True),
         "acl_active": fields.Boolean(required=True),
-        "waf_profile": fields.String(required=True),
-        "waf_active": fields.Boolean(required=True),
+        "waf_profile": fields.String(required=True, attribute="content_filter_profile"),
+        "waf_active": fields.Boolean(required=True, attribute="content_filter_active"),
         "limit_ids": fields.List(fields.Raw()),
     },
 )
@@ -85,10 +85,10 @@ m_urlmap = api.model(
     },
 )
 
-# wafrule
+# content filter rule
 
-m_wafrule = api.model(
-    "WAF Rule",
+m_contentfilterrule = api.model(
+    "Content Filter Rule",
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
@@ -101,10 +101,10 @@ m_wafrule = api.model(
     },
 )
 
-# wafpolicy
+# content filter profile
 
-m_wafpolicy = api.model(
-    "WAF Policy",
+m_contentfilterprofile = api.model(
+    "Content Filter Profile",
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
@@ -179,8 +179,8 @@ m_flowcontrol = api.model(
 models = {
     "ratelimits": m_limit,
     "urlmaps": m_urlmap,
-    "wafrules": m_wafrule,
-    "wafpolicies": m_wafpolicy,
+    "wafrules": m_contentfilterrule,
+    "wafpolicies": m_contentfilterprofile,
     "aclpolicies": m_aclpolicy,
     "tagrules": m_tagrule,
     "flowcontrol": m_flowcontrol,
@@ -256,7 +256,12 @@ m_document_list_entry = api.model(
 
 m_config_documents = api.model(
     "Config Documents",
-    {x: fields.List(fields.Nested(models[x], default=[])) for x in models},
+    {
+        x: fields.List(
+            fields.Nested(models[x], default=[]), attribute=utils.vconvert(x, "v1")
+        )
+        for x in models
+    },
 )
 
 m_config_blobs = api.model(
@@ -334,27 +339,27 @@ with open(ratelimits_file_path) as json_file:
 urlmaps_file_path = (base_path / "./json/url-maps.schema").resolve()
 with open(urlmaps_file_path) as json_file:
     urlmaps_schema = json.load(json_file)
-waf_policy_file_path = (base_path / "../json/waf-policy.schema").resolve()
-with open(waf_policy_file_path) as json_file:
-    waf_policy_schema = json.load(json_file)
+content_filter_profile_file_path = (base_path / "./json/waf-policy.schema").resolve()
+with open(content_filter_profile_file_path) as json_file:
+    content_filter_profile_schema = json.load(json_file)
 tagrules_file_path = (base_path / "./json/tag-rules.schema").resolve()
 with open(tagrules_file_path) as json_file:
     tagrules_schema = json.load(json_file)
 flowcontrol_file_path = (base_path / "../json/flow-control.schema").resolve()
 with open(flowcontrol_file_path) as json_file:
     flowcontrol_schema = json.load(json_file)
-waf_rule_file_path = (base_path / "../json/waf-rule.schema").resolve()
-with open(waf_rule_file_path) as json_file:
-    waf_rule_schema = json.load(json_file)
+content_filter_rule_file_path = (base_path / "./json/waf-rule.schema").resolve()
+with open(content_filter_rule_file_path) as json_file:
+    content_filter_rule_schema = json.load(json_file)
 
 schema_type_map = {
     "ratelimits": ratelimits_schema,
     "urlmaps": urlmaps_schema,
-    "wafpolicies": waf_policy_schema,
+    "wafpolicies": content_filter_profile_schema,
     "aclpolicies": acl_policy_schema,
     "tagrules": tagrules_schema,
     "flowcontrol": flowcontrol_schema,
-    "wafrules": waf_rule_schema,
+    "wafrules": content_filter_rule_schema,
 }
 
 ################
@@ -511,6 +516,9 @@ class DocumentsResource(Resource):
     def get(self, config):
         "Retrieve the list of existing documents in this configuration"
         res = current_app.backend.documents_list(config)
+        # convert to v1 names
+        for doc in res:
+            doc["name"] = utils.vconvert(doc["name"], "v1", True)
         return res
 
 
@@ -528,7 +536,9 @@ class DocumentResource(Resource):
         "Create a new complete document"
         if document not in models:
             abort(404, "document does not exist")
-        data = marshal(request.json, models[document], skip_none=True)
+        data = marshal(
+            request.json, utils.model_invert_names(models[document]), skip_none=True
+        )
         res = current_app.backend.documents_create(
             config, utils.vconvert(document, "v1"), data
         )
@@ -538,7 +548,9 @@ class DocumentResource(Resource):
         "Update an existing document"
         if document not in models:
             abort(404, "document does not exist")
-        data = marshal(request.json, models[document], skip_none=True)
+        data = marshal(
+            request.json, utils.model_invert_names(models[document]), skip_none=True
+        )
         res = current_app.backend.documents_update(
             config, utils.vconvert(document, "v1"), data
         )
@@ -605,7 +617,9 @@ class EntriesResource(Resource):
         "Create an entry in a document"
         if document not in models:
             abort(404, "document does not exist")
-        data = marshal(request.json, models[document], skip_none=True)
+        data = marshal(
+            request.json, utils.model_invert_names(models[document]), skip_none=True
+        )
         res = current_app.backend.entries_create(
             config, utils.vconvert(document, "v1"), data
         )
@@ -629,7 +643,9 @@ class EntryResource(Resource):
             abort(404, "document does not exist")
         isValid = validateJson(request.json, document)
         if isValid:
-            data = marshal(request.json, models[document], skip_none=True)
+            data = marshal(
+                request.json, utils.model_invert_names(models[document]), skip_none=True
+            )
             res = current_app.backend.entries_update(
                 config, utils.vconvert(document, "v1"), entry, data
             )
@@ -656,6 +672,14 @@ class EntryEditResource(Resource):
         data = marshal(request.json, m_edit, skip_none=True)
         if type(data) is not list:
             data = [data]
+        # Convert v1 field names to backend names
+        converted_names_data = []
+        for edit in data:
+            mapped = pydash.objects.set_({}, edit["path"], edit["value"])
+            marshaled_map = marshal(mapped, models[document], skip_none=True)
+            utils.dict_to_path_value(
+                marshaled_map, starting_path_list=converted_names_data
+            )
         res = current_app.backend.entries_edit(
             config, utils.vconvert(document, "v1"), entry, data
         )

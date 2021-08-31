@@ -3,7 +3,7 @@ import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals
 import {shallowMount, Wrapper} from '@vue/test-utils'
 import axios from 'axios'
 import Vue from 'vue'
-import {ACLProfile, BasicDocument, Branch, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, WAFPolicy} from '@/types'
+import {ACLProfile, BasicDocument, Branch, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, ContentFilterProfile} from '@/types'
 
 jest.useFakeTimers()
 jest.mock('axios')
@@ -17,7 +17,7 @@ describe('DocumentSearch.vue', () => {
   let securityPoliciesDocs: SecurityPolicy[]
   let flowControlPolicyDocs: FlowControlPolicy[]
   let rateLimitDocs: RateLimit[]
-  let wafDocs: WAFPolicy[]
+  let contentFilterDocs: ContentFilterProfile[]
   beforeEach((done) => {
     gitData = [
       {
@@ -257,8 +257,8 @@ describe('DocumentSearch.vue', () => {
             'match': '/',
             'acl_profile': '5828321c37e0',
             'acl_active': false,
-            'waf_profile': '__default__',
-            'waf_active': false,
+            'content_filter_profile': '__default__',
+            'content_filter_active': false,
             'limit_ids': ['f971e92459e2'],
           },
           {
@@ -266,8 +266,8 @@ describe('DocumentSearch.vue', () => {
             'match': '/foo',
             'acl_profile': '__default__',
             'acl_active': false,
-            'waf_profile': '__default__',
-            'waf_active': false,
+            'content_filter_profile': '__default__',
+            'content_filter_active': false,
             'limit_ids': ['f971e92459e2'],
           },
           {
@@ -275,8 +275,8 @@ describe('DocumentSearch.vue', () => {
             'match': '/foo',
             'acl_profile': '__default__',
             'acl_active': false,
-            'waf_profile': '__default__',
-            'waf_active': false,
+            'content_filter_profile': '__default__',
+            'content_filter_active': false,
             'limit_ids': ['f971e92459e2'],
           },
         ],
@@ -336,10 +336,10 @@ describe('DocumentSearch.vue', () => {
         'pairwith': {'self': 'self'},
       },
     ]
-    wafDocs = [
+    contentFilterDocs = [
       {
         'id': '01b2abccc275',
-        'name': 'default waf',
+        'name': 'default contentfilter',
         'ignore_alphanum': true,
         'max_header_length': 1024,
         'max_cookie_length': 1024,
@@ -372,8 +372,8 @@ describe('DocumentSearch.vue', () => {
       if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
         return Promise.resolve({data: rateLimitDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/wafpolicies/`) {
-        return Promise.resolve({data: wafDocs})
+      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/`) {
+        return Promise.resolve({data: contentFilterDocs})
       }
       return Promise.resolve({data: []})
     })
@@ -427,7 +427,7 @@ describe('DocumentSearch.vue', () => {
     expect(isItemInFilteredDocs(profilingListDocs[1], 'globalfilters')).toBeTruthy()
     expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
     expect(isItemInFilteredDocs(flowControlPolicyDocs[0], 'flowcontrol')).toBeTruthy()
-    expect(isItemInFilteredDocs(wafDocs[0], 'wafpolicies')).toBeTruthy()
+    expect(isItemInFilteredDocs(contentFilterDocs[0], 'contentfilterprofiles')).toBeTruthy()
     expect(isItemInFilteredDocs(rateLimitDocs[0], 'ratelimits')).toBeTruthy()
     expect(numberOfFilteredDocs()).toEqual(8)
   })
@@ -455,7 +455,7 @@ describe('DocumentSearch.vue', () => {
 
   test('should not display duplicated values in connections even if connected twice', async () => {
     const wantedIDsACL = ['5828321c37e0', '__default__']
-    const wantedIDsWAF = ['__default__']
+    const wantedIDsContentFilter = ['__default__']
     const wantedIDsRateLimit = ['f971e92459e2']
     // switch filter type to security policy
     const searchTypeSelection = wrapper.find('.search-type-selection')
@@ -478,10 +478,10 @@ describe('DocumentSearch.vue', () => {
     // check that security policy exists without duplicated connections
     expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
     expect(connectionsCell.text()).toContain(`ACL Profiles:${wantedIDsACL.join('')}`)
-    expect(connectionsCell.text()).toContain(`WAF Policies:${wantedIDsWAF.join('')}`)
+    expect(connectionsCell.text()).toContain(`Content Filter Profiles:${wantedIDsContentFilter.join('')}`)
     expect(connectionsCell.text()).toContain(`Rate Limits:${wantedIDsRateLimit.join('')}`)
     expect(doc.connectedACL).toEqual(wantedIDsACL)
-    expect(doc.connectedWAF).toEqual(wantedIDsWAF)
+    expect(doc.connectedContentFilter).toEqual(wantedIDsContentFilter)
     expect(doc.connectedRateLimits).toEqual(wantedIDsRateLimit)
   })
 
@@ -510,7 +510,7 @@ describe('DocumentSearch.vue', () => {
       expect(isItemInFilteredDocs(aclDocs[1], 'aclprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(profilingListDocs[0], 'globalfilters')).toBeTruthy()
       expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
-      expect(isItemInFilteredDocs(wafDocs[0], 'wafpolicies')).toBeTruthy()
+      expect(isItemInFilteredDocs(contentFilterDocs[0], 'contentfilterprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(rateLimitDocs[0], 'ratelimits')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(6)
     })
@@ -532,7 +532,7 @@ describe('DocumentSearch.vue', () => {
       expect(isItemInFilteredDocs(aclDocs[1], 'aclprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(profilingListDocs[0], 'globalfilters')).toBeTruthy()
       expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
-      expect(isItemInFilteredDocs(wafDocs[0], 'wafpolicies')).toBeTruthy()
+      expect(isItemInFilteredDocs(contentFilterDocs[0], 'contentfilterprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(rateLimitDocs[0], 'ratelimits')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(6)
     })

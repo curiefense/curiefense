@@ -22,9 +22,9 @@ pub struct RawSecurityPolicy {
     pub match_: String,
     pub name: String,
     pub acl_profile: String,
-    pub waf_profile: String,
+    pub content_filter_profile: String,
     pub acl_active: bool,
-    pub waf_active: bool,
+    pub content_filter_active: bool,
     pub limit_ids: Vec<String>,
 }
 
@@ -240,7 +240,7 @@ impl AclProfile {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RawWafProfile {
+pub struct RawContentFilterProfile {
     pub id: String,
     pub name: String,
     pub ignore_alphanum: bool,
@@ -250,19 +250,19 @@ pub struct RawWafProfile {
     pub max_headers_count: usize,
     pub max_cookies_count: usize,
     pub max_args_count: usize,
-    pub args: RawWafProperties,
-    pub headers: RawWafProperties,
-    pub cookies: RawWafProperties,
+    pub args: RawContentFilterProperties,
+    pub headers: RawContentFilterProperties,
+    pub cookies: RawContentFilterProperties,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RawWafProperties {
-    pub names: Vec<RawWafEntryMatch>,
-    pub regex: Vec<RawWafEntryMatch>,
+pub struct RawContentFilterProperties {
+    pub names: Vec<RawContentFilterEntryMatch>,
+    pub regex: Vec<RawContentFilterEntryMatch>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RawWafEntryMatch {
+pub struct RawContentFilterEntryMatch {
     pub key: String,
     pub reg: Option<String>,
     pub restrict: bool,
@@ -270,7 +270,7 @@ pub struct RawWafEntryMatch {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct WafSignature {
+pub struct ContentFilterRule {
     pub id: String,
     pub name: String,
     pub msg: String,

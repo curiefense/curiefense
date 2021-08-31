@@ -7,7 +7,7 @@ import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import _ from 'lodash'
-import {ACLProfile, Branch, Commit, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, WAFPolicy} from '@/types'
+import {ACLProfile, Branch, Commit, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, ContentFilterProfile} from '@/types'
 
 jest.mock('axios')
 
@@ -24,7 +24,7 @@ describe('DocumentEditor.vue', () => {
   let securityPoliciesDocs: SecurityPolicy[]
   let securityPoliciesDocsLogs: Commit[][]
   let flowControlPolicyDocs: FlowControlPolicy[]
-  let wafDocs: WAFPolicy[]
+  let contentFilterDocs: ContentFilterProfile[]
   let rateLimitsDocs: RateLimit[]
   beforeEach((done) => {
     gitData = [
@@ -590,8 +590,8 @@ describe('DocumentEditor.vue', () => {
             'match': '/',
             'acl_profile': '5828321c37e0',
             'acl_active': false,
-            'waf_profile': '009e846e819e',
-            'waf_active': false,
+            'content_filter_profile': '009e846e819e',
+            'content_filter_active': false,
             'limit_ids': [],
           },
         ],
@@ -651,9 +651,9 @@ describe('DocumentEditor.vue', () => {
         'id': 'c03dabe4b9ca',
       },
     ]
-    wafDocs = [{
+    contentFilterDocs = [{
       'id': '009e846e819e',
-      'name': 'waf',
+      'name': 'content filter',
       'ignore_alphanum': true,
       'max_header_length': 1024,
       'max_cookie_length': 2048,
@@ -750,14 +750,14 @@ describe('DocumentEditor.vue', () => {
       if (path === `/conf/api/v2/configs/${branch}/d/flowcontrol/e/c03dabe4b9ca/`) {
         return Promise.resolve({data: flowControlPolicyDocs[0]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/wafpolicies/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve({data: _.map(wafDocs, (i) => _.pick(i, 'id', 'name'))})
+          return Promise.resolve({data: _.map(contentFilterDocs, (i) => _.pick(i, 'id', 'name'))})
         }
-        return Promise.resolve({data: wafDocs})
+        return Promise.resolve({data: contentFilterDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/wafpolicies/e/009e846e819e/`) {
-        return Promise.resolve({data: wafDocs[0]})
+      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/e/009e846e819e/`) {
+        return Promise.resolve({data: contentFilterDocs[0]})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
@@ -1429,8 +1429,8 @@ describe('DocumentEditor.vue', () => {
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
-    test('should not be able to delete an WAF Policy document if it is referenced by a security policy', async () => {
-      // switch to WAF Policies
+    test('should not be able to delete an Content Filter Profile document if it is referenced by a security policy', async () => {
+      // switch to Content Filter Profiles
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const docTypeOptions = docTypeSelection.findAll('option')

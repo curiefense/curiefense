@@ -25,9 +25,9 @@ vec_securitypolicy = {
     "map": [
         {
             "limit_ids": [],
-            "waf_active": True,
+            "content_filter_active": True,
             "acl_active": True,
-            "waf_profile": "__default__",
+            "content_filter_profile": "__default__",
             "acl_profile": "__default__",
             "name": "default",
             "match": "/",
@@ -36,7 +36,7 @@ vec_securitypolicy = {
 }
 
 
-vec_wafrule = {
+vec_contentfilterrule = {
     "id": "100000",
     "name": "100000",
     "msg": "SQLi Attempt (Conditional Operator Detected)",
@@ -48,9 +48,9 @@ vec_wafrule = {
 }
 
 
-vec_wafpolicy = {
+vec_contentfilterprofile = {
     "id": "__default__",
-    "name": "default waf",
+    "name": "default contentfilter",
     "ignore_alphanum": True,
     "max_header_length": 1024,
     "max_cookie_length": 1024,
@@ -156,8 +156,8 @@ vec_geolite2country = {"format": "base64", "blob": "AAAABBBB"}
 vec_documents = {
     "ratelimits": vec_limit,
     "securitypolicies": vec_securitypolicy,
-    "wafrules": vec_wafrule,
-    "wafpolicies": vec_wafpolicy,
+    "contentfilterrules": vec_contentfilterrule,
+    "contentfilterprofiles": vec_contentfilterprofile,
     "aclprofiles": vec_aclprofile,
     "globalfilters": vec_globalfilter,
 }

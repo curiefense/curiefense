@@ -147,8 +147,8 @@ def test_configs_update(curieapi_small):
             "pairwith": None,
         },
     ]
-    newwafsigs = [
-        {"id": vec_wafrule["id"], "msg": "XXXX"},
+    new_content_filter_rules = [
+        {"id": vec_contentfilterrule["id"], "msg": "XXXX"},
         {
             "id": "newid",
             "name": None,
@@ -163,7 +163,10 @@ def test_configs_update(curieapi_small):
     update = {
         "meta": {"id": "renamed_pytest"},
         "blobs": {"geolite2country": jblob},
-        "documents": {"ratelimits": newlimits, "wafrules": newwafsigs},
+        "documents": {
+            "ratelimits": newlimits,
+            "contentfilterrules": new_content_filter_rules,
+        },
         "delete_blobs": {"bltor": False, "blvpnip": True, "geolite2asn": True},
         "delete_documents": {
             "securitypolicies": {
@@ -171,7 +174,7 @@ def test_configs_update(curieapi_small):
                 "fezfzf": True,
                 vec_securitypolicy["id"]: False,
             },
-            "wafrules": {vec_wafrule["id"]: True},
+            "contentfilterrules": {vec_contentfilterrule["id"]: True},
         },
     }
 
@@ -184,7 +187,7 @@ def test_configs_update(curieapi_small):
     assert compare_jblob(r.body["blobs"]["geolite2country"], jblob)
     assert compare_jblob(r.body["blobs"]["geolite2asn"], {})
     assert r.body["documents"]["ratelimits"] == newlimits
-    assert r.body["documents"]["wafrules"] == newwafsigs[1:]
+    assert r.body["documents"]["contentfilterrules"] == new_content_filter_rules[1:]
     assert r.body["documents"]["securitypolicies"] == [vec_securitypolicy]
 
 
@@ -392,7 +395,7 @@ def test_documents_revert(curieapi, doc):
     oldv = r.body[0]["version"]
 
     new = [{**old[0], **{"name": "%i" % time.time()}}]
-    # use "update" because we can not delete __default__ waf and acl
+    # use "update" because we can not delete __default__ content filter and acl
     r = curieapi.documents.update("pytest", doc, body=new)
     assert r.status_code == 200
     r = curieapi.documents.get("pytest", doc)
