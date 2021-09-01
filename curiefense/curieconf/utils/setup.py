@@ -11,6 +11,7 @@ setup(
     packages=["curieconf.utils"],
     install_requires=[
         "wheel",
+        "google-crc32c==1.1.2",
         "cloudstorage [amazon, google, local]",
         "pydash==5.0.2",
     ],
