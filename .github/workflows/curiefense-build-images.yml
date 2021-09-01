@@ -22,3 +22,6 @@ jobs:
             pushd curiefense/images
             export DOCKER_TAG=$(echo ${GITHUB_REF#refs/heads/})
             PUSH=1 ./build-docker-images.sh
+
+            export DOCKER_TAG=${GITHUB_SHA}
+            PUSH=1 ./build-docker-images.sh
