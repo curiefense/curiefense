@@ -70,61 +70,72 @@ def test_bytes2jblob_json():
     assert res2 == vec
 
 
-def test_vconvert():
+def test_vconvert_invert_false():
     assert utils.vconvert("urlmaps", "v1", False) == "securitypolicies"
     assert utils.vconvert("wafrules", "v1", False) == "contentfilterrules"
     assert utils.vconvert("wafpolicies", "v1", False) == "contentfilterprofiles"
     assert utils.vconvert("aclpolicies", "v1", False) == "aclprofiles"
     assert utils.vconvert("tagrules", "v1", False) == "globalfilters"
     assert utils.vconvert("flowcontrol", "v1", False) == "flowcontrolpolicies"
+    assert utils.vconvert("something", "v1", False) == "something"
+
+
+def test_vconvert_invert_false():
     assert utils.vconvert("securitypolicies", "v1", True) == "urlmaps"
     assert utils.vconvert("contentfilterrules", "v1", True) == "wafrules"
     assert utils.vconvert("contentfilterprofiles", "v1", True) == "wafpolicies"
     assert utils.vconvert("aclprofiles", "v1", True) == "aclpolicies"
     assert utils.vconvert("globalfilters", "v1", True) == "tagrules"
     assert utils.vconvert("flowcontrolpolicies", "v1", True) == "flowcontrol"
-    assert utils.vconvert("something", "v1", False) == "something"
+    assert utils.vconvert("something", "v1", True) == "something"
 
 
 def test_model_invert_names():
-    mod1 = model.Model("test", {"test": fields.String(attribute="test2")})
+    # Expected to get a new model replacing between the field name (test1_old_name) and 
+    # the field attribute (test1_new_name)
+    mod1 = model.Model("test1_model", {"test1_old_name": fields.String(attribute="test1_new_name")})
     res = utils.model_invert_names(mod1)
     assert (
         res.name == mod1.name
-        and type(res["test2"]) is fields.String
-        and res["test2"].attribute == "test"
+        and type(res["test1_new_name"]) is fields.String
+        and res["test1_new_name"].attribute == "test1_old_name"
     )
 
-    mod2 = model.Model("test", {"test": fields.Nested(mod1, attribute="test2")})
+    # testing that it works recursively for Nested fields too
+    mod2 = model.Model("test2_model", {"test2_old_name": fields.Nested(mod1, attribute="test2_new_name")})
     res = utils.model_invert_names(mod2)
     assert (
         res.name == mod2.name
-        and type(res["test2"]) is fields.Nested
-        and res["test2"].attribute == "test"
-        and type(res["test2"].model["test2"]) is fields.String
-        and res["test2"].model["test2"].attribute == "test"
+        and type(res["test2_new_name"]) is fields.Nested
+        and res["test2_new_name"].attribute == "test2_old_name"
+        and type(res["test2_new_name"].model["test1_new_name"]) is fields.String
+        and res["test2_new_name"].model["test1_new_name"].attribute == "test1_old_name"
     )
-
-    mod3 = model.Model("test", {"test": fields.List(mod1, attribute="test2")})
+    
+    # testing that it works recursively for List fields too
+    mod3 = model.Model("test3_model", {"test3_old_name": fields.List(fields.Nested(mod1, \
+            attribute="test3_nested_name"), attribute="test3_new_name")})
     res = utils.model_invert_names(mod3)
     assert (
         res.name == mod3.name
-        and type(res["test2"]) is fields.List
-        and res["test2"].attribute == "test"
-        and type(res["test2"].container["test2"]) is fields.String
-        and res["test2"].container["test2"].attribute == "test"
+        and type(res["test3_new_name"]) is fields.List
+        and res["test3_new_name"].attribute == "test3_old_name"
+        and type(res["test3_new_name"].container) is fields.Nested
+        and type(res["test3_new_name"].container.model["test1_new_name"]) is fields.String
+        and res["test3_new_name"].container.model["test1_new_name"].attribute == "test1_old_name"
     )
 
-    mod4 = model.Model("test", {"test*": fields.Wildcard(mod2, attribute="test2*")})
+    # testing that it works recursively for Wildcard fields too
+    mod4 = model.Model("test4_model", {"test4_old_name*": fields.Wildcard(fields.Nested(mod1, \
+            attribute="test4_nested_name"), attribute="test4_new_name*")})
     res = utils.model_invert_names(mod4)
     assert (
         res.name == mod4.name
-        and type(res["test2"]) is fields.Wildcard
-        and res["test2"].attribute == "test"
-        and type(res["test2"].container["test2"]) is fields.Nested
-        and res["test2"].container["test2"].attribute == "test"
-        and type(res["test2"].container["test2"].model["test2"]) is fields.String
-        and res["test2"].container["test2"].model["test2"].attribute == "test"
+        and type(res["test4_new_name*"]) is fields.Wildcard
+        and res["test4_new_name*"].attribute == "test4_old_name*"
+        and type(res["test4_new_name*"].container) is fields.Nested
+        and type(res["test4_new_name*"].container.model["test1_new_name"]) is fields.String
+        and res["test4_new_name*"].container.model["test1_new_name"].attribute == "test1_old_name"
     )
 
 
