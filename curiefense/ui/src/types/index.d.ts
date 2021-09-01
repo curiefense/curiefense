@@ -47,7 +47,7 @@ declare module CuriefenseClient {
     params?: {
       status?: string
       ttl?: string
-      headers?: string
+      headers?: GenericObject
       content?: string
       location?: string
       action?: ResponseActionType

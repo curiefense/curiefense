@@ -148,6 +148,7 @@ describe('ResponseAction.vue', () => {
           params: {
             status: '',
             content: '',
+            headers: {},
           },
         }
         const selection = wrapper.find('.action-type-selection')
@@ -193,7 +194,7 @@ describe('ResponseAction.vue', () => {
         const wantedEmit = {
           type: 'request_header',
           params: {
-            headers: '',
+            headers: {},
           },
         }
         const selection = wrapper.find('.action-type-selection')
@@ -211,6 +212,7 @@ describe('ResponseAction.vue', () => {
           params: {
             status: '500',
             content: '',
+            headers: {},
           },
         }
         action = {
@@ -229,7 +231,7 @@ describe('ResponseAction.vue', () => {
         const statusInput = wrapper.find('.action-status');
         (statusInput.element as HTMLInputElement).value = wantedEmit.params.status;
         (wrapper.vm as any).localAction.params.status = wantedEmit.params.status
-        statusInput.trigger('change')
+        statusInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -241,6 +243,7 @@ describe('ResponseAction.vue', () => {
           params: {
             status: '',
             content: '{"foo": "bar"}',
+            headers: {},
           },
         }
         action = {
@@ -289,7 +292,7 @@ describe('ResponseAction.vue', () => {
         const statusInput = wrapper.find('.action-status');
         (statusInput.element as HTMLInputElement).value = wantedEmit.params.status;
         (wrapper.vm as any).localAction.params.status = wantedEmit.params.status
-        statusInput.trigger('change')
+        statusInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -319,7 +322,7 @@ describe('ResponseAction.vue', () => {
         const locationInput = wrapper.find('.action-location');
         (locationInput.element as HTMLInputElement).value = wantedEmit.params.location;
         (wrapper.vm as any).localAction.params.location = wantedEmit.params.location
-        locationInput.trigger('change')
+        locationInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -353,7 +356,7 @@ describe('ResponseAction.vue', () => {
         const durationInput = wrapper.find('.action-duration');
         (durationInput.element as HTMLInputElement).value = wantedEmit.params.ttl;
         (wrapper.vm as any).localAction.params.ttl = wantedEmit.params.ttl
-        durationInput.trigger('change')
+        durationInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -395,25 +398,25 @@ describe('ResponseAction.vue', () => {
         const wantedEmit = {
           type: 'request_header',
           params: {
-            headers: 'foo',
+            headers: {foo: 'bar'},
           },
         }
         action = {
           type: 'request_header',
           params: {
-            headers: '',
+            headers: {},
           },
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
-        const headersInput = wrapper.find('.action-headers');
-        (headersInput.element as HTMLInputElement).value = wantedEmit.params.headers;
+        const headerNameInput = wrapper.find('.action-headers')
+        const headerValueInput = wrapper.find('.action-headers-value')
+        const [[wantedHeaderName, wantedHeaderValue]] = Object.entries(wantedEmit.params.headers);
+        (headerNameInput.element as HTMLInputElement).value = wantedHeaderName;
+        (headerValueInput.element as HTMLInputElement).value = wantedHeaderValue;
         (wrapper.vm as any).localAction.params.headers = wantedEmit.params.headers
-        headersInput.trigger('change')
+        headerNameInput.trigger('input')
+        headerValueInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -426,6 +429,7 @@ describe('ResponseAction.vue', () => {
           type: 'response',
           params: {
             status: '500',
+            headers: {},
             content: '{"foo": "bar"}',
           },
         }
@@ -445,7 +449,7 @@ describe('ResponseAction.vue', () => {
         const statusInput = wrapper.find('.action-status');
         (statusInput.element as HTMLInputElement).value = wantedEmit.params.status;
         (wrapper.vm as any).localAction.params.status = wantedEmit.params.status
-        statusInput.trigger('change')
+        statusInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -457,6 +461,7 @@ describe('ResponseAction.vue', () => {
           params: {
             status: '500',
             content: '{"foo": "bar"}',
+            headers: {},
           },
         }
         action = {
@@ -505,7 +510,7 @@ describe('ResponseAction.vue', () => {
         const statusInput = wrapper.find('.action-status');
         (statusInput.element as HTMLInputElement).value = wantedEmit.params.status;
         (wrapper.vm as any).localAction.params.status = wantedEmit.params.status
-        statusInput.trigger('change')
+        statusInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -535,7 +540,7 @@ describe('ResponseAction.vue', () => {
         const locationInput = wrapper.find('.action-location');
         (locationInput.element as HTMLInputElement).value = wantedEmit.params.location;
         (wrapper.vm as any).localAction.params.location = wantedEmit.params.location
-        locationInput.trigger('change')
+        locationInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -569,7 +574,7 @@ describe('ResponseAction.vue', () => {
         const durationInput = wrapper.find('.action-duration');
         (durationInput.element as HTMLInputElement).value = wantedEmit.params.ttl;
         (wrapper.vm as any).localAction.params.ttl = wantedEmit.params.ttl
-        durationInput.trigger('change')
+        durationInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -611,25 +616,22 @@ describe('ResponseAction.vue', () => {
         const wantedEmit = {
           type: 'request_header',
           params: {
-            headers: 'foo',
+            headers: {foo: ''},
           },
         }
         action = {
           type: 'request_header',
           params: {
-            headers: 'foo2',
+            headers: {foo2: ''},
           },
         }
-        wrapper = mount(ResponseAction, {
-          propsData: {
-            action: action,
-          },
-        })
+        wrapper = mount(ResponseAction, {propsData: {action}})
         await Vue.nextTick()
-        const headersInput = wrapper.find('.action-headers');
-        (headersInput.element as HTMLInputElement).value = wantedEmit.params.headers;
+        const headerNameInput = wrapper.find('.action-headers')
+        const [[wantedHeaderName]] = Object.entries(wantedEmit.params.headers);
+        await headerNameInput.setValue(wantedHeaderName);
         (wrapper.vm as any).localAction.params.headers = wantedEmit.params.headers
-        headersInput.trigger('change')
+        headerNameInput.trigger('input')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
@@ -657,6 +659,7 @@ describe('ResponseAction.vue', () => {
           params: {
             status: '',
             content: '',
+            headers: {},
           },
         }
         action = {
@@ -720,7 +723,7 @@ describe('ResponseAction.vue', () => {
         const wantedEmit = {
           type: 'request_header',
           params: {
-            headers: '',
+            headers: {},
           },
         }
         action = {

@@ -19,7 +19,7 @@
       12
       -->
       <div v-if="labelDisplayedInline"
-           class="column is-2">
+        class="column is-2">
         <label class="label is-small has-text-left form-label">{{ label }}</label>
       </div>
       <div class="column"
@@ -42,42 +42,29 @@
       <div v-if="labelDisplayedInline && isSingleInputColumn"
            class="column is-2 pt-0">
       </div>
-      <div
-          v-if="localAction && (localAction.type === 'response' || localAction.type === 'redirect' ||
-                localAction.type === 'ban' || localAction.type === 'request_header')"
+      <div v-if="localAction && ['response', 'redirect', 'ban'].includes( localAction.type )"
           class="column"
           :class="{'is-5': labelDisplayedInline && !isSingleInputColumn,
                     'is-6': !labelDisplayedInline && !isSingleInputColumn,
                     'is-10 pt-0': labelDisplayedInline && isSingleInputColumn,
                     'is-12 pt-0': !labelDisplayedInline && isSingleInputColumn}">
-        <p class="control is-fullwidth">
-          <input
-              v-if="localAction && (localAction.type === 'response' || localAction.type === 'redirect')"
+        <div class="control is-fullwidth">
+          <input v-if="['response', 'redirect'].includes( localAction.type )"
               class="input is-small action-status"
               type="text"
               v-model="localAction.params.status"
-              @change="emitActionUpdate"
+              @input="fieldChange( 'status' )"
               title="Status code"
-              placeholder="Status code">
-          <span v-if="localAction && localAction.type === 'ban'"
-                class="suffix seconds-suffix">
-            <input
-                class="input is-small action-duration"
-                type="text"
-                v-model="localAction.params.ttl"
-                @change="emitActionUpdate"
-                title="Duration"
-                placeholder="Duration">
-          </span>
-          <input
-              v-if="localAction && localAction.type === 'request_header'"
-              class="input is-small action-headers"
+              placeholder="Status code" />
+          <span v-else class="suffix seconds-suffix">
+            <input class="input is-small action-duration"
               type="text"
-              v-model="localAction.params.headers"
-              @change="emitActionUpdate"
-              title="Header"
-              placeholder="Header">
-        </p>
+              v-model="localAction.params.ttl"
+              @input="fieldChange( 'ttl' )"
+              title="Duration"
+              placeholder="Duration" />
+          </span>
+        </div>
       </div>
       <!--
       Available options:
@@ -86,7 +73,7 @@
       2) no label
       12
       -->
-      <template v-if="localAction && (localAction.type === 'response' || localAction.type === 'redirect')">
+      <template v-if="localAction && ['response', 'redirect'].includes( localAction.type )">
         <div v-if="labelDisplayedInline"
              class="column is-2 pt-0">
         </div>
@@ -104,25 +91,51 @@
           </div>
           <div v-if="localAction.type === 'redirect'"
                class="control is-fullwidth">
-            <p>
-              <input class="input is-small action-location"
-                     type="text"
-                     v-model="localAction.params.location"
-                     @change="emitActionUpdate"
-                     title="Location"
-                     placeholder="Location">
-            </p>
+            <input class="input is-small action-location"
+              type="text"
+              v-model="localAction.params.location"
+              @input="fieldChange( 'location' )"
+              title="Location"
+              placeholder="Location"
+            />
           </div>
         </div>
       </template>
     </div>
-    <div class="content" v-if="localAction && localAction.type === 'ban' && localAction.params.action">
-      <response-action :action.sync="localAction.params.action"
-                       :label-separated-line="labelSeparatedLine"
-                       :is-single-input-column="isSingleInputColumn"
-                       :ignore="['ban']"
-                       @update:action="emitActionUpdate"
-                       label="Ban action"/>
+    <div v-if="localAction && ['request_header', 'response'].includes( localAction.type )"
+         class="columns">
+      <div class="column"
+        :class="{
+          'is-6': !labelDisplayedInline || isSingleInputColumn,
+          'is-5 is-offset-2': labelDisplayedInline && !isSingleInputColumn,
+        }">
+        <input v-model="tempHeader.name"
+          class="input is-small action-headers"
+          type="text"
+          placeholder="Header Name"
+          @input="fieldChange( 'headers-name' )" />
+      </div>
+      <div class="column"
+        :class="{
+          'is-6': !labelDisplayedInline || isSingleInputColumn,
+          'is-5': labelDisplayedInline && !isSingleInputColumn,
+        }">
+        <input v-model="tempHeader.value"
+          class="input is-small action-headers-value"
+          type="text"
+          placeholder="Header Value"
+          @input="fieldChange( 'headers-value' )" />
+      </div>
+    </div>
+    <div class="content"
+      v-if="localAction && localAction.type === 'ban' && localAction.params.action">
+      <response-action
+        :action.sync="localAction.params.action"
+        :label-separated-line="labelSeparatedLine"
+        :is-single-input-column="isSingleInputColumn"
+        :ignore="['ban']"
+        @update:action="emitActionUpdate"
+        label="Ban action" />
     </div>
   </div>
 </template>
@@ -139,7 +152,7 @@ export const responseActions = {
   'response': {'title': 'Response', 'params': {'status': '', 'content': ''}},
   'redirect': {'title': 'Redirect', 'params': {'status': '30[12378]', 'location': 'https?://.+'}},
   'ban': {'title': 'Ban', 'params': {'ttl': '[0-9]+', 'action': {'type': 'default', 'params': {}}}},
-  'request_header': {'title': 'Header', 'params': {'headers': ''}},
+  'request_header': {'title': 'Header', 'params': {'headers': {}}},
 }
 
 export default Vue.extend({
@@ -171,6 +184,7 @@ export default Vue.extend({
       options: _.pickBy({...responseActions}, (value, key) => {
         return !this.ignore || !this.ignore.includes(key as ResponseActionType['type'])
       }),
+      tempHeader: {name: '', value: ''},
     }
   },
   computed: {
@@ -198,6 +212,7 @@ export default Vue.extend({
       if (this.localAction.type === 'response') {
         this.localAction.params.status = oldParams.status ? oldParams.status : ''
         this.localAction.params.content = oldParams.content ? oldParams.content : ''
+        this.localAction.params.headers = oldParams.headers ? oldParams.headers : {}
       }
       if (this.localAction.type === 'redirect') {
         this.localAction.params.status = oldParams.status ? oldParams.status : ''
@@ -210,13 +225,22 @@ export default Vue.extend({
         }
       }
       if (this.localAction.type === 'request_header') {
-        this.localAction.params.headers = oldParams.headers ? oldParams.headers : ''
+        this.localAction.params.headers = oldParams.headers ? oldParams.headers : {}
       }
       if (!_.isEqual(this.localAction, this.action)) {
         this.emitActionUpdate()
       }
     },
+
+    fieldChange( field: string ) {
+      if (['headers-name', 'headers-value'].includes( field )) {
+        this.localAction.params.headers = {}
+        this.localAction.params.headers[this.tempHeader.name as string] = this.tempHeader.value
+      }
+      this.emitActionUpdate()
+    },
   },
+
   watch: {
     action: {
       handler: function(value) {
