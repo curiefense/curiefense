@@ -111,6 +111,19 @@ class WafPoliciesHelper:
             mcc=20,
             mhc=20,
         )
+        add_waf_rule(
+            "abcd",
+            cookies_names={
+                "1": {
+                    "key": "foobar",
+                    "reg": "aaaaaaaaaa",
+                    "restrict": True,
+                    "mask": False,
+                    "exclusions": None
+                }
+            }
+
+        )
         rl_urlmap = [
             {
                 "id": "__default__",
@@ -143,6 +156,11 @@ class WafPoliciesHelper:
         ]
         return (waf_rules, rl_urlmap)
 
+@pytest.fixture(
+    scope="session", params=[True, False], ids=["ignore_alphanum", "no_ignore_alphanum"]
+)
+def ignore_alphanum(request):
+    return request.param
 
 @pytest.fixture(scope="function", params=["name", "regex"])
 def name_regex(request):

@@ -947,38 +947,6 @@ class TestRateLimitAttribute:
                                                                  "test_ban_action_by_company_sub_503_count_method",
                                                                  4, 2, params)
 
-    #  Action: Ban | Subaction: 503 | Event:Attribute - Company | Count: uri
-    def test_ban_action_event_company_subaction_503_count_by_uri(self, cli, target):
-        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
-                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_company_sub_503_count_uri",
-                                                                  4, 2, params)
-
-    #  Action: Ban | Subaction: 503 | Event:Attribute - Company | Count: path
-    def test_ban_action_event_company_subaction_503_count_by_path(self, cli, target):
-        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
-                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_company_sub_503_count_path",
-                                                                  4, 2, params)
-
-    #  Action: Ban | Subaction: 503 | Event:Attribute - Company | Count: query
-    def test_ban_action_event_company_subaction_503_count_by_query(self, cli, target):
-        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
-                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_for_geo_attr(target,
-                                                                  "test_ban_action_by_company_sub_503_count_query",
-                                                                  4, 2, params)
-
-    #  Action: Ban | Subaction: 503 | Event:Attribute - Company | Count: method
-    def test_ban_action_event_company_subaction_503_count_by_method(self, cli, target):
-        params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,
-                                           BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target,
-                                                                 "test_ban_action_by_company_sub_503_count_method",
-                                                                 4, 2, params)
-
     #  Action: Ban | Subaction: Challenge | Event:Attribute -  Ip | Count: Path
     def test_ban_action_event_ip_subaction_challenge_count_by_path(self, cli, target):
         params = [{"srcip": ip} for ip in (BaseHelper.IP4_US, BaseHelper.IP4_JP,

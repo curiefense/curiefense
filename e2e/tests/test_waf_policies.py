@@ -85,6 +85,13 @@ class TestWAFPolicies:
         else:
             assert response.status_code == 403, f"Got {response.status_code} instead of 403"
 
+    # def test_cookie_name_whitelist_bypass_length(self, target):
+    #     response = target.query(
+    #         "/abcd",
+    #         **{"cookies": {"foobarr": "bbgfgfg"}}
+    #     )
+    #     assert response.status_code == 200, f"Response not 200 despite overlong header whitelisted"
+
     def test_allowlisted_value(
             self, section, name_regex, restrict, target
         ):
@@ -94,7 +101,6 @@ class TestWAFPolicies:
             ), f"Not reachable despite allowlisted {section} value"
 
 
-# @pytest.mark.usefixtures('api_setup', 'wafparam_config')
 @pytest.mark.usefixtures('api_setup', 'waf_test_config')
 @pytest.mark.waf_policies_tests
 @pytest.mark.all_modules
