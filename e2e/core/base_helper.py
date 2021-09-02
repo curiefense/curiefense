@@ -45,7 +45,7 @@ class BaseHelper:
         return pattern in str(soup)
 
 
-class CliHelper():
+class CliHelper:
 
     def __init__(self, base_url, api_config):
         self._base_url = base_url
