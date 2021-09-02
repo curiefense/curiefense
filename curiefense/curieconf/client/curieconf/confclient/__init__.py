@@ -47,7 +47,7 @@ class BlobsResource(Resource):
     )
 
 
-class DocumentsResource(Resource):
+class ConfigTypesResource(Resource):
     actions = dict(
         list=GET("configs/{}/t/"),
         list_versions=GET("configs/{}/t/{}/v/"),
@@ -118,7 +118,7 @@ def get_api(
 
     api.add_resource(resource_name="configs", resource_class=ConfigsResource)
     api.add_resource(resource_name="blobs", resource_class=BlobsResource)
-    api.add_resource(resource_name="documents", resource_class=DocumentsResource)
+    api.add_resource(resource_name="configtypes", resource_class=ConfigTypesResource)
     api.add_resource(resource_name="entries", resource_class=EntriesResource)
     api.add_resource(resource_name="db", resource_class=DBResource)
     api.add_resource(resource_name="key", resource_class=KeyResource)

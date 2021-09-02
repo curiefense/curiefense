@@ -506,7 +506,7 @@ class BlobRevertResource(Resource):
 
 
 @ns_configs.route("/<string:config>/d/")
-class DocumentsResource(Resource):
+class ConfigTypesResource(Resource):
     @ns_configs.marshal_with(m_document_list_entry, skip_none=True)
     def get(self, config):
         "Retrieve the list of existing documents in this configuration"

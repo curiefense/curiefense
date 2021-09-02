@@ -72,49 +72,49 @@ class CurieBackend(object):
     def blobs_revert(self, config, blob, version):
         raise NotImplementedError
 
-    def documents_list(self, config, version=None):
+    def configtypes_list(self, config, version=None):
         raise NotImplementedError
 
-    def documents_get(self, config, document, version=None):
+    def configtypes_get(self, config, type, version=None):
         raise NotImplementedError
 
-    def documents_list_versions(self, config, document):
+    def configtypes_list_versions(self, config, type):
         raise NotImplementedError
 
-    def documents_create(self, config, document, data):
+    def configtypes_create(self, config, type, data):
         raise NotImplementedError
 
-    def documents_update(self, config, document, data):
+    def configtypes_update(self, config, type, data):
         raise NotImplementedError
 
-    def documents_delete(self, config, document):
+    def configtypes_delete(self, config, type):
         raise NotImplementedError
 
-    def documents_revert(self, config, document, version):
+    def configtypes_revert(self, config, type, version):
         raise NotImplementedError
 
-    def entries_list(self, config, document, version=None):
+    def entries_list(self, config, type, version=None):
         raise NotImplementedError
 
-    def entries_list_versions(self, config, document, entry):
+    def entries_list_versions(self, config, type, entry):
         raise NotImplementedError
 
-    def entries_get(self, config, document, entry, version=None):
+    def entries_get(self, config, type, entry, version=None):
         raise NotImplementedError
 
-    def entries_create(self, config, document, data):
+    def entries_create(self, config, type, data):
         raise NotImplementedError
 
-    def entries_update(self, config, document, entry, data):
+    def entries_update(self, config, type, entry, data):
         raise NotImplementedError
 
-    def entries_edit(self, config, document, entry, data):
+    def entries_edit(self, config, type, entry, data):
         raise NotImplementedError
 
-    def entries_delete(self, config, document, entry):
+    def entries_delete(self, config, type, entry):
         raise NotImplementedError
 
-    def entries_revert(self, config, document, entry, version):
+    def entries_revert(self, config, type, entry, version):
         raise NotImplementedError
 
     def ns_list(self):

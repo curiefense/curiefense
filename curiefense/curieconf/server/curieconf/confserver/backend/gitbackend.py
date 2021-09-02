@@ -57,7 +57,7 @@ def get_repo(pth):
         repo = git.Repo.init(pth, bare=True)
         commit(repo.index, "Initial empty content")
         repo.create_head(BRANCH_DB)
-        for f, pth in utils.DOCUMENTS_PATH.items():
+        for f, pth in utils.CONFIG_TYPES_PATH.items():
             add_file(repo, pth, b"[]")
         for f, pth in utils.BLOBS_PATH.items():
             add_file(repo, pth, utils.BLOBS_BOOTSTRAP[f])
@@ -126,10 +126,10 @@ class GitBackend(CurieBackend):
     def del_file(self, fname):
         self.repo.index.remove([fname])
 
-    def get_document(self, doc, version=None):
-        if doc not in utils.DOCUMENTS_PATH:
-            abort(404, "document [%s] does not exist" % doc)
-        rpath = utils.DOCUMENTS_PATH[doc]
+    def get_configtype(self, type, version=None):
+        if type not in utils.CONFIG_TYPES_PATH:
+            abort(404, "configuration type [%s] does not exist" % type)
+        rpath = utils.CONFIG_TYPES_PATH[type]
         try:
             gitblob = self.get_tree(version) / rpath
         except KeyError:
@@ -138,26 +138,26 @@ class GitBackend(CurieBackend):
             rlist = json.load(gitblob.data_stream)
         return rlist
 
-    def add_document(self, doc, content):
-        if doc not in utils.DOCUMENTS_PATH:
-            abort(404, "document type [%s] does not exist" % doc)
-        rpath = utils.DOCUMENTS_PATH[doc]
+    def add_configtype(self, type, content):
+        if type not in utils.CONFIG_TYPES_PATH:
+            abort(404, "configuration type [%s] does not exist" % type)
+        rpath = utils.CONFIG_TYPES_PATH[type]
         self.add_json_file(rpath, content, indent=4)
 
-    def del_document(self, doc):
-        if doc not in utils.DOCUMENTS_PATH:
-            abort(404, "document type [%s] does not exist" % doc)
-        rpath = utils.DOCUMENTS_PATH[doc]
+    def del_configtype(self, type):
+        if type not in utils.CONFIG_TYPES_PATH:
+            abort(404, "configuration type [%s] does not exist" % type)
+        rpath = utils.CONFIG_TYPES_PATH[type]
         self.del_file(rpath)
 
-    def update_doc(self, doc, data):
-        udoc = doc[:]
+    def update_doc(self, type, data):
+        utype = type[:]
         enew = {e["id"]: e for e in data}
-        for i, e in enumerate(doc):
+        for i, e in enumerate(type):
             if e["id"] in enew:
-                udoc[i] = enew.pop(e["id"])
-        udoc += list(enew.values())
-        return udoc
+                utype[i] = enew.pop(e["id"])
+        utype += list(enew.values())
+        return utype
 
     def _get_blob(self, blobname, version=None):
         bpath = utils.BLOBS_PATH[blobname]
@@ -198,9 +198,9 @@ class GitBackend(CurieBackend):
         return True
 
     def doc_exists(self, docname):
-        if docname not in utils.DOCUMENTS_PATH:
+        if docname not in utils.CONFIG_TYPES_PATH:
             return False
-        return self.exists(utils.DOCUMENTS_PATH[docname])
+        return self.exists(utils.CONFIG_TYPES_PATH[docname])
 
     def blob_exists(self, blobname):
         if blobname not in utils.BLOBS_PATH:
@@ -210,16 +210,16 @@ class GitBackend(CurieBackend):
     def commit(self, msg):
         commit(self.repo.index, msg)
 
-    def get_logs(self, head=None, doc=None, blob=None):
+    def get_logs(self, head=None, type=None, blob=None):
         if head is None:
             head = self.repo.head
-        if doc is None and blob is None:
+        if type is None and blob is None:
             rpath = None
         else:
-            if doc:
-                if doc not in utils.DOCUMENTS_PATH:
-                    abort(404, "document [%s] does not exist" % doc)
-                rpath = utils.DOCUMENTS_PATH[doc]
+            if type:
+                if type not in utils.CONFIG_TYPES_PATH:
+                    abort(404, "configuration type [%s] does not exist" % type)
+                rpath = utils.CONFIG_TYPES_PATH[type]
             else:
                 if blob not in utils.BLOBS_PATH:
                     abort(404, "blob [%s] does not exist" % blob)
@@ -310,9 +310,9 @@ class GitBackend(CurieBackend):
                     "description": commit.summary,
                 }
             }
-            cfg["documents"] = {
-                rname: self.get_document(rname, version)
-                for rname in utils.DOCUMENTS_PATH
+            cfg["configuration types"] = {
+                rname: self.get_configtype(rname, version)
+                for rname in utils.CONFIG_TYPES_PATH
             }
             blobs = cfg["blobs"] = {}
             for bname in utils.BLOBS_PATH:
@@ -335,8 +335,8 @@ class GitBackend(CurieBackend):
                 abort(409, "config [%s] already exists" % name)
             self.repo.create_head(name, self.repo.commit(BRANCH_BASE))
             self.prepare_branch(name)
-            for docname, content in data.get("documents", {}).items():
-                self.add_document(docname, content)
+            for docname, content in data.get("configuration types", {}).items():
+                self.add_configtype(docname, content)
             for blobname, jblob in data.get("blobs", {}).items():
                 self.add_blob(blobname, jblob)
             self.commit("Create config [%s]" % name)
@@ -360,11 +360,11 @@ class GitBackend(CurieBackend):
                 if blobname in addb:
                     self.add_blob(blobname, addb[blobname])
 
-            deld = data.get("delete_documents", {})
-            addd = data.get("documents", {})
-            for docname in utils.DOCUMENTS_PATH:
+            deld = data.get("delete_configtypes", {})
+            addd = data.get("configuration types", {})
+            for docname in utils.CONFIG_TYPES_PATH:
                 if docname in addd or docname in deld:
-                    doc = self.get_document(docname)
+                    doc = self.get_configtype(docname)
                     if docname in addd:
                         doc = self.update_doc(doc, addd[docname])
                     if docname in deld:
@@ -372,7 +372,7 @@ class GitBackend(CurieBackend):
                             eid for eid, val in deld[docname].items() if val is True
                         }
                         doc = [entry for entry in doc if entry["id"] not in deleid]
-                    self.add_document(docname, doc)
+                    self.add_configtype(docname, doc)
             self.commit("Update config [%s]%s" % (config, renamed))
         return {"ok": True}
 
@@ -464,13 +464,15 @@ class GitBackend(CurieBackend):
 
     ### DOCUMENTS
 
-    def _documents_check_current_consistency(
+    def _configtypes_check_current_consistency(
         self, config, added: Dict[str, str] = {}, removed: List[str] = []
     ) -> List[str]:
-        docnames = [d["name"] for d in self._documents_list(config) if d["entries"] > 0]
+        docnames = [
+            d["name"] for d in self._configtypes_list(config) if d["entries"] > 0
+        ]
         docs = {}
         for dn in docnames:
-            docs[dn] = self.get_document(dn, None)
+            docs[dn] = self.get_configtype(dn, None)
         # obtain current documents
         for dname, contents in added.items():
             docs[dname] = contents
@@ -506,85 +508,85 @@ class GitBackend(CurieBackend):
                     )
         return res
 
-    def documents_list(self, config, version=None):
+    def configtypes_list(self, config, version=None):
         if version is not None:
             raise NotImplementedError
         with self.repo.lock:
-            return self._documents_list(config, version)
+            return self._configtypes_list(config, version)
 
-    def _documents_list(self, config, version=None):
+    def _configtypes_list(self, config, version=None):
         # Assumes lock is held
         self.prepare_branch(config)
         res = []
-        for doc in utils.DOCUMENTS_PATH:
+        for doc in utils.CONFIG_TYPES_PATH:
             if self.doc_exists(doc):
-                docdata = self.get_document(doc, version)
+                docdata = self.get_configtype(doc, version)
                 res.append({"name": doc, "entries": len(docdata)})
         return res
 
-    def documents_list_versions(self, config, document):
+    def configtypes_list_versions(self, config, document):
         with self.repo.lock:
             self.prepare_branch(config)
             return self.get_logs(config, doc=document)
 
-    def documents_get(self, config, document, version=None):
+    def configtypes_get(self, config, document, version=None):
         with self.repo.lock:
             self.prepare_branch(config)
-            return self.get_document(document, version)
+            return self.get_configtype(document, version)
 
-    def documents_create(self, config, document, data):
+    def configtypes_create(self, config, document, data):
         with self.repo.lock:
             self.prepare_branch(config)
             if self.doc_exists(document):
-                if self.get_document(document) != []:
-                    abort(409, "document [%s] already exists" % document)
-            errors = self._documents_check_current_consistency(
+                if self.get_configtype(document) != []:
+                    abort(409, "configuration type [%s] already exists" % document)
+            errors = self._configtypes_check_current_consistency(
                 config, added={document: data}
             )
             if errors:
                 return {"ok": False, "errors": errors}
-            self.add_document(document, data)
+            self.add_configtype(document, data)
             self.commit("New version of document [%s]" % document)
         return {"ok": True}
 
-    def documents_update(self, config, document, data):
+    def configtypes_update(self, config, document, data):
         with self.repo.lock:
             self.prepare_branch(config)
-            doc = self.get_document(document)
+            doc = self.get_configtype(document)
             updated_doc = self.update_doc(doc, data)
-            errors = self._documents_check_current_consistency(
+            errors = self._configtypes_check_current_consistency(
                 config, added={document: data}
             )
             if errors:
                 return {"ok": False, "errors": errors}
-            self.add_document(document, updated_doc)
+            self.add_configtype(document, updated_doc)
             self.commit("Update document [%s]" % document)
         return {"ok": True}
 
-    def documents_delete(self, config, document):
+    def configtypes_delete(self, config, document):
         with self.repo.lock:
             self.prepare_branch(config)
             if not self.doc_exists(document):
-                abort(404, "document [%s] does not exist" % document)
-            errors = self._documents_check_current_consistency(
+                abort(404, "configuration type [%s] does not exist" % document)
+            errors = self._configtypes_check_current_consistency(
                 config, removed=[document]
             )
             if errors:
                 return {"ok": False, "errors": errors}
-            self.add_document(document, [])
+            self.add_configtype(document, [])
             self.commit("Delete document [%s]" % document)
         return {"ok": True}
 
-    def documents_revert(self, config, document, version):
+    def configtypes_revert(self, config, document, version):
         with self.repo.lock:
             self.prepare_branch(config)
-            d = self.get_document(document, version)
-            errors = self._documents_check_current_consistency(
+            d = self.get_configtype(document, version)
+            errors = self._configtypes_check_current_consistency(
                 config, added={document: d}
             )
             if errors:
                 return {"ok": False, "errors": errors}
-            self.add_document(document, d)
+            self.add_configtype(document, d)
             self.commit("Revert document [%s] to version [%s]" % (document, version))
         return {"ok": True}
 
@@ -593,7 +595,7 @@ class GitBackend(CurieBackend):
     def entries_list(self, config, document, version=None):
         with self.repo.lock:
             self.prepare_branch(config)
-            doc = self.get_document(document)
+            doc = self.get_configtype(document)
             return [e["id"] for e in doc]
 
     def entries_list_versions(self, config, document, entry):
@@ -605,7 +607,7 @@ class GitBackend(CurieBackend):
             vprec = allvers.pop()
             dprec = [
                 e
-                for e in self.get_document(document, vprec["version"])
+                for e in self.get_configtype(document, vprec["version"])
                 if e["id"] == entry
             ]
             if dprec:
@@ -614,7 +616,7 @@ class GitBackend(CurieBackend):
                 v = allvers.pop()
                 d = [
                     e
-                    for e in self.get_document(document, v["version"])
+                    for e in self.get_configtype(document, v["version"])
                     if e["id"] == entry
                 ]
                 if len(d) != len(dprec):
@@ -631,7 +633,7 @@ class GitBackend(CurieBackend):
     def entries_get(self, config, document, entry, version=None):
         with self.repo.lock:
             self.prepare_branch(config)
-            doc = self.get_document(document)
+            doc = self.get_configtype(document)
             for e in doc:
                 if e["id"] == entry:
                     return e
@@ -641,20 +643,20 @@ class GitBackend(CurieBackend):
     def entries_create(self, config, document, data):
         with self.repo.lock:
             self.prepare_branch(config)
-            doc = self.get_document(document)
+            doc = self.get_configtype(document)
             for e in doc:
                 if e["id"] == data["id"]:
                     abort(409, "entry [%s] already exists" % data["id"])
             else:
                 doc.append(data)
-            self.add_document(document, doc)
+            self.add_configtype(document, doc)
             self.commit("Add entry [%s] to document [%s]" % (data["id"], document))
         return {"ok": True}
 
     def entries_update(self, config, document, entry, data):
         with self.repo.lock:
             self.prepare_branch(config)
-            doc = self.get_document(document)
+            doc = self.get_configtype(document)
             for i, e in enumerate(doc):
                 if e["id"] == entry:
                     break
@@ -663,7 +665,7 @@ class GitBackend(CurieBackend):
 
             doc[i] = data
 
-            self.add_document(document, doc)
+            self.add_configtype(document, doc)
             if data["id"] == entry:
                 msg = "Update entry [%s] of document [%s]" % (entry, document)
             else:
@@ -680,7 +682,7 @@ class GitBackend(CurieBackend):
             return {"ok": False, "message": "empty edit request"}
         with self.repo.lock:
             self.prepare_branch(config)
-            doc = self.get_document(document)
+            doc = self.get_configtype(document)
             for i, e in enumerate(doc):
                 if e["id"] == entry:
                     break
@@ -695,7 +697,7 @@ class GitBackend(CurieBackend):
 
             doc[i] = e
 
-            self.add_document(document, doc)
+            self.add_configtype(document, doc)
             if doc[i]["id"] == entry:
                 msg = "Edit entry [%s] of document [%s]" % (entry, document)
             else:
@@ -710,14 +712,14 @@ class GitBackend(CurieBackend):
     def entries_delete(self, config, document, entry):
         with self.repo.lock:
             self.prepare_branch(config)
-            doc = self.get_document(document)
+            doc = self.get_configtype(document)
             for i, e in enumerate(doc):
                 if e["id"] == entry:
                     break
             else:
                 abort(404, "entry [%s] does not exist" % entry)
             del doc[i]
-            self.add_document(document, doc)
+            self.add_configtype(document, doc)
             self.commit("Delete entry [%s] of document [%s]" % (entry, document))
         return {"ok": True}
 

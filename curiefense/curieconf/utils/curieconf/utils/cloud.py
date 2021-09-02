@@ -103,7 +103,9 @@ def export(conf, url, prnt=None):
             )
 
     for doc, content in conf["documents"].items():
-        upload(utils.DOCUMENTS_PATH[doc], json.dumps(content, indent=4).encode("utf-8"))
+        upload(
+            utils.CONFIG_TYPES_PATH[doc], json.dumps(content, indent=4).encode("utf-8")
+        )
     for blob, jblob in conf["blobs"].items():
         upload(utils.BLOBS_PATH[blob], utils.jblob2bytes(jblob))
 

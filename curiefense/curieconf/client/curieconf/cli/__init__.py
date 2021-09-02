@@ -41,7 +41,7 @@ def output(raw, err=False):
 
 
 BlobsEnum = Enum("Blobs", {name: name for name in utils.BLOBS_PATH})
-DocsEnum = Enum("Docs", {name: name for name in utils.DOCUMENTS_PATH})
+ConfigTypeEnum = Enum("ConfigTypes", {name: name for name in utils.CONFIG_TYPES_PATH})
 
 
 ###############
@@ -163,53 +163,55 @@ def list_versions(config: str, blob: BlobsEnum):
     output(state.api.blobs.list_versions(config, blob.value).body)
 
 
-#################
-### Documents ###
-#################
+###########################
+### Configuration Types ###
+###########################
 
-docs = typer.Typer()
+configtypes = typer.Typer()
 
 
-@docs.command()
+@configtypes.command()
 def list(config: str):
-    output(state.api.documents.list(config).body)
+    output(state.api.configtypes.list(config).body)
 
 
-@docs.command()
-def get(config: str, doc: DocsEnum, fname: str = typer.Argument(None), version=None):
+@configtypes.command()
+def get(
+    config: str, type: ConfigTypeEnum, fname: str = typer.Argument(None), version=None
+):
     f = open(fname, "w") if fname else sys.stdout
     if version is None:
-        r = state.api.documents.get(config, doc.value)
+        r = state.api.configtypes.get(config, type.value)
     else:
-        r = state.api.documents.get_version(config, doc.value, version)
+        r = state.api.configtypes.get_version(config, type.value, version)
     output(r.body)
 
 
-@docs.command()
-def delete(config: str, doc: DocsEnum):
-    output(state.api.documents.delete(config, doc.value).body)
+@configtypes.command()
+def delete(config: str, type: ConfigTypeEnum):
+    output(state.api.configtypes.delete(config, type.value).body)
 
 
-@docs.command()
-def revert(config: str, doc: DocsEnum, version: str):
-    output(state.api.documents.revert(config, doc.value, version).body)
+@configtypes.command()
+def revert(config: str, type: ConfigTypeEnum, version: str):
+    output(state.api.configtypes.revert(config, type.value, version).body)
 
 
-@docs.command()
-def create(config: str, doc: DocsEnum, fname: str = typer.Argument(None)):
+@configtypes.command()
+def create(config: str, type: ConfigTypeEnum, fname: str = typer.Argument(None)):
     f = open(fname, "r") if fname else sys.stdin
-    output(state.api.documents.create(config, doc.value, body=json.load(f)).body)
+    output(state.api.configtypes.create(config, type.value, body=json.load(f)).body)
 
 
-@docs.command()
-def update(config: str, doc: DocsEnum, fname: str = typer.Argument(None)):
+@configtypes.command()
+def update(config: str, type: ConfigTypeEnum, fname: str = typer.Argument(None)):
     f = open(fname, "r") if fname else sys.stdin
-    output(state.api.documents.update(config, doc.value, body=json.load(f)).body)
+    output(state.api.configtypes.update(config, type.value, body=json.load(f)).body)
 
 
-@docs.command()
-def list_versions(config: str, doc: DocsEnum):
-    output(state.api.documents.list_versions(config, doc.value).body)
+@configtypes.command()
+def list_versions(config: str, type: ConfigTypeEnum):
+    output(state.api.configtypes.list_versions(config, type.value).body)
 
 
 ###############
@@ -220,64 +222,70 @@ entries = typer.Typer()
 
 
 @entries.command()
-def list(config: str, doc: DocsEnum):
-    output(state.api.entries.list(config, doc.value).body)
+def list(config: str, type: ConfigTypeEnum):
+    output(state.api.entries.list(config, type.value).body)
 
 
 @entries.command()
 def get(
     config: str,
-    doc: DocsEnum,
+    type: ConfigTypeEnum,
     entry: str,
     fname: str = typer.Argument(None),
     version=None,
 ):
     f = open(fname, "w") if fname else sys.stdout
     if version is None:
-        r = state.api.entries.get(config, doc.value, entry)
+        r = state.api.entries.get(config, type.value, entry)
     else:
-        r = state.api.entries.get_version(config, doc.value, entry, version)
+        r = state.api.entries.get_version(config, type.value, entry, version)
     output(r.body)
 
 
 @entries.command()
-def delete(config: str, doc: DocsEnum, entry: str):
-    output(state.api.entries.delete(config, doc.value, entry).body)
+def delete(config: str, type: ConfigTypeEnum, entry: str):
+    output(state.api.entries.delete(config, type.value, entry).body)
 
 
 @entries.command()
-def revert(config: str, doc: DocsEnum, entry: str, version: str):
-    output(state.api.entries.revert(config, doc.value, entry, version).body)
+def revert(config: str, type: ConfigTypeEnum, entry: str, version: str):
+    output(state.api.entries.revert(config, type.value, entry, version).body)
 
 
 @entries.command()
-def create(config: str, doc: DocsEnum, fname: str = typer.Argument(None)):
+def create(config: str, type: ConfigTypeEnum, fname: str = typer.Argument(None)):
     f = open(fname, "r") if fname else sys.stdin
-    output(state.api.entries.create(config, doc.value, body=json.load(f)).body)
+    output(state.api.entries.create(config, type.value, body=json.load(f)).body)
 
 
 @entries.command()
-def update(config: str, doc: DocsEnum, entry: str, fname: str = typer.Argument(None)):
+def update(
+    config: str, type: ConfigTypeEnum, entry: str, fname: str = typer.Argument(None)
+):
     f = open(fname, "r") if fname else sys.stdin
-    output(state.api.entries.update(config, doc.value, entry, body=json.load(f)).body)
+    output(state.api.entries.update(config, type.value, entry, body=json.load(f)).body)
 
 
 @entries.command()
-def edit(config: str, doc: DocsEnum, entry: str, fname: str = typer.Argument(None)):
+def edit(
+    config: str, type: ConfigTypeEnum, entry: str, fname: str = typer.Argument(None)
+):
     f = open(fname, "r") if fname else sys.stdin
-    output(state.api.entries.edit(config, doc.value, entry, body=json.load(f)).body)
+    output(state.api.entries.edit(config, type.value, entry, body=json.load(f)).body)
 
 
 @entries.command()
-def edit_one(config: str, doc: DocsEnum, entry: str, jsonpath: str, jsonvalue: str):
+def edit_one(
+    config: str, type: ConfigTypeEnum, entry: str, jsonpath: str, jsonvalue: str
+):
     value = json.loads(jsonvalue)
     edit = {"path": jsonpath, "value": value}
-    output(state.api.entries.edit(config, doc.value, entry, body=edit).body)
+    output(state.api.entries.edit(config, type.value, entry, body=edit).body)
 
 
 @entries.command()
-def list_versions(config: str, doc: DocsEnum, entry: str):
-    output(state.api.entries.list_versions(config, doc.value, entry).body)
+def list_versions(config: str, type: ConfigTypeEnum, entry: str):
+    output(state.api.entries.list_versions(config, type.value, entry).body)
 
 
 ###############
@@ -561,7 +569,7 @@ app = typer.Typer()
 
 app.add_typer(configs, name="conf")
 app.add_typer(blobs, name="blob")
-app.add_typer(docs, name="doc")
+app.add_typer(configtypes, name="conftype")
 app.add_typer(entries, name="entry")
 app.add_typer(db, name="db")
 app.add_typer(key, name="key")

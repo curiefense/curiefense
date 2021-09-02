@@ -3,7 +3,7 @@ import base64
 import json
 import pydash as _
 
-DOCUMENTS_PATH = {
+CONFIG_TYPES_PATH = {
     "ratelimits": "config/json/limits.json",
     "urlmaps": "config/json/urlmap.json",
     "wafrules": "config/json/waf-signatures.json",

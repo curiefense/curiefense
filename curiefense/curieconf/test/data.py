@@ -1,5 +1,5 @@
 import json
-from curieconf.utils import DOCUMENTS_PATH, BLOBS_PATH, BLOBS_BOOTSTRAP
+from curieconf.utils import CONFIG_TYPES_PATH, BLOBS_PATH, BLOBS_BOOTSTRAP
 
 
 bootstrap_config_json = json.load(open("config.batch.json"))
@@ -153,7 +153,7 @@ vec_geolite2asn = {"format": "base64", "blob": "AAAABBBB"}
 vec_geolite2country = {"format": "base64", "blob": "AAAABBBB"}
 
 
-vec_documents = {
+vec_configtypes = {
     "ratelimits": vec_limit,
     "urlmaps": vec_urlmap,
     "wafrules": vec_wafrule,

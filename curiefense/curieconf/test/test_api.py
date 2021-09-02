@@ -65,7 +65,7 @@ def test_configs_create_dup(curieapi_empty):
 def test_config_create_fail_clean(curieapi_empty):
     conf = {
         "meta": {"id": "pytest", "description": "pytest"},
-        "documents": {
+        "configtypes": {
             "aclpolicies": [
                 {"id": "qsmkldjqsdk", "name": "aqzdzd"},
                 {"id": "sqd", "name": "qds"},
@@ -82,7 +82,7 @@ def test_config_create_fail_clean(curieapi_empty):
     curieapi_empty.configs.create(
         body={"meta": {"id": "pytest3", "description": "pytest3"}}
     )
-    r = curieapi_empty.documents.get("pytest3", "aclpolicies")
+    r = curieapi_empty.configtypes.get("pytest3", "aclpolicies")
     assert r.body == []
 
 
@@ -91,7 +91,7 @@ def test_configs_get_empty(curieapi_empty):
     assert r.status_code == 200
     res = r.body
     print(res)
-    assert res["documents"] == {x: [] for x in DOCUMENTS_PATH}
+    assert res["configtypes"] == {x: [] for x in CONFIG_TYPES_PATH}
     assert res["blobs"] == {k: bytes2jblob(v) for k, v in BLOBS_BOOTSTRAP.items()}
 
 
@@ -104,9 +104,9 @@ def test_configs_get(curieapi):
     assert res["meta"]["date"] != None
     assert res["meta"]["description"] != None
 
-    assert bootstrap_config_json["documents"].keys() == res["documents"].keys()
-    for k in bootstrap_config_json["documents"]:
-        assert bootstrap_config_json["documents"][k] == res["documents"][k], k
+    assert bootstrap_config_json["configtypes"].keys() == res["configtypes"].keys()
+    for k in bootstrap_config_json["configtypes"]:
+        assert bootstrap_config_json["configtypes"][k] == res["configtypes"][k], k
 
     assert bootstrap_config_json["blobs"].keys() == res["blobs"].keys()
     for k, retrieved in res["blobs"].items():
@@ -163,9 +163,9 @@ def test_configs_update(curieapi_small):
     update = {
         "meta": {"id": "renamed_pytest"},
         "blobs": {"geolite2country": jblob},
-        "documents": {"ratelimits": newlimits, "wafrules": newwafsigs},
+        "configtypes": {"ratelimits": newlimits, "wafrules": newwafsigs},
         "delete_blobs": {"bltor": False, "blvpnip": True, "geolite2asn": True},
-        "delete_documents": {
+        "delete_configtypes": {
             "urlmaps": {"sqdqsd": True, "fezfzf": True, vec_urlmap["id"]: False},
             "wafrules": {vec_wafrule["id"]: True},
         },
@@ -179,9 +179,9 @@ def test_configs_update(curieapi_small):
     r = curieapi.configs.get("renamed_pytest")
     assert compare_jblob(r.body["blobs"]["geolite2country"], jblob)
     assert compare_jblob(r.body["blobs"]["geolite2asn"], {})
-    assert r.body["documents"]["ratelimits"] == newlimits
-    assert r.body["documents"]["wafrules"] == newwafsigs[1:]
-    assert r.body["documents"]["urlmaps"] == [vec_urlmap]
+    assert r.body["configtypes"]["ratelimits"] == newlimits
+    assert r.body["configtypes"]["wafrules"] == newwafsigs[1:]
+    assert r.body["configtypes"]["urlmaps"] == [vec_urlmap]
 
 
 ##  ___ _    ___  ___ ___
@@ -308,58 +308,68 @@ def test_blobs_list_versions(curieapi, blobname):
     assert "Update" in v6[0]["message"]
 
 
-##  ___   ___   ___ _   _ __  __ ___ _  _ _____ ___
-## |   \ / _ \ / __| | | |  \/  | __| \| |_   _/ __|
-## | |) | (_) | (__| |_| | |\/| | _|| .` | | | \__ \
-## |___/ \___/ \___|\___/|_|  |_|___|_|\_| |_| |___/
+#   ____             __ _                       _   _
+#  / ___|___  _ __  / _(_) __ _ _   _ _ __ __ _| |_(_) ___  _ __
+# | |   / _ \| '_ \| |_| |/ _` | | | | '__/ _` | __| |/ _ \| '_ \
+# | |__| (_) | | | |  _| | (_| | |_| | | | (_| | |_| | (_) | | | |
+#  \____\___/|_| |_|_| |_|\__, |\__,_|_|  \__,_|\__|_|\___/|_| |_|
+#                         |___/
+#  _
+# | |_ _   _ _ __   ___  ___
+# | __| | | | '_ \ / _ \/ __|
+# | |_| |_| | |_) |  __/\__ \
+#  \__|\__, | .__/ \___||___/
+#      |___/|_|
 
 
-@pytest.mark.parametrize("doc", vec_documents.keys())
-def test_documents_list_small(curieapi_small, doc):
-    r = curieapi_small.documents.get("pytest", doc)
+@pytest.mark.parametrize("doc", vec_configtypes.keys())
+def test_configtypes_list_small(curieapi_small, doc):
+    r = curieapi_small.configtypes.get("pytest", doc)
     assert r.status_code == 200
-    assert r.body == [vec_documents[doc]]
+    assert r.body == [vec_configtypes[doc]]
 
 
-@pytest.mark.parametrize("doc", bootstrap_config_json["documents"].keys())
-def test_documents_list(curieapi, doc):
-    r = curieapi.documents.get("pytest", doc)
+@pytest.mark.parametrize("doc", bootstrap_config_json["configtypes"].keys())
+def test_configtypes_list(curieapi, doc):
+    r = curieapi.configtypes.get("pytest", doc)
     assert r.status_code == 200
-    assert r.body == bootstrap_config_json["documents"][doc]
+    assert r.body == bootstrap_config_json["configtypes"][doc]
 
 
-def test_documents_list_404(curieapi_small):
+def test_configtypes_list_404(curieapi_small):
     with pytest.raises(NotFoundError):
-        r = curieapi_small.documents.get("pytest", "XXXXX")
+        r = curieapi_small.configtypes.get("pytest", "XXXXX")
 
 
-@pytest.mark.parametrize("doc", vec_documents.keys())
-def test_documents_create(curieapi_empty, doc):
-    r = curieapi_empty.documents.create("master", doc, body=[vec_documents[doc]])
+@pytest.mark.parametrize("doc", vec_configtypes.keys())
+def test_configtypes_create(curieapi_empty, doc):
+    r = curieapi_empty.configtypes.create("master", doc, body=[vec_configtypes[doc]])
     assert r.status_code == 200
-    r = curieapi_empty.documents.get("master", doc)
+    r = curieapi_empty.configtypes.get("master", doc)
     assert r.status_code == 200
-    assert r.body == [vec_documents[doc]]
+    assert r.body == [vec_configtypes[doc]]
     with pytest.raises(ClientError) as e:
-        r = curieapi_empty.documents.create("master", doc, body=[vec_documents[doc]])
+        r = curieapi_empty.configtypes.create(
+            "master", doc, body=[vec_configtypes[doc]]
+        )
     assert e.value.response.status_code == 409
 
 
-@pytest.mark.parametrize("doc", vec_documents.keys())
-def test_documents_delete(curieapi, doc):
-    r = curieapi.documents.get("pytest", doc)
+@pytest.mark.parametrize("doc", vec_configtypes.keys())
+def test_configtypes_delete(curieapi, doc):
+    r = curieapi.configtypes.get("pytest", doc)
     assert r.status_code == 200
     assert r.body != []
-    r = curieapi.documents.delete("pytest", doc)
+    r = curieapi.configtypes.delete("pytest", doc)
     assert r.status_code == 200
-    r = curieapi.documents.get("pytest", doc)
+    r = curieapi.configtypes.get("pytest", doc)
     assert r.status_code == 200
     assert r.body == []
 
 
-@pytest.mark.parametrize("doc", vec_documents.keys())
-def test_documents_update(curieapi, doc):
-    r = curieapi.documents.get("pytest", doc)
+@pytest.mark.parametrize("doc", vec_configtypes.keys())
+def test_configtypes_update(curieapi, doc):
+    r = curieapi.configtypes.get("pytest", doc)
     assert r.status_code == 200
     assert r.body != []
     old = r.body
@@ -369,18 +379,18 @@ def test_documents_update(curieapi, doc):
 
     update = [{**old[0], **{"id": myid}}, old[0]]
 
-    r = curieapi.documents.update("pytest", doc, body=update)
+    r = curieapi.configtypes.update("pytest", doc, body=update)
     assert r.status_code == 200
-    r = curieapi.documents.get("pytest", doc)
+    r = curieapi.configtypes.get("pytest", doc)
     assert r.status_code == 200
     newids = {e["id"] for e in r.body}
 
     assert oldids | {myid} == newids
 
 
-@pytest.mark.parametrize("doc", vec_documents.keys())
-def test_documents_revert(curieapi, doc):
-    r = curieapi.documents.get("pytest", doc)
+@pytest.mark.parametrize("doc", vec_configtypes.keys())
+def test_configtypes_revert(curieapi, doc):
+    r = curieapi.configtypes.get("pytest", doc)
     assert r.status_code == 200
     old = r.body
     r = curieapi.configs.list_versions("pytest")
@@ -389,42 +399,42 @@ def test_documents_revert(curieapi, doc):
 
     new = [{**old[0], **{"name": "%i" % time.time()}}]
     # use "update" because we can not delete __default__ waf and acl
-    r = curieapi.documents.update("pytest", doc, body=new)
+    r = curieapi.configtypes.update("pytest", doc, body=new)
     assert r.status_code == 200
-    r = curieapi.documents.get("pytest", doc)
+    r = curieapi.configtypes.get("pytest", doc)
     assert r.status_code == 200
     assert r.body[0]["name"] == new[0]["name"]
 
-    r = curieapi.documents.revert("pytest", doc, oldv)
+    r = curieapi.configtypes.revert("pytest", doc, oldv)
     assert r.status_code == 200
-    r = curieapi.documents.get("pytest", doc)
+    r = curieapi.configtypes.get("pytest", doc)
     assert r.status_code == 200
     assert r.body == old
 
 
-@pytest.mark.parametrize("docname", vec_documents.keys())
-def test_documents_list_versions(curieapi, docname):
-    r = curieapi.documents.get("pytest", docname)
+@pytest.mark.parametrize("docname", vec_configtypes.keys())
+def test_configtypes_list_versions(curieapi, docname):
+    r = curieapi.configtypes.get("pytest", docname)
     assert r.status_code == 200
     old = r.body
 
-    r = curieapi.documents.list_versions("pytest", docname)
+    r = curieapi.configtypes.list_versions("pytest", docname)
     assert r.status_code == 200
     v1 = r.body
     assert len(v1) > 1
     assert "Initial" in v1[-1]["message"]
 
-    r = curieapi.documents.delete("pytest", docname)
+    r = curieapi.configtypes.delete("pytest", docname)
     assert r.status_code == 200
-    r = curieapi.documents.list_versions("pytest", docname)
+    r = curieapi.configtypes.list_versions("pytest", docname)
     assert r.status_code == 200
     v2 = r.body
     assert len(v2) - len(v1) == 1
     assert "Delete" in v2[0]["message"]
 
-    r = curieapi.documents.create("pytest", docname, body=old)
+    r = curieapi.configtypes.create("pytest", docname, body=old)
     assert r.status_code == 200
-    r = curieapi.documents.list_versions("pytest", docname)
+    r = curieapi.configtypes.list_versions("pytest", docname)
     assert r.status_code == 200
     v3 = r.body
     assert len(v3) - len(v2) == 1
@@ -432,7 +442,7 @@ def test_documents_list_versions(curieapi, docname):
 
     r = curieapi.entries.create("pytest", docname, body={"id": "qdsdsq"})
     assert r.status_code == 200
-    r = curieapi.documents.list_versions("pytest", docname)
+    r = curieapi.configtypes.list_versions("pytest", docname)
     assert r.status_code == 200
     v4 = r.body
     assert len(v4) - len(v3) == 1
@@ -441,15 +451,15 @@ def test_documents_list_versions(curieapi, docname):
     r = curieapi.entries.create("master", docname, body={"id": "qdsdsq"})
     assert r.status_code == 200
     old.append({**old[0], **{"id": "vsdsd", "name": "%i" % time.time()}})
-    r = curieapi.documents.update("pytest", docname, body=old)
+    r = curieapi.configtypes.update("pytest", docname, body=old)
     assert r.status_code == 200
 
-    r = curieapi.documents.list_versions("pytest", docname)
+    r = curieapi.configtypes.list_versions("pytest", docname)
     assert r.status_code == 200
     v5 = r.body
     assert "Update" in v5[0]["message"]
 
-    r = curieapi.documents.list_versions("master", docname)
+    r = curieapi.configtypes.list_versions("master", docname)
     assert r.status_code == 200
     v6 = r.body
     assert "Add entry" in v6[0]["message"]
@@ -461,37 +471,37 @@ def test_documents_list_versions(curieapi, docname):
 ## |___|_|\_| |_| |_|_\___|___|___/
 
 
-@pytest.mark.parametrize("doc", vec_documents.keys())
+@pytest.mark.parametrize("doc", vec_configtypes.keys())
 def test_entries_list(curieapi_small, doc):
     r = curieapi_small.entries.list("pytest", doc)
     assert r.status_code == 200
-    assert r.body == [vec_documents[doc]["id"]]
+    assert r.body == [vec_configtypes[doc]["id"]]
 
 
-@pytest.mark.parametrize("doc", vec_documents.keys())
+@pytest.mark.parametrize("doc", vec_configtypes.keys())
 def test_entries_list_2(curieapi, doc):
     r = curieapi.entries.list("pytest", doc)
     assert r.status_code == 200
-    assert r.body == [e["id"] for e in bootstrap_config_json["documents"][doc]]
+    assert r.body == [e["id"] for e in bootstrap_config_json["configtypes"][doc]]
 
 
-@pytest.mark.parametrize("doc", vec_documents.keys())
+@pytest.mark.parametrize("doc", vec_configtypes.keys())
 def test_entries_get(curieapi_small, doc):
-    r = curieapi_small.entries.get("pytest", doc, vec_documents[doc]["id"])
+    r = curieapi_small.entries.get("pytest", doc, vec_configtypes[doc]["id"])
     assert r.status_code == 200
-    assert r.body == vec_documents[doc]
+    assert r.body == vec_configtypes[doc]
 
 
 def test_entries_get_404(curieapi_small):
     with pytest.raises(NotFoundError):
-        r = curieapi_small.documents.get("pytest", "XXXX", "XXXX")
+        r = curieapi_small.configtypes.get("pytest", "XXXX", "XXXX")
     with pytest.raises(NotFoundError):
-        r = curieapi_small.documents.get("pytest", "limit", "XXXX")
+        r = curieapi_small.configtypes.get("pytest", "limit", "XXXX")
 
 
-@pytest.mark.parametrize("doc", vec_documents.keys())
+@pytest.mark.parametrize("doc", vec_configtypes.keys())
 def test_entries_create(curieapi, doc):
-    vec = vec_documents[doc].copy()
+    vec = vec_configtypes[doc].copy()
     vec["id"] = "new-id"
     r = curieapi.entries.create("pytest", doc, body=vec)
     assert r.status_code == 200
@@ -503,9 +513,9 @@ def test_entries_create(curieapi, doc):
     assert e.value.response.status_code == 409
 
 
-@pytest.mark.parametrize("doc", vec_documents.keys())
+@pytest.mark.parametrize("doc", vec_configtypes.keys())
 def test_entries_update(curieapi, doc):
-    vec = vec_documents[doc].copy()
+    vec = vec_configtypes[doc].copy()
     vec["id"] = "new-id"
     with pytest.raises(NotFoundError):
         r = curieapi.entries.update("pytest", doc, vec["id"], body=vec)
@@ -527,9 +537,9 @@ def test_entries_update(curieapi, doc):
     assert r.body == vec
 
 
-@pytest.mark.parametrize("doc", vec_documents.keys())
+@pytest.mark.parametrize("doc", vec_configtypes.keys())
 def test_entries_delete(curieapi, doc):
-    r = curieapi.documents.get("pytest", doc)
+    r = curieapi.configtypes.get("pytest", doc)
     assert r.status_code == 200
     rlist = r.body
     for e in rlist:
@@ -543,9 +553,9 @@ def test_entries_delete(curieapi, doc):
             r = curieapi.entries.delete("pytest", doc, e["id"])
 
 
-@pytest.mark.parametrize("docname", vec_documents.keys())
+@pytest.mark.parametrize("docname", vec_configtypes.keys())
 def test_entries_list_versions(curieapi, docname):
-    r = curieapi.documents.get("pytest", docname)
+    r = curieapi.configtypes.get("pytest", docname)
     assert r.status_code == 200
     old = r.body
     assert len(old) > 0
