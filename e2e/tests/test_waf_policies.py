@@ -1,7 +1,7 @@
 import pytest
 from e2e.core.base_helper import cli, target, section, default_config, BaseHelper
 from e2e.helpers.acl_helper import acl
-from e2e.helpers.waf_policies_helper import name_regex, restrict, waf_test_config
+from e2e.helpers.waf_policies_helper import name_regex, restrict, waf_test_config, ignore_alphanum
 
 
 @pytest.mark.usefixtures('api_setup', 'waf_test_config')
@@ -101,10 +101,10 @@ class TestWAFPolicies:
             ), f"Not reachable despite allowlisted {section} value"
 
 
-@pytest.mark.usefixtures('api_setup', 'waf_test_config')
-@pytest.mark.waf_policies_tests
-@pytest.mark.all_modules
-class TestWAFParamsConstraints:
+# @pytest.mark.usefixtures('api_setup', 'waf_test_config')
+# @pytest.mark.waf_policies_tests
+# @pytest.mark.all_modules
+# class TestWAFParamsConstraints:
 
     # def test_allowlisted_value(
     #     self, section, name_regex, restrict, target
@@ -114,21 +114,21 @@ class TestWAFParamsConstraints:
     #         f"/allowlisted-value-{paramname}", **{section: {paramname: "value"}}
     #     ), f"Not reachable despite allowlisted {section} value"
     #
-    def test_non_allowlisted_value_restrict(
-        self, section, name_regex, target, ignore_alphanum
-    ):
-        paramname = name_regex + "-restrict"
-        if ignore_alphanum:
-            assert target.is_reachable(
-                f"/blocklisted-value-{paramname}-restrict-ignore_alphanum",
-                **{section: {paramname: "invalid"}},
-            ), f"Not reachable despite alphanum blocklisted {section} value (restrict is enabled)"
-        else:
-            assert not target.is_reachable(
-                f"/blocklisted-value-{paramname}-restrict",
-                **{section: {paramname: "invalid"}},
-            ), f"Reachable despite blocklisted {section} value (restrict is enabled)"
-    #
+    # def test_non_allowlisted_value_restrict(
+    #     self, section, name_regex, target, ignore_alphanum
+    # ):
+    #     paramname = name_regex + "-restrict"
+    #     if ignore_alphanum:
+    #         assert target.is_reachable(
+    #             f"/blocklisted-value-{paramname}-restrict-ignore_alphanum",
+    #             **{section: {paramname: "invalid"}},
+    #         ), f"Not reachable despite alphanum blocklisted {section} value (restrict is enabled)"
+    #     else:
+    #         assert not target.is_reachable(
+    #             f"/blocklisted-value-{paramname}-restrict",
+    #             **{section: {paramname: "invalid"}},
+    #         ), f"Reachable despite blocklisted {section} value (restrict is enabled)"
+    # #
     # def test_non_allowlisted_value_norestrict_nowafmatch(
     #     self, section, name_regex, target
     # ):

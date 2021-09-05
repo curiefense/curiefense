@@ -61,63 +61,63 @@ class RateLimitCookieHelper:
         # RL scope
         add_rl_rule(
             path="test_503_action_cookie_count_by_ip",
-            ttl=2,
+            ttl=3,
             limit=3,
             pairwith=({"cookies": "cookie_event_503_ip"}),
             key=[{"attrs": 'ip'}]
         ),
         add_rl_rule(
             path="test_503_action_cookie_count_by_asn",
-            ttl=2,
+            ttl=3,
             limit=3,
             pairwith=({"cookies": "cookie_event_503_asn"}),
             key=[{"attrs": 'asn'}]
         ),
         add_rl_rule(
             path="test_503_action_cookie_count_by_path",
-            ttl=2,
+            ttl=3,
             limit=3,
             pairwith=({"cookies": "cookie_event_503_path"}),
             key=[{"attrs": 'path'}]
         ),
         add_rl_rule(
             path="test_503_action_cookie_count_by_query",
-            ttl=2,
+            ttl=3,
             limit=3,
             pairwith=({"cookies": "cookie_event_503_query"}),
             key=[{"attrs": 'query'}]
         ),
         add_rl_rule(
             path="test_503_action_cookie_count_by_country",
-            ttl=2,
+            ttl=3,
             limit=3,
             pairwith=({"cookies": "cookie_event_503_country"}),
             key=[{"attrs": 'country'}]
         ),
         add_rl_rule(
             path="test_503_action_cookie_count_by_company",
-            ttl=2,
+            ttl=3,
             limit=3,
             pairwith=({"cookies": "cookie_event_503_company"}),
             key=[{"attrs": 'company'}]
         ),
         add_rl_rule(
             path="test_503_action_cookie_count_by_uri",
-            ttl=2,
+            ttl=3,
             limit=3,
             pairwith=({"cookies": "cookie_event_503_uri"}),
             key=[{"attrs": 'uri'}]
         ),
         add_rl_rule(
             path="test_503_action_cookie_count_by_method",
-            ttl=2,
+            ttl=3,
             limit=3,
             pairwith=({"cookies": "cookie_event_503_method"}),
             key=[{"attrs": 'method'}]
         ),
         add_rl_rule(
             path="test_503_action_cookie_count_by_authority",
-            ttl=2,
+            ttl=3,
             limit=3,
             pairwith=({"cookies": "cookie_event_503_authority"}),
             key=[{"attrs": 'authority'}]
@@ -277,8 +277,8 @@ class RateLimitCookieHelper:
 
         add_rl_rule(
             path="test_res_cookie_authority",
-            ttl=3,
-            limit=5,
+            ttl=4,
+            limit=2,
             pairwith=({"cookies": "cookie_event_res_authority"}),
             action_ext=({"type": "response"}),
             param_ext={"status": "302", "content": "response_body_authority"},
@@ -296,7 +296,7 @@ class RateLimitCookieHelper:
         add_rl_rule(
             path="test_challenge_cookie_uri",
             ttl=4,
-            limit=5,
+            limit=2,
             pairwith=({"cookies": "cookie_event_chl_uri"}),
             action_ext=({"type": "challenge"}),
             key=[{"attrs": "uri"}]
@@ -312,7 +312,7 @@ class RateLimitCookieHelper:
         add_rl_rule(
             path="test_challenge_cookie_path",
             ttl=4,
-            limit=5,
+            limit=2,
             pairwith=({"cookies": "cookie_event_chl_path"}),
             action_ext=({"type": "challenge"}),
             key=[{"attrs": "path"}]
@@ -328,7 +328,7 @@ class RateLimitCookieHelper:
         add_rl_rule(
             path="test_challenge_cookie_asn",
             ttl=4,
-            limit=5,
+            limit=2,
             pairwith=({"cookies": "cookie_event_chl_asn"}),
             action_ext=({"type": "challenge"}),
             key=[{"attrs": "asn"}]
@@ -336,7 +336,7 @@ class RateLimitCookieHelper:
         add_rl_rule(
             path="test_challenge_cookie_company",
             ttl=4,
-            limit=5,
+            limit=2,
             pairwith=({"cookies": "cookie_event_chl_company"}),
             action_ext=({"type": "challenge"}),
             key=[{"attrs": "company"}]
@@ -344,7 +344,7 @@ class RateLimitCookieHelper:
         add_rl_rule(
             path="test_challenge_cookie_country",
             ttl=4,
-            limit=5,
+            limit=2,
             pairwith=({"cookies": "cookie_event_chl_country"}),
             action_ext=({"type": "challenge"}),
             key=[{"attrs": "country"}]
@@ -352,7 +352,7 @@ class RateLimitCookieHelper:
         add_rl_rule(
             path="test_challenge_cookie_authority",
             ttl=4,
-            limit=5,
+            limit=2,
             pairwith=({"cookies": "cookie_event_chl_authority"}),
             action_ext=({"type": "challenge"}),
             key=[{"attrs": "authority"}]
@@ -360,8 +360,8 @@ class RateLimitCookieHelper:
 
         add_rl_rule(
             path="test_redirect_cookie_ip",
-            ttl=3,
-            limit=3,
+            ttl=4,
+            limit=2,
             pairwith=({"cookies": "cookie_event_red_ip"}),
             action_ext=({"type": "redirect"}),
             param_ext={"status": "200", "location": "https://yahoo.com"},
@@ -370,8 +370,8 @@ class RateLimitCookieHelper:
 
         add_rl_rule(
             path="test_redirect_cookie_uri",
-            ttl=3,
-            limit=3,
+            ttl=4,
+            limit=2,
             pairwith=({"cookies": "cookie_event_red_uri"}),
             action_ext=({"type": "redirect"}),
             param_ext={"status": "200", "location": "https://yahoo.com"},
@@ -380,7 +380,7 @@ class RateLimitCookieHelper:
 
         add_rl_rule(
             path="test_redirect_cookie_query",
-            ttl=3,
+            ttl=5,
             limit=3,
             pairwith=({"cookies": "cookie_event_red_query"}),
             action_ext=({"type": "redirect"}),
@@ -389,7 +389,7 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_redirect_cookie_path",
-            ttl=3,
+            ttl=4,
             limit=3,
             pairwith=({"cookies": "cookie_event_red_path"}),
             action_ext=({"type": "redirect"}),
@@ -453,8 +453,8 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_ban_cookie_sub_503_count_by_uri",
-            ttl=2,
-            limit=4,
+            ttl=3,
+            limit=2,
             pairwith=({"cookies": "cookie_event_ban_503_uri"}),
             action_ext=({"type": "ban"}),
             param_ext={"ttl": str(4)},
@@ -462,8 +462,8 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_ban_cookie_sub_503_count_by_query",
-            ttl=2,
-            limit=4,
+            ttl=3,
+            limit=2,
             pairwith=({"cookies": "cookie_event_ban_503_query"}),
             action_ext=({"type": "ban"}),
             param_ext={"ttl": str(4)},
@@ -480,8 +480,8 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_ban_cookie_sub_503_count_by_asn",
-            ttl=2,
-            limit=4,
+            ttl=3,
+            limit=2,
             pairwith=({"cookies": "cookie_event_ban_503_asn"}),
             action_ext=({"type": "ban"}),
             param_ext={"ttl": str(4)},
@@ -489,8 +489,8 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_ban_cookie_sub_503_count_by_method",
-            ttl=2,
-            limit=4,
+            ttl=3,
+            limit=2,
             pairwith=({"cookies": "cookie_event_ban_503_method"}),
             action_ext=({"type": "ban"}),
             param_ext={"ttl": str(4)},
@@ -498,8 +498,8 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_ban_cookie_sub_503_count_by_company",
-            ttl=2,
-            limit=4,
+            ttl=3,
+            limit=2,
             pairwith=({"cookies": "cookie_event_ban_503_company"}),
             action_ext=({"type": "ban"}),
             param_ext={"ttl": str(4)},
@@ -507,8 +507,8 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_ban_cookie_sub_503_count_by_country",
-            ttl=2,
-            limit=4,
+            ttl=3,
+            limit=2,
             pairwith=({"cookies": "cookie_event_ban_503_country"}),
             action_ext=({"type": "ban"}),
             param_ext={"ttl": str(4)},
@@ -517,7 +517,7 @@ class RateLimitCookieHelper:
         add_rl_rule(
             path="test_ban_cookie_sub_503_count_by_authority",
             ttl=2,
-            limit=4,
+            limit=2,
             pairwith=({"cookies": "cookie_event_ban_503_authority"}),
             action_ext=({"type": "ban"}),
             param_ext={"ttl": str(4)},
@@ -526,7 +526,7 @@ class RateLimitCookieHelper:
         add_rl_rule(
             path="test_ban_cookie_sub_chl_count_by_ip",
             ttl=5,
-            limit=5,
+            limit=2,
             pairwith=({"cookies": "cookie_event_ban_chl_ip"}),
             action_ext=({"type": "ban"}),
             param_ext={"ttl": str(6)},
@@ -535,8 +535,8 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_ban_cookie_sub_chl_count_by_uri",
-            ttl=5,
-            limit=5,
+            ttl=4,
+            limit=2,
             pairwith=({"cookies": "cookie_event_ban_chl_uri"}),
             action_ext=({"type": "ban"}),
             param_ext={"ttl": str(6)},
@@ -545,8 +545,8 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_ban_cookie_sub_chl_count_by_query",
-            ttl=5,
-            limit=5,
+            ttl=4,
+            limit=2,
             pairwith=({"cookies": "cookie_event_ban_chl_query"}),
             action_ext=({"type": "ban"}),
             param_ext={"ttl": str(6)},
@@ -555,8 +555,8 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_ban_cookie_sub_chl_count_by_path",
-            ttl=5,
-            limit=5,
+            ttl=4,
+            limit=2,
             pairwith=({"cookies": "cookie_event_ban_chl_path"}),
             action_ext=({"type": "ban"}),
             param_ext={"ttl": str(6)},
@@ -595,8 +595,8 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_ban_cookie_sub_chl_count_by_asn",
-            ttl=5,
-            limit=5,
+            ttl=4,
+            limit=2,
             pairwith=({"cookies": "cookie_event_ban_chl_asn"}),
             action_ext=({"type": "ban"}),
             param_ext={"ttl": str(6)},
@@ -605,11 +605,11 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_ban_cookie_sub_chl_count_by_authority",
-            ttl=5,
-            limit=5,
+            ttl=4,
+            limit=2,
             pairwith=({"cookies": "cookie_event"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"ttl": str(5)},
             subaction="challenge",
             key=[{"attrs": "ip"}]
         ),
