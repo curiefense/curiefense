@@ -19,9 +19,9 @@ use flow::{flow_resolve, FlowElement, SequenceKey};
 use hostmap::{HostMap, SecurityPolicy};
 use limit::{limit_order, Limit};
 use globalfilter::GlobalFilterSection;
-use raw::{AclProfile, RawFlowEntry, RawHostMap, RawLimit, RawGlobalFilterSection, RawSecurityPolicy, RawContentFilterProfile};
+use raw::{AclProfile, RawFlowEntry, RawHostMap, RawLimit, RawGlobalFilterSection, RawSecurityPolicy, RawContentFilterProfile, RawContentFilterGroup};
 use utils::Matching;
-use contentfilter::{resolve_rules, ContentFilterProfile, ContentFilterRules};
+use contentfilter::{resolve_rules, ContentFilterProfile, ContentFilterRules, ContentFilterGroup};
 
 lazy_static! {
     pub static ref CONFIG: RwLock<Config> = RwLock::new(Config::empty());
@@ -72,6 +72,7 @@ pub struct Config {
     pub container_name: Option<String>,
     pub flows: HashMap<SequenceKey, Vec<FlowElement>>,
     pub content_filter_profiles: HashMap<String, ContentFilterProfile>,
+    pub content_filter_groups: HashMap<String, ContentFilterGroup>,
 }
 
 fn from_map<V: Clone>(mp: &HashMap<String, V>, k: &str) -> Result<V, String> {
@@ -153,14 +154,17 @@ impl Config {
         rawglobalfilters: Vec<RawGlobalFilterSection>,
         rawacls: Vec<AclProfile>,
         rawcontentfilterprofiles: Vec<RawContentFilterProfile>,
+        rawcontentfiltergroups: Vec<RawContentFilterGroup>,
         container_name: Option<String>,
         rawflows: Vec<RawFlowEntry>,
+        hsdb: &mut WafSignatures,
     ) -> Config {
         let mut default: Option<HostMap> = None;
         let mut securitypolicies: Vec<Matching<HostMap>> = Vec::new();
 
         let limits = Limit::resolve(logs, rawlimits);
-        let content_filter_profiles = ContentFilterProfile::resolve(logs, rawcontentfilterprofiles);
+        let content_filter_groups = ContentFilterGroup::resolve(logs, rawcontentfiltergroups, &mut hsdb);
+        let content_filter_profiles = ContentFilterProfile::resolve(logs, rawcontentfilterprofiles, content_filter_groups);
         let acls = rawacls.into_iter().map(|a| (a.id.clone(), a)).collect();
 
         // build the entries while looking for the default entry
@@ -210,6 +214,7 @@ impl Config {
             container_name,
             flows,
             content_filter_profiles,
+            content_filter_groups,
         }
     }
 
@@ -263,6 +268,7 @@ impl Config {
         let limits = Config::load_config_file(logs, &bjson, "limits.json");
         let acls = Config::load_config_file(logs, &bjson, "acl-profiles.json");
         let contentfilterprofiles = Config::load_config_file(logs, &bjson, "contentfilter-profiles.json");
+        let contentfiltergroups = Config::load_config_file(logs, &bjson, "contentfilter-groups.json");
         let contentfilterrules = Config::load_config_file(logs, &bjson, "contentfilter-rules.json");
         let flows = Config::load_config_file(logs, &bjson, "flow-control.json");
 
@@ -281,8 +287,10 @@ impl Config {
             globalfilters,
             acls,
             contentfilterprofiles,
+            contentfiltergroups,
             container_name,
             flows,
+            &mut hsdb,
         );
         Some((config, hsdb))
     }
@@ -296,6 +304,7 @@ impl Config {
             container_name: None,
             flows: HashMap::new(),
             content_filter_profiles: HashMap::new(),
+            content_filter_groups: HashMap::new(),
         }
     }
 }

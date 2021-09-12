@@ -10,6 +10,7 @@ DOCUMENTS_PATH = {
     "ratelimits": "config/json/limits.json",
     "securitypolicies": "config/json/securitypolicy.json",
     "contentfilterrules": "config/json/contentfilter-rules.json",
+    "contentfiltergroups": "config/json/contentfilter-groups.json",
     "contentfilterprofiles": "config/json/contentfilter-profiles.json",
     "aclprofiles": "config/json/acl-profiles.json",
     "globalfilters": "config/json/globalfilter-lists.json",
@@ -27,6 +28,149 @@ BLOBS_BOOTSTRAP = {
     "geolite2country": b"",
     "geolite2city": b"",
 }
+
+
+def vconvert(conf_type_name, vfrom):
+    """
+    Convert configuration types terminology from demand API version to
+    the actual one. It is needed to support multiple API versions in parallel.
+
+    Args:
+        conf_type_name (string): Configuration type to convert.
+        vfrom (string): Version of the API from which to convert.
+
+    Returns
+        string: converted conf type
+    """
+    apimap = {
+        "v1": {
+            "urlmaps": "securitypolicies",
+            "wafrules": "contentfilterrules",
+            "wafgroups": "contentfiltergroups",
+            "wafpolicies": "contentfilterprofiles",
+            "aclpolicies": "aclprofiles",
+            "tagrules": "globalfilters",
+            "flowcontrol": "flowcontrolpolicies",
+        }
+    }
+
+    return _.get(apimap, f"{vfrom}.{conf_type_name}", conf_type_name)
+
+
+def backend_v1_rl_convert(backend_document):
+    """
+    Convert Rate Limit from backend into V1 API format.
+    backend API supports multiple thresholds (action + limit) for a one Rate Limit.
+    The function takes only the first threshold element from the array.
+    To support backward compatibility we limit V1 users to only one threshold.
+    Args:
+        backend_document (dict): RL configuration document in backend format
+    Returns:
+        dict: converted to V1 format
+    """
+    v1 = backend_document.copy()
+    v1["limit"] = pydash.get(v1, "thresholds[0].limit", "")
+    v1["action"] = pydash.get(v1, "thresholds[0].action", {})
+    del v1["thresholds"]
+    return v1
+
+
+def v1_backend_rl_convert(v1_document):
+    """
+    Convert Rate Limit from V1 into backend API format.
+    backend API supports multiple thresholds (action + limit) for a one Rate Limit.
+    But V1 accepts only one limit and action. The function takes limit and action
+    and add it as a one element of thresholds array.
+    To support backward compatibility we limit V1 users to only one threshold.
+    Args:
+        v1_document (dict): RL configuration document in V1 format
+    Returns:
+        dict: converted to backend format
+    """
+    backend = v1_document.copy()
+    pydash.set_(
+        backend,
+        "thresholds[0]",
+        {"limit": backend["limit"], "action": backend["action"]},
+    )
+    del backend["limit"]
+    del backend["action"]
+    return backend
+
+
+def backend_v1_cfp_convert(backend_document):
+    """
+    Convert Content Filter Profiles from backend into V1 API format.
+    backend API supports both groups and rules as exclusions, while v1 only support rules.
+    The function takes only the rules and transforms the values to 1 as expected in v1.
+    v1 does not support returning groups.
+    Args:
+        backend_document (dict): Content Filter Profiles configuration document in backend format
+    Returns:
+        dict: converted to V1 format
+    """
+    v1 = backend_document.copy()
+    for section in ["args", "headers", "cookies"]:
+        for key in ["names", "regex"]:
+            for i in range(len(v1[section][key])):
+                for rule_id in v1[section][key][i]["exclusions"].keys():
+                    if v1[section][key][i]["exclusions"][rule_id] == "rule":
+                        v1[section][key][i]["exclusions"][rule_id] = 1
+                    else:
+                        del v1[section][key][i]["exclusions"][rule_id]
+    return v1
+
+
+def v1_backend_cfp_convert(v1_document):
+    """
+    Convert Content Filter Profiles from V1 into backend API format.
+    backend API supports both groups and rules as exclusions, while v1 only support rules.
+    The function takes all rules and transforms the values to "rule" as expected on backend.
+    v1 does not support recieving groups.
+    Args:
+        v1_document (dict): Content Filter Profiles configuration document in V1 format
+    Returns:
+        dict: converted to backend format
+    """
+    backend = v1_document.copy()
+    for section in ["args", "headers", "cookies"]:
+        for key in ["names", "regex"]:
+            for i in range(len(backend[section][key])):
+                for rule_id in backend[section][key][i]["exclusions"].keys():
+                    if backend[section][key][i]["exclusions"][rule_id] == 1:
+                        backend[section][key][i]["exclusions"][rule_id] = "rule"
+                    else:
+                        del backend[section][key][i]["exclusions"][rule_id]
+    return backend
+
+
+def vconfigconvert(conf_type_name, document, vfrom, vto):
+    """
+    Convert configuration documents structure from between API versions formats.
+    Args:
+        conf_type_name (string): Configuration type to convert.
+        document (dict): configuration document
+        vfrom (string): Version of the API from which to convert.
+        vfrom (string): Version of the API to which version to convert.
+    Returns:
+        dict: converted config document or the original one if nothing to convert.
+    """
+    apimap = {
+        "v1_backend": {
+            "ratelimits": v1_backend_rl_convert,
+            "contentfilterprofiles": v1_backend_cfp_convert,
+        },
+        "backend_v1": {
+            "ratelimits": backend_v1_rl_convert,
+            "contentfilterprofiles": backend_v1_cfp_convert,
+        },
+    }
+
+    def do_not_convert(document):
+        return document
+
+    convertfunc = pydash.get(apimap, f"{vfrom}_{vto}.{conf_type_name}", do_not_convert)
+    return convertfunc(document)
 
 
 def jblob2bytes(jblob):

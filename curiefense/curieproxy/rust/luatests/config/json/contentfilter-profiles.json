@@ -17,7 +17,7 @@
                     "restrict": false,
                     "mask": false,
                     "exclusions": {
-                        "libinjection": 1
+                        "libinjection": "rule"
                     }
                 }
             ],
@@ -50,7 +50,40 @@
                     "restrict": false,
                     "mask": false,
                     "exclusions": {
-                        "100016": 1
+                        "100016": "rule"
+                    }
+                }
+            ],
+            "names": []
+        },
+        "headers": {
+            "names": [],
+            "regex": []
+        },
+        "cookies": {
+            "names": [],
+            "regex": []
+        }
+    },
+    {
+        "id": "omitted_group",
+        "name": "omit group id 100001",
+        "ignore_alphanum": false,
+        "max_header_length": 1024,
+        "max_cookie_length": 1024,
+        "max_arg_length": 1024,
+        "max_headers_count": 42,
+        "max_cookies_count": 42,
+        "max_args_count": 512,
+        "args": {
+            "regex": [
+                {
+                    "key": ".",
+                    "reg": null,
+                    "restrict": false,
+                    "mask": false,
+                    "exclusions": {
+                        "100001": "group"
                     }
                 }
             ],
@@ -180,7 +213,7 @@
                     "reg": "[v]+[a]{1}l?u*e",
                     "restrict": false,
                     "exclusions": {
-                        "100140": 1
+                        "100140": "rule"
                     }
                 },
                 {
@@ -196,7 +229,7 @@
                     "reg": "[v]+[a]{1}l?u*e",
                     "restrict": false,
                     "exclusions": {
-                        "100140": 1
+                        "100140": "rule"
                     }
                 },
                 {
@@ -214,7 +247,7 @@
                     "reg": "[v]+[a]{1}l?u*e",
                     "restrict": false,
                     "exclusions": {
-                        "100140": 1
+                        "100140": "rule"
                     }
                 },
                 {
@@ -230,7 +263,7 @@
                     "reg": "[v]+[a]{1}l?u*e",
                     "restrict": false,
                     "exclusions": {
-                        "100140": 1
+                        "100140": "rule"
                     }
                 },
                 {
@@ -248,7 +281,7 @@
                     "reg": "[v]+[a]{1}l?u*e",
                     "restrict": false,
                     "exclusions": {
-                        "100140": 1
+                        "100140": "rule"
                     }
                 },
                 {
@@ -264,7 +297,7 @@
                     "reg": "[v]+[a]{1}l?u*e",
                     "restrict": false,
                     "exclusions": {
-                        "100140": 1
+                        "100140": "rule"
                     }
                 },
                 {

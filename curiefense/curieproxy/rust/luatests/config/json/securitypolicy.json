@@ -32,6 +32,15 @@
                 "limit_ids": []
             },
             {
+                "match": "^/content-filter/omitted-group",
+                "name": "content filter omit group tests",
+                "acl_profile": "__default__",
+                "content_filter_profile": "omitted_group",
+                "acl_active": true,
+                "content_filter_active": true,
+                "limit_ids": []
+            },
+            {
                 "match": "^/content-filter/args",
                 "name": "content filter args tests",
                 "acl_profile": "__default__",

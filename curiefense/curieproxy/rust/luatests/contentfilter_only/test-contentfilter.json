@@ -80,6 +80,20 @@
     }
   },
   {
+    "content_filter_id": "omitted_group",
+    "response": {
+      "action": "pass"
+    },
+    "name": "omit sqli group",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "23.5.64.253",
+      ":path": "\/content-filter\/omitted-group?foo=xp_cmdshell",
+      ":method": "GET",
+      ":authority": "localhost:30081"
+    }
+  },
+  {
     "content_filter_id": "omitted",
     "response": {
       "action": "custom_response",

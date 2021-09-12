@@ -12,7 +12,7 @@
                 "mask": { "type": "boolean" },
                 "exclusions": {
                     "type": ["object", "null"],
-                    "additionalProperties": { "type": "integer" }
+                    "additionalProperties": { "type": "string" }
                 }
             }
         }

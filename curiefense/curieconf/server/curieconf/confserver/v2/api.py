@@ -99,6 +99,25 @@ m_contentfilterrule = api.model(
     },
 )
 
+# contentfiltergroup
+
+m_contentfiltergroup = api.model(
+    "Content Filter Group",
+    {
+        "id": fields.String(required=True),
+        "name": fields.String(required=True),
+        "description": fields.String(required=True),
+        "content_filter_rules_ids": fields.List(
+            fields.Nested(m_contentfiltergrouprule)
+        ),
+    },
+)
+
+m_contentfiltergrouprule = api.model(
+    "Content Filter Groups Rule ID",
+    {"*": fields.Wildcard(fields.String)},
+)
+
 # content filter profile
 
 m_contentfilterprofile = api.model(
@@ -178,6 +197,7 @@ models = {
     "ratelimits": m_limit,
     "securitypolicies": m_securitypolicy,
     "contentfilterrules": m_contentfilterrule,
+    "contentfiltergroups": m_contentfiltergroup,
     "contentfilterprofiles": m_contentfilterprofile,
     "aclprofiles": m_aclprofile,
     "globalfilters": m_globalfilter,
@@ -347,6 +367,12 @@ content_filter_rule_file_path = (
 ).resolve()
 with open(content_filter_rule_file_path) as json_file:
     content_filter_rule_schema = json.load(json_file)
+content_filter_groups_file_path = (
+    base_path / "./json/content-filter-groups.schema"
+).resolve()
+with open(content_filter_groups_file_path) as json_file:
+    content_filter_groups_schema = json.load(json_file)
+
 
 schema_type_map = {
     "ratelimits": ratelimits_schema,
@@ -356,6 +382,7 @@ schema_type_map = {
     "globalfilters": globalfilters_schema,
     "flowcontrol": flowcontrol_schema,
     "contentfilterrules": content_filter_rule_schema,
+    "contentfiltergroups": content_filter_groups_schema,
 }
 
 

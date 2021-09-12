@@ -266,11 +266,19 @@ pub struct RawContentFilterEntryMatch {
     pub key: String,
     pub reg: Option<String>,
     pub restrict: bool,
-    pub exclusions: Option<HashMap<String, u64>>,
+    pub exclusions: Option<HashMap<String, String>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct ContentFilterRule {
+pub struct RawContentFilterGroup {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub content_filter_rules_ids: Option<HashMap<String, u64>>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct RawContentFilterRule {
     pub id: String,
     pub name: String,
     pub msg: String,
