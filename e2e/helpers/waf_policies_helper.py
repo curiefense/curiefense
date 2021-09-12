@@ -113,16 +113,81 @@ class WafPoliciesHelper:
         )
         add_waf_rule(
             "abcd",
+            ignore=False,
             cookies_names={
                 "1": {
                     "key": "foobar",
-                    "reg": "aaaaaaaaaa",
+                    "reg": "block_cookie",
                     "restrict": True,
                     "mask": False,
-                    "exclusions": None
+                    "exclusions": None,
                 }
             }
-
+        )
+        add_waf_rule(
+            "bcde",
+            ignore=False,
+            headers_names={
+                "1": {
+                    "key": "foobar",
+                    "reg": "block_header",
+                    "restrict": True,
+                    "mask": False,
+                    "exclusions": None,
+                }
+            }
+        )
+        add_waf_rule(
+            "cdef",
+            ignore=False,
+            args_names={
+                "1": {
+                    "key": "foobar",
+                    "reg": "block_arg",
+                    "restrict": True,
+                    "mask": False,
+                    "exclusions": None,
+                }
+            }
+        )
+        add_waf_rule(
+            "ig_alpha_cook",
+            ignore=True,
+            cookies_names={
+                "1": {
+                    "key": "foobar",
+                    "reg": "block_cookie",
+                    "restrict": True,
+                    "mask": False,
+                    "exclusions": None,
+                }
+            }
+        )
+        add_waf_rule(
+            "ig_alph_head",
+            ignore=True,
+            headers_names={
+                "1": {
+                    "key": "foobar",
+                    "reg": "block_header",
+                    "restrict": True,
+                    "mask": False,
+                    "exclusions": None,
+                }
+            }
+        )
+        add_waf_rule(
+            "ig_alph_arg",
+            ignore=True,
+            args_names={
+                "1": {
+                    "key": "foobar",
+                    "reg": "block_arg",
+                    "restrict": True,
+                    "mask": False,
+                    "exclusions": None,
+                }
+            }
         )
         rl_urlmap = [
             {

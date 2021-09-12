@@ -85,73 +85,91 @@ class TestWAFPolicies:
         else:
             assert response.status_code == 403, f"Got {response.status_code} instead of 403"
 
-    # def test_cookie_name_whitelist_bypass_length(self, target):
-    #     response = target.query(
-    #         "/abcd",
-    #         **{"cookies": {"foobarr": "bbgfgfg"}}
-    #     )
-    #     assert response.status_code == 200, f"Response not 200 despite overlong header whitelisted"
+    @pytest.mark.parametrize("uri, sect, block_name, pass_name", [("abcd", "cookies", "sasa", "block_cookie"),
+                                                                  ("bcde", "headers", "erer", "block_header"),
+                                                                  ("cdef", "params", "bnbnb", "block_arg")])
+    def test_block_cookie_header_arg_by_name(self, target, uri, sect, block_name, pass_name):
+        response = target.query(
+            f"/{uri}",
+            **{sect: {"foobar": block_name}}
+        )
+        assert response.status_code == 403, f"Response not 403 despite {sect} does not match pattern"
+        response = target.query(
+            f"/{uri}",
+            **{sect: {"foobar": pass_name}}
+        )
+        assert response.status_code == 200, f"Response not 200 despite {sect} matches pattern"
+
+    @pytest.mark.parametrize("uri, sect, block_name", [("ig_alpha_cook", "cookies", "sasa"),
+                                                       ("ig_alph_head", "headers", "erer"),
+                                                       ("ig_alph_arg", "params", "bnbnb")])
+    def test_ignore_alphanumeric(self, target, uri, sect, block_name):
+        response = target.query(
+            f"/{uri}",
+            **{sect: {"foobar": block_name}}
+        )
+        assert response.status_code == 200, "Response not 200 despite ignore alphanumeric is True"
+
 
     def test_allowlisted_value(
             self, section, name_regex, restrict, target
-        ):
-            paramname = name_regex + "-" + restrict
-            assert target.is_reachable(
-                f"/allowlisted-value-{paramname}", **{section: {paramname: "value"}}
-            ), f"Not reachable despite allowlisted {section} value"
-
+    ):
+        paramname = name_regex + "-" + restrict
+        assert target.is_reachable(
+            f"/allowlisted-value-{paramname}", **{section: {paramname: "value"}}
+        ), f"Not reachable despite allowlisted {section} value"
 
 # @pytest.mark.usefixtures('api_setup', 'waf_test_config')
 # @pytest.mark.waf_policies_tests
 # @pytest.mark.all_modules
 # class TestWAFParamsConstraints:
 
-    # def test_allowlisted_value(
-    #     self, section, name_regex, restrict, target
-    # ):
-    #     paramname = name_regex + "-" + restrict
-    #     assert target.is_reachable(
-    #         f"/allowlisted-value-{paramname}", **{section: {paramname: "value"}}
-    #     ), f"Not reachable despite allowlisted {section} value"
-    #
-    # def test_non_allowlisted_value_restrict(
-    #     self, section, name_regex, target, ignore_alphanum
-    # ):
-    #     paramname = name_regex + "-restrict"
-    #     if ignore_alphanum:
-    #         assert target.is_reachable(
-    #             f"/blocklisted-value-{paramname}-restrict-ignore_alphanum",
-    #             **{section: {paramname: "invalid"}},
-    #         ), f"Not reachable despite alphanum blocklisted {section} value (restrict is enabled)"
-    #     else:
-    #         assert not target.is_reachable(
-    #             f"/blocklisted-value-{paramname}-restrict",
-    #             **{section: {paramname: "invalid"}},
-    #         ), f"Reachable despite blocklisted {section} value (restrict is enabled)"
-    # #
-    # def test_non_allowlisted_value_norestrict_nowafmatch(
-    #     self, section, name_regex, target
-    # ):
-    #     paramname = name_regex + "-norestrict"
-    #     assert target.is_reachable(
-    #         f"/blocklisted-value-{paramname}", **{section: {paramname: "invalid"}}
-    #     ), f"Not reachable despite 'restricted' not checked (non-matching {section} value)"
-    #
-    # def test_non_allowlisted_value_norestrict_wafmatch(
-    #     self, section, name_regex, target
-    # ):
-    #     paramname = name_regex + "-norestrict"
-    #     assert not target.is_reachable(
-    #         f"/blocklisted-value-{paramname}-wafmatch",
-    #         **{section: {paramname: "../../../../../"}},
-    #     ), f"Reachable despite matching wafsig 100116 (non-matching {section} value)"
-    #
-    # def test_non_allowlisted_value_norestrict_wafmatch_excludesig(
-    #     self, section, name_regex, target
-    # ):
-    #     paramname = name_regex + "-norestrict"
-    #     assert target.is_reachable(
-    #         f"/blocklisted-value-{paramname}-wafmatch-excludedsig",
-    #         **{section: {paramname: "htaccess"}},
-    #     ), f"Not reachable despite excludesig for rule 100140 ({section} value)"
-    #
+# def test_allowlisted_value(
+#     self, section, name_regex, restrict, target
+# ):
+#     paramname = name_regex + "-" + restrict
+#     assert target.is_reachable(
+#         f"/allowlisted-value-{paramname}", **{section: {paramname: "value"}}
+#     ), f"Not reachable despite allowlisted {section} value"
+#
+# def test_non_allowlisted_value_restrict(
+#     self, section, name_regex, target, ignore_alphanum
+# ):
+#     paramname = name_regex + "-restrict"
+#     if ignore_alphanum:
+#         assert target.is_reachable(
+#             f"/blocklisted-value-{paramname}-restrict-ignore_alphanum",
+#             **{section: {paramname: "invalid"}},
+#         ), f"Not reachable despite alphanum blocklisted {section} value (restrict is enabled)"
+#     else:
+#         assert not target.is_reachable(
+#             f"/blocklisted-value-{paramname}-restrict",
+#             **{section: {paramname: "invalid"}},
+#         ), f"Reachable despite blocklisted {section} value (restrict is enabled)"
+# #
+# def test_non_allowlisted_value_norestrict_nowafmatch(
+#     self, section, name_regex, target
+# ):
+#     paramname = name_regex + "-norestrict"
+#     assert target.is_reachable(
+#         f"/blocklisted-value-{paramname}", **{section: {paramname: "invalid"}}
+#     ), f"Not reachable despite 'restricted' not checked (non-matching {section} value)"
+#
+# def test_non_allowlisted_value_norestrict_wafmatch(
+#     self, section, name_regex, target
+# ):
+#     paramname = name_regex + "-norestrict"
+#     assert not target.is_reachable(
+#         f"/blocklisted-value-{paramname}-wafmatch",
+#         **{section: {paramname: "../../../../../"}},
+#     ), f"Reachable despite matching wafsig 100116 (non-matching {section} value)"
+#
+# def test_non_allowlisted_value_norestrict_wafmatch_excludesig(
+#     self, section, name_regex, target
+# ):
+#     paramname = name_regex + "-norestrict"
+#     assert target.is_reachable(
+#         f"/blocklisted-value-{paramname}-wafmatch-excludedsig",
+#         **{section: {paramname: "htaccess"}},
+#     ), f"Not reachable despite excludesig for rule 100140 ({section} value)"
+#
