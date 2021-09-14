@@ -1,6 +1,6 @@
 import pytest
 from e2e.core.base_helper import cli, target, section, BaseHelper
-from e2e.helpers.tag_rules_helper import tagrules_config, active, TagRulesHelper
+from e2e.helpers.tag_rules_helper_copy import tagrules_config, active, TagRulesHelper
 from e2e.helpers.acl_helper import acl
 
 
