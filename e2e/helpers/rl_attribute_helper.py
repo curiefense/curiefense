@@ -62,143 +62,143 @@ class RateLimitCookieHelper:
         # RL scope
         add_rl_rule(
             path="test_503_action_path_attribute_count_by_ip",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "path"}),
             key=[{"attrs": 'ip'}]
         ),
         add_rl_rule(
             path="test_503_action_path_attribute_count_by_asn",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "path"}),
             key=[{"attrs": 'asn'}]
         ),
         add_rl_rule(
             path="test_503_action_path_attribute_count_by_path",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "path"}),
             key=[{"attrs": 'query'}]
         ),
         add_rl_rule(
             path="test_503_action_path_attribute_count_by_country",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "path"}),
             key=[{"attrs": 'country'}]
         ),
         add_rl_rule(
             path="test_503_action_path_attribute_count_by_company",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "path"}),
             key=[{"attrs": 'company'}]
         ),
         add_rl_rule(
             path="test_503_action_path_attribute_count_by_method",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "path"}),
             key=[{"attrs": 'method'}]
         ),
         add_rl_rule(
             path="test_503_action_path_attribute_count_by_authority",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "path"}),
             key=[{"attrs": 'authority'}]
         ),
         add_rl_rule(
             path="test_503_action_uri_attribute_count_by_ip",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "uri"}),
             key=[{"attrs": 'ip'}]
         ),
         add_rl_rule(
             path="test_503_action_uri_attribute_count_by_asn",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "uri"}),
             key=[{"attrs": 'asn'}]
         ),
         add_rl_rule(
             path="test_503_action_uri_attribute_count_by_path",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "uri"}),
             key=[{"attrs": 'query'}]
         ),
         add_rl_rule(
             path="test_503_action_uri_attribute_count_by_country",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "uri"}),
             key=[{"attrs": 'country'}]
         ),
         add_rl_rule(
             path="test_503_action_uri_attribute_count_by_company",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "uri"}),
             key=[{"attrs": 'company'}]
         ),
         add_rl_rule(
             path="test_503_action_uri_attribute_count_by_method",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "uri"}),
             key=[{"attrs": 'method'}]
         ),
         add_rl_rule(
             path="test_503_action_uri_attribute_count_by_authority",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "uri"}),
             key=[{"attrs": 'authority'}]
         ),
 
         add_rl_rule(
             path="test_503_action_query_attribute_count_by_ip",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "query"}),
             key=[{"attrs": 'ip'}]
         ),
         add_rl_rule(
             path="test_503_action_query_attribute_count_by_asn",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "query"}),
             key=[{"attrs": 'asn'}]
         ),
 
         add_rl_rule(
             path="test_503_action_query_attribute_count_by_country",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "query"}),
             key=[{"attrs": 'country'}]
         ),
         add_rl_rule(
             path="test_503_action_query_attribute_count_by_company",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "query"}),
             key=[{"attrs": 'company'}]
         ),
         add_rl_rule(
             path="test_503_action_query_attribute_count_by_method",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "query"}),
             key=[{"attrs": 'method'}]
         ),
         add_rl_rule(
             path="test_503_action_query_attribute_count_by_authority",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "query"}),
             key=[{"attrs": 'authority'}]
         ),
@@ -207,219 +207,219 @@ class RateLimitCookieHelper:
 
         add_rl_rule(
             path="test_503_action_ipv4_attribute_count_by_path",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'path'}]
         ),
         add_rl_rule(
             path="test_503_action_ipv4_attribute_count_by_method",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'method'}]
         ),
         add_rl_rule(
             path="test_503_action_ipv4_attribute_count_by_uri",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'uri'}]
         ),
         add_rl_rule(
             path="test_503_action_ipv4_attribute_count_by_query",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'query'}]
         ),
         add_rl_rule(
             path="test_503_action_ipv4_attribute_count_by_country",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'country'}]
         ),
         add_rl_rule(
             path="test_503_action_ipv4_attribute_count_by_company",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'company'}]
         ),
         add_rl_rule(
             path="test_503_action_ipv4_attribute_count_by_asn",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'asn'}]
         ),
         add_rl_rule(
             path="test_503_action_ipv4_attribute_count_by_query",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'query'}]
         ),
         add_rl_rule(
             path="test_503_action_ipv4_attribute_count_by_authority",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'authority'}]
         ),
 
         add_rl_rule(
             path="test_503_action_ipv6_attribute_count_by_path",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'path'}]
         ),
         add_rl_rule(
             path="test_503_action_ipv6_attribute_count_by_method",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'method'}]
         ),
         add_rl_rule(
             path="test_503_action_ipv6_attribute_count_by_uri",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'uri'}]
         ),
         add_rl_rule(
             path="test_503_action_ipv6_attribute_count_by_query",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'query'}]
         ),
         add_rl_rule(
             path="test_503_action_ipv6_attribute_count_by_company",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'company'}]
         ),
         add_rl_rule(
             path="test_503_action_ipv6_attribute_count_by_asn",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'asn'}]
         ),
         add_rl_rule(
             path="test_503_action_ipv6_attribute_count_by_authority",
-            ttl=3,
-            limit=8,
+            ttl=5,
+            limit=3,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'authority'}]
         ),
 
         add_rl_rule(
             path="test_503_action_asn_attribute_count_by_path",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'path'}]
         ),
         add_rl_rule(
             path="test_503_action_asn_attribute_count_by_uri",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'uri'}]
         ),
         add_rl_rule(
             path="test_503_action_asn_attribute_count_by_query",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'query'}]
         ),
         add_rl_rule(
             path="test_503_action_asn_attribute_count_by_method",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'method'}]
         ),
         add_rl_rule(
             path="test_503_action_asn_attribute_count_by_authority",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'authority'}]
         ),
         add_rl_rule(
             path="test_503_action_company_attribute_count_by_path",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'path'}]
         ),
         add_rl_rule(
             path="test_503_action_company_attribute_count_by_query",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'query'}]
         ),
         add_rl_rule(
             path="test_503_action_company_attribute_count_by_uri",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'uri'}]
         ),
         add_rl_rule(
             path="test_503_action_company_attribute_count_by_method",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'method'}]
         ),
         add_rl_rule(
             path="test_503_action_company_attribute_count_by_authority",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'authority'}]
         ),
         add_rl_rule(
             path="test_503_action_country_attribute_count_by_path",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'path'}]
         ),
         add_rl_rule(
             path="test_503_action_country_attribute_count_by_query",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'query'}]
         ),
         add_rl_rule(
             path="test_503_action_country_attribute_count_by_uri",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'uri'}]
         ),
         add_rl_rule(
             path="test_503_action_country_attribute_count_by_method",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'method'}]
         ),
         add_rl_rule(
             path="test_503_action_country_attribute_count_by_authority",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'authority'}]
@@ -427,119 +427,119 @@ class RateLimitCookieHelper:
 
         add_rl_rule(
             path="test_503_action_method_attribute_count_by_ip",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "method"}),
             key=[{"attrs": 'ip'}]
         ),
         add_rl_rule(
             path="test_503_action_method_attribute_count_by_path",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "method"}),
             key=[{"attrs": 'path'}]
         ),
         add_rl_rule(
             path="test_503_action_method_attribute_count_by_uri",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "method"}),
             key=[{"attrs": 'uri'}]
         ),
         add_rl_rule(
             path="test_503_action_method_attribute_count_by_asn",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "method"}),
             key=[{"attrs": 'asn'}]
         ),
         add_rl_rule(
             path="test_503_action_method_attribute_count_by_query",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "method"}),
             key=[{"attrs": 'query'}]
         ),
         add_rl_rule(
             path="test_503_action_method_attribute_count_by_company",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "method"}),
             key=[{"attrs": 'company'}]
         ),
         add_rl_rule(
             path="test_503_action_method_attribute_count_by_country",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "method"}),
             key=[{"attrs": 'country'}]
         ),
         add_rl_rule(
             path="test_503_action_method_attribute_count_by_authority",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "method"}),
             key=[{"attrs": 'authority'}]
         ),
         add_rl_rule(
             path="test_503_action_authority_attribute_count_by_ip",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "authority"}),
             key=[{"attrs": 'ip'}]
         ),
         add_rl_rule(
             path="test_503_action_authority_attribute_count_by_path",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "authority"}),
             key=[{"attrs": 'path'}]
         ),
         add_rl_rule(
             path="test_503_action_authority_attribute_count_by_uri",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "authority"}),
             key=[{"attrs": 'uri'}]
         ),
         add_rl_rule(
             path="test_503_action_authority_attribute_count_by_query",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "authority"}),
             key=[{"attrs": 'query'}]
         ),
         add_rl_rule(
             path="test_503_action_authority_attribute_count_by_asn",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "authority"}),
             key=[{"attrs": 'asn'}]
         ),
         add_rl_rule(
             path="test_503_action_authority_attribute_count_by_country",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "authority"}),
             key=[{"attrs": 'country'}]
         ),
         add_rl_rule(
             path="test_503_action_authority_attribute_count_by_method",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "authority"}),
             key=[{"attrs": 'method'}]
         ),
         add_rl_rule(
             path="test_503_action_authority_attribute_count_by_company",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "authority"}),
             key=[{"attrs": 'company'}]
         ),
         add_rl_rule(
             path="test_challenge_action_ip_attribute_count_by_path",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'path'}],
@@ -547,7 +547,7 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_challenge_action_ip_attribute_count_by_uri",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'uri'}],
@@ -555,7 +555,7 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_challenge_action_ip_attribute_count_by_query",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'query'}],
@@ -563,7 +563,7 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_challenge_action_ip_attribute_count_by_method",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'method'}],
@@ -571,7 +571,7 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_challenge_action_ip_attribute_count_by_authority",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "ip"}),
             key=[{"attrs": 'authority'}],
@@ -579,7 +579,7 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_chl_action_asn_attr_count_by_path",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'path'}],
@@ -587,7 +587,7 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_chl_action_asn_attr_count_by_uri",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'uri'}],
@@ -595,7 +595,7 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_chl_action_asn_attr_count_by_query",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'query'}],
@@ -603,7 +603,7 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_chl_action_asn_attr_count_by_method",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'method'}],
@@ -611,7 +611,7 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_chl_action_asn_attr_count_by_auth",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "asn"}),
             key=[{"attrs": 'authority'}],
@@ -1022,11 +1022,11 @@ class RateLimitCookieHelper:
         ),
         add_rl_rule(
             path="test_ban_action_by_company_sub_503_count_path",
-            ttl=3,
+            ttl=4,
             limit=2,
             pairwith=({"attrs": "company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"ttl": str(5)},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(

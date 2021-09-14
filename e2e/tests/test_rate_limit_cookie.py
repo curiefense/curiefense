@@ -13,56 +13,56 @@ class TestRateLimitCookie:
     #  Action: 503  | Event: Cookie | Count: Ip
     def test_503_action_event_cookie_count_by_ip(self, target):
         params = [{"cookies": {"cookie_event_503_ip": f"val-{i}"}} for i in range(3 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_cookie_count_by_ip", 2,
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_cookie_count_by_ip", 3,
                                                                  3, params)
 
     #  Action: 503  | Event: Cookie | Count: Path
     def test_503_action_event_cookie_count_by_path(self, target):
         params = [{"cookies": {"cookie_event_503_path": f"val-{i}"}} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_cookie_count_by_path",
-                                                                 2, 3, params)
+                                                                 3, 3, params)
 
     #  Action: 503  | Event: Cookie | Count: Uri
     def test_503_action_event_cookie_count_by_uri(self, target):
         params = [{"cookies": {"cookie_event_503_uri": f"val-{i}"}} for i in range(3 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_cookie_count_by_uri", 2,
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_cookie_count_by_uri", 3,
                                                                  3, params)
 
     #  Action: 503  | Event: Cookie | Count: Asn
     def test_503_action_event_cookie_count_by_asn(self, target):
         params = [{"cookies": {"cookie_event_503_asn": f"val-{i}"}} for i in range(3 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_cookie_count_by_asn", 2,
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_cookie_count_by_asn", 3,
                                                                  3, params)
 
     #  Action: 503  | Event: Cookie | Count: Query
     def test_503_action_event_cookie_count_by_query(self, target):
         params = [{"cookies": {"cookie_event_503_query": f"val-{i}"}} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_cookie_count_by_query",
-                                                                 2, 3, params)
+                                                                 3, 3, params)
 
     #  Action: 503  | Event: Cookie | Count: Method
     def test_503_action_event_cookie_count_by_method(self, target):
         params = [{"cookies": {"cookie_event_503_method": f"val-{i}"}} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_cookie_count_by_method",
-                                                                 2, 3, params)
+                                                                 3, 3, params)
 
     #  Action: 503  | Event: Cookie | Count: Company
     def test_503_action_event_cookie_count_by_company(self, target):
         params = [{"cookies": {"cookie_event_503_company": f"val-{i}"}} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_cookie_count_by_company",
-                                                                 2, 3, params)
+                                                                 3, 3, params)
 
     #  Action: 503  | Event: Cookie | Count: Country
     def test_503_action_event_cookie_count_by_country(self, target):
         params = [{"cookies": {"cookie_event_503_country": f"val-{i}"}} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_cookie_count_by_country",
-                                                                 2, 3, params)
+                                                                 3, 3, params)
 
     #  Action: 503  | Event: Cookie | Count: Authority
     def test_503_action_event_cookie_count_by_authority(self, target):
         params = [{"cookies": {"cookie_event_503_authority": f"val-{i}"}} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_503_action_cookie_count_by_authority",
-                                                                 2, 3, params)
+                                                                 3, 3, params)
 
     #  Action: Tag only  | Event: Cookie | Count: Ip
     def test_tag_only_action_event_cookie_count_by_ip(self, target, log_fixture):
@@ -178,9 +178,9 @@ class TestRateLimitCookie:
 
     #  Action: Response  | Event: Cookie | Count: Authority
     def test_response_action_event_cookie_count_by_authority(self, cli, target):
-        params = [{"cookies": {"cookie_event_res_authority": f"val-{i}"}} for i in range(5 + 2)]
+        params = [{"cookies": {"cookie_event_res_authority": f"val-{i}"}} for i in range(2 + 2)]
         RateLimitHelper.check_rl_response_action_with_params(target, "test_res_cookie_authority",
-                                                             "response_body_authority", "302", 3, 5, params)
+                                                             "response_body_authority", "302", 4, 2, params)
 
     #  Action: Challenge  | Event: Cookie | Count: Ip
     def test_challenge_action_event_cookie_count_by_ip(self, cli, target):
@@ -190,8 +190,8 @@ class TestRateLimitCookie:
 
     #  Action: Challenge  | Event: Cookie | Count: Uri
     def test_challenge_action_event_cookie_count_by_uri(self, cli, target):
-        params = [{"cookies": {"cookie_event_chl_uri": f"val-{i}"}} for i in range(5 + 2)]
-        RateLimitHelper.check_rate_limit_challenge_action_with_params(target, "test_challenge_cookie_uri", 4, 5,
+        params = [{"cookies": {"cookie_event_chl_uri": f"val-{i}"}} for i in range(2 + 2)]
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target, "test_challenge_cookie_uri", 4, 2,
                                                                       params)
 
     #  Action: Challenge  | Event: Cookie | Count: Query
@@ -202,14 +202,14 @@ class TestRateLimitCookie:
 
     #  Action: Challenge  | Event: Cookie | Count: Path
     def test_challenge_action_event_cookie_count_by_path(self, cli, target):
-        params = [{"cookies": {"cookie_event_chl_path": f"val-{i}"}} for i in range(5 + 2)]
-        RateLimitHelper.check_rate_limit_challenge_action_with_params(target, "test_challenge_cookie_path", 4, 5,
+        params = [{"cookies": {"cookie_event_chl_path": f"val-{i}"}} for i in range(2 + 2)]
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target, "test_challenge_cookie_path", 4, 2,
                                                                       params)
 
     #  Action: Challenge  | Event: Cookie | Count: Asn
     def test_challenge_action_event_cookie_count_by_asn(self, cli, target):
-        params = [{"cookies": {"cookie_event_chl_asn": f"val-{i}"}} for i in range(5 + 2)]
-        RateLimitHelper.check_rate_limit_challenge_action_with_params(target, "test_challenge_cookie_asn", 4, 5,
+        params = [{"cookies": {"cookie_event_chl_asn": f"val-{i}"}} for i in range(2 + 2)]
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target, "test_challenge_cookie_asn", 4, 2,
                                                                       params)
 
     #  Action: Challenge  | Event: Cookie | Count: Method
@@ -220,44 +220,44 @@ class TestRateLimitCookie:
 
     #  Action: Challenge  | Event: Cookie | Count: Company
     def test_challenge_action_event_cookie_count_by_company(self, cli, target):
-        params = [{"cookies": {"cookie_event_chl_company": f"val-{i}"}} for i in range(5 + 2)]
-        RateLimitHelper.check_rate_limit_challenge_action_with_params(target, "test_challenge_cookie_company", 4, 5,
+        params = [{"cookies": {"cookie_event_chl_company": f"val-{i}"}} for i in range(2 + 2)]
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target, "test_challenge_cookie_company", 4, 2,
                                                                       params)
 
     #  Action: Challenge  | Event: Cookie | Count: Country
     def test_challenge_action_event_cookie_count_by_country(self, cli, target):
-        params = [{"cookies": {"cookie_event_chl_country": f"val-{i}"}} for i in range(5 + 2)]
-        RateLimitHelper.check_rate_limit_challenge_action_with_params(target, "test_challenge_cookie_country", 4, 5,
+        params = [{"cookies": {"cookie_event_chl_country": f"val-{i}"}} for i in range(2 + 2)]
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target, "test_challenge_cookie_country", 4, 2,
                                                                       params)
 
     #  Action: Challenge  | Event: Cookie | Count: Authority
     def test_challenge_action_event_cookie_count_by_authority(self, cli, target):
-        params = [{"cookies": {"cookie_event_chl_authority": f"val-{i}"}} for i in range(5 + 2)]
-        RateLimitHelper.check_rate_limit_challenge_action_with_params(target, "test_challenge_cookie_authority", 4, 5,
+        params = [{"cookies": {"cookie_event_chl_authority": f"val-{i}"}} for i in range(2 + 2)]
+        RateLimitHelper.check_rate_limit_challenge_action_with_params(target, "test_challenge_cookie_authority", 4, 2,
                                                                       params)
 
     #  Action: Redirect  | Event: Cookie | Count: Ip
     def test_redirect_action_event_cookie_count_by_ip(self, cli, target):
-        params = [{"cookies": {"cookie_event_red_ip": f"val-{i}"}} for i in range(3 + 2)]
-        RateLimitHelper.check_rl_redirect_action_with_params(target, "test_redirect_cookie_ip", "200", 3, 3,
+        params = [{"cookies": {"cookie_event_red_ip": f"val-{i}"}} for i in range(2 + 2)]
+        RateLimitHelper.check_rl_redirect_action_with_params(target, "test_redirect_cookie_ip", "200", 4, 2,
                                                              "https://yahoo.com", params)
 
     #  Action: Redirect  | Event: Cookie | Count: Uri
     def test_redirect_action_event_cookie_count_by_uri(self, cli, target):
-        params = [{"cookies": {"cookie_event_red_uri": f"val-{i}"}} for i in range(3 + 2)]
-        RateLimitHelper.check_rl_redirect_action_with_params(target, "test_redirect_cookie_uri", "200", 3, 3,
+        params = [{"cookies": {"cookie_event_red_uri": f"val-{i}"}} for i in range(2 + 2)]
+        RateLimitHelper.check_rl_redirect_action_with_params(target, "test_redirect_cookie_uri", "200", 4, 2,
                                                              "https://yahoo.com", params)
 
     #  Action: Redirect  | Event: Cookie | Count: Query
     def test_redirect_action_event_cookie_count_by_query(self, cli, target):
         params = [{"cookies": {"cookie_event_red_query": f"val-{i}"}} for i in range(3 + 2)]
-        RateLimitHelper.check_rl_redirect_action_with_params(target, "test_redirect_cookie_query", "200", 3, 3,
+        RateLimitHelper.check_rl_redirect_action_with_params(target, "test_redirect_cookie_query", "200", 5, 3,
                                                              "https://yahoo.com", params)
 
     #  Action: Redirect  | Event: Cookie | Count: Path
     def test_redirect_action_event_cookie_count_by_path(self, cli, target):
         params = [{"cookies": {"cookie_event_red_path": f"val-{i}"}} for i in range(3 + 2)]
-        RateLimitHelper.check_rl_redirect_action_with_params(target, "test_redirect_cookie_path", "200", 3, 3,
+        RateLimitHelper.check_rl_redirect_action_with_params(target, "test_redirect_cookie_path", "200", 4, 3,
                                                              "https://yahoo.com", params)
 
     #  Action: Redirect  | Event: Cookie | Count: Asn
@@ -298,15 +298,15 @@ class TestRateLimitCookie:
 
     #  Action: Redirect | Subaction: 503 | Event: Cookie | Count: Uri
     def test_ban_action_event_cookie_subaction_503_count_by_uri(self, cli, target):
-        params = [{"cookies": {"cookie_event_ban_503_uri": f"val-{i}"}} for i in range(4 + 2)]
-        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_cookie_sub_503_count_by_uri", 4, 4,
+        params = [{"cookies": {"cookie_event_ban_503_uri": f"val-{i}"}} for i in range(2 + 2)]
+        RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_cookie_sub_503_count_by_uri", 4, 2,
                                                                  params)
 
     #  Action: Redirect | Subaction: 503 | Event: Cookie | Count: Query
     def test_ban_action_event_cookie_subaction_503_count_by_query(self, cli, target):
-        params = [{"cookies": {"cookie_event_ban_503_query": f"val-{i}"}} for i in range(4 + 2)]
+        params = [{"cookies": {"cookie_event_ban_503_query": f"val-{i}"}} for i in range(2 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_cookie_sub_503_count_by_query", 4,
-                                                                 4, params)
+                                                                 2, params)
 
     #  Action: Redirect | Subaction: 503 | Event: Cookie | Count: Path
     def test_ban_action_event_cookie_subaction_503_count_by_path(self, cli, target):
@@ -316,67 +316,67 @@ class TestRateLimitCookie:
 
     #  Action: Redirect | Subaction: 503 | Event: Cookie | Count: Asn
     def test_ban_action_event_cookie_subaction_503_count_by_asn(self, cli, target):
-        params = [{"cookies": {"cookie_event_ban_503_asn": f"val-{i}"}} for i in range(4 + 2)]
+        params = [{"cookies": {"cookie_event_ban_503_asn": f"val-{i}"}} for i in range(2 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_cookie_sub_503_count_by_asn", 4,
-                                                                 4, params)
+                                                                 2, params)
 
     #  Action: Redirect | Subaction: 503 | Event: Cookie | Count: Method
     def test_ban_action_event_cookie_subaction_503_count_by_method(self, cli, target):
-        params = [{"cookies": {"cookie_event_ban_503_method": f"val-{i}"}} for i in range(4 + 2)]
+        params = [{"cookies": {"cookie_event_ban_503_method": f"val-{i}"}} for i in range(2 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_cookie_sub_503_count_by_method", 4,
-                                                                 4, params)
+                                                                 2, params)
 
     #  Action: Redirect | Subaction: 503 | Event: Cookie | Count: Company
     def test_ban_action_event_cookie_subaction_503_count_by_company(self, cli, target):
-        params = [{"cookies": {"cookie_event_ban_503_company": f"val-{i}"}} for i in range(4 + 2)]
+        params = [{"cookies": {"cookie_event_ban_503_company": f"val-{i}"}} for i in range(2 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_cookie_sub_503_count_by_company", 4,
-                                                                 4, params)
+                                                                 2, params)
 
     #  Action: Redirect | Subaction: 503 | Event: Cookie | Count: Country
     def test_ban_action_event_cookie_subaction_503_count_by_country(self, cli, target):
-        params = [{"cookies": {"cookie_event_ban_503_country": f"val-{i}"}} for i in range(4 + 2)]
+        params = [{"cookies": {"cookie_event_ban_503_country": f"val-{i}"}} for i in range(2 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_cookie_sub_503_count_by_country", 4,
-                                                                 4, params)
+                                                                 2, params)
 
     #  Action: Redirect | Subaction: 503 | Event: Cookie | Count: Authority
     def test_ban_action_event_cookie_subaction_503_count_by_authority(self, cli, target):
-        params = [{"cookies": {"cookie_event_ban_503_authority": f"val-{i}"}} for i in range(4 + 2)]
+        params = [{"cookies": {"cookie_event_ban_503_authority": f"val-{i}"}} for i in range(2 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target, "test_ban_cookie_sub_503_count_by_authority",
-                                                                 4, 4, params)
+                                                                 4, 2, params)
 
     #  Action: Redirect | Subaction: Challenge | Event: Cookie | Count: Ip
     def test_ban_action_event_cookie_subaction_challenge_count_by_ip(self, cli, target):
-        params = [{"cookies": {"cookie_event_ban_chl_ip": f"val-{i}"}} for i in range(5 + 2)]
+        params = [{"cookies": {"cookie_event_ban_chl_ip": f"val-{i}"}} for i in range(2 + 2)]
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
-                                                                      "test_ban_cookie_sub_chl_count_by_ip", 6, 5,
+                                                                      "test_ban_cookie_sub_chl_count_by_ip", 6, 2,
                                                                       params)
 
     #  Action: Redirect | Subaction: Challenge | Event: Cookie | Count: Uri
     def test_ban_action_event_cookie_subaction_challenge_count_by_uri(self, cli, target):
-        params = [{"cookies": {"cookie_event_ban_chl_uri": f"val-{i}"}} for i in range(5 + 2)]
+        params = [{"cookies": {"cookie_event_ban_chl_uri": f"val-{i}"}} for i in range(2 + 2)]
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
-                                                                      "test_ban_cookie_sub_chl_count_by_uri", 6, 5,
+                                                                      "test_ban_cookie_sub_chl_count_by_uri", 6, 2,
                                                                       params)
 
     #  Action: Redirect | Subaction: Challenge | Event: Cookie | Count: Query
     def test_ban_action_event_cookie_subaction_challenge_count_by_query(self, cli, target):
-        params = [{"cookies": {"cookie_event_ban_chl_query": f"val-{i}"}} for i in range(5 + 2)]
+        params = [{"cookies": {"cookie_event_ban_chl_query": f"val-{i}"}} for i in range(2 + 2)]
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
-                                                                      "test_ban_cookie_sub_chl_count_by_query", 6, 5,
+                                                                      "test_ban_cookie_sub_chl_count_by_query", 6, 2,
                                                                       params)
 
     #  Action: Redirect | Subaction: Challenge | Event: Cookie | Count: Path
     def test_ban_action_event_cookie_subaction_challenge_count_by_path(self, cli, target):
-        params = [{"cookies": {"cookie_event_ban_chl_path": f"val-{i}"}} for i in range(5 + 2)]
+        params = [{"cookies": {"cookie_event_ban_chl_path": f"val-{i}"}} for i in range(2 + 2)]
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
-                                                                      "test_ban_cookie_sub_chl_count_by_path", 6, 5,
+                                                                      "test_ban_cookie_sub_chl_count_by_path", 6, 2,
                                                                       params)
 
     #  Action: Redirect | Subaction: Challenge | Event: Cookie | Count: Asn
     def test_ban_action_event_cookie_subaction_challenge_count_by_asn(self, cli, target):
-        params = [{"cookies": {"cookie_event_ban_chl_asn": f"val-{i}"}} for i in range(5 + 2)]
+        params = [{"cookies": {"cookie_event_ban_chl_asn": f"val-{i}"}} for i in range(2 + 2)]
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
-                                                                      "test_ban_cookie_sub_chl_count_by_asn", 6, 5,
+                                                                      "test_ban_cookie_sub_chl_count_by_asn", 6, 2,
                                                                       params)
 
     #  Action: Redirect | Subaction: Challenge | Event: Cookie | Count: Method
@@ -402,10 +402,10 @@ class TestRateLimitCookie:
 
     #  Action: Redirect | Subaction: Challenge | Event: Cookie | Count: Authority
     def test_ban_action_event_cookie_subaction_challenge_count_by_authority(self, cli, target):
-        params = [{"cookies": {"cookie_event_ban_chl_authority": f"val-{i}"}} for i in range(5 + 2)]
+        params = [{"cookies": {"cookie_event_ban_chl_authority": f"val-{i}"}} for i in range(2 + 2)]
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
                                                                       "test_ban_cookie_sub_chl_count_by_authority",
-                                                                      6, 5, params)
+                                                                      5, 2, params)
 
     #  Action: Redirect | Subaction: Tag only | Event: Cookie | Count: Ip
     def test_ban_action_event_cookie_subaction_tag_only_count_by_ip(self, cli, target, log_fixture):

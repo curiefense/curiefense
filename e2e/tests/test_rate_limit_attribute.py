@@ -12,194 +12,194 @@ class TestRateLimitAttribute:
 
     #  Action: 503  | Event: Attribute-Path | Count: Ip
     def test_503_action_event_path_attribute_count_by_ip(self, target):
-        RateLimitHelper.check_503_response_change_path(target, "test_503_action_path_attribute_count_by_ip/", 3, 8)
+        RateLimitHelper.check_503_response_change_path(target, "test_503_action_path_attribute_count_by_ip/", 5, 3)
 
     #  Action: 503  | Event: Attribute-Path | Count: Asn
     def test_503_action_event_path_attribute_count_by_asn(self, target):
-        RateLimitHelper.check_503_response_change_path(target, "test_503_action_path_attribute_count_by_asn/", 3, 8)
+        RateLimitHelper.check_503_response_change_path(target, "test_503_action_path_attribute_count_by_asn/", 5, 3)
 
     #  Action: 503  | Event: Attribute-Path | Count: Path
     def test_503_action_event_path_attribute_count_by_path(self, target):
-        RateLimitHelper.check_503_response_change_path(target, "test_503_action_path_attribute_count_by_path/", 3, 8)
+        RateLimitHelper.check_503_response_change_path(target, "test_503_action_path_attribute_count_by_path/", 5, 3)
 
     #  Action: 503  | Event: Attribute-Path | Count: Method
     def test_503_action_event_path_attribute_count_by_method(self, target):
-        RateLimitHelper.check_503_response_change_path(target, "test_503_action_path_attribute_count_by_method/", 3, 8)
+        RateLimitHelper.check_503_response_change_path(target, "test_503_action_path_attribute_count_by_method/", 5, 3)
 
     #  Action: 503  | Event: Attribute-Path | Count: Company
     def test_503_action_event_path_attribute_count_by_company(self, target):
-        RateLimitHelper.check_503_response_change_path(target, "test_503_action_path_attribute_count_by_company/", 3, 8)
+        RateLimitHelper.check_503_response_change_path(target, "test_503_action_path_attribute_count_by_company/", 5, 3)
 
     #  Action: 503  | Event: Attribute-Path | Count: Country
     def test_503_action_event_path_attribute_count_by_country(self, target):
-        RateLimitHelper.check_503_response_change_path(target, "test_503_action_path_attribute_count_by_country/", 3, 8)
+        RateLimitHelper.check_503_response_change_path(target, "test_503_action_path_attribute_count_by_country/", 5, 3)
 
     #  Action: 503  | Event: Attribute-Path | Count: Authority
     def test_503_action_event_path_attribute_count_by_authority(self, target):
         RateLimitHelper.check_503_response_change_path(target, "test_503_action_path_attribute_count_by_authority/",
-                                                       3, 8)
+                                                       5, 3)
 
     #  Action: 503  | Event: Attribute-Uri | Count: Ip
     def test_503_action_event_uri_attribute_count_by_ip(self, target):
-        RateLimitHelper.check_503_response_change_path(target, "test_503_action_uri_attribute_count_by_ip/", 3, 8)
+        RateLimitHelper.check_503_response_change_path(target, "test_503_action_uri_attribute_count_by_ip/", 5, 3)
 
     #  Action: 503  | Event: Attribute-Uri | Count: Asn
     def test_503_action_event_uri_attribute_count_by_asn(self, target):
-        RateLimitHelper.check_503_response_change_path(target, "test_503_action_uri_attribute_count_by_asn/", 3, 8)
+        RateLimitHelper.check_503_response_change_path(target, "test_503_action_uri_attribute_count_by_asn/", 5, 3)
 
     #  Action: 503  | Event: Attribute-Uri | Count: Path
     def test_503_action_event_uri_attribute_count_by_path(self, target):
-        RateLimitHelper.check_503_response_change_path(target, "test_503_action_uri_attribute_count_by_path/", 3, 8)
+        RateLimitHelper.check_503_response_change_path(target, "test_503_action_uri_attribute_count_by_path/", 5, 3)
 
     #  Action: 503  | Event: Attribute-Uri | Count: Method
     def test_503_action_event_uri_attribute_count_by_method(self, target):
-        RateLimitHelper.check_503_response_change_path(target, "test_503_action_uri_attribute_count_by_method/", 3, 8)
+        RateLimitHelper.check_503_response_change_path(target, "test_503_action_uri_attribute_count_by_method/", 5, 3)
 
     #  Action: 503  | Event: Attribute-Uri | Count: Company
     def test_503_action_event_uri_attribute_count_by_company(self, target):
-        RateLimitHelper.check_503_response_change_path(target, "test_503_action_uri_attribute_count_by_company/", 3, 8)
+        RateLimitHelper.check_503_response_change_path(target, "test_503_action_uri_attribute_count_by_company/", 5, 3)
 
     #  Action: 503  | Event: Attribute-Uri | Count: Country
     def test_503_action_event_uri_attribute_count_by_country(self, target):
-        RateLimitHelper.check_503_response_change_path(target, "test_503_action_uri_attribute_count_by_country/", 3, 8)
+        RateLimitHelper.check_503_response_change_path(target, "test_503_action_uri_attribute_count_by_country/", 5, 3)
 
     #  Action: 503  | Event: Attribute-Uri | Count: Authority
     def test_503_action_event_uri_attribute_count_by_authority(self, target):
-        RateLimitHelper.check_503_response_change_path(target, "test_503_action_uri_attribute_count_by_authority/", 3,
-                                                       8)
+        RateLimitHelper.check_503_response_change_path(target, "test_503_action_uri_attribute_count_by_authority/", 5,
+                                                       3)
 
     #  Action: 503  | Event: Attribute-Query | Count: Ip
     def test_503_action_event_query_attribute_count_by_ip(self, target):
-        params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
+        params = [{"suffix": f"?QUERY-{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_query_attribute_count_by_ip/",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-Query | Count: Asn
     def test_503_action_event_query_attribute_count_by_asn(self, target):
-        params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
+        params = [{"suffix": f"?QUERY-{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_query_attribute_count_by_asn",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-Query | Count: Method
     def test_503_action_event_query_attribute_count_by_method(self, target):
-        params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
+        params = [{"suffix": f"?QUERY-{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_query_attribute_count_by_method",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-Query | Count: Company
     def test_503_action_event_query_attribute_count_by_company(self, target):
-        params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
+        params = [{"suffix": f"?QUERY-{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_query_attribute_count_by_company",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-Query | Count: Country
     def test_503_action_event_query_attribute_count_by_country(self, target):
-        params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
+        params = [{"suffix": f"?QUERY-{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_query_attribute_count_by_country",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-Query | Count: Authority
     def test_503_action_event_query_attribute_count_by_authority(self, target):
-        params = [{"suffix": f"?QUERY-{i}"} for i in range(8 + 2)]
+        params = [{"suffix": f"?QUERY-{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_query_attribute_count_by_authority",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Path
     def test_503_action_event_ipv4_attribute_count_by_path(self, target):
-        params = [{"srcip": f"199.0.0.{i}"} for i in range(8 + 2)]
+        params = [{"srcip": f"199.0.0.{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_ipv4_attribute_count_by_path",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Uri
     def test_503_action_event_ipv4_attribute_count_by_uri(self, target):
-        params = [{"srcip": f"199.0.0.{i}"} for i in range(8 + 2)]
+        params = [{"srcip": f"199.0.0.{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_ipv4_attribute_count_by_uri",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Query
     def test_503_action_event_ipv4_attribute_count_by_query(self, target):
-        params = [{"srcip": f"199.0.0.{i}"} for i in range(8 + 2)]
+        params = [{"srcip": f"199.0.0.{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_ipv4_attribute_count_by_query",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Method
     def test_503_action_event_ipv4_attribute_count_by_method(self, target):
-        params = [{"srcip": f"199.0.0.{i}"} for i in range(8 + 2)]
+        params = [{"srcip": f"199.0.0.{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_ipv4_attribute_count_by_method",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Asn
     def test_503_action_event_ipv4_attribute_count_by_asn(self, target):
-        params = [{"srcip": f"199.0.0.{i}"} for i in range(8 + 2)]
+        params = [{"srcip": f"199.0.0.{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_ipv4_attribute_count_by_asn",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Country
     def test_503_action_event_ipv4_attribute_count_by_country(self, target):
-        params = [{"srcip": f"199.0.0.{i}"} for i in range(8 + 2)]
+        params = [{"srcip": f"199.0.0.{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_ipv4_attribute_count_by_country",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Company
     def test_503_action_event_ipv4_attribute_count_by_company(self, target):
-        params = [{"srcip": f"199.0.0.{i}"} for i in range(8 + 2)]
+        params = [{"srcip": f"199.0.0.{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_ipv4_attribute_count_by_company",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-ipv4 | Count: Authority
     def test_503_action_event_ipv4_attribute_count_by_authority(self, target):
-        params = [{"srcip": f"199.0.0.{i}"} for i in range(8 + 2)]
+        params = [{"srcip": f"199.0.0.{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_ipv4_attribute_count_by_authority",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-ipv6 | Count: Path
     def test_503_action_event_ipv6_attribute_count_by_path(self, target):
-        params = [{"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(8 + 2)]
+        params = [{"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_ipv6_attribute_count_by_path",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-ipv6 | Count: Method
     def test_503_action_event_ipv6_attribute_count_by_method(self, target):
-        params = [{"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(8 + 2)]
+        params = [{"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_ipv6_attribute_count_by_method",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-ipv6 | Count: Query
     def test_503_action_event_ipv6_attribute_count_by_query(self, target):
-        params = [{"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(8 + 2)]
+        params = [{"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_ipv6_attribute_count_by_query",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-ipv6 | Count: Authority
     def test_503_action_event_ipv6_attribute_count_by_authority(self, target):
-        params = [{"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(8 + 2)]
+        params = [{"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_ipv6_attribute_count_by_authority",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-ipv6 | Count: Uri
     def test_503_action_event_ipv6_attribute_count_by_uri(self, target):
-        params = [{"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(8 + 2)]
+        params = [{"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(3 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_ipv6_attribute_count_by_uri",
-                                                                 3, 8, params)
+                                                                 5, 3, params)
 
     #  Action: 503  | Event: Attribute-asn | Count: Path
     def test_503_action_event_asn_attribute_count_by_path(self, target):
@@ -207,7 +207,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_asn_attribute_count_by_path",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-asn | Count: Uri
     def test_503_action_event_asn_attribute_count_by_uri(self, target):
@@ -215,7 +215,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_asn_attribute_count_by_uri",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-asn | Count: Query
     def test_503_action_event_asn_attribute_count_by_query(self, target):
@@ -223,7 +223,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_asn_attribute_count_by_query",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-asn | Count: Method
     def test_503_action_event_asn_attribute_count_by_method(self, target):
@@ -231,7 +231,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_asn_attribute_count_by_method",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-asn | Count: Authority
     def test_503_action_event_asn_attribute_count_by_authority(self, target):
@@ -239,7 +239,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_asn_attribute_count_by_authority",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-company | Count: Path
     def test_503_action_event_company_attribute_count_by_path(self, target):
@@ -247,7 +247,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_company_attribute_count_by_path",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-company | Count: Uri
     def test_503_action_event_company_attribute_count_by_uri(self, target):
@@ -255,7 +255,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_company_attribute_count_by_uri",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-company | Count: Query
     def test_503_action_event_company_attribute_count_by_query(self, target):
@@ -263,7 +263,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_company_attribute_count_by_query",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-company | Count: Method
     def test_503_action_event_company_attribute_count_by_method(self, target):
@@ -271,7 +271,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_company_attribute_count_by_method",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-company | Count: Authority
     def test_503_action_event_company_attribute_count_by_authority(self, target):
@@ -279,7 +279,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_company_attribute_count_by_authority",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-country | Count: Path
     def test_503_action_event_country_attribute_count_by_path(self, target):
@@ -287,7 +287,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_country_attribute_count_by_path",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-country | Count: Uri
     def test_503_action_event_country_attribute_count_by_uri(self, target):
@@ -295,7 +295,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_country_attribute_count_by_uri",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-country | Count: Query
     def test_503_action_event_country_attribute_count_by_query(self, target):
@@ -303,7 +303,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_country_attribute_count_by_query",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-country | Count: Method
     def test_503_action_event_country_attribute_count_by_method(self, target):
@@ -311,7 +311,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_country_attribute_count_by_method",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-country | Count: Authority
     def test_503_action_event_country_attribute_count_by_authority(self, target):
@@ -319,119 +319,119 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_country_attribute_count_by_authority",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Ip
     def test_503_action_event_method_attribute_count_by_ip(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_method_attribute_count_by_ip",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Path
     def test_503_action_event_method_attribute_count_by_path(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_method_attribute_count_by_path",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Uri
     def test_503_action_event_method_attribute_count_by_uri(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_method_attribute_count_by_uri",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Ip
     def test_503_action_event_method_attribute_count_by_query(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_method_attribute_count_by_query",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Ip
     def test_503_action_event_method_attribute_count_by_company(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_method_attribute_count_by_company",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Ip
     def test_503_action_event_method_attribute_count_by_country(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_method_attribute_count_by_country",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Asn
     def test_503_action_event_method_attribute_count_by_asn(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_method_attribute_count_by_asn",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-method | Count: Authority
     def test_503_action_event_method_attribute_count_by_authority(self, target):
         params = [{"method": m} for m in ("GET", "HEAD", "POST", "PUT")]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_method_attribute_count_by_authority",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-authority | Count: Ip
     def test_503_action_event_authority_attribute_count_by_ip(self, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_authority_attribute_count_by_ip",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-authority | Count: Path
     def test_503_action_event_authority_attribute_count_by_path(self, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_authority_attribute_count_by_path",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-authority | Count: Uri
     def test_503_action_event_authority_attribute_count_by_uri(self, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_authority_attribute_count_by_uri",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-authority | Count: Query
     def test_503_action_event_authority_attribute_count_by_query(self, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_authority_attribute_count_by_query",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-authority | Count: Method
     def test_503_action_event_authority_attribute_count_by_method(self, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_authority_attribute_count_by_method",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-authority | Count: Asn
     def test_503_action_event_authority_attribute_count_by_asn(self, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_authority_attribute_count_by_asn",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-authority | Count: Company
     def test_503_action_event_authority_attribute_count_by_company(self, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_authority_attribute_count_by_company",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: 503  | Event: Attribute-authority | Count: Country
     def test_503_action_event_authority_attribute_count_by_country(self, target):
         params = [{"headers": {"Host": f"authority-{i}"}} for i in range(8 + 2)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_503_action_authority_attribute_count_by_country",
-                                                                 3, 2, params)
+                                                                 4, 2, params)
 
     #  Action: Challenge  | Event: Attribute-ip | Count: Path
     def test_challenge_action_event_ip_attribute_count_by_path(self, target):
@@ -439,7 +439,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
                                                                       "test_challenge_action_ip_attribute_count_by_path",
-                                                                      3, 2, params)
+                                                                      4, 2, params)
 
     #  Action: Challenge  | Event: Attribute-ip | Count: Uri
     def test_challenge_action_event_ip_attribute_count_by_uri(self, target):
@@ -447,7 +447,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
                                                                       "test_challenge_action_ip_attribute_count_by_uri",
-                                                                      3, 2, params)
+                                                                      4, 2, params)
 
     #  Action: Challenge  | Event: Attribute-ip | Count: Query
     def test_challenge_action_event_ip_attribute_count_by_query(self, target):
@@ -455,7 +455,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
                                                                       "test_challenge_action_ip_attribute_count_by_query",
-                                                                      3, 2, params)
+                                                                      4, 2, params)
 
     #  Action: Challenge  | Event: Attribute-ip | Count: Method
     def test_challenge_action_event_ip_attribute_count_by_method(self, target):
@@ -463,7 +463,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
                                                                       "test_challenge_action_ip_attribute_count_by_method",
-                                                                      3, 2, params)
+                                                                      4, 2, params)
 
     #  Action: Challenge  | Event: Attribute-ip | Count: Authority
     def test_challenge_action_event_ip_attribute_count_by_authority(self, target):
@@ -471,7 +471,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
                                                                       "test_challenge_action_ip_attribute_count_by_authority",
-                                                                      3, 2, params)
+                                                                      4, 2, params)
 
     #  Action: Challenge  | Event: Attribute-asn | Count: Path
     def test_challenge_action_event_asn_attribute_count_by_path(self, target):
@@ -479,7 +479,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
                                                                       "test_chl_action_asn_attr_count_by_path",
-                                                                      3, 2, params)
+                                                                      4, 2, params)
 
     #  Action: Challenge  | Event: Attribute-asn | Count: Uri
     def test_challenge_action_event_asn_attribute_count_by_uri(self, target):
@@ -487,7 +487,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
                                                                       "test_chl_action_asn_attr_count_by_uri",
-                                                                      3, 2, params)
+                                                                      4, 2, params)
 
     #  Action: Challenge  | Event: Attribute-asn | Count: Query
     def test_challenge_action_event_asn_attribute_count_by_query(self, target):
@@ -495,7 +495,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
                                                                       "test_chl_action_asn_attr_count_by_query",
-                                                                      3, 2, params)
+                                                                      4, 2, params)
 
     #  Action: Challenge  | Event: Attribute-asn | Count: Method
     def test_challenge_action_event_asn_attribute_count_by_method(self, target):
@@ -503,7 +503,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
                                                                       "test_chl_action_asn_attr_count_by_method",
-                                                                      3, 2, params)
+                                                                      4, 2, params)
 
     #  Action: Challenge  | Event: Attribute-asn | Count: Authority
     def test_challenge_action_event_asn_attribute_count_by_authority(self, target):
@@ -511,7 +511,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limit_challenge_action_with_params(target,
                                                                       "test_chl_action_asn_attr_count_by_auth",
-                                                                      3, 2, params)
+                                                                      4, 2, params)
 
     #  Action: Tag only  | Event: Attribute-ip | Count: Path
     def test_tag_action_event_ip_attribute_count_by_path(self, target, log_fixture):
@@ -817,7 +817,7 @@ class TestRateLimitAttribute:
                                            BaseHelper.IP4_CLOUDFLARE, BaseHelper.IP4_ORANGE)]
         RateLimitHelper.check_rate_limits_action_503_with_params(target,
                                                                  "test_ban_action_by_company_sub_503_count_path",
-                                                                 4, 2, params)
+                                                                 5, 2, params)
 
     #  Action: Ban | Subaction: 503 | Event:Attribute - Company | Count: query
     def test_ban_action_event_company_subaction_503_count_by_query(self, cli, target):
