@@ -367,7 +367,7 @@ mod tests {
                     assert!(logs.logs[0].message.to_string().contains("CFGLOAD"));
                     assert!(logs.logs[1].message.to_string().contains("globalfilter-lists.json"));
                 }
-                10 => {
+                11 => {
                     assert!(logs.logs[0]
                         .message
                         .to_string()

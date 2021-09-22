@@ -32,7 +32,7 @@
                 "limit_ids": []
             },
             {
-                "match": "^/content-filter/omitted-group",
+                "match": "^/content-filter/group-omitted",
                 "name": "content filter omit group tests",
                 "acl_profile": "__default__",
                 "content_filter_profile": "omitted_group",

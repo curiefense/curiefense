@@ -157,14 +157,13 @@ impl Config {
         rawcontentfiltergroups: Vec<RawContentFilterGroup>,
         container_name: Option<String>,
         rawflows: Vec<RawFlowEntry>,
-        hsdb: &mut WafSignatures,
     ) -> Config {
         let mut default: Option<HostMap> = None;
         let mut securitypolicies: Vec<Matching<HostMap>> = Vec::new();
 
         let limits = Limit::resolve(logs, rawlimits);
-        let content_filter_groups = ContentFilterGroup::resolve(logs, rawcontentfiltergroups, &mut hsdb);
-        let content_filter_profiles = ContentFilterProfile::resolve(logs, rawcontentfilterprofiles, content_filter_groups);
+        let content_filter_groups = ContentFilterGroup::resolve(rawcontentfiltergroups);
+        let content_filter_profiles = ContentFilterProfile::resolve(logs, rawcontentfilterprofiles, &content_filter_groups);
         let acls = rawacls.into_iter().map(|a| (a.id.clone(), a)).collect();
 
         // build the entries while looking for the default entry
@@ -275,10 +274,7 @@ impl Config {
         let container_name = std::fs::read_to_string("/etc/hostname")
             .ok()
             .map(|s| s.trim().to_string());
-        let hsdb = resolve_rules(contentfilterrules).unwrap_or_else(|rr| {
-            logs.error(rr);
-            ContentFilterRules::empty()
-        });
+
         let config = Config::resolve(
             logs,
             last_mod,
@@ -290,8 +286,11 @@ impl Config {
             contentfiltergroups,
             container_name,
             flows,
-            &mut hsdb,
         );
+        let hsdb = resolve_rules(contentfilterrules, &config.content_filter_groups).unwrap_or_else(|rr| {
+            logs.error(rr);
+            ContentFilterRules::empty()
+        });
         Some((config, hsdb))
     }
 

@@ -153,13 +153,13 @@
     "response": {
       "tags": [
         "contentfiltername:omit-group-id-100001",
-        "contentfilterid:omitted_group",
+        "contentfilterid:omitted-group",
         "all",
         "sante",
         "container:1e219d8ed6b4",
         "asn:16625",
         "geo:united-states",
-        "securitypolicy-entry:content-filter-omit-tests",
+        "securitypolicy-entry:content-filter-omit-group-tests",
         "ip:23-5-64-253",
         "securitypolicy:default-entry",
         "aclid:--default--",
@@ -172,7 +172,7 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "23.5.64.253",
-      ":path": "\/content-filter\/omitted-group?foo=xp_cmdshell",
+      ":path": "\/content-filter\/group-omitted?foo=xp_cmdshell",
       ":method": "GET",
       ":authority": "localhost:30081"
     }

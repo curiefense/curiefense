@@ -103,20 +103,25 @@ m_contentfilterrule = api.model(
 
 # content filter group
 
+m_contentfiltergrouprule = api.model(
+    "Content Filter Groups Rule ID",
+    {"*": fields.Wildcard(fields.Integer)},
+)
+
 m_contentfiltergroup = api.model(
     "Content Filter Group",
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
         "description": fields.String(required=True),
-        "content_filter_rules_ids": fields.List(fields.Nested(m_contentfiltergrouprule)),
+        "waf_rules_ids": fields.Nested(
+            m_contentfiltergrouprule,
+            attribute="content_filter_rules_ids",
+            skip_none=True,
+        ),
     },
 )
 
-m_contentfiltergrouprule = api.model(
-    "Content Filter Groups Rule ID",
-    {"*": fields.Wildcard(fields.Integer)},
-)
 
 # content filter profile
 
@@ -204,11 +209,6 @@ models = {
     "flowcontrol": m_flowcontrol,
 }
 
-### mapping from custom field request formatting to response formatting
-
-custom_fields_formatting = {
-    ToOne: ToRule,
-}
 
 ### Other models
 

@@ -45,11 +45,11 @@ impl ContentFilterBlock {
                 .first()
                 .and_then(|e| {
                     e.ids.first().map(|sig| {
-                        let groups = Vec::new();
-                        for group in sig.groups {
+                        let mut groups = Vec::new();
+                        for (group_id, group_name) in &sig.groups {
                             groups.push(json!({
-                                "content_filter_group_id": group.id,
-                                "content_filter_group_name": group.name,
+                                "content_filter_group_id": group_id,
+                                "content_filter_group_name": group_name,
                             }));
                         }
                         json!({
@@ -63,7 +63,7 @@ impl ContentFilterBlock {
                             "sig_id": sig.id,
                             "sig_severity": sig.severity,
                             "sig_msg": sig.msg,
-                            "content_filter_groups:": groups,
+                            "content_filter_groups": json!(groups),
                         })
                     })
                 })

@@ -101,21 +101,21 @@ m_contentfilterrule = api.model(
 
 # contentfiltergroup
 
+m_contentfiltergrouprule = api.model(
+    "Content Filter Groups Rule ID",
+    {"*": fields.Wildcard(fields.Integer)},
+)
+
 m_contentfiltergroup = api.model(
     "Content Filter Group",
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
         "description": fields.String(required=True),
-        "content_filter_rules_ids": fields.List(
-            fields.Nested(m_contentfiltergrouprule)
+        "content_filter_rules_ids": fields.Nested(
+            m_contentfiltergrouprule, skip_none=True
         ),
     },
-)
-
-m_contentfiltergrouprule = api.model(
-    "Content Filter Groups Rule ID",
-    {"*": fields.Wildcard(fields.String)},
 )
 
 # content filter profile

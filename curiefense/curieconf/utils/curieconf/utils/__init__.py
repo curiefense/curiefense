@@ -3,7 +3,7 @@ import codecs
 import base64
 import json
 
-import pydash as _
+import pydash
 from flask_restplus import fields
 
 DOCUMENTS_PATH = {
@@ -54,7 +54,7 @@ def vconvert(conf_type_name, vfrom):
         }
     }
 
-    return _.get(apimap, f"{vfrom}.{conf_type_name}", conf_type_name)
+    return pydash.get(apimap, f"{vfrom}.{conf_type_name}", conf_type_name)
 
 
 def backend_v1_rl_convert(backend_document):
@@ -113,11 +113,11 @@ def backend_v1_cfp_convert(backend_document):
     for section in ["args", "headers", "cookies"]:
         for key in ["names", "regex"]:
             for i in range(len(v1[section][key])):
-                for rule_id in v1[section][key][i]["exclusions"].keys():
-                    if v1[section][key][i]["exclusions"][rule_id] == "rule":
-                        v1[section][key][i]["exclusions"][rule_id] = 1
-                    else:
-                        del v1[section][key][i]["exclusions"][rule_id]
+                v1[section][key][i]["exclusions"] = {
+                    rule_id: 1
+                    for rule_id, value in v1[section][key][i]["exclusions"].items()
+                    if value == "rule"
+                }
     return v1
 
 
@@ -136,11 +136,11 @@ def v1_backend_cfp_convert(v1_document):
     for section in ["args", "headers", "cookies"]:
         for key in ["names", "regex"]:
             for i in range(len(backend[section][key])):
-                for rule_id in backend[section][key][i]["exclusions"].keys():
-                    if backend[section][key][i]["exclusions"][rule_id] == 1:
-                        backend[section][key][i]["exclusions"][rule_id] = "rule"
-                    else:
-                        del backend[section][key][i]["exclusions"][rule_id]
+                backend[section][key][i]["exclusions"] = {
+                    rule_id: "rule"
+                    for rule_id, value in v1[section][key][i]["exclusions"].items()
+                    if value == 1
+                }
     return backend
 
 
@@ -158,11 +158,11 @@ def vconfigconvert(conf_type_name, document, vfrom, vto):
     apimap = {
         "v1_backend": {
             "ratelimits": v1_backend_rl_convert,
-            "contentfilterprofiles": v1_backend_cfp_convert,
+            "wafpolicies": v1_backend_cfp_convert,
         },
         "backend_v1": {
             "ratelimits": backend_v1_rl_convert,
-            "contentfilterprofiles": backend_v1_cfp_convert,
+            "wafpolicies": backend_v1_cfp_convert,
         },
     }
 
@@ -234,9 +234,9 @@ def vconvert(conf_type_name, vfrom, invert=False):
 
     if invert:
         for key in apimap.keys():
-            apimap[key] = _.objects.invert(apimap[key])
+            apimap[key] = pydash.objects.invert(apimap[key])
 
-    return _.get(apimap, f"{vfrom}.{conf_type_name}", conf_type_name)
+    return pydash.get(apimap, f"{vfrom}.{conf_type_name}", conf_type_name)
 
 
 def _field_invert_names(field):
