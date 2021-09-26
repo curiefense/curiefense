@@ -214,7 +214,7 @@ import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
-import ContentFilterRuleGroup from '@/doc-editors/ContentFilterRuleGroup.vue'
+import ContentFilterRuleGroupEditor from '@/doc-editors/ContentFilterRuleGroupEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import Vue from 'vue'
@@ -280,7 +280,7 @@ export default Vue.extend({
         'securitypolicies': {component: SecurityPoliciesEditor},
         'contentfilterprofiles': {component: ContentFilterEditor},
         'contentfilterrules': {component: ContentFilterRulesEditor},
-        'contentfiltergroups': {component: ContentFilterRuleGroup},
+        'contentfiltergroups': {component: ContentFilterRuleGroupEditor},
       },
 
       apiRoot: RequestsUtils.confAPIRoot,

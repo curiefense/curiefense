@@ -138,7 +138,7 @@ import {AxiosResponse} from 'axios'
 import RequestsUtils from '@/assets/RequestsUtils'
 
 export default Vue.extend({
-  name: 'ContentFilterRuleGroup',
+  name: 'ContentFilterRuleGroupEditor',
   props: {
     selectedDoc: Object,
     selectedBranch: String,
