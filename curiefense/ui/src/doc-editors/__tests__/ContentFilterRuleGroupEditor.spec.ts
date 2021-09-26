@@ -3,7 +3,6 @@ import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import {ContentFilterRuleGroup, ContentFilterRule} from '@/types'
-import _ from 'lodash'
 import axios from 'axios'
 
 jest.mock('axios')
@@ -27,15 +26,15 @@ describe('ContentFilterRuleGroupEditor.vue', () => {
   const selectedBranch = 'master'
   beforeEach(() => {
     rules = [...Array(ALL_RULES_NUMBER)].map((_d, index) => ({
-        ...docExample,
-        id: `${parseInt(docExample['id']) + index}`,
-        name: `${parseInt(docExample['id']) + index}`,
+      ...docExample,
+      id: `${parseInt(docExample['id']) + index}`,
+      name: `${parseInt(docExample['id']) + index}`,
     }))
     selectedDoc = {
-        id: '1',
-        name: 'test group',
-        description: 'the testing',
-        content_filter_ids: rules.slice(0, DOC_RULES_NUMBER).map(({id}: ContentFilterRule) => id),
+      id: '1',
+      name: 'test group',
+      description: 'the testing',
+      content_filter_ids: rules.slice(0, DOC_RULES_NUMBER).map(({id}: ContentFilterRule) => id),
     }
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === `/conf/api/v2/configs/${selectedBranch}/d/contentfilterrules/`) {
@@ -84,11 +83,11 @@ describe('ContentFilterRuleGroupEditor.vue', () => {
     await Vue.nextTick()
     expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
     expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([{
-        ...selectedDoc,
-        content_filter_ids: [
-            ...selectedDoc.content_filter_ids,
-            rules[DOC_RULES_NUMBER].id,
-        ],
+      ...selectedDoc,
+      content_filter_ids: [
+        ...selectedDoc.content_filter_ids,
+        rules[DOC_RULES_NUMBER].id,
+      ],
     }])
   })
 
@@ -110,8 +109,8 @@ describe('ContentFilterRuleGroupEditor.vue', () => {
     await Vue.nextTick()
     expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
     expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([{
-        ...selectedDoc,
-        content_filter_ids: selectedDoc.content_filter_ids.filter((id, index) => index !== indexToDelete),
+      ...selectedDoc,
+      content_filter_ids: selectedDoc.content_filter_ids.filter((id, index) => index !== indexToDelete),
     }])
   })
 
