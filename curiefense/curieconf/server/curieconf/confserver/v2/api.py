@@ -171,7 +171,6 @@ m_globalfilter = api.model(
     },
 )
 
-
 # Flow Control
 
 m_flowcontrol = api.model(
@@ -189,7 +188,6 @@ m_flowcontrol = api.model(
         "active": fields.Boolean(required=True),
     },
 )
-
 
 ### mapping from doc name to model
 
