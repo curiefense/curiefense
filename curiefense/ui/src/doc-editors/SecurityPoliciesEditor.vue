@@ -190,9 +190,9 @@
                                         v-if="limitDetails(limitId)">
                                       {{ limitDetails(limitId).limit }}
                                     </td>
-                                    <td class="is-size-7 rate-limit-ttl"
+                                    <td class="is-size-7 rate-limit-timeframe"
                                         v-if="limitDetails(limitId)">
-                                      {{ limitDetails(limitId).ttl }}
+                                      {{ limitDetails(limitId).timeframe }}
                                     </td>
                                     <td class="has-text-centered is-size-7 width-60px">
                                       <a class="is-small has-text-grey rate-limit-remove-button"

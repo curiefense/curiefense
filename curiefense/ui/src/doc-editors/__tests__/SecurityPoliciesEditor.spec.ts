@@ -78,7 +78,7 @@ describe('SecurityPoliciesEditor.vue', () => {
           'google',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'internal',
         ],
         'deny': [
@@ -97,7 +97,7 @@ describe('SecurityPoliciesEditor.vue', () => {
           'yahoo',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'devops',
         ],
         'deny': [
@@ -143,7 +143,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         'id': 'f971e92459e2',
         'name': 'Rate Limit Example Rule 5/60',
         'description': '5 requests per minute',
-        'ttl': '60',
+        'timeframe': '60',
         'limit': '5',
         'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
         'include': ['badpeople'],
@@ -155,7 +155,7 @@ describe('SecurityPoliciesEditor.vue', () => {
         'id': '365757ec0689',
         'name': 'Copy of Rate Limit Example Rule 5/60',
         'description': '5 requests per minute',
-        'ttl': '60',
+        'timeframe': '60',
         'limit': '5',
         'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
         'include': ['badpeople'],
@@ -346,8 +346,8 @@ describe('SecurityPoliciesEditor.vue', () => {
       expect(rateLimitDescription.text()).toEqual(rateLimitsDocs[0].description)
       const rateLimitThreshold = entryRateLimitsRows.at(0).find('.rate-limit-threshold')
       expect(rateLimitThreshold.text()).toEqual(rateLimitsDocs[0].limit)
-      const rateLimitTTL = entryRateLimitsRows.at(0).find('.rate-limit-ttl')
-      expect(rateLimitTTL.text()).toEqual(rateLimitsDocs[0].ttl)
+      const rateLimitTimeFrame = entryRateLimitsRows.at(0).find('.rate-limit-timeframe')
+      expect(rateLimitTimeFrame.text()).toEqual(rateLimitsDocs[0].timeframe)
     })
 
     test('should not have rate limit data displayed if no corresponding rate limit exists', async () => {
@@ -862,8 +862,8 @@ describe('SecurityPoliciesEditor.vue', () => {
         expect(rateLimitDescription.text()).toEqual(rateLimitsDocs[1].description)
         const rateLimitThreshold = entryRateLimitsRows.at(0).find('.rate-limit-threshold')
         expect(rateLimitThreshold.text()).toEqual(rateLimitsDocs[1].limit)
-        const rateLimitTTL = entryRateLimitsRows.at(0).find('.rate-limit-ttl')
-        expect(rateLimitTTL.text()).toEqual(rateLimitsDocs[1].ttl)
+        const rateLimitTimeFrame = entryRateLimitsRows.at(0).find('.rate-limit-timeframe')
+        expect(rateLimitTimeFrame.text()).toEqual(rateLimitsDocs[1].timeframe)
       })
 
       test('should revert old match data to be valid before forking if invalid', async () => {

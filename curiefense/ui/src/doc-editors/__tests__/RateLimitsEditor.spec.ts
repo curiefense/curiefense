@@ -21,7 +21,7 @@ describe('RateLimitsEditor.vue', () => {
       'id': 'f971e92459e2',
       'name': 'Rate Limit Example Rule 5/60',
       'description': '5 requests per minute',
-      'ttl': '60',
+      'timeframe': '60',
       'limit': '5',
       'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
       'include': ['blocklist'],
@@ -128,9 +128,9 @@ describe('RateLimitsEditor.vue', () => {
       expect(element.value).toEqual(rateLimitsDocs[0].limit)
     })
 
-    test('should have correct TTL in input', () => {
-      const element = wrapper.find('.document-ttl').element as HTMLInputElement
-      expect(element.value).toEqual(rateLimitsDocs[0].ttl)
+    test('should have correct Time Frame in input', () => {
+      const element = wrapper.find('.document-timeframe').element as HTMLInputElement
+      expect(element.value).toEqual(rateLimitsDocs[0].timeframe)
     })
 
     test('should have count-by limit option component with correct data', () => {

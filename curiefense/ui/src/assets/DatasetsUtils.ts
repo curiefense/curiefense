@@ -8,7 +8,7 @@ const titles: { [key: string]: string } = {
   'args': 'Arguments',
   'attrs': 'Attributes',
   'audit-log': 'Audit Log',
-  'bypass': 'Bypass',
+  'passthrough': 'Passthrough',
   'cookies': 'Cookies',
   'curiefense-lists': 'Curiefense Lists',
   'customsigs': 'Custom Signatures',
@@ -86,7 +86,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'allow': [],
       'allow_bot': [],
       'deny_bot': [],
-      'bypass': [],
+      'passthrough': [],
       'force_deny': [],
       'deny': [],
     }
@@ -127,7 +127,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'name': 'New Global Filter',
       'source': 'self-managed',
       'mdate': (new Date()).toISOString(),
-      'notes': 'New List Notes and Remarks',
+      'description': 'New List Description and Remarks',
       'active': true,
       'tags': [],
       'action': {
@@ -171,7 +171,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'attrs': 'ip',
         },
       ],
-      'ttl': '180',
+      'timeframe': '180',
       'action': {
         'type': 'default',
       },
@@ -187,9 +187,9 @@ const newDocEntryFactory: { [key: string]: Function } = {
     return {
       'id': generateUUID2(),
       'name': 'New Flow Control Policy',
-      'ttl': 60,
+      'timeframe': 60,
       'active': true,
-      'notes': 'New Flow Control Policy Notes and Remarks',
+      'description': 'New Flow Control Policy Description and Remarks',
       'key': [
         {
           'attrs': 'ip',

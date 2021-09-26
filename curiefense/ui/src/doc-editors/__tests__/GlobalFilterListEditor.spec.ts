@@ -20,7 +20,7 @@ describe('GlobalFilterListEditor.vue', () => {
       'name': 'API Discovery',
       'source': 'self-managed',
       'mdate': '2020-05-23T00:04:41',
-      'notes': 'Tag API Requests',
+      'description': 'Tag API Requests',
       'active': true,
       'tags': ['api', 'okay'],
       'action': {
@@ -40,7 +40,7 @@ describe('GlobalFilterListEditor.vue', () => {
       'name': 'devop internal demo',
       'source': 'self-managed',
       'mdate': '2020-05-23T00:04:41',
-      'notes': 'this is my own list',
+      'description': 'this is my own list',
       'active': false,
       'tags': ['internal', 'devops'],
       'action': {
@@ -115,9 +115,9 @@ describe('GlobalFilterListEditor.vue', () => {
       expect(responseActionComponent.props('action')).toEqual(docs[0].action)
     })
 
-    test('should have correct notes in input', () => {
-      const element = wrapper.find('.document-notes').element as HTMLTextAreaElement
-      expect(element.value).toEqual(docs[0].notes.toString())
+    test('should have correct description in input', () => {
+      const element = wrapper.find('.document-description').element as HTMLTextAreaElement
+      expect(element.value).toEqual(docs[0].description.toString())
     })
 
     test('should have entries relation component with correct data', () => {
@@ -417,7 +417,7 @@ describe('GlobalFilterListEditor.vue', () => {
           'active': true,
           'mdate': '2020-11-04 07:54:27.417791',
           'source': 'https://example.com',
-          'notes': 'some example crawlers',
+          'description': 'some example crawlers',
           'entries_relation': 'OR',
           'tags': [
             'allowlist',
@@ -468,7 +468,7 @@ describe('GlobalFilterListEditor.vue', () => {
           'active': true,
           'mdate': '2020-11-04 07:54:27.417791',
           'source': 'https://example.com',
-          'notes': 'some example crawlers',
+          'description': 'some example crawlers',
           'entries_relation': 'OR',
           'tags': [
             'allowlist',
@@ -519,7 +519,7 @@ describe('GlobalFilterListEditor.vue', () => {
           'active': true,
           'mdate': '2020-11-04 07:54:27.417791',
           'source': 'https://example.com',
-          'notes': 'some example ASNs',
+          'description': 'some example ASNs',
           'entries_relation': 'OR',
           'tags': [
             'blocklist',
@@ -654,7 +654,7 @@ describe('GlobalFilterListEditor.vue', () => {
           'active': true,
           'mdate': '2020-11-04 07:54:27.417791',
           'source': 'https://example.com',
-          'notes': 'some example crawlers',
+          'description': 'some example crawlers',
           'entries_relation': 'OR',
           'tags': [
             'allowlist',
@@ -708,7 +708,7 @@ describe('GlobalFilterListEditor.vue', () => {
           'active': true,
           'mdate': '2020-11-04 07:54:27.417791',
           'source': 'https://example.com',
-          'notes': 'some example ASNs',
+          'description': 'some example ASNs',
           'entries_relation': 'OR',
           'tags': [
             'blocklist',
@@ -829,7 +829,7 @@ describe('GlobalFilterListEditor.vue', () => {
           'active': true,
           'mdate': '2020-11-04 07:54:27.417791',
           'source': 'https://example.com',
-          'notes': 'some example crawlers',
+          'description': 'some example crawlers',
           'entries_relation': 'OR',
           'tags': [
             'allowlist',

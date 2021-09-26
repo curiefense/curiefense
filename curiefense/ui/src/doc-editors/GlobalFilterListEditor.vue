@@ -94,12 +94,12 @@
                                is-single-input-column/>
             </div>
             <div class="field">
-              <label class="label is-small">Notes</label>
+              <label class="label is-small">Description</label>
               <div class="control">
-                <textarea class="is-small textarea document-notes"
-                          title="Notes"
+                <textarea class="is-small textarea document-description"
+                          title="Description"
                           @change="emitDocUpdate"
-                          v-model="localDoc.notes"
+                          v-model="localDoc.description"
                           rows="2"
                           :readonly="readonly"></textarea>
               </div>

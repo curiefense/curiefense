@@ -85,9 +85,9 @@
                 v-html="highlightSearchValue(doc.name)">
             </td>
             <td class="is-size-7 py-3 width-200px doc-description-cell"
-                :title="doc.notes || doc.description">
+                :title="doc.description || doc.description">
               <div class="vertical-scroll scrollbox-shadowed"
-                   v-html="highlightSearchValue(doc.notes || doc.description)">
+                   v-html="highlightSearchValue(doc.description || doc.description)">
               </div>
             </td>
             <td class="is-size-7 py-3 width-200px doc-tags-cell"
@@ -149,7 +149,6 @@ import Utils from '@/assets/Utils'
 
 type SearchDocument = Document & {
   docType: DocumentType
-  notes: string
   description: string
   tags: string
   connections: string[]
@@ -188,17 +187,17 @@ export default Vue.extend({
       'aclprofiles': {
         component: ACLEditor,
         title: titles['aclprofiles'],
-        fields: 'id, name, allow, allow_bot, deny_bot, bypass, deny, force_deny',
+        fields: 'id, name, allow, allow_bot, deny_bot, passthrough, deny, force_deny',
       },
       'flowcontrol': {
         component: FlowControlPolicyEditor,
         title: titles['flowcontrol'],
-        fields: 'id, name, notes, include, exclude',
+        fields: 'id, name, description, include, exclude',
       },
       'globalfilters': {
         component: GlobalFilterListEditor,
         title: titles['globalfilters'],
-        fields: 'id, name, notes, tags',
+        fields: 'id, name, description, tags',
       },
       'ratelimits': {
         component: RateLimitsEditor,
@@ -251,7 +250,7 @@ export default Vue.extend({
       description: {
         title: 'Description',
         filter: (doc: SearchDocument): boolean => {
-          return (this as any).searchValueRegex.test(doc.notes || doc.description)
+          return (this as any).searchValueRegex.test(doc.description || doc.description)
         },
       },
       tags: {
@@ -341,14 +340,14 @@ export default Vue.extend({
             // Build tags based on document type
             if (doctype === 'aclprofiles') {
               const forceDenyTags = doc.force_deny.filter(Boolean).join(', ').toLowerCase()
-              const bypassTags = doc.bypass.filter(Boolean).join(', ').toLowerCase()
+              const passthroughTags = doc.passthrough.filter(Boolean).join(', ').toLowerCase()
               const allowBotTags = doc.allow_bot.filter(Boolean).join(', ').toLowerCase()
               const denyBotTags = doc.deny_bot.filter(Boolean).join(', ').toLowerCase()
               const allowTags = doc.allow.filter(Boolean).join(', ').toLowerCase()
               const denyTags = doc.deny.filter(Boolean).join(', ').toLowerCase()
               doc.tags = [
                 forceDenyTags,
-                bypassTags,
+                passthroughTags,
                 allowBotTags,
                 denyBotTags,
                 allowTags,

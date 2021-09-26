@@ -49,15 +49,15 @@
               </div>
               <div class="field">
                 <label class="label is-small">
-                  TTL
+                  Time Frame
                 </label>
                 <div class="control suffix seconds-suffix">
-                  <input class="input is-small document-ttl"
+                  <input class="input is-small document-timeframe"
                          type="text"
                          title="Rate limit duration"
                          placeholder="Rate limit duration"
                          @change="emitDocUpdate"
-                         v-model="localDoc.ttl">
+                         v-model="localDoc.timeframe">
                 </div>
               </div>
               <div class="group-key mb-3">

@@ -142,7 +142,7 @@ describe('DocumentSearch.vue', () => {
           'google',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'internal',
         ],
         'deny': [
@@ -161,7 +161,7 @@ describe('DocumentSearch.vue', () => {
           'yahoo',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'devops',
         ],
         'deny': [
@@ -178,7 +178,7 @@ describe('DocumentSearch.vue', () => {
         'name': 'API Discovery',
         'source': 'self-managed',
         'mdate': '2020-05-23T00:04:41',
-        'notes': 'Default Tag API Requests',
+        'description': 'Default Tag API Requests',
         'active': true,
         'tags': ['api'],
         'action': {
@@ -230,7 +230,7 @@ describe('DocumentSearch.vue', () => {
         'name': 'devop internal demo',
         'source': 'self-managed',
         'mdate': '2020-05-23T00:04:41',
-        'notes': 'this is my own list',
+        'description': 'this is my own list',
         'active': false,
         'tags': ['internal', 'devops'],
         'action': {
@@ -285,7 +285,7 @@ describe('DocumentSearch.vue', () => {
     flowControlPolicyDocs = [
       {
         'active': true,
-        'notes': '',
+        'description': '',
         'exclude': [],
         'include': ['all'],
         'name': 'flow control policy',
@@ -318,7 +318,7 @@ describe('DocumentSearch.vue', () => {
           'type': 'default',
           'params': {},
         },
-        'ttl': 60,
+        'timeframe': 60,
         'id': 'c03dabe4b9ca',
       },
     ]
@@ -327,7 +327,7 @@ describe('DocumentSearch.vue', () => {
         'id': 'f971e92459e2',
         'name': 'Rate Limit Example Rule 5/60',
         'description': '5 requests per minute',
-        'ttl': '60',
+        'timeframe': '60',
         'limit': '5',
         'action': {'type': 'default'},
         'include': ['badpeople'],

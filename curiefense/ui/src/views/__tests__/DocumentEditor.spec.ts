@@ -150,7 +150,7 @@ describe('DocumentEditor.vue', () => {
           'google',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'internal',
         ],
         'deny': [
@@ -169,7 +169,7 @@ describe('DocumentEditor.vue', () => {
           'yahoo',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'devops',
         ],
         'deny': [
@@ -495,7 +495,7 @@ describe('DocumentEditor.vue', () => {
           'google',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'internal',
         ],
         'deny': [
@@ -513,7 +513,7 @@ describe('DocumentEditor.vue', () => {
           'google',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'internal',
         ],
         'deny': [
@@ -530,7 +530,7 @@ describe('DocumentEditor.vue', () => {
         'name': 'API Discovery',
         'source': 'self-managed',
         'mdate': '2020-05-23T00:04:41',
-        'notes': 'Tag API Requests',
+        'description': 'Tag API Requests',
         'active': true,
         'tags': ['api'],
         'action': {
@@ -549,7 +549,7 @@ describe('DocumentEditor.vue', () => {
         'name': 'devop internal demo',
         'source': 'self-managed',
         'mdate': '2020-05-23T00:04:41',
-        'notes': 'this is my own list',
+        'description': 'this is my own list',
         'active': false,
         'tags': ['internal', 'devops'],
         'action': {
@@ -614,7 +614,7 @@ describe('DocumentEditor.vue', () => {
     flowControlPolicyDocs = [
       {
         'active': true,
-        'notes': '',
+        'description': '',
         'exclude': [],
         'include': ['all'],
         'name': 'flow control policy',
@@ -647,7 +647,7 @@ describe('DocumentEditor.vue', () => {
           'type': 'default',
           'params': {},
         },
-        'ttl': 60,
+        'timeframe': 60,
         'id': 'c03dabe4b9ca',
       },
     ]
@@ -669,7 +669,7 @@ describe('DocumentEditor.vue', () => {
       'id': 'f971e92459e2',
       'name': 'Rate Limit Example Rule 5/60',
       'description': '5 requests per minute',
-      'ttl': '60',
+      'timeframe': '60',
       'limit': '5',
       'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
       'include': ['badpeople'],

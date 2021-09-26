@@ -5,8 +5,6 @@ jsonschema.Draft4Validator = jsonschema.Draft3Validator
 
 from flask import Blueprint, request, current_app, abort, make_response
 from flask_restplus import Resource, Api, fields, marshal, reqparse
-from collections import defaultdict
-import datetime
 from curieconf import utils
 from curieconf.utils import cloud
 import requests
@@ -194,7 +192,6 @@ m_document_mask = api.model(
         "id": fields.String(required=True),
         "name": fields.String(required=True),
         "description": fields.String(required=True),
-        "notes": fields.String(required=True),
         "map": fields.List(fields.Nested(m_secprofilemap)),
         "include": fields.Wildcard(fields.Raw()),
         "exclude": fields.Wildcard(fields.Raw()),

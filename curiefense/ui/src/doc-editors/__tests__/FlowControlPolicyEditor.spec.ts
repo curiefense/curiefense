@@ -50,11 +50,11 @@ describe('FlowControlPolicyEditor.vue', () => {
           },
         ],
         'active': true,
-        'notes': 'New Flow Control Policy Notes and Remarks',
+        'description': 'New Flow Control Policy Description and Remarks',
         'action': {
           'type': 'default',
         },
-        'ttl': 60,
+        'timeframe': 60,
         'id': 'c03dabe4b9ca',
       },
     ]
@@ -80,9 +80,9 @@ describe('FlowControlPolicyEditor.vue', () => {
       expect(element.checked).toEqual(docs[0].active)
     })
 
-    test('should have correct ttl in input', () => {
-      const element = wrapper.find('.document-ttl').element as HTMLInputElement
-      expect(element.value).toEqual(docs[0].ttl.toString())
+    test('should have correct timeframe in input', () => {
+      const element = wrapper.find('.document-timeframe').element as HTMLInputElement
+      expect(element.value).toEqual(docs[0].timeframe.toString())
     })
 
     test('should have limit option component with correct data', () => {
@@ -100,9 +100,9 @@ describe('FlowControlPolicyEditor.vue', () => {
       expect((ResponseActionComponent.vm as any).action).toEqual(docs[0].action)
     })
 
-    test('should have correct notes in input', () => {
-      const element = wrapper.find('.document-notes').element as HTMLTextAreaElement
-      expect(element.value).toEqual(docs[0].notes.toString())
+    test('should have correct description in input', () => {
+      const element = wrapper.find('.document-description').element as HTMLTextAreaElement
+      expect(element.value).toEqual(docs[0].description.toString())
     })
 
     test('should have correct tags in include filter', () => {

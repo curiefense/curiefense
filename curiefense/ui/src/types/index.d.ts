@@ -46,7 +46,7 @@ declare module CuriefenseClient {
     type: 'default' | 'challenge' | 'monitor' | 'response' | 'redirect' | 'ban' | 'request_header'
     params?: {
       status?: string
-      ttl?: string
+      duration?: string
       headers?: string
       content?: string
       location?: string
@@ -54,7 +54,7 @@ declare module CuriefenseClient {
     }
   }
 
-  type ACLProfileFilter = 'allow' | 'allow_bot' | 'deny_bot' | 'bypass' | 'force_deny' | 'deny'
+  type ACLProfileFilter = 'allow' | 'allow_bot' | 'deny_bot' | 'passthrough' | 'force_deny' | 'deny'
 
   type IncludeExcludeType = 'include' | 'exclude'
 
@@ -87,7 +87,7 @@ declare module CuriefenseClient {
     allow: string[]
     allow_bot: string[]
     deny_bot: string[]
-    bypass: string[]
+    passthrough: string[]
     force_deny: string[]
     deny: string[]
   }
@@ -121,7 +121,7 @@ declare module CuriefenseClient {
     name: string
     source: string
     mdate: string // ISO string
-    notes: string
+    description: string
     active: boolean
     tags: string[]
     action: ResponseActionType
@@ -144,7 +144,7 @@ declare module CuriefenseClient {
     description: string
     limit: string
     key: LimitOptionType[]
-    ttl: string
+    timeframe: string
     action: ResponseActionType
     exclude: string[]
     include: string[]
@@ -156,9 +156,9 @@ declare module CuriefenseClient {
   type FlowControlPolicy = {
     id: string
     name: string
-    ttl: number
+    timeframe: number
     active: boolean
-    notes: string
+    description: string
     key: LimitOptionType[]
     action: ResponseActionType
     exclude: string[]

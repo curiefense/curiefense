@@ -162,8 +162,8 @@
                         <th class="has-text-centered">Parameter</th>
                         <th class="has-text-centered">Matching Value</th>
                         <th class="has-text-centered">Restrict?</th>
-                        <th class="has-text-centered">Mask?</th>
-                        <th class="has-text-centered">Exclude WAF Rule</th>
+                        <th class="has-text-centered">Mask</th>
+                        <th class="has-text-centered">Ignore Rules</th>
                         <th class="has-text-centered">
                           <a v-show="newWAFLine !== tab"
                              class="has-text-grey-dark is-small new-parameter-button"
