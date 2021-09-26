@@ -204,7 +204,7 @@ export default Vue.extend({
         this.localAction.params.location = oldParams.location ? oldParams.location : ''
       }
       if (this.localAction.type === 'ban') {
-        this.localAction.params.timeframe = oldParams.duration ? oldParams.duration : ''
+        this.localAction.params.duration = oldParams.duration ? oldParams.duration : ''
         this.localAction.params.action = oldParams.action ? oldParams.action : {
           type: 'default',
         }

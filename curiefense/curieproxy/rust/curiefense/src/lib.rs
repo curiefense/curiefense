@@ -170,9 +170,9 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
     logs.debug(format!("ACL result: {:?}", acl_result));
     // store the check_acl result here
     let blockcode: Option<(i32, Vec<String>)> = match acl_result {
-        AclResult::Bypass(dec) => {
+        AclResult::Passthrough(dec) => {
             if dec.allowed {
-                logs.debug("ACL bypass detected");
+                logs.debug("ACL passthrough detected");
                 return (Decision::Pass, tags);
             } else {
                 logs.debug("ACL force block detected");

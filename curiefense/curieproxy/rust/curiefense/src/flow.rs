@@ -38,7 +38,7 @@ fn check_flow(
     cnx: &mut redis::Connection,
     redis_key: &str,
     step: u32,
-    ttl: u64,
+    timeframe: u64,
     is_last: bool,
 ) -> anyhow::Result<FlowResult> {
     // first, read from REDIS how many steps already passed
@@ -62,7 +62,7 @@ fn check_flow(
                 .query(cnx)?;
             let expire = mexpire.unwrap_or(-1);
             if expire < 0 {
-                let _: () = redis::cmd("EXPIRE").arg(redis_key).arg(ttl).query(cnx)?;
+                let _: () = redis::cmd("EXPIRE").arg(redis_key).arg(timeframe).query(cnx)?;
             }
         }
         // never block if not the last step!
@@ -91,7 +91,7 @@ pub fn flow_check(
                 logs.debug(format!("Checking flow control {} (step {})", elem.name, elem.step));
                 let mredis_key = build_redis_key(reqinfo, &elem.key, &elem.id, &elem.name);
                 match mredis_key {
-                    Some(redis_key) => match check_flow(&mut cnx, &redis_key, elem.step, elem.ttl, elem.is_last)? {
+                    Some(redis_key) => match check_flow(&mut cnx, &redis_key, elem.step, elem.timeframe, elem.is_last)? {
                         FlowResult::LastOk => {
                             tags.insert(&elem.name);
                             return Ok(SimpleDecision::Pass);

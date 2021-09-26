@@ -141,7 +141,7 @@ pub struct Action {
 pub enum SimpleActionT {
     Default,
     Monitor,
-    Ban(Box<SimpleAction>, u64), // ttl
+    Ban(Box<SimpleAction>, u64), // duration, ttl
     RequestHeader(HashMap<String, String>),
     Response(String),
     Redirect(String),
@@ -224,7 +224,7 @@ impl SimpleAction {
                 ),
                 rawaction
                     .params
-                    .ttl
+                    .duration
                     .as_ref()
                     .and_then(|s| s.parse::<u64>().ok())
                     .unwrap_or(3600),

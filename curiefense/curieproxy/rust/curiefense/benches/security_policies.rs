@@ -33,7 +33,7 @@ fn gen_bogus_config(sz: usize) -> Config {
         allow_bot: HashSet::new(),
         deny: HashSet::new(),
         deny_bot: HashSet::new(),
-        bypass: HashSet::new(),
+        passthrough: HashSet::new(),
         force_deny: HashSet::new(),
     };
 

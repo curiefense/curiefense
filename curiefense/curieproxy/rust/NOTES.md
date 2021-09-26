@@ -176,7 +176,7 @@ Takes a single argument: the *session id*.
 
 On success, returns a JSON encoded object, having a single key:
 
- * if the key is `Bypass`, it represents a force deny/bypass decision
+ * if the key is `Passthrough`, it represents a force deny/passthrough decision
  * if the key is `Match`, it represents the decisions for humans and bots
 
 In all cases, the matching tags are collected. Examples:
@@ -199,13 +199,13 @@ Humans are allowed, bots are denied (results in humans being accepted, and bots 
 Humans are denied, bots are not matched (results in a deny).
 
 ```json
-{"Bypass":{"tags":["xxx"],"allowed":true}}
+{"Passthrough":{"tags":["xxx"],"allowed":true}}
 ```
 
-Bypass (results in the request being allowed).
+Passthrough (results in the request being allowed).
 
 ```json
-{"Bypass":{"tags":["xxx"],"allowed":false}}
+{"Passthrough":{"tags":["xxx"],"allowed":false}}
 ```
 
 Force deny (results in the request being dropped).

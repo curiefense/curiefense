@@ -121,7 +121,7 @@ vec_aclprofile = {
     "allow": ["allow-change"],
     "allow_bot": ["office", "qa", "devops", "sadasff"],
     "deny_bot": ["datacenter", "graylist", "vpn", "tor"],
-    "bypass": ["internalip"],
+    "passthrough": ["internalip"],
     "deny": ["blocked-countries"],
     "force_deny": ["blacklist"],
 }

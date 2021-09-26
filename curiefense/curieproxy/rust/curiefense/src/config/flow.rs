@@ -18,7 +18,7 @@ struct FlowEntry {
     name: String,
     key: Vec<RequestSelector>,
     active: bool,
-    ttl: u64,
+    timeframe: u64,
     action: SimpleAction,
     sequence: Vec<FlowStep>,
 }
@@ -45,8 +45,8 @@ pub struct FlowElement {
     pub key: Vec<RequestSelector>,
     /// the step number
     pub step: u32,
-    /// the entry ttl
-    pub ttl: u64,
+    /// the entry timeframe
+    pub timeframe: u64,
     /// the entry action
     pub action: SimpleAction,
     /// the step selector
@@ -67,7 +67,7 @@ impl FlowEntry {
             exclude: rawentry.exclude.into_iter().collect(),
             name: rawentry.name,
             active: rawentry.active,
-            ttl: rawentry.ttl,
+            timeframe: rawentry.timeframe,
             action: SimpleAction::resolve(&rawentry.action).with_context(|| "when resolving the action entry")?,
             key: mkey?,
             sequence,
@@ -123,7 +123,7 @@ pub fn flow_resolve(logs: &mut Logs, rawentries: Vec<RawFlowEntry>) -> HashMap<S
                         exclude: entry.exclude.clone(),
                         key: entry.key.clone(),
                         name: entry.name.clone(),
-                        ttl: entry.ttl,
+                        timeframe: entry.timeframe,
                         select: step.select,
                         step: stepid as u32,
                         is_last: stepid + 1 == nsteps,

@@ -119,7 +119,7 @@ pub struct RawLimit {
     pub id: String,
     pub name: String,
     pub limit: String,
-    pub ttl: String,
+    pub timeframe: String,
     #[serde(default)]
     pub key: Vec<HashMap<String, String>>,
     #[serde(default)]
@@ -194,7 +194,7 @@ pub struct RawActionParams {
     pub reason: Option<String>,
     pub content: Option<String>,
     pub location: Option<String>,
-    pub ttl: Option<String>,
+    pub duration: Option<String>,
 }
 
 impl std::default::Default for RawActionParams {
@@ -207,7 +207,7 @@ impl std::default::Default for RawActionParams {
             reason: None,
             content: None,
             location: None,
-            ttl: None,
+            duration: None,
         }
     }
 }
@@ -220,7 +220,7 @@ pub struct AclProfile {
     pub allow_bot: HashSet<String>,
     pub deny: HashSet<String>,
     pub deny_bot: HashSet<String>,
-    pub bypass: HashSet<String>,
+    pub passthrough: HashSet<String>,
     pub force_deny: HashSet<String>,
 }
 
@@ -233,7 +233,7 @@ impl AclProfile {
             allow_bot: HashSet::new(),
             deny: HashSet::new(),
             deny_bot: HashSet::new(),
-            bypass: HashSet::new(),
+            passthrough: HashSet::new(),
             force_deny: HashSet::new(),
         }
     }
@@ -290,7 +290,7 @@ pub struct RawFlowEntry {
     #[serde(default)]
     pub key: Vec<HashMap<String, String>>,
     pub active: bool,
-    pub ttl: u64,
+    pub timeframe: u64,
     pub action: RawAction,
     pub sequence: Vec<RawFlowStep>,
 }

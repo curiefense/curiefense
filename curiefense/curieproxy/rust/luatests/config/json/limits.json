@@ -3,7 +3,7 @@
         "id": "limitcountry",
         "name": "Rate Limit Example Rule 3/3",
         "description": "3 requests in 3s",
-        "ttl": "3",
+        "timeframe": "3",
         "limit": "3",
         "action": {
             "type": "default"
@@ -23,7 +23,7 @@
         "id": "limitsimple",
         "name": "Rate Limit Example Rule 3/3",
         "description": "3 requests in 3s",
-        "ttl": "3",
+        "timeframe": "3",
         "limit": "3",
         "action": {
             "type": "default"
@@ -43,7 +43,7 @@
         "id": "limitinclude",
         "name": "Rate Limit Example Rule 3/3",
         "description": "3 requests in 3s",
-        "ttl": "3",
+        "timeframe": "3",
         "limit": "3",
         "action": {
             "type": "default"
@@ -65,7 +65,7 @@
         "id": "limitexclude",
         "name": "Rate Limit Example Rule 3/3",
         "description": "3 requests in 3s",
-        "ttl": "3",
+        "timeframe": "3",
         "limit": "3",
         "action": {
             "type": "default"
@@ -87,7 +87,7 @@
         "id": "includecompany",
         "name": "Rate Limit Example with company",
         "description": "3 requests in 3s",
-        "ttl": "3",
+        "timeframe": "3",
         "limit": "3",
         "action": {
             "type": "response",
@@ -111,7 +111,7 @@
         "id": "redirector",
         "name": "Rate Limit redirection",
         "description": "3 requests in 3s",
-        "ttl": "3",
+        "timeframe": "3",
         "limit": "3",
         "action": {
             "type": "redirect",
@@ -134,7 +134,7 @@
         "id": "e2e1000000007",
         "name": "Rate Limit Rule 3/10 scope-country-include",
         "description": "3 requests per 10 seconds",
-        "ttl": "10",
+        "timeframe": "10",
         "limit": "3",
         "action": {
             "type": "default",
@@ -162,12 +162,12 @@
         "id": "f971e92459e2",
         "name": "Rate limit ban",
         "description": "3 requests per 2 seconds",
-        "ttl": "2",
+        "timeframe": "2",
         "limit": "3",
         "action": {
             "type": "ban",
             "params": {
-                "ttl": "4",
+                "duration": "4",
                 "action": {
                     "type": "default"
                 }
@@ -188,7 +188,7 @@
         "id": "4d1d9d405fc9",
         "name": "Limit per method",
         "description": ":)",
-        "ttl": "5",
+        "timeframe": "5",
         "limit": "3",
         "action": {
             "type": "default"

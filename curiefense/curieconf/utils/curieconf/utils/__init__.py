@@ -45,7 +45,6 @@ def vconvert(conf_type_name, vfrom):
             "wafpolicies": "contentfilterprofiles",
             "aclpolicies": "aclprofiles",
             "tagrules": "globalfilters",
-            "flowcontrol": "flowcontrolpolicies",
         }
     }
 

@@ -32,8 +32,8 @@ fn limit_react(
     key: String,
 ) -> SimpleDecision {
     tags.insert(&limit.name);
-    let action = if let SimpleActionT::Ban(subaction, ttl) = &limit.action.atype {
-        logs.info(format!("Banned key {} for {}s", key, ttl));
+    let action = if let SimpleActionT::Ban(subaction, duration) = &limit.action.atype {
+        logs.info(format!("Banned key {} for {}s", key, duration));
         let ban_key = get_ban_key(&key);
         if let Err(rr) = redis::pipe()
             .cmd("SET")
@@ -41,7 +41,7 @@ fn limit_react(
             .arg(1)
             .cmd("EXPIRE")
             .arg(&ban_key)
-            .arg(*ttl)
+            .arg(*duration)
             .query::<()>(cnx)
         {
             println!("*** Redis error {}", rr);
@@ -64,7 +64,7 @@ fn redis_check_limit(
     cnx: &mut redis::Connection,
     key: &str,
     limit: u64,
-    ttl: u64,
+    timeframe: u64,
     pairvalue: Option<String>,
 ) -> RedisResult<bool> {
     let (mcurrent, mexpire): (Option<i64>, Option<i64>) = match &pairvalue {
@@ -84,7 +84,7 @@ fn redis_check_limit(
     let expire = mexpire.unwrap_or(-1);
 
     if expire < 0 {
-        let _: () = redis::cmd("EXPIRE").arg(key).arg(ttl).query(cnx)?;
+        let _: () = redis::cmd("EXPIRE").arg(key).arg(timeframe).query(cnx)?;
     }
     Ok(current > limit as i64)
 }
@@ -146,7 +146,7 @@ pub fn limit_check(
 
         let pairvalue = limit.pairwith.as_ref().and_then(|sel| select_string(reqinfo, sel));
 
-        match redis_check_limit(&mut redis, &key, limit.limit, limit.ttl, pairvalue) {
+        match redis_check_limit(&mut redis, &key, limit.limit, limit.timeframe, pairvalue) {
             Err(rr) => logs.error(rr),
             Ok(true) => {
                 return limit_react(logs, tags, &mut redis, limit, key);

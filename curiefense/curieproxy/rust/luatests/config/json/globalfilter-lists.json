@@ -8,7 +8,7 @@
       "id": "hdrfoobar",
       "mdate": "2020-05-23T00:04:41",
       "name": "header foo=bar",
-      "notes": "note",
+      "description": "description",
       "rule": {
          "relation": "AND",
          "sections": [
@@ -41,7 +41,7 @@
       "id": "arg_deny",
       "mdate": "2020-05-23T00:04:41",
       "name": "args deny",
-      "notes": "args",
+      "description": "args",
       "rule": {
          "relation": "AND",
          "sections": [
@@ -82,7 +82,7 @@
       "id": "arg_allow",
       "mdate": "2020-05-23T00:04:41",
       "name": "args allow",
-      "notes": "args",
+      "description": "args",
       "rule": {
          "relation": "AND",
          "sections": [
@@ -123,7 +123,7 @@
       "id": "arg_allowbot",
       "mdate": "2020-05-23T00:04:41",
       "name": "args allowbot",
-      "notes": "args",
+      "description": "args",
       "rule": {
          "relation": "AND",
          "sections": [
@@ -164,7 +164,7 @@
       "id": "arg_denybot",
       "mdate": "2020-05-23T00:04:41",
       "name": "args denybot",
-      "notes": "args",
+      "description": "args",
       "rule": {
          "relation": "AND",
          "sections": [
@@ -205,7 +205,7 @@
       "id": "arg_forcedeny",
       "mdate": "2020-05-23T00:04:41",
       "name": "args forcedeny",
-      "notes": "args",
+      "description": "args",
       "rule": {
          "relation": "AND",
          "sections": [
@@ -243,10 +243,10 @@
       },
       "active": true,
       "entries_relation": "OR",
-      "id": "arg_bypass",
+      "id": "arg_passthrough",
       "mdate": "2020-05-23T00:04:41",
-      "name": "args bypass",
-      "notes": "args",
+      "name": "args passthrough",
+      "description": "args",
       "rule": {
          "relation": "AND",
          "sections": [
@@ -255,18 +255,18 @@
                   [
                      "args",
                      [
-                        "bypass",
-                        "bypass"
+                        "passthrough",
+                        "passthrough"
                      ],
-                     "bypass"
+                     "passthrough"
                   ],
                   [
                      "args",
                      [
-                        "bypass_base64",
-                        "bypass"
+                        "passthrough_base64",
+                        "passthrough"
                      ],
-                     "bypass"
+                     "passthrough"
                   ]
                ],
                "relation": "OR"
@@ -275,7 +275,7 @@
       },
       "source": "self-managed",
       "tags": [
-         "bypass"
+         "passthrough"
       ]
    },
    {
@@ -283,7 +283,7 @@
       "name": "Sante test",
       "source": "self-managed",
       "mdate": "2021-04-20T14:46:50.195Z",
-      "notes": "New List Notes and Remarks",
+      "description": "New List Description and Remarks",
       "active": true,
       "tags": [
          "sante"
@@ -365,7 +365,7 @@
       "id": "action_challenge",
       "mdate": "2020-05-23T00:04:41",
       "name": "action challenge",
-      "notes": "...",
+      "description": "...",
       "rule": {
          "relation": "AND",
          "sections": [
@@ -402,7 +402,7 @@
       "id": "action_response",
       "mdate": "2020-05-23T00:04:41",
       "name": "action response",
-      "notes": "...",
+      "description": "...",
       "rule": {
          "relation": "AND",
          "sections": [
@@ -435,7 +435,7 @@
       "id": "action_default",
       "mdate": "2020-05-23T00:04:41",
       "name": "action default",
-      "notes": "...",
+      "description": "...",
       "rule": {
          "relation": "AND",
          "sections": [
@@ -472,7 +472,7 @@
       "id": "action_redirect",
       "mdate": "2020-05-23T00:04:41",
       "name": "action redirect",
-      "notes": "...",
+      "description": "...",
       "rule": {
          "relation": "AND",
          "sections": [
@@ -501,7 +501,7 @@
       "name": "foo",
       "source": "self-managed",
       "mdate": "2021-07-01T09:50:58.505Z",
-      "notes": "Check action",
+      "description": "Check action",
       "active": true,
       "action": {
          "type": "default"

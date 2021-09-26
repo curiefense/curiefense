@@ -5,7 +5,7 @@
         "allow": [],
         "allow_bot": [],
         "deny_bot": [],
-        "bypass": [],
+        "passthrough": [],
         "force_deny": [],
         "deny": []
     },
@@ -15,7 +15,7 @@
         "allow": ["allow"],
         "allow_bot": ["allowbot"],
         "deny_bot": ["denybot"],
-        "bypass": ["bypass"],
+        "passthrough": ["passthrough"],
         "force_deny": ["forcedeny"],
         "deny": ["deny"]
     }
