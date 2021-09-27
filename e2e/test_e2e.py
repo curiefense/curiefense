@@ -242,9 +242,9 @@ class TestACL:
         acl.reset_and_set_acl({"force_deny": "all"})
         assert not target.is_reachable("/deny-all")
 
-    def test_bypass_all(self, acl, target):
-        acl.reset_and_set_acl({"deny": "all", "bypass": "all"})
-        assert target.is_reachable("/deny-bypass-all")
+    def test_passthrough_all(self, acl, target):
+        acl.reset_and_set_acl({"deny": "all", "passthrough": "all"})
+        assert target.is_reachable("/deny-passthrough-all")
 
     def test_allow_bot_all(self, acl, target):
         acl.reset_and_set_acl({"allow_bot": "all"})
@@ -321,7 +321,7 @@ def gen_rl_rules(authority):
                     "name": name,
                     "source": "self-managed",
                     "mdate": "2020-11-22T00:00:00.000Z",
-                    "notes": "E2E test tag rules",
+                    "description": "E2E test tag rules",
                     "entries_relation": "OR",
                     "active": True,
                     "tags": [id],
@@ -360,7 +360,7 @@ def gen_rl_rules(authority):
                 "id": rule_id,
                 "name": "Rate Limit Rule 3/10 " + path,
                 "description": "3 requests per 10 seconds",
-                "ttl": "10",
+                "timeframe": "10",
                 "limit": "3",
                 "action": {
                     "type": kwargs.get("action", "default"),
@@ -491,7 +491,7 @@ def gen_rl_rules(authority):
         "action-ban-503",
         action="ban",
         subaction="default",
-        param_ext={"ttl": "10"},
+        param_ext={"duration": "10"},
         excl_attrs={"tags": "allowlist"},
         incl_attrs={"tags": "blocklist"},
     )
@@ -499,29 +499,29 @@ def gen_rl_rules(authority):
         "action-ban-challenge",
         action="ban",
         subaction="challenge",
-        param_ext={"ttl": "10"},
+        param_ext={"duration": "10"},
         subaction_params={"action": {"type": "default", "params": {}}},
     )
     add_rl_rule(
         "action-ban-tagonly",
         action="ban",
         subaction="monitor",
-        param_ext={"ttl": "10"},
+        param_ext={"duration": "10"},
         subaction_params={"action": {"type": "default", "params": {}}},
     )
     add_rl_rule(
         "action-ban-response",
         action="ban",
         subaction="response",
-        param_ext={"status": "123", "ttl": "10", "content": "Content"},
+        param_ext={"status": "123", "duration": "10", "content": "Content"},
         subaction_params={"content": "Response body", "status": "123"},
     )
     add_rl_rule(
         "action-ban-redirect",
         action="ban",
         subaction="redirect",
-        param_ext={"ttl": "10"},
-        subaction_ext={"status": "124", "ttl": "10", "location": "/redirect/"},
+        param_ext={"duration": "10"},
+        subaction_ext={"status": "124", "duration": "10", "location": "/redirect/"},
         subaction_params={
             "location": "/redirect",
             "status": "301",
@@ -532,7 +532,7 @@ def gen_rl_rules(authority):
         "action-ban-header",
         action="ban",
         subaction="request_header",
-        param_ext={"ttl": "10"},
+        param_ext={"duration": "10"},
         subaction_ext={"headers": "Header-Name"},
         subaction_params={
             "headers": {"foo": "bar"},
@@ -1104,7 +1104,7 @@ TEST_GLOBALFILTERS = {
     "name": "e2e test tag rules",
     "source": "self-managed",
     "mdate": "2020-11-22T00:00:00.000Z",
-    "notes": "E2E test tag rules",
+    "description": "E2E test tag rules",
     "entries_relation": "OR",
     "active": True,
     "tags": ["e2e-test"],
@@ -1150,7 +1150,7 @@ def active(request):
 @pytest.fixture(scope="class")
 def globalfilters_config(cli, acl, active):
     cli.revert_and_enable()
-    acl.set_acl({"force_deny": "e2e-test", "bypass": "all"})
+    acl.set_acl({"force_deny": "e2e-test", "passthrough": "all"})
     # Apply TEST_GLOBALFILTERS
     TEST_GLOBALFILTERS["active"] = active
     # 'updating' wafpolicies with a list containing a single entry adds this
@@ -1255,7 +1255,7 @@ ACL_BYPASSALL = {
     "allow": [],
     "allow_bot": [],
     "deny_bot": [],
-    "bypass": ["all"],
+    "passthrough": ["all"],
     "force_deny": [],
     "deny": [],
 }
@@ -1292,8 +1292,8 @@ SECURITYPOLICY = [
                 "isnew": True,
             },
             {
-                "name": "acl-bypassall",
-                "match": "/acl-bypassall/",
+                "name": "acl-passthroughall",
+                "match": "/acl-passthroughall/",
                 "acl_profile": "e2e00ac10000",
                 "acl_active": True,
                 "waf_profile": "__default__",
@@ -1388,10 +1388,10 @@ class TestSecurityPolicy:
             "/acl/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_nondefault_aclfilter_bypassall(self, target, securitypolicy_config):
-        assert target.is_reachable("/acl-bypassall/")
+    def test_nondefault_aclfilter_passthroughall(self, target, securitypolicy_config):
+        assert target.is_reachable("/acl-passthroughall/")
         assert target.is_reachable(
-            "/acl-bypassall/", headers={"Long-header": "Overlong_header" * 100}
+            "/acl-passthroughall/", headers={"Long-header": "Overlong_header" * 100}
         )
 
     def test_aclwaffilter(self, target, securitypolicy_config):
