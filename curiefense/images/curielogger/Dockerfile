@@ -1,4 +1,4 @@
-FROM golang:1-alpine as builder
+FROM golang:1.17.1-alpine3.14 as builder
 
 WORKDIR /app
 COPY curielogger .

@@ -1,4 +1,4 @@
-FROM tiangolo/uwsgi-nginx-flask:python3.8
+FROM tiangolo/uwsgi-nginx-flask:python3.8-2021-09-08
 
 RUN ln -sf /bootstrap/initial-bucket-export.conf /etc/supervisor/conf.d/initial-bucket-export.conf
 RUN ln -sf /init/nginx.conf /etc/nginx/conf.d/nginx.conf

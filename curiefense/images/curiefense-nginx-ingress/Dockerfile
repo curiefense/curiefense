@@ -1,7 +1,7 @@
 ARG RUSTBIN_TAG=latest
 FROM curiefense/curiefense-rustbuild-focal:${RUSTBIN_TAG} AS rustbin
 FROM docker.io/nginx/nginx-ingress:1.11.3 as nginx-ingress
-FROM docker.io/openresty/openresty:focal as openresty
+FROM docker.io/openresty/openresty:1.19.9.1-1-focal as openresty
 
 USER root
 RUN groupadd --system --gid 101 nginx \
