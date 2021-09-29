@@ -1,4 +1,4 @@
-FROM node as builder
+FROM node:14.18.0 as builder
 
 COPY ui /ui
 WORKDIR /ui
