@@ -2,6 +2,7 @@
 ^\S+ \S+ Prometheus exporter listening on :2112
 ^\S+ \S+ GRPC server listening on :9001
 ^\S+ \S+ \[INFO\].*
+^time="\S+" level="info"
 ^Creating an index pattern in Kibana if needed.
 ^Elasticsearch lifecycle policy already exists.
 ^Elastic index already exists.
