@@ -3,7 +3,24 @@
   <div class="dropdown"
        :class="{'is-active': suggestionsVisible}">
     <div class="dropdown-trigger">
-      <input v-model="autocompleteValue"
+      <textarea v-if="inputType === 'textarea'"
+                :value="autocompleteTextareaValue()"
+                :title="title"
+                :placeholder="title"
+                class="autocomplete-input textarea is-small"
+                @keydown.enter="selectTextareaValue"
+                @keydown.space.prevent
+                @keydown.down="focusNextSuggestion"
+                @keydown.up="focusPreviousSuggestion"
+                @keydown.esc="closeDropdown"
+                @keydown.delete.prevent="onTextareaDelete"
+                @input="onInput"
+                @blur="inputBlurred"
+                @focus="onTextareaFocus"
+                @mousedown.prevent="moveToEnd"
+                ref="autocompleteInput" />
+      <input v-else
+             v-model="autocompleteValue"
              :title="title"
              :placeholder="title"
              type="text"
@@ -12,12 +29,12 @@
              aria-controls="dropdown-menu"
              @keydown.enter="selectValue"
              @keydown.space="selectValue"
-             @keydown.down='focusNextSuggestion'
-             @keydown.up='focusPreviousSuggestion'
-             @keydown.esc='closeDropdown'
+             @keydown.down="focusNextSuggestion"
+             @keydown.up="focusPreviousSuggestion"
+             @keydown.esc="closeDropdown"
              @input="openDropdown(); valueChanged()"
              @blur="inputBlurred"
-             ref="autocompleteInput"/>
+             ref="autocompleteInput" />
     </div>
     <div class="dropdown-menu"
          id="dropdown-menu"
@@ -56,6 +73,10 @@ export default (Vue as VueConstructor<Vue & {
   name: 'AutocompleteInput',
 
   props: {
+    inputType: {
+      type: String,
+      default: 'input',
+    },
     initialValue: {
       type: String,
       default: '',
@@ -118,6 +139,7 @@ export default (Vue as VueConstructor<Vue & {
       open: false,
       focusedSuggestionIndex: -1,
       inputBlurredTimeout: null,
+      divider: this.inputType === 'textarea' ? '\n' : ' ',
     }
   },
 
@@ -131,31 +153,30 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     suggestionsVisible(): boolean {
-      return this.currentValue !== '' && this.matches?.length !== 0 && this.open
+      return this.currentValue !== '' && this.matches?.length && this.open
     },
 
     currentValue: {
-      get: function(): string {
+      get(): string {
         let currentValue
         if (this?.selectionType.toLowerCase() === 'multiple') {
-          const values = this.autocompleteValue.split(' ')
-          currentValue = values[values.length - 1].trim()
+          const values = this.autocompleteValue.split(this.divider)
+          currentValue = values[values.length - 1]
         } else {
-          currentValue = this.autocompleteValue.trim()
+          currentValue = this.autocompleteValue
         }
-        return currentValue
+        return currentValue.replace('•', '').trim()
       },
-      set: function(currentValue: string) {
+      set(currentValue: string) {
         if (this.selectionType.toLowerCase() === 'multiple') {
-          const values = this.autocompleteValue.split(' ')
+          const values = this.autocompleteValue.split(this.divider)
           values[values.length - 1] = currentValue
-          this.autocompleteValue = values.join(' ')
+          this.autocompleteValue = values.join(this.divider)
         } else {
-          this.autocompleteValue = currentValue.trim()
+          this.autocompleteValue = currentValue
         }
       },
     },
-
   },
 
   methods: {
@@ -169,10 +190,10 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     valueSubmitted() {
-      if ( this.filterFunction ) {
-        this.autocompleteValue = this.filterFunction( this.autocompleteValue )
+      if (this.filterFunction) {
+        this.autocompleteValue = this.filterFunction(this.autocompleteValue)
       }
-      this.$emit( 'value-submitted', this.autocompleteValue )
+      this.$emit('value-submitted', this.autocompleteValue)
     },
 
     closeDropdown(): void {
@@ -189,9 +210,57 @@ export default (Vue as VueConstructor<Vue & {
           this.$refs.autocompleteInput.focus()
         })
       }
+      if (this.inputType === 'textarea') {
+        this.autocompleteValue = `${this.autocompleteValue.trim()}${this.divider}`
+      }
     },
 
-    async selectValue(skipFocus?: boolean) {
+    moveToEnd(event: KeyboardEvent) {
+      event.preventDefault()
+      const element = event.target as HTMLTextAreaElement
+      element.focus()
+      element.setSelectionRange(element.value.length, element.value.length)
+    },
+
+    selectTextareaValue(event: KeyboardEvent) {
+      if (event.key === 'Enter' && this.autocompleteValue.endsWith(this.divider)) {
+        event.preventDefault()
+      }
+      if (!(event.target as HTMLTextAreaElement).value) {
+        event.preventDefault()
+        return
+      }
+      this.selectValue()
+    },
+
+    onTextareaFocus() {
+      if (this.autocompleteValue.trim()) {
+        this.autocompleteValue = `${this.autocompleteValue.trim()}${this.divider}`
+      }
+    },
+
+    onTextareaDelete() {
+      const valueArray = this.autocompleteValue.trim().split(this.divider)
+      valueArray.splice(-1)
+      this.autocompleteValue = valueArray.join(this.divider)
+      this.valueSubmitted()
+    },
+
+    autocompleteTextareaValue() {
+      return this.autocompleteValue.split(this.divider).map(
+        (val: string) => {
+          return val.trim() ? `• ${val.replace('• ', '')}` : val
+        },
+      ).join(this.divider)
+    },
+
+    onInput({target}: KeyboardEvent) {
+      this.autocompleteValue = (target as HTMLTextAreaElement).value
+      this.openDropdown()
+      this.valueSubmitted()
+    },
+
+    selectValue(skipFocus?: boolean) {
       if (this.focusedSuggestionIndex !== -1) {
         this.currentValue = this.matches[this.focusedSuggestionIndex].value
       }
@@ -200,9 +269,9 @@ export default (Vue as VueConstructor<Vue & {
           return
         }
         Utils.toast(
-            `Selected value "${this.currentValue}" is invalid!\n` +
-            `Values must be at least ${this.minimumValueLength} characters long.`,
-            'is-danger',
+          `Selected value "${this.currentValue}" is invalid!\n` +
+          `Values must be at least ${this.minimumValueLength} characters long.`,
+          'is-danger',
         )
         this.currentValue = ''
       } else {
@@ -247,7 +316,6 @@ export default (Vue as VueConstructor<Vue & {
     clearInputBlurredTimeout() {
       clearTimeout(this.inputBlurredTimeout)
     },
-
   },
 
   destroyed() {
