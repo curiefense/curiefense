@@ -72,7 +72,7 @@
     "ts-jest": "^26.4.4",
     "ts-node": "^9.1.1",
     "typescript": "^3.9.7",
-    "url-parse": "^1.5.0",
+    "url-parse": "^1.5.2",
     "vue-jest": "^3.0.7",
     "vue-template-compiler": "^2.6.12",
     "webpack": "^4.44.2",
