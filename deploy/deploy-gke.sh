@@ -40,7 +40,6 @@ deploy_curiefense () {
 	kubectl create namespace curiefense
 	kubectl create namespace istio-system
 	kubectl apply -f "$S3CFG_PATH"
-	kubectl apply -f "$BASEDIR/curiefense-helm/example-dbsecret.yaml"
 	kubectl apply -f "$BASEDIR/curiefense-helm/example-uiserver-tls.yaml"
 	if [ "$jaeger" = "y" ] || [ "$all" = "y" ]; then
 		kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.8/samples/addons/jaeger.yaml
