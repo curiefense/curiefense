@@ -1,4 +1,4 @@
-import ContentFilterEditor from '@/doc-editors/ContentFilterEditor.vue'
+import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
@@ -134,23 +134,13 @@ describe('ContentFilterEditor.vue', () => {
   })
 
   test('should unpack exclusions correctly from model for view', async () => {
-    const unpackedExclusions = '100040 100041'
+    const unpackedExclusions = '100000\n100001'
     const packedExclusions = {
-      '100040': 1,
-      '100041': 1,
+      100000: 'rule',
+      100001: 'rule',
     }
     const actualUnpackedExclusions = (wrapper.vm as any).unpackExclusions(packedExclusions)
     expect(actualUnpackedExclusions).toEqual(unpackedExclusions)
-  })
-
-  test('should pack exclusions correctly from view for model', async () => {
-    const unpackedExclusions = '100040 100041'
-    const packedExclusions = {
-      '100040': 1,
-      '100041': 1,
-    }
-    const actualPackedExclusions = (wrapper.vm as any).packExclusions(unpackedExclusions)
-    expect(actualPackedExclusions).toEqual(packedExclusions)
   })
 
   test('should unpack empty exclusions correctly from model for view', async () => {
@@ -158,13 +148,6 @@ describe('ContentFilterEditor.vue', () => {
     const packedExclusions = {}
     const actualUnpackedExclusions = (wrapper.vm as any).unpackExclusions(packedExclusions)
     expect(actualUnpackedExclusions).toEqual(unpackedExclusions)
-  })
-
-  test('should pack empty exclusions correctly from view for model', async () => {
-    const unpackedExclusions = ''
-    const packedExclusions = {}
-    const actualPackedExclusions = (wrapper.vm as any).packExclusions(unpackedExclusions)
-    expect(actualPackedExclusions).toEqual(packedExclusions)
   })
 
   buildTabDescribe('headers')
@@ -261,16 +244,16 @@ describe('ContentFilterEditor.vue', () => {
 
           test('should add exclusions when creating new parameter', async () => {
             const wantedValue = {
-              '100040': 1,
-              '100041': 1,
+              100000: 'rule',
+              100001: 'rule',
             }
             const autocompleteInput = wrapper.findComponent(AutocompleteInput)
-            autocompleteInput.vm.$emit('value-submitted', _.keys(wantedValue).join(' '))
+            autocompleteInput.vm.$emit('value-submitted', _.keys(wantedValue).join('\n'))
             await Vue.nextTick()
             const confirmButton = newRow.find('.confirm-add-new-parameter')
             confirmButton.trigger('click')
             await Vue.nextTick()
-            const actualValue = (wrapper.vm as any).localDoc[tab][type][0].exclusions
+            const actualValue = (wrapper.vm as any).localDoc[tab][type][0].ignore
             expect(actualValue).toEqual(wantedValue)
           })
 
@@ -286,7 +269,7 @@ describe('ContentFilterEditor.vue', () => {
           })
 
           test('should have correct filtered suggestions passed to AutocompleteInput', async () => {
-            const existingRuleIDs = '100000 100002'
+            const existingRuleIDs = '100000\n100002'
             const wantedValue = [
               {value: '100001'},
             ]

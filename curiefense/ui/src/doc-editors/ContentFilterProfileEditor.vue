@@ -510,7 +510,7 @@ export default Vue.extend({
     },
 
     updateEntryExclusions(entry: ContentFilterEntryMatch, exclusions: string) {
-      const result: ContentFilterEntryMatch['ignore'] = entry.ignore
+      const result: ContentFilterEntryMatch['ignore'] = {}
       const exclusionsArray: string[] = exclusions.trim().split('\n')
       exclusionsArray.forEach((ex) => {
         const exclusionType = ex.endsWith(this.groupSuffix) ? 'group' : 'rule'
@@ -536,9 +536,10 @@ export default Vue.extend({
       const exclusionsNamesArray = Object.keys(exclusions).map(
         (exId) => {
           const exclusionType = exclusions[exId]
-          return (this.contentFilter[exclusionType] as (ContentFilterRule | ContentFilterRuleGroup)[]).find(
-            ({id}) => id === exId,
-          )?.name
+          const name = (this.contentFilter[exclusionType] as (ContentFilterRule | ContentFilterRuleGroup)[])?.find(
+            ({id}) => id == exId,
+          )?.name || ''
+          return exclusionType === 'group' ? `${name} ${this.groupSuffix}` : name
         },
       )
       if ( exclusionsNamesArray.length ) {
@@ -567,12 +568,12 @@ export default Vue.extend({
         RequestsUtils.sendRequest({
           methodName: 'GET',
           url: `configs/${this.selectedBranch}/d/contentfilterrules/`,
-          config: {headers: {'x-fields': ['id', 'name']}},
+          config: {headers: {'x-fields': 'id, name'}},
         }),
         RequestsUtils.sendRequest({
           methodName: 'GET',
           url: `configs/${this.selectedBranch}/d/contentfiltergroups/`,
-          config: {headers: {'x-fields': ['id', 'name']}},
+          config: {headers: {'x-fields': 'id, name'}},
         }),
       ])
       this.contentFilter = {

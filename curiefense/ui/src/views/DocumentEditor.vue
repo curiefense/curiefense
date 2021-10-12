@@ -205,10 +205,10 @@
 <script lang="ts">
 import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
-import RequestsUtils, {MethodNames} from '@/assets/RequestsUtils.ts'
+import RequestsUtils from '@/assets/RequestsUtils.ts'
 import Utils from '@/assets/Utils.ts'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
-import ContentFilterEditor from '@/doc-editors/ContentFilterEditor.vue'
+import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
 import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
@@ -218,7 +218,7 @@ import ContentFilterRuleGroupEditor from '@/doc-editors/ContentFilterRuleGroupEd
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import Vue from 'vue'
-import {BasicDocument, Commit, Document, DocumentType, SecurityPolicy} from '@/types'
+import {BasicDocument, Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
 export default Vue.extend({
@@ -558,7 +558,7 @@ export default Vue.extend({
       this.setLoadingDocStatus(false)
     },
 
-    async saveChanges(methodName?: MethodNames, successMessage?: string, failureMessage?: string) {
+    async saveChanges(methodName?: HttpRequestMethods, successMessage?: string, failureMessage?: string) {
       this.isSaveLoading = true
       if (!methodName) {
         methodName = 'PUT'

@@ -209,7 +209,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
         {...defaultFlowControlSequenceItem},
         {
           ...defaultFlowControlSequenceItem,
-          method: httpRequestMethods[1],
+          method: httpRequestMethods[2],
         },
       ],
     }

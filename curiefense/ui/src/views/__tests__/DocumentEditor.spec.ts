@@ -7,7 +7,7 @@ import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import _ from 'lodash'
-import {ACLProfile, Branch, Commit, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, ContentFilterProfile} from '@/types'
+import {ACLProfile, Branch, Commit, ContentFilterProfile, Document, FlowControlPolicy, GlobalFilter, RateLimit, SecurityPolicy} from '@/types'
 
 jest.mock('axios')
 
@@ -1375,7 +1375,7 @@ describe('DocumentEditor.vue', () => {
     test('should be able to add multiple new documents in a row with different IDs', async () => {
       const newDocIDs: string[] = []
       const postSpy = jest.spyOn(axios, 'post')
-      postSpy.mockImplementation((url, data) => {
+      postSpy.mockImplementation((url, data: Partial<Document>) => {
         newDocIDs.push(data.id)
         return Promise.resolve()
       })

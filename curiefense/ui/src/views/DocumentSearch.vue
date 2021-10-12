@@ -136,7 +136,7 @@
 <script lang="ts">
 import _ from 'lodash'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
-import ContentFilterEditor from '@/doc-editors/ContentFilterEditor.vue'
+import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'

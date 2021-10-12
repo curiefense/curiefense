@@ -4,7 +4,7 @@
        :class="{'is-active': suggestionsVisible}">
     <div class="dropdown-trigger">
       <textarea v-if="inputType === 'textarea'"
-                :value="autocompleteTextareaValue()"
+                :value="autocompleteTextareaValue"
                 :title="title"
                 :placeholder="title"
                 class="autocomplete-input textarea is-small"
@@ -17,7 +17,7 @@
                 @input="onInput"
                 @blur="inputBlurred"
                 @focus="onTextareaFocus"
-                @mousedown.prevent="moveToEnd"
+                @mousedown.prevent="moveCursorToEnd"
                 ref="autocompleteInput" />
       <input v-else
              v-model="autocompleteValue"
@@ -68,7 +68,9 @@ export type AutocompleteInputEvents = 'keyup' | 'keydown' | 'keypress' | 'focus'
 export default (Vue as VueConstructor<Vue & {
   $refs: {
     autocompleteInput: HTMLInputElement
-  }
+  },
+  divider: string,
+  autocompleteValue: string,
 }>).extend({
   name: 'AutocompleteInput',
 
@@ -177,6 +179,15 @@ export default (Vue as VueConstructor<Vue & {
         }
       },
     },
+
+    autocompleteTextareaValue() {
+      return this.autocompleteValue.split(this.divider).map(
+        (val: string) => {
+          val = val.trim()
+          return val ? `• ${val.replace('• ', '')}` : val
+        },
+      ).join(this.divider)
+    },
   },
 
   methods: {
@@ -215,8 +226,7 @@ export default (Vue as VueConstructor<Vue & {
       }
     },
 
-    moveToEnd(event: KeyboardEvent) {
-      event.preventDefault()
+    moveCursorToEnd(event: KeyboardEvent) {
       const element = event.target as HTMLTextAreaElement
       element.focus()
       element.setSelectionRange(element.value.length, element.value.length)
@@ -244,14 +254,6 @@ export default (Vue as VueConstructor<Vue & {
       valueArray.splice(-1)
       this.autocompleteValue = valueArray.join(this.divider)
       this.valueSubmitted()
-    },
-
-    autocompleteTextareaValue() {
-      return this.autocompleteValue.split(this.divider).map(
-        (val: string) => {
-          return val.trim() ? `• ${val.replace('• ', '')}` : val
-        },
-      ).join(this.divider)
     },
 
     onInput({target}: KeyboardEvent) {
