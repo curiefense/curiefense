@@ -176,7 +176,7 @@
                             <span class="icon is-small"><i class="fas fa-plus"></i></span>
                           </a>
                           <a v-show="newContentFilterLine === tab"
-                             class="has-text-grey-dark is-small"
+                             class="has-text-grey-dark is-small cancel-new-parameter"
                              title="Cancel adding new parameter"
                              tabindex="0"
                              @click="cancelNewParemeter"
@@ -514,7 +514,7 @@ export default Vue.extend({
       const exclusionsArray: string[] = exclusions.trim().split('\n')
       exclusionsArray.forEach((ex) => {
         const exclusionType = ex.endsWith(this.groupSuffix) ? 'group' : 'rule'
-        const exId = this.getcontentFilterId(exclusionType, ex)
+        const exId = this.getContentFilterId(exclusionType, ex)
         if ( exId ) {
           result[exId] = exclusionType
         }
@@ -526,29 +526,28 @@ export default Vue.extend({
     entryExclusionsSuggestions({ignore}: ContentFilterEntryMatch) {
       return _.filter(this.contentFilterSuggestions, ({value}) => {
         const exclusionType = value.endsWith(this.groupSuffix) ? 'group' : 'rule'
-        const exId = this.getcontentFilterId(exclusionType, value)
+        const exId = this.getContentFilterId(exclusionType, value)
         return !ignore?.[exId]
       })
     },
 
     unpackExclusions(exclusions: ContentFilterEntryMatch['ignore']) {
-      let result = ''
-      const exclusionsNamesArray = Object.keys(exclusions).map(
+      const result: string[] = []
+      Object.keys(exclusions).forEach(
         (exId) => {
           const exclusionType = exclusions[exId]
           const name = (this.contentFilter[exclusionType] as (ContentFilterRule | ContentFilterRuleGroup)[])?.find(
-            ({id}) => id == exId,
-          )?.name || ''
-          return exclusionType === 'group' ? `${name} ${this.groupSuffix}` : name
+            ({id}) => id === exId,
+          )?.name
+          if (name) {
+            result.push(exclusionType === 'group' ? `${name} ${this.groupSuffix}` : name)
+          }
         },
       )
-      if ( exclusionsNamesArray.length ) {
-        result = exclusionsNamesArray.join('\n')
-      }
-      return result
+      return result.join('\n')
     },
 
-    getcontentFilterId(exclusionType: ContentFilterIgnoreType, exclusions: string) {
+    getContentFilterId(exclusionType: ContentFilterIgnoreType, exclusions: string) {
       return (this.contentFilter[exclusionType] as (ContentFilterRule | ContentFilterRuleGroup)[]).find(
         ({name}) => exclusions.includes(name),
       )?.id

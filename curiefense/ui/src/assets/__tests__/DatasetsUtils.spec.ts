@@ -4,24 +4,25 @@ import {describe, expect, test} from '@jest/globals'
 describe('RequestsUtils.ts', () => {
   const regexUUID = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
   const regexUUID2 = /[0-9a-fA-F]{12}/
+  const {generateUUID, generateUUID2, newDocEntryFactory} = DatasetsUtils
 
   describe('generateUUID function', () => {
     test('should generate random UUID', async () => {
-      const actualUUID = DatasetsUtils.generateUUID()
+      const actualUUID = generateUUID()
       expect(regexUUID.test(actualUUID)).toBeTruthy()
     })
   })
 
   describe('generateUUID2 function', () => {
     test('should generate random UUID and return last 12 digits of it', async () => {
-      const actualUUID = DatasetsUtils.generateUUID2()
+      const actualUUID = generateUUID2()
       expect(regexUUID2.test(actualUUID)).toBeTruthy()
     })
   })
 
   describe('newDocEntryFactory', () => {
     test('should generate a new ACL Profile', async () => {
-      const document = DatasetsUtils.newDocEntryFactory.aclprofiles()
+      const document = newDocEntryFactory.aclprofiles()
       expect(regexUUID2.test(document['id'])).toBeTruthy()
       expect(document['name']).toEqual('New ACL Profile')
       expect(document['allow']).toEqual([])
@@ -33,7 +34,7 @@ describe('RequestsUtils.ts', () => {
     })
 
     test('should generate a new Content Filter Profile', async () => {
-      const document = DatasetsUtils.newDocEntryFactory.contentfilterprofiles()
+      const document = newDocEntryFactory.contentfilterprofiles()
       expect(regexUUID2.test(document['id'])).toBeTruthy()
       expect(document['name']).toEqual('New Content Filter Profile')
       expect(document['ignore_alphanum']).toEqual(true)
@@ -54,7 +55,7 @@ describe('RequestsUtils.ts', () => {
     test('should generate a new Global Filter', async () => {
       // eslint-disable-next-line max-len
       const regexISODate = /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d)/
-      const document = DatasetsUtils.newDocEntryFactory.globalfilters()
+      const document = newDocEntryFactory.globalfilters()
       expect(regexUUID2.test(document['id'])).toBeTruthy()
       expect(document['name']).toEqual('New Global Filter')
       expect(document['source']).toEqual('self-managed')
@@ -69,7 +70,7 @@ describe('RequestsUtils.ts', () => {
     })
 
     test('should generate a new Security Policy', async () => {
-      const document = DatasetsUtils.newDocEntryFactory.securitypolicies()
+      const document = newDocEntryFactory.securitypolicies()
       expect(regexUUID2.test(document['id'])).toBeTruthy()
       expect(document['name']).toEqual('New Security Policy')
       expect(document['match']).toEqual(`${document['id']}.example.com`)
@@ -83,7 +84,7 @@ describe('RequestsUtils.ts', () => {
     })
 
     test('should generate a new Rate Limit', async () => {
-      const document = DatasetsUtils.newDocEntryFactory.ratelimits()
+      const document = newDocEntryFactory.ratelimits()
       expect(regexUUID2.test(document['id'])).toBeTruthy()
       expect(document['name']).toEqual('New Rate Limit Rule')
       expect(document['description']).toEqual('New Rate Limit Rule')
@@ -97,7 +98,7 @@ describe('RequestsUtils.ts', () => {
     })
 
     test('should generate a new Flow Control', async () => {
-      const {newDocEntryFactory, defaultFlowControlSequenceItem} = DatasetsUtils
+      const {defaultFlowControlSequenceItem} = DatasetsUtils
       const document = newDocEntryFactory.flowcontrol()
       expect(regexUUID2.test(document['id'])).toBeTruthy()
       expect(document['name']).toEqual('New Flow Control Policy')
@@ -118,10 +119,18 @@ describe('RequestsUtils.ts', () => {
     })
 
     test('should generate a new Content Filter Rule', async () => {
-      const document = DatasetsUtils.newDocEntryFactory.contentfilterrules()
+      const document = newDocEntryFactory.contentfilterrules()
       expect(regexUUID2.test(document['id'])).toBeTruthy()
       expect(document['name']).toEqual('New Content Filter Rule')
       expect(document['operand']).toEqual('')
+    })
+
+    test('should generate a new Content Filter Group', async () => {
+      const {id, name, description, content_filter_ids: contentFilterIds} = newDocEntryFactory.contentfiltergroups()
+      expect(regexUUID2.test(id)).toBeTruthy()
+      expect(name).toEqual('New Content Filter Rule Group')
+      expect(description).toEqual('')
+      expect(contentFilterIds).toEqual([])
     })
   })
 })

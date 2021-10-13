@@ -2,17 +2,18 @@ import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
-import {ArgsCookiesHeadersType, NamesRegexType, ContentFilterProfile, ContentFilterRule} from '@/types'
+import {ArgsCookiesHeadersType, NamesRegexType, ContentFilterProfile, ContentFilterRuleGroup, ContentFilterRule} from '@/types'
 import AutocompleteInput from '@/components/AutocompleteInput.vue'
 import _ from 'lodash'
 import axios from 'axios'
 
 jest.mock('axios')
 
-describe('ContentFilterEditor.vue', () => {
+describe('ContentFilterProfileEditor.vue', () => {
   let docs: ContentFilterProfile[]
   let wrapper: Wrapper<Vue>
   let contentFilterRulesDocs: ContentFilterRule[]
+  let contentFilterGroupsDocs: ContentFilterRuleGroup[]
   beforeEach(() => {
     docs = [{
       'id': '__default__',
@@ -60,6 +61,20 @@ describe('ContentFilterEditor.vue', () => {
         'msg': 'SQLi Attempt (Conditional Operator Detected)',
       },
     ]
+    contentFilterGroupsDocs = [
+      {
+        id: '1000',
+        name: '1000',
+        description: '',
+        content_filter_ids: ['100000', '100001'],
+      },
+      {
+        id: '1001',
+        name: '1001',
+        description: '',
+        content_filter_ids: [],
+      },
+    ]
     jest.spyOn(axios, 'get').mockImplementation((path, config) => {
       if (!wrapper) {
         return Promise.resolve({data: []})
@@ -70,6 +85,11 @@ describe('ContentFilterEditor.vue', () => {
           return Promise.resolve({data: _.map(contentFilterRulesDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: contentFilterRulesDocs})
+      } else if (path === `/conf/api/v2/configs/${branch}/d/contentfiltergroups/`) {
+        if (config?.headers?.['x-fields'] === 'id, name') {
+          return Promise.resolve({data: _.map(contentFilterGroupsDocs, (i) => _.pick(i, 'id', 'name'))})
+        }
+        return Promise.resolve({data: contentFilterGroupsDocs})
       }
       return Promise.resolve({data: []})
     })
@@ -134,8 +154,9 @@ describe('ContentFilterEditor.vue', () => {
   })
 
   test('should unpack exclusions correctly from model for view', async () => {
-    const unpackedExclusions = '100000\n100001'
+    const unpackedExclusions = '1000 (Group)\n100000\n100001'
     const packedExclusions = {
+      1000: 'group',
       100000: 'rule',
       100001: 'rule',
     }
@@ -148,6 +169,17 @@ describe('ContentFilterEditor.vue', () => {
     const packedExclusions = {}
     const actualUnpackedExclusions = (wrapper.vm as any).unpackExclusions(packedExclusions)
     expect(actualUnpackedExclusions).toEqual(unpackedExclusions)
+  })
+
+  test('should remove nonexisting exclusions from model for view', async () => {
+    delete (wrapper.vm as any).contentFilter.group
+    const unpackedExclusions = (wrapper.vm as any).unpackExclusions({
+      1000: 'group',
+      100000: 'rule',
+      100001: 'rule',
+      900001: 'rule',
+    })
+    expect(unpackedExclusions).toEqual('100000\n100001')
   })
 
   buildTabDescribe('headers')
@@ -244,11 +276,27 @@ describe('ContentFilterEditor.vue', () => {
 
           test('should add exclusions when creating new parameter', async () => {
             const wantedValue = {
+              1000: 'group',
               100000: 'rule',
               100001: 'rule',
             }
             const autocompleteInput = wrapper.findComponent(AutocompleteInput)
-            autocompleteInput.vm.$emit('value-submitted', _.keys(wantedValue).join('\n'))
+            autocompleteInput.vm.$emit('value-submitted', '100000\n100001\n1000 (Group)')
+            await Vue.nextTick()
+            const confirmButton = newRow.find('.confirm-add-new-parameter')
+            confirmButton.trigger('click')
+            await Vue.nextTick()
+            const actualValue = (wrapper.vm as any).localDoc[tab][type][0].ignore
+            expect(actualValue).toEqual(wantedValue)
+          })
+
+          test('should remove nonexisting exclusions when creating new parameter', async () => {
+            const wantedValue = {
+              1000: 'group',
+              100000: 'rule',
+            }
+            const autocompleteInput = wrapper.findComponent(AutocompleteInput)
+            autocompleteInput.vm.$emit('value-submitted', '100000\n9acf66222\n1000 (Group)\n900')
             await Vue.nextTick()
             const confirmButton = newRow.find('.confirm-add-new-parameter')
             confirmButton.trigger('click')
@@ -262,6 +310,8 @@ describe('ContentFilterEditor.vue', () => {
               {value: '100000'},
               {value: '100001'},
               {value: '100002'},
+              {value: '1000 (Group)'},
+              {value: '1001 (Group)'},
             ]
             const autocompleteInput = wrapper.findComponent(AutocompleteInput)
             const actualValue = autocompleteInput.props('suggestions')
@@ -272,6 +322,8 @@ describe('ContentFilterEditor.vue', () => {
             const existingRuleIDs = '100000\n100002'
             const wantedValue = [
               {value: '100001'},
+              {value: '1000 (Group)'},
+              {value: '1001 (Group)'},
             ]
             const autocompleteInput = wrapper.findComponent(AutocompleteInput)
             autocompleteInput.vm.$emit('value-submitted', existingRuleIDs)
@@ -290,6 +342,15 @@ describe('ContentFilterEditor.vue', () => {
             await wrapper.vm.$forceUpdate()
             const rows = wrapper.findAll('.entry-row')
             expect(rows.length).toEqual(0)
+          })
+
+          test('should reset data when cancel button is clicked', async () => {
+            const cancelButton = wrapper.find('.cancel-new-parameter')
+            cancelButton.trigger('click')
+            await Vue.nextTick()
+            const {defaultNewEntry, newContentFilterLine, newEntry} = wrapper.vm as any
+            expect(newContentFilterLine).toBeFalsy()
+            expect(newEntry).toEqual(defaultNewEntry)
           })
         })
       }

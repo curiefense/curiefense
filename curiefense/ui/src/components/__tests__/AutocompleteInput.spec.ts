@@ -503,79 +503,101 @@ describe('AutocompleteInput.vue', () => {
   })
 
   describe('AutocompleteInput.vue Type=Textarea', () => {
-      let initialValue: string
-      let initialValueDisplayed: string
-      beforeEach(() => {
-        initialValue = ' 1002\n1003\n 1004 '
-        initialValueDisplayed = '• 1002\n• 1003\n• 1004'
-        suggestions = [
-          {
-            value: '1000',
-          },
-          {
-            value: '1001',
-          },
-          {
-            value: 'test-value-1',
-          },
-          {
-            value: 'test-value-2',
-          },
-          {
-            value: 'united-states',
-          },
-        ]
-        wrapper = mount(AutocompleteInput, {
-          propsData: {
-            suggestions,
-            initialValue,
-            inputType: 'textarea',
-          },
-        })
+    let initialValue: string
+    let initialValueDisplayed: string
+    beforeEach(() => {
+      initialValue = ' 1002\n1003\n 1004 '
+      initialValueDisplayed = '• 1002\n• 1003\n• 1004'
+      suggestions = [
+        {
+          value: '1000',
+        },
+        {
+          value: '1001',
+        },
+        {
+          value: 'test-value-1',
+        },
+        {
+          value: 'test-value-2',
+        },
+        {
+          value: 'united-states',
+        },
+      ]
+      wrapper = mount(AutocompleteInput, {
+        propsData: {
+          suggestions,
+          initialValue,
+          inputType: 'textarea',
+        },
       })
+    })
 
-      test('should show value splitted into lines decorated with discs', async () => {
-        expect((wrapper.vm as any).autocompleteValue).toEqual(initialValue)
-        expect((wrapper.find('textarea') as any).element.value).toEqual(initialValueDisplayed)
-        wrapper.setProps({initialValue: ' first \n second\n third '})
-        await Vue.nextTick()
-        expect((wrapper.find('textarea') as any).element.value).toEqual('• first\n• second\n• third')
-      })
+    test('should show value splitted into lines decorated with discs', async () => {
+      expect((wrapper.vm as any).autocompleteValue).toEqual(initialValue)
+      expect((wrapper.find('textarea') as any).element.value).toEqual(initialValueDisplayed)
+      wrapper.setProps({initialValue: ' first \n second\n third '})
+      await Vue.nextTick()
+      expect((wrapper.find('textarea') as any).element.value).toEqual('• first\n• second\n• third')
+    })
 
-      test('should add a new line after selected value when suggestion clicked', async () => {
-        const textarea = wrapper.find('.autocomplete-input');
-        textarea.setValue('value')
-        textarea.trigger('input')
-        await Vue.nextTick()
-        const dropdownItems = wrapper.findAll('.dropdown-item')
-        dropdownItems.at(0).trigger('mousedown')
-        await Vue.nextTick()
-        const wantedValue = 'test-value-1'
-        expect((wrapper.vm as any).autocompleteValue).toEqual(`${wantedValue}\n`)
-      })
+    test('should add a new line after selected value when suggestion clicked', async () => {
+      const textarea = wrapper.find('.autocomplete-input');
+      textarea.setValue('value')
+      textarea.trigger('input')
+      await Vue.nextTick()
+      const dropdownItems = wrapper.findAll('.dropdown-item')
+      dropdownItems.at(0).trigger('mousedown')
+      await Vue.nextTick()
+      const wantedValue = 'test-value-1'
+      expect((wrapper.vm as any).autocompleteValue).toEqual(`${wantedValue}\n`)
+    })
 
-      test('should move cursor to end when textarea clicked', async () => {
-        const textarea = wrapper.find('.autocomplete-input');
-        textarea.trigger('mousedown')
-        await Vue.nextTick()
-        expect((wrapper.vm as any).$refs.autocompleteInput.selectionStart).toEqual(initialValueDisplayed.length)
-      })
+    test('should move cursor to end when textarea clicked', async () => {
+      const textarea = wrapper.find('.autocomplete-input');
+      textarea.trigger('mousedown')
+      await Vue.nextTick()
+      expect((wrapper.vm as any).$refs.autocompleteInput.selectionStart).toEqual(initialValueDisplayed.length)
+    })
 
-      test('should not add more than 1 new line when enter clicked', async () => {
-        const textarea = wrapper.find('.autocomplete-input');
-        textarea.trigger('keydown.enter')
-        await Vue.nextTick()
-        expect(wrapper.emitted('value-submitted')).toBeTruthy()
-        const event = {key: 'Enter', preventDefault: jest.fn()}
-        const spy = jest.spyOn(event, 'preventDefault')
-        textarea.setValue('1000\n')
-        textarea.trigger('keydown.enter', event)
-        await Vue.nextTick()
-        expect(spy).toHaveBeenCalled()
-        textarea.setValue('')
-        textarea.trigger('keydown.enter', event)
-        await Vue.nextTick()
-        expect(spy).toHaveBeenCalled()
-      })
+    test('should not add more than 1 new line when enter pressed', async () => {
+      const textarea = wrapper.find('.autocomplete-input');
+      textarea.trigger('keydown.enter')
+      await Vue.nextTick()
+      expect(wrapper.emitted('value-submitted')).toBeTruthy()
+      const event = {key: 'Enter', preventDefault: jest.fn()}
+      const spy = jest.spyOn(event, 'preventDefault')
+      textarea.setValue('1000\n')
+      textarea.trigger('keydown.enter', event)
+      await Vue.nextTick()
+      expect(spy).toHaveBeenCalled()
+      textarea.setValue('')
+      textarea.trigger('keydown.enter', event)
+      await Vue.nextTick()
+      expect(spy).toHaveBeenCalled()
+    })
+
+    test('should add new line on focus', async () => {
+      const textarea = wrapper.find('.autocomplete-input');
+      textarea.trigger('focus')
+      await Vue.nextTick()
+      let {autocompleteValue} = wrapper.vm as any
+      expect(autocompleteValue[autocompleteValue.length - 1]).toEqual('\n')
+      textarea.trigger('blur')
+      textarea.setValue('')
+      textarea.trigger('focus')
+      await Vue.nextTick()
+      autocompleteValue = (wrapper.vm as any).autocompleteValue
+      expect(autocompleteValue[autocompleteValue.length - 1]).not.toEqual('\n')
+    })
+
+    test('should delete whole last line when delete pressed', async () => {
+      const textarea = wrapper.find('.autocomplete-input');
+      textarea.trigger('keydown.delete')
+      await Vue.nextTick()
+      expect(wrapper.emitted('value-submitted')).toBeTruthy()
+      expect(wrapper.emitted('value-submitted')[0]).toEqual(['1002\n1003'])
+    })
   })
 })
