@@ -266,6 +266,8 @@ impl SimpleAction {
     /// returns None when it is a challenge, Some(action) otherwise
     fn to_action(&self, is_human: bool) -> Option<Action> {
         let mut action = Action::default();
+        action.block_mode = action.atype.is_blocking();
+        action.status = self.status;
         match &self.atype {
             SimpleActionT::Default => {}
             SimpleActionT::Monitor => action.atype = ActionType::Monitor,
@@ -295,8 +297,6 @@ impl SimpleAction {
                 action.headers = Some(headers);
             }
         }
-        action.block_mode = action.atype.is_blocking();
-        action.status = self.status;
         Some(action)
     }
 
