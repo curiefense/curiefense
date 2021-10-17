@@ -17,6 +17,7 @@ RUN apt-get update \
         python3-wheel \
         python3-magic \
 	python3-xattr \
+	python3-cffi \
         python3-netifaces \
     && rm -rf /var/lib/apt/lists/*
 
