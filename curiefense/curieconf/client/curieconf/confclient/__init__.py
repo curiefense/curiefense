@@ -22,7 +22,7 @@ class ConfigsResource(Resource):
     actions = dict(
         list=GET("configs/"),
         get=GET("configs/{}/"),
-        list_versions=GET("configs/{}/v"),
+        list_versions=GET("configs/{}/v/"),
         get_version=GET("configs/{}/v/{}/"),
         create=POST("configs/"),
         create_name=POST("configs/{}/"),
