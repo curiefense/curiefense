@@ -83,6 +83,9 @@ class CliHelper:
     def initial_version(self):
         if not self._initial_version_cache:
             versions = self.call("conf list-versions master")
+            if "version" not in versions[-3]:
+                print("Unsupported curieconfctl output", versions)
+                raise TypeError("Unsupported curieconfctl output")
             self._initial_version_cache = versions[-3]["version"]
         return self._initial_version_cache
 
