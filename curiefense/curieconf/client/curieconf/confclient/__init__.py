@@ -29,14 +29,14 @@ class ConfigsResource(Resource):
         delete=DELETE("configs/{}/"),
         update=PUT("configs/{}/"),
         revert=PUT("configs/{}/v/{}/revert/"),
-        clone=POST("configs/{}/clone"),
+        clone=POST("configs/{}/clone/"),
         clone_name=POST("configs/{}/clone/{}/"),
     )
 
 
 class BlobsResource(Resource):
     actions = dict(
-        list=GET("configs/{}/b"),
+        list=GET("configs/{}/b/"),
         get=GET("configs/{}/b/{}/"),
         list_versions=GET("configs/{}/b/{}/v/"),
         get_version=GET("configs/{}/b/{}/v/{}/"),
@@ -79,23 +79,23 @@ class DBResource(Resource):
         list=GET("db/"),
         list_versions=GET("db/v/"),
         get=GET("db/{}/"),
-        get_version=GET("db/{}/v/{}"),
-        create=POST("db/{}"),
-        update=PUT("db/{}"),
-        delete=DELETE("db/{}"),
-        revert=PUT("db/{}/v/{}"),
-        query=POST("db/{}/q"),
+        get_version=GET("db/{}/v/{}/"),
+        create=POST("db/{}/"),
+        update=PUT("db/{}/"),
+        delete=DELETE("db/{}/"),
+        revert=PUT("db/{}/v/{}/"),
+        query=POST("db/{}/q/"),
     )
 
 
 class KeyResource(Resource):
     actions = dict(
         list=GET("db/{}/k/"),
-        get=GET("db/{}/k/{}"),
+        get=GET("db/{}/k/{}/"),
         list_versions=GET("db/{}/k/{}/v/"),
-        get_version=GET("db/{}/k/{}/v/{}"),
-        set=PUT("db/{}/k/{}"),
-        delete=DELETE("db/{}/k/{}"),
+        get_version=GET("db/{}/k/{}/v/{}/"),
+        set=PUT("db/{}/k/{}/"),
+        delete=DELETE("db/{}/k/{}/"),
     )
 
 
