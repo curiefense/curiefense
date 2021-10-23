@@ -7,6 +7,8 @@ import (
 	"sync"
 	"time"
 
+	"compress/gzip"
+
 	"github.com/google/uuid"
 	"github.com/pierrec/lz4"
 	log "github.com/sirupsen/logrus"
@@ -21,6 +23,7 @@ import (
 
 type Bucket struct {
 	bucket, prefix string
+	config         BucketConfig
 	storageClient  *blob.Bucket
 	w              *io.PipeWriter
 	writeCancel    context.CancelFunc
@@ -35,13 +38,28 @@ type BucketConfig struct {
 	Enabled      bool   `mapstructure:"enabled"`
 	URL          string `mapstructure:"url"`
 	Prefix       string `mapstructure:"prefix"`
+	Format       string `mapstructure:"format"`
+	Compression  string `mapstructure:"compression"`
 	FlushSeconds int    `mapstructure:"flush_seconds"`
 }
 
 func NewBucket(v *viper.Viper, cfg BucketConfig) *Bucket {
+	if cfg.Compression == "" {
+		cfg.Compression = "lz4"
+	}
+
+	if cfg.Format == "" {
+		cfg.Format = "json"
+	}
+
+	if cfg.Format != "json" {
+		log.Infof("Only `json` is supported for the bucket files format. %s was set", cfg.Format)
+	}
+
 	g := &Bucket{
 		bucket: cfg.URL,
 		prefix: cfg.Prefix,
+		config: cfg,
 		closed: atomic.NewBool(false),
 		wg:     &sync.WaitGroup{},
 		lock:   &sync.Mutex{},
@@ -78,22 +96,41 @@ func (g *Bucket) rotateUploader() {
 	t := time.Now()
 	ctx, cancel := context.WithCancel(context.Background())
 	g.writeCancel = cancel
-	w, err := g.storageClient.NewWriter(ctx, fmt.Sprintf(`%s/created_date=%s/hour=%s/%s.json.lz4`, g.prefix, t.Format(`2006-01-02`), t.Format(`15`), uuid.New().String()), &blob.WriterOptions{
-		ContentEncoding: "lz4",
-		ContentType:     "application/json",
+
+	var contentType string
+	switch fmt := g.config.Format; fmt {
+	case "json":
+		contentType = "application/json"
+	default:
+		contentType = "application/octet-stream"
+	}
+
+	w, err := g.storageClient.NewWriter(ctx, fmt.Sprintf(`%s/created_date=%s/hour=%s/%s.%s.%s`, g.prefix, t.Format(`2006-01-02`), t.Format(`15`), uuid.New().String(), g.config.Format, g.config.Compression), &blob.WriterOptions{
+		ContentEncoding: g.config.Compression,
+		ContentType:     contentType,
 	})
+
 	if err != nil {
 		log.Error(err)
 		return
 	}
 	pr, pw := io.Pipe()
 	g.wg.Add(1)
+
 	go func() {
 		defer g.wg.Done()
 		defer w.Close()
-		gzw := lz4.NewWriter(w)
-		defer gzw.Close()
-		io.Copy(gzw, pr)
+
+		if g.config.Compression == "gzip" {
+			gzw := gzip.NewWriter(w)
+			defer gzw.Close()
+			io.Copy(gzw, pr)
+		} else {
+			gzw := lz4.NewWriter(w)
+			defer gzw.Close()
+			io.Copy(gzw, pr)
+		}
+
 	}()
 	g.w = pw
 }
