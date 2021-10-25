@@ -44,10 +44,6 @@ type BucketConfig struct {
 }
 
 func NewBucket(v *viper.Viper, cfg BucketConfig) *Bucket {
-	if cfg.Compression == "" {
-		cfg.Compression = "lz4"
-	}
-
 	if cfg.Format == "" {
 		cfg.Format = "json"
 	}
@@ -121,16 +117,18 @@ func (g *Bucket) rotateUploader() {
 		defer g.wg.Done()
 		defer w.Close()
 
-		if g.config.Compression == "gzip" {
+		switch g.config.Compression {
+		case "gzip":
 			gzw := gzip.NewWriter(w)
 			defer gzw.Close()
 			io.Copy(gzw, pr)
-		} else {
-			gzw := lz4.NewWriter(w)
-			defer gzw.Close()
-			io.Copy(gzw, pr)
+		case "lz4":
+			lz4w := lz4.NewWriter(w)
+			defer lz4w.Close()
+			io.Copy(lz4w, pr)
+		default:
+			io.Copy(w, pr)
 		}
-
 	}()
 	g.w = pw
 }
