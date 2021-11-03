@@ -16,7 +16,7 @@ describe('VersionControl.vue', () => {
     gitData = [
       {
         'id': 'master',
-        'description': 'Update entry [__default__] of document [aclpolicies]',
+        'description': 'Update entry [__default__] of document [aclprofiles]',
         'date': '2020-11-10T15:49:17+02:00',
         'logs': [
           {
@@ -25,7 +25,7 @@ describe('VersionControl.vue', () => {
             'parents': [
               'fc47a6cd9d7f254dd97875a04b87165cc484e075',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -35,7 +35,7 @@ describe('VersionControl.vue', () => {
             'parents': [
               '5aba4a5b9d6faea1896ee8965c7aa651f76af63c',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -45,7 +45,7 @@ describe('VersionControl.vue', () => {
             'parents': [
               '277c5d7bd0e2eb4b9d2944f7eefdfadf37ba8581',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -55,7 +55,7 @@ describe('VersionControl.vue', () => {
             'parents': [
               '878b47deeddac94625fe7c759786f2df885ec541',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -65,7 +65,7 @@ describe('VersionControl.vue', () => {
             'parents': [
               '93c180513fe7edeaf1c0ca69a67aa2a11374da4f',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -75,7 +75,7 @@ describe('VersionControl.vue', () => {
             'parents': [
               '1662043d2a18d6ad2c9c94d6f826593ff5506354',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -128,19 +128,19 @@ describe('VersionControl.vue', () => {
       },
     ]
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/configs/') {
+      if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
-      if (path === '/conf/api/v1/configs/master/') {
+      if (path === '/conf/api/v2/configs/master/') {
         return Promise.resolve({data: gitData[0]})
       }
-      if (path === '/conf/api/v1/configs/zzz_branch/') {
+      if (path === '/conf/api/v2/configs/zzz_branch/') {
         return Promise.resolve({data: gitData[1]})
       }
-      if (path === '/conf/api/v1/configs/master/v/') {
+      if (path === '/conf/api/v2/configs/master/v/') {
         return Promise.resolve({data: gitData[0].logs})
       }
-      if (path === '/conf/api/v1/configs/zzz_branch/v/') {
+      if (path === '/conf/api/v2/configs/zzz_branch/v/') {
         return Promise.resolve({data: gitData[1].logs})
       }
       return Promise.resolve({data: []})
@@ -159,7 +159,7 @@ describe('VersionControl.vue', () => {
   test('should display correct zero amount of branches', (done) => {
     gitData = []
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/configs/') {
+      if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
       return Promise.resolve({data: []})
@@ -176,7 +176,7 @@ describe('VersionControl.vue', () => {
   test('should display correct zero amount of commits', (done) => {
     gitData = []
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/configs/') {
+      if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
       return Promise.resolve({data: []})
@@ -194,7 +194,7 @@ describe('VersionControl.vue', () => {
     gitData = [
       {
         'id': 'master',
-        'description': 'Update entry [__default__] of document [aclpolicies]',
+        'description': 'Update entry [__default__] of document [aclprofiles]',
         'date': '2020-11-10T15:49:17+02:00',
         'logs': [{
           'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
@@ -202,7 +202,7 @@ describe('VersionControl.vue', () => {
           'parents': [
             'fc47a6cd9d7f254dd97875a04b87165cc484e075',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         }],
@@ -210,13 +210,13 @@ describe('VersionControl.vue', () => {
       },
     ]
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/configs/') {
+      if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
-      if (path === '/conf/api/v1/configs/master/') {
+      if (path === '/conf/api/v2/configs/master/') {
         return Promise.resolve({data: gitData[0]})
       }
-      if (path === '/conf/api/v1/configs/master/v/') {
+      if (path === '/conf/api/v2/configs/master/v/') {
         return Promise.resolve({data: gitData[0].logs})
       }
       return Promise.resolve({data: []})
@@ -234,7 +234,7 @@ describe('VersionControl.vue', () => {
     gitData = [
       {
         'id': 'master',
-        'description': 'Update entry [__default__] of document [aclpolicies]',
+        'description': 'Update entry [__default__] of document [aclprofiles]',
         'date': '2020-11-10T15:49:17+02:00',
         'logs': [{
           'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
@@ -242,7 +242,7 @@ describe('VersionControl.vue', () => {
           'parents': [
             'fc47a6cd9d7f254dd97875a04b87165cc484e075',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         }],
@@ -250,13 +250,13 @@ describe('VersionControl.vue', () => {
       },
     ]
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/configs/') {
+      if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
-      if (path === '/conf/api/v1/configs/master/') {
+      if (path === '/conf/api/v2/configs/master/') {
         return Promise.resolve({data: gitData[0]})
       }
-      if (path === '/conf/api/v1/configs/master/v/') {
+      if (path === '/conf/api/v2/configs/master/v/') {
         return Promise.resolve({data: gitData[0].logs})
       }
       return Promise.resolve({data: []})
@@ -324,7 +324,7 @@ describe('VersionControl.vue', () => {
     const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', wantedVersion)
     await Vue.nextTick()
-    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/v/${wantedVersion.version}/revert/`)
+    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/v/${wantedVersion.version}/revert/`)
   })
 
   test('should attempt to download branch when download button is clicked', async () => {
@@ -393,7 +393,7 @@ describe('VersionControl.vue', () => {
       await Vue.nextTick()
       forkBranchSaveButton.trigger('click')
       await Vue.nextTick()
-      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/clone/${newBranchName}/`, {
+      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/clone/${newBranchName}/`, {
         'description': 'string',
         'id': 'string',
       })
@@ -498,7 +498,7 @@ describe('VersionControl.vue', () => {
       await Vue.nextTick()
       deleteBranchSaveButton.trigger('click')
       await Vue.nextTick()
-      expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/${currentBranchName}/`)
+      expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/${currentBranchName}/`)
     })
 
     test('should not be able to delete if name is empty', async () => {

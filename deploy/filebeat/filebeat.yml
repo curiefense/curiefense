@@ -9,6 +9,7 @@ output.elasticsearch:
 
 setup.dashboards:
   enabled: false
+  directory: "curiefense"
   index: "curieaccesslog-*"
   retry:
     enabled: false
@@ -32,3 +33,4 @@ setup.template:
   json.enabled: true
   json.path: "/usr/share/filebeat/template.json"
   json.name: "curieaccesslog"
+  json.ignore_decoding_error: true

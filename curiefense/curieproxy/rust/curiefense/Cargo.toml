@@ -9,6 +9,7 @@ crate-type = ["lib"]
 bench = false
 
 [dependencies]
+base64 = "0.13"
 log = "0.4"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0"
@@ -47,8 +48,8 @@ path = "benches/body_parse.rs"
 harness = false
 
 [[bench]]
-name = "url_maps"
-path = "benches/url_maps.rs"
+name = "security_policies"
+path = "benches/security_policies.rs"
 harness = false
 
 [[bench]]

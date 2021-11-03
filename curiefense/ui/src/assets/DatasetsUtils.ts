@@ -1,4 +1,5 @@
-import {ACLPolicy, FlowControl, RateLimit, TagRule, URLMap, WAFPolicy, WAFRule} from '@/types'
+import {ACLProfile, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, WAFPolicy, WAFRule} from '@/types'
+import {httpRequestMethods} from '@/types/const'
 
 const titles: { [key: string]: string } = {
   'admin': 'Admin',
@@ -7,7 +8,7 @@ const titles: { [key: string]: string } = {
   'args': 'Arguments',
   'attrs': 'Attributes',
   'audit-log': 'Audit Log',
-  'bypass': 'Bypass',
+  'passthrough': 'Passthrough',
   'cookies': 'Cookies',
   'curiefense-lists': 'Curiefense Lists',
   'customsigs': 'Custom Signatures',
@@ -31,20 +32,20 @@ const titles: { [key: string]: string } = {
   'cookies-entry': 'Cookie',
   'args-entry': 'Argument',
   'attrs-entry': 'Attribute',
-  'aclpolicies': 'ACL Policies',
-  'aclpolicies-singular': 'ACL Policy',
+  'aclprofiles': 'ACL Profiles',
+  'aclprofiles-singular': 'ACL Profile',
   'ratelimits': 'Rate Limits',
   'ratelimits-singular': 'Rate Limit',
-  'urlmaps': 'URL Maps',
-  'urlmaps-singular': 'URL Map',
+  'securitypolicies': 'Security Policies',
+  'securitypolicies-singular': 'Security Policy',
   'wafpolicies': 'WAF Policies',
   'wafpolicies-singular': 'WAF Policy',
   'wafrules': 'WAF Rules',
   'wafrules-singular': 'WAF Rule',
-  'tagrules': 'Tag Rules',
-  'tagrules-singular': 'Tag Rule',
-  'flowcontrol': 'Flow Control',
-  'flowcontrol-singular': 'Flow Control',
+  'globalfilters': 'Global Filters',
+  'globalfilters-singular': 'Global Filter',
+  'flowcontrol': 'Flow Control Policies',
+  'flowcontrol-singular': 'Flow Control Policy',
 }
 
 const limitOptionsTypes = {
@@ -67,15 +68,25 @@ function generateUUID2(): string {
   return generateUUID().split('-')[4]
 }
 
+const defaultFlowControlSequenceItem = {
+  'method': httpRequestMethods[0],
+  'uri': '/',
+  'cookies': {},
+  'headers': {
+    'host': 'www.example.com',
+  },
+  'args': {},
+}
+
 const newDocEntryFactory: { [key: string]: Function } = {
-  aclpolicies(): ACLPolicy {
+  aclprofiles(): ACLProfile {
     return {
       'id': generateUUID2(),
-      'name': 'New ACL Policy',
+      'name': 'New ACL Profile',
       'allow': [],
       'allow_bot': [],
       'deny_bot': [],
-      'bypass': [],
+      'passthrough': [],
       'force_deny': [],
       'deny': [],
     }
@@ -114,13 +125,13 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  tagrules(): TagRule {
+  globalfilters(): GlobalFilter {
     return {
       'id': generateUUID2(),
-      'name': 'New Tag Rule',
+      'name': 'New Global Filter',
       'source': 'self-managed',
       'mdate': (new Date()).toISOString(),
-      'notes': 'New List Notes and Remarks',
+      'description': 'New List Description and Remarks',
       'active': true,
       'tags': [],
       'action': {
@@ -133,11 +144,11 @@ const newDocEntryFactory: { [key: string]: Function } = {
     }
   },
 
-  urlmaps(): URLMap {
+  securitypolicies(): SecurityPolicy {
     const id = generateUUID2()
     return {
       'id': id,
-      'name': 'New URL Map',
+      'name': 'New Security Policy',
       'match': `${id}.example.com`,
       'map': [
         {
@@ -164,35 +175,25 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'attrs': 'ip',
         },
       ],
-      'ttl': '180',
+      'timeframe': '180',
       'action': {
         'type': 'default',
       },
-      'exclude': {
-        'headers': {},
-        'cookies': {},
-        'args': {},
-        'attrs': {'tags': 'allowlist'},
-      },
-      'include': {
-        'headers': {},
-        'cookies': {},
-        'args': {},
-        'attrs': {'tags': 'blocklist'},
-      },
+      'exclude': ['allowlist'],
+      'include': ['blocklist'],
       'pairwith': {
         'self': 'self',
       },
     }
   },
 
-  flowcontrol(): FlowControl {
+  flowcontrol(): FlowControlPolicy {
     return {
       'id': generateUUID2(),
-      'name': 'New Flow Control',
-      'ttl': 60,
+      'name': 'New Flow Control Policy',
+      'timeframe': 60,
       'active': true,
-      'notes': 'New Flow Control Notes and Remarks',
+      'description': 'New Flow Control Policy Description and Remarks',
       'key': [
         {
           'attrs': 'ip',
@@ -203,7 +204,13 @@ const newDocEntryFactory: { [key: string]: Function } = {
       },
       'exclude': [],
       'include': ['all'],
-      'sequence': [],
+      'sequence': [
+        {...defaultFlowControlSequenceItem},
+        {
+          ...defaultFlowControlSequenceItem,
+          method: 'POST',
+        },
+      ],
     }
   },
 
@@ -229,4 +236,5 @@ export default {
   generateUUID,
   generateUUID2,
   newDocEntryFactory,
+  defaultFlowControlSequenceItem,
 }

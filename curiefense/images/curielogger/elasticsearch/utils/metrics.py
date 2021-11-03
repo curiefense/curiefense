@@ -41,9 +41,9 @@ def split_static_tag(tag):
         "asn",
         "geo",
         "secprofile",
-        "urlmap-entry",
-        "urlmap_entry",
-        "urlmap" "wafid",
+        "securitypolicy-entry",
+        "securitypolicy_entry",
+        "securitypolicy" "wafid",
         "wafname",
     )
 

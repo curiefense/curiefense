@@ -3,10 +3,10 @@ import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import {describe, test, expect, beforeEach} from '@jest/globals'
 import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
-import {ACLPolicy} from '@/types'
+import {ACLProfile} from '@/types'
 
 describe('ACLEditor.vue', () => {
-  let docs: ACLPolicy[]
+  let docs: ACLProfile[]
   let wrapper: Wrapper<Vue>
   beforeEach(() => {
     docs = [
@@ -20,7 +20,7 @@ describe('ACLEditor.vue', () => {
         'deny_bot': [
           'yahoo',
         ],
-        'bypass': [
+        'passthrough': [
           'internal',
           'devops',
         ],
@@ -68,7 +68,7 @@ describe('ACLEditor.vue', () => {
   })
 
   test('should show tags as crossed when there are is `all` tag in higher priority', async () => {
-    docs[0]['bypass'].push('all')
+    docs[0]['passthrough'].push('all')
     wrapper = shallowMount(ACLEditor, {
       propsData: {
         selectedDoc: docs[0],
@@ -107,26 +107,26 @@ describe('ACLEditor.vue', () => {
   })
 
   test('should add tag to correct section when tag selected', async () => {
-    const newBypassEntryButton = wrapper.findAll('.add-new-entry-button').at(1)
-    newBypassEntryButton.trigger('click')
+    const newPassthroughEntryButton = wrapper.findAll('.add-new-entry-button').at(1)
+    newPassthroughEntryButton.trigger('click')
     await Vue.nextTick()
     const newTag = 'test-tag'
     const tagAutocompleteInput = wrapper.findComponent(TagAutocompleteInput)
     tagAutocompleteInput.vm.$emit('tag-submitted', newTag)
     await Vue.nextTick()
-    expect((wrapper.vm as any).localDoc.bypass.includes(newTag)).toBeTruthy()
+    expect((wrapper.vm as any).localDoc.passthrough.includes(newTag)).toBeTruthy()
   })
 
   test('should remove tag from correct section when tag removed', async () => {
-    const removeBypassEntryButton = wrapper.findAll('.remove-entry-button').at(3)
-    removeBypassEntryButton.trigger('click')
+    const removePassthroughEntryButton = wrapper.findAll('.remove-entry-button').at(3)
+    removePassthroughEntryButton.trigger('click')
     await Vue.nextTick()
-    expect((wrapper.vm as any).localDoc.bypass).toEqual(['internal'])
+    expect((wrapper.vm as any).localDoc.passthrough).toEqual(['internal'])
   })
 
   test('should hide tag input when tag selection cancelled', async () => {
-    const newBypassEntryButton = wrapper.findAll('.add-new-entry-button').at(1)
-    newBypassEntryButton.trigger('click')
+    const newPassthroughEntryButton = wrapper.findAll('.add-new-entry-button').at(1)
+    newPassthroughEntryButton.trigger('click')
     await Vue.nextTick();
     (wrapper.vm as any).cancelAddNewTag()
     await Vue.nextTick()

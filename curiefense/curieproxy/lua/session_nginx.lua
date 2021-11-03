@@ -57,6 +57,20 @@ function session_rust_nginx.inspect(handle)
     end
 end
 
+local function parse_ip_port(ipport)
+    if ipport == nil then
+        return nil, nil
+    end
+    local s, _ = string.find(ipport, ":")
+    if s == nil then
+      return ipport, nil
+    else
+      local port_part = string.sub(ipport,s+1)
+      local host_part = string.sub(ipport, 1, s-1)
+      return host_part, tonumber(port_part) or port_part
+    end
+end
+
 -- log block stage processing
 function session_rust_nginx.log(handle)
     local response = handle.ctx.response
@@ -95,9 +109,6 @@ function session_rust_nginx.log(handle)
         req.blocked=false
     end
 
-    -- this is necessary for logstash to choose the right pipeline
-    table.insert(req.tags, "curieaccesslog")
-
     local raw_server_port = handle.var.server_port
     local raw_remote_port = handle.var.remote_port
     local server_port = tonumber(raw_server_port) or raw_server_port
@@ -110,12 +121,19 @@ function session_rust_nginx.log(handle)
       remoteaddressport=remote_port,
       directlocaladdress=handle.var.server_addr,
       directremoteaddressport=remote_port,
+      directremoteaddress=handle.var.remote_addr,
     }
 
     req.upstream = {}
     req.upstream.cluster = handle.var.proxy_host
-    req.upstream.remoteaddress = handle.var.upstream_addr
-    req.upstream.remoteaddressport = tonumber(handle.var.proxy_port) or handle.var.proxy_port
+
+    -- handle upstream_addr with ports
+    local u_host, u_port = parse_ip_port(handle.var.upstream_addr)
+    if u_port == nil then
+        u_port = tonumber(handle.var.proxy_port) or handle.var.proxy_port
+    end
+    req.upstream.remoteaddress = u_host
+    req.upstream.remoteaddressport = u_port
 
     -- TLS: TODO, need to see the corresponding envoy input
     req.tls = {

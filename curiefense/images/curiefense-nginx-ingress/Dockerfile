@@ -1,7 +1,7 @@
 ARG RUSTBIN_TAG=latest
 FROM curiefense/curiefense-rustbuild-focal:${RUSTBIN_TAG} AS rustbin
 FROM docker.io/nginx/nginx-ingress:1.11.3 as nginx-ingress
-FROM docker.io/openresty/openresty:focal as openresty
+FROM docker.io/openresty/openresty:1.19.9.1-1-focal as openresty
 
 USER root
 RUN groupadd --system --gid 101 nginx \
@@ -17,6 +17,7 @@ RUN apt-get update \
         python3-wheel \
         python3-magic \
 	python3-xattr \
+	python3-cffi \
         python3-netifaces \
     && rm -rf /var/lib/apt/lists/*
 
@@ -59,7 +60,7 @@ COPY --from=rustbin /root/curiefense.so /usr/local/lib/lua/5.1/
 
 COPY curieproxy/config /bootstrap-config/config
 COPY curieproxy/lua /lua
-RUN rm -f /lua/session.lua && ln -s /lua/session_rust_nginx.lua /lua/session.lua
+RUN rm -f /lua/session.lua && ln -s /lua/session_nginx.lua /lua/session.lua
 
 ENTRYPOINT ["/curiefense-nginx.sh"]
 

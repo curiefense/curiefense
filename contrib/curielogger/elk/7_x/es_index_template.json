@@ -1,9 +1,8 @@
 {
-  "index_patterns": ["{{.AccessLogIndexName}}*"],
+  "index_patterns": ["curieaccesslog-*"],
+  "version": 1,
   "priority": 200,
   "composed_of": [],
-  "version": 1,
-  {{if .UseDataStream}}"data_stream": {},{{end}}
   "_meta": {
     "description": "Curiefense's index template "
   },
@@ -11,8 +10,8 @@
     "settings": {
       "index": {
         "lifecycle": {
-          "name": "{{.AccessLogIndexName}}",
-          "rollover_alias": "{{.AccessLogIndexName}}"
+          "name": "curieaccesslog",
+          "rollover_alias": "curieaccesslog"
         }
       }
     },
@@ -169,7 +168,7 @@
               "type": "keyword"
             },
             "headers": {
-              "type": "keyword"
+              "type": "flattened"
             },
             "headersbytes": {
               "type": "integer"
@@ -274,4 +273,4 @@
     },
     "aliases": {}
   }
-}}
+}

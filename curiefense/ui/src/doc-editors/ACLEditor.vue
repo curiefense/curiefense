@@ -90,7 +90,7 @@ import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import Vue from 'vue'
 import {Dictionary} from 'vue-router/types/router'
-import {ACLPolicy, ACLPolicyFilter} from '@/types'
+import {ACLProfile, ACLProfileFilter} from '@/types'
 
 export default Vue.extend({
   name: 'ACLEditor',
@@ -106,19 +106,19 @@ export default Vue.extend({
 
   data() {
     return {
-      operations: ['force_deny', 'bypass', 'allow_bot', 'deny_bot', 'allow', 'deny'] as ACLPolicyFilter[],
+      operations: ['force_deny', 'passthrough', 'allow_bot', 'deny_bot', 'allow', 'deny'] as ACLProfileFilter[],
       titles: DatasetsUtils.titles,
       addNewColName: null,
     }
   },
   computed: {
-    localDoc(): ACLPolicy {
+    localDoc(): ACLProfile {
       return _.cloneDeep(this.selectedDoc)
     },
 
     duplicateTags(): Dictionary<string> {
       const doc = this.localDoc
-      const allTags = _.concat(doc['force_deny'], doc['bypass'],
+      const allTags = _.concat(doc['force_deny'], doc['passthrough'],
           doc['allow_bot'], doc['deny_bot'], doc['allow'], doc['deny'])
       const dupTags = _.filter(allTags, (val, i, iteratee) => _.includes(iteratee, val, i + 1))
       const result = _.fromPairs(_.zip(dupTags, dupTags))
@@ -133,7 +133,7 @@ export default Vue.extend({
     },
 
     // returns true if tag "all" is set in a higher priority section
-    allPrior(self: ACLPolicyFilter): boolean {
+    allPrior(self: ACLProfileFilter): boolean {
       // top priority, skip
       if (self === 'force_deny') {
         return false
@@ -156,12 +156,12 @@ export default Vue.extend({
       }
     },
 
-    addNewEntry(section: ACLPolicyFilter, entry: string) {
+    addNewEntry(section: ACLProfileFilter, entry: string) {
       this.localDoc[section].push(entry)
       this.emitDocUpdate()
     },
 
-    openTagInput(section: ACLPolicyFilter) {
+    openTagInput(section: ACLProfileFilter) {
       this.addNewColName = section
     },
 
@@ -169,17 +169,17 @@ export default Vue.extend({
       this.addNewColName = null
     },
 
-    removeTag(section: ACLPolicyFilter, index: number) {
+    removeTag(section: ACLProfileFilter, index: number) {
       this.localDoc[section].splice(index, 1)
       this.addNewColName = null
       this.emitDocUpdate()
     },
 
-    operationClassName(operation: ACLPolicyFilter) {
+    operationClassName(operation: ACLProfileFilter) {
       return operation && operation.replace('_', '-')
     },
 
-    tagMessage(tag: string, operation: ACLPolicyFilter) {
+    tagMessage(tag: string, operation: ACLProfileFilter) {
       let message = ''
       if (this.allPrior(operation)) {
         message = '[all] is set in a higher priority section'
@@ -217,7 +217,7 @@ export default Vue.extend({
   @extend .has-background-danger;
 }
 
-.bar-bypass {
+.bar-passthrough {
   @extend .has-background-success;
 }
 

@@ -189,8 +189,8 @@
                         <th class="has-text-centered">Parameter</th>
                         <th class="has-text-centered">Matching Value</th>
                         <th class="has-text-centered">Restrict?</th>
-                        <th class="has-text-centered">Mask?</th>
-                        <th class="has-text-centered">Exclude WAF Rule</th>
+                        <th class="has-text-centered">Mask</th>
+                        <th class="has-text-centered">Ignore Rules</th>
                         <th class="has-text-centered">
                           <a v-show="newWAFLine !== tab"
                              class="has-text-grey-dark is-small new-parameter-button"
@@ -571,16 +571,9 @@ export default Vue.extend({
       })
     },
   },
-  watch: {
-    selectedDoc: {
-      handler: function(val, oldVal) {
-        if (!val || !oldVal || val.id !== oldVal.id) {
-          this.loadWAFRuleIDs()
-        }
-      },
-      immediate: true,
-      deep: true,
-    },
+
+  created() {
+    this.loadWAFRuleIDs()
   },
 })
 </script>

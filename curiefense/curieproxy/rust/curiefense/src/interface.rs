@@ -141,7 +141,7 @@ pub struct Action {
 pub enum SimpleActionT {
     Default,
     Monitor,
-    Ban(Box<SimpleAction>, u64), // ttl
+    Ban(Box<SimpleAction>, u64), // duration, ttl
     RequestHeader(HashMap<String, String>),
     Response(String),
     Redirect(String),
@@ -188,7 +188,7 @@ impl std::default::Default for Action {
             atype: ActionType::Block,
             block_mode: true,
             ban: false,
-            status: 403,
+            status: 503,
             headers: None,
             reason: serde_json::value::Value::Null,
             content: "curiefense - request denied".to_string(),
@@ -201,7 +201,7 @@ impl SimpleAction {
     pub fn from_reason(reason: String) -> Self {
         SimpleAction {
             atype: SimpleActionT::default(),
-            status: 403,
+            status: 503,
             reason,
         }
     }
@@ -224,31 +224,13 @@ impl SimpleAction {
                 ),
                 rawaction
                     .params
-                    .ttl
+                    .duration
                     .as_ref()
                     .and_then(|s| s.parse::<u64>().ok())
                     .unwrap_or(3600),
             ),
             RawActionType::RequestHeader => {
-                let header_line = rawaction
-                    .params
-                    .headers
-                    .clone()
-                    .ok_or_else(|| anyhow::anyhow!("no header for request headers rule {:?}", rawaction))?;
-                let mut splitted = header_line.splitn(2, ": ");
-                let header_name = splitted
-                    .next()
-                    .ok_or_else(|| anyhow::anyhow!("Malformed header line {}", header_line))?;
-                let header_value = splitted
-                    .next()
-                    .ok_or_else(|| anyhow::anyhow!("Malformed header line {}", header_line))?;
-
-                SimpleActionT::RequestHeader(
-                    [(header_name, header_value)]
-                        .iter()
-                        .map(|(k, v)| (k.to_string(), v.to_string()))
-                        .collect(),
-                )
+                SimpleActionT::RequestHeader(rawaction.params.headers.clone().unwrap_or_else(HashMap::default))
             }
             RawActionType::Response => SimpleActionT::Response(
                 rawaction
@@ -272,7 +254,7 @@ impl SimpleAction {
                 Err(rr) => return Err(anyhow::anyhow!("Unparseable status: {} -> {}", sstatus, rr)),
             }
         } else {
-            403
+            503
         };
         Ok(SimpleAction {
             atype,
@@ -284,6 +266,8 @@ impl SimpleAction {
     /// returns None when it is a challenge, Some(action) otherwise
     fn to_action(&self, is_human: bool) -> Option<Action> {
         let mut action = Action::default();
+        action.block_mode = action.atype.is_blocking();
+        action.status = self.status;
         match &self.atype {
             SimpleActionT::Default => {}
             SimpleActionT::Monitor => action.atype = ActionType::Monitor,
@@ -313,8 +297,6 @@ impl SimpleAction {
                 action.headers = Some(headers);
             }
         }
-        action.block_mode = action.atype.is_blocking();
-        action.status = self.status;
         Some(action)
     }
 
@@ -412,7 +394,13 @@ pub fn challenge_phase01<GH: Grasshopper>(gh: &GH, ua: &str, tags: Vec<String>) 
         atype: ActionType::Block,
         block_mode: true,
         ban: false,
-        reason: json!({"initiator": "phase01", "reason": "challenge", "tags": tags}),
+        reason: if tags.is_empty() {
+            // this happens for rate limit / flow control / tag action
+            json!({"initiator": "phase01", "reason": "challenge"})
+        } else {
+            // this only happens for acl challenges
+            json!({"initiator": "phase01", "reason": "challenge", "tags": tags})
+        },
         headers: Some(hdrs),
         status: 247,
         content,

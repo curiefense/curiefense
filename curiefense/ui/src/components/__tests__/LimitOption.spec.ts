@@ -262,7 +262,7 @@ describe('LimitOption.vue', () => {
         const options = selection.findAll('option')
         options.at(1).setSelected()
         await Vue.nextTick()
-        const input = wrapper.find('.option-key-input')
+        const input = wrapper.find('.option-name-input')
         input.setValue(wantedKeyValue)
         await Vue.nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
@@ -281,7 +281,7 @@ describe('LimitOption.vue', () => {
         const options = selection.findAll('option')
         options.at(2).setSelected()
         await Vue.nextTick()
-        const input = wrapper.find('.option-key-input')
+        const input = wrapper.find('.option-name-input')
         input.setValue(wantedKeyValue)
         await Vue.nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
@@ -300,7 +300,7 @@ describe('LimitOption.vue', () => {
         const options = selection.findAll('option')
         options.at(3).setSelected()
         await Vue.nextTick()
-        const input = wrapper.find('.option-key-input')
+        const input = wrapper.find('.option-name-input')
         input.setValue(wantedKeyValue)
         await Vue.nextTick()
         expect(wrapper.emitted('change')).toBeTruthy()
@@ -437,7 +437,7 @@ describe('LimitOption.vue', () => {
             oldKey: '',
             value: undefined as string,
           }
-          const input = wrapper.find('.option-key-input')
+          const input = wrapper.find('.option-name-input')
           input.setValue(wantedKeyValue)
           await Vue.nextTick()
           expect(wrapper.emitted('change')).toBeTruthy()
@@ -492,7 +492,7 @@ describe('LimitOption.vue', () => {
             oldKey: '',
             value: undefined as string,
           }
-          const input = wrapper.find('.option-key-input')
+          const input = wrapper.find('.option-name-input')
           input.setValue(wantedKeyValue)
           await Vue.nextTick()
           expect(wrapper.emitted('change')).toBeTruthy()

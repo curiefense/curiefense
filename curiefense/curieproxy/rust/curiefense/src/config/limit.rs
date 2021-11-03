@@ -1,6 +1,7 @@
 use anyhow::Context;
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 use crate::config::raw::{RawLimit, RawLimitSelector};
 use crate::config::utils::{
@@ -14,10 +15,10 @@ pub struct Limit {
     pub id: String,
     pub name: String,
     pub limit: u64,
-    pub ttl: u64,
+    pub timeframe: u64,
     pub action: SimpleAction,
-    pub exclude: Vec<RequestSelectorCondition>,
-    pub include: Vec<RequestSelectorCondition>,
+    pub exclude: HashSet<String>,
+    pub include: HashSet<String>,
     pub pairwith: Option<RequestSelector>,
     pub key: Vec<RequestSelector>,
 }
@@ -53,10 +54,10 @@ impl Limit {
                 id: rawlimit.id,
                 name: rawlimit.name,
                 limit: rawlimit.limit.parse().with_context(|| "when converting the limit")?,
-                ttl: rawlimit.ttl.parse().with_context(|| "when converting the ttl")?,
+                timeframe: rawlimit.timeframe.parse().with_context(|| "when converting the timeframe")?,
                 action: SimpleAction::resolve(&rawlimit.action).with_context(|| "when resolving the action entry")?,
-                exclude: resolve_selectors(rawlimit.exclude).with_context(|| "when resolving the exclude entry")?,
-                include: resolve_selectors(rawlimit.include).with_context(|| "when resolving the include entry")?,
+                include: rawlimit.include.into_iter().collect(),
+                exclude: rawlimit.exclude.into_iter().collect(),
                 pairwith,
                 key,
             },
@@ -97,11 +98,11 @@ mod tests {
             Limit {
                 name: name.to_string(),
                 limit: v,
-                ttl: 0,
+                timeframe: 0,
                 id: String::new(),
                 action: SimpleAction::from_reason(format!("limit {}", name)),
-                include: Vec::new(),
-                exclude: Vec::new(),
+                include: HashSet::new(),
+                exclude: HashSet::new(),
                 key: Vec::new(),
                 pairwith: None,
             }

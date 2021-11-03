@@ -3,21 +3,21 @@ use serde::de::{self, Deserializer, SeqAccess, Visitor};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
-/// a mapping of the configuration file for url map entries
-/// it is called "urlmap" in the lua code
+/// a mapping of the configuration file for security policy entries
+/// it is called "securitypolicy" in the lua code
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RawHostMap {
     #[serde(rename = "match")]
     pub match_: String,
     pub id: String,
     pub name: String,
-    pub map: Vec<RawUrlMap>,
+    pub map: Vec<RawSecurityPolicy>,
 }
 
-/// a mapping of the configuration file for url maps
-/// it is called "urlmap-entry" in the lua code
+/// a mapping of the configuration file for security policies
+/// it is called "securitypolicy-entry" in the lua code
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RawUrlMap {
+pub struct RawSecurityPolicy {
     #[serde(rename = "match")]
     pub match_: String,
     pub name: String,
@@ -37,24 +37,24 @@ pub enum Relation {
 
 /// this is partial, as a ton of data is not needed
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RawProfilingSection {
+pub struct RawGlobalFilterSection {
     pub id: String,
     pub name: String,
     pub active: bool,
     pub tags: Vec<String>,
-    pub rule: RawProfilingRule,
+    pub rule: RawGlobalFilterRule,
     pub action: Option<RawAction>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RawProfilingRule {
+pub struct RawGlobalFilterRule {
     pub relation: Relation,
-    pub sections: Vec<RawProfilingSSection>,
+    pub sections: Vec<RawGlobalFilterSSection>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
-pub enum ProfilingEntryType {
+pub enum GlobalFilterEntryType {
     Args,
     Cookies,
     Headers,
@@ -65,17 +65,19 @@ pub enum ProfilingEntryType {
     Country,
     Method,
     Ip,
+    Company,
+    Authority,
 }
 
 /// a special datatype for deserializing tuples with 2 elements, and optional extra elements
 #[derive(Debug, Serialize, Clone)]
-pub struct RawProfilingSSectionEntry {
-    pub tp: ProfilingEntryType,
+pub struct RawGlobalFilterSSectionEntry {
+    pub tp: GlobalFilterEntryType,
     pub vl: serde_json::Value,
     pub comment: Option<String>,
 }
 
-impl<'de> Deserialize<'de> for RawProfilingSSectionEntry {
+impl<'de> Deserialize<'de> for RawGlobalFilterSSectionEntry {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -83,10 +85,10 @@ impl<'de> Deserialize<'de> for RawProfilingSSectionEntry {
         struct MyTupleVisitor;
 
         impl<'de> Visitor<'de> for MyTupleVisitor {
-            type Value = RawProfilingSSectionEntry;
+            type Value = RawGlobalFilterSSectionEntry;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-                formatter.write_str("a profiling section entry")
+                formatter.write_str("a global filter section entry")
             }
 
             fn visit_seq<V>(self, mut seq: V) -> Result<Self::Value, V::Error>
@@ -98,7 +100,7 @@ impl<'de> Deserialize<'de> for RawProfilingSSectionEntry {
                 // comment might not be present
                 let comment = seq.next_element()?;
 
-                Ok(RawProfilingSSectionEntry { tp, vl, comment })
+                Ok(RawGlobalFilterSSectionEntry { tp, vl, comment })
             }
         }
 
@@ -107,9 +109,9 @@ impl<'de> Deserialize<'de> for RawProfilingSSectionEntry {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RawProfilingSSection {
+pub struct RawGlobalFilterSSection {
     pub relation: Relation,
-    pub entries: Vec<RawProfilingSSectionEntry>,
+    pub entries: Vec<RawGlobalFilterSSectionEntry>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -117,13 +119,13 @@ pub struct RawLimit {
     pub id: String,
     pub name: String,
     pub limit: String,
-    pub ttl: String,
+    pub timeframe: String,
     #[serde(default)]
     pub key: Vec<HashMap<String, String>>,
     #[serde(default)]
-    pub include: RawLimitSelector,
+    pub include: Vec<String>,
     #[serde(default)]
-    pub exclude: RawLimitSelector,
+    pub exclude: Vec<String>,
     pub pairwith: HashMap<String, String>,
     pub action: RawAction,
 }
@@ -188,11 +190,11 @@ pub struct RawActionParams {
     pub block_mode: bool,
     pub action: Option<Box<RawAction>>,
     #[serde(default)]
-    pub headers: Option<String>,
+    pub headers: Option<HashMap<String, String>>,
     pub reason: Option<String>,
     pub content: Option<String>,
     pub location: Option<String>,
-    pub ttl: Option<String>,
+    pub duration: Option<String>,
 }
 
 impl std::default::Default for RawActionParams {
@@ -205,7 +207,7 @@ impl std::default::Default for RawActionParams {
             reason: None,
             content: None,
             location: None,
-            ttl: None,
+            duration: None,
         }
     }
 }
@@ -218,7 +220,7 @@ pub struct AclProfile {
     pub allow_bot: HashSet<String>,
     pub deny: HashSet<String>,
     pub deny_bot: HashSet<String>,
-    pub bypass: HashSet<String>,
+    pub passthrough: HashSet<String>,
     pub force_deny: HashSet<String>,
 }
 
@@ -231,7 +233,7 @@ impl AclProfile {
             allow_bot: HashSet::new(),
             deny: HashSet::new(),
             deny_bot: HashSet::new(),
-            bypass: HashSet::new(),
+            passthrough: HashSet::new(),
             force_deny: HashSet::new(),
         }
     }
@@ -288,7 +290,7 @@ pub struct RawFlowEntry {
     #[serde(default)]
     pub key: Vec<HashMap<String, String>>,
     pub active: bool,
-    pub ttl: u64,
+    pub timeframe: u64,
     pub action: RawAction,
     pub sequence: Vec<RawFlowStep>,
 }

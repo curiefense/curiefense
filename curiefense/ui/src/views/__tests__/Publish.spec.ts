@@ -53,7 +53,7 @@ describe('Publish.vue', () => {
       },
       {
         'id': 'master',
-        'description': 'Update entry [__default__] of document [aclpolicies]',
+        'description': 'Update entry [__default__] of document [aclprofiles]',
         'date': '2020-11-10T15:49:17+02:00',
         'logs': [
           {
@@ -62,7 +62,7 @@ describe('Publish.vue', () => {
             'parents': [
               'fc47a6cd9d7f254dd97875a04b87165cc484e075',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -72,7 +72,7 @@ describe('Publish.vue', () => {
             'parents': [
               '5aba4a5b9d6faea1896ee8965c7aa651f76af63c',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -82,7 +82,7 @@ describe('Publish.vue', () => {
             'parents': [
               '277c5d7bd0e2eb4b9d2944f7eefdfadf37ba8581',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -92,7 +92,7 @@ describe('Publish.vue', () => {
             'parents': [
               '878b47deeddac94625fe7c759786f2df885ec541',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -102,7 +102,7 @@ describe('Publish.vue', () => {
             'parents': [
               '93c180513fe7edeaf1c0ca69a67aa2a11374da4f',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -112,7 +112,7 @@ describe('Publish.vue', () => {
             'parents': [
               '1662043d2a18d6ad2c9c94d6f826593ff5506354',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -156,10 +156,10 @@ describe('Publish.vue', () => {
       'branch_buckets': [{'name': 'master', 'buckets': ['prod']}, {'name': 'devops', 'buckets': ['devops']}],
     }
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/configs/') {
+      if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
-      if (path === `/conf/api/v1/db/system/k/publishinfo/`) {
+      if (path === `/conf/api/v2/db/system/k/publishinfo/`) {
         return Promise.resolve({data: publishInfoData})
       }
       return Promise.resolve({data: {}})
@@ -349,7 +349,7 @@ describe('Publish.vue', () => {
     })
 
     test('should publish with preset data if not changed', async () => {
-      const wantedPath = `/conf/api/v1/tools/publish/devops/v/${gitData[0].version}/`
+      const wantedPath = `/conf/api/v2/tools/publish/devops/v/${gitData[0].version}/`
       const wantedData = [publishInfoData.buckets[0]]
       publishButton.trigger('click')
       await Vue.nextTick()
@@ -357,7 +357,7 @@ describe('Publish.vue', () => {
     })
 
     test('should publish with new selected version', async () => {
-      const wantedPath = `/conf/api/v1/tools/publish/devops/v/${gitData[0].logs[1].version}/`
+      const wantedPath = `/conf/api/v2/tools/publish/devops/v/${gitData[0].logs[1].version}/`
       const wantedData = [publishInfoData.buckets[0]]
       const commitRow = wrapper.findAll('.commit-row').at(1)
       commitRow.trigger('click')
@@ -368,7 +368,7 @@ describe('Publish.vue', () => {
     })
 
     test('should publish with both the pre-selected the new selected bucket', async () => {
-      const wantedPath = `/conf/api/v1/tools/publish/devops/v/${gitData[0].version}/`
+      const wantedPath = `/conf/api/v2/tools/publish/devops/v/${gitData[0].version}/`
       const wantedData = publishInfoData.buckets
       const bucketRow = wrapper.findAll('.bucket-row').at(1)
       bucketRow.trigger('click')
@@ -379,7 +379,7 @@ describe('Publish.vue', () => {
     })
 
     test('should publish without de-selected bucket', async () => {
-      const wantedPath = `/conf/api/v1/tools/publish/devops/v/${gitData[0].version}/`
+      const wantedPath = `/conf/api/v2/tools/publish/devops/v/${gitData[0].version}/`
       const wantedData = [publishInfoData.buckets[1]]
       const newBucketRow = wrapper.findAll('.bucket-row').at(1)
       newBucketRow.trigger('click')

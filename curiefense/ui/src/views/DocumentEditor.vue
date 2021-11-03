@@ -146,8 +146,9 @@
       <hr/>
 
       <div class="content document-editor-wrapper"
-           v-if="!loadingDocCounter && selectedBranch && selectedDocType && selectedDoc">
+           v-show="!loadingDocCounter">
         <component
+            v-if="selectedBranch && selectedDocType && selectedDoc"
             :is="componentsMap[selectedDocType].component"
             :selectedBranch.sync="selectedBranch"
             :selectedDoc.sync="selectedDoc"
@@ -165,7 +166,7 @@
       </div>
 
       <div class="content no-data-wrapper"
-           v-else>
+           v-if="loadingDocCounter || !selectedBranch || !selectedDocType || !selectedDoc">
         <div v-if="loadingDocCounter > 0">
           <button class="button is-outlined is-text is-small is-loading document-loading">
             Loading
@@ -209,14 +210,14 @@ import Utils from '@/assets/Utils.ts'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
 import WAFEditor from '@/doc-editors/WAFEditor.vue'
 import WAFSigsEditor from '@/doc-editors/WAFSigsEditor.vue'
-import URLMapsEditor from '@/doc-editors/URLMapsEditor.vue'
+import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
-import ProfilingListEditor from '@/doc-editors/ProfilingListEditor.vue'
-import FlowControlEditor from '@/doc-editors/FlowControlEditor.vue'
+import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
+import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import Vue from 'vue'
-import {BasicDocument, Commit, Document, DocumentType, URLMap} from '@/types'
+import {BasicDocument, Commit, Document, DocumentType, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
 export default Vue.extend({
@@ -250,7 +251,7 @@ export default Vue.extend({
       isSaveLoading: false,
       isDeleteLoading: false,
 
-      // To prevent deletion of docs referenced by URL maps
+      // To prevent deletion of docs referenced by Security Policies
       referencedIDsACL: [],
       referencedIDsWAF: [],
       referencedIDsLimits: [],
@@ -271,11 +272,11 @@ export default Vue.extend({
       branches: 0,
 
       componentsMap: {
-        'aclpolicies': {component: ACLEditor},
-        'flowcontrol': {component: FlowControlEditor},
-        'tagrules': {component: ProfilingListEditor},
+        'aclprofiles': {component: ACLEditor},
+        'flowcontrol': {component: FlowControlPolicyEditor},
+        'globalfilters': {component: GlobalFilterListEditor},
         'ratelimits': {component: RateLimitsEditor},
-        'urlmaps': {component: URLMapsEditor},
+        'securitypolicies': {component: SecurityPoliciesEditor},
         'wafpolicies': {component: WAFEditor},
         'wafrules': {component: WAFSigsEditor},
       },
@@ -326,7 +327,7 @@ export default Vue.extend({
     },
 
     isDocReferenced(): boolean {
-      if (this.selectedDocType === 'aclpolicies') {
+      if (this.selectedDocType === 'aclprofiles') {
         return this.referencedIDsACL.includes(this.selectedDocID)
       }
       if (this.selectedDocType === 'wafpolicies') {
@@ -520,9 +521,9 @@ export default Vue.extend({
       let docToAdd = _.cloneDeep(this.selectedDoc) as Document
       docToAdd.name = 'copy of ' + docToAdd.name
       docToAdd.id = DatasetsUtils.generateUUID2()
-      // A special check for urlmaps as we would want to change the domain name to be unique
-      if (this.selectedDocType === 'urlmaps') {
-        docToAdd = docToAdd as URLMap
+      // A special check for securitypolicies as we would want to change the domain name to be unique
+      if (this.selectedDocType === 'securitypolicies') {
+        docToAdd = docToAdd as SecurityPolicy
         docToAdd.match = `${docToAdd.id}.${docToAdd.match}`
       }
       const docTypeText = this.titles[this.selectedDocType + '-singular']
@@ -576,8 +577,8 @@ export default Vue.extend({
       await RequestsUtils.sendRequest({methodName, url, data, successMessage, failureMessage}).then(() => {
         this.updateDocIdNames()
         this.loadGitLog(true)
-        // If the saved doc was a url map, refresh the referenced IDs lists
-        if (this.selectedDocType === 'urlmaps') {
+        // If the saved doc was a security policy, refresh the referenced IDs lists
+        if (this.selectedDocType === 'securitypolicies') {
           this.loadReferencedDocsIDs()
         }
       })
@@ -612,7 +613,7 @@ export default Vue.extend({
     async loadReferencedDocsIDs() {
       const response = await RequestsUtils.sendRequest({
         methodName: 'GET',
-        url: `configs/${this.selectedBranch}/d/urlmaps/`,
+        url: `configs/${this.selectedBranch}/d/securitypolicies/`,
       })
       const docs = response?.data
       const referencedACL: string[] = []

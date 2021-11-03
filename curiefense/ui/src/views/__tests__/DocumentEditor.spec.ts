@@ -7,7 +7,7 @@ import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import _ from 'lodash'
-import {ACLPolicy, Branch, Commit, FlowControl, RateLimit, TagRule, URLMap, WAFPolicy} from '@/types'
+import {ACLProfile, Branch, Commit, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, WAFPolicy} from '@/types'
 
 jest.mock('axios')
 
@@ -16,21 +16,21 @@ describe('DocumentEditor.vue', () => {
   let mockRoute: any
   let mockRouter: any
   let gitData: Branch[]
-  let aclDocs: ACLPolicy[]
+  let aclDocs: ACLProfile[]
   let aclDocsLogs: Commit[][]
-  let aclGitOldVersion: ACLPolicy[]
-  let profilingListDocs: TagRule[]
+  let aclGitOldVersion: ACLProfile[]
+  let profilingListDocs: GlobalFilter[]
   let profilingListDocsLogs: Commit[][]
-  let urlMapsDocs: URLMap[]
-  let urlMapsDocsLogs: Commit[][]
-  let flowControlDocs: FlowControl[]
+  let securityPoliciesDocs: SecurityPolicy[]
+  let securityPoliciesDocsLogs: Commit[][]
+  let flowControlPolicyDocs: FlowControlPolicy[]
   let wafDocs: WAFPolicy[]
   let rateLimitsDocs: RateLimit[]
   beforeEach((done) => {
     gitData = [
       {
         'id': 'master',
-        'description': 'Update entry [__default__] of document [aclpolicies]',
+        'description': 'Update entry [__default__] of document [aclprofiles]',
         'date': '2020-11-10T15:49:17+02:00',
         'logs': [
           {
@@ -39,7 +39,7 @@ describe('DocumentEditor.vue', () => {
             'parents': [
               'fc47a6cd9d7f254dd97875a04b87165cc484e075',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -49,7 +49,7 @@ describe('DocumentEditor.vue', () => {
             'parents': [
               '5aba4a5b9d6faea1896ee8965c7aa651f76af63c',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -59,7 +59,7 @@ describe('DocumentEditor.vue', () => {
             'parents': [
               '277c5d7bd0e2eb4b9d2944f7eefdfadf37ba8581',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -69,7 +69,7 @@ describe('DocumentEditor.vue', () => {
             'parents': [
               '878b47deeddac94625fe7c759786f2df885ec541',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -79,7 +79,7 @@ describe('DocumentEditor.vue', () => {
             'parents': [
               '93c180513fe7edeaf1c0ca69a67aa2a11374da4f',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -89,7 +89,7 @@ describe('DocumentEditor.vue', () => {
             'parents': [
               '1662043d2a18d6ad2c9c94d6f826593ff5506354',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           },
@@ -150,7 +150,7 @@ describe('DocumentEditor.vue', () => {
           'google',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'internal',
         ],
         'deny': [
@@ -169,7 +169,7 @@ describe('DocumentEditor.vue', () => {
           'yahoo',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'devops',
         ],
         'deny': [
@@ -198,7 +198,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '7a24bd37e93e812fa5173c4b2fb0068ad8e4ffdd',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -208,7 +208,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '886baf66ddd032744ac34b848c8412386a160fb3',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -218,7 +218,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             'af98cb28fc4db3a76c3a51d697b6037e8695dd7b',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -228,7 +228,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             'cda70058b632405600db1fbc5cf8dfd90514ec30',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -238,7 +238,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '78d2193cdaa2818734894ab5bbb85cf932d4f217',
           ],
-          'message': 'Revert document [aclpolicies] to version [6c439c1626b15011c8eac9117026e0bb4c9f3a1e]',
+          'message': 'Revert document [aclprofiles] to version [6c439c1626b15011c8eac9117026e0bb4c9f3a1e]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -248,7 +248,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '6c439c1626b15011c8eac9117026e0bb4c9f3a1e',
           ],
-          'message': 'Revert document [aclpolicies] to version [7a2448715e1ea8b97fc742cd51ec65703c9d0ef2]',
+          'message': 'Revert document [aclprofiles] to version [7a2448715e1ea8b97fc742cd51ec65703c9d0ef2]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -258,7 +258,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '7a2448715e1ea8b97fc742cd51ec65703c9d0ef2',
           ],
-          'message': 'Revert document [aclpolicies] to version [95c050c78a8ad2e66d946e216f3506a0f7b32278]',
+          'message': 'Revert document [aclprofiles] to version [95c050c78a8ad2e66d946e216f3506a0f7b32278]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -268,7 +268,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '95c050c78a8ad2e66d946e216f3506a0f7b32278',
           ],
-          'message': 'Revert document [aclpolicies] to version [b9cdba04b4ca00119bd148822ce0bc6a3761f017]',
+          'message': 'Revert document [aclprofiles] to version [b9cdba04b4ca00119bd148822ce0bc6a3761f017]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -278,7 +278,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             'b9cdba04b4ca00119bd148822ce0bc6a3761f017',
           ],
-          'message': 'Revert document [aclpolicies] to version [134f8b24c3218e837243ae596a079cfc1ab671db]',
+          'message': 'Revert document [aclprofiles] to version [134f8b24c3218e837243ae596a079cfc1ab671db]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -288,7 +288,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '134f8b24c3218e837243ae596a079cfc1ab671db',
           ],
-          'message': 'Revert document [aclpolicies] to version [fa54d53d087ad9d6b4b189188a1cfa68da718d79]',
+          'message': 'Revert document [aclprofiles] to version [fa54d53d087ad9d6b4b189188a1cfa68da718d79]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -298,7 +298,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             'fa54d53d087ad9d6b4b189188a1cfa68da718d79',
           ],
-          'message': 'Revert document [aclpolicies] to version [0ff9c981493ee6d05720398425006fd8b0b1b856]',
+          'message': 'Revert document [aclprofiles] to version [0ff9c981493ee6d05720398425006fd8b0b1b856]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -308,7 +308,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '0ff9c981493ee6d05720398425006fd8b0b1b856',
           ],
-          'message': 'Revert document [aclpolicies] to version [efe3914cd898ef76bb0b9d12346090a1d112953c]',
+          'message': 'Revert document [aclprofiles] to version [efe3914cd898ef76bb0b9d12346090a1d112953c]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -318,7 +318,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             'efe3914cd898ef76bb0b9d12346090a1d112953c',
           ],
-          'message': 'Revert document [aclpolicies] to version [7b92d1c84d07ea51e9e5500ae86c327f554c7072]',
+          'message': 'Revert document [aclprofiles] to version [7b92d1c84d07ea51e9e5500ae86c327f554c7072]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -328,7 +328,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '7b92d1c84d07ea51e9e5500ae86c327f554c7072',
           ],
-          'message': 'Revert document [aclpolicies] to version [0eed6e6f205bccbff485527c3dab5ed5134beae9]',
+          'message': 'Revert document [aclprofiles] to version [0eed6e6f205bccbff485527c3dab5ed5134beae9]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -338,7 +338,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '0eed6e6f205bccbff485527c3dab5ed5134beae9',
           ],
-          'message': 'Revert document [aclpolicies] to version [7ebf09f77d8928025a889225233effc75de786d9]',
+          'message': 'Revert document [aclprofiles] to version [7ebf09f77d8928025a889225233effc75de786d9]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -348,7 +348,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '7ebf09f77d8928025a889225233effc75de786d9',
           ],
-          'message': 'Revert document [aclpolicies] to version [8fc02c8a78fae8ac6bf7522222170b6541bae502]',
+          'message': 'Revert document [aclprofiles] to version [8fc02c8a78fae8ac6bf7522222170b6541bae502]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -358,7 +358,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '8fc02c8a78fae8ac6bf7522222170b6541bae502',
           ],
-          'message': 'Revert document [aclpolicies] to version [1e350194f779279bbb9a3a80e89fa2bc45a06f16]',
+          'message': 'Revert document [aclprofiles] to version [1e350194f779279bbb9a3a80e89fa2bc45a06f16]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -368,7 +368,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '1e350194f779279bbb9a3a80e89fa2bc45a06f16',
           ],
-          'message': 'Revert document [aclpolicies] to version [99788d931b6018e8f940cc98c3c51aceb07fc77f]',
+          'message': 'Revert document [aclprofiles] to version [99788d931b6018e8f940cc98c3c51aceb07fc77f]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -378,7 +378,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '99788d931b6018e8f940cc98c3c51aceb07fc77f',
           ],
-          'message': 'Revert document [aclpolicies] to version [7dd9580c00bef1049ee9a531afb13db9ef3ee956]',
+          'message': 'Revert document [aclprofiles] to version [7dd9580c00bef1049ee9a531afb13db9ef3ee956]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -388,7 +388,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
           ],
-          'message': 'Revert document [aclpolicies] to version [fc47a6cd9d7f254dd97875a04b87165cc484e075]',
+          'message': 'Revert document [aclprofiles] to version [fc47a6cd9d7f254dd97875a04b87165cc484e075]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -398,7 +398,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             'fc47a6cd9d7f254dd97875a04b87165cc484e075',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -408,7 +408,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '5aba4a5b9d6faea1896ee8965c7aa651f76af63c',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -418,7 +418,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '277c5d7bd0e2eb4b9d2944f7eefdfadf37ba8581',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -428,7 +428,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '878b47deeddac94625fe7c759786f2df885ec541',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -438,7 +438,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '93c180513fe7edeaf1c0ca69a67aa2a11374da4f',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -448,7 +448,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '1662043d2a18d6ad2c9c94d6f826593ff5506354',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -470,7 +470,7 @@ describe('DocumentEditor.vue', () => {
           'parents': [
             '1662043d2a18d6ad2c9c94d6f826593ff5506354',
           ],
-          'message': 'Update entry [__default__] of document [aclpolicies]',
+          'message': 'Update entry [__default__] of document [aclprofiles]',
           'email': 'curiefense@reblaze.com',
           'author': 'Curiefense API',
         },
@@ -495,7 +495,7 @@ describe('DocumentEditor.vue', () => {
           'google',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'internal',
         ],
         'deny': [
@@ -513,7 +513,7 @@ describe('DocumentEditor.vue', () => {
           'google',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'internal',
         ],
         'deny': [
@@ -530,7 +530,7 @@ describe('DocumentEditor.vue', () => {
         'name': 'API Discovery',
         'source': 'self-managed',
         'mdate': '2020-05-23T00:04:41',
-        'notes': 'Tag API Requests',
+        'description': 'Tag API Requests',
         'active': true,
         'tags': ['api'],
         'action': {
@@ -549,7 +549,7 @@ describe('DocumentEditor.vue', () => {
         'name': 'devop internal demo',
         'source': 'self-managed',
         'mdate': '2020-05-23T00:04:41',
-        'notes': 'this is my own list',
+        'description': 'this is my own list',
         'active': false,
         'tags': ['internal', 'devops'],
         'action': {
@@ -579,7 +579,7 @@ describe('DocumentEditor.vue', () => {
         },
       ],
     ]
-    urlMapsDocs = [
+    securityPoliciesDocs = [
       {
         'id': '__default__',
         'name': 'default entry',
@@ -597,7 +597,7 @@ describe('DocumentEditor.vue', () => {
         ],
       },
     ]
-    urlMapsDocsLogs = [
+    securityPoliciesDocsLogs = [
       [
         {
           'version': '1662043d2a18d6ad2c9c94d6f826593ff5506354',
@@ -611,13 +611,13 @@ describe('DocumentEditor.vue', () => {
         },
       ],
     ]
-    flowControlDocs = [
+    flowControlPolicyDocs = [
       {
         'active': true,
-        'notes': '',
+        'description': '',
         'exclude': [],
         'include': ['all'],
-        'name': 'flow control',
+        'name': 'flow control policy',
         'key': [
           {'headers': 'something'},
         ],
@@ -647,7 +647,7 @@ describe('DocumentEditor.vue', () => {
           'type': 'default',
           'params': {},
         },
-        'ttl': 60,
+        'timeframe': 60,
         'id': 'c03dabe4b9ca',
       },
     ]
@@ -672,11 +672,11 @@ describe('DocumentEditor.vue', () => {
       'id': 'f971e92459e2',
       'name': 'Rate Limit Example Rule 5/60',
       'description': '5 requests per minute',
-      'ttl': '60',
+      'timeframe': '60',
       'limit': '5',
       'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
-      'include': {headers: {}, cookies: {}, args: {}, attrs: {ip: '10.0.0.1', path: 'localhost'}},
-      'exclude': {headers: {}, cookies: {}, args: {foo: 'bar'}, attrs: {}},
+      'include': ['badpeople'],
+      'exclude': ['goodpeople'],
       'key': [{'attrs': 'ip'}],
       'pairwith': {'self': 'self'},
     }]
@@ -688,93 +688,93 @@ describe('DocumentEditor.vue', () => {
       }
     })
     jest.spyOn(axios, 'get').mockImplementation((path, config) => {
-      if (path === '/conf/api/v1/configs/') {
+      if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
       const branch = (wrapper.vm as any).selectedBranch
       const docID = (wrapper.vm as any).selectedDocID
-      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: aclDocs})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/__default__/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/__default__/`) {
         return Promise.resolve({data: aclDocs[0]})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/5828321c37e0/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/5828321c37e0/`) {
         return Promise.resolve({data: aclDocs[1]})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
         return Promise.resolve({data: aclGitOldVersion})
       }
-      if (path === `/conf/api/v1/configs/master/d/aclpolicies/e/__default__/v/`) {
+      if (path === `/conf/api/v2/configs/master/d/aclprofiles/e/__default__/v/`) {
         return Promise.resolve({data: aclDocsLogs[0]})
       }
-      if (path === `/conf/api/v1/configs/zzz_branch/d/aclpolicies/e/__default__/v/`) {
+      if (path === `/conf/api/v2/configs/zzz_branch/d/aclprofiles/e/__default__/v/`) {
         return Promise.resolve({data: aclDocsLogs[1]})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/5828321c37e0/v/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/5828321c37e0/v/`) {
         return Promise.resolve({data: aclDocsLogs[1]})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/tagrules/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(profilingListDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: profilingListDocs})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/tagrules/e/xlbp148c/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/e/xlbp148c/`) {
         return Promise.resolve({data: profilingListDocs[0]})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/tagrules/e/07656fbe/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/e/07656fbe/`) {
         return Promise.resolve({data: profilingListDocs[1]})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/tagrules/e/${docID}/v/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/globalfilters/e/${docID}/v/`) {
         return Promise.resolve({data: profilingListDocsLogs[0]})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/urlmaps/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve({data: _.map(urlMapsDocs, (i) => _.pick(i, 'id', 'name'))})
+          return Promise.resolve({data: _.map(securityPoliciesDocs, (i) => _.pick(i, 'id', 'name'))})
         }
-        return Promise.resolve({data: urlMapsDocs})
+        return Promise.resolve({data: securityPoliciesDocs})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/urlmaps/e/__default__/`) {
-        return Promise.resolve({data: urlMapsDocs[0]})
+      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/e/__default__/`) {
+        return Promise.resolve({data: securityPoliciesDocs[0]})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/urlmaps/e/${docID}/v/`) {
-        return Promise.resolve({data: urlMapsDocsLogs[0]})
+      if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/e/${docID}/v/`) {
+        return Promise.resolve({data: securityPoliciesDocsLogs[0]})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/flowcontrol/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/flowcontrol/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve({data: _.map(flowControlDocs, (i) => _.pick(i, 'id', 'name'))})
+          return Promise.resolve({data: _.map(flowControlPolicyDocs, (i) => _.pick(i, 'id', 'name'))})
         }
-        return Promise.resolve({data: flowControlDocs})
+        return Promise.resolve({data: flowControlPolicyDocs})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/flowcontrol/e/c03dabe4b9ca/`) {
-        return Promise.resolve({data: flowControlDocs[0]})
+      if (path === `/conf/api/v2/configs/${branch}/d/flowcontrol/e/c03dabe4b9ca/`) {
+        return Promise.resolve({data: flowControlPolicyDocs[0]})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/wafpolicies/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/wafpolicies/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(wafDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: wafDocs})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/wafpolicies/e/009e846e819e/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/wafpolicies/e/009e846e819e/`) {
         return Promise.resolve({data: wafDocs[0]})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/ratelimits/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
           return Promise.resolve({data: _.map(rateLimitsDocs, (i) => _.pick(i, 'id', 'name'))})
         }
         return Promise.resolve({data: rateLimitsDocs})
       }
-      if (path === `/conf/api/v1/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/e/f971e92459e2/`) {
         return Promise.resolve({data: rateLimitsDocs[0]})
       }
-      if (path === '/conf/api/v1/configs/master/v/') {
+      if (path === '/conf/api/v2/configs/master/v/') {
         return Promise.resolve({data: gitData[0].logs})
       }
-      if (path === '/conf/api/v1/configs/zzz_branch/v/') {
+      if (path === '/conf/api/v2/configs/zzz_branch/v/') {
         return Promise.resolve({data: gitData[1].logs})
       }
       return Promise.resolve({data: []})
@@ -782,10 +782,10 @@ describe('DocumentEditor.vue', () => {
     mockRoute = {
       params: {
         branch: 'master',
-        doc_type: 'aclpolicies',
+        doc_type: 'aclprofiles',
         doc_id: '__default__',
       },
-      path: `/config/master/aclpolicies/__default__`,
+      path: `/config/master/aclprofiles/__default__`,
     }
     mockRouter = {
       push: jest.fn(),
@@ -820,7 +820,7 @@ describe('DocumentEditor.vue', () => {
     const gitHistory = wrapper.findComponent(GitHistory)
     gitHistory.vm.$emit('restore-version', wantedVersion)
     await Vue.nextTick()
-    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/aclpolicies/v/${wantedVersion.version}/revert/`)
+    expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/v/${wantedVersion.version}/revert/`)
   })
 
   test('should log message when receiving no configs from the server', (done) => {
@@ -830,7 +830,7 @@ describe('DocumentEditor.vue', () => {
     consoleOutput = []
     console.log = mockedLog
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/configs/') {
+      if (path === '/conf/api/v2/configs/') {
         return Promise.reject(new Error())
       }
       return Promise.resolve({data: {}})
@@ -856,12 +856,12 @@ describe('DocumentEditor.vue', () => {
     consoleOutput = []
     console.log = mockedLog
     jest.spyOn(axios, 'get').mockImplementation((path) => {
-      if (path === '/conf/api/v1/configs/') {
+      if (path === '/conf/api/v2/configs/') {
         return Promise.resolve({data: gitData})
       }
       const branch = (wrapper.vm as any).selectedBranch
       const doctype = (wrapper.vm as any).selectedDocType
-      if (path === `/conf/api/v1/configs/${branch}/d/${doctype}/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/${doctype}/`) {
         return Promise.reject(new Error())
       }
       return Promise.resolve({data: {}})
@@ -885,7 +885,7 @@ describe('DocumentEditor.vue', () => {
       const routeChangeSpy = jest.spyOn(mockRouter, 'push')
       mockRoute.params = {
         branch: 'master',
-        doc_type: 'aclpolicies',
+        doc_type: 'aclprofiles',
         doc_id: '__default__',
       }
       // allow all requests to finish
@@ -898,7 +898,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct branch from route when changes', async (done) => {
       mockRoute.params = {
         branch: 'zzz_branch',
-        doc_type: 'tagrules',
+        doc_type: 'globalfilters',
         doc_id: '07656fbe',
       }
       // allow all requests to finish
@@ -912,7 +912,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct document type from route when changes', async (done) => {
       mockRoute.params = {
         branch: 'zzz_branch',
-        doc_type: 'tagrules',
+        doc_type: 'globalfilters',
         doc_id: '07656fbe',
       }
       // allow all requests to finish
@@ -926,7 +926,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct document id from route when changes', async (done) => {
       mockRoute.params = {
         branch: 'zzz_branch',
-        doc_type: 'tagrules',
+        doc_type: 'globalfilters',
         doc_id: '07656fbe',
       }
       // allow all requests to finish
@@ -940,7 +940,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct branch from route without changing document type or id', async (done) => {
       mockRoute.params = {
         branch: 'zzz_branch',
-        doc_type: 'aclpolicies',
+        doc_type: 'aclprofiles',
         doc_id: '__default__',
       }
       // allow all requests to finish
@@ -958,7 +958,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct document type from route without changing branch or document id', async (done) => {
       mockRoute.params = {
         branch: 'master',
-        doc_type: 'urlmaps',
+        doc_type: 'securitypolicies',
         doc_id: '__default__',
       }
       // allow all requests to finish
@@ -976,7 +976,7 @@ describe('DocumentEditor.vue', () => {
     test('should load correct document id from route without changing branch or document type', async (done) => {
       mockRoute.params = {
         branch: 'master',
-        doc_type: 'aclpolicies',
+        doc_type: 'aclprofiles',
         doc_id: '5828321c37e0',
       }
       // allow all requests to finish
@@ -1025,7 +1025,7 @@ describe('DocumentEditor.vue', () => {
       test('should load correct git history when branch changes', (done) => {
         mockRoute.params = {
           branch: 'zzz_branch',
-          doc_type: 'aclpolicies',
+          doc_type: 'aclprofiles',
           doc_id: '__default__',
         }
         // allow all requests to finish
@@ -1040,14 +1040,14 @@ describe('DocumentEditor.vue', () => {
       test('should load correct git history when document type changes', (done) => {
         mockRoute.params = {
           branch: 'master',
-          doc_type: 'urlmaps',
+          doc_type: 'securitypolicies',
           doc_id: '__default__',
         }
         // allow all requests to finish
         setImmediate(() => {
           const gitHistory = wrapper.findComponent(GitHistory)
           expect(gitHistory).toBeTruthy()
-          expect((gitHistory.vm as any).gitLog).toEqual(urlMapsDocsLogs[0])
+          expect((gitHistory.vm as any).gitLog).toEqual(securityPoliciesDocsLogs[0])
           done()
         })
       })
@@ -1055,7 +1055,7 @@ describe('DocumentEditor.vue', () => {
       test('should load correct git history when document id changes', (done) => {
         mockRoute.params = {
           branch: 'master',
-          doc_type: 'aclpolicies',
+          doc_type: 'aclprofiles',
           doc_id: '5828321c37e0',
         }
         // allow all requests to finish
@@ -1073,7 +1073,7 @@ describe('DocumentEditor.vue', () => {
     test('should display correct zero amount of branches', (done) => {
       gitData = []
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v1/configs/') {
+        if (path === '/conf/api/v2/configs/') {
           return Promise.resolve({data: gitData})
         }
         return Promise.resolve({data: []})
@@ -1095,7 +1095,7 @@ describe('DocumentEditor.vue', () => {
     test('should display correct zero amount of commits', (done) => {
       gitData = []
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v1/configs/') {
+        if (path === '/conf/api/v2/configs/') {
           return Promise.resolve({data: gitData})
         }
         return Promise.resolve({data: []})
@@ -1118,7 +1118,7 @@ describe('DocumentEditor.vue', () => {
       gitData = [
         {
           'id': 'master',
-          'description': 'Update entry [__default__] of document [aclpolicies]',
+          'description': 'Update entry [__default__] of document [aclprofiles]',
           'date': '2020-11-10T15:49:17+02:00',
           'logs': [{
             'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
@@ -1126,7 +1126,7 @@ describe('DocumentEditor.vue', () => {
             'parents': [
               'fc47a6cd9d7f254dd97875a04b87165cc484e075',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           }],
@@ -1134,13 +1134,13 @@ describe('DocumentEditor.vue', () => {
         },
       ]
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v1/configs/') {
+        if (path === '/conf/api/v2/configs/') {
           return Promise.resolve({data: gitData})
         }
-        if (path === '/conf/api/v1/configs/master/') {
+        if (path === '/conf/api/v2/configs/master/') {
           return Promise.resolve({data: gitData[0]})
         }
-        if (path === '/conf/api/v1/configs/master/v/') {
+        if (path === '/conf/api/v2/configs/master/v/') {
           return Promise.resolve({data: gitData[0].logs})
         }
         return Promise.resolve({data: []})
@@ -1163,7 +1163,7 @@ describe('DocumentEditor.vue', () => {
       gitData = [
         {
           'id': 'master',
-          'description': 'Update entry [__default__] of document [aclpolicies]',
+          'description': 'Update entry [__default__] of document [aclprofiles]',
           'date': '2020-11-10T15:49:17+02:00',
           'logs': [{
             'version': '7dd9580c00bef1049ee9a531afb13db9ef3ee956',
@@ -1171,7 +1171,7 @@ describe('DocumentEditor.vue', () => {
             'parents': [
               'fc47a6cd9d7f254dd97875a04b87165cc484e075',
             ],
-            'message': 'Update entry [__default__] of document [aclpolicies]',
+            'message': 'Update entry [__default__] of document [aclprofiles]',
             'email': 'curiefense@reblaze.com',
             'author': 'Curiefense API',
           }],
@@ -1179,13 +1179,13 @@ describe('DocumentEditor.vue', () => {
         },
       ]
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v1/configs/') {
+        if (path === '/conf/api/v2/configs/') {
           return Promise.resolve({data: gitData})
         }
-        if (path === '/conf/api/v1/configs/master/') {
+        if (path === '/conf/api/v2/configs/master/') {
           return Promise.resolve({data: gitData[0]})
         }
-        if (path === '/conf/api/v1/configs/master/v/') {
+        if (path === '/conf/api/v2/configs/master/v/') {
           return Promise.resolve({data: gitData[0].logs})
         }
         return Promise.resolve({data: []})
@@ -1297,8 +1297,8 @@ describe('DocumentEditor.vue', () => {
   })
 
   describe('buttons', () => {
-    test('should refresh referenced IDs lists after saving url map entity', (done) => {
-      // switch to url map entity type
+    test('should refresh referenced IDs lists after saving security policy entity', (done) => {
+      // switch to security policy entity type
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const options = docTypeSelection.findAll('option')
@@ -1312,7 +1312,7 @@ describe('DocumentEditor.vue', () => {
         const saveDocumentButton = wrapper.find('.save-document-button')
         saveDocumentButton.trigger('click')
         await Vue.nextTick()
-        expect(getSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/urlmaps/`)
+        expect(getSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/securitypolicies/`)
         done()
       })
     })
@@ -1325,7 +1325,7 @@ describe('DocumentEditor.vue', () => {
       const saveDocumentButton = wrapper.find('.save-document-button')
       saveDocumentButton.trigger('click')
       await Vue.nextTick()
-      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/aclpolicies/e/${doc.id}/`, doc)
+      expect(putSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/${doc.id}/`, doc)
     })
 
     test('should be able to fork document', async () => {
@@ -1338,11 +1338,11 @@ describe('DocumentEditor.vue', () => {
       const forkDocumentButton = wrapper.find('.fork-document-button')
       forkDocumentButton.trigger('click')
       await Vue.nextTick()
-      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/aclpolicies/e/`, forkedDoc)
+      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/`, forkedDoc)
     })
 
-    test('should change url map match when forking url map document', (done) => {
-      // switching to url maps
+    test('should change security policy match when forking security policy document', (done) => {
+      // switching to security policies
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const options = docTypeSelection.findAll('option')
@@ -1359,20 +1359,20 @@ describe('DocumentEditor.vue', () => {
         const forkDocumentButton = wrapper.find('.fork-document-button')
         forkDocumentButton.trigger('click')
         await Vue.nextTick()
-        expect(postSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/urlmaps/e/`, forkedDoc)
+        expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/securitypolicies/e/`, forkedDoc)
         done()
       })
     })
 
     test('should be able to add a new document', async () => {
-      const newDoc = DatasetsUtils.newDocEntryFactory.aclpolicies()
+      const newDoc = DatasetsUtils.newDocEntryFactory.aclprofiles()
       newDoc.id = expect.any(String)
       const postSpy = jest.spyOn(axios, 'post')
       postSpy.mockImplementation(() => Promise.resolve())
       const newDocumentButton = wrapper.find('.new-document-button')
       newDocumentButton.trigger('click')
       await Vue.nextTick()
-      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/aclpolicies/e/`, newDoc)
+      expect(postSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/`, newDoc)
     })
 
     test('should be able to add multiple new documents in a row with different IDs', async () => {
@@ -1402,7 +1402,7 @@ describe('DocumentEditor.vue', () => {
       const deleteDocumentButton = wrapper.find('.delete-document-button')
       deleteDocumentButton.trigger('click')
       await Vue.nextTick()
-      expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v1/configs/master/d/aclpolicies/e/${docID}/`)
+      expect(deleteSpy).toHaveBeenCalledWith(`/conf/api/v2/configs/master/d/aclprofiles/e/${docID}/`)
     })
 
     test('should not be able to delete a document if its id is __default__', async () => {
@@ -1416,7 +1416,7 @@ describe('DocumentEditor.vue', () => {
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
-    test('should not be able to delete an ACL Policy document if it is referenced by a url map', async () => {
+    test('should not be able to delete an ACL Profile document if it is referenced by a security policy', async () => {
       // switch to a different document
       const docSelection = wrapper.find('.doc-selection')
       docSelection.trigger('click')
@@ -1432,7 +1432,7 @@ describe('DocumentEditor.vue', () => {
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
-    test('should not be able to delete an WAF Policy document if it is referenced by a url map', async () => {
+    test('should not be able to delete an WAF Policy document if it is referenced by a security policy', async () => {
       // switch to WAF Policies
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
@@ -1449,7 +1449,7 @@ describe('DocumentEditor.vue', () => {
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
-    test('should not be able to delete a Rate Limit document if it is referenced by a url map', async () => {
+    test('should not be able to delete a Rate Limit document if it is referenced by a security policy', async () => {
       // switch to Rate Limits
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
@@ -1469,12 +1469,12 @@ describe('DocumentEditor.vue', () => {
     test('should not attempt to download document when download button is clicked' +
       ' if the full docs data was not loaded yet', async () => {
       jest.spyOn(axios, 'get').mockImplementation((path, config) => {
-        if (path === '/conf/api/v1/configs/') {
+        if (path === '/conf/api/v2/configs/') {
           return Promise.resolve({data: gitData})
         }
         const branch = (wrapper.vm as any).selectedBranch
         const docID = (wrapper.vm as any).selectedDocID
-        if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/`) {
+        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
           if (config && config.headers && config.headers['x-fields'] === 'id, name') {
             return Promise.resolve({data: _.map(aclDocs, (i) => _.pick(i, 'id', 'name'))})
           }
@@ -1482,16 +1482,16 @@ describe('DocumentEditor.vue', () => {
             return Promise.resolve({data: aclDocs})
           }, 5000)
         }
-        if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/__default__/`) {
+        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/__default__/`) {
           return Promise.resolve({data: aclDocs[0]})
         }
-        if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/5828321c37e0/`) {
+        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/5828321c37e0/`) {
           return Promise.resolve({data: aclDocs[1]})
         }
-        if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
+        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/v/7f8a987c8e5e9db7c734ac8841c543d5bc5d9657/`) {
           return Promise.resolve({data: aclGitOldVersion})
         }
-        if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/e/${docID}/v/`) {
+        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/e/${docID}/v/`) {
           return Promise.resolve({data: aclDocsLogs[0]})
         }
         return Promise.resolve({data: []})
@@ -1515,7 +1515,7 @@ describe('DocumentEditor.vue', () => {
     })
 
     test('should attempt to download document when download button is clicked', async () => {
-      const wantedFileName = 'aclpolicies'
+      const wantedFileName = 'aclprofiles'
       const wantedFileType = 'json'
       const wantedFileData = aclDocs
       const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {
@@ -1533,7 +1533,7 @@ describe('DocumentEditor.vue', () => {
   describe('no data', () => {
     test('should display correct message when there is no branch data', (done) => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v1/configs/') {
+        if (path === '/conf/api/v2/configs/') {
           return Promise.resolve({data: []})
         }
         return Promise.resolve({data: []})
@@ -1556,7 +1556,7 @@ describe('DocumentEditor.vue', () => {
 
     test('should display link to version control when there is no branch data', (done) => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v1/configs/') {
+        if (path === '/conf/api/v2/configs/') {
           return Promise.resolve({data: []})
         }
         return Promise.resolve({data: []})
@@ -1594,7 +1594,7 @@ describe('DocumentEditor.vue', () => {
 
     test('should display correct message when there is no doc data', (done) => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v1/configs/') {
+        if (path === '/conf/api/v2/configs/') {
           return Promise.resolve({data: gitData})
         }
         return Promise.resolve({data: []})
@@ -1619,7 +1619,7 @@ describe('DocumentEditor.vue', () => {
   describe('loading indicator', () => {
     test('should display loading indicator when branch not loaded', async () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v1/configs/') {
+        if (path === '/conf/api/v2/configs/') {
           return new Promise(() => {
           })
         }
@@ -1638,11 +1638,11 @@ describe('DocumentEditor.vue', () => {
 
     test('should display loading indicator when doc not loaded', async () => {
       jest.spyOn(axios, 'get').mockImplementation((path) => {
-        if (path === '/conf/api/v1/configs/') {
+        if (path === '/conf/api/v2/configs/') {
           return Promise.resolve({data: gitData})
         }
         const branch = (wrapper.vm as any).selectedBranch
-        if (path === `/conf/api/v1/configs/${branch}/d/aclpolicies/`) {
+        if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
           return new Promise(() => {
           })
         }

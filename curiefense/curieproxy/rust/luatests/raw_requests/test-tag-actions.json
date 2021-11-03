@@ -2,7 +2,7 @@
   {
     "response": {
       "tags": [
-        "urlmap-entry:default",
+        "securitypolicy-entry:default",
         "wafid:--default--",
         "asn:396507",
         "sante",
@@ -10,7 +10,7 @@
         "actionchallenge",
         "aclname:default-acl",
         "aclid:--default--",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "geo:united-states",
         "wafname:default-waf",
         "bot",
@@ -18,7 +18,7 @@
       ],
       "action": "custom_response",
       "block_mode": true,
-      "status": 403
+      "status": 503
     },
     "name": "test action challenge",
     "headers": {
@@ -31,7 +31,7 @@
   {
     "response": {
       "tags": [
-        "urlmap-entry:default",
+        "securitypolicy-entry:default",
         "wafid:--default--",
         "asn:396507",
         "sante",
@@ -39,7 +39,7 @@
         "actionresponse",
         "aclname:default-acl",
         "aclid:--default--",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "geo:united-states",
         "wafname:default-waf",
         "bot",
@@ -60,7 +60,7 @@
   {
     "response": {
       "tags": [
-        "urlmap-entry:default",
+        "securitypolicy-entry:default",
         "wafid:--default--",
         "wafname:default-waf",
         "asn:396507",
@@ -69,14 +69,14 @@
         "actiondefault",
         "aclname:default-acl",
         "aclid:--default--",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "geo:united-states",
         "bot",
         "ip:23-129-64-253"
       ],
       "action": "custom_response",
       "block_mode": true,
-      "status": 403
+      "status": 503
     },
     "name": "test action default",
     "headers": {
@@ -89,7 +89,7 @@
   {
     "response": {
       "tags": [
-        "urlmap-entry:default",
+        "securitypolicy-entry:default",
         "wafid:--default--",
         "wafname:default-waf",
         "asn:396507",
@@ -98,7 +98,7 @@
         "actionredirect",
         "aclname:default-acl",
         "aclid:--default--",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "geo:united-states",
         "bot",
         "ip:23-129-64-253"
@@ -118,7 +118,7 @@
   {
     "response": {
       "tags": [
-        "urlmap-entry:default",
+        "securitypolicy-entry:default",
         "wafid:--default--",
         "wafname:default-waf",
         "asn:396507",
@@ -127,14 +127,14 @@
         "actiondefault",
         "aclname:default-acl",
         "aclid:--default--",
-        "urlmap:default-entry",
+        "securitypolicy:default-entry",
         "geo:united-states",
         "bot",
         "ip:23-129-64-253"
       ],
       "action": "custom_response",
       "block_mode": true,
-      "status": 403
+      "status": 503
     },
     "name": "test action default",
     "headers": {

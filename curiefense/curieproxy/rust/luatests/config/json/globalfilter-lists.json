@@ -1,0 +1,528 @@
+[
+   {
+      "action": {
+         "type": "monitor"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "hdrfoobar",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "header foo=bar",
+      "description": "description",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "headers",
+                     [
+                        "foo",
+                        "bar"
+                     ],
+                     "..."
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "hdrfoobar"
+      ]
+   },
+   {
+      "action": {
+         "type": "monitor"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "arg_deny",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "args deny",
+      "description": "args",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "args",
+                     [
+                        "deny",
+                        "deny"
+                     ],
+                     "deny"
+                  ],
+                  [
+                     "args",
+                     [
+                        "deny_base64",
+                        "deny"
+                     ],
+                     "deny"
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "deny"
+      ]
+   },
+   {
+      "action": {
+         "type": "monitor"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "arg_allow",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "args allow",
+      "description": "args",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "args",
+                     [
+                        "allow",
+                        "allow"
+                     ],
+                     "allow"
+                  ],
+                  [
+                     "args",
+                     [
+                        "allow_base64",
+                        "allow"
+                     ],
+                     "allow"
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "allow"
+      ]
+   },
+   {
+      "action": {
+         "type": "monitor"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "arg_allowbot",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "args allowbot",
+      "description": "args",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "args",
+                     [
+                        "allowbot",
+                        "allowbot"
+                     ],
+                     "allowbot"
+                  ],
+                  [
+                     "args",
+                     [
+                        "allowbot_base64",
+                        "allowbot"
+                     ],
+                     "allowbot"
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "allowbot"
+      ]
+   },
+   {
+      "action": {
+         "type": "monitor"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "arg_denybot",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "args denybot",
+      "description": "args",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "args",
+                     [
+                        "denybot",
+                        "denybot"
+                     ],
+                     "denybot"
+                  ],
+                  [
+                     "args",
+                     [
+                        "denybot_base64",
+                        "denybot"
+                     ],
+                     "denybot"
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "denybot"
+      ]
+   },
+   {
+      "action": {
+         "type": "monitor"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "arg_forcedeny",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "args forcedeny",
+      "description": "args",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "args",
+                     [
+                        "forcedeny",
+                        "forcedeny"
+                     ],
+                     "forcedeny"
+                  ],
+                  [
+                     "args",
+                     [
+                        "forcedeny_base64",
+                        "forcedeny"
+                     ],
+                     "forcedeny"
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "forcedeny"
+      ]
+   },
+   {
+      "action": {
+         "type": "monitor"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "arg_passthrough",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "args passthrough",
+      "description": "args",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "args",
+                     [
+                        "passthrough",
+                        "passthrough"
+                     ],
+                     "passthrough"
+                  ],
+                  [
+                     "args",
+                     [
+                        "passthrough_base64",
+                        "passthrough"
+                     ],
+                     "passthrough"
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "passthrough"
+      ]
+   },
+   {
+      "id": "45f5dda5931e",
+      "name": "Sante test",
+      "source": "self-managed",
+      "mdate": "2021-04-20T14:46:50.195Z",
+      "description": "New List Description and Remarks",
+      "active": true,
+      "tags": [
+         "sante"
+      ],
+      "action": {
+         "type": "monitor"
+      },
+      "rule": {
+         "relation": "OR",
+         "sections": [
+            {
+               "relation": "OR",
+               "entries": [
+                  [
+                     "headers",
+                     [
+                        "toto",
+                        "simon"
+                     ]
+                  ],
+                  [
+                     "ip",
+                     "1.2.3.4",
+                     ""
+                  ],
+                  [
+                     "ip",
+                     "4.3.2.1",
+                     "comment"
+                  ],
+                  [
+                     "method",
+                     "POST|PUT",
+                     ""
+                  ],
+                  [
+                     "method",
+                     "GET|HEAD",
+                     "comment 02"
+                  ],
+                  [
+                     "cookies",
+                     [
+                        "zooloo",
+                        "gooloo"
+                     ]
+                  ]
+               ]
+            },
+            {
+               "relation": "OR",
+               "entries": [
+                  [
+                     "country",
+                     "France",
+                     "viva"
+                  ],
+                  [
+                     "country",
+                     "Italy",
+                     ""
+                  ],
+                  [
+                     "query",
+                     "foo=bar",
+                     ""
+                  ]
+               ]
+            }
+         ]
+      }
+   },
+   {
+      "action": {
+         "type": "challenge"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "action_challenge",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "action challenge",
+      "description": "...",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "args",
+                     [
+                        "challenge",
+                        ".*"
+                     ],
+                     "challenge"
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "actionchallenge"
+      ]
+   },
+   {
+      "action": {
+         "params": {
+            "content": "lol",
+            "status": "123"
+         },
+         "type": "response"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "action_response",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "action response",
+      "description": "...",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "args",
+                     [
+                        "response",
+                        ".*"
+                     ],
+                     "response"
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "actionresponse"
+      ]
+   },
+   {
+      "action": {
+         "type": "default"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "action_default",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "action default",
+      "description": "...",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "args",
+                     [
+                        "default",
+                        ".*"
+                     ],
+                     "default"
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "actiondefault"
+      ]
+   },
+   {
+      "action": {
+         "params": {
+            "location": "http://www.google.com",
+            "status": "456"
+         },
+         "type": "redirect"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "action_redirect",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "action redirect",
+      "description": "...",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "args",
+                     [
+                        "redirect",
+                        ".*"
+                     ],
+                     "redirect"
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "actionredirect"
+      ]
+   },
+   {
+      "id": "49aea5a8d96b",
+      "name": "foo",
+      "source": "self-managed",
+      "mdate": "2021-07-01T09:50:58.505Z",
+      "description": "Check action",
+      "active": true,
+      "action": {
+         "type": "default"
+      },
+      "tags": [
+         "tagbyip"
+      ],
+      "rule": {
+         "relation": "OR",
+         "sections": [
+            {
+               "relation": "OR",
+               "entries": [
+                  [
+                     "ip",
+                     "12.13.14.15",
+                     ""
+                  ]
+               ]
+            }
+         ]
+      }
+   }
+]

@@ -1,10 +1,10 @@
 /* eslint-disable */
-
+import {httpRequestMethods} from './const'
 declare module CuriefenseClient {
 
   type GenericObject = { [key: string]: any }
 
-  type TagsDatabaseDocument = {
+  type TagsNamespaceValue = {
     neutral?: string[]
     malicious?: string[]
     legitimate?: string[]
@@ -21,7 +21,7 @@ declare module CuriefenseClient {
     exclusions: { [key: string]: number }
   }
 
-  type URLMapEntryMatch = {
+  type SecurityPolicyEntryMatch = {
     match: string
     name: string
     acl_profile: string
@@ -31,10 +31,10 @@ declare module CuriefenseClient {
     limit_ids: string[]
   }
 
-  type TagRuleSectionEntry = [Category, string | string[], string?]
+  type GlobalFilterSectionEntry = [Category, string | string[], string?]
 
-  type TagRuleSection = {
-    entries: TagRuleSectionEntry[]
+  type GlobalFilterSection = {
+    entries: GlobalFilterSectionEntry[]
     relation: Relation
   }
 
@@ -46,7 +46,7 @@ declare module CuriefenseClient {
     type: 'default' | 'challenge' | 'monitor' | 'response' | 'redirect' | 'ban' | 'request_header'
     params?: {
       status?: string
-      ttl?: string
+      duration?: string
       headers?: string
       content?: string
       location?: string
@@ -54,7 +54,7 @@ declare module CuriefenseClient {
     }
   }
 
-  type ACLPolicyFilter = 'allow' | 'allow_bot' | 'deny_bot' | 'bypass' | 'force_deny' | 'deny'
+  type ACLProfileFilter = 'allow' | 'allow_bot' | 'deny_bot' | 'passthrough' | 'force_deny' | 'deny'
 
   type IncludeExcludeType = 'include' | 'exclude'
 
@@ -68,9 +68,9 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
-  type Document = BasicDocument & (ACLPolicy | FlowControl | TagRule | RateLimit | URLMap | WAFPolicy | WAFRule)
+  type Document = BasicDocument & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy | WAFPolicy | WAFRule)
 
-  type DocumentType = 'aclpolicies' | 'flowcontrol' | 'tagrules' | 'ratelimits' | 'urlmaps' | 'wafpolicies' | 'wafrules'
+  type DocumentType = 'aclprofiles' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'securitypolicies' | 'wafpolicies' | 'wafrules'
 
   // Document types helpers - END
 
@@ -81,13 +81,13 @@ declare module CuriefenseClient {
     name: string
   }
 
-  type ACLPolicy = {
+  type ACLProfile = {
     id: string
     name: string
     allow: string[]
     allow_bot: string[]
     deny_bot: string[]
-    bypass: string[]
+    passthrough: string[]
     force_deny: string[]
     deny: string[]
   }
@@ -119,26 +119,26 @@ declare module CuriefenseClient {
     }
   }
 
-  type TagRule = {
+  type GlobalFilter = {
     id: string
     name: string
     source: string
     mdate: string // ISO string
-    notes: string
+    description: string
     active: boolean
     tags: string[]
     action: ResponseActionType
     rule: {
       relation: Relation
-      sections: TagRuleSection[]
+      sections: GlobalFilterSection[]
     }
   }
 
-  type URLMap = {
+  type SecurityPolicy = {
     id: string
     name: string
     match: string
-    map: URLMapEntryMatch[]
+    map: SecurityPolicyEntryMatch[]
   }
 
   type RateLimit = {
@@ -147,19 +147,21 @@ declare module CuriefenseClient {
     description: string
     limit: string
     key: LimitOptionType[]
-    ttl: string
+    timeframe: string
     action: ResponseActionType
-    exclude: { [key in LimitRuleType]?: LimitOptionType }
-    include: { [key in LimitRuleType]?: LimitOptionType }
+    exclude: string[]
+    include: string[]
     pairwith: LimitOptionType
   }
 
-  type FlowControl = {
+  type HttpRequestMethods = typeof httpRequestMethods[number]
+
+  type FlowControlPolicy = {
     id: string
     name: string
-    ttl: number
+    timeframe: number
     active: boolean
-    notes: string
+    description: string
     key: LimitOptionType[]
     action: ResponseActionType
     exclude: string[]
@@ -168,7 +170,7 @@ declare module CuriefenseClient {
       args: GenericObject
       cookies: GenericObject
       headers: GenericObject
-      method: string
+      method: HttpRequestMethods
       uri: string
     }[]
   }

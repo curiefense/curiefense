@@ -12,8 +12,8 @@ pub struct AclDecision {
 
 #[derive(Debug, Serialize)]
 pub enum AclResult {
-    /// bypass found
-    Bypass(AclDecision),
+    /// passthrough found
+    Passthrough(AclDecision),
     /// bots, human results
     Match(BotHuman),
 }
@@ -34,8 +34,8 @@ pub fn check_acl(tags: &Tags, acl: &AclProfile) -> AclResult {
         }
     };
     subcheck(&acl.force_deny, false)
-        .map(AclResult::Bypass)
-        .or_else(|| subcheck(&acl.bypass, true).map(AclResult::Bypass))
+        .map(AclResult::Passthrough)
+        .or_else(|| subcheck(&acl.passthrough, true).map(AclResult::Passthrough))
         .unwrap_or_else(|| {
             let botresult = subcheck(&acl.allow_bot, true).or_else(|| subcheck(&acl.deny_bot, false));
             let humanresult = subcheck(&acl.allow, true).or_else(|| subcheck(&acl.deny, false));

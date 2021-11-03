@@ -23,6 +23,7 @@ cat <<EOF > "$WORKDIR/ci-env"
 XFF_TRUSTED_HOPS=2
 ENVOY_UID=0
 DOCKER_TAG=$DOCKER_TAG
+ENVOY_LOG_LEVEL=debug
 
 CURIE_BUCKET_LINK=file:///bucket/prod/manifest.json
 EOF

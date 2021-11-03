@@ -199,18 +199,18 @@
 import _ from 'lodash'
 import Vue, {PropType} from 'vue'
 import Utils from '@/assets/Utils.ts'
-import {Category, Relation, TagRule, TagRuleSection, TagRuleSectionEntry} from '@/types'
+import {Category, GlobalFilter, GlobalFilterSection, GlobalFilterSectionEntry, Relation} from '@/types'
 
 export default Vue.extend({
   name: 'EntriesRelationList',
 
   props: {
     rule: {
-      type: Object as PropType<TagRule['rule']>,
+      type: Object as PropType<GlobalFilter['rule']>,
       default: () => {
         return {
           relation: 'OR',
-          sections: [] as TagRuleSection[],
+          sections: [] as GlobalFilterSection[],
         }
       },
       validator(value) {
@@ -218,10 +218,10 @@ export default Vue.extend({
           return false
         }
         const isRelationValid = ['OR', 'AND'].includes(value.relation.toUpperCase())
-        const isListInvalid = value.sections.find((section: TagRuleSection) => {
+        const isListInvalid = value.sections.find((section: GlobalFilterSection) => {
           const isSectionRelationInvalid = !(['OR', 'AND'].includes(value.relation.toUpperCase()))
           const isSectionsEntriesInvalid = !section.entries || !section.entries.find ||
-              section.entries.find((entry: TagRuleSectionEntry) => {
+              section.entries.find((entry: GlobalFilterSectionEntry) => {
                 return (!entry || !entry.length || entry.length < 2 || entry.length > 3)
               })
           return isSectionRelationInvalid || isSectionsEntriesInvalid
@@ -274,7 +274,7 @@ export default Vue.extend({
       return this.localRule.sections.length > 1 ? 1000 * 1000 : 20
     },
 
-    sectionsCurrentPage(): TagRuleSectionEntry[][] {
+    sectionsCurrentPage(): GlobalFilterSectionEntry[][] {
       const pages = []
       for (let i = 0; i < this.localRule.sections.length; i++) {
         const section = this.localRule.sections[i]
@@ -287,8 +287,8 @@ export default Vue.extend({
       return pages
     },
 
-    localRule(): TagRule['rule'] {
-      return _.cloneDeep(this.rule) as TagRule['rule']
+    localRule(): GlobalFilter['rule'] {
+      return _.cloneDeep(this.rule) as GlobalFilter['rule']
     },
   },
 
@@ -324,7 +324,7 @@ export default Vue.extend({
       this.$emit('update:rule', this.localRule)
     },
 
-    sectionContainsSameCategoryItems(section: TagRuleSection) {
+    sectionContainsSameCategoryItems(section: GlobalFilterSection) {
       const countedCategories = _.countBy(section.entries, (entry) => {
         return this.listEntryTypes[entry[0]].title
       })
@@ -342,7 +342,7 @@ export default Vue.extend({
       return false
     },
 
-    toggleSectionRelation(section: TagRuleSection) {
+    toggleSectionRelation(section: GlobalFilterSection) {
       if (this.sectionContainsSameCategoryItems(section)) {
         return
       }
@@ -359,15 +359,15 @@ export default Vue.extend({
       this.newEntrySectionIndex = index
     },
 
-    totalPages(section: TagRuleSection) {
+    totalPages(section: GlobalFilterSection) {
       return Math.ceil(this.sectionTotalEntries(section) / this.rowsPerPage)
     },
 
-    sectionTotalEntries(section: TagRuleSection) {
+    sectionTotalEntries(section: GlobalFilterSection) {
       return section?.entries?.length || 0
     },
 
-    dualCell(cell: TagRuleSectionEntry[1]) {
+    dualCell(cell: GlobalFilterSectionEntry[1]) {
       if (_.isArray(cell)) {
         return `${cell[0]}: ${cell[1]}`
       } else {
@@ -375,7 +375,7 @@ export default Vue.extend({
       }
     },
 
-    navigate(section: TagRuleSection, sectionIndex: number, pageNum: number) {
+    navigate(section: GlobalFilterSection, sectionIndex: number, pageNum: number) {
       if (pageNum >= 1 && pageNum <= this.totalPages(section)) {
         Vue.set(this.sectionsCurrentPageIndex, sectionIndex, pageNum)
       }
@@ -384,7 +384,7 @@ export default Vue.extend({
     addSection() {
       const newSection = {
         relation: 'OR' as Relation,
-        entries: [] as TagRuleSectionEntry[],
+        entries: [] as GlobalFilterSectionEntry[],
       }
       this.localRule.sections.push(newSection)
       // Vue.set(this.sectionsCurrentPageIndex, this.localRule.sections.length - 1, 1)
@@ -398,7 +398,7 @@ export default Vue.extend({
       this.emitRuleUpdate()
     },
 
-    addEntry(section: TagRuleSection, sectionIndex: number) {
+    addEntry(section: GlobalFilterSection, sectionIndex: number) {
       if (this.isErrorField(`${this.newEntryCategory}${sectionIndex}`) || !this.newEntryItem.firstAttr.trim()) {
         return
       }
@@ -427,7 +427,7 @@ export default Vue.extend({
       this.$nextTick(this.validateDuplicates)
     },
 
-    removeEntry(section: TagRuleSection, sectionIndex: number, entryIndex: number) {
+    removeEntry(section: GlobalFilterSection, sectionIndex: number, entryIndex: number) {
       const pointer = ((this.sectionsCurrentPageIndex[sectionIndex] - 1) * this.rowsPerPage) + entryIndex
       section.entries.splice(pointer, 1)
       if (!section.entries.length) {
@@ -486,7 +486,7 @@ export default Vue.extend({
       )
       if (this.duplicatedEntries.length) {
         const duplicatesMsg = this.duplicatedEntries.reduce(
-            (prev: string, [section, category, value]: TagRuleSectionEntry) => {
+            (prev: string, [section, category, value]: GlobalFilterSectionEntry) => {
               const sectionMsg = this.rule.sections.length > 1 ? `Section ${section + 1}: ` : ''
               return `${prev}<br/>` +
                   `${sectionMsg}${this.listEntryTypes[category as Category]?.title} = ${this.dualCell(value)}`
@@ -500,13 +500,10 @@ export default Vue.extend({
       }
     },
 
-    isEntryDuplicate(sectionIndex: number, [currentCategory, currentValue]: TagRuleSectionEntry) {
-      const index = this.duplicatedEntries.findIndex(
-          ([section, category, value]) => {
-            return section === sectionIndex && category === currentCategory && _.isEqual(value, currentValue)
-          },
-      )
-      return index > -1
+    isEntryDuplicate(sectionIndex: number, [currentCategory, currentValue]: GlobalFilterSectionEntry) {
+      return this.duplicatedEntries.findIndex(
+          ([section, category, value]) => section === sectionIndex && category === currentCategory && _.isEqual(value, currentValue),
+      ) > -1
     },
 
     validateValue(sectionIndex: number, value: string) {

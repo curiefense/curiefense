@@ -11,7 +11,10 @@ setup(
     packages=["curieconf.utils"],
     install_requires=[
         "wheel",
-        "cloudstorage [amazon, google, local]",
+        "google-crc32c==1.1.2",
+        "minio==6.0.2",
+        "cloudstorage [amazon, google, local, minio]==0.10.1",
+        "pydash==5.0.2",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

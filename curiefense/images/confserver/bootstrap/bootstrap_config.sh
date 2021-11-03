@@ -31,7 +31,7 @@ if [ -n "$IF_NO_CONFIG_INIT_FROM" ]; then
 	git commit --allow-empty -am "Initial empty content"
 	cp -R "$IF_NO_CONFIG_INIT_FROM/_internal_db/." .
 	git add .
-	git commit -m "Added database [system]"
+	git commit -m "Added namespace [system]"
 	git checkout -b _internal_base
 	git reset --hard "HEAD~1"
 	cp -R "$IF_NO_CONFIG_INIT_FROM/_internal_base/." .

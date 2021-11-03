@@ -284,13 +284,13 @@ export default Vue.extend({
           this.isPublishLoading = false
         },
       }).then((response: AxiosResponse) => {
-        this.parsePublishResults(response.data)
+        this.parsePublishResults(response?.data)
         this.isPublishLoading = false
       })
     },
 
     parsePublishResults(data: any) {
-      if (data.ok) {
+      if (data?.ok) {
         Utils.toast(
             `Branch "${this.selectedBranchName}" was published with version "${this.selectedCommit}".`,
             'is-success',
@@ -301,7 +301,7 @@ export default Vue.extend({
             'is-danger',
         )
       }
-      _.each(data.status, (responseStatus) => {
+      _.each(data?.status, (responseStatus) => {
         const index = _.findIndex(this.publishedBuckets, (entry) => {
           return entry.name === responseStatus.name
         })

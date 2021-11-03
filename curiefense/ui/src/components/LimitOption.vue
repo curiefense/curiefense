@@ -28,16 +28,16 @@
              :class="{control: true, 'is-fullwidth': true}"
              class="has-icons-left">
           <input type="text"
-                 title="Key"
-                 v-model="selectedKey"
-                 class="input is-small option-key-input">
+                 title="Name"
+                 v-model="selectedName"
+                 class="input is-small option-name-input">
           <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
         </div>
         <div class="control select is-small is-fullwidth" v-if="selectedType === 'attrs'">
           <div class="select is-fullwidth">
-            <select v-model="selectedKey"
+            <select v-model="selectedName"
                     class="option-attribute-selection"
-                    title="Key">
+                    title="Name">
               <option v-for="(value, id) in attributes" :value="id" :key="id">{{ value }}</option>
             </select>
           </div>
@@ -59,7 +59,7 @@
                     removable ? 'has-text-grey' : 'has-text-grey-light is-disabled']"
             :disabled="!removable"
             class="remove-option-button"
-            title="click to remove"
+            title="Click to remove"
             @click="$emit('remove')">
           <span class="icon is-small"><i class="fas fa-trash fa-xs"></i></span>
         </button>
@@ -168,7 +168,7 @@ export default Vue.extend({
         this.selectedOption.value = value
       },
     },
-    selectedKey: {
+    selectedName: {
       get: function(): string {
         return this.selectedOption.key
       },

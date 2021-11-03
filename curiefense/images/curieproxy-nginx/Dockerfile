@@ -1,6 +1,6 @@
 ARG RUSTBIN_TAG=latest
 FROM curiefense/curiefense-rustbuild-focal:${RUSTBIN_TAG} AS rustbin
-FROM docker.io/openresty/openresty:focal
+FROM docker.io/openresty/openresty:1.19.9.1-1-focal
 COPY conf.d /etc/nginx/conf.d
 COPY curieproxy/lua /lua
 COPY curieproxy/lua/shared-objects/*.so /usr/local/lib/lua/5.1/

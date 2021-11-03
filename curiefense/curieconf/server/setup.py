@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name="curieconf_server",
-    version="1.0",
+    version="1.1",
     description="Curiefense configuration server",
     author="Reblaze",
     author_email="phil@reblaze.com",
@@ -12,8 +12,15 @@ setup(
         "curieconf.confserver",
         "curieconf.confserver.backend",
         "curieconf.confserver.v1",
+        "curieconf.confserver.v2",
     ],
-    package_data={"curieconf.confserver": ["json/*.schema"]},
+    package_data={
+        "curieconf.confserver": [
+            "json/*.schema",
+            "v1/json/*.schema",
+            "v2/json/*.schema",
+        ]
+    },
     scripts=["bin/curieconf_server"],
     install_requires=[
         "wheel",
@@ -27,6 +34,7 @@ setup(
         "jmespath",
         "fasteners",
         "jsonpath-ng",
+        "pydash==5.0.2",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

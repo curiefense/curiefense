@@ -15,7 +15,7 @@ from pathlib import Path
 import json
 
 
-api_bp = Blueprint("curieconf", "curiefense")
+api_bp = Blueprint("api_v1", __name__)
 api = Api(api_bp, version="1.0", title="Curiefense configuration API server v1.0")
 
 
@@ -45,13 +45,13 @@ m_limit = api.model(
         "id": fields.String(required=True),
         "name": fields.String(required=True),
         "description": fields.String(required=True),
-        "ttl": fields.String(required=True),
+        "ttl": fields.String(required=True, attribute="timeframe"),
         "limit": fields.String(required=True),
         "action": fields.Raw(required=True),
-        "include": fields.Raw(required=True),
-        "exclude": fields.Raw(required=True),
         "key": AnyType(required=True),
         "pairwith": fields.Raw(required=True),
+        "include": fields.List(fields.String()),
+        "exclude": fields.List(fields.String()),
     },
 )
 
@@ -134,7 +134,7 @@ m_aclpolicy = api.model(
         "allow": fields.List(fields.String()),
         "allow_bot": fields.List(fields.String()),
         "deny_bot": fields.List(fields.String()),
-        "bypass": fields.List(fields.String()),
+        "bypass": fields.List(fields.String(), attribute="passthrough"),
         "deny": fields.List(fields.String()),
         "force_deny": fields.List(fields.String()),
     },
@@ -149,7 +149,7 @@ m_tagrule = api.model(
         "name": fields.String(required=True),
         "source": fields.String(required=True),
         "mdate": fields.String(required=True),
-        "notes": fields.String(required=True),
+        "notes": fields.String(required=True, attribute="description"),
         "active": fields.Boolean(required=True),
         "action": fields.Raw(required=True),
         "tags": fields.List(fields.String()),
@@ -165,13 +165,13 @@ m_flowcontrol = api.model(
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
-        "ttl": fields.Integer(required=True),
+        "ttl": fields.Integer(required=True, attribute="timeframe"),
         "key": fields.List(fields.Raw(required=True)),
         "sequence": fields.List(fields.Raw(required=True)),
         "action": fields.Raw(required=True),
         "include": fields.List(fields.String()),
         "exclude": fields.List(fields.String()),
-        "notes": fields.String(required=True),
+        "notes": fields.String(required=True, attribute="description"),
         "active": fields.Boolean(required=True),
     },
 )
@@ -259,10 +259,7 @@ m_document_list_entry = api.model(
 
 m_config_documents = api.model(
     "Config Documents",
-    {
-        x: fields.List(fields.Nested(models[x], default=[]))
-        for x in utils.DOCUMENTS_PATH
-    },
+    {x: fields.List(fields.Nested(models[x], default=[])) for x in models},
 )
 
 m_config_blobs = api.model(
@@ -331,19 +328,19 @@ def validateJson(json_data, schema_type):
 
 base_path = Path(__file__).parent
 # base_path = "/etc/curiefense/json/"
-acl_policy_file_path = (base_path / "../json/acl-policy.schema").resolve()
+acl_policy_file_path = (base_path / "./json/acl-policy.schema").resolve()
 with open(acl_policy_file_path) as json_file:
     acl_policy_schema = json.load(json_file)
 ratelimits_file_path = (base_path / "../json/rate-limits.schema").resolve()
 with open(ratelimits_file_path) as json_file:
     ratelimits_schema = json.load(json_file)
-urlmaps_file_path = (base_path / "../json/url-maps.schema").resolve()
+urlmaps_file_path = (base_path / "./json/url-maps.schema").resolve()
 with open(urlmaps_file_path) as json_file:
     urlmaps_schema = json.load(json_file)
 waf_policy_file_path = (base_path / "../json/waf-policy.schema").resolve()
 with open(waf_policy_file_path) as json_file:
     waf_policy_schema = json.load(json_file)
-tagrules_file_path = (base_path / "../json/tag-rules.schema").resolve()
+tagrules_file_path = (base_path / "./json/tag-rules.schema").resolve()
 with open(tagrules_file_path) as json_file:
     tagrules_schema = json.load(json_file)
 flowcontrol_file_path = (base_path / "../json/flow-control.schema").resolve()
@@ -362,7 +359,6 @@ schema_type_map = {
     "flowcontrol": flowcontrol_schema,
     "wafrules": waf_rule_schema,
 }
-
 
 ################
 ### CONFIGS ###
@@ -528,7 +524,7 @@ class DocumentResource(Resource):
         "Get a complete document"
         if document not in models:
             abort(404, "document does not exist")
-        res = current_app.backend.documents_get(config, document)
+        res = current_app.backend.documents_get(config, utils.vconvert(document, "v1"))
         return marshal(res, models[document], skip_none=True)
 
     def post(self, config, document):
@@ -536,7 +532,9 @@ class DocumentResource(Resource):
         if document not in models:
             abort(404, "document does not exist")
         data = marshal(request.json, models[document], skip_none=True)
-        res = current_app.backend.documents_create(config, document, data)
+        res = current_app.backend.documents_create(
+            config, utils.vconvert(document, "v1"), data
+        )
         return res
 
     def put(self, config, document):
@@ -544,14 +542,18 @@ class DocumentResource(Resource):
         if document not in models:
             abort(404, "document does not exist")
         data = marshal(request.json, models[document], skip_none=True)
-        res = current_app.backend.documents_update(config, document, data)
+        res = current_app.backend.documents_update(
+            config, utils.vconvert(document, "v1"), data
+        )
         return res
 
     def delete(self, config, document):
         "Delete/empty a document"
         if document not in models:
             abort(404, "document does not exist")
-        res = current_app.backend.documents_delete(config, document)
+        res = current_app.backend.documents_delete(
+            config, utils.vconvert(document, "v1")
+        )
         return res
 
 
@@ -561,7 +563,9 @@ class DocumentListVersionResource(Resource):
         "Retrieve the existing versions of a given document"
         if document not in models:
             abort(404, "document does not exist")
-        res = current_app.backend.documents_list_versions(config, document)
+        res = current_app.backend.documents_list_versions(
+            config, utils.vconvert(document, "v1")
+        )
         return marshal(res, m_version_log, skip_none=True)
 
 
@@ -571,7 +575,9 @@ class DocumentVersionResource(Resource):
         "Get a given version of a document"
         if document not in models:
             abort(404, "document does not exist")
-        res = current_app.backend.documents_get(config, document, version)
+        res = current_app.backend.documents_get(
+            config, utils.vconvert(document, "v1"), version
+        )
         return marshal(res, models[document], skip_none=True)
 
 
@@ -579,7 +585,9 @@ class DocumentVersionResource(Resource):
 class DocumentRevertResource(Resource):
     def put(self, config, document, version):
         "Create a new version for a document from an old version"
-        return current_app.backend.documents_revert(config, document, version)
+        return current_app.backend.documents_revert(
+            config, utils.vconvert(document, "v1"), version
+        )
 
 
 ###############
@@ -593,7 +601,7 @@ class EntriesResource(Resource):
         "Retrieve the list of entries in a document"
         if document not in models:
             abort(404, "document does not exist")
-        res = current_app.backend.entries_list(config, document)
+        res = current_app.backend.entries_list(config, utils.vconvert(document, "v1"))
         return res  # XXX: marshal
 
     def post(self, config, document):
@@ -601,7 +609,9 @@ class EntriesResource(Resource):
         if document not in models:
             abort(404, "document does not exist")
         data = marshal(request.json, models[document], skip_none=True)
-        res = current_app.backend.entries_create(config, document, data)
+        res = current_app.backend.entries_create(
+            config, utils.vconvert(document, "v1"), data
+        )
         return res
 
 
@@ -611,7 +621,9 @@ class EntryResource(Resource):
         "Retrieve an entry from a document"
         if document not in models:
             abort(404, "document does not exist")
-        res = current_app.backend.entries_get(config, document, entry)
+        res = current_app.backend.entries_get(
+            config, utils.vconvert(document, "v1"), entry
+        )
         return marshal(res, models[document], skip_none=True)
 
     def put(self, config, document, entry):
@@ -621,7 +633,9 @@ class EntryResource(Resource):
         isValid = validateJson(request.json, document)
         if isValid:
             data = marshal(request.json, models[document], skip_none=True)
-            res = current_app.backend.entries_update(config, document, entry, data)
+            res = current_app.backend.entries_update(
+                config, utils.vconvert(document, "v1"), entry, data
+            )
             return res
         else:
             abort(500, "schema mismatched")
@@ -630,7 +644,9 @@ class EntryResource(Resource):
         "Delete an entry from a document"
         if document not in models:
             abort(404, "document does not exist")
-        res = current_app.backend.entries_delete(config, document, entry)
+        res = current_app.backend.entries_delete(
+            config, utils.vconvert(document, "v1"), entry
+        )
         return res
 
 
@@ -643,7 +659,9 @@ class EntryEditResource(Resource):
         data = marshal(request.json, m_edit, skip_none=True)
         if type(data) is not list:
             data = [data]
-        res = current_app.backend.entries_edit(config, document, entry, data)
+        res = current_app.backend.entries_edit(
+            config, utils.vconvert(document, "v1"), entry, data
+        )
         return res
 
 
@@ -653,7 +671,9 @@ class EntryListVersionResource(Resource):
         "Get the list of existing versions of a given entry in a document"
         if document not in models:
             abort(404, "document does not exist")
-        res = current_app.backend.entries_list_versions(config, document, entry)
+        res = current_app.backend.entries_list_versions(
+            config, utils.vconvert(document, "v1"), entry
+        )
         return marshal(res, m_version_log, skip_none=True)
 
 
@@ -665,7 +685,9 @@ class EntryVersionResource(Resource):
         "Get a given version of a document entry"
         if document not in models:
             abort(404, "document does not exist")
-        res = current_app.backend.entries_get(config, document, entry, version)
+        res = current_app.backend.entries_get(
+            config, utils.vconvert(document, "v1"), entry, version
+        )
         return marshal(res, models[document], skip_none=True)
 
 
@@ -678,56 +700,68 @@ class EntryVersionResource(Resource):
 class DbsResource(Resource):
     def get(self):
         "Get the list of existing databases"
-        return current_app.backend.db_list()
+        return current_app.backend.ns_list()
 
 
 @ns_db.route("/v/")
 class DbQueryResource(Resource):
     def get(self):
         "List all existing versions of databases"
-        return current_app.backend.db_list_versions()
+        return current_app.backend.ns_list_versions()
 
 
 @ns_db.route("/<string:dbname>/")
 class DbResource(Resource):
     def get(self, dbname):
         "Get a complete database"
-        return current_app.backend.db_get(dbname, version=None)
+        try:
+            return current_app.backend.ns_get(dbname, version=None)
+        except KeyError:
+            abort(404, "database [%s] does not exist" % dbname)
 
     @ns_db.expect(m_db, validate=True)
     def post(self, dbname):
         "Create a non-existing database from data"
-        return current_app.backend.db_create(dbname, request.json)
+        try:
+            return current_app.backend.ns_create(dbname, request.json)
+        except Exception:
+            abort(409, "database [%s] already exists" % dbname)
 
     @ns_db.expect(m_db, validate=True)
     def put(self, dbname):
         "Merge data into a database"
-        return current_app.backend.db_update(dbname, request.json)
+        return current_app.backend.ns_update(dbname, request.json)
 
     def delete(self, dbname):
         "Delete an existing database"
-        return current_app.backend.db_delete(dbname)
+        try:
+            return current_app.backend.ns_delete(dbname)
+        except KeyError:
+            abort(409, "database [%s] does not exist" % dbname)
 
 
 @ns_db.route("/<string:dbname>/v/<string:version>/")
 class DbVersionResource(Resource):
     def get(self, dbname, version):
         "Get a given version of a database"
-        return current_app.backend.db_get(dbname, version)
+        return current_app.backend.ns_get(dbname, version)
 
 
 @ns_db.route("/<string:dbname>/v/<string:version>/revert/")
 class DbVersionResource(Resource):
     def put(self, dbname, version):
         "Create a new version for a database from an old version"
-        return current_app.backend.db_revert(dbname, version)
+        try:
+            return current_app.backend.ns_revert(dbname, version)
+        except KeyError:
+            abort(404, "database [%s] version [%s] not found" % (dbname, version))
 
 
 @ns_db.route("/<string:dbname>/q/")
 class DbQueryResource(Resource):
     def post(self, dbname):
         "Run a JSON query on the database and returns the results"
-        return current_app.backend.db_query(dbname, request.json)
+        return current_app.backend.ns_query(dbname, request.json)
 
 
 @ns_db.route("/<string:dbname>/k/")

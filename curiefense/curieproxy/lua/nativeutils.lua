@@ -112,7 +112,7 @@ function nativeutils.envoy_custom_response(request_map, action_params)
     -- if not block_mode then block_mode = true end
 
     local response = {
-        [ "status" ] = "403",
+        [ "status" ] = "503",
         [ "headers"] = { ["x-curiefense"] = "response" },
         [ "reason" ] = { initiator = "undefined", reason = "undefined"},
         [ "content"] = "curiefense - request denied"

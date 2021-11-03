@@ -85,12 +85,14 @@ export default (Vue as VueConstructor<Vue & {
       type: String,
       default: 'Value',
     },
+    filterFunction: Function,
   },
 
   watch: {
-    initialValue: function(newVal) {
+    initialValue(newVal) {
+      const newValFiltered = this.filterFunction ? this.filterFunction(newVal) : newVal
       if (this.autocompleteValue !== newVal) {
-        this.autocompleteValue = newVal
+        this.autocompleteValue = newValFiltered
         this.closeDropdown()
       }
     },
@@ -110,8 +112,9 @@ export default (Vue as VueConstructor<Vue & {
   },
 
   data() {
+    const {filterFunction, initialValue} = this
     return {
-      autocompleteValue: this.initialValue,
+      autocompleteValue: filterFunction ? filterFunction(initialValue) : initialValue,
       open: false,
       focusedSuggestionIndex: -1,
       inputBlurredTimeout: null,
@@ -166,6 +169,9 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     valueSubmitted() {
+      if (this.filterFunction) {
+        this.autocompleteValue = this.filterFunction(this.autocompleteValue)
+      }
       this.$emit('value-submitted', this.autocompleteValue)
     },
 
@@ -194,8 +200,8 @@ export default (Vue as VueConstructor<Vue & {
           return
         }
         Utils.toast(
-            `Selected tag "${this.currentValue}" is invalid!\n` +
-            `Tags must be at least ${this.minimumValueLength} characters long.`,
+            `Selected value "${this.currentValue}" is invalid!\n` +
+            `Values must be at least ${this.minimumValueLength} characters long.`,
             'is-danger',
         )
         this.currentValue = ''

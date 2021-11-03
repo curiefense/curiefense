@@ -16,6 +16,83 @@ use curiefense::interface::{Decision, Grasshopper};
 use curiefense::logs::Logs;
 use curiefense::session;
 use curiefense::utils::{map_request, InspectionResult};
+use curiefense::waf_check_generic_request_map;
+
+// ******************************************
+// WAF ONLY CHECKS
+// ******************************************
+
+/// Lua interface to the inspection function
+///
+/// args are
+/// * meta (contains keys "method", "path", and optionally "authority")
+/// * headers
+/// * (opt) body
+/// * ip addr
+/// * (opt) grasshopper
+#[allow(clippy::type_complexity)]
+#[allow(clippy::unnecessary_wraps)]
+fn lua_inspect_waf(
+    _lua: &Lua,
+    args: (
+        HashMap<String, String>, // meta
+        HashMap<String, String>, // headers
+        Option<LuaString>,       // maybe body
+        String,                  // ip
+        String,                  // waf_id
+    ),
+) -> LuaResult<(String, Option<String>)> {
+    let (meta, headers, lua_body, str_ip, waf_id) = args;
+
+    let res = match lua_body {
+        None => inspect_waf("/config/current/config", meta, headers, None, str_ip, waf_id),
+        Some(body) => inspect_waf(
+            "/config/current/config",
+            meta,
+            headers,
+            Some(body.as_bytes()),
+            str_ip,
+            waf_id,
+        ),
+    };
+
+    Ok(match res {
+        Err(rr) => (
+            Decision::Pass.to_json_raw(serde_json::Value::Null, Logs::default()),
+            Some(rr),
+        ),
+        Ok(ir) => ir.into_json(),
+    })
+}
+
+/// Rust-native inspection top level function
+fn inspect_waf(
+    configpath: &str,
+    meta: HashMap<String, String>,
+    headers: HashMap<String, String>,
+    mbody: Option<&[u8]>,
+    ip: String,
+    waf_id: String,
+) -> Result<InspectionResult, String> {
+    let mut logs = Logs::default();
+    logs.debug("Inspection init");
+    let rmeta: RequestMeta = RequestMeta::from_map(meta)?;
+
+    let reqinfo = map_request(&mut logs, ip, headers, rmeta, mbody)?;
+
+    let dec = waf_check_generic_request_map(configpath, &reqinfo, &waf_id, &mut logs);
+    Ok(InspectionResult {
+        decision: dec,
+        tags: None,
+        logs,
+        err: None,
+        rinfo: Some(reqinfo),
+    })
+}
+
+// ******************************************
+// FULL CHECKS
+// ******************************************
 
 /// Lua interface to the inspection function
 ///
@@ -199,6 +276,8 @@ fn curiefense(lua: &Lua) -> LuaResult<LuaTable> {
 
     // end-to-end inspection
     exports.set("inspect_request", lua.create_function(lua_inspect_request)?)?;
+    // waf inspection
+    exports.set("inspect_waf", lua.create_function(lua_inspect_waf)?)?;
 
     // session functions
     exports.set(
@@ -224,9 +303,9 @@ fn curiefense(lua: &Lua) -> LuaResult<LuaTable> {
         })?,
     )?;
     exports.set(
-        "session_match_urlmap",
+        "session_match_securitypolicy",
         lua.create_function(|lua: &Lua, session_id: LuaValue| {
-            wrap_session_json(lua, session_id, |_, uuid| session::session_match_urlmap(uuid))
+            wrap_session_json(lua, session_id, |_, uuid| session::session_match_securitypolicy(uuid))
         })?,
     )?;
     exports.set(
@@ -284,10 +363,9 @@ mod tests {
         let cfg = with_config("../../config", &mut logs, |_, c| c.clone());
         if cfg.is_some() {
             match logs.logs.len() {
-                3 => {
+                2 => {
                     assert!(logs.logs[0].message.to_string().contains("CFGLOAD"));
-                    assert!(logs.logs[1].message.to_string().contains("profiling-lists.json"));
-                    assert!(logs.logs[2].message.to_string().contains("rbz-cloud-platforms"));
+                    assert!(logs.logs[1].message.to_string().contains("globalfilter-lists.json"));
                 }
                 10 => {
                     assert!(logs.logs[0]

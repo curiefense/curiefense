@@ -64,10 +64,24 @@
   width: 250px;
 }
 
+.width-300px {
+  max-width: 300px;
+  min-width: 300px;
+  width: 300px;
+}
+
 .width-360px {
   max-width: 360px;
   min-width: 360px;
   width: 360px;
+}
+
+/* Element height */
+
+.height-50px {
+  height: 50px;
+  max-height: 50px;
+  min-height: 50px;
 }
 
 /* Text */

@@ -66,7 +66,7 @@ def test_config_create_fail_clean(curieapi_empty):
     conf = {
         "meta": {"id": "pytest", "description": "pytest"},
         "documents": {
-            "aclpolicies": [
+            "aclprofiles": [
                 {"id": "qsmkldjqsdk", "name": "aqzdzd"},
                 {"id": "sqd", "name": "qds"},
             ],
@@ -82,7 +82,7 @@ def test_config_create_fail_clean(curieapi_empty):
     curieapi_empty.configs.create(
         body={"meta": {"id": "pytest3", "description": "pytest3"}}
     )
-    r = curieapi_empty.documents.get("pytest3", "aclpolicies")
+    r = curieapi_empty.documents.get("pytest3", "aclprofiles")
     assert r.body == []
 
 
@@ -118,27 +118,40 @@ def test_configs_update(curieapi_small):
     curieapi = curieapi_small
     r = curieapi.configs.get("pytest")
     assert r.status_code == 200
-    assert compare_jblob(r.body["blobs"]["bltor"], vec_bltor)
-    assert r.body["documents"]["limits"] == [vec_limit]
-    assert r.body["documents"]["wafsigs"] == [vec_wafsig]
-    assert r.body["documents"]["urlmaps"] == [vec_urlmap]
 
     jblob = {"blob": ["xxx"], "format": "json"}
 
     newlimits = [
         {
             "id": vec_limit["id"],
-            "data": {"name": "foobar", "key": "1", "limit": "2", "ttl": "3"},
+            "name": "foobar",
+            "description": None,
+            "ttl": "3",
+            "limit": "2",
+            "action": None,
+            "include": None,
+            "exclude": None,
+            "key": "1",
+            "pairwith": None,
         },
         {
             "id": "newid",
-            "data": {"name": "barfoo", "key": "10", "limit": "20", "ttl": "30"},
+            "name": "barfoo",
+            "description": None,
+            "ttl": "30",
+            "limit": "20",
+            "action": None,
+            "include": None,
+            "exclude": None,
+            "key": "10",
+            "pairwith": None,
         },
     ]
     newwafsigs = [
-        {"id": vec_wafsig["id"], "msg": "XXXX"},
+        {"id": vec_wafrule["id"], "msg": "XXXX"},
         {
             "id": "newid",
+            "name": None,
             "msg": "hola",
             "category": "1",
             "certainity": 2,
@@ -149,12 +162,16 @@ def test_configs_update(curieapi_small):
     ]
     update = {
         "meta": {"id": "renamed_pytest"},
-        "blobs": {"bltor": jblob},
-        "documents": {"limits": newlimits, "wafsigs": newwafsigs},
-        "delete_blobs": {"bltor": False, "blvpnip": True},
+        "blobs": {"geolite2country": jblob},
+        "documents": {"ratelimits": newlimits, "wafrules": newwafsigs},
+        "delete_blobs": {"bltor": False, "blvpnip": True, "geolite2asn": True},
         "delete_documents": {
-            "urlmaps": {"sqdqsd": True, "fezfzf": True, vec_urlmap["id"]: False},
-            "wafsigs": {vec_wafsig["id"]: True},
+            "securitypolicies": {
+                "sqdqsd": True,
+                "fezfzf": True,
+                vec_securitypolicy["id"]: False,
+            },
+            "wafrules": {vec_wafrule["id"]: True},
         },
     }
 
@@ -164,10 +181,11 @@ def test_configs_update(curieapi_small):
         r = curieapi.configs.get("pytest")
 
     r = curieapi.configs.get("renamed_pytest")
-    assert compare_jblob(r.body["blobs"]["bltor"], jblob)
-    assert r.body["documents"]["limits"] == newlimits
-    assert r.body["documents"]["wafsigs"] == newwafsigs[1:]
-    assert r.body["documents"]["urlmaps"] == [vec_urlmap]
+    assert compare_jblob(r.body["blobs"]["geolite2country"], jblob)
+    assert compare_jblob(r.body["blobs"]["geolite2asn"], {})
+    assert r.body["documents"]["ratelimits"] == newlimits
+    assert r.body["documents"]["wafrules"] == newwafsigs[1:]
+    assert r.body["documents"]["securitypolicies"] == [vec_securitypolicy]
 
 
 ##  ___ _    ___  ___ ___
@@ -223,7 +241,7 @@ def test_blobs_revert(curieapi, blob):
     old = r.body
     r = curieapi.configs.list_versions("pytest")
     assert r.status_code == 200
-    oldv = r.body[-1]["version"]
+    oldv = r.body[0]["version"]
 
     new = {"format": "string", "blob": "LQKJDMLAKJDLQDS?NF%LQKNSKQ"}
     r = curieapi.blobs.update("pytest", blob, body=new)
@@ -348,19 +366,20 @@ def test_documents_update(curieapi, doc):
     r = curieapi.documents.get("pytest", doc)
     assert r.status_code == 200
     assert r.body != []
-    oldid = {e["id"] for e in r.body}
+    old = r.body
+    oldids = {e["id"] for e in old}
 
     myid = "XXXXXXXXXXX"
 
-    update = [{"id": myid}, {"id": r.body[0]["id"]}]
+    update = [{**old[0], **{"id": myid}}, old[0]]
 
     r = curieapi.documents.update("pytest", doc, body=update)
     assert r.status_code == 200
     r = curieapi.documents.get("pytest", doc)
     assert r.status_code == 200
-    newid = {e["id"] for e in r.body}
+    newids = {e["id"] for e in r.body}
 
-    assert oldid | {myid} == newid
+    assert oldids | {myid} == newids
 
 
 @pytest.mark.parametrize("doc", vec_documents.keys())
@@ -370,16 +389,15 @@ def test_documents_revert(curieapi, doc):
     old = r.body
     r = curieapi.configs.list_versions("pytest")
     assert r.status_code == 200
-    oldv = r.body[-1]["version"]
+    oldv = r.body[0]["version"]
 
-    new = [{"id": "qsjk"}, {"id": "dksq"}]
-    r = curieapi.documents.delete("pytest", doc)
-    assert r.status_code == 200
-    r = curieapi.documents.create("pytest", doc, body=new)
+    new = [{**old[0], **{"name": "%i" % time.time()}}]
+    # use "update" because we can not delete __default__ waf and acl
+    r = curieapi.documents.update("pytest", doc, body=new)
     assert r.status_code == 200
     r = curieapi.documents.get("pytest", doc)
     assert r.status_code == 200
-    assert [e["id"] for e in r.body] == [e["id"] for e in new]
+    assert r.body[0]["name"] == new[0]["name"]
 
     r = curieapi.documents.revert("pytest", doc, oldv)
     assert r.status_code == 200
@@ -426,7 +444,7 @@ def test_documents_list_versions(curieapi, docname):
 
     r = curieapi.entries.create("master", docname, body={"id": "qdsdsq"})
     assert r.status_code == 200
-    old.append({"id": "vsdsd", "name": "%i" % time.time()})
+    old.append({**old[0], **{"id": "vsdsd", "name": "%i" % time.time()}})
     r = curieapi.documents.update("pytest", docname, body=old)
     assert r.status_code == 200
 
@@ -544,15 +562,15 @@ def test_entries_list_versions(curieapi, docname):
     assert len(v1) == 1
 
     r = curieapi.entries.update(
-        "pytest", docname, eid, body={"id": eid, "name": "%s" % time.time()}
+        "pytest", docname, e["id"], body={**e, **{"name": "%s" % time.time()}}
     )
-    r = curieapi.entries.list_versions("pytest", docname, eid)
+    r = curieapi.entries.list_versions("pytest", docname, e["id"])
     assert r.status_code == 200
     v2 = r.body
     assert len(v2) == len(v1) + 1
 
     r = curieapi.entries.create(
-        "pytest", docname, body={"id": "qdsqd", "name": "%s" % time.time()}
+        "pytest", docname, body={**e, **{"id": "qdsqd", "name": "%s" % time.time()}}
     )
     r = curieapi.entries.list_versions("pytest", docname, eid)
     assert r.status_code == 200

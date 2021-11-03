@@ -200,6 +200,76 @@ local function test_flow(request_path)
   end
 end
 
+-- running waf only filter
+local function run_inspect_waf(raw_request_map)
+    local meta = {}
+    local headers = {}
+    for k, v in pairs(raw_request_map.headers) do
+      if startswith(k, ":") then
+          meta[k:sub(2):lower()] = v
+      else
+          headers[k] = v
+      end
+    end
+    local ip = "1.2.3.4"
+    if raw_request_map.ip then
+      ip = raw_request_map.ip
+    elseif headers["x-forwarded-for"] then
+      ip = headers["x-forwarded-for"]
+    end
+
+    local response, merr = curiefense.inspect_waf(meta, headers, raw_request_map.body, ip, raw_request_map.waf_id)
+    if merr then
+      error(merr)
+    end
+    return response
+end
+
+-- testing waf only filtering
+local function test_waf(request_path)
+  print("Testing " .. request_path)
+  local raw_request_maps = load_json_file(request_path)
+  for _, raw_request_map in pairs(raw_request_maps) do
+    local response = run_inspect_waf(raw_request_map)
+    local r = cjson.decode(response)
+
+    local good = true
+
+    for _, log in ipairs(r.logs) do
+        if log["message"] == "WAF profile not found" then
+          print("waf profile not found")
+          good = false
+        end
+    end
+
+    if r.action ~= raw_request_map.response.action then
+      print("Expected action " .. cjson.encode(raw_request_map.response.action) ..
+        ", but got " .. cjson.encode(r.action))
+      good = false
+    end
+    if r.response ~= cjson.null then
+      if r.response.status ~= raw_request_map.response.status then
+        print("Expected status " .. cjson.encode(raw_request_map.response.status) ..
+          ", but got " .. cjson.encode(r.response.status))
+        good = false
+      end
+    end
+
+    if not good then
+      for _, log in ipairs(r.logs) do
+          print(log["elapsed_micros"] .. "µs " .. log["message"])
+      end
+      error("mismatch in " .. raw_request_map.name)
+    end
+  end
+end
+
+for file in lfs.dir[[luatests/waf_only]] do
+  if ends_with(file, ".json") then
+    test_waf("luatests/waf_only/" .. file)
+  end
+end
+
 for file in lfs.dir[[luatests/raw_requests]] do
   if ends_with(file, ".json") then
     test_raw_request("luatests/raw_requests/" .. file)

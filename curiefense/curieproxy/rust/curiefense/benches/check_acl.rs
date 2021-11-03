@@ -29,7 +29,7 @@ fn gen_profile(sz: usize) -> AclProfile {
         deny: tags_vec(sz).into_iter().collect(),
         allow_bot: tags_vec(sz).into_iter().collect(),
         deny_bot: tags_vec(sz).into_iter().collect(),
-        bypass: tags_vec(sz).into_iter().collect(),
+        passthrough: tags_vec(sz).into_iter().collect(),
         force_deny: tags_vec(sz).into_iter().collect(),
     }
 }

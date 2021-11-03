@@ -373,8 +373,8 @@ describe('AutocompleteInput.vue', () => {
       'input value when input is shorter than the minimumValueLength prop', async () => {
       const minLength = 3
       const selectedValue = 't'
-      const failureMessage = `Selected tag "${selectedValue}" is invalid!\n` +
-        `Tags must be at least ${minLength} characters long.`
+      const failureMessage = `Selected value "${selectedValue}" is invalid!\n` +
+        `Values must be at least ${minLength} characters long.`
       const failureMessageClass = 'is-danger'
       const toastOutput: Options[] = []
       jest.spyOn(bulmaToast, 'toast').mockImplementation((output: Options) => {
@@ -396,6 +396,19 @@ describe('AutocompleteInput.vue', () => {
       input.trigger('keydown.space')
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
       expect(wrapper.emitted('value-submitted')[0]).toEqual(['test-value-2'])
+    })
+
+    test('should emit filtered value on space pressed', async () => {
+      wrapper.setProps({
+        filterFunction: (tag: string) => tag.replace(/[^\w: ]|_/g, '-').toLowerCase(),
+      })
+      await Vue.nextTick();
+      (input.element as HTMLInputElement).value = 'test:CHECK-CASE_01'
+      input.trigger('input')
+      await Vue.nextTick()
+      input.trigger('keydown.space')
+      expect(wrapper.emitted('value-submitted')).toBeTruthy()
+      expect(wrapper.emitted('value-submitted')[0]).toEqual(['test:check-case-01'])
     })
 
     test('should select suggestion when clicked', async () => {

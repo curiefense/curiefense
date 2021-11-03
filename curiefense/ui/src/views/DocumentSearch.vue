@@ -85,9 +85,9 @@
                 v-html="highlightSearchValue(doc.name)">
             </td>
             <td class="is-size-7 py-3 width-200px doc-description-cell"
-                :title="doc.notes || doc.description">
+                :title="doc.description || doc.description">
               <div class="vertical-scroll scrollbox-shadowed"
-                   v-html="highlightSearchValue(doc.notes || doc.description)">
+                   v-html="highlightSearchValue(doc.description || doc.description)">
               </div>
             </td>
             <td class="is-size-7 py-3 width-200px doc-tags-cell"
@@ -137,27 +137,26 @@
 import _ from 'lodash'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
 import WAFEditor from '@/doc-editors/WAFEditor.vue'
-import URLMapsEditor from '@/doc-editors/URLMapsEditor.vue'
+import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
-import ProfilingListEditor from '@/doc-editors/ProfilingListEditor.vue'
-import FlowControlEditor from '@/doc-editors/FlowControlEditor.vue'
+import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
+import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
 import RequestsUtils from '@/assets/RequestsUtils.ts'
 import Vue, {VueConstructor} from 'vue'
-import {Document, DocumentType, URLMapEntryMatch} from '@/types'
+import {Document, DocumentType, SecurityPolicyEntryMatch} from '@/types'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import Utils from '@/assets/Utils'
 
 type SearchDocument = Document & {
   docType: DocumentType
-  notes: string
   description: string
   tags: string
   connections: string[]
   connectedACL: string[]
   connectedWAF: string[]
   connectedRateLimits: string[]
-  connectedURLMaps: string[]
-  map: URLMapEntryMatch[]
+  connectedSecurityPolicies: string[]
+  map: SecurityPolicyEntryMatch[]
 }
 
 type ReferencesMap = {
@@ -172,7 +171,7 @@ export default Vue.extend({
   data() {
     const titles = DatasetsUtils.titles
     // Order is important
-    // We load [urlmaps] before [aclpolicies, wafpolicies, ratelimits] so we can pull all references correctly
+    // We load [securitypolicies] before [aclprofiles, wafpolicies, ratelimits] so we can pull all references correctly
     const componentsMap: {
       [key in DocumentType]?: {
         component: VueConstructor
@@ -180,25 +179,25 @@ export default Vue.extend({
         fields: string
       }
     } = {
-      'urlmaps': {
-        component: URLMapsEditor,
-        title: titles['urlmaps'],
+      'securitypolicies': {
+        component: SecurityPoliciesEditor,
+        title: titles['securitypolicies'],
         fields: 'id, name, map',
       },
-      'aclpolicies': {
+      'aclprofiles': {
         component: ACLEditor,
-        title: titles['aclpolicies'],
-        fields: 'id, name, allow, allow_bot, deny_bot, bypass, deny, force_deny',
+        title: titles['aclprofiles'],
+        fields: 'id, name, allow, allow_bot, deny_bot, passthrough, deny, force_deny',
       },
       'flowcontrol': {
-        component: FlowControlEditor,
+        component: FlowControlPolicyEditor,
         title: titles['flowcontrol'],
-        fields: 'id, name, notes, include, exclude',
+        fields: 'id, name, description, include, exclude',
       },
-      'tagrules': {
-        component: ProfilingListEditor,
-        title: titles['tagrules'],
-        fields: 'id, name, notes, tags',
+      'globalfilters': {
+        component: GlobalFilterListEditor,
+        title: titles['globalfilters'],
+        fields: 'id, name, description, tags',
       },
       'ratelimits': {
         component: RateLimitsEditor,
@@ -251,7 +250,7 @@ export default Vue.extend({
       description: {
         title: 'Description',
         filter: (doc: SearchDocument): boolean => {
-          return (this as any).searchValueRegex.test(doc.notes || doc.description)
+          return (this as any).searchValueRegex.test(doc.description || doc.description)
         },
       },
       tags: {
@@ -281,7 +280,7 @@ export default Vue.extend({
 
       componentsMap: componentsMap,
 
-      // Referenced IDs of [aclpolicies, wafpolicies, ratelimits] in [urlmaps]
+      // Referenced IDs of [aclprofiles, wafpolicies, ratelimits] in [securitypolicies]
       referencedACL: {} as ReferencesMap,
       referencedWAF: {} as ReferencesMap,
       referencedLimit: {} as ReferencesMap,
@@ -339,16 +338,16 @@ export default Vue.extend({
             const doc = response.data[j]
             doc.docType = doctype
             // Build tags based on document type
-            if (doctype === 'aclpolicies') {
+            if (doctype === 'aclprofiles') {
               const forceDenyTags = doc.force_deny.filter(Boolean).join(', ').toLowerCase()
-              const bypassTags = doc.bypass.filter(Boolean).join(', ').toLowerCase()
+              const passthroughTags = doc.passthrough.filter(Boolean).join(', ').toLowerCase()
               const allowBotTags = doc.allow_bot.filter(Boolean).join(', ').toLowerCase()
               const denyBotTags = doc.deny_bot.filter(Boolean).join(', ').toLowerCase()
               const allowTags = doc.allow.filter(Boolean).join(', ').toLowerCase()
               const denyTags = doc.deny.filter(Boolean).join(', ').toLowerCase()
               doc.tags = [
                 forceDenyTags,
-                bypassTags,
+                passthroughTags,
                 allowBotTags,
                 denyBotTags,
                 allowTags,
@@ -360,15 +359,15 @@ export default Vue.extend({
               const excludeTags = doc.exclude.filter(Boolean).join(', ').toLowerCase()
               doc.tags = [includeTags, excludeTags].filter(Boolean).join(', ')
             }
-            if (doctype === 'tagrules') {
+            if (doctype === 'globalfilters') {
               doc.tags = doc.tags.filter(Boolean).join(', ').toLowerCase()
             }
             // Build connections based on document type
-            if (doctype === 'urlmaps') {
-              this.buildURLMapConnections(doc)
+            if (doctype === 'securitypolicies') {
+              this.buildSecurityPolicyConnections(doc)
               this.saveWafAclLimitConnections(doc)
             }
-            if (doctype === 'aclpolicies') {
+            if (doctype === 'aclprofiles') {
               this.buildWafAclLimitConnections(doc, this.referencedACL)
             }
             if (doctype === 'wafpolicies') {
@@ -386,7 +385,7 @@ export default Vue.extend({
       }
     },
 
-    buildURLMapConnections(doc: SearchDocument) {
+    buildSecurityPolicyConnections(doc: SearchDocument) {
       const connectedACL: string[] = []
       const connectedWAF: string[] = []
       const connectedRateLimits: string[] = []
@@ -414,7 +413,7 @@ export default Vue.extend({
       if (!referencesMap[doc.id] || referencesMap[doc.id].length === 0) {
         return
       }
-      doc.connectedURLMaps = referencesMap[doc.id]
+      doc.connectedSecurityPolicies = referencesMap[doc.id]
       doc.connections = referencesMap[doc.id]
     },
 
@@ -458,7 +457,7 @@ export default Vue.extend({
       if (doc.connectedACL && doc.connectedACL.length > 0) {
         const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedACL.join('<br/>'))
         connections = connections.concat(
-            `<b>${this.componentsMap['aclpolicies'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
+            `<b>${this.componentsMap['aclprofiles'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
       }
       if (doc.connectedWAF && doc.connectedWAF.length > 0) {
         const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedWAF.join('<br/>'))
@@ -470,10 +469,10 @@ export default Vue.extend({
         connections = connections.concat(
             `<b>${this.componentsMap['ratelimits'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
       }
-      if (doc.connectedURLMaps && doc.connectedURLMaps.length > 0) {
-        const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedURLMaps.join('<br/>'))
+      if (doc.connectedSecurityPolicies && doc.connectedSecurityPolicies.length > 0) {
+        const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedSecurityPolicies.join('<br/>'))
         connections = connections.concat(
-            `<b>${this.componentsMap['urlmaps'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
+            `<b>${this.componentsMap['securitypolicies'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
       }
       return connections
     },

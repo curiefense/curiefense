@@ -391,16 +391,25 @@ mod tests {
     #[test]
     fn test_map_args_full() {
         let mut logs = Logs::default();
-        let qinfo = map_args(&mut logs, "/a/b/%20c?xa%20=12&bbbb=12%28&cccc", None, None);
+        let qinfo = map_args(
+            &mut logs,
+            "/a/b/%20c?xa%20=12&bbbb=12%28&cccc&b64=YXJndW1lbnQ%3D",
+            None,
+            None,
+        );
 
         assert_eq!(qinfo.qpath, "/a/b/%20c");
-        assert_eq!(qinfo.uri, Some("/a/b/ c?xa =12&bbbb=12(&cccc".to_string()));
-        assert_eq!(qinfo.query, "xa%20=12&bbbb=12%28&cccc");
+        assert_eq!(
+            qinfo.uri,
+            Some("/a/b/ c?xa =12&bbbb=12(&cccc&b64=YXJndW1lbnQ=".to_string())
+        );
+        assert_eq!(qinfo.query, "xa%20=12&bbbb=12%28&cccc&b64=YXJndW1lbnQ%3D");
 
-        let expected_args: RequestField = [("xa ", "12"), ("bbbb", "12("), ("cccc", "")]
+        let expected_args: RequestField = [("xa ", "12"), ("bbbb", "12("), ("cccc", ""), ("b64", "YXJndW1lbnQ=")]
             .iter()
             .map(|(k, v)| (k.to_string(), v.to_string()))
             .collect();
+        assert_eq!(qinfo.args.get("b64_base64").map(|s| s.as_str()), Some("argument"));
         assert_eq!(qinfo.args, expected_args);
     }
 

@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Profiling List",
+  "description": "A list of profiled entities",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "Id",
+      "description": "Unique id"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "title": "Name",
+      "description": "Name of entity shown in UI"
+    },
+    "active": {
+      "type": "boolean",
+      "title": "Active flag",
+      "description": ""
+    },
+    "mdate": {
+      "type": "string",
+      "title": "Last Modified Date",
+      "description": "Date of last modification"
+    },
+    "source": {
+      "type": "string",
+      "title": "List's Source",
+      "description": "URL to location for download or 'self' if self managed"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Description",
+      "description": "Description of entity shown in UI"
+    },
+    "tags": {
+      "type": "array",
+      "title": "Tags List",
+      "description": "Tags associations",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "action": {
+        "type": "object",
+        "title": "Rule Broken Action",
+        "description": "Action to take when receiving requests breaking this rule"
+    },
+    "rule": {
+      "type": "object",
+      "uniqueItems": true,
+      "title": "Rule",
+      "description": "List of rules defining the list",
+      "properties": {
+        "relation": {
+          "relation": "string",
+          "title": "Sections Relationship",
+          "description": "Boolean relation between entries"
+        },
+        "sections": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "title": "Rule section",
+            "description": "Section of the rule containing entries",
+            "properties": {
+              "relation": {
+                "relation": "string",
+                "title": "Entries Relationship",
+                "description": "Boolean relation between entries"
+              },
+              "entries": {
+                "type": "array",
+                "title": "Entry Description List",
+                "description": "Array must contain exactly 3 items describing the object. Where the first item contains the category, the second item contains the entry, and the last item contains annotation information"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true,
+  "required": [
+    "name",
+    "id",
+    "active",
+    "mdate",
+    "source",
+    "tags",
+    "rule"
+  ]
+}

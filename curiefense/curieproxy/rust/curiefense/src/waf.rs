@@ -123,10 +123,6 @@ impl Default for Omitted {
 }
 
 /// Runs the WAF part of curiefense
-///
-/// TODO:
-/// * resolve hyperscan matches into policies
-/// * handle excluded waf policies
 pub fn waf_check(
     rinfo: &RequestInfo,
     profile: &WafProfile,

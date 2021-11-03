@@ -3,23 +3,13 @@
         "id": "limitcountry",
         "name": "Rate Limit Example Rule 3/3",
         "description": "3 requests in 3s",
-        "ttl": "3",
+        "timeframe": "3",
         "limit": "3",
         "action": {
             "type": "default"
         },
-        "include": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
-        "exclude": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [],
+        "exclude": [],
         "key": [
             {
                 "attrs": "country"
@@ -33,23 +23,13 @@
         "id": "limitsimple",
         "name": "Rate Limit Example Rule 3/3",
         "description": "3 requests in 3s",
-        "ttl": "3",
+        "timeframe": "3",
         "limit": "3",
         "action": {
             "type": "default"
         },
-        "include": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
-        "exclude": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [],
+        "exclude": [],
         "key": [
             {
                 "attrs": "ip"
@@ -63,25 +43,15 @@
         "id": "limitinclude",
         "name": "Rate Limit Example Rule 3/3",
         "description": "3 requests in 3s",
-        "ttl": "3",
+        "timeframe": "3",
         "limit": "3",
         "action": {
             "type": "default"
         },
-        "include": {
-            "headers": {
-                "foo": "bar"
-            },
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
-        "exclude": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [
+            "hdrfoobar"
+        ],
+        "exclude": [],
         "key": [
             {
                 "attrs": "ip"
@@ -95,25 +65,15 @@
         "id": "limitexclude",
         "name": "Rate Limit Example Rule 3/3",
         "description": "3 requests in 3s",
-        "ttl": "3",
+        "timeframe": "3",
         "limit": "3",
         "action": {
             "type": "default"
         },
-        "include": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
-        "exclude": {
-            "headers": {
-                "foo": "bar"
-            },
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [],
+        "exclude": [
+            "hdrfoobar"
+        ],
         "key": [
             {
                 "attrs": "ip"
@@ -127,27 +87,17 @@
         "id": "includecompany",
         "name": "Rate Limit Example with company",
         "description": "3 requests in 3s",
-        "ttl": "3",
+        "timeframe": "3",
         "limit": "3",
         "action": {
             "type": "response",
             "content": "body"
         },
-        "include": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {
-                "company": "CLOUDFARE",
-                "authority": "foo"
-            }
-        },
-        "exclude": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [
+            "asn:CLOUDFARE",
+            "authority:foo"
+        ],
+        "exclude": [],
         "key": [
             {
                 "attrs": "ip"
@@ -161,7 +111,7 @@
         "id": "redirector",
         "name": "Rate Limit redirection",
         "description": "3 requests in 3s",
-        "ttl": "3",
+        "timeframe": "3",
         "limit": "3",
         "action": {
             "type": "redirect",
@@ -169,18 +119,8 @@
                 "location": "/1234"
             }
         },
-        "include": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
-        "exclude": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [],
+        "exclude": [],
         "key": [
             {
                 "attrs": "ip"
@@ -194,7 +134,7 @@
         "id": "e2e1000000007",
         "name": "Rate Limit Rule 3/10 scope-country-include",
         "description": "3 requests per 10 seconds",
-        "ttl": "10",
+        "timeframe": "10",
         "limit": "3",
         "action": {
             "type": "default",
@@ -205,20 +145,10 @@
                 }
             }
         },
-        "include": {
-            "cookies": {},
-            "headers": {},
-            "args": {},
-            "attrs": {
-                "country": "us"
-            }
-        },
-        "exclude": {
-            "cookies": {},
-            "headers": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [
+            "geo:united-states"
+        ],
+        "exclude": [],
         "key": [
             {
                 "attrs": "ip"
@@ -232,29 +162,19 @@
         "id": "f971e92459e2",
         "name": "Rate limit ban",
         "description": "3 requests per 2 seconds",
-        "ttl": "2",
+        "timeframe": "2",
         "limit": "3",
         "action": {
             "type": "ban",
             "params": {
-                "ttl": "4",
+                "duration": "4",
                 "action": {
                     "type": "default"
                 }
             }
         },
-        "include": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
-        "exclude": {
-            "headers": {},
-            "cookies": {},
-            "args": {},
-            "attrs": {}
-        },
+        "include": [],
+        "exclude": [],
         "key": [
             {
                 "attrs": "ip"
@@ -262,6 +182,26 @@
         ],
         "pairwith": {
             "self": "self"
+        }
+    },
+    {
+        "id": "4d1d9d405fc9",
+        "name": "Limit per method",
+        "description": ":)",
+        "timeframe": "5",
+        "limit": "3",
+        "action": {
+            "type": "default"
+        },
+        "include": [],
+        "exclude": [],
+        "key": [
+            {
+                "attrs": "ip"
+            }
+        ],
+        "pairwith": {
+            "attrs": "method"
         }
     }
 ]

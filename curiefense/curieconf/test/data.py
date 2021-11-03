@@ -12,23 +12,13 @@ vec_limit = {
     "key": [{"attrs": "remote_addr"}],
     "limit": "3",
     "action": {"type": "default"},
-    "include": {
-        "headers": {},
-        "cookies": {},
-        "args": {},
-        "attrs": {"tag": "blacklist"},
-    },
-    "exclude": {
-        "headers": {},
-        "cookies": {},
-        "args": {},
-        "attrs": {"tag": "whitelist"},
-    },
+    "include": ["blacklist"],
+    "exclude": ["whitelist"],
     "pairwith": {"self": "self"},
 }
 
 
-vec_urlmap = {
+vec_securitypolicy = {
     "id": "__default__",
     "name": "default entry",
     "match": "__default__",
@@ -125,30 +115,37 @@ vec_wafpolicy = {
 }
 
 
-vec_aclpolicy = {
+vec_aclprofile = {
     "id": "__default__",
     "name": "default-acl",
     "allow": ["allow-change"],
     "allow_bot": ["office", "qa", "devops", "sadasff"],
     "deny_bot": ["datacenter", "graylist", "vpn", "tor"],
-    "bypass": ["internalip"],
+    "passthrough": ["internalip"],
     "deny": ["blocked-countries"],
     "force_deny": ["blacklist"],
 }
 
 
-vec_tagrule = {
+vec_globalfilter = {
     "id": "ed8f6efb",
+    "active": True,
     "name": "Spamhaus DROP",
     "source": "https://www.spamhaus.org/drop/drop.txt",
     "mdate": "2020-05-31T05:28:47.410Z",
     "notes": "; notes",
-    "entries_relation": "OR",
     "tags": ["blacklists", "spamhaus"],
-    "entries": [
-        ["ip", "1.10.16.0/20"],
-        ["ip", "1.19.0.0/16"],
-    ],
+    "rule": {
+        "sections": [
+            {
+                "relation": "OR",
+                "entries": [
+                    ["ip", "1.10.16.0/20"],
+                    ["ip", "1.19.0.0/16"],
+                ],
+            }
+        ]
+    },
 }
 
 
@@ -158,11 +155,11 @@ vec_geolite2country = {"format": "base64", "blob": "AAAABBBB"}
 
 vec_documents = {
     "ratelimits": vec_limit,
-    "urlmaps": vec_urlmap,
+    "securitypolicies": vec_securitypolicy,
     "wafrules": vec_wafrule,
     "wafpolicies": vec_wafpolicy,
-    "aclpolicies": vec_aclpolicy,
-    "tagrules": vec_tagrule,
+    "aclprofiles": vec_aclprofile,
+    "globalfilters": vec_globalfilter,
 }
 
 vec_blobs = {
