@@ -366,13 +366,11 @@ describe('CurieDBEditor.vue', () => {
       const wantedResult = {
         [key]: value,
       }
-      // @ts-ignore
-      namespaceNameInput.element.value = 'newDB'
+      namespaceNameInput.setValue('newDB')
       namespaceNameInput.trigger('input')
       await Vue.nextTick()
       const keyNameInput = wrapper.find('.key-name-input')
-      // @ts-ignore
-      keyNameInput.element.value = key
+      keyNameInput.setValue(key)
       keyNameInput.trigger('input')
       await Vue.nextTick()
       // @ts-ignore
@@ -486,8 +484,8 @@ describe('CurieDBEditor.vue', () => {
     })
 
     test('should not be able to save key changes if namespace name is duplicate of another namespace', async () => {
-      const namespaceNameInput = wrapper.find('.namespace-name-input');
-      namespaceNameInput.element.setValue('namespaceCopy')
+      const namespaceNameInput = wrapper.find('.namespace-name-input')
+      namespaceNameInput.setValue('namespaceCopy')
       namespaceNameInput.trigger('input')
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
