@@ -369,13 +369,11 @@ describe('CurieDBEditor.vue', () => {
       const wantedResult = {
         [key]: value,
       }
-      // @ts-ignore
-      namespaceNameInput.element.value = 'newDB'
+      namespaceNameInput.setValue('newDB')
       namespaceNameInput.trigger('input')
       await Vue.nextTick()
       const keyNameInput = wrapper.find('.key-name-input')
-      // @ts-ignore
-      keyNameInput.element.value = key
+      keyNameInput.setValue(key)
       keyNameInput.trigger('input')
       await Vue.nextTick()
       // @ts-ignore
@@ -444,8 +442,8 @@ describe('CurieDBEditor.vue', () => {
       (wrapper.vm as any).isJsonEditor = false
       await Vue.nextTick()
       const value = '{'
-      const valueInput = wrapper.find('.value-input');
-      (valueInput.element as any).value = value
+      const valueInput = wrapper.find('.value-input')
+      valueInput.setValue(value)
       valueInput.trigger('input')
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
@@ -478,8 +476,8 @@ describe('CurieDBEditor.vue', () => {
     })
 
     test('should not be able to save key changes if namespace name is empty', async () => {
-      const namespaceNameInput = wrapper.find('.namespace-name-input');
-      (namespaceNameInput.element as any).value = ''
+      const namespaceNameInput = wrapper.find('.namespace-name-input')
+      namespaceNameInput.setValue('')
       namespaceNameInput.trigger('input')
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
@@ -489,8 +487,8 @@ describe('CurieDBEditor.vue', () => {
     })
 
     test('should not be able to save key changes if database name is duplicate of another database', async () => {
-      const databaseNameInput = wrapper.find('.database-name-input');
-      (databaseNameInput.element as any).value = 'databaseCopy'
+      const databaseNameInput = wrapper.find('.namespace-name-input')
+      databaseNameInput.setValue('databaseCopy')
       databaseNameInput.trigger('input')
       await Vue.nextTick()
       const saveKeyButton = wrapper.find('.save-button')
