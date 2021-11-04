@@ -130,7 +130,6 @@ pub struct RawLimit {
     #[serde(default)]
     pub exclude: Vec<String>,
     pub pairwith: HashMap<String, String>,
-
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

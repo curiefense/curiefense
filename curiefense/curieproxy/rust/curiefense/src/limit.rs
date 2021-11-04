@@ -160,7 +160,7 @@ pub fn limit_check(
                         return limit_react(logs, tags, &mut redis, limit, threshold, key);
                     }
                 }
-            },
+            }
         }
     }
     SimpleDecision::Pass

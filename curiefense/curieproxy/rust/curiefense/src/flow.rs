@@ -91,7 +91,8 @@ pub fn flow_check(
                 logs.debug(format!("Checking flow control {} (step {})", elem.name, elem.step));
                 let mredis_key = build_redis_key(reqinfo, &elem.key, &elem.id, &elem.name);
                 match mredis_key {
-                    Some(redis_key) => match check_flow(&mut cnx, &redis_key, elem.step, elem.timeframe, elem.is_last)? {
+                    Some(redis_key) => match check_flow(&mut cnx, &redis_key, elem.step, elem.timeframe, elem.is_last)?
+                    {
                         FlowResult::LastOk => {
                             tags.insert(&elem.name);
                             return Ok(SimpleDecision::Pass);
