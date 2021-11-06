@@ -1,15 +1,17 @@
 package outputs
 
 import (
+	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"sync"
+	"text/template"
 	"time"
 
 	"compress/gzip"
 
 	"github.com/google/uuid"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/pierrec/lz4"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -19,6 +21,10 @@ import (
 	_ "gocloud.dev/blob/fileblob"
 	_ "gocloud.dev/blob/gcsblob"
 	_ "gocloud.dev/blob/s3blob"
+
+	"github.com/curiefense/curiefense/curielogger/pkg/entities"
+
+	pwriter "github.com/xitongsys/parquet-go/writer"
 )
 
 type Bucket struct {
@@ -32,6 +38,8 @@ type Bucket struct {
 	closed *atomic.Bool
 	wg     *sync.WaitGroup
 	lock   *sync.Mutex
+
+	parquetWriter *pwriter.ParquetWriter
 }
 
 type BucketConfig struct {
@@ -39,8 +47,16 @@ type BucketConfig struct {
 	URL          string `mapstructure:"url"`
 	Prefix       string `mapstructure:"prefix"`
 	Format       string `mapstructure:"format"`
+	PathTemplate string `mapstructure:"path"`
 	Compression  string `mapstructure:"compression"`
 	FlushSeconds int    `mapstructure:"flush_seconds"`
+}
+
+type templateData struct {
+	Time        time.Time
+	Format      string
+	Compression string
+	Filename    string
 }
 
 func NewBucket(v *viper.Viper, cfg BucketConfig) *Bucket {
@@ -48,9 +64,11 @@ func NewBucket(v *viper.Viper, cfg BucketConfig) *Bucket {
 		cfg.Format = "json"
 	}
 
-	if cfg.Format != "json" {
-		log.Infof("Only `json` is supported for the bucket files format. %s was set", cfg.Format)
+	if cfg.PathTemplate == "" {
+		cfg.PathTemplate = `{{ .Time.Format "2006-01-02" }}/{{ .Time.Format "15" }}/{{ .Filename }}.{{ .Format }}.{{ .Compression }}`
 	}
+
+	log.Debugf("%s format in use for bucket output", cfg.Format)
 
 	g := &Bucket{
 		bucket: cfg.URL,
@@ -80,15 +98,24 @@ func (g *Bucket) rotateUploader() {
 	if g.closed.Load() {
 		return
 	}
+
 	if g.size.Swap(0) == 0 {
 		if g.writeCancel != nil {
 			g.writeCancel()
 		}
 	} else {
+		if g.parquetWriter != nil {
+			err := g.parquetWriter.WriteStop()
+			if err != nil {
+				log.Error(err)
+			}
+		}
+
 		if g.w != nil {
 			g.w.Close()
 		}
 	}
+
 	t := time.Now()
 	ctx, cancel := context.WithCancel(context.Background())
 	g.writeCancel = cancel
@@ -101,7 +128,23 @@ func (g *Bucket) rotateUploader() {
 		contentType = "application/octet-stream"
 	}
 
-	w, err := g.storageClient.NewWriter(ctx, fmt.Sprintf(`%s/created_date=%s/hour=%s/%s.%s.%s`, g.prefix, t.Format(`2006-01-02`), t.Format(`15`), uuid.New().String(), g.config.Format, g.config.Compression), &blob.WriterOptions{
+	var path bytes.Buffer
+	tmpl, err := template.New("path").Parse(g.config.PathTemplate)
+
+	data := templateData{
+		Filename:    uuid.New().String(),
+		Format:      g.config.Format,
+		Compression: g.config.Compression,
+		Time:        t,
+	}
+
+	if err := tmpl.Execute(&path, data); err != nil {
+		log.Error(err)
+		return
+	}
+
+	log.Debug(path.String())
+	w, err := g.storageClient.NewWriter(ctx, path.String(), &blob.WriterOptions{
 		ContentEncoding: g.config.Compression,
 		ContentType:     contentType,
 	})
@@ -131,6 +174,15 @@ func (g *Bucket) rotateUploader() {
 		}
 	}()
 	g.w = pw
+
+	if g.config.Format == "parquet" {
+		parquetWriter, err := pwriter.NewParquetWriterFromWriter(pw, new(entities.CuriefenseLog), 1)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+		g.parquetWriter = parquetWriter
+	}
 }
 
 func (g *Bucket) flusher(duration time.Duration) {
@@ -143,10 +195,17 @@ func (g *Bucket) flusher(duration time.Duration) {
 	}
 }
 
-func (g *Bucket) Write(p []byte) (n int, err error) {
+func (g *Bucket) Write(lg entities.CuriefenseLog) (err error) {
 	g.size.Inc()
-	rst := append(p, []byte("\n")...)
-	return g.w.Write(rst)
+	switch fmt := g.config.Format; fmt {
+	case "parquet":
+		err = g.parquetWriter.Write(lg)
+	default:
+		b, _ := jsoniter.Marshal(lg)
+		rst := append(b, []byte("\n")...)
+		_, err = g.w.Write(rst)
+	}
+	return err
 }
 
 func (g *Bucket) Close() error {

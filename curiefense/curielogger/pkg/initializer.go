@@ -1,8 +1,6 @@
 package pkg
 
 import (
-	"io"
-
 	"github.com/spf13/viper"
 
 	"github.com/curiefense/curiefense/curielogger/pkg/outputs"
@@ -18,8 +16,8 @@ type OutputsConfig struct {
 	Bucket outputs.BucketConfig `mapstructure:"bucket,omitempty"`
 }
 
-func InitOutputs(v *viper.Viper, cfg Config) io.WriteCloser {
-	output := make([]io.WriteCloser, 0)
+func InitOutputs(v *viper.Viper, cfg Config) outputs.LogCloser {
+	output := make([]outputs.LogCloser, 0)
 	if v.GetBool(STDOUT_ENABLED) || cfg.Outputs.Stdout.Enabled {
 		output = append(output, outputs.NewStdout(v))
 	}

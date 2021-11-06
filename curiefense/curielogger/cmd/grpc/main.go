@@ -29,9 +29,11 @@ func main() {
 			pkg.InitOutputs,
 			pkg.NewMetrics,
 			pkg.NewLogSender,
+			newUDPSrv,
 			newSyslogSrv,
 			newGrpcSrv,
 		),
+		fx.Invoke(udpInit),
 		fx.Invoke(syslogInit),
 		fx.Invoke(grpcInit),
 	)

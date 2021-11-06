@@ -43,6 +43,7 @@ func syslogInit(srv *syslogServer, v *viper.Viper) {
 			err := json.Unmarshal([]byte(content), &cfLog)
 			if err != nil {
 				log.Errorf("Error occurred during unmarshalling. Error: %s", err.Error())
+				continue
 			}
 			log.Debugf("%v", cfLog)
 			entry := entities.LogEntry{CfLog: cfLog}
