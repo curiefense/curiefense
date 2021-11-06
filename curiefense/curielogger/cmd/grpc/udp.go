@@ -8,7 +8,6 @@ import (
 	pkg "github.com/curiefense/curiefense/curielogger/pkg"
 	"github.com/curiefense/curiefense/curielogger/pkg/entities"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
 
 type udpServer struct {
@@ -20,8 +19,11 @@ func newUDPSrv(sender *pkg.LogSender) *udpServer {
 }
 
 // serve is capable of answering to a single client at a time
-func udpInit(srv *udpServer, v *viper.Viper) {
-	go serve(srv)
+func udpInit(srv *udpServer, cfg pkg.Config) {
+	if cfg.LogLevel == "debug" {
+		log.Debug("Starting UDP server as we are running in debug mode")
+		go serve(srv)
+	}
 }
 
 func serve(srv *udpServer) {
