@@ -18,6 +18,7 @@ GLOBALSTATUS=0
 GITTAG="$(git describe --tag --long --dirty)"
 DOCKER_DIR_HASH="$(git rev-parse --short=12 HEAD:curiefense)"
 DOCKER_TAG="${DOCKER_TAG:-$GITTAG-$DOCKER_DIR_HASH}"
+STOP_ON_FAIL=${STOP_ON_FAIL:-yes}
 
 if [ -n "$TESTING" ]; then
     IMAGES=("$TESTING")
@@ -56,6 +57,11 @@ then
                     STP="SKIP"
                 fi
             else
+
+                if [ "$STOP_ON_FAIL" = "yes" ];
+                then
+                    exit 1
+                fi
                 STB="KO"
                 STP="SKIP"
                 GLOBALSTATUS=1
@@ -91,6 +97,10 @@ do
                 STP="SKIP"
             fi
         else
+            if [ "$STOP_ON_FAIL" = "yes" ];
+            then
+                exit 1
+            fi
             STB="KO"
             STP="SKIP"
             GLOBALSTATUS=1
