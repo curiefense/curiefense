@@ -1,10 +1,10 @@
 package entities
 
 type CuriefenseLog struct {
-	Timestamp string `json:"timestamp", parquet:"name=timestamp, type=BYTE_ARRAY, convertedtype=UTF8" json:"timestamp"`
+	Timestamp string `parquet:"name=timestamp, type=BYTE_ARRAY, convertedtype=UTF8" json:"timestamp"`
 
 	Blocked     bool                   `parquet:"name=blocked, type=BOOLEAN" json:"blocked"`
-	BlockReason map[string]interface{} `parquet:"name=blocked_resaon, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY, valueconvertedtype=UTF8" json:"block_reason"`
+	BlockReason map[string]interface{} `parquet:"name=blocked_reason, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY, valueconvertedtype=UTF8" json:"block_reason"`
 	Tags        []string               `parquet:"name=tags, type=MAP, convertedtype=LIST, valuetype=BYTE_ARRAY, valueconvertedtype=UTF8" json:"tags"`
 
 	RXTimers RXTimer `parquet:"name=rx_timers, type=MAP" json:"rx_timers"`
