@@ -78,6 +78,7 @@ export default (Vue as VueConstructor<Vue & {
     inputType: {
       type: String,
       default: 'input',
+      validator: (val: string) => ['input', 'textarea'].includes(val),
     },
     initialValue: {
       type: String,

@@ -159,12 +159,12 @@
                            v-if="localDoc && localDoc[tab]">
                       <thead>
                       <tr>
-                        <th class="has-text-centered is-30">Parameter</th>
-                        <th class="has-text-centered is-25">Matching Value</th>
-                        <th class="has-text-centered is-5">Restrict?</th>
-                        <th class="has-text-centered is-5">Mask?</th>
-                        <th class="has-text-centered is-30">Ignore Content Filter</th>
-                        <th class="has-text-centered is-5">
+                        <th class="has-text-centered width-30pct">Parameter</th>
+                        <th class="has-text-centered width-25pct">Matching Value</th>
+                        <th class="has-text-centered width-5pct">Restrict?</th>
+                        <th class="has-text-centered width-5pct">Mask?</th>
+                        <th class="has-text-centered width-30pct">Ignore Content Filter</th>
+                        <th class="has-text-centered width-5pct">
                           <a v-show="newContentFilterLine !== tab"
                              class="has-text-grey-dark is-small new-parameter-button"
                              title="Add new parameter"
@@ -191,7 +191,7 @@
                       <tbody>
                       <tr v-if="newContentFilterLine === tab"
                           class="has-background-warning-light new-parameter-row">
-                        <td class="px-0 py-0 is-30">
+                        <td class="px-0 py-0 width-30pct">
                           <table class="table is-fullwidth has-background-warning-light">
                             <tr>
                               <td class="is-fullwidth">
@@ -229,7 +229,7 @@
                             </tr>
                           </table>
                         </td>
-                        <td class="is-25">
+                        <td class="width-25pct">
                           <p class="control has-icons-left">
                             <input required
                                    class="input is-small new-entry-reg"
@@ -242,21 +242,21 @@
                             </span>
                           </p>
                         </td>
-                        <td class="has-text-centered is-5">
+                        <td class="has-text-centered width-5pct">
                           <label class="checkbox">
                             <input type="checkbox"
                                    class="new-entry-restrict"
                                    v-model="newEntry.restrict"/>
                           </label>
                         </td>
-                        <td class="has-text-centered is-5">
+                        <td class="has-text-centered width-5pct">
                           <label class="checkbox">
                             <input type="checkbox"
                                    class="new-entry-mask"
                                    v-model="newEntry.mask"/>
                           </label>
                         </td>
-                        <td class="is-30">
+                        <td class="width-30pct">
                           <autocomplete-input
                             input-type="textarea"
                             :suggestions="entryExclusionsSuggestions(newEntry)"
@@ -267,7 +267,7 @@
                             :title="autocompleteTitle"
                             @value-submitted="updateEntryExclusions(newEntry, $event)" />
                         </td>
-                        <td class="has-text-centered is-5">
+                        <td class="has-text-centered width-5pct">
                           <button title="Add new parameter"
                                   class="button is-light is-small confirm-add-new-parameter"
                                   @click="addNewParameter">
@@ -278,7 +278,7 @@
                       <tr v-for="(entry, idx) in localDoc[tab].names"
                           class="entry-row"
                           :key="genRowKey(tab, 'names', idx)">
-                        <td class="is-30">
+                        <td class="width-30pct">
                           <div class="field">
                             <p class="control has-icons-left">
                               <input required
@@ -294,7 +294,7 @@
                             </p>
                           </div>
                         </td>
-                        <td class="is-25">
+                        <td class="width-25pct">
                           <p class="control has-icons-left">
                             <input required
                                    class="input is-small entry-reg"
@@ -308,7 +308,7 @@
                             </span>
                           </p>
                         </td>
-                        <td class="has-text-centered is-5">
+                        <td class="has-text-centered width-5pct">
                           <label class="checkbox">
                             <input type="checkbox"
                                    class="entry-restrict"
@@ -316,7 +316,7 @@
                                    v-model="entry.restrict"/>
                           </label>
                         </td>
-                        <td class="has-text-centered is-5">
+                        <td class="has-text-centered width-5pct">
                           <label class="checkbox">
                             <input type="checkbox"
                                    class="entry-mask"
@@ -324,7 +324,7 @@
                                    v-model="entry.mask"/>
                           </label>
                         </td>
-                        <td class="is-30">
+                        <td class="width-30pct">
                           <autocomplete-input
                             input-type="textarea"
                             :suggestions="entryExclusionsSuggestions(entry)"
@@ -336,7 +336,7 @@
                             :title="autocompleteTitle"
                             @value-submitted="updateEntryExclusions(entry, $event)" />
                         </td>
-                        <td class="has-text-centered is-5">
+                        <td class="has-text-centered width-5pct">
                           <button title="Delete entry"
                                   :data-curie="genRowKey(tab, 'names', idx)"
                                   @click="deleteEntryRow(tab, 'names', idx)"
@@ -350,7 +350,7 @@
                       <tr v-for="(entry, idx) in localDoc[tab].regex"
                           class="entry-row"
                           :key="genRowKey(tab, 'regex', idx)">
-                        <td class="is-30">
+                        <td class="width-30pct">
                           <div class="field">
                             <p class="control has-icons-left">
                               <input required
@@ -366,7 +366,7 @@
                             </p>
                           </div>
                         </td>
-                        <td class="is-25">
+                        <td class="width-25pct">
                           <p class="control has-icons-left">
                             <input required
                                    class="input is-small entry-reg"
@@ -380,7 +380,7 @@
                             </span>
                           </p>
                         </td>
-                        <td class="has-text-centered is-5">
+                        <td class="has-text-centered width-5pct">
                           <label class="checkbox">
                             <input type="checkbox"
                                    class="entry-restrict"
@@ -388,7 +388,7 @@
                                    v-model="entry.restrict" />
                           </label>
                         </td>
-                        <td class="has-text-centered is-5">
+                        <td class="has-text-centered width-5pct">
                           <label class="checkbox">
                             <input type="checkbox"
                                    class="entry-mask"
@@ -396,7 +396,7 @@
                                    v-model="entry.mask" />
                           </label>
                         </td>
-                        <td class="is-30">
+                        <td class="width-30pct">
                           <autocomplete-input
                             input-type="textarea"
                             :suggestions="entryExclusionsSuggestions(entry)"
@@ -408,7 +408,7 @@
                             :title="autocompleteTitle"
                             @value-submitted="updateEntryExclusions(entry, $event)" />
                         </td>
-                        <td class="has-text-centered is-5">
+                        <td class="has-text-centered width-5pct">
                           <button title="Delete entry"
                                   :data-curie="genRowKey(tab, 'regex', idx)"
                                   @click="deleteEntryRow(tab, 'regex', idx)"

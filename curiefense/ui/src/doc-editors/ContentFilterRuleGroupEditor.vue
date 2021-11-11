@@ -41,13 +41,13 @@
                         :key="ruleIndex"
                         class="entry-row"
                       >
-                        <td class="is-size-7 has-text-weight-medium is-80">
+                        <td class="is-size-7 has-text-weight-medium width-80pct">
                           <a :href="`/config/${selectedBranch}/contentfilterrules/${ruleId}`"
                              target="_blank">
                           {{ getRuleName(ruleId) }}
                           </a>
                         </td>
-                        <td class="is-size-7 is-20">
+                        <td class="is-size-7 width-20pct has-text-right">
                           <a tabindex="0"
                             class="is-small has-text-grey remove-rule-button"
                             title="remove rule"
@@ -57,7 +57,7 @@
                         </td>
                       </tr>
                       <tr v-if="addRuleMode" class="new-rule-row">
-                        <td class="is-size-7 is-80">
+                        <td class="is-size-7 width-80pct">
                           <div class="select is-small is-fullwidth">
                             <select
                               v-model="newRule"
@@ -72,7 +72,7 @@
                             </select>
                           </div>
                         </td>
-                        <td class="is-size-7 is-20">
+                        <td class="is-size-7 width-20pct has-text-right">
                           <a class="is-size-7 has-text-grey add-button confirm-add-rule-button"
                             title="add new rule"
                             tabindex="0"
@@ -157,7 +157,7 @@ export default Vue.extend({
       return _.cloneDeep(this.selectedDoc)
     },
     localContentFilterRules(): ContentFilterRule[] {
-      return this.contentFilterRules.filter(({id}) => !this.localDoc.content_filter_ids.includes(id))
+      return this.contentFilterRules.filter(({id}) => !this.localDoc.content_filter_ids?.includes(id))
     },
     totalPages(): number {
       return Math.ceil(this.localDoc.content_filter_ids?.length / this.rowsPerPage)
@@ -207,13 +207,3 @@ export default Vue.extend({
   },
 })
 </script>
-<style scoped lang="scss">
-  .is-20 {
-    text-align: right;
-    width: 20%;
-  }
-
-  .is-80 {
-    width: 80%;
-  }
-</style>
