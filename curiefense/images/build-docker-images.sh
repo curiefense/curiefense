@@ -19,6 +19,7 @@ GITTAG="$(git describe --tag --long --dirty)"
 DOCKER_DIR_HASH="$(git rev-parse --short=12 HEAD:curiefense)"
 DOCKER_TAG="${DOCKER_TAG:-$GITTAG-$DOCKER_DIR_HASH}"
 STOP_ON_FAIL=${STOP_ON_FAIL:-yes}
+RUST_DISTROS=(bionic)
 
 if [ -n "$TESTING" ]; then
     IMAGES=("$TESTING")
@@ -38,13 +39,13 @@ then
     echo "with tag : $DOCKER_TAG"
     echo "-------"
 
-    for distro in bionic focal
+    for distro in "${RUST_DISTROS[@]}"
     do
-            image=curiefense-rustbuild-${distro}
+            image="curiefense-rustbuild-${distro}"
             IMG=${REPO}/${image}
             echo "=================== $IMG:$DOCKER_TAG ====================="
             if tar -C curiefense-rustbuild -ch --exclude='.*/target' --exclude='.*/ctarget' . \
-                    | docker build --build-arg UBUNTU_VERSION=${distro} -t "$IMG:$DOCKER_TAG" -; then
+                    | docker build --build-arg UBUNTU_VERSION="${distro}" -t "$IMG:$DOCKER_TAG" -; then
                 STB="ok"
                 if [ -n "$PUSH" ]; then
                     if docker push "$IMG:$DOCKER_TAG"; then
