@@ -171,6 +171,7 @@ func (s *grpcServer) buildCfLog(req *ald.HTTPRequestProperties, common *ald.Acce
 			Arguments:    curieProxyLog.Arguments,
 			Geo:          curieProxyLog.Geo,
 			Attributes:   curieProxyLog.Attributes,
+			Cfhost:       curieProxyLog.Cfhost,
 		},
 		Response: entities.Response{
 			BodyBytes:    int64(resp.GetResponseBodyBytes()),

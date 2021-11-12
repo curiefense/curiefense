@@ -28,6 +28,7 @@ local function get_log_table(request_map)
 
   log_table.attributes.blocked = nil
   log_table.attributes.block_reason = nil
+  log_table.cfhost = request_map.attrs.authority
   return log_table
 end
 

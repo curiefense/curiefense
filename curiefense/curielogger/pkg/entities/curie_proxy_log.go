@@ -9,4 +9,5 @@ type CurieProxyLog struct {
 	Blocked     bool                   `json:"blocked"`
 	BlockReason map[string]interface{} `json:"block_reason"`
 	Tags        []string               `json:"tags"`
+	Cfhost      string                 `json:"cfhost"`
 }

@@ -205,6 +205,7 @@ function session_rust_nginx.log(handle)
     req.timestamp = timestamp
 
     req.request.attributes=request_map.attrs
+    req.request.cfhost = request_map.attrs.authority
     handle.var.request_map = cjson.encode(req)
 end
 

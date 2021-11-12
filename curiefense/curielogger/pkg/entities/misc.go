@@ -77,6 +77,7 @@ type Request struct {
 	Arguments    map[string]string `parquet:"name=arguments, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY, convertedtype=UTF8" json:"arguments"`
 	Geo          Geo               `parquet:"name=geo, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY, convertedtype=UTF8" json:"geo"`
 	Attributes   RequestAttributes `parquet:"name=attributes, type=MAP" json:"attributes"`
+	Cfhost       string            `parquet:"name=cfhost, type=BYTE_ARRAY, convertedtype=UTF8" json:"cfhost"`
 }
 
 type Geo struct {
