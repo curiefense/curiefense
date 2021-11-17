@@ -1416,7 +1416,7 @@ class TestSecurityPolicy:
         )
 
 
-# --- Content Filter Profiles tests (formerly WAF profiles) ---
+# --- Content Filter Profiles tests ---
 
 
 class TestContentFilterLengthCount:
@@ -1566,7 +1566,7 @@ class TestContentFilterParamsConstraints:
         ), f"Not reachable despite excludesig for rule 100140 ({section} value)"
 
 
-# --- Content Filter Rules tests (formerly WAF Signatures) ---
+# --- Content Filter Rules tests ---
 
 
 @pytest.fixture(
