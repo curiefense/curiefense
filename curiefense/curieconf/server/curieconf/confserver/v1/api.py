@@ -339,7 +339,9 @@ with open(ratelimits_file_path) as json_file:
 urlmaps_file_path = (base_path / "./json/url-maps.schema").resolve()
 with open(urlmaps_file_path) as json_file:
     urlmaps_schema = json.load(json_file)
-content_filter_profile_file_path = (base_path / "./json/content-filter-policy.schema").resolve()
+content_filter_profile_file_path = (
+    base_path / "./json/content-filter-policy.schema"
+).resolve()
 with open(content_filter_profile_file_path) as json_file:
     content_filter_profile_schema = json.load(json_file)
 tagrules_file_path = (base_path / "./json/tag-rules.schema").resolve()
@@ -348,7 +350,9 @@ with open(tagrules_file_path) as json_file:
 flowcontrol_file_path = (base_path / "../json/flow-control.schema").resolve()
 with open(flowcontrol_file_path) as json_file:
     flowcontrol_schema = json.load(json_file)
-content_filter_rule_file_path = (base_path / "./json/content-filter-rule.schema").resolve()
+content_filter_rule_file_path = (
+    base_path / "./json/content-filter-rule.schema"
+).resolve()
 with open(content_filter_rule_file_path) as json_file:
     content_filter_rule_schema = json.load(json_file)
 
