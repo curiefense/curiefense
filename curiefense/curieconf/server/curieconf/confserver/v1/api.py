@@ -374,10 +374,14 @@ with open(tagrules_file_path) as json_file:
 flowcontrol_file_path = (base_path / "../json/flow-control.schema").resolve()
 with open(flowcontrol_file_path) as json_file:
     flowcontrol_schema = json.load(json_file)
-content_filter_rule_file_path = (base_path / "../json/content-filter-rule.schema").resolve()
+content_filter_rule_file_path = (
+    base_path / "../json/content-filter-rule.schema"
+).resolve()
 with open(content_filter_rule_file_path) as json_file:
     content_filter_rule_schema = json.load(json_file)
-content_filter_groups_file_path = (base_path / "./json/content-filter-groups.schema").resolve()
+content_filter_groups_file_path = (
+    base_path / "./json/content-filter-groups.schema"
+).resolve()
 with open(content_filter_groups_file_path) as json_file:
     content_filter_groups_schema = json.load(json_file)
 
@@ -581,7 +585,9 @@ class DocumentResource(Resource):
         "Update an existing document"
         if document not in models:
             abort(404, "document does not exist")
-        data = marshal(request.json, utils.model_invert_names(models[document]), skip_none=True)
+        data = marshal(
+            request.json, utils.model_invert_names(models[document]), skip_none=True
+        )
         res = utils.vconfigconvert(document, config, "v1", "backend")
         res = current_app.backend.documents_update(
             config, utils.vconvert(document, "v1"), data
@@ -680,7 +686,9 @@ class EntryResource(Resource):
             abort(404, "document does not exist")
         isValid = validateJson(request.json, document)
         if isValid:
-            data = marshal(request.json, utils.model_invert_names(models[document]), skip_none=True)
+            data = marshal(
+                request.json, utils.model_invert_names(models[document]), skip_none=True
+            )
             data = utils.vconfigconvert(document, data, "v1", "backend")
             res = current_app.backend.entries_update(
                 config, utils.vconvert(document, "v1"), entry, data
@@ -713,12 +721,14 @@ class EntryEditResource(Resource):
         for edit in data:
             mapped = pydash.objects.set_({}, edit["path"], edit["value"])
             marshaled_map = marshal(mapped, models[document], skip_none=True)
+            marshaled_map = utils.vconfigconvert(
+                document, marshaled_map, "v1", "backend"
+            )
             utils.dict_to_path_value(
                 marshaled_map, starting_path_list=converted_names_data
             )
-        data = utils.vconfigconvert(document, data, "v1", "backend")
         res = current_app.backend.entries_edit(
-            config, utils.vconvert(document, "v1"), entry, data
+            config, utils.vconvert(document, "v1"), entry, converted_names_data
         )
         return res
 

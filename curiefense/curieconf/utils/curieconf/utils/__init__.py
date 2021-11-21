@@ -110,14 +110,15 @@ def backend_v1_cfp_convert(backend_document):
         dict: converted to V1 format
     """
     v1 = backend_document.copy()
-    for section in ["args", "headers", "cookies"]:
-        for key in ["names", "regex"]:
-            for i in range(len(v1[section][key])):
-                v1[section][key][i]["exclusions"] = {
-                    rule_id: 1
-                    for rule_id, value in v1[section][key][i]["exclusions"].items()
-                    if value == "rule"
-                }
+    for section in _get_existing_keys(v1, ["args", "headers", "cookies"]):
+        for section_key in _get_existing_keys(section, ["names", "regex"]):
+            for i in range(len(section_key)):
+                if section_key[i].get["exclusions"]:
+                    section_key[i]["exclusions"] = {
+                        rule_id: 1
+                        for rule_id, value in section_key[i]["exclusions"].items()
+                        if value == "rule"
+                    }
     return v1
 
 
@@ -133,15 +134,20 @@ def v1_backend_cfp_convert(v1_document):
         dict: converted to backend format
     """
     backend = v1_document.copy()
-    for section in ["args", "headers", "cookies"]:
-        for key in ["names", "regex"]:
-            for i in range(len(backend[section][key])):
-                backend[section][key][i]["exclusions"] = {
-                    rule_id: "rule"
-                    for rule_id, value in v1[section][key][i]["exclusions"].items()
-                    if value == 1
-                }
+    for section in _get_existing_keys(backend, ["args", "headers", "cookies"]):
+        for section_key in _get_existing_keys(section, ["names", "regex"]):
+            for i in range(len(section_key)):
+                if section_key[i].get["exclusions"]:
+                    section_key[i]["exclusions"] = {
+                        rule_id: "rule"
+                        for rule_id, value in section_key[i]["exclusions"].items()
+                        if value == 1
+                    }
     return backend
+
+
+def _get_existing_keys(target, keys):
+    return list(filter(None, map(target.get, keys)))
 
 
 def vconfigconvert(conf_type_name, document, vfrom, vto):
