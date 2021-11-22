@@ -29,4 +29,10 @@ if [ -f /run/secrets/uisslcrt/uisslcrt ]; then
 	sed -i 's/# TLS-K8S //' /init/nginx.conf
 fi
 
+# use HTTPS for proxied requests to confserver
+if [ -f /run/secrets/confsslcrt/confsslcrt ]; then
+	sed -i 's!http://confserver!https://confserver!' /init/*.conf
+	sed -i 's/# TLS-PROXIED-REQUESTS //' /init/*.conf
+fi
+
 /usr/sbin/nginx -g 'daemon off;'
