@@ -3,7 +3,7 @@
 # Pre-requisites:
 # * images built & pushed to the registry
 # * gcloud access is set up
-# * ~/s3cfg.yaml contains AWS secrets to be used for S3
+# * the curiefense/curiefense-helm repository is checked out in $HOME/curiefense-helm
 
 BASEDIR="$(dirname "$(readlink -f "$0")")" 
 if [ -z "$KUBECONFIG" ]; then
@@ -12,7 +12,6 @@ if [ -z "$KUBECONFIG" ]; then
 	echo "KUBECONFIG is set to $KUBECONFIG"
 fi
 CLUSTER_NAME="${CLUSTER_NAME:-curiefense-perftest-gks}"
-S3CFG_PATH=${S3CFG_PATH:-~/s3cfg.yaml}
 DATE="$(date --iso=m)"
 VERSION="${DOCKER_TAG:-$(git rev-parse --short=12 HEAD)}"
 REGION=${REGION:-us-central1-a}
@@ -20,8 +19,17 @@ REGION=${REGION:-us-central1-a}
 create_cluster () {
 	echo "-- Create cluster $CLUSTER_NAME --"
 	# 4 CPUs, 16GB
-	gcloud container clusters create "$CLUSTER_NAME" --num-nodes=1 --machine-type=n2-standard-8 --region="$REGION" --cluster-version=1.20
+	gcloud container clusters create "$CLUSTER_NAME" --num-nodes="$nbnodes" --machine-type=n2-standard-8 --region="$REGION" --cluster-version=1.20
 	gcloud container clusters get-credentials --region="$REGION" "$CLUSTER_NAME"
+
+	if [ "$nbnodes" -gt 1 ]; then
+		# Label nodes
+		readarray -t NODES < <(kubectl get nodes -o name|sed 's!node/!!')
+		GROUP_NAMES=(curiefense ingress perf)
+		for i in 0 1 2; do
+			kubectl label node "${NODES[$i]}" nodegroup="${GROUP_NAMES[$i]}"
+		done
+	fi
 }
 
 install_helm () {
@@ -33,25 +41,39 @@ install_helm () {
 
 deploy_curiefense () {
 	echo "-- Deploy curiefense --"
-	if [ ! -f "$S3CFG_PATH" ]; then
-		echo "$S3CFG_PATH does not exist. It must contain S3 credentials for curiefense configuration synchronization" > /dev/stderr
-		exit 1
-	fi
 	kubectl create namespace curiefense
 	kubectl create namespace istio-system
-	kubectl apply -f "$S3CFG_PATH"
+	kubectl apply -f "$BASEDIR/curiefense-helm/example-miniocfg.yaml"
 	kubectl apply -f "$BASEDIR/curiefense-helm/example-uiserver-tls.yaml"
 	if [ "$jaeger" = "y" ] || [ "$all" = "y" ]; then
 		kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.8/samples/addons/jaeger.yaml
 		kubectl apply -f "$BASEDIR/../e2e/latency/jaeger-service.yml"
 	fi
 	export JWT_WORKAROUND=yes
-	cd "$BASEDIR/istio-helm/" || exit 1
-	./deploy.sh --set 'global.tracer.zipkin.address=zipkin.istio-system:9411' --set 'gateways.istio-ingressgateway.autoscaleMax=1'
+	cd "$HOME/curiefense-helm/istio-helm/" || exit 1
+	./deploy.sh --set 'global.tracer.zipkin.address=zipkin.istio-system:9411' --set 'gateways.istio-ingressgateway.autoscaleMax=1' -f "$BASEDIR/curiefense-helm/use-minio-istio.yaml" --set 'global.proxy.curiefense_minio_insecure=true' --set 'gateways.istio-ingressgateway.resources.limits.cpu=4'
 	sleep 5
-	cd "$BASEDIR/curiefense-helm/" || exit 1
-	./deploy.sh
+	cd "$HOME/curiefense-helm/curiefense-helm/" || exit 1
+	./deploy.sh -f "$BASEDIR/curiefense-helm/use-minio-curiefense.yaml" --set 'global.settings.curiefense_minio_insecure=true'
 	kubectl apply -f "$BASEDIR/curiefense-helm/expose-services.yaml"
+	if [ "$nbnodes" -gt 1 ]; then
+		# assign ingressgateway to the "ingress" node
+		kubectl patch deployment -n istio-system istio-ingressgateway -p \
+			'{"spec":{"template":{"spec":{"nodeSelector": {"nodegroup": "ingress"}}}}}'
+		# assign other components to the "curiefense" node
+		for deployment in istiod jaeger; do
+			kubectl patch deployment -n istio-system "$deployment" -p \
+				'{"spec":{"template":{"spec":{"nodeSelector": {"nodegroup": "curiefense"}}}}}'
+		done
+		for deployment in curielogger curietasker kibana uiserver; do
+			kubectl patch deployment -n curiefense "$deployment" -p \
+				'{"spec":{"template":{"spec":{"nodeSelector": {"nodegroup": "curiefense"}}}}}'
+		done
+		for sts in confserver elasticsearch grafana prometheus redis; do
+			kubectl patch statefulsets -n curiefense "$sts" -p \
+				'{"spec":{"template":{"spec":{"nodeSelector": {"nodegroup": "curiefense"}}}}}'
+		done
+	fi
 }
 
 deploy_bookinfo () {
@@ -68,11 +90,31 @@ deploy_bookinfo () {
 	kubectl apply -f "$BASEDIR/../e2e/latency/ratings-virtualservice.yml"
 	# deploy 5 replicas to handle the test load
 	kubectl scale deployment ratings-v1 --replicas 5
+	if [ "$nbnodes" -gt 1 ]; then
+		for deployment in details-v1 productpage-v1 ratings-v1 reviews-v1 reviews-v2 reviews-v3; do
+			kubectl patch deployment -n default "$deployment" -p \
+				'{"spec":{"template":{"spec":{"nodeSelector": {"nodegroup": "curiefense"}}}}}'
+		done
+	fi
 }
 
 install_fortio () {
 	kubectl apply -f "$BASEDIR/../e2e/latency/fortio-deployment.yml"
 	kubectl apply -f "$BASEDIR/../e2e/latency/fortio-service.yml"
+}
+
+install_locust () {
+	kubectl create configmap -n locust cf-locustfile "--from-file=main.py=$BASEDIR/locustfile.py"
+
+	helm repo add deliveryhero https://charts.deliveryhero.io/
+	helm install locust -n locust --create-namespace deliveryhero/locust --set worker.replicas=6 --set loadtest.locust_locustfile_configmap=cf-locustfile
+
+	for deployment in locust-master locust-worker; do
+		kubectl patch deployment -n locust "$deployment" -p \
+			'{"spec":{"template":{"spec":{"nodeSelector": {"nodegroup": "perf"}}}}}'
+	done
+
+	kubectl apply -f "$BASEDIR/../e2e/latency/locust-service.yml"
 }
 
 run_fortio () {
@@ -134,6 +176,37 @@ perftest () {
 	mv "$BASEDIR/../e2e/latency/Curiefense performance report.html" "$BASEDIR/../e2e/latency/Curiefense performance report-$VERSION-$DATE.html"
 }
 
+locust_perftest () {
+	NODE_IP=$(kubectl get nodes -o json|jq '.items[0].status.addresses[]|select(.type=="ExternalIP").address'|tr -d '"')
+	CONFSERVER_URL="http://$NODE_IP:30000/api/v2/"
+
+	kubectl apply -f ~/reblaze/lua_filter.yaml
+	../e2e/set_config.py -u "$CONFSERVER_URL" defaultconfig
+	sleep 10
+	for REQSIZE in 0 1 2 4 8 16; do
+		./locusttest.sh cf-default-config $REQSIZE
+	done
+
+	sleep 60
+	../e2e/set_config.py -u "$CONFSERVER_URL" denyall
+	for REQSIZE in 0 1 2 4 8 16; do
+		./locusttest.sh cf-denyall-acl $REQSIZE
+	done
+
+	sleep 60
+	../e2e/set_config.py -u "$CONFSERVER_URL" contentfilter-and-acl
+	for REQSIZE in 0 1 2 4 8 16; do
+		./locusttest.sh cf-contenfilter-and-acl $REQSIZE
+	done
+
+	sleep 60
+	kubectl delete -n istio-system envoyfilter curiefense-lua-filter
+	sleep 60
+	for REQSIZE in 0 1 2 4 8 16; do
+		./locusttest.sh istio-only $REQSIZE
+	done
+}
+
 
 cleanup () {
 	echo "-- Cleanup --"
@@ -149,7 +222,9 @@ while [[ "$#" -gt 0 ]]; do
 		-b|--deploy-bookinfo) bookinfo="y"; shift ;;
 		-j|--deploy-jaeger) jaeger="y"; shift ;;
 		-f|--deploy-fortio) fortio="y"; shift ;;
+		-l|--deploy-locust) locust="y"; nbnodes=3; shift ;;
 		-p|--perf-test) perftest="y"; shift ;;
+		-L|--locust-perf-test) locustperftest="y"; shift ;;
 		-C|--cleanup) cleanup="y"; shift ;;
 		-t|--test-cycle) all="y"; shift ;;
 		*) echo "Unknown parameter passed: $1"; exit 1 ;;
@@ -170,6 +245,12 @@ if [ "$bookinfo" = "y" ] || [ "$all" = "y" ]; then
 fi
 if [ "$fortio" = "y" ] || [ "$all" = "y" ]; then
 	install_fortio
+fi
+if [ "$locust" = "y" ]; then
+	install_locust
+fi
+if [ "$locustperftest" = "y" ]; then
+	locust_perftest
 fi
 if [ "$perftest" = "y" ] || [ "$all" = "y" ]; then
 	perftest
