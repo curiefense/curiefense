@@ -1,4 +1,4 @@
-use crate::config::raw::{RawContentFilterEntryMatch, RawContentFilterProfile, RawContentFilterProperties, ContentFilterRule};
+use crate::config::raw::{RawContentFilterEntryMatch, RawContentFilterProfile, RawContentFilterProperties, RawContentFilterRule, RawContentFilterGroup};
 use crate::logs::Logs;
 
 use hyperscan::prelude::{pattern, Builder, CompileFlags, Pattern, Patterns, VectoredDatabase};
@@ -143,7 +143,6 @@ impl ContentFilterGroup {
                 description: raw.description,
                 content_filter_rules_ids: match raw.content_filter_rules_ids {
                     Some(p) => p.into_iter()
-                        .map(|(a, _)| a)
                         .collect(),
                     None => HashSet::new(),
                 },
@@ -301,6 +300,6 @@ pub fn resolve_rules(
     let ptrns: Patterns = Patterns::from_iter(patterns?);
     Ok(ContentFilterRules {
         db: ptrns.build::<Vectored>()?,
-        ids: raws,
+        ids: rules,
     })
 }

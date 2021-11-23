@@ -3,6 +3,6 @@
         "id": "c03dabe4b9ca",
         "name": "Content Filter Group Example",
         "description": "New Content Filter Group description",
-        "content_filter_ids": []
+        "content_filter_rules_ids": []
     }
 ]

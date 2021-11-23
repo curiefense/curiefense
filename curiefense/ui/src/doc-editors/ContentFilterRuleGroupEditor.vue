@@ -157,16 +157,16 @@ export default Vue.extend({
       return _.cloneDeep(this.selectedDoc)
     },
     localContentFilterRules(): ContentFilterRule[] {
-      return this.contentFilterRules.filter(({id}) => !this.localDoc.content_filter_ids?.includes(id))
+      return this.contentFilterRules.filter(({id}) => !this.localDoc.content_filter_rules_ids?.includes(id))
     },
     totalPages(): number {
-      return Math.ceil(this.localDoc.content_filter_ids?.length / this.rowsPerPage)
+      return Math.ceil(this.localDoc.content_filter_rules_ids?.length / this.rowsPerPage)
     },
-    contentFilterRulesPage(): ContentFilterRuleGroup['content_filter_ids'] {
+    contentFilterRulesPage(): ContentFilterRuleGroup['content_filter_rules_ids'] {
       const {localDoc, currentPage, rowsPerPage} = this
       const firstIndex = (currentPage-1) * rowsPerPage
       const lastIndex = firstIndex + rowsPerPage
-      return localDoc.content_filter_ids?.slice(firstIndex, lastIndex)
+      return localDoc.content_filter_rules_ids?.slice(firstIndex, lastIndex)
     },
   },
   methods: {
@@ -177,12 +177,12 @@ export default Vue.extend({
       return this.contentFilterRules.find(({id}) => ruleId === id)?.name
     },
     removeRule(ruleIndex: number) {
-      this.localDoc.content_filter_ids.splice(ruleIndex, 1)
+      this.localDoc.content_filter_rules_ids.splice(ruleIndex, 1)
       this.emitDocUpdate()
     },
     addRule() {
       if (this.newRule) {
-        this.localDoc.content_filter_ids.push(this.newRule)
+        this.localDoc.content_filter_rules_ids.push(this.newRule)
         this.emitDocUpdate()
         this.closeAddRuleMode()
         this.$nextTick(() => this.navigate(this.totalPages))

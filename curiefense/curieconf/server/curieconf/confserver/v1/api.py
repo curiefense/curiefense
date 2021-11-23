@@ -103,19 +103,14 @@ m_contentfilterrule = api.model(
 
 # content filter group
 
-m_contentfiltergrouprule = api.model(
-    "Content Filter Groups Rule ID",
-    {"*": fields.Wildcard(fields.Integer)},
-)
-
 m_contentfiltergroup = api.model(
     "Content Filter Group",
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
         "description": fields.String(required=True),
-        "waf_rules_ids": fields.Nested(
-            m_contentfiltergrouprule,
+        "waf_rules_ids": fields.List(
+            fields.String(),
             attribute="content_filter_rules_ids",
             skip_none=True,
         ),
@@ -375,7 +370,7 @@ flowcontrol_file_path = (base_path / "../json/flow-control.schema").resolve()
 with open(flowcontrol_file_path) as json_file:
     flowcontrol_schema = json.load(json_file)
 content_filter_rule_file_path = (
-    base_path / "../json/content-filter-rule.schema"
+    base_path / "./json/content-filter-rule.schema"
 ).resolve()
 with open(content_filter_rule_file_path) as json_file:
     content_filter_rule_schema = json.load(json_file)

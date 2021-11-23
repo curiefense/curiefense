@@ -21,8 +21,10 @@
             "description": "Description of entity shown in UI"        
         },
         "content_filter_rules_ids": {
-            "type": ["object", "null"],
-            "additionalProperties": { "type": "integer" }
+            "type": ["array", "null"],
+            "items": {
+                "type": "string"
+            }        
         }
     },
     "required": [ "id", "name" ]

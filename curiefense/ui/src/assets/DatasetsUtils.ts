@@ -228,7 +228,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       id: generateUUID2(),
       name: 'New Content Filter Rule Group',
       description: '',
-      content_filter_ids: [],
+      content_filter_rules_ids: [],
     }
   },
 }

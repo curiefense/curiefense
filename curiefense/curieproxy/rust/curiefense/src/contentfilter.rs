@@ -3,8 +3,7 @@ use libinjection::{sqli, xss};
 use serde_json::{json, Value};
 use std::collections::{HashMap, HashSet};
 
-use crate::config::raw::ContentFilterRule;
-use crate::config::contentfilter::{Section, SectionIdx, ContentFilterEntryMatch, ContentFilterProfile, ContentFilterSection, ContentFilterRules};
+use crate::config::contentfilter::{Section, SectionIdx, ContentFilterEntryMatch, ContentFilterProfile, ContentFilterSection, ContentFilterRules, ContentFilterRule};
 use crate::interface::{Action, ActionType};
 use crate::requestfields::RequestField;
 use crate::utils::RequestInfo;

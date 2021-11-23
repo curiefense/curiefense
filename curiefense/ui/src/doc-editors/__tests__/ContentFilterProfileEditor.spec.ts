@@ -66,13 +66,13 @@ describe('ContentFilterProfileEditor.vue', () => {
         id: '1000',
         name: '1000',
         description: '',
-        content_filter_ids: ['100000', '100001'],
+        content_filter_rules_ids: ['100000', '100001'],
       },
       {
         id: '1001',
         name: '1001',
         description: '',
-        content_filter_ids: [],
+        content_filter_rules_ids: [],
       },
     ]
     jest.spyOn(axios, 'get').mockImplementation((path, config) => {

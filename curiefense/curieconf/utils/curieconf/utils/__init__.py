@@ -113,7 +113,7 @@ def backend_v1_cfp_convert(backend_document):
     for section in _get_existing_keys(v1, ["args", "headers", "cookies"]):
         for section_key in _get_existing_keys(section, ["names", "regex"]):
             for i in range(len(section_key)):
-                if section_key[i].get["exclusions"]:
+                if section_key[i].get("exclusions"):
                     section_key[i]["exclusions"] = {
                         rule_id: 1
                         for rule_id, value in section_key[i]["exclusions"].items()
@@ -137,7 +137,7 @@ def v1_backend_cfp_convert(v1_document):
     for section in _get_existing_keys(backend, ["args", "headers", "cookies"]):
         for section_key in _get_existing_keys(section, ["names", "regex"]):
             for i in range(len(section_key)):
-                if section_key[i].get["exclusions"]:
+                if section_key[i].get("exclusions"):
                     section_key[i]["exclusions"] = {
                         rule_id: "rule"
                         for rule_id, value in section_key[i]["exclusions"].items()
