@@ -107,9 +107,7 @@ m_contentfiltergroup = api.model(
         "id": fields.String(required=True),
         "name": fields.String(required=True),
         "description": fields.String(required=True),
-        "content_filter_rules_ids": fields.List(
-            fields.String(), skip_none=True
-        ),
+        "content_filter_rules_ids": fields.List(fields.String(), skip_none=True),
     },
 )
 
