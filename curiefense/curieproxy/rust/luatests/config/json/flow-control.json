@@ -189,6 +189,45 @@
             "type": "default"
         },
         "timeframe": 4,
-        "id": "c03dabe4b9ca"
+        "id": "c03dabe4b9cb"
+    },
+    {
+        "exclude": [],
+        "include": [
+            "all"
+        ],
+        "name": "Flow Control (challenge)",
+        "key": [
+            {
+                "attrs": "ip"
+            }
+        ],
+        "sequence": [
+            {
+                "method": "GET",
+                "uri": "/rlchl1",
+                "cookies": {},
+                "headers": {
+                    "host": "www.example.com"
+                },
+                "args": {}
+            },
+            {
+                "method": "GET",
+                "uri": "/rlchl2",
+                "cookies": {},
+                "headers": {
+                    "host": "www.example.com"
+                },
+                "args": {}
+            }
+        ],
+        "active": true,
+        "description": "abc",
+        "action": {
+            "type": "challenge"
+        },
+        "timeframe": 4,
+        "id": "flowchallenge"
     }
 ]

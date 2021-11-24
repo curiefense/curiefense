@@ -1,0 +1,12 @@
+[
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/rlchl2",
+      ":authority": "www.example.com"
+    },
+    "delay": 0,
+    "pass": false
+  }
+]
