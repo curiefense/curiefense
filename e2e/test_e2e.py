@@ -1456,7 +1456,7 @@ CONTENT_FILTER_PARAM_CONSTRAINTS = {
             "key": "name-norestrict",
             "reg": "[v]+[a]{1}l?u*e",
             "restrict": False,
-            "exclusions": {"100140": 1},
+            "exclusions": {"100140": "rule"},
         },
         {
             "key": "name-restrict",
@@ -1470,7 +1470,7 @@ CONTENT_FILTER_PARAM_CONSTRAINTS = {
             "key": "reg[e]x{1}-norestrict",
             "reg": "[v]+[a]{1}l?u*e",
             "restrict": False,
-            "exclusions": {"100140": 1},
+            "exclusions": {"100140": "rule"},
         },
         {
             "key": "reg[e]x{1}-restrict",
