@@ -68,15 +68,23 @@ type RequestAttributes struct {
 }
 
 type Request struct {
-	RequestId    string                 `parquet:"name=requestid, type=BYTE_ARRAY, convertedtype=UTF8" json:"requestid"`
-	Scheme       string                 `parquet:"name=scheme, type=BYTE_ARRAY, convertedtype=UTF8" json:"scheme"`
-	BodyBytes    int64                  `parquet:"name=bodybytes, type=INT64, convertedtype=INT_64" json:"bodybytes"`
-	HeadersBytes int64                  `parquet:"name=headersbytes, type=INT64, convertedtype=INT_64" json:"headersbytes"`
-	Headers      map[string]string      `parquet:"name=headers, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY, valueconvertedtype=UTF8" json:"headers"`
-	Cookies      map[string]string      `parquet:"name=cookies, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY, convertedtype=UTF8" json:"cookies"`
-	Arguments    map[string]string      `parquet:"name=arguments, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY, convertedtype=UTF8" json:"arguments"`
-	Geo          map[string]interface{} `parquet:"name=geo, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY, convertedtype=UTF8" json:"geo"`
-	Attributes   RequestAttributes      `parquet:"name=attributes, type=MAP" json:"attributes"`
+	RequestId    string            `parquet:"name=requestid, type=BYTE_ARRAY, convertedtype=UTF8" json:"requestid"`
+	Scheme       string            `parquet:"name=scheme, type=BYTE_ARRAY, convertedtype=UTF8" json:"scheme"`
+	BodyBytes    int64             `parquet:"name=bodybytes, type=INT64, convertedtype=INT_64" json:"bodybytes"`
+	HeadersBytes int64             `parquet:"name=headersbytes, type=INT64, convertedtype=INT_64" json:"headersbytes"`
+	Headers      map[string]string `parquet:"name=headers, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY, valueconvertedtype=UTF8" json:"headers"`
+	Cookies      map[string]string `parquet:"name=cookies, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY, convertedtype=UTF8" json:"cookies"`
+	Arguments    map[string]string `parquet:"name=arguments, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY, convertedtype=UTF8" json:"arguments"`
+	Geo          Geo               `parquet:"name=geo, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY, convertedtype=UTF8" json:"geo"`
+	Attributes   RequestAttributes `parquet:"name=attributes, type=MAP" json:"attributes"`
+}
+
+type Geo struct {
+	Company   string             `parquet:"name=company, type=BYTE_ARRAY, convertedtype=UTF8" json:"company"`
+	City      map[string]string  `parquet:"name=city, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY, convertedtype=UTF8" json:"city"`
+	Country   map[string]string  `parquet:"name=country, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY, convertedtype=UTF8" json:"country"`
+	Continent map[string]string  `parquet:"name=continent, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY, convertedtype=UTF8" json:"continent"`
+	Location  map[string]float32 `parquet:"name=location, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=FLOAT, convertedtype=FLOAT_32" json:"location"`
 }
 
 type Response struct {
