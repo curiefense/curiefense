@@ -118,6 +118,7 @@ export default (Vue as VueConstructor<Vue & {
       open: false,
       focusedSuggestionIndex: -1,
       inputBlurredTimeout: null,
+      maxSuggestionsNumber: 15,
     }
   },
 
@@ -125,9 +126,11 @@ export default (Vue as VueConstructor<Vue & {
 
     // Filtering the suggestions based on the input
     matches(): AutocompleteSuggestion[] {
-      return this.suggestions?.filter((suggestion: AutocompleteSuggestion) => {
-        return suggestion.value.toLowerCase().includes(this.currentValue.toLowerCase())
-      })
+      return Array.from(
+        this.filter(this.suggestions, (suggestion: AutocompleteSuggestion) => {
+          return suggestion.value?.toLowerCase().includes(this.currentValue?.toLowerCase())
+        }),
+      )
     },
 
     suggestionsVisible(): boolean {
@@ -248,6 +251,19 @@ export default (Vue as VueConstructor<Vue & {
       clearTimeout(this.inputBlurredTimeout)
     },
 
+    * filter(array: AutocompleteSuggestion[], condition: Function) { // the fast analogue of Array.filter
+      let count = 0
+      let i = 0
+      const maxSize = Math.min(this.maxSuggestionsNumber, array.length)
+      while (count < maxSize && i < array.length) {
+        if (condition(array[i])) {
+          yield array[i]
+          count++
+        }
+        i++
+      }
+    },
+
   },
 
   destroyed() {
@@ -261,5 +277,11 @@ export default (Vue as VueConstructor<Vue & {
 .dropdown-trigger,
 .dropdown-menu {
   width: 100%;
+}
+
+.dropdown-item {
+  overflow: hidden;
+  padding-right: 1rem;
+  text-overflow: ellipsis;
 }
 </style>

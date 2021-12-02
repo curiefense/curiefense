@@ -5,7 +5,8 @@
         <div class="tile">
           <div class="tile is-parent is-vertical">
             <div class="tile is-child box is-primary section"
-                 v-for="(section, sectionIndex) in localRule.sections" :key="sectionIndex">
+                 v-for="(section, sectionIndex) in localRule.sections"
+                 :key="sectionIndex">
               <div class="has-text-centered relation-selection-wrapper"
                    v-if="localRule.sections.length > 1 && sectionIndex > 0">
                   <span class="tag has-text-weight-semibold">
@@ -14,17 +15,14 @@
               </div>
               <table class="table is-narrow entries-table mb-0">
                 <tbody>
-                <tr
-                  v-for="(entry,entryIndex) in sectionsCurrentPage[sectionIndex]"
-                  :key="entryIndex"
-                  class="entry-row"
-                  :class="{'has-text-danger': isEntryDuplicate( sectionIndex, entry )}"
-                >
+                <tr v-for="(entry,entryIndex) in sectionsCurrentPage[sectionIndex]"
+                    :key="entryIndex"
+                    class="entry-row"
+                    :class="{'has-text-danger': isEntryDuplicate( sectionIndex, entry )}">
                   <td class="is-size-7 width-50px has-text-centered has-text-weight-medium">
-                      <span
-                          v-if="((entryIndex + 1) + ((sectionsCurrentPageIndex[sectionIndex] - 1) * rowsPerPage)) !== 1"
-                          class="is-small pointer section-relation-toggle"
-                          @click="toggleSectionRelation(section)">
+                      <span v-if="((entryIndex+1) + ((sectionsCurrentPageIndex[sectionIndex]-1) * rowsPerPage)) !== 1"
+                            class="is-small pointer section-relation-toggle"
+                            @click="toggleSectionRelation(section)">
                         {{ section.relation }}
                       </span>
                   </td>
@@ -52,7 +50,6 @@
                     </a>
                   </td>
                 </tr>
-
                 <tr v-if="newEntrySectionIndex !== sectionIndex && editable">
                   <td>
                     <a class="is-size-7 has-text-grey-lighter add-button add-entry-button"
@@ -78,9 +75,10 @@
                   <td colspan="4">
                   </td>
                 </tr>
-
-                <tr v-if="newEntrySectionIndex === sectionIndex && editable" class="new-entry-row">
-                  <td class="is-size-7" colspan="2">
+                <tr v-if="newEntrySectionIndex === sectionIndex && editable"
+                    class="new-entry-row">
+                  <td class="is-size-7"
+                      colspan="2">
                     <div class="select is-small is-fullwidth">
                       <select
                         v-model="newEntryCategory"
@@ -94,7 +92,9 @@
                       </select>
                     </div>
                   </td>
-                  <td class="is-size-7 width-250px">
+                  <td class="is-size-7"
+                      :class="{'width-250px': newEntryCategory !== 'asn'}"
+                      :colspan="newEntryCategory === 'asn' ? 2 : 1">
                     <div v-if="isCategoryArgsCookiesHeaders(newEntryCategory)"
                          class="control has-icons-left is-fullwidth new-entry-name">
                       <input class="input is-small new-entry-name-input"
@@ -105,6 +105,16 @@
                              v-model="newEntryItem.firstAttr"/>
                       <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
                     </div>
+                    <div v-else-if="newEntryCategory === 'asn'"
+                         class="control is-fullwidth new-entry-name">
+                      <autocomplete-input :suggestions="asns"
+                                          @value-submitted="setASN" />
+                    </div>
+                    <div v-else-if="newEntryCategory === 'country'"
+                         class="control is-fullwidth new-entry-name">
+                      <autocomplete-input :suggestions="countries"
+                                          @value-submitted="newEntryItem.firstAttr = $event" />
+                    </div>
                     <textarea v-else
                               title="Entries"
                               v-model="newEntryItem.firstAttr"
@@ -114,23 +124,26 @@
                               :class="{ 'is-danger': isErrorField( `${newEntryCategory}${sectionIndex}` )}"
                               rows="3">
                     </textarea>
-                    <div class="help is-danger" v-if="invalidIPs.length">
+                    <div class="help is-danger"
+                         v-if="invalidIPs.length">
                       <div class="mr-2">Please check the following:</div>
-                      <div v-for="(err,errIndex) in invalidIPs" :key="errIndex">
+                      <div v-for="(err,errIndex) in invalidIPs"
+                           :key="errIndex">
                         {{ err }}
                       </div>
                     </div>
                   </td>
-                  <td class="is-size-7 width-250px">
+                  <td v-if="newEntryCategory !== 'asn'"
+                      class="is-size-7 width-250px">
                     <div class="control has-icons-left is-fullwidth new-entry-value-annotation">
-                      <input
-                        class="input is-small new-entry-value-annotation-input"
-                        :class="{'is-danger': errorSecondAttr( sectionIndex )}"
-                        :placeholder="isCategoryArgsCookiesHeaders( newEntryCategory ) ? 'Value' : 'Annotation'"
-                        v-model="newEntryItem.secondAttr"
-                        @input="onChangeSecondAttr( sectionIndex, $event.target.value )"
-                      />
-                      <span class="icon is-small is-left has-text-grey-light"><i class="fa fa-code"></i></span>
+                      <input class="input is-small new-entry-value-annotation-input"
+                             :class="{'is-danger': errorSecondAttr( sectionIndex )}"
+                             :placeholder="isCategoryArgsCookiesHeaders( newEntryCategory ) ? 'Value' : 'Annotation'"
+                             v-model="newEntryItem.secondAttr"
+                             @input="onChangeSecondAttr( sectionIndex, $event.target.value )" />
+                      <span class="icon is-small is-left has-text-grey-light">
+                        <i class="fa fa-code" />
+                      </span>
                     </div>
                   </td>
                   <td class="is-size-7 width-80px">
@@ -155,10 +168,11 @@
                     </a>
                   </td>
                 </tr>
-
                 <tr v-if="totalPages(section) > 1">
                   <td colspan="5">
-                    <nav aria-label="pagination" class="pagination is-small" role="navigation">
+                    <nav aria-label="pagination"
+                         class="pagination is-small"
+                         role="navigation">
                       <a :disabled="sectionsCurrentPageIndex[sectionIndex] === 1"
                          class="is-pulled-left pagination-previous"
                          tabindex="0"
@@ -180,7 +194,6 @@
                     </nav>
                   </td>
                 </tr>
-
                 </tbody>
               </table>
             </div>
@@ -188,10 +201,8 @@
         </div>
       </div>
     </div>
-    <div
-      v-if="editable && newEntrySectionIndex === -1"
-      class="field is-grouped is-pulled-left"
-    >
+    <div v-if="editable && newEntrySectionIndex === -1"
+         class="field is-grouped is-pulled-left">
       <div class="control">
         <button class="button is-small add-section-button"
                 title="Add new section"
@@ -206,12 +217,15 @@
 <script lang="ts">
 import _ from 'lodash'
 import Vue, {PropType} from 'vue'
-import Utils from '@/assets/Utils.ts'
+import Utils from '@/assets/Utils'
 import {Category, Relation, GlobalFilter, GlobalFilterSection, GlobalFilterSectionEntry} from '@/types'
+import AutocompleteInput from '@/components/AutocompleteInput.vue'
+import asns from '@/assets/asn.json'
+import countries from '@/assets/countries.json'
 
 export default Vue.extend({
   name: 'EntriesRelationList',
-
+  components: {AutocompleteInput},
   props: {
     rule: {
       type: Object as PropType<GlobalFilter['rule']>,
@@ -272,6 +286,8 @@ export default Vue.extend({
       duplicatedEntries: [],
       invalidIPs: [],
       entriesErrors: [],
+      asns,
+      countries,
     }
   },
 
@@ -406,6 +422,14 @@ export default Vue.extend({
       this.emitRuleUpdate()
     },
 
+    setASN(asn: string) {
+      const [asNumber, asCompanyName] = asn.split(/\s+(.*)/)
+      this.newEntryItem = {
+        firstAttr: asNumber.replace('AS', ''),
+        secondAttr: asCompanyName,
+      }
+    },
+
     addEntry(section: GlobalFilterSection, sectionIndex: number) {
       if ( this.isErrorField( `${this.newEntryCategory}${sectionIndex}` ) || !this.newEntryItem.firstAttr.trim() ) {
         return
@@ -482,7 +506,9 @@ export default Vue.extend({
       this.rule.sections.forEach(
         ({entries}, sectionIndex: number ) => entries.map(
           ({0: category, 1: value}) => {
-            const isDuplicate = entries.filter(({0: eCat, 1: eVal}) => eCat === category && _.isEqual(eVal, value))?.length > 1
+            const isDuplicate = entries.filter(
+              ({0: eCat, 1: eVal}) => eCat === category && _.isEqual(eVal, value),
+            )?.length > 1
             if ( isDuplicate && !this.isEntryDuplicate( sectionIndex, [category, value])) {
               this.duplicatedEntries.push( [sectionIndex, category, value] )
             }
@@ -494,7 +520,8 @@ export default Vue.extend({
         const duplicatesMsg = this.duplicatedEntries.reduce(
           ( prev: string, [section, category, value]: GlobalFilterSectionEntry ) => {
             const sectionMsg = this.rule.sections.length > 1 ? `Section ${section+1}: ` : ''
-            return `${prev}<br />${sectionMsg}${this.listEntryTypes[category as Category]?.title} = ${this.dualCell( value )}`
+            return `${prev}<br />
+                    ${sectionMsg}${this.listEntryTypes[category as Category]?.title} = ${this.dualCell( value )}`
           },
           '',
         )
@@ -507,7 +534,9 @@ export default Vue.extend({
 
     isEntryDuplicate( sectionIndex: number, [currentCategory, currentValue]: GlobalFilterSectionEntry ) {
       return this.duplicatedEntries.findIndex(
-        ([section, category, value]) => section === sectionIndex && category === currentCategory && _.isEqual(value, currentValue),
+        ([section, category, value]) => section === sectionIndex &&
+                                        category === currentCategory &&
+                                        _.isEqual(value, currentValue),
       ) > -1
     },
 
@@ -523,6 +552,7 @@ export default Vue.extend({
     },
 
     validateIp( id: string, value: string ) {
+      // eslint-disable-next-line
       const ipPattern = /((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*(:([0-9]|[1-8][0-9]|9[0-9]|[1-8][0-9]{2}|9[0-8][0-9]|99[0-9]|[1-8][0-9]{3}|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-9]|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])|(\/[0-9]|\/[1-2][0-9]|\/[1-3][0-2]))?(\s?(#([a-zA-Z0-9$@$!%*?&#^-_. +:"'/\\;,-=]+)?)?)?$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*(:([0-9]|[1-8][0-9]|9[0-9]|[1-8][0-9]{2}|9[0-8][0-9]|99[0-9]|[1-8][0-9]{3}|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-9]|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])|(\/[0-9]|\/[1-2][0-9]|\/[1-3][0-2]))?(\s?(#([a-zA-Z0-9$@$!%*?&#^-_. +:"'/\\;,-=]+)?)?)?$))/
       const ipList = value.split('\n').filter( (ip) => ip )
       this.invalidIPs = []
@@ -564,7 +594,8 @@ export default Vue.extend({
 
     errorSecondAttr( sectionIndex: number ) {
       const {isCategoryArgsCookiesHeaders, newEntryCategory, isErrorField} = this
-      return isCategoryArgsCookiesHeaders(newEntryCategory) && isErrorField(`${newEntryCategory}${sectionIndex}-secondAttr`)
+      return isCategoryArgsCookiesHeaders(newEntryCategory) &&
+             isErrorField(`${newEntryCategory}${sectionIndex}-secondAttr`)
     },
 
     onChangeSecondAttr( sectionIndex: number, value: string ) {
