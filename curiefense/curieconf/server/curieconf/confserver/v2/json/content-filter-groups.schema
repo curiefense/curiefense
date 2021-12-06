@@ -20,12 +20,13 @@
             "title": "Description",
             "description": "Description of entity shown in UI"        
         },
-        "content_filter_rules_ids": {
+        "content_filter_rule_ids": {
             "type": ["array", "null"],
             "items": {
                 "type": "string"
             }        
         }
     },
+    "additionalProperties": false,
     "required": [ "id", "name" ]
 }

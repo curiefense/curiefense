@@ -12,7 +12,10 @@
                 "mask": { "type": "boolean" },
                 "exclusions": {
                     "type": ["object", "null"],
-                    "additionalProperties": { "type": "string" }
+                    "additionalProperties": { 
+                        "type": "string", 
+                        "enum": ["rule", "group"]
+                    }
                 }
             }
         }

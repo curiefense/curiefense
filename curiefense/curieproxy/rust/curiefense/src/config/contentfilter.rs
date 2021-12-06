@@ -128,7 +128,7 @@ pub struct ContentFilterGroup {
     pub id: String,
     pub name: String,
     pub description: String,
-    pub content_filter_rules_ids: HashSet<String>,
+    pub content_filter_rule_ids: HashSet<String>,
 }
 
 impl ContentFilterGroup {
@@ -141,7 +141,7 @@ impl ContentFilterGroup {
                 id: raw.id,
                 name: raw.name,
                 description: raw.description,
-                content_filter_rules_ids: match raw.content_filter_rules_ids {
+                content_filter_rule_ids: match raw.content_filter_rule_ids {
                     Some(p) => p.into_iter()
                         .collect(),
                     None => HashSet::new(),
@@ -159,7 +159,7 @@ fn mk_entry_match(
         em.key,
         ContentFilterEntryMatch {
             restrict: em.restrict,
-            exclusions: em.exclusions.unwrap_or(HashMap::new())
+            exclusions: em.exclusions.unwrap_or_else(|| HashMap::new())
                 .into_iter()
                 .map(|(k, v)| {
                     if v == "rule" {
@@ -167,7 +167,7 @@ fn mk_entry_match(
                     }
                     else {
                         match content_filter_groups.get(&k) {
-                            Some(p) => p.content_filter_rules_ids.clone(),
+                            Some(p) => p.content_filter_rule_ids.clone(),
                             None => HashSet::new(),
                         }
                     }
@@ -188,14 +188,14 @@ fn mk_section(
         .names
         .into_iter()
         .map(|e| {
-            mk_entry_match(e, &content_filter_groups)
+            mk_entry_match(e, content_filter_groups)
         })
         .collect();
     let mregex: anyhow::Result<Vec<(Regex, ContentFilterEntryMatch)>> = props
         .regex
         .into_iter()
         .map(|e| {
-            let (s, v) = mk_entry_match(e, &content_filter_groups)?;
+            let (s, v) = mk_entry_match(e, content_filter_groups)?;
             let re = Regex::new(&s)?;
             Ok((re, v))
         })
@@ -220,11 +220,11 @@ fn convert_entry(
             ignore_alphanum: entry.ignore_alphanum,
             sections: Section {
                 headers: mk_section(entry.headers, entry.max_header_length, entry.max_headers_count,
-                    &content_filter_groups)?,
+                    content_filter_groups)?,
                 cookies: mk_section(entry.cookies, entry.max_cookie_length, entry.max_cookies_count,
-                    &content_filter_groups)?,
+                    content_filter_groups)?,
                 args: mk_section(entry.args, entry.max_arg_length, entry.max_args_count,
-                    &content_filter_groups)?,
+                    content_filter_groups)?,
             },
         },
     ))
@@ -239,7 +239,7 @@ impl ContentFilterProfile {
         let mut out = HashMap::new();
         for rp in raw {
             let id = rp.id.clone();
-            match convert_entry(rp, &content_filter_groups) {
+            match convert_entry(rp, content_filter_groups) {
                 Ok((k, v)) => {
                     out.insert(k, v);
                 }
@@ -276,7 +276,7 @@ pub fn resolve_rules(
 ) -> anyhow::Result<ContentFilterRules> {
     let mut rule_id_groups: HashMap<String, HashMap<String, String>> = HashMap::new();
     for (_, cfg) in content_filter_groups {
-        for rule_id in cfg.content_filter_rules_ids.iter() {
+        for rule_id in cfg.content_filter_rule_ids.iter() {
             rule_id_groups.entry(rule_id.to_string()).or_default().insert(cfg.id.clone(), cfg.name.clone());
         }
     }

@@ -126,7 +126,7 @@ describe('RequestsUtils.ts', () => {
     })
 
     test('should generate a new Content Filter Group', async () => {
-      const {id, name, description, content_filter_rules_ids: contentFilterIds} = newDocEntryFactory.contentfiltergroups()
+      const {id, name, description, content_filter_rule_ids: contentFilterIds} = newDocEntryFactory.contentfiltergroups()
       expect(regexUUID2.test(id)).toBeTruthy()
       expect(name).toEqual('New Content Filter Rule Group')
       expect(description).toEqual('')

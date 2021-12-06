@@ -111,7 +111,7 @@ m_contentfiltergroup = api.model(
         "description": fields.String(required=True),
         "waf_rules_ids": fields.List(
             fields.String(),
-            attribute="content_filter_rules_ids",
+            attribute="content_filter_rule_ids",
             skip_none=True,
         ),
     },
@@ -719,6 +719,7 @@ class EntryEditResource(Resource):
             marshaled_map = utils.vconfigconvert(
                 document, marshaled_map, "v1", "backend"
             )
+            # fill converted_names_data back with edit models after applying version conversion
             utils.dict_to_path_value(
                 marshaled_map, starting_path_list=converted_names_data
             )

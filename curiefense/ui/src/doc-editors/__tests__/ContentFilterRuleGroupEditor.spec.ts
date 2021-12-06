@@ -34,7 +34,7 @@ describe('ContentFilterRuleGroupEditor.vue', () => {
       id: '1',
       name: 'test group',
       description: 'the testing',
-      content_filter_rules_ids: rules.slice(0, DOC_RULES_NUMBER).map(({id}: ContentFilterRule) => id),
+      content_filter_rule_ids: rules.slice(0, DOC_RULES_NUMBER).map(({id}: ContentFilterRule) => id),
     }
     jest.spyOn(axios, 'get').mockImplementation((path) => {
       if (path === `/conf/api/v2/configs/${selectedBranch}/d/contentfilterrules/`) {
@@ -84,8 +84,8 @@ describe('ContentFilterRuleGroupEditor.vue', () => {
     expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
     expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([{
       ...selectedDoc,
-      content_filter_rules_ids: [
-        ...selectedDoc.content_filter_rules_ids,
+      content_filter_rule_ids: [
+        ...selectedDoc.content_filter_rule_ids,
         rules[DOC_RULES_NUMBER].id,
       ],
     }])
@@ -110,7 +110,7 @@ describe('ContentFilterRuleGroupEditor.vue', () => {
     expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
     expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([{
       ...selectedDoc,
-      content_filter_rules_ids: selectedDoc.content_filter_rules_ids.filter((id, index) => index !== indexToDelete),
+      content_filter_rule_ids: selectedDoc.content_filter_rule_ids.filter((id, index) => index !== indexToDelete),
     }])
   })
 

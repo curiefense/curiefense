@@ -274,7 +274,7 @@ pub struct RawContentFilterGroup {
     pub id: String,
     pub name: String,
     pub description: String,
-    pub content_filter_rules_ids: Option<Vec<String>>,
+    pub content_filter_rule_ids: Option<Vec<String>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

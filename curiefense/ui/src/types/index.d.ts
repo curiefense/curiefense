@@ -189,7 +189,7 @@ declare module CuriefenseClient {
     id: string
     name: string
     description?: string
-    content_filter_rules_ids: ContentFilterRule['id'][]
+    content_filter_rule_ids: ContentFilterRule['id'][]
   }
 
   // Document types - END
