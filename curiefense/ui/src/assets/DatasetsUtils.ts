@@ -1,8 +1,7 @@
 import {
   ACLProfile, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, ContentFilterProfile,
-  ContentFilterRule, ContentFilterRuleGroup,
+  ContentFilterRule, ContentFilterRuleGroup, HttpRequestMethods,
 } from '@/types'
-import {httpRequestMethods} from '@/types/const'
 
 const titles: { [key: string]: string } = {
   'admin': 'Admin',
@@ -74,7 +73,7 @@ function generateUUID2(): string {
 }
 
 const defaultFlowControlSequenceItem = {
-  'method': httpRequestMethods[0],
+  'method': 'GET' as HttpRequestMethods,
   'uri': '/',
   'cookies': {},
   'headers': {
@@ -209,7 +208,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
         {...defaultFlowControlSequenceItem},
         {
           ...defaultFlowControlSequenceItem,
-          method: httpRequestMethods[2],
+          method: 'POST' as HttpRequestMethods,
         },
       ],
     }

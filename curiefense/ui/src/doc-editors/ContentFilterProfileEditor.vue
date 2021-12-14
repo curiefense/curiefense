@@ -329,7 +329,7 @@
                             input-type="textarea"
                             :suggestions="entryExclusionsSuggestions(entry)"
                             :clear-input-after-selection="false"
-                            :initial-value="unpackExclusions(entry.ignore)"
+                            :initial-value="unpackExclusions(entry.exclusions)"
                             :auto-focus="false"
                             class="entry-exclusions"
                             selection-type="multiple"
@@ -401,7 +401,7 @@
                             input-type="textarea"
                             :suggestions="entryExclusionsSuggestions(entry)"
                             :clear-input-after-selection="false"
-                            :initial-value="unpackExclusions(entry.ignore)"
+                            :initial-value="unpackExclusions(entry.exclusions)"
                             :auto-focus="false"
                             class="entry-exclusions"
                             selection-type="multiple"
@@ -460,7 +460,7 @@ export default Vue.extend({
       reg: '',
       restrict: false,
       mask: false,
-      ignore: {},
+      exclusions: {},
     }
     return {
       tab: 'args' as ArgsCookiesHeadersType,
@@ -510,7 +510,7 @@ export default Vue.extend({
     },
 
     updateEntryExclusions(entry: ContentFilterEntryMatch, exclusions: string) {
-      const result: ContentFilterEntryMatch['ignore'] = {}
+      const result: ContentFilterEntryMatch['exclusions'] = {}
       const exclusionsArray: string[] = exclusions.trim().split('\n')
       exclusionsArray.forEach((ex) => {
         const exclusionType = ex.endsWith(this.groupSuffix) ? 'group' : 'rule'
@@ -519,19 +519,19 @@ export default Vue.extend({
           result[exId] = exclusionType
         }
       })
-      entry.ignore = result
+      entry.exclusions = result
       this.emitDocUpdate()
     },
 
-    entryExclusionsSuggestions({ignore}: ContentFilterEntryMatch) {
+    entryExclusionsSuggestions({exclusions}: ContentFilterEntryMatch) {
       return _.filter(this.contentFilterSuggestions, ({value}) => {
         const exclusionType = value.endsWith(this.groupSuffix) ? 'group' : 'rule'
         const exId = this.getContentFilterId(exclusionType, value)
-        return !ignore?.[exId]
+        return !exclusions?.[exId]
       })
     },
 
-    unpackExclusions(exclusions: ContentFilterEntryMatch['ignore']) {
+    unpackExclusions(exclusions: ContentFilterEntryMatch['exclusions']) {
       const result: string[] = []
       Object.keys(exclusions).forEach(
         (exId) => {

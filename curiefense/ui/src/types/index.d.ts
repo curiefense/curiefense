@@ -20,7 +20,7 @@ declare module CuriefenseClient {
     restrict: boolean
     mask: boolean
     type: NamesRegexType
-    ignore: { [key: string]: ContentFilterIgnoreType }
+    exclusions: { [key: string]: ContentFilterIgnoreType }
   }
 
   type SecurityPolicyEntryMatch = {
