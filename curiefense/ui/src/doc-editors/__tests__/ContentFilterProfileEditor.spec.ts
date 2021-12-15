@@ -286,7 +286,7 @@ describe('ContentFilterProfileEditor.vue', () => {
             const confirmButton = newRow.find('.confirm-add-new-parameter')
             confirmButton.trigger('click')
             await Vue.nextTick()
-            const actualValue = (wrapper.vm as any).localDoc[tab][type][0].ignore
+            const actualValue = (wrapper.vm as any).localDoc[tab][type][0].exclusions
             expect(actualValue).toEqual(wantedValue)
           })
 
@@ -301,7 +301,7 @@ describe('ContentFilterProfileEditor.vue', () => {
             const confirmButton = newRow.find('.confirm-add-new-parameter')
             confirmButton.trigger('click')
             await Vue.nextTick()
-            const actualValue = (wrapper.vm as any).localDoc[tab][type][0].ignore
+            const actualValue = (wrapper.vm as any).localDoc[tab][type][0].exclusions
             expect(actualValue).toEqual(wantedValue)
           })
 
