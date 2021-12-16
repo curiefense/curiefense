@@ -1,0 +1,252 @@
+version: "3.7"
+services:
+  curieproxy:
+    container_name: curieproxy
+    hostname: curieproxy
+    image: "curiefense/curieproxy-nginx:${DOCKER_TAG}"
+    restart: always
+    volumes:
+      - curieproxy_config:/config
+    environment:
+      - ENVOY_UID
+      - TARGET_ADDRESS=echo # currently hard-coded
+      - TARGET_PORT=8080
+      - XFF_TRUSTED_HOPS
+    networks:
+      curiemesh:
+        aliases:
+          - curieproxy
+    ports:
+      - "30081:80"
+      - "30444:443"
+      - "8001:8001"
+    secrets:
+      - curieproxysslcrt
+      - curieproxysslkey
+
+  confserver:
+    container_name: confserver
+    hostname: confserver
+    image: "curiefense/confserver:${DOCKER_TAG}"
+    restart: always
+    volumes:
+      - persistent_confdb:/config
+      - local_bucket:/bucket
+    tty: true
+    environment:
+      - CURIE_BUCKET_LINK
+      - INIT_GIT_ON_STARTUP=yes
+      - BOOTSTRAP_BUCKET_ON_STARTUP=yes
+      - IF_NO_CONFIG_INIT_FROM=/bootstrap/confdb-initial-data/
+    networks:
+      - confnet
+    ports:
+      - "30000:80"
+    secrets:
+      - s3cfg
+  #      - gc
+  #      - azr
+
+  curiesync:
+    container_name: curiesync
+    hostname: curiesync
+    image: "curiefense/curiesync:${DOCKER_TAG}"
+    restart: always
+    volumes:
+      - local_bucket:/bucket
+      - curieproxy_config:/config
+    tty: true
+    environment:
+      - CURIE_BUCKET_LINK
+      - RUN_MODE=PERIODIC_SYNC
+    networks:
+      - curiemesh
+    secrets:
+      - s3cfg
+#      - gc
+#      - azr
+
+  curietasker:
+    container_name: curietasker
+    hostname: curietasker
+    image: "curiefense/curietasker:${DOCKER_TAG}"
+    restart: always
+    networks:
+      - confnet
+
+  redis:
+    container_name: redis
+    hostname: redis
+    image: "curiefense/redis:${DOCKER_TAG}"
+    restart: always
+    volumes:
+      - persistent_redis:/data
+    networks:
+      curiemesh:
+        aliases:
+          - redis
+    ports:
+      - "6379:6379"
+
+  echo:
+    container_name: echo
+    hostname: echo
+    image: jmalloc/echo-server
+    restart: always
+    networks:
+      curiemesh:
+        aliases:
+          - echo
+
+  curielogger:
+    container_name: curielogger
+    hostname: curielogger
+    image: "curiefense/curielogger:${DOCKER_TAG}"
+    restart: always
+    labels:
+        co.elastic.logs/enabled: true
+        co.elastic.logs/json.keys_under_root: true
+        co.elastic.logs/json.add_error_key: true
+        co.elastic.logs/ignore_decoding_error: true
+    environment:
+      - CURIELOGGER_LOG_LEVEL=info
+      - CURIELOGGER_OUTPUTS_STDOUT_ENABLED=true
+      - CURIELOGGER_METRICS_PROMETHEUS_ENABLED=true
+    networks:
+      - curiemesh
+    ports:
+      - "9001:9001"
+      - "2112:2112"
+
+  uiserver:
+    container_name: uiserver
+    hostname: uiserver
+    image: "curiefense/uiserver:${DOCKER_TAG}"
+    restart: always
+    networks:
+      - confnet
+    ports:
+      - "30080:80"
+      - "30443:443"
+    secrets:
+      - uisslcrt
+      - uisslkey
+
+  prometheus:
+    container_name: prometheus
+    hostname: prometheus
+    image: "curiefense/prometheus:${DOCKER_TAG}"
+    restart: always
+    volumes:
+      - persistent_prometheus:/var/run/prometheus
+    ports:
+      - 9090:9090
+    networks:
+      - curiemesh
+
+  grafana:
+    container_name: grafana
+    hostname: grafana
+    image: "curiefense/grafana:${DOCKER_TAG}"
+    restart: always
+    volumes:
+      - persistent_grafana:/var/lib/grafana
+    networks:
+      - curiemesh
+      - confnet
+    ports:
+      - 30300:3000
+
+  elasticsearch:
+    container_name: elasticsearch
+    hostname: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    restart: always
+    volumes:
+      - persistent_elasticsearch:/usr/share/elasticsearch/data
+    environment:
+      - node.name=es
+      - cluster.name=curiefense-es-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    networks:
+      - curiemesh
+    ports:
+      - 9200:9200
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  kibana:
+    container_name: kibana
+    hostname: kibana
+    image: docker.elastic.co/kibana/kibana:7.10.1
+    restart: always
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - TELEMETRY_ENABLED=false
+      - TELEMETRY_OPTIN=false
+    networks:
+      - curiemesh
+    ports:
+      - 5601:5601
+
+  filebeat:
+    container_name: filebeat
+    image: docker.elastic.co/beats/filebeat:7.10.1
+    command: >
+        bash -c "
+        for i in {1..40}; do
+            filebeat setup --strict.perms=false -v -e && break || sleep 10
+         done
+
+         filebeat --strict.perms=false -v -e"
+    user: root
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - KIBANA_URL=http://kibana:5601
+    volumes:
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./filebeat/ilm.json:/usr/share/filebeat/ilm.json
+      - ./filebeat/template.json:/usr/share/filebeat/template.json
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - curiemesh
+
+networks:
+  curiemesh:
+    name: curiemesh
+    driver: bridge
+  confnet:
+    name: confnet
+    driver: bridge
+
+volumes:
+  # persistent volumes
+  persistent_confdb:
+  persistent_elasticsearch:
+  persistent_grafana:
+  persistent_redis:
+  persistent_prometheus:
+  # used for single-node dev or demo deployments.
+  # Replaced with an S3/GC/AZE bucket in larger deployments
+  local_bucket:
+  # shared between curiesync and curieproxy
+  curieproxy_config:
+
+secrets:
+  s3cfg:
+    file: "curiesecrets/s3cfg"
+
+  uisslcrt:
+    file: "curiesecrets/uiserver_ssl/ui.crt"
+  uisslkey:
+    file: "curiesecrets/uiserver_ssl/ui.key"
+  curieproxysslcrt:
+    file: "curiesecrets/curieproxy_ssl/site.crt"
+  curieproxysslkey:
+    file: "curiesecrets/curieproxy_ssl/site.key"
