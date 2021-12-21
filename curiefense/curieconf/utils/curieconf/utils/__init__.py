@@ -4,7 +4,7 @@ import base64
 import json
 
 import pydash
-from flask_restplus import fields
+from flask_restx import fields
 
 DOCUMENTS_PATH = {
     "ratelimits": "config/json/limits.json",

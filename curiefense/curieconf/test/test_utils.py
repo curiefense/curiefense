@@ -3,7 +3,7 @@ from curieconf import utils
 import json
 import codecs
 import base64
-from flask_restplus import fields, model
+from flask_restx import fields, model
 
 binvec_hex = (
     "b70a1da09a4998bd56b083d76bf528053c9b924bbb07168792151a5a177bbaa232949a8600bcb2"

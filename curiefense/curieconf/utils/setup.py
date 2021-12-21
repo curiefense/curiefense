@@ -15,9 +15,9 @@ setup(
         "minio==6.0.2",
         "cloudstorage [amazon, google, local, minio]==0.10.1",
         "pydash==5.0.2",
-        "flask==1.1.2",
-        "flask-restplus==0.13.0",
-        "werkzeug==0.16.1",
+        "flask>=1.1.2",
+        "flask-restx",
+        "werkzeug>=0.16.1",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

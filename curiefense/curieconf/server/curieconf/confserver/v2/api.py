@@ -4,7 +4,7 @@ import jsonschema
 jsonschema.Draft4Validator = jsonschema.Draft3Validator
 
 from flask import Blueprint, request, current_app, abort, make_response
-from flask_restplus import Resource, Api, fields, marshal, reqparse
+from flask_restx import Resource, Api, fields, marshal, reqparse
 from curieconf import utils
 from curieconf.utils import cloud
 import requests
