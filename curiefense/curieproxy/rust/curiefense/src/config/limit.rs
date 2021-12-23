@@ -93,10 +93,6 @@ impl Limit {
 /// order limits in descending order, so that highest comes first
 pub fn limit_order(a: &LimitThreshold, b: &LimitThreshold) -> Ordering {
     match (a.limit, b.limit) {
-        // ascending ordering
-        (0, 0) => Ordering::Equal,
-        (0, _) => Ordering::Less,
-        (_, 0) => Ordering::Greater,
         (x, y) => y.cmp(&x), // invert order
     }
 }
@@ -120,7 +116,7 @@ mod tests {
         let mut lvec = vec![l3, l2, l1, l4];
         lvec.sort_unstable_by(limit_order);
         let names: Vec<String> = lvec.into_iter().map(|l| l.action.reason).collect();
-        let expected: Vec<String> = ["l1", "l2", "l3", "l4"].iter().map(|x| x.to_string()).collect();
+        let expected: Vec<String> = ["l2", "l3", "l4", "l1"].iter().map(|x| x.to_string()).collect();
         assert_eq!(names, expected);
     }
 }
