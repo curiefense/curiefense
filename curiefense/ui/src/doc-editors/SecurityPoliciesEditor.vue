@@ -153,9 +153,6 @@
                                     Description
                                   </th>
                                   <th class="is-size-7">
-                                    Threshold
-                                  </th>
-                                  <th class="is-size-7">
                                     Timeframe
                                   </th>
                                   <th class="has-text-centered is-size-7 width-60px">
@@ -185,10 +182,6 @@
                                     <td class="is-size-7 rate-limit-description"
                                         v-if="limitDetails(limitId)">
                                       {{ limitDetails(limitId).description }}
-                                    </td>
-                                    <td class="is-size-7 rate-limit-threshold"
-                                        v-if="limitDetails(limitId)">
-                                      {{ limitDetails(limitId).limit }}
                                     </td>
                                     <td class="is-size-7 rate-limit-timeframe"
                                         v-if="limitDetails(limitId)">

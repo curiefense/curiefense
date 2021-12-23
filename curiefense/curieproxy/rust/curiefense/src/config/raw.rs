@@ -118,15 +118,22 @@ pub struct RawGlobalFilterSSection {
 pub struct RawLimit {
     pub id: String,
     pub name: String,
-    pub limit: String,
     pub timeframe: String,
     #[serde(default)]
     pub key: Vec<HashMap<String, String>>,
+    #[serde(default)]
+    pub thresholds: Vec<RawLimitThreshold>,
     #[serde(default)]
     pub include: Vec<String>,
     #[serde(default)]
     pub exclude: Vec<String>,
     pub pairwith: HashMap<String, String>,
+
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct RawLimitThreshold {
+    pub limit: String,
     pub action: RawAction,
 }
 

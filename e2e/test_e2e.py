@@ -364,19 +364,23 @@ def gen_rl_rules(authority):
                 "name": "Rate Limit Rule 3/10 " + path,
                 "description": "3 requests per 10 seconds",
                 "timeframe": "10",
-                "limit": "3",
-                "action": {
-                    "type": kwargs.get("action", "default"),
-                    "params": {
+                "thresholds": [
+                    {
+                        "limit": "3",
                         "action": {
-                            "type": kwargs.get("subaction", "default"),
-                            "params": kwargs.get("subaction_params", {}),
-                            **subaction_ext,
+                            "type": kwargs.get("action", "default"),
+                            "params": {
+                                "action": {
+                                    "type": kwargs.get("subaction", "default"),
+                                    "params": kwargs.get("subaction_params", {}),
+                                    **subaction_ext,
+                                },
+                                **param_ext,
+                            },
+                            **action_ext,
                         },
-                        **param_ext,
-                    },
-                    **action_ext,
-                },
+                    }
+                ],
                 "include": incl,
                 "exclude": excl,
                 "key": kwargs.get("key", [{"attrs": "ip"}]),

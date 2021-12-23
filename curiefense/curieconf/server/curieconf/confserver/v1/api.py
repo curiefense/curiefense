@@ -352,7 +352,7 @@ base_path = Path(__file__).parent
 acl_policy_file_path = (base_path / "./json/acl-policy.schema").resolve()
 with open(acl_policy_file_path) as json_file:
     acl_policy_schema = json.load(json_file)
-ratelimits_file_path = (base_path / "../json/rate-limits.schema").resolve()
+ratelimits_file_path = (base_path / "./json/rate-limits.schema").resolve()
 with open(ratelimits_file_path) as json_file:
     ratelimits_schema = json.load(json_file)
 urlmaps_file_path = (base_path / "./json/url-maps.schema").resolve()
@@ -571,6 +571,7 @@ class DocumentResource(Resource):
         data = marshal(
             request.json, utils.model_invert_names(models[document]), skip_none=True
         )
+        data = utils.vconfigconvert(document, data, "v1", "backend")
         res = current_app.backend.documents_create(
             config, utils.vconvert(document, "v1"), data
         )
@@ -583,11 +584,10 @@ class DocumentResource(Resource):
         data = marshal(
             request.json, utils.model_invert_names(models[document]), skip_none=True
         )
-        res = utils.vconfigconvert(document, config, "v1", "backend")
+        data = utils.vconfigconvert(document, data, "v1", "backend")
         res = current_app.backend.documents_update(
             config, utils.vconvert(document, "v1"), data
         )
-        res = utils.vconfigconvert(document, config, "backend", "v1")
         return res
 
     def delete(self, config, document):
@@ -609,6 +609,7 @@ class DocumentListVersionResource(Resource):
         res = current_app.backend.documents_list_versions(
             config, utils.vconvert(document, "v1")
         )
+        res = utils.vconfigconvert(document, res, "backend", "v1")
         return marshal(res, m_version_log, skip_none=True)
 
 
@@ -621,7 +622,7 @@ class DocumentVersionResource(Resource):
         res = current_app.backend.documents_get(
             config, utils.vconvert(document, "v1"), version
         )
-        res = utils.vconfigconvert(document, config, "backend", "v1")
+        res = utils.vconfigconvert(document, res, "backend", "v1")
         return marshal(res, models[document], skip_none=True)
 
 
@@ -632,7 +633,6 @@ class DocumentRevertResource(Resource):
         res = current_app.backend.documents_revert(
             config, utils.vconvert(document, "v1"), version
         )
-        res = utils.vconfigconvert(document, config, "backend", "v1")
         return res
 
 

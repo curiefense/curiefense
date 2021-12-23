@@ -36,19 +36,6 @@
               </div>
               <div class="field">
                 <label class="label is-small">
-                  Threshold
-                </label>
-                <div class="control">
-                  <input class="input is-small document-limit"
-                         type="text"
-                         title="Rate limit threshold"
-                         placeholder="Rate limit threshold"
-                         @change="emitDocUpdate"
-                         v-model="localDoc.limit">
-                </div>
-              </div>
-              <div class="field">
-                <label class="label is-small">
                   Time Frame
                 </label>
                 <div class="control suffix seconds-suffix">
@@ -95,9 +82,53 @@
                               @change="updateEvent"/>
               </div>
               <div class="field">
-                <response-action :action.sync="localDoc.action"
-                                 label-separated-line
-                                 @update:action="emitDocUpdate"/>
+                <label class="label is-small">
+                  Thresholds
+                </label>
+                <div v-for="(threshold, index) in localDoc.thresholds"
+                    :key="index"
+                    :set="removable = localDoc.thresholds.length > 1"
+                    class="card threshold-card">
+                  <div class="columns">
+                    <div class="column is-6">
+                      <label class="label is-small">
+                        Limit
+                      </label>
+                      <input class="input is-small document-limit"
+                            type="text"
+                            title="A number of requests"
+                            placeholder="A number of requests"
+                            @change="emitDocUpdate"
+                            v-model="threshold.limit">
+                    </div>
+                    <div class="button-wrapper-column column">
+                      <a
+                          :class="[removable ? 'has-text-grey' : 'has-text-grey-light is-disabled']"
+                          :disabled="!removable"
+                          class="remove-threshold-option-button is-pulled-right button is-light is-small
+                            remove-icon is-small"
+                          title="Click to remove"
+                          @click="removeThreshold(index)"
+                          @keypress.space.prevent
+                          @keypress.space="removeThreshold(index)"
+                          @keypress.enter="removeThreshold(index)">
+                        <span class="icon is-small"><i class="fas fa-trash fa-xs"></i></span>
+                      </a>
+                    </div>
+                  </div>
+                  <response-action :action.sync="threshold.action"
+                                  label-separated-line
+                                  @update:action="emitDocUpdate"/>
+                </div>
+                <a title="Add new threshold"
+                   class="is-text is-small is-size-7 ml-3 add-threshold-button"
+                   tabindex="0"
+                   @click="addThreshold()"
+                   @keypress.space.prevent
+                   @keypress.space="addThreshold()"
+                   @keypress.enter="addThreshold()">
+                  New threshold
+                </a>
               </div>
             </div>
             <div class="column is-7">
@@ -313,7 +344,14 @@ import ResponseAction from '@/components/ResponseAction.vue'
 import LimitOption, {OptionObject} from '@/components/LimitOption.vue'
 import TagAutocompleteInput from '@/components/TagAutocompleteInput.vue'
 import Vue from 'vue'
-import {IncludeExcludeType, LimitOptionType, LimitRuleType, RateLimit, SecurityPolicy, SecurityPolicyEntryMatch} from '@/types'
+import {
+  IncludeExcludeType,
+  LimitOptionType,
+  LimitRuleType,
+  RateLimit,
+  SecurityPolicy,
+  SecurityPolicyEntryMatch,
+} from '@/types'
 import {Dictionary} from 'vue-router/types/router'
 import DatasetsUtils from '@/assets/DatasetsUtils'
 import RequestsUtils from '@/assets/RequestsUtils'
@@ -410,6 +448,18 @@ export default Vue.extend({
       const type = firstObjectKey as LimitRuleType
       const key = data[firstObjectKey]
       return {type, key, value: null}
+    },
+
+    addThreshold() {
+      this.localDoc.thresholds.push({limit: '', action: {type: 'default'}})
+      this.emitDocUpdate()
+    },
+
+    removeThreshold(index: number) {
+      if (this.localDoc.thresholds.length > 1) {
+        this.localDoc.thresholds.splice(index, 1)
+      }
+      this.emitDocUpdate()
     },
 
     addKey() {
@@ -606,6 +656,19 @@ export default Vue.extend({
   input {
     padding-right: 60px;
   }
+}
+
+.remove-threshold-option-button {
+  margin-left: auto;
+  margin-top: auto;
+}
+
+.button-wrapper-column {
+  display: flex;
+}
+
+.threshold-card {
+  padding: 20px;
 }
 
 </style>

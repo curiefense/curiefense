@@ -20,6 +20,13 @@ local redisport = os.getenv("REDIS_PORT") or 6379
 
 local lfs = require 'lfs'
 
+-- check a table contains element
+local function contains(list, x)
+  for _, v in pairs(list) do
+    if v == x then return true end
+  end
+  return false
+end
 local function ends_with(str, ending)
   return ending == "" or str:sub(-#ending) == ending
 end
@@ -157,6 +164,11 @@ local function test_ratelimit(request_path)
     print(" -> step " .. n)
     local jres = run_inspect_request(raw_request_map)
     local res = cjson.decode(jres)
+
+    if raw_request_map.tag and not contains(res.request_map.tags, raw_request_map.tag) then
+      error("curiefense.session_limit_check should have reaturned tag '" .. raw_request_map.tag ..
+            "', but returned: " .. jres)
+    end
 
     if raw_request_map.pass then
       if res["action"] ~= "pass" then

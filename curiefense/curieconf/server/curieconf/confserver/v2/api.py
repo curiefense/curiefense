@@ -36,6 +36,13 @@ class AnyType(fields.Raw):
 
 # limit
 
+m_threshold = api.model(
+    "Rate Limit Threshold",
+    {
+        "limit": fields.String(required=True),
+        "action": fields.Raw(required=True),
+    },
+)
 
 m_limit = api.model(
     "Rate Limit",
@@ -44,15 +51,13 @@ m_limit = api.model(
         "name": fields.String(required=True),
         "description": fields.String(required=True),
         "timeframe": fields.String(required=True),
-        "limit": fields.String(required=True),
-        "action": fields.Raw(required=True),
+        "thresholds": fields.List(fields.Nested(m_threshold)),
         "include": fields.Raw(required=True),
         "exclude": fields.Raw(required=True),
         "key": AnyType(required=True),
         "pairwith": fields.Raw(required=True),
     },
 )
-
 
 # securitypolicy
 
@@ -336,7 +341,7 @@ base_path = Path(__file__).parent
 acl_profile_file_path = (base_path / "./json/acl-profile.schema").resolve()
 with open(acl_profile_file_path) as json_file:
     acl_profile_schema = json.load(json_file)
-ratelimits_file_path = (base_path / "../json/rate-limits.schema").resolve()
+ratelimits_file_path = (base_path / "./json/rate-limits.schema").resolve()
 with open(ratelimits_file_path) as json_file:
     ratelimits_schema = json.load(json_file)
 securitypolicies_file_path = (base_path / "./json/security-policies.schema").resolve()

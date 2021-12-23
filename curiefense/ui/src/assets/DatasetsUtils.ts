@@ -169,16 +169,18 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'id': generateUUID2(),
       'description': 'New Rate Limit Rule',
       'name': 'New Rate Limit Rule',
-      'limit': '3',
+      'thresholds': [
+        {
+          'limit': '3',
+          'action': {'type': 'default'},
+        },
+      ],
       'key': [
         {
           'attrs': 'ip',
         },
       ],
       'timeframe': '180',
-      'action': {
-        'type': 'default',
-      },
       'exclude': ['allowlist'],
       'include': ['blocklist'],
       'pairwith': {

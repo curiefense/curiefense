@@ -21,8 +21,8 @@ DOCKER_TAG="${DOCKER_TAG:-$GITTAG-$DOCKER_DIR_HASH}"
 STOP_ON_FAIL=${STOP_ON_FAIL:-yes}
 RUST_DISTROS=(bionic)
 
-if [ -n "$TESTING" ]; then
-    IMAGES=("$TESTING")
+if [ -n "$TESTIMG" ]; then
+    IMAGES=("$TESTIMG")
     OTHER_IMAGES_DOCKER_TAG="$DOCKER_TAG"
     DOCKER_TAG="test"
     echo "Building only image $TESTIMG"

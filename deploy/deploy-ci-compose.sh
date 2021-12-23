@@ -36,7 +36,7 @@ pushd deploy/compose || exit
 docker-compose "${DOCKER_COMPOSE_ARGS[@]}" up -d
 
 # Will figure out a way to wait for the services to come up
-sleep 60
+sleep 90
 
 # Some debug information
 docker-compose "${DOCKER_COMPOSE_ARGS[@]}" top

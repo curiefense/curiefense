@@ -105,6 +105,32 @@
                 ]
             },
             {
+                "match": "^/limits/multithreshold",
+                "name": "limits multiple thresholds",
+                "acl_profile": "__default__",
+                "waf_profile": "__default__",
+                "acl_active": true,
+                "waf_active": true,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": [
+                    "limitmiltithreshold"
+                ]
+            },
+            {
+                "match": "^/limits/multithreshold",
+                "name": "limits multiple thresholds",
+                "acl_profile": "__default__",
+                "waf_profile": "__default__",
+                "acl_active": true,
+                "waf_active": true,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": [
+                    "limitmiltithreshold"
+                ]
+            },
+            {
                 "match": "^/rr/",
                 "name": "content filter restrict tests",
                 "acl_profile": "__default__",
@@ -148,8 +174,8 @@
                 "match": "/",
                 "name": "default",
                 "acl_profile": "__default__",
-                "content_filter_profile": "__default__",
                 "acl_active": false,
+                "content_filter_profile": "__default__",
                 "content_filter_active": false,
                 "limit_ids": []
             }

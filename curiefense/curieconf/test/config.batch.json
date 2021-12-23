@@ -10,16 +10,18 @@
                 "id": "f971e92459e2",
                 "name": "New Rate Limit Rule rrt",
                 "description": "New Rate Limit Rule",
-                "ttl": "180",
+                "timeframe": "180",
+                "thresholds": [{
+                    "limit": "3",
+                    "action": {
+                        "type": "default"
+                    }
+                }],
                 "key": [
                     {
                         "attrs": "remote_addr"
                     }
                 ],
-                "limit": "3",
-                "action": {
-                    "type": "default"
-                },
                 "include": ["blacklist"],
                 "exclude": ["whitelist"],
                 "pairwith": {
@@ -30,16 +32,20 @@
                 "id": "739ae4cf811d",
                 "name": "New Rate Limit Rule",
                 "description": "New Rate Limit Rule",
-                "ttl": "180",
+                "timeframe": "180",
+                "thresholds": [
+                    {
+                        "limit": "3",
+                        "action": {
+                            "type": "default"
+                        }
+                    }
+                ],
                 "key": [
                     {
                         "attrs": "remote_addr"
                     }
                 ],
-                "limit": "3",
-                "action": {
-                    "type": "default"
-                },
                 "include": ["blacklist"],
                 "exclude": ["whitelist"],
                 "pairwith": {
@@ -603,7 +609,7 @@
             {
                 "id": "c03dabe4b9ca",
                 "name": "Flow Control Policy Example",
-                "ttl": 60,
+                "timeframe": 60,
                 "key": [
                     {
                         "attrs": "ip"
@@ -632,7 +638,7 @@
                 "action": {
                     "type": "ban",
                     "params": {
-                        "ttl": "123",
+                        "duration": "123",
                         "action": {
                             "type": "default"
                         }

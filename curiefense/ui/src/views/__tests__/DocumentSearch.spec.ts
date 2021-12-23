@@ -328,8 +328,12 @@ describe('DocumentSearch.vue', () => {
         'name': 'Rate Limit Example Rule 5/60',
         'description': '5 requests per minute',
         'timeframe': '60',
-        'limit': '5',
-        'action': {'type': 'default'},
+        'thresholds': [
+          {
+            'limit': '5',
+            'action': {'type': 'default'},
+          }
+        ],
         'include': ['badpeople'],
         'exclude': ['goodpeople'],
         'key': [{'attrs': 'ip'}],

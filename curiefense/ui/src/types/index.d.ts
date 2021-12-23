@@ -44,6 +44,11 @@ declare module CuriefenseClient {
     [key: string]: string
   }
 
+  type ThresholdActionPair = {
+    limit?: string
+    action?: ResponseActionType
+  }
+
   type ResponseActionType = {
     type: 'default' | 'challenge' | 'monitor' | 'response' | 'redirect' | 'ban' | 'request_header'
     params?: {
@@ -144,10 +149,9 @@ declare module CuriefenseClient {
     id: string
     name: string
     description: string
-    limit: string
+    thresholds: ThresholdActionPair[]
     key: LimitOptionType[]
     timeframe: string
-    action: ResponseActionType
     exclude: string[]
     include: string[]
     pairwith: LimitOptionType

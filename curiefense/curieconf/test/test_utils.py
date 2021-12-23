@@ -177,3 +177,65 @@ def test_dict_to_path_value():
         {"path": "b.b", "value": 2},
         {"path": "c.c.c", "value": 3},
     ]
+
+
+def test_backend_v1_rl_convert():
+    doc = {
+        "id": "1",
+        "name": "v2 Version",
+        "thresholds": [{"limit": "10", "action": {"type": "default"}}],
+    }
+    assert utils.backend_v1_rl_convert(doc) == {
+        "id": "1",
+        "name": "v2 Version",
+        "limit": "10",
+        "action": {"type": "default"},
+    }
+
+
+def test_backend_v1_rl_convert_defaults():
+    doc = {"id": "1", "name": "v2 Version", "thresholds": []}
+    assert utils.backend_v1_rl_convert(doc) == {
+        "id": "1",
+        "name": "v2 Version",
+        "limit": "",
+        "action": {"type": "default"},
+    }
+
+
+def test_v1_backend_rl_convert():
+    doc = {
+        "id": "2",
+        "name": "v1 Version",
+        "limit": "10",
+        "action": {"type": "default"},
+    }
+    assert utils.v1_backend_rl_convert(doc) == {
+        "id": "2",
+        "name": "v1 Version",
+        "thresholds": [{"limit": "10", "action": {"type": "default"}}],
+    }
+
+
+def test_vconfigconvert():
+    docV1 = {
+        "id": "2",
+        "name": "v1 Version",
+        "limit": "10",
+        "action": {"type": "default"},
+    }
+    docV2 = {
+        "id": "2",
+        "name": "v1 Version",
+        "thresholds": [{"limit": "10", "action": {"type": "default"}}],
+    }
+    conftype = "ratelimits"
+    assert utils.vconfigconvert(
+        conftype, docV1, "v1", "backend"
+    ) == utils.v1_backend_rl_convert(docV1)
+    assert utils.vconfigconvert(
+        conftype, docV2, "backend", "v1"
+    ) == utils.backend_v1_rl_convert(docV2)
+    # returned unchanged if config type of API version not in mapping
+    assert utils.vconfigconvert("type_not_in_list", docV2, "v2", "v1") == docV2
+    assert utils.vconfigconvert(conftype, docV2, "v3", "v1") == docV2

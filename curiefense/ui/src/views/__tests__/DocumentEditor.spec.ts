@@ -670,8 +670,12 @@ describe('DocumentEditor.vue', () => {
       'name': 'Rate Limit Example Rule 5/60',
       'description': '5 requests per minute',
       'timeframe': '60',
-      'limit': '5',
-      'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
+      'thresholds': [
+        {
+          'limit': '5',
+          'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
+        }
+      ],
       'include': ['badpeople'],
       'exclude': ['goodpeople'],
       'key': [{'attrs': 'ip'}],

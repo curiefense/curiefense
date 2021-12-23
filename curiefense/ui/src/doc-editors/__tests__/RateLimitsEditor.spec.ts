@@ -21,9 +21,13 @@ describe('RateLimitsEditor.vue', () => {
       'id': 'f971e92459e2',
       'name': 'Rate Limit Example Rule 5/60',
       'description': '5 requests per minute',
+      'thresholds': [
+        {
+          'limit': '5',
+          'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}}
+        }
+      ],
       'timeframe': '60',
-      'limit': '5',
-      'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
       'include': ['blocklist'],
       'exclude': ['allowlist'],
       'key': [{'attrs': 'ip'}],
@@ -125,7 +129,7 @@ describe('RateLimitsEditor.vue', () => {
 
     test('should have correct threshold in input', () => {
       const element = wrapper.find('.document-limit').element as HTMLInputElement
-      expect(element.value).toEqual(rateLimitsDocs[0].limit)
+      expect(element.value).toEqual(rateLimitsDocs[0].thresholds[0].limit)
     })
 
     test('should have correct Time Frame in input', () => {
@@ -169,7 +173,7 @@ describe('RateLimitsEditor.vue', () => {
 
     test('should have response action component with correct data', () => {
       const ResponseActionComponent = wrapper.findComponent(ResponseAction)
-      expect((ResponseActionComponent.vm as any).action).toEqual(rateLimitsDocs[0].action)
+      expect((ResponseActionComponent.vm as any).action).toEqual(rateLimitsDocs[0].thresholds[0].action)
     })
 
     test('should have correct include data in table', () => {
@@ -271,6 +275,57 @@ describe('RateLimitsEditor.vue', () => {
         done()
       }
     })
+  })
+
+  describe('thresholds', () => {
+    test('should add threshold when button is clicked', async () => {
+      const addThresholdButton = wrapper.find('.add-threshold-button')
+      addThresholdButton.trigger('click')
+      await Vue.nextTick()
+      const wantedLimit = ''
+      const wantedAction = {type: 'default'}
+      const actualLimit = (wrapper.vm as any).localDoc.thresholds[1].limit
+      const actualAction = (wrapper.vm as any).localDoc.thresholds[1].action
+      expect((wrapper.vm as any).localDoc.thresholds.length).toEqual(2)
+      expect(actualLimit).toEqual(wantedLimit)
+      expect(actualAction).toEqual(wantedAction)
+    })
+
+    test('should remove threshold when remove event occurs', async () => {
+      expect((wrapper.vm as any).localDoc.thresholds.length).toEqual(1)
+      const addThresholdButton = wrapper.find('.add-threshold-button')
+      addThresholdButton.trigger('click')
+      await Vue.nextTick()
+      expect((wrapper.vm as any).localDoc.thresholds.length).toEqual(2)
+      const removeThresholdButton = wrapper.find('.remove-threshold-option-button')
+      removeThresholdButton.trigger('click')
+      await Vue.nextTick()
+      expect((wrapper.vm as any).localDoc.thresholds.length).toEqual(1)
+    })
+
+    test('should not be able to remove threshold when only one key exists', async () => {
+      const removeThresholdButton = wrapper.find('.remove-threshold-option-button')
+      removeThresholdButton.trigger('click')
+      await Vue.nextTick()
+      expect((wrapper.vm as any).localDoc.thresholds.length).toEqual(1)
+    })
+
+    test('should update threshold when change event occurs', async () => {
+      const newLimitOption = "20"
+      const newActionOption = {
+        new: "value"
+      }
+      const thresholdLimitField = wrapper.find('.document-limit')
+      thresholdLimitField.setValue(newLimitOption)
+      thresholdLimitField.trigger('change')
+      console.log((wrapper.vm as any).localDoc.thresholds)
+      const thresholdActionField = wrapper.findComponent(ResponseAction)
+      thresholdActionField.vm.$emit('update:action', newActionOption, 0)
+      await Vue.nextTick()
+      expect((wrapper.vm as any).localDoc.thresholds[0].limit).toEqual(newLimitOption)
+      expect((wrapper.vm as any).localDoc.thresholds[0].action).toEqual(newActionOption)
+    })
+
   })
 
   describe('event', () => {

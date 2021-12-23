@@ -53,5 +53,6 @@
           "description": "Tags describing requests to include in the rate limit rule"
         }
     },
+    "additionalProperties": false,
     "required": [ "id", "name", "timeframe", "key", "limit" ]
 }

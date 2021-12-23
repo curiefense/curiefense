@@ -70,7 +70,7 @@ def backend_v1_rl_convert(backend_document):
     """
     v1 = backend_document.copy()
     v1["limit"] = pydash.get(v1, "thresholds[0].limit", "")
-    v1["action"] = pydash.get(v1, "thresholds[0].action", {})
+    v1["action"] = pydash.get(v1, "thresholds[0].action", {"type": "default"})
     del v1["thresholds"]
     return v1
 

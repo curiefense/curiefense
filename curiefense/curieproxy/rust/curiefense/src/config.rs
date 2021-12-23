@@ -17,7 +17,7 @@ use std::time::SystemTime;
 use crate::logs::Logs;
 use flow::{flow_resolve, FlowElement, SequenceKey};
 use hostmap::{HostMap, SecurityPolicy};
-use limit::{limit_order, Limit};
+use limit::{Limit};
 use globalfilter::GlobalFilterSection;
 use raw::{AclProfile, RawFlowEntry, RawHostMap, RawLimit, RawGlobalFilterSection, RawSecurityPolicy, RawContentFilterProfile, RawContentFilterGroup};
 use utils::Matching;
@@ -116,8 +116,6 @@ impl Config {
                     Err(rr) => logs.error(format!("When resolving limits in rawmap {}, {}", rawmap.name, rr)),
                 }
             }
-            // limits 0 are tried first, than in decreasing order of the limit field
-            olimits.sort_unstable_by(limit_order);
             let mapname = rawmap.name.clone();
             let securitypolicy = SecurityPolicy {
                 acl_active: rawmap.acl_active,
