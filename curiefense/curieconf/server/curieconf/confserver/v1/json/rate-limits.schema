@@ -51,6 +51,15 @@
           "type": "array",
           "title": "Included tags",
           "description": "Tags describing requests to include in the rate limit rule"
+        },
+        "pairwith": {
+          "type": "object",
+          "patternProperties": {
+            "^(self|headers|cookies|args|attrs)$": {
+              "type": "string"
+            }
+          },
+          "description": "Event option, changing the meaning of the Rate Limit"
         }
     },
     "additionalProperties": false,
