@@ -116,8 +116,8 @@ do
 done
 
 
-if [ -n "$TESTING" ]; then
-    echo "To deploy this test image, export \"TESTING=$TESTING\" before running deploy.sh or docker-compose up"
+if [ -n "$TESTIMG" ]; then
+    echo "To deploy this test image, export \"TESTIMG=$TESTIMG\" before running deploy.sh or docker-compose up"
     echo "To choose a docker tag for all other images, also export DOCKER_TAG"
     echo "Docker tag of the current working directory is:"
     echo "export DOCKER_TAG=$OTHER_IMAGES_DOCKER_TAG"

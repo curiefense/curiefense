@@ -98,7 +98,7 @@
                             type="text"
                             title="A number of requests"
                             placeholder="A number of requests"
-                            @change="emitDocUpdate"
+                            @change="updateThresholdOption($event, index)"
                             v-model="threshold.limit">
                     </div>
                     <div class="button-wrapper-column column">
@@ -118,7 +118,7 @@
                   </div>
                   <response-action :action.sync="threshold.action"
                                   label-separated-line
-                                  @update:action="emitDocUpdate"/>
+                                  @update:action="updateThresholdOption($event, index)"/>
                 </div>
                 <a title="Add new threshold"
                    class="is-text is-small is-size-7 ml-3 add-threshold-button"
@@ -129,6 +129,10 @@
                    @keypress.enter="addThreshold()">
                   New threshold
                 </a>
+                <p class="has-text-danger is-size-7 ml-3 mt-3 only-one-ban"
+                   v-if="!onlyOneBanAction">
+                  Can't be more than one Ban action.
+                </p>
               </div>
             </div>
             <div class="column is-7">
@@ -351,6 +355,7 @@ import {
   RateLimit,
   SecurityPolicy,
   SecurityPolicyEntryMatch,
+  ThresholdActionPair,
 } from '@/types'
 import {Dictionary} from 'vue-router/types/router'
 import DatasetsUtils from '@/assets/DatasetsUtils'
@@ -410,6 +415,13 @@ export default Vue.extend({
       },
     },
 
+    onlyOneBanAction(): Boolean {
+      const counts = _.countBy(this.localDoc.thresholds, (threshold) => {
+        return threshold.action.type
+      })
+      return _.get(counts, 'ban', 0) <= 1
+    },
+
     newSecurityPolicyConnections(): SecurityPolicy[] {
       return this.securityPolicies.filter((securityPolicy) => {
         return !securityPolicy.map.every((securityPolicyEntry) => {
@@ -451,7 +463,7 @@ export default Vue.extend({
     },
 
     addThreshold() {
-      this.localDoc.thresholds.push({limit: '', action: {type: 'default'}})
+      this.localDoc.thresholds.push({limit: '', action: {type: 'default'}} as ThresholdActionPair)
       this.emitDocUpdate()
     },
 
@@ -459,6 +471,10 @@ export default Vue.extend({
       if (this.localDoc.thresholds.length > 1) {
         this.localDoc.thresholds.splice(index, 1)
       }
+      this.emitDocUpdate()
+    },
+
+    updateThresholdOption(option: OptionObject, index: number) {
       this.emitDocUpdate()
     },
 

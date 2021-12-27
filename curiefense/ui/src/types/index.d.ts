@@ -45,8 +45,8 @@ declare module CuriefenseClient {
   }
 
   type ThresholdActionPair = {
-    limit?: string
-    action?: ResponseActionType
+    limit: string
+    action: ResponseActionType
   }
 
   type ResponseActionType = {

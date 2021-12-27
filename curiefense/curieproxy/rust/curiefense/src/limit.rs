@@ -138,9 +138,12 @@ pub fn limit_check(
         if is_banned(&mut redis, &key) {
             logs.debug("is banned!");
             tags.insert(&limit.name);
-            // Take the first threshold because the `ban` is making sense only if it has the
-            // highest limit (so it is will be the first one in the desc ordered list).
-            return limit_react(logs, tags, &mut redis, limit, &limit.thresholds[0], key);
+            let ban_threshold: &LimitThreshold = limit
+                .thresholds
+                .iter()
+                .find(|t| matches!(t.action.atype, SimpleActionT::Ban(_, _)))
+                .unwrap_or(&limit.thresholds[0]);
+            return limit_react(logs, tags, &mut redis, limit, ban_threshold, key);
         }
 
         let pairvalue = limit.pairwith.as_ref().and_then(|sel| select_string(reqinfo, sel));

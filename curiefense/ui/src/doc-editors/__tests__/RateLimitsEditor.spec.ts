@@ -14,8 +14,9 @@ jest.mock('axios')
 describe('RateLimitsEditor.vue', () => {
   let rateLimitsDocs: RateLimit[]
   let securityPoliciesDocs: SecurityPolicy[]
-  let mockRouter
+  let mockRouter: any
   let wrapper: Wrapper<Vue>
+  let enableListener: Boolean
   beforeEach(() => {
     rateLimitsDocs = [{
       'id': 'f971e92459e2',
@@ -24,7 +25,7 @@ describe('RateLimitsEditor.vue', () => {
       'thresholds': [
         {
           'limit': '5',
-          'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}}
+          'action': {'type': 'default'}
         }
       ],
       'timeframe': '60',
@@ -101,13 +102,22 @@ describe('RateLimitsEditor.vue', () => {
     mockRouter = {
       push: jest.fn(),
     }
-    wrapper = shallowMount(RateLimitsEditor, {
+    const onUpdate = (selectedDoc: Object) => {
+      if (enableListener) {
+        wrapper.setProps({selectedDoc})
+      }
+    }
+    enableListener = false
+    wrapper = mount(RateLimitsEditor, {
       propsData: {
         selectedDoc: rateLimitsDocs[0],
         selectedBranch: 'master',
       },
       mocks: {
-        $router: mockRouter,
+        $router: mockRouter
+      },
+      listeners: {
+        'update:selectedDoc': onUpdate
       },
     })
   })
@@ -125,6 +135,26 @@ describe('RateLimitsEditor.vue', () => {
     test('should have correct description in input', () => {
       const element = wrapper.find('.document-description').element as HTMLInputElement
       expect(element.value).toEqual(rateLimitsDocs[0].description)
+    })
+
+    test('should show error when more than one ban actions exist', async () => {
+      enableListener = true
+      const addKeyButton = wrapper.find('.add-threshold-button')
+      addKeyButton.trigger('click')
+      await Vue.nextTick()
+      await wrapper.vm.$forceUpdate()
+      expect(wrapper.find('.only-one-ban').element).toBeUndefined()
+      const responseActionComponents = wrapper.findAllComponents(ResponseAction)
+      responseActionComponents
+        .at(0).findAll('option')
+        .at(5).setSelected()
+      await Vue.nextTick()
+      responseActionComponents
+        .at(1).findAll('option')
+        .at(5).setSelected()
+      await Vue.nextTick()
+      await wrapper.vm.$forceUpdate()
+      expect(wrapper.find('.only-one-ban').element).toBeDefined()
     })
 
     test('should have correct threshold in input', () => {
@@ -313,7 +343,8 @@ describe('RateLimitsEditor.vue', () => {
     test('should update threshold when change event occurs', async () => {
       const newLimitOption = "20"
       const newActionOption = {
-        new: "value"
+        new: "value",
+        params: {}
       }
       const thresholdLimitField = wrapper.find('.document-limit')
       thresholdLimitField.setValue(newLimitOption)

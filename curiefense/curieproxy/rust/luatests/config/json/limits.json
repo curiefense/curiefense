@@ -223,9 +223,9 @@
         }
     },
     {
-        "id": "limitmiltithreshold",
+        "id": "limitmultithreshold",
         "name": "First tag then ban",
-        "description": "Multiple thresholds",
+        "description": "Multiple thresholds. The last threshold to check that ban works even if it doesn't have the highest limit.",
         "timeframe": "4",
         "thresholds": [
             {
@@ -244,6 +244,12 @@
                             "type": "default"
                         }
                     }
+                }
+            },
+            {
+                "limit": "6",
+                "action": {
+                    "type": "default"
                 }
             }
         ],
