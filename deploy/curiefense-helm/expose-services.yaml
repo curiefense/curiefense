@@ -23,7 +23,7 @@ spec:
   selector:
     app.kubernetes.io/name: uiserver
   type: NodePort
-  externalTrafficPolicy: "Local"
+  externalTrafficPolicy: "Cluster"
 ---
 apiVersion: v1
 kind: Service
@@ -42,7 +42,7 @@ spec:
   selector:
     app.kubernetes.io/name: grafana
   type: NodePort
-  externalTrafficPolicy: "Local"
+  externalTrafficPolicy: "Cluster"
 ---
 apiVersion: v1
 kind: Service
@@ -61,7 +61,7 @@ spec:
   selector:
     app.kubernetes.io/name: confserver
   type: NodePort
-  externalTrafficPolicy: "Local"
+  externalTrafficPolicy: "Cluster"
 ---
 apiVersion: v1
 kind: Service
@@ -80,7 +80,7 @@ spec:
   selector:
     app.kubernetes.io/name: kibana
   type: NodePort
-  externalTrafficPolicy: "Local"
+  externalTrafficPolicy: "Cluster"
 ---
 apiVersion: v1
 kind: Service
@@ -99,4 +99,4 @@ spec:
   selector:
     app.kubernetes.io/name: elasticsearch
   type: NodePort
-  externalTrafficPolicy: "Local"
+  externalTrafficPolicy: "Cluster"
