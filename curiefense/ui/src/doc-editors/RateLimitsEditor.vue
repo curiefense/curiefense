@@ -98,7 +98,7 @@
                             type="text"
                             title="A number of requests"
                             placeholder="A number of requests"
-                            @change="updateThresholdOption($event, index)"
+                            @change="emitDocUpdate"
                             v-model="threshold.limit">
                     </div>
                     <div class="button-wrapper-column column">
@@ -118,7 +118,7 @@
                   </div>
                   <response-action :action.sync="threshold.action"
                                   label-separated-line
-                                  @update:action="updateThresholdOption($event, index)"/>
+                                  @update:action="emitDocUpdate"/>
                 </div>
                 <a title="Add new threshold"
                    class="is-text is-small is-size-7 ml-3 add-threshold-button"
@@ -471,10 +471,6 @@ export default Vue.extend({
       if (this.localDoc.thresholds.length > 1) {
         this.localDoc.thresholds.splice(index, 1)
       }
-      this.emitDocUpdate()
-    },
-
-    updateThresholdOption(option: OptionObject, index: number) {
       this.emitDocUpdate()
     },
 
