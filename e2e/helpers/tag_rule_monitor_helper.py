@@ -29,7 +29,7 @@ class TagRulesMonitorHelper:
                     "id": tagruleid,
                     "name": name,
                     "notes": "test",
-                    "tags": ["e2e-test"],
+                    "tags": ["test-tag"],
                     "rule": {
                         "sections": [
                             {
@@ -37,7 +37,7 @@ class TagRulesMonitorHelper:
                                 "entries": [
                                     ["cookies", kwargs.get("cookies", ["placeholder","placeholder"])],
                                     ["headers", kwargs.get("headers", ["test", "test"])],
-                                    ["method", kwargs.get("method", "(GET|POST)"), "annotation"],
+                                    ["method", kwargs.get("method", "(PUT|POST)"), "annotation"],
                                     ["path", kwargs.get("path","/e2e-tagrules-path/"), "annotation"],
                                     ["query", kwargs.get("query","e2e=value"), "annotation"],
                                     ["uri", kwargs.get("uri","/e2e-tagrules-uri"), "annotation"],
@@ -106,7 +106,7 @@ class TagRulesMonitorHelper:
 
         add_tag_rule(
             name="URI, OR relation, Action monitor",
-            uri="/e2e-nondefualt"
+            uri="/e2e-nondefault"
         )
 
         add_tag_rule(

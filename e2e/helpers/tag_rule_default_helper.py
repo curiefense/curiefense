@@ -5,9 +5,16 @@ from e2e.helpers.acl_helper import acl, ACLHelper
 class TagRulesDefaultHelper:
 
     @staticmethod
-    def tag_rules_action_503(target,path, params):
+    def tag_rules_action_503_with_params(target,path, params):
         response = target.query(f"{path}",**params)
         assert response.status_code == 503
+
+
+    @staticmethod
+    def tag_rules_action_503(target,path,**kwargs):
+        response= target.query(f"{path}")
+        assert response.status_code == 503
+
 
     @staticmethod
     def gen_tag_rule():
@@ -28,15 +35,15 @@ class TagRulesDefaultHelper:
                     "id": tagruleid,
                     "name": name,
                     "notes": "test",
-                    "tags": ["e2e-test"],
+                    "tags": ["test-503"],
                     "rule": {
                         "sections": [
                             {
                                 "relation": section_relation[1],
                                 "entries": [
-                                    ["cookies", kwargs.get("cookies", ["placeholder","placeholder"])],
-                                    ["headers", kwargs.get("headers", ["test", "test"])],
-                                    ["method", kwargs.get("method", "(GET|POST)"), "annotation"],
+                                    ["cookies", kwargs.get("cookies", ["e2e","value"])],
+                                    ["headers", kwargs.get("headers", ["e2e", "value"])],
+                                    ["method", kwargs.get("method", "(PUT|POST)"), "annotation"],
                                     ["path", kwargs.get("path","/e2e-tagrules-path/"), "annotation"],
                                     ["query", kwargs.get("query","e2e=value"), "annotation"],
                                     ["uri", kwargs.get("uri","/e2e-tagrules-uri"), "annotation"],
@@ -80,11 +87,34 @@ class TagRulesDefaultHelper:
         add_tag_rule(
             name="Cookie with 503 action",
             action_ext=({"type": "default"}),
-            cookies=["e2e","value"]
+            cookies=["e2e","test"]
         )
-        # add_tag_rule(
-        #     name="Header with 503 action",
-        # )
+        add_tag_rule(
+            name="Header with 503 action",
+            action_ext=({"type":"default"}),
+            headers=["e2e","test"]
+        )
+        add_tag_rule(
+            name="Method with 503 action",
+            action_ext=({"type":"default"}),
+            method="(PUT|POST)"
+        )
+        add_tag_rule(
+            name="Query with 503 action",
+            action_ext=({"type":"default"}),
+            query="e2e=tests"
+        )
+        add_tag_rule(
+            name= "Country with 503 action",
+            action_ext=({"type":"default"}),
+            path="/e2e-country"
+        )
+        add_tag_rule(
+            name="ASN with 503 action",
+            action_ext=({"type":"default"}),
+            path="/e2e-asn"
+        )
+
 
         return default_tagrules
 

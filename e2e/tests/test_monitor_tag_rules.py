@@ -38,7 +38,7 @@ class TestTagRulesMonitor:
     #URI section | monitor action
     def test_uri_with_tagonly_action(self,target):
         params={"method":"GET"}
-        TagRulesMonitorHelper.tag_rules_action_tagonly(target,"/e2e-value",params)
+        TagRulesMonitorHelper.tag_rules_action_tagonly(target,"/e2e-nondefault",params)
 
     #IPV4 section | monitor action
     def test_ipv4_with_tagonly_action(self,target):
