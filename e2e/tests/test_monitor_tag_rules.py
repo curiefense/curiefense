@@ -5,7 +5,7 @@ from e2e.helpers.acl_helper import acl
 
 
 @pytest.mark.usefixtures('api_setup', 'tagrules_config', 'active')
-@pytest.mark.gen_tag_rule
+# @pytest.mark.gen_tag_rule
 @pytest.mark.all_modules
 
 class TestTagRulesMonitor:

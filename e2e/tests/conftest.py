@@ -67,7 +67,7 @@ def data(module):
         only_files = [f for f in os.listdir(path) if isfile(join(path, f))]
         merged_data = {}
         for file in only_files:
-            with open(path + '/' + file) as infile:
+            with open(path + '/' + file,"r") as infile:
                 loaded = json.load(infile)
                 merged_data.update(loaded)
         return merged_data
