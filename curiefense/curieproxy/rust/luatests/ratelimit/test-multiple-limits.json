@@ -1,0 +1,106 @@
+[
+  {
+    "desc": "Testing with multiple limits",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "45.85.12.8",
+      ":method": "GET",
+      ":path": "/limits/multi",
+      ":authority": "localhost:30081",
+      "h1": "A"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "desc": "Testing with multiple limits",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "45.85.12.8",
+      ":method": "GET",
+      ":path": "/limits/multi",
+      ":authority": "localhost:30081",
+      "h2": "A"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "desc": "Testing with multiple limits",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "45.85.12.8",
+      ":method": "GET",
+      ":path": "/limits/multi",
+      ":authority": "localhost:30081",
+      "h1": "A"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "desc": "Testing with multiple limits",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "45.85.12.8",
+      ":method": "GET",
+      ":path": "/limits/multi",
+      ":authority": "localhost:30081",
+      "h2": "A"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "desc": "Testing with multiple limits",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "45.85.12.8",
+      ":method": "GET",
+      ":path": "/limits/multi",
+      ":authority": "localhost:30081",
+      "h1": "A"
+    },
+    "delay": 0,
+    "pass": false
+  },
+  {
+    "desc": "Testing with multiple limits",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "45.85.12.8",
+      ":method": "GET",
+      ":path": "/limits/multi",
+      ":authority": "localhost:30081",
+      "h2": "A"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "desc": "Testing with multiple limits",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "45.85.12.8",
+      ":method": "GET",
+      ":path": "/limits/multi",
+      ":authority": "localhost:30081",
+      "h1": "A"
+    },
+    "delay": 0,
+    "pass": false
+  },
+  {
+    "desc": "Testing with multiple limits",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "45.85.12.8",
+      ":method": "GET",
+      ":path": "/limits/multi",
+      ":authority": "localhost:30081",
+      "h2": "A"
+    },
+    "delay": 0,
+    "pass": false
+  }
+]

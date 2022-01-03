@@ -109,6 +109,13 @@ local function run_inspect_request(raw_request_map)
     return response
 end
 
+local function show_logs(logs)
+  for _, log in ipairs(logs) do
+      print(log["elapsed_micros"] .. "µs " .. log["message"])
+  end
+end
+
+
 -- testing from envoy metadata
 local function test_raw_request(request_path)
   print("Testing " .. request_path)
@@ -138,9 +145,7 @@ local function test_raw_request(request_path)
     end
 
     if not good then
-      for _, log in ipairs(r.logs) do
-          print(log["elapsed_micros"] .. "µs " .. log["message"])
-      end
+      show_logs(r.logs)
       error("mismatch in " .. raw_request_map.name)
     end
   end
@@ -166,16 +171,19 @@ local function test_ratelimit(request_path)
     local res = cjson.decode(jres)
 
     if raw_request_map.tag and not contains(res.request_map.tags, raw_request_map.tag) then
-      error("curiefense.session_limit_check should have reaturned tag '" .. raw_request_map.tag ..
+      show_logs(res.logs)
+      error("curiefense.session_limit_check should have returned tag '" .. raw_request_map.tag ..
             "', but returned: " .. jres)
     end
 
     if raw_request_map.pass then
       if res["action"] ~= "pass" then
+        show_logs(res.logs)
         error("curiefense.session_limit_check should have returned pass, but returned: " .. jres)
       end
     else
       if res["action"] == "pass" then
+        show_logs(res.logs)
         error("curiefense.session_limit_check should have blocked, but returned: " .. jres)
       end
     end
@@ -289,14 +297,14 @@ for file in lfs.dir[[luatests/raw_requests]] do
   end
 end
 
-for file in lfs.dir[[luatests/flows]] do
-  if ends_with(file, ".json") then
-    test_flow("luatests/flows/" .. file)
-  end
-end
-
 for file in lfs.dir[[luatests/ratelimit]] do
   if ends_with(file, ".json") then
     test_ratelimit("luatests/ratelimit/" .. file)
+  end
+end
+
+for file in lfs.dir[[luatests/flows]] do
+  if ends_with(file, ".json") then
+    test_flow("luatests/flows/" .. file)
   end
 end

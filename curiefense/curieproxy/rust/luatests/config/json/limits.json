@@ -201,6 +201,50 @@
         }
     },
     {
+        "id": "mlimitA",
+        "name": "Multilimit test A",
+        "description": ":)",
+        "timeframe": "5",
+        "thresholds": [{
+            "limit": "2",
+            "action": {
+                "type": "default"
+            }
+        }],
+        "include": [],
+        "exclude": [],
+        "key": [
+            {
+                "headers": "h1"
+            }
+        ],
+        "pairwith": {
+            "self": "self"
+        }
+    },
+    {
+        "id": "mlimitB",
+        "name": "Multilimit test B",
+        "description": ":)",
+        "timeframe": "5",
+        "thresholds": [{
+            "limit": "3",
+            "action": {
+                "type": "default"
+            }
+        }],
+        "include": [],
+        "exclude": [],
+        "key": [
+            {
+                "headers": "h2"
+            }
+        ],
+        "pairwith": {
+            "self": "self"
+        }
+    },
+    {
         "id": "4d1d9d405fc9",
         "name": "Limit per method",
         "description": ":)",

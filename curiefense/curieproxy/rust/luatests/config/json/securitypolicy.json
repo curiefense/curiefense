@@ -158,6 +158,18 @@
                 ]
             },
             {
+                "name": "multilimit",
+                "match": "/limits/multi",
+                "acl_profile": "__default__",
+                "acl_active": true,
+                "content_filter_profile": "__default__",
+                "content_filter_active": true,
+                "limit_ids": [
+                    "mlimitA",
+                    "mlimitB"
+                ]
+            },
+            {
                 "match": "/",
                 "name": "default",
                 "acl_profile": "__default__",

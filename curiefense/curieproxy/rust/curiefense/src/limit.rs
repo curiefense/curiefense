@@ -130,7 +130,9 @@ pub fn limit_check(
         }
 
         let key = match build_key(security_policy_name, reqinfo, limit) {
-            None => return SimpleDecision::Pass,
+            // if we can't build the key, it usually means that a header is missing.
+            // If that is the case, we continue to the next limit.
+            None => continue,
             Some(k) => k,
         };
         logs.debug(format!("limit={:?} key={}", limit, key));
