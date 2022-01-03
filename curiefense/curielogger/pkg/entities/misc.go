@@ -65,6 +65,7 @@ type RequestAttributes struct {
 	URI    string `parquet:"name=uri, type=BYTE_ARRAY, convertedtype=UTF8" json:"uri,omitempty"`
 	Path   string `parquet:"name=path, type=BYTE_ARRAY, convertedtype=UTF8" json:"path,omitempty"`
 	Method string `parquet:"name=method, type=BYTE_ARRAY, convertedtype=UTF8" json:"method,omitempty"`
+	Authority string `parquet:"name=authority, type=BYTE_ARRAY, convertedtype=UTF8" json:"authority,omitempty"`
 }
 
 type Request struct {
