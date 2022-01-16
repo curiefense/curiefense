@@ -12,14 +12,14 @@ class TestACL:
         acl.reset_and_set_acl({"force_deny": "all"})
         assert not target.is_reachable("/deny-all")
 
-    def test_bypass_all(self, acl, target):
-        acl.reset_and_set_acl({"deny": "all", "bypass": "all"})
-        assert target.is_reachable("/deny-bypass-all")
+    def test_passthrough_all(self, acl, target):
+        acl.reset_and_set_acl({"deny": "all", "passthrough": "all"})
+        assert target.is_reachable("/deny-passthrough-all")
 
     def test_allow_bot_all(self, acl, target):
         acl.reset_and_set_acl({"allow_bot": "all"})
         assert not target.is_reachable(
-            "/allow_bot-all", headers={"Long-Header": "not_alphanum" * 1500}
+            "/allow_bot-all", headers={"Long-Header": "not_alphanum" * 1}
         )
         assert target.is_reachable()
 

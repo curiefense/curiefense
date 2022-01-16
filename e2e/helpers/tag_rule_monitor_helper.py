@@ -140,7 +140,7 @@ def active(request):
 @pytest.fixture(scope="class")
 def tagrules_config(cli, acl, active,api_config):
     cli.revert_and_enable()
-    acl.set_acl({"force_deny": "e2e-test", "bypass": "all"})
+    acl.set_acl({"force_deny": "e2e-test", "passthrough": "all"})
     tag_rules = cli.call(f"doc get {BaseHelper.TEST_CONFIG_NAME} {api_config['tag_rules']}")
     # Apply TEST_TAGRULES
     newrules = TagRulesMonitorHelper.gen_tag_rule()
