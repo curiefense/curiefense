@@ -1,6 +1,8 @@
 use core::time::Duration;
 use lazy_static::lazy_static;
 
+use crate::interface::{SimpleAction, SimpleActionT};
+use crate::Logs;
 use r2d2_redis::{r2d2, RedisConnectionManager};
 
 lazy_static! {
@@ -28,4 +30,39 @@ pub fn redis_conn() -> anyhow::Result<RedisCnx> {
     cnx.set_read_timeout(Some(max_timeout))?;
     cnx.set_write_timeout(Some(max_timeout))?;
     Ok(cnx)
+}
+
+pub fn extract_bannable_action(
+    cnx: &mut redis::Connection,
+    logs: &mut Logs,
+    action: &SimpleAction,
+    redis_key: &str,
+    ban_key: &str,
+) -> SimpleAction {
+    if let SimpleActionT::Ban(subaction, duration) = &action.atype {
+        logs.info(format!("Banned key {} for {}s", redis_key, duration));
+        if let Err(rr) = redis::pipe()
+            .cmd("SET")
+            .arg(ban_key)
+            .arg(1)
+            .cmd("EXPIRE")
+            .arg(ban_key)
+            .arg(*duration)
+            .query::<()>(cnx)
+        {
+            println!("*** Redis error {}", rr);
+        }
+        *subaction.clone()
+    } else {
+        action.clone()
+    }
+}
+
+pub fn get_ban_key(key: &str) -> String {
+    format!("{:X}", md5::compute(format!("limit-ban-hash{}", key)))
+}
+
+pub fn is_banned(cnx: &mut redis::Connection, ban_key: &str) -> bool {
+    let q: redis::RedisResult<Option<u32>> = redis::cmd("GET").arg(ban_key).query(cnx);
+    q.unwrap_or(None).is_some()
 }

@@ -17,7 +17,7 @@
       ":authority": "www.example.com"
     },
     "delay": 0,
-    "pass": true
+    "pass": false
   },
   {
     "headers": {
@@ -27,6 +27,6 @@
       ":authority": "www.example.com"
     },
     "delay": 0,
-    "pass": true
+    "pass": false
   }
 ]

@@ -1,4 +1,5 @@
 use crate::logs::Logs;
+use crate::redis::{extract_bannable_action, get_ban_key, is_banned};
 use redis::RedisResult;
 
 use crate::config::limit::Limit;
@@ -15,16 +16,6 @@ fn build_key(security_policy_name: &str, reqinfo: &RequestInfo, limit: &Limit) -
     Some(format!("{:X}", md5::compute(key)))
 }
 
-fn get_ban_key(key: &str) -> String {
-    format!("{:X}", md5::compute(format!("limit-ban-hash{}", key)))
-}
-
-fn is_banned(cnx: &mut redis::Connection, key: &str) -> bool {
-    let ban_key = get_ban_key(key);
-    let q: redis::RedisResult<Option<u32>> = redis::cmd("GET").arg(&ban_key).query(cnx);
-    q.unwrap_or(None).is_some()
-}
-
 fn limit_react(
     logs: &mut Logs,
     tags: &mut Tags,
@@ -32,26 +23,10 @@ fn limit_react(
     limit: &Limit,
     threshold: &LimitThreshold,
     key: String,
+    ban_key: &str,
 ) -> SimpleDecision {
     tags.insert(&limit.name);
-    let action = if let SimpleActionT::Ban(subaction, duration) = &threshold.action.atype {
-        logs.info(format!("Banned key {} for {}s", key, duration));
-        let ban_key = get_ban_key(&key);
-        if let Err(rr) = redis::pipe()
-            .cmd("SET")
-            .arg(&ban_key)
-            .arg(1)
-            .cmd("EXPIRE")
-            .arg(&ban_key)
-            .arg(*duration)
-            .query::<()>(cnx)
-        {
-            println!("*** Redis error {}", rr);
-        }
-        *subaction.clone()
-    } else {
-        threshold.action.clone()
-    };
+    let action = extract_bannable_action(cnx, logs, &threshold.action, &key, ban_key);
     SimpleDecision::Action(
         action,
         serde_json::json!({
@@ -135,9 +110,10 @@ pub fn limit_check(
             None => continue,
             Some(k) => k,
         };
+        let ban_key = get_ban_key(&key);
         logs.debug(format!("limit={:?} key={}", limit, key));
 
-        if is_banned(&mut redis, &key) {
+        if is_banned(&mut redis, &ban_key) {
             logs.debug("is banned!");
             tags.insert(&limit.name);
             let ban_threshold: &LimitThreshold = limit
@@ -145,7 +121,7 @@ pub fn limit_check(
                 .iter()
                 .find(|t| matches!(t.action.atype, SimpleActionT::Ban(_, _)))
                 .unwrap_or(&limit.thresholds[0]);
-            return limit_react(logs, tags, &mut redis, limit, ban_threshold, key);
+            return limit_react(logs, tags, &mut redis, limit, ban_threshold, key, &ban_key);
         }
 
         let pairvalue = limit.pairwith.as_ref().and_then(|sel| select_string(reqinfo, sel));
@@ -157,10 +133,10 @@ pub fn limit_check(
                     // Only one action with highest limit larger than current
                     // counter will be applied, all the rest will be skipped.
                     if current_count > threshold.limit as i64 {
-                        return limit_react(logs, tags, &mut redis, limit, threshold, key);
+                        return limit_react(logs, tags, &mut redis, limit, &threshold, key, &ban_key);
                     }
                 }
-            },
+            }
         }
     }
     SimpleDecision::Pass

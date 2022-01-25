@@ -1,3 +1,4 @@
+use crate::redis::{extract_bannable_action, get_ban_key, is_banned};
 use crate::Logs;
 use std::collections::HashMap;
 
@@ -89,25 +90,42 @@ pub fn flow_check(
                     continue;
                 }
                 logs.debug(format!("Checking flow control {} (step {})", elem.name, elem.step));
-                let mredis_key = build_redis_key(reqinfo, &elem.key, &elem.id, &elem.name);
-                match mredis_key {
-                    Some(redis_key) => match check_flow(&mut cnx, &redis_key, elem.step, elem.timeframe, elem.is_last)? {
-                        FlowResult::LastOk => {
-                            tags.insert(&elem.name);
-                            return Ok(SimpleDecision::Pass);
-                        }
-                        FlowResult::LastBlock => {
+                match build_redis_key(reqinfo, &elem.key, &elem.id, &elem.name) {
+                    Some(redis_key) => {
+                        // check for banned users : this will be triggered at every step of the checks
+                        let ban_key = get_ban_key(&redis_key);
+                        if is_banned(&mut cnx, &ban_key) {
+                            logs.debug(format!("Key {} is banned!", ban_key));
                             tags.insert(&elem.name);
                             bad = SimpleDecision::Action(
                                 elem.action.clone(),
                                 serde_json::json!({
                                     "initiator": "flow_check",
-                                    "name": elem.name
+                                    "name": elem.name,
                                 }),
                             );
+                        } else {
+                            match check_flow(&mut cnx, &redis_key, elem.step, elem.timeframe, elem.is_last)? {
+                                FlowResult::LastOk => {
+                                    tags.insert(&elem.name);
+                                    return Ok(SimpleDecision::Pass);
+                                }
+                                FlowResult::LastBlock => {
+                                    tags.insert(&elem.name);
+                                    let action =
+                                        extract_bannable_action(&mut cnx, logs, &elem.action, &redis_key, &ban_key);
+                                    bad = SimpleDecision::Action(
+                                        action,
+                                        serde_json::json!({
+                                            "initiator": "flow_check",
+                                            "name": elem.name
+                                        }),
+                                    );
+                                }
+                                FlowResult::NonLast => {}
+                            }
                         }
-                        FlowResult::NonLast => {}
-                    },
+                    }
                     None => logs.warning(format!("Could not fetch key in flow control {}", elem.name)),
                 }
             }
