@@ -26,10 +26,10 @@ class TestUrlMap:
             "/acl/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_nondefault_aclfilter_bypassall(self, target):
-        assert target.is_reachable("/acl-bypassall/")
+    def test_nondefault_aclfilter_passthrough(self, target):
+        assert target.is_reachable("/acl-passthrough/")
         assert target.is_reachable(
-            "/acl-bypassall/", headers={"Long-header": "Overlong_header" * 100}
+            "/acl-passthrough/", headers={"Long-header": "Overlong_header" * 100}
         )
 
     def test_aclwaffilter(self, target):

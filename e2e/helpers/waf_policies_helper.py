@@ -245,7 +245,7 @@ def waf_test_config(cli, target, api_config):
     (new_rules, new_urlmap) = WafPoliciesHelper.gen_waf_rules()
     waf_rules.extend(new_rules)
     # Apply waf_policies
-    cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} wafpolicies /dev/stdin", inputjson=waf_rules)
+    cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['waf_settings']} /dev/stdin", inputjson=waf_rules)
     # Apply new_urlmap
     cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['url_map']} /dev/stdin", inputjson=new_urlmap)
     cli.publish_and_apply()

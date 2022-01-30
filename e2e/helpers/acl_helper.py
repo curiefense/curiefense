@@ -27,7 +27,7 @@ class ACLHelper:
             "allow": [],
             "allow_bot": [],
             "deny_bot": [],
-            "bypass": [],
+            "passthrough": [],
             "deny": [],
             "force_deny": []
         }

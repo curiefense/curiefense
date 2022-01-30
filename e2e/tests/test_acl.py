@@ -19,20 +19,20 @@ class TestACL:
     def test_allow_bot_all(self, acl, target):
         acl.reset_and_set_acl({"allow_bot": "all"})
         assert not target.is_reachable(
-            "/allow_bot-all", headers={"Long-Header": "not_alphanum" * 1}
+            "/", headers={"Long-Header": "not_alphanum" * 1000}
         )
         assert target.is_reachable()
 
     def test_deny_bot_all(self, acl, target):
         acl.reset_and_set_acl({"deny_bot": "all"})
-        res = target.query(path="/deny_bot-all")
+        res = target.query(path="/")
         assert res.status_code == 247
         assert ";;window.rbzns={bereshit:" in res.text
 
     def test_allow_all(self, acl, target):
         acl.reset_and_set_acl({"allow": "all", "deny": "all"})
         assert not target.is_reachable(
-            "/allow-deny-all", headers={"Long-Header": "not_alphanum" * 1500}
+            "/", headers={"Long-Header": "not_alphanum" * 1500}
         )
         assert target.is_reachable()
 

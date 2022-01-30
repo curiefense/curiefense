@@ -35,8 +35,8 @@ class TagRulesMonitorHelper:
                             {
                                 "relation": section_relation[1],
                                 "entries": [
-                                    ["cookies", kwargs.get("cookies", ["placeholder","placeholder"])],
-                                    ["headers", kwargs.get("headers", ["test", "test"])],
+                                    ["cookies", kwargs.get("cookies", ["e2e", "value"])],
+                                    ["headers", kwargs.get("headers", ["e2e", "value"])],
                                     ["method", kwargs.get("method", "(PUT|POST)"), "annotation"],
                                     ["path", kwargs.get("path","/e2e-tagrules-path/"), "annotation"],
                                     ["query", kwargs.get("query","e2e=value"), "annotation"],
@@ -140,7 +140,7 @@ def active(request):
 @pytest.fixture(scope="class")
 def tagrules_config(cli, acl, active,api_config):
     cli.revert_and_enable()
-    acl.set_acl({"force_deny": "e2e-test", "passthrough": "all"})
+    acl.set_acl({"force_deny": "test-tag", "passthrough": "all"})
     tag_rules = cli.call(f"doc get {BaseHelper.TEST_CONFIG_NAME} {api_config['tag_rules']}")
     # Apply TEST_TAGRULES
     newrules = TagRulesMonitorHelper.gen_tag_rule()

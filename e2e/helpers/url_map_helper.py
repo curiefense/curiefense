@@ -5,18 +5,18 @@ from e2e.helpers.acl_helper import acl
 
 class UrlMapHelper:
     @staticmethod
-    def acl_bypass_json():
-        acl_bypass = {
+    def acl_passthrough_json():
+        acl_passthrough = {
             "id": "e2e00ac10000",
             "name": "e2e-denyall-acl",
             "allow": [],
             "allow_bot": [],
             "deny_bot": [],
-            "bypass": ["all"],
+            "passthrough": ["all"],
             "force_deny": [],
             "deny": [],
         }
-        return acl_bypass
+        return acl_passthrough
 
     @staticmethod
     def waf_short_headers_json():
@@ -49,7 +49,7 @@ class UrlMapHelper:
                         "match": "/acl/",
                         "acl_profile": "__default__",
                         "acl_active": True,
-                        "waf_profile": "__default__",
+                        "contentfilterprofiles": "__default__",
                         "waf_active": False,
                         "limit_ids": [],
                         "isnew": True,
@@ -59,7 +59,7 @@ class UrlMapHelper:
                         "match": "/acl-bypassall/",
                         "acl_profile": "e2e00ac10000",
                         "acl_active": True,
-                        "waf_profile": "__default__",
+                        "contentfilterprofiles": "__default__",
                         "waf_active": True,
                         "limit_ids": [],
                         "isnew": True,
@@ -69,7 +69,7 @@ class UrlMapHelper:
                         "match": "/acl-waf/",
                         "acl_profile": "__default__",
                         "acl_active": True,
-                        "waf_profile": "__default__",
+                        "contentfilterprofiles": "__default__",
                         "waf_active": True,
                         "limit_ids": [],
                         "isnew": True,
@@ -79,7 +79,7 @@ class UrlMapHelper:
                         "match": "/waf/",
                         "acl_profile": "__default__",
                         "acl_active": False,
-                        "waf_profile": "__default__",
+                        "contentfilterprofiles": "__default__",
                         "waf_active": True,
                         "limit_ids": [],
                         "isnew": True,
@@ -89,7 +89,7 @@ class UrlMapHelper:
                         "match": "/waf-short-headers/",
                         "acl_profile": "__default__",
                         "acl_active": False,
-                        "waf_profile": "e2e000000002",
+                        "contentfilterprofiles": "e2e000000002",
                         "waf_active": True,
                         "limit_ids": [],
                         "isnew": True,
@@ -99,7 +99,7 @@ class UrlMapHelper:
                         "match": "/nofilter/",
                         "acl_profile": "__default__",
                         "acl_active": False,
-                        "waf_profile": "__default__",
+                        "contentfilterprofiles": "__default__",
                         "waf_active": False,
                         "limit_ids": [],
                     },
@@ -115,7 +115,7 @@ def urlmap_config(cli, acl, api_config):
     # Add ACL entry
     default_acl = cli.empty_acl()
     default_acl[0]["force_deny"].append("all")
-    default_acl.append(UrlMapHelper.acl_bypass_json())
+    default_acl.append(UrlMapHelper.acl_passthrough_json())
     cli.call(
         f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['acl_setting']} /dev/stdin", inputjson=default_acl
     )
@@ -123,7 +123,7 @@ def urlmap_config(cli, acl, api_config):
     wafpolicy = cli.call(f"doc get {BaseHelper.TEST_CONFIG_NAME} wafpolicies")
     wafpolicy.append(UrlMapHelper.waf_short_headers_json())
     cli.call(
-        f"doc update {BaseHelper.TEST_CONFIG_NAME} wafpolicies /dev/stdin", inputjson=wafpolicy
+        f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['wafpolicies']} /dev/stdin", inputjson=wafpolicy
     )
     # Add urlmap entry URLMAP
     cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['url_map']} /dev/stdin", inputjson=UrlMapHelper.url_map_json())
