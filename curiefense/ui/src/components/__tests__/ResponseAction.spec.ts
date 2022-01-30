@@ -176,7 +176,7 @@ describe('ResponseAction.vue', () => {
         const wantedEmit = {
           type: 'ban',
           params: {
-            ttl: '',
+            duration: '',
             action: {
               type: 'default',
             },
@@ -325,11 +325,11 @@ describe('ResponseAction.vue', () => {
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
 
-      test('should emit new action when input changes - ban ttl', async () => {
+      test('should emit new action when input changes - ban duration', async () => {
         const wantedEmit = {
           type: 'ban',
           params: {
-            ttl: '1800',
+            duration: '1800',
             action: {
               type: 'default',
             },
@@ -338,7 +338,7 @@ describe('ResponseAction.vue', () => {
         action = {
           type: 'ban',
           params: {
-            ttl: '',
+            duration: '',
             action: {
               type: 'default',
             },
@@ -351,8 +351,8 @@ describe('ResponseAction.vue', () => {
         })
         await Vue.nextTick()
         const durationInput = wrapper.find('.action-duration');
-        (durationInput.element as HTMLInputElement).value = wantedEmit.params.ttl;
-        (wrapper.vm as any).localAction.params.ttl = wantedEmit.params.ttl
+        (durationInput.element as HTMLInputElement).value = wantedEmit.params.duration;
+        (wrapper.vm as any).localAction.params.duration = wantedEmit.params.duration
         durationInput.trigger('change')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
@@ -363,7 +363,7 @@ describe('ResponseAction.vue', () => {
         const wantedEmit = {
           type: 'ban',
           params: {
-            ttl: '',
+            duration: '',
             action: {
               type: 'monitor',
             },
@@ -372,7 +372,7 @@ describe('ResponseAction.vue', () => {
         action = {
           type: 'ban',
           params: {
-            ttl: '',
+            duration: '',
             action: {
               type: 'default',
             },
@@ -541,11 +541,11 @@ describe('ResponseAction.vue', () => {
         expect(wrapper.emitted('update:action')[0]).toEqual([wantedEmit])
       })
 
-      test('should emit new action when input changes - ban ttl', async () => {
+      test('should emit new action when input changes - ban duration', async () => {
         const wantedEmit = {
           type: 'ban',
           params: {
-            ttl: '1800',
+            duration: '1800',
             action: {
               type: 'challenge',
             },
@@ -554,7 +554,7 @@ describe('ResponseAction.vue', () => {
         action = {
           type: 'ban',
           params: {
-            ttl: '600',
+            duration: '600',
             action: {
               type: 'challenge',
             },
@@ -567,8 +567,8 @@ describe('ResponseAction.vue', () => {
         })
         await Vue.nextTick()
         const durationInput = wrapper.find('.action-duration');
-        (durationInput.element as HTMLInputElement).value = wantedEmit.params.ttl;
-        (wrapper.vm as any).localAction.params.ttl = wantedEmit.params.ttl
+        (durationInput.element as HTMLInputElement).value = wantedEmit.params.duration;
+        (wrapper.vm as any).localAction.params.duration = wantedEmit.params.duration
         durationInput.trigger('change')
         await Vue.nextTick()
         expect(wrapper.emitted('update:action')).toBeTruthy()
@@ -579,7 +579,7 @@ describe('ResponseAction.vue', () => {
         const wantedEmit = {
           type: 'ban',
           params: {
-            ttl: '1800',
+            duration: '1800',
             action: {
               type: 'monitor',
             },
@@ -588,7 +588,7 @@ describe('ResponseAction.vue', () => {
         action = {
           type: 'ban',
           params: {
-            ttl: '1800',
+            duration: '1800',
             action: {
               type: 'default',
             },
@@ -697,7 +697,7 @@ describe('ResponseAction.vue', () => {
         const wantedEmit = {
           type: 'ban',
           params: {
-            ttl: '',
+            duration: '',
             action: {
               type: 'default',
             },

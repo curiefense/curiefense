@@ -26,9 +26,9 @@
         "allow": { "$ref": "#/definitions/tags_array" },
         "allow_bot": { "$ref": "#/definitions/tags_array" },
         "deny_bot": { "$ref": "#/definitions/tags_array" },
-        "bypass": { "$ref": "#/definitions/tags_array" },
+        "passthrough": { "$ref": "#/definitions/tags_array" },
         "force_deny": { "$ref": "#/definitions/tags_array" },
         "deny": { "$ref": "#/definitions/tags_array" }
     },
-    "required": [ "id", "name", "allow", "allow_bot", "deny_bot", "bypass", "force_deny", "deny" ]
+    "required": [ "id", "name", "allow", "allow_bot", "deny_bot", "passthrough", "force_deny", "deny" ]
 }

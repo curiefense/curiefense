@@ -12,22 +12,24 @@ declare module CuriefenseClient {
 
   // Document types helpers - START
 
-  type WAFEntryMatch = {
+  type ContentFilterIgnoreType = 'rule' | 'group'
+
+  type ContentFilterEntryMatch = {
     key: string
     reg: string
     restrict: boolean
     mask: boolean
     type: NamesRegexType
-    exclusions: { [key: string]: number }
+    exclusions: { [key: string]: ContentFilterIgnoreType }
   }
 
   type SecurityPolicyEntryMatch = {
     match: string
     name: string
     acl_profile: string
-    waf_profile: string
+    content_filter_profile: string
     acl_active: boolean
-    waf_active: boolean
+    content_filter_active: boolean
     limit_ids: string[]
   }
 
@@ -42,11 +44,16 @@ declare module CuriefenseClient {
     [key: string]: string
   }
 
+  type ThresholdActionPair = {
+    limit: string
+    action: ResponseActionType
+  }
+
   type ResponseActionType = {
     type: 'default' | 'challenge' | 'monitor' | 'response' | 'redirect' | 'ban' | 'request_header'
     params?: {
       status?: string
-      ttl?: string
+      duration?: string
       headers?: string
       content?: string
       location?: string
@@ -54,7 +61,7 @@ declare module CuriefenseClient {
     }
   }
 
-  type ACLProfileFilter = 'allow' | 'allow_bot' | 'deny_bot' | 'bypass' | 'force_deny' | 'deny'
+  type ACLProfileFilter = 'allow' | 'allow_bot' | 'deny_bot' | 'passthrough' | 'force_deny' | 'deny'
 
   type IncludeExcludeType = 'include' | 'exclude'
 
@@ -68,9 +75,9 @@ declare module CuriefenseClient {
 
   type NamesRegexType = 'names' | 'regex'
 
-  type Document = BasicDocument & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy | WAFPolicy | WAFRule)
+  type Document = BasicDocument & (ACLProfile | FlowControlPolicy | GlobalFilter | RateLimit | SecurityPolicy | ContentFilterProfile | ContentFilterRule)
 
-  type DocumentType = 'aclprofiles' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'securitypolicies' | 'wafpolicies' | 'wafrules'
+  type DocumentType = 'aclprofiles' | 'flowcontrol' | 'globalfilters' | 'ratelimits' | 'securitypolicies' | 'contentfilterprofiles' | 'contentfilterrules' | 'contentfiltergroups'
 
   // Document types helpers - END
 
@@ -87,12 +94,12 @@ declare module CuriefenseClient {
     allow: string[]
     allow_bot: string[]
     deny_bot: string[]
-    bypass: string[]
+    passthrough: string[]
     force_deny: string[]
     deny: string[]
   }
 
-  type WAFPolicy = {
+  type ContentFilterProfile = {
     id: string
     name: string
     ignore_alphanum: boolean
@@ -103,16 +110,16 @@ declare module CuriefenseClient {
     max_cookies_count: number
     max_args_count: number
     args: {
-      names: WAFEntryMatch[]
-      regex: WAFEntryMatch[]
+      names: ContentFilterEntryMatch[]
+      regex: ContentFilterEntryMatch[]
     }
     headers: {
-      names: WAFEntryMatch[]
-      regex: WAFEntryMatch[]
+      names: ContentFilterEntryMatch[]
+      regex: ContentFilterEntryMatch[]
     }
     cookies: {
-      names: WAFEntryMatch[]
-      regex: WAFEntryMatch[]
+      names: ContentFilterEntryMatch[]
+      regex: ContentFilterEntryMatch[]
     }
   }
 
@@ -121,7 +128,7 @@ declare module CuriefenseClient {
     name: string
     source: string
     mdate: string // ISO string
-    notes: string
+    description: string
     active: boolean
     tags: string[]
     action: ResponseActionType
@@ -142,10 +149,9 @@ declare module CuriefenseClient {
     id: string
     name: string
     description: string
-    limit: string
+    thresholds: ThresholdActionPair[]
     key: LimitOptionType[]
-    ttl: string
-    action: ResponseActionType
+    timeframe: string
     exclude: string[]
     include: string[]
     pairwith: LimitOptionType
@@ -156,9 +162,9 @@ declare module CuriefenseClient {
   type FlowControlPolicy = {
     id: string
     name: string
-    ttl: number
+    timeframe: number
     active: boolean
-    notes: string
+    description: string
     key: LimitOptionType[]
     action: ResponseActionType
     exclude: string[]
@@ -172,7 +178,7 @@ declare module CuriefenseClient {
     }[]
   }
 
-  type WAFRule = {
+  type ContentFilterRule = {
     id: string
     name: string
     category?: string
@@ -181,6 +187,13 @@ declare module CuriefenseClient {
     operand: string
     severity?: number
     subcategory?: string
+  }
+
+  type ContentFilterRuleGroup = {
+    id: string
+    name: string
+    description?: string
+    content_filter_rule_ids: ContentFilterRule['id'][]
   }
 
   // Document types - END

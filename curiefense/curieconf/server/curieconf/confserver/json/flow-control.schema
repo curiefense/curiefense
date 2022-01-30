@@ -20,7 +20,7 @@
       "title": "Active flag",
       "description": ""
     },
-    "ttl": {
+    "timeframe": {
       "type": "number",
       "title": "Time To Limit",
       "description": "The time in which to limit the requests according to the threshold"
@@ -45,7 +45,7 @@
       "title": "Included tags",
       "description": "Tags describing requests to include in the flow control rule"
     },
-    "notes": {
+    "description": {
       "type": "string",
       "title": "Description",
       "description": "Description of entity shown in UI"
@@ -73,7 +73,7 @@
     "name",
     "id",
     "active",
-    "ttl",
+    "timeframe",
     "key",
     "action",
     "include",

@@ -8,10 +8,9 @@ vec_limit = {
     "id": "f971e92459e2",
     "name": "New Rate Limit Rule rrt",
     "description": "New Rate Limit Rule",
-    "ttl": "180",
+    "timeframe": "180",
     "key": [{"attrs": "remote_addr"}],
-    "limit": "3",
-    "action": {"type": "default"},
+    "thresholds": [{"limit": "3", "action": {"type": "default"}}],
     "include": ["blacklist"],
     "exclude": ["whitelist"],
     "pairwith": {"self": "self"},
@@ -25,9 +24,9 @@ vec_securitypolicy = {
     "map": [
         {
             "limit_ids": [],
-            "waf_active": True,
+            "content_filter_active": True,
             "acl_active": True,
-            "waf_profile": "__default__",
+            "content_filter_profile": "__default__",
             "acl_profile": "__default__",
             "name": "default",
             "match": "/",
@@ -36,7 +35,7 @@ vec_securitypolicy = {
 }
 
 
-vec_wafrule = {
+vec_contentfilterrule = {
     "id": "100000",
     "name": "100000",
     "msg": "SQLi Attempt (Conditional Operator Detected)",
@@ -48,9 +47,9 @@ vec_wafrule = {
 }
 
 
-vec_wafpolicy = {
+vec_contentfilterprofile = {
     "id": "__default__",
-    "name": "default waf",
+    "name": "default contentfilter",
     "ignore_alphanum": True,
     "max_header_length": 1024,
     "max_cookie_length": 1024,
@@ -121,7 +120,7 @@ vec_aclprofile = {
     "allow": ["allow-change"],
     "allow_bot": ["office", "qa", "devops", "sadasff"],
     "deny_bot": ["datacenter", "graylist", "vpn", "tor"],
-    "bypass": ["internalip"],
+    "passthrough": ["internalip"],
     "deny": ["blocked-countries"],
     "force_deny": ["blacklist"],
 }
@@ -156,8 +155,8 @@ vec_geolite2country = {"format": "base64", "blob": "AAAABBBB"}
 vec_documents = {
     "ratelimits": vec_limit,
     "securitypolicies": vec_securitypolicy,
-    "wafrules": vec_wafrule,
-    "wafpolicies": vec_wafpolicy,
+    "contentfilterrules": vec_contentfilterrule,
+    "contentfilterprofiles": vec_contentfilterprofile,
     "aclprofiles": vec_aclprofile,
     "globalfilters": vec_globalfilter,
 }

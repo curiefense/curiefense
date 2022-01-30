@@ -1,9 +1,9 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "WAF Profile",
-    "description": "WAF Profile",
+    "title": "Content Filter Profile",
+    "description": "Content Filter Profile",
     "definitions": {
-        "waf-entry-match": {
+        "content-filter-entry-match": {
             "type": "object",
             "properties": {
                 "key": { "type": ["null", "string"] },
@@ -12,7 +12,10 @@
                 "mask": { "type": "boolean" },
                 "exclusions": {
                     "type": ["object", "null"],
-                    "additionalProperties": { "type": "integer" }
+                    "additionalProperties": { 
+                        "type": "string", 
+                        "enum": ["rule", "group"]
+                    }
                 }
             }
         }
@@ -68,24 +71,24 @@
         "args": {
             "type": "object",
             "properties": {
-                "names": { "type": "array", "items": { "$ref": "#/definitions/waf-entry-match" } },
-                "regex": { "type": "array", "items": { "$ref": "#/definitions/waf-entry-match" } }
+                "names": { "type": "array", "items": { "$ref": "#/definitions/content-filter-entry-match" } },
+                "regex": { "type": "array", "items": { "$ref": "#/definitions/content-filter-entry-match" } }
             },
             "required": [ "names", "regex"]
         },
         "headers": {
             "type": "object",
             "properties": {
-                "names": { "type": "array", "items": { "$ref": "#/definitions/waf-entry-match" } },
-                "regex": { "type": "array", "items": { "$ref": "#/definitions/waf-entry-match" } }
+                "names": { "type": "array", "items": { "$ref": "#/definitions/content-filter-entry-match" } },
+                "regex": { "type": "array", "items": { "$ref": "#/definitions/content-filter-entry-match" } }
             },
             "required": [ "names", "regex" ]
         },
         "cookies": {
             "type": "object",
             "properties": {
-                "names": { "type": "array", "items": { "$ref": "#/definitions/waf-entry-match" } },
-                "regex": { "type": "array", "items": { "$ref": "#/definitions/waf-entry-match" } }
+                "names": { "type": "array", "items": { "$ref": "#/definitions/content-filter-entry-match" } },
+                "regex": { "type": "array", "items": { "$ref": "#/definitions/content-filter-entry-match" } }
             },
             "required": [ "names", "regex" ]
         }

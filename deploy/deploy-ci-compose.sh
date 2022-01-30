@@ -23,6 +23,7 @@ cat <<EOF > "$WORKDIR/ci-env"
 XFF_TRUSTED_HOPS=2
 ENVOY_UID=0
 DOCKER_TAG=$DOCKER_TAG
+ENVOY_LOG_LEVEL=debug
 
 CURIE_BUCKET_LINK=file:///bucket/prod/manifest.json
 EOF
@@ -35,7 +36,7 @@ pushd deploy/compose || exit
 docker-compose "${DOCKER_COMPOSE_ARGS[@]}" up -d
 
 # Will figure out a way to wait for the services to come up
-sleep 60
+sleep 90
 
 # Some debug information
 docker-compose "${DOCKER_COMPOSE_ARGS[@]}" top

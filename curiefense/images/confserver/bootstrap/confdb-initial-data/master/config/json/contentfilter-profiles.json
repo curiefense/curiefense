@@ -1,7 +1,7 @@
 [
     {
         "id": "__default__",
-        "name": "default waf",
+        "name": "default contentfilter",
         "ignore_alphanum": true,
         "max_header_length": 1024,
         "max_cookie_length": 1024,

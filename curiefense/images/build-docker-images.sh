@@ -18,16 +18,18 @@ GLOBALSTATUS=0
 GITTAG="$(git describe --tag --long --dirty)"
 DOCKER_DIR_HASH="$(git rev-parse --short=12 HEAD:curiefense)"
 DOCKER_TAG="${DOCKER_TAG:-$GITTAG-$DOCKER_DIR_HASH}"
+STOP_ON_FAIL=${STOP_ON_FAIL:-yes}
+RUST_DISTROS=(bionic)
 
-if [ -n "$TESTING" ]; then
-    IMAGES=("$TESTING")
+if [ -n "$TESTIMG" ]; then
+    IMAGES=("$TESTIMG")
     OTHER_IMAGES_DOCKER_TAG="$DOCKER_TAG"
     DOCKER_TAG="test"
     echo "Building only image $TESTIMG"
 else
     IMAGES=(confserver curielogger curieproxy-istio curieproxy-envoy \
         curieproxy-nginx curiefense-nginx-ingress curiesync curietasker grafana prometheus \
-        redis uiserver fluentd)
+        redis uiserver)
 fi
 
 if [ "$BUILD_RUST" = "yes" ]
@@ -37,13 +39,13 @@ then
     echo "with tag : $DOCKER_TAG"
     echo "-------"
 
-    for distro in bionic focal
+    for distro in "${RUST_DISTROS[@]}"
     do
-            image=curiefense-rustbuild-${distro}
+            image="curiefense-rustbuild-${distro}"
             IMG=${REPO}/${image}
             echo "=================== $IMG:$DOCKER_TAG ====================="
             if tar -C curiefense-rustbuild -ch --exclude='.*/target' --exclude='.*/ctarget' . \
-                    | docker build --build-arg UBUNTU_VERSION=${distro} -t "$IMG:$DOCKER_TAG" -; then
+                    | docker build --build-arg UBUNTU_VERSION="${distro}" -t "$IMG:$DOCKER_TAG" -; then
                 STB="ok"
                 if [ -n "$PUSH" ]; then
                     if docker push "$IMG:$DOCKER_TAG"; then
@@ -56,6 +58,11 @@ then
                     STP="SKIP"
                 fi
             else
+
+                if [ "$STOP_ON_FAIL" = "yes" ];
+                then
+                    exit 1
+                fi
                 STB="KO"
                 STP="SKIP"
                 GLOBALSTATUS=1
@@ -91,6 +98,10 @@ do
                 STP="SKIP"
             fi
         else
+            if [ "$STOP_ON_FAIL" = "yes" ];
+            then
+                exit 1
+            fi
             STB="KO"
             STP="SKIP"
             GLOBALSTATUS=1
@@ -105,8 +116,8 @@ do
 done
 
 
-if [ -n "$TESTING" ]; then
-    echo "To deploy this test image, export \"TESTING=$TESTING\" before running deploy.sh or docker-compose up"
+if [ -n "$TESTIMG" ]; then
+    echo "To deploy this test image, export \"TESTIMG=$TESTIMG\" before running deploy.sh or docker-compose up"
     echo "To choose a docker tag for all other images, also export DOCKER_TAG"
     echo "Docker tag of the current working directory is:"
     echo "export DOCKER_TAG=$OTHER_IMAGES_DOCKER_TAG"

@@ -1,7 +1,7 @@
 use curiefense::config::hostmap::*;
 use curiefense::config::raw::AclProfile;
 use curiefense::config::utils::Matching;
-use curiefense::config::waf::WafProfile;
+use curiefense::config::contentfilter::ContentFilterProfile;
 use curiefense::config::Config;
 use curiefense::logs::Logs;
 use curiefense::requestfields::RequestField;
@@ -33,7 +33,7 @@ fn gen_bogus_config(sz: usize) -> Config {
         allow_bot: HashSet::new(),
         deny: HashSet::new(),
         deny_bot: HashSet::new(),
-        bypass: HashSet::new(),
+        passthrough: HashSet::new(),
         force_deny: HashSet::new(),
     };
 
@@ -44,8 +44,8 @@ fn gen_bogus_config(sz: usize) -> Config {
                 name: format!("Dummy securitypolicy {}", i),
                 acl_active: false,
                 acl_profile: acl_profile.clone(),
-                waf_active: false,
-                waf_profile: WafProfile::default(),
+                content_filter_active: false,
+                content_filter_profile: ContentFilterProfile::default(),
                 limits: Vec::new(),
             },
         })
@@ -59,8 +59,8 @@ fn gen_bogus_config(sz: usize) -> Config {
             name: "selected".into(),
             acl_active: false,
             acl_profile,
-            waf_active: false,
-            waf_profile: WafProfile::default(),
+            content_filter_active: false,
+            content_filter_profile: ContentFilterProfile::default(),
             limits: Vec::new(),
         }),
     });

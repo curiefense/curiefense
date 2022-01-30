@@ -16,7 +16,7 @@ use crate::requestfields::RequestField;
 use crate::tagging::tag_request;
 use crate::securitypolicy::match_securitypolicy;
 use crate::utils::{find_geoip, QueryInfo, RInfo, RequestInfo, RequestMeta};
-use crate::waf::waf_check;
+use crate::contentfilter::content_filter_check;
 
 // Session stuff, the key is the session id
 lazy_static! {
@@ -168,9 +168,9 @@ pub fn session_init(encoded_request_map: &str) -> anyhow::Result<String> {
 pub struct SessionSecurityPolicy {
     pub name: String,
     pub acl_profile: String,
-    pub waf_profile: String,
+    pub content_filter_profile: String,
     pub acl_active: bool,
-    pub waf_active: bool,
+    pub content_filter_active: bool,
     pub limit_ids: Vec<String>,
     pub securitypolicy: String,
 }
@@ -198,16 +198,16 @@ pub fn session_match_securitypolicy(session_id: &str) -> anyhow::Result<SessionS
         tags.insert_qualified("securitypolicy-entry", &securitypolicy.name);
         tags.insert_qualified("aclid", &securitypolicy.acl_profile.id);
         tags.insert_qualified("aclname", &securitypolicy.acl_profile.name);
-        tags.insert_qualified("wafid", &securitypolicy.waf_profile.id);
-        tags.insert_qualified("wafname", &securitypolicy.waf_profile.name);
+        tags.insert_qualified("contentfilterid", &securitypolicy.content_filter_profile.id);
+        tags.insert_qualified("contentfiltername", &securitypolicy.content_filter_profile.name);
         Ok(())
     })?;
     let raw_securitypolicy = SessionSecurityPolicy {
         name: securitypolicy.name,
         acl_profile: securitypolicy.acl_profile.id,
-        waf_profile: securitypolicy.waf_profile.id,
+        content_filter_profile: securitypolicy.content_filter_profile.id,
         acl_active: securitypolicy.acl_active,
-        waf_active: securitypolicy.waf_active,
+        content_filter_active: securitypolicy.content_filter_active,
         limit_ids: securitypolicy.limits.into_iter().map(|l| l.id).collect(),
         securitypolicy: hostmap_name,
     };
@@ -252,14 +252,14 @@ pub fn session_acl_check(session_id: &str) -> anyhow::Result<AclResult> {
     })
 }
 
-pub fn session_waf_check(session_id: &str) -> anyhow::Result<Decision> {
+pub fn session_content_filter_check(session_id: &str) -> anyhow::Result<Decision> {
     let uuid: Uuid = session_id.parse()?;
 
     let hsdb = HSDB.read().map_err(|rr| anyhow::anyhow!("{}", rr))?;
 
     with_request_info(uuid, |rinfo| {
         with_securitypolicy(uuid, |securitypolicy| {
-            Ok(match waf_check(rinfo, &securitypolicy.waf_profile, hsdb) {
+            Ok(match content_filter_check(rinfo, &securitypolicy.content_filter_profile, hsdb) {
                 Ok(()) => Decision::Pass,
                 Err(rr) => Decision::Action(rr.to_action()),
             })

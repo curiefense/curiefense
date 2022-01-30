@@ -20,6 +20,13 @@ local redisport = os.getenv("REDIS_PORT") or 6379
 
 local lfs = require 'lfs'
 
+-- check a table contains element
+local function contains(list, x)
+  for _, v in pairs(list) do
+    if v == x then return true end
+  end
+  return false
+end
 local function ends_with(str, ending)
   return ending == "" or str:sub(-#ending) == ending
 end
@@ -57,6 +64,7 @@ end
 -- test that two lists contain the same tags
 local function compare_tag_list(name, actual, expected)
   local m_actual = {}
+  local good = true
   for _, a in ipairs(actual) do
     if not startswith(a, "container:") then
       m_actual[a] = 1
@@ -64,11 +72,18 @@ local function compare_tag_list(name, actual, expected)
   end
   for _, e in ipairs(expected) do
     if not startswith(e, "container:") and not m_actual[e] then
-      error(name .. " - missing expected tag: " .. e)
+      good = false
+      print(name .. " - missing expected tag: " .. e)
     end
     m_actual[e] = nil
   end
-  local good = true
+  if not good then
+    print("Actual tags:")
+    for _, e in ipairs(actual) do
+      print("  " .. e)
+    end
+    error("^ missing tags in " .. name)
+  end
   for a, _ in pairs(m_actual) do
     print(a)
     good = false
@@ -102,6 +117,13 @@ local function run_inspect_request(raw_request_map)
     return response
 end
 
+local function show_logs(logs)
+  for _, log in ipairs(logs) do
+      print(log["elapsed_micros"] .. "µs " .. log["message"])
+  end
+end
+
+
 -- testing from envoy metadata
 local function test_raw_request(request_path)
   print("Testing " .. request_path)
@@ -131,9 +153,7 @@ local function test_raw_request(request_path)
     end
 
     if not good then
-      for _, log in ipairs(r.logs) do
-          print(log["elapsed_micros"] .. "µs " .. log["message"])
-      end
+      show_logs(r.logs)
       error("mismatch in " .. raw_request_map.name)
     end
   end
@@ -158,12 +178,20 @@ local function test_ratelimit(request_path)
     local jres = run_inspect_request(raw_request_map)
     local res = cjson.decode(jres)
 
+    if raw_request_map.tag and not contains(res.request_map.tags, raw_request_map.tag) then
+      show_logs(res.logs)
+      error("curiefense.session_limit_check should have returned tag '" .. raw_request_map.tag ..
+            "', but returned: " .. jres)
+    end
+
     if raw_request_map.pass then
       if res["action"] ~= "pass" then
+        show_logs(res.logs)
         error("curiefense.session_limit_check should have returned pass, but returned: " .. jres)
       end
     else
       if res["action"] == "pass" then
+        show_logs(res.logs)
         error("curiefense.session_limit_check should have blocked, but returned: " .. jres)
       end
     end
@@ -200,8 +228,8 @@ local function test_flow(request_path)
   end
 end
 
--- running waf only filter
-local function run_inspect_waf(raw_request_map)
+-- running content filter only filter
+local function run_inspect_content_filter(raw_request_map)
     local meta = {}
     local headers = {}
     for k, v in pairs(raw_request_map.headers) do
@@ -218,26 +246,27 @@ local function run_inspect_waf(raw_request_map)
       ip = headers["x-forwarded-for"]
     end
 
-    local response, merr = curiefense.inspect_waf(meta, headers, raw_request_map.body, ip, raw_request_map.waf_id)
+    local response, merr = curiefense.inspect_content_filter(meta, headers, raw_request_map.body, ip,
+      raw_request_map.content_filter_id)
     if merr then
       error(merr)
     end
     return response
 end
 
--- testing waf only filtering
-local function test_waf(request_path)
+-- testing content filter only filtering
+local function test_content_filter(request_path)
   print("Testing " .. request_path)
   local raw_request_maps = load_json_file(request_path)
   for _, raw_request_map in pairs(raw_request_maps) do
-    local response = run_inspect_waf(raw_request_map)
+    local response = run_inspect_content_filter(raw_request_map)
     local r = cjson.decode(response)
 
     local good = true
 
     for _, log in ipairs(r.logs) do
-        if log["message"] == "WAF profile not found" then
-          print("waf profile not found")
+        if log["message"] == "Content Filter profile not found" then
+          print("content filter profile not found")
           good = false
         end
     end
@@ -264,9 +293,9 @@ local function test_waf(request_path)
   end
 end
 
-for file in lfs.dir[[luatests/waf_only]] do
+for file in lfs.dir[[luatests/contentfilter_only]] do
   if ends_with(file, ".json") then
-    test_waf("luatests/waf_only/" .. file)
+    test_content_filter("luatests/contentfilter_only/" .. file)
   end
 end
 
@@ -276,14 +305,14 @@ for file in lfs.dir[[luatests/raw_requests]] do
   end
 end
 
-for file in lfs.dir[[luatests/flows]] do
-  if ends_with(file, ".json") then
-    test_flow("luatests/flows/" .. file)
-  end
-end
-
 for file in lfs.dir[[luatests/ratelimit]] do
   if ends_with(file, ".json") then
     test_ratelimit("luatests/ratelimit/" .. file)
+  end
+end
+
+for file in lfs.dir[[luatests/flows]] do
+  if ends_with(file, ".json") then
+    test_flow("luatests/flows/" .. file)
   end
 end

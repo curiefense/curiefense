@@ -1,7 +1,7 @@
 ARG RUSTBIN_TAG=latest
-FROM curiefense/curiefense-rustbuild-focal:${RUSTBIN_TAG} AS rustbin
+FROM curiefense/curiefense-rustbuild-bionic:${RUSTBIN_TAG} AS rustbin
 FROM docker.io/nginx/nginx-ingress:1.11.3 as nginx-ingress
-FROM docker.io/openresty/openresty:focal as openresty
+FROM docker.io/openresty/openresty:1.19.9.1-1-bionic as openresty
 
 USER root
 RUN groupadd --system --gid 101 nginx \
@@ -10,13 +10,14 @@ RUN groupadd --system --gid 101 nginx \
 RUN apt-get update \
     && apt-get install -y \
         libcap2-bin \
-        libhyperscan5 \
+        libhyperscan4 \
         rsyslog \
-	python3-pip \
+        python3-pip \
         python3-setuptools \
         python3-wheel \
         python3-magic \
-	python3-xattr \
+        python3-xattr \
+        python3-cffi \
         python3-netifaces \
     && rm -rf /var/lib/apt/lists/*
 

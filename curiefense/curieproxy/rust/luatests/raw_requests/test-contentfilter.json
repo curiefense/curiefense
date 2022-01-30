@@ -5,8 +5,8 @@
         "asn:396507",
         "sante",
         "ip:23-129-64-253",
-        "wafid:--default--",
-        "wafname:default-waf",
+        "contentfilterid:--default--",
+        "contentfiltername:default-contentfilter",
         "container:1e219d8ed6b4",
         "all",
         "securitypolicy:default-entry",
@@ -40,8 +40,8 @@
         "container:1e219d8ed6b4",
         "geo:united-states",
         "asn:396507",
-        "wafid:--default--",
-        "wafname:default-waf",
+        "contentfilterid:--default--",
+        "contentfiltername:default-contentfilter",
         "aclid:--default--",
         "bot",
         "aclname:default-acl"
@@ -63,8 +63,8 @@
   {
     "response": {
       "tags": [
-        "wafid:--default--",
-        "wafname:default-waf",
+        "contentfilterid:--default--",
+        "contentfiltername:default-contentfilter",
         "asn:396507",
         "securitypolicy-entry:default",
         "ip:23-129-64-253",
@@ -101,8 +101,8 @@
         "securitypolicy-entry:default",
         "securitypolicy:default-entry",
         "aclname:default-acl",
-        "wafid:--default--",
-        "wafname:default-waf",
+        "contentfilterid:--default--",
+        "contentfiltername:default-contentfilter",
         "asn:396507",
         "bot",
         "sante"
@@ -124,14 +124,14 @@
   {
     "response": {
       "tags": [
-        "wafname:omit-id-100016",
-        "wafid:omitted",
+        "contentfiltername:omit-id-100016",
+        "contentfilterid:omitted",
         "all",
         "sante",
         "container:1e219d8ed6b4",
         "asn:16625",
         "geo:united-states",
-        "securitypolicy-entry:waf-omit-tests",
+        "securitypolicy-entry:content-filter-omit-tests",
         "ip:23-5-64-253",
         "securitypolicy:default-entry",
         "aclid:--default--",
@@ -144,7 +144,7 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "23.5.64.253",
-      ":path": "\/waf\/omitted?foo=xp_cmdshell",
+      ":path": "\/content-filter\/omitted?foo=xp_cmdshell",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
@@ -152,13 +152,41 @@
   {
     "response": {
       "tags": [
-        "wafname:omit-id-100016",
-        "wafid:omitted",
+        "contentfiltername:omit-group-id-100001",
+        "contentfilterid:omitted-group",
+        "all",
+        "sante",
+        "container:1e219d8ed6b4",
+        "asn:16625",
+        "geo:united-states",
+        "securitypolicy-entry:content-filter-omit-group-tests",
+        "ip:23-5-64-253",
+        "securitypolicy:default-entry",
+        "aclid:--default--",
+        "bot",
+        "aclname:default-acl"
+      ],
+      "action": "pass"
+    },
+    "name": "omit sqli group",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "23.5.64.253",
+      ":path": "\/content-filter\/group-omitted?foo=xp_cmdshell",
+      ":method": "GET",
+      ":authority": "localhost:30081"
+    }
+  },
+  {
+    "response": {
+      "tags": [
+        "contentfiltername:omit-id-100016",
+        "contentfilterid:omitted",
         "aclid:--default--",
         "asn:16625",
         "all",
         "geo:united-states",
-        "securitypolicy-entry:waf-omit-tests",
+        "securitypolicy-entry:content-filter-omit-tests",
         "securitypolicy:default-entry",
         "sante",
         "container:1e219d8ed6b4",
@@ -174,7 +202,7 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "23.5.64.253",
-      ":path": "\/waf\/omitted",
+      ":path": "\/content-filter\/omitted",
       ":method": "GET",
       ":authority": "localhost:30081",
       "malicious": "xp_cmdshell"
@@ -183,8 +211,8 @@
   {
     "response": {
       "tags": [
-        "wafid:--default--",
-        "wafname:default-waf",
+        "contentfilterid:--default--",
+        "contentfiltername:default-contentfilter",
         "all",
         "sante",
         "asn:nil",
@@ -205,7 +233,7 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "13.129.64.253",
-      ":path": "\/waf\/misc\/?v=information_schema%28",
+      ":path": "\/content-filter\/misc\/?v=information_schema%28",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
@@ -213,8 +241,8 @@
   {
     "response": {
       "tags": [
-        "wafname:omit-id-100016",
-        "wafid:omitted",
+        "contentfiltername:omit-id-100016",
+        "contentfilterid:omitted",
         "asn:nil",
         "all",
         "securitypolicy:default-entry",
@@ -222,7 +250,7 @@
         "sante",
         "container:1e219d8ed6b4",
         "geo:united-states",
-        "securitypolicy-entry:waf-omit-tests",
+        "securitypolicy-entry:content-filter-omit-tests",
         "aclid:--default--",
         "bot",
         "aclname:default-acl"
@@ -235,7 +263,7 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "13.129.64.253",
-      ":path": "\/waf\/omitted\/?v=information_schema%28",
+      ":path": "\/content-filter\/omitted\/?v=information_schema%28",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
@@ -244,8 +272,8 @@
     "response": {
       "tags": [
         "securitypolicy-entry:default",
-        "wafid:--default--",
-        "wafname:default-waf",
+        "contentfilterid:--default--",
+        "contentfiltername:default-contentfilter",
         "ip:13-129-64-253",
         "sante",
         "geo:united-states",
@@ -265,7 +293,7 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "13.129.64.253",
-      ":path": "\/waf\/misc\/?v=information_schema%28&x=xp_cmdshell",
+      ":path": "\/content-filter\/misc\/?v=information_schema%28&x=xp_cmdshell",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
@@ -278,10 +306,10 @@
         "aclname:default-acl",
         "ip:13-129-64-253",
         "all",
-        "securitypolicy-entry:waf-omit-tests",
+        "securitypolicy-entry:content-filter-omit-tests",
         "asn:nil",
-        "wafname:omit-id-100016",
-        "wafid:omitted",
+        "contentfiltername:omit-id-100016",
+        "contentfilterid:omitted",
         "geo:united-states",
         "container:1e219d8ed6b4",
         "bot",
@@ -295,7 +323,7 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "13.129.64.253",
-      ":path": "\/waf\/omitted\/?v=information_schema%28&x=xp_cmdshell",
+      ":path": "\/content-filter\/omitted\/?v=information_schema%28&x=xp_cmdshell",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
@@ -306,12 +334,12 @@
         "container:1e219d8ed6b4",
         "all",
         "securitypolicy:default-entry",
-        "securitypolicy-entry:waf-noinjection-tests",
+        "securitypolicy-entry:content-filter-noinjection-tests",
         "aclname:default-acl",
         "ip:23-129-64-253",
         "aclid:--default--",
-        "wafname:omit-libinjection",
-        "wafid:noinject",
+        "contentfiltername:omit-libinjection",
+        "contentfilterid:noinject",
         "asn:396507",
         "geo:united-states",
         "bot",
@@ -323,7 +351,7 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "23.129.64.253",
-      ":path": "\/waf\/noinjection\/foo",
+      ":path": "\/content-filter\/noinjection\/foo",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
@@ -332,14 +360,14 @@
     "response": {
       "tags": [
         "aclid:--default--",
-        "securitypolicy-entry:waf-omit-tests",
-        "wafname:omit-id-100016",
+        "securitypolicy-entry:content-filter-omit-tests",
+        "contentfiltername:omit-id-100016",
         "sante",
         "securitypolicy:default-entry",
         "aclname:default-acl",
         "container:1e219d8ed6b4",
         "ip:13-129-64-253",
-        "wafid:omitted",
+        "contentfilterid:omitted",
         "asn:nil",
         "all",
         "bot",
@@ -353,7 +381,7 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "13.129.64.253",
-      ":path": "\/waf\/omitted\/?v=AZDGSDQZE16Z",
+      ":path": "\/content-filter\/omitted\/?v=AZDGSDQZE16Z",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
@@ -363,14 +391,14 @@
       "tags": [
         "container:1e219d8ed6b4",
         "asn:nil",
-        "securitypolicy-entry:waf-noinjection-tests",
-        "wafname:omit-libinjection",
+        "securitypolicy-entry:content-filter-noinjection-tests",
+        "contentfiltername:omit-libinjection",
         "aclid:--default--",
         "sante",
         "ip:13-129-64-253",
         "all",
         "securitypolicy:default-entry",
-        "wafid:noinject",
+        "contentfilterid:noinject",
         "geo:united-states",
         "bot",
         "aclname:default-acl"
@@ -381,7 +409,7 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "13.129.64.253",
-      ":path": "\/waf\/noinjection\/?v=AZDGSDQZE16Z",
+      ":path": "\/content-filter\/noinjection\/?v=AZDGSDQZE16Z",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
@@ -389,10 +417,10 @@
   {
     "response": {
       "tags": [
-        "securitypolicy-entry:waf-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "aclid:--default--",
-        "wafname:args-checkes",
-        "wafid:argschecks",
+        "contentfiltername:args-checkes",
+        "contentfilterid:argschecks",
         "container:1e219d8ed6b4",
         "sante",
         "aclname:default-acl",
@@ -409,7 +437,7 @@
     },
     "name": "too many args",
     "headers": {
-      ":path": "\/waf\/args\/?a=A&b=B&c=C&d=D&e=E",
+      ":path": "\/content-filter\/args\/?a=A&b=B&c=C&d=D&e=E",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
@@ -421,10 +449,10 @@
         "container:1e219d8ed6b4",
         "ip:13-129-64-253",
         "all",
-        "securitypolicy-entry:waf-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "aclid:--default--",
-        "wafname:args-checkes",
-        "wafid:argschecks",
+        "contentfiltername:args-checkes",
+        "contentfilterid:argschecks",
         "aclname:default-acl",
         "securitypolicy:default-entry",
         "sante",
@@ -436,7 +464,7 @@
     },
     "name": "passing",
     "headers": {
-      ":path": "\/waf\/args\/?a=A&b=B&c=C",
+      ":path": "\/content-filter\/args\/?a=A&b=B&c=C",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
@@ -449,9 +477,9 @@
         "securitypolicy:default-entry",
         "aclname:default-acl",
         "sante",
-        "wafname:args-checkes",
-        "wafid:argschecks",
-        "securitypolicy-entry:waf-args-tests",
+        "contentfiltername:args-checkes",
+        "contentfilterid:argschecks",
+        "securitypolicy-entry:content-filter-args-tests",
         "asn:nil",
         "aclid:--default--",
         "container:1e219d8ed6b4",
@@ -463,7 +491,7 @@
     },
     "name": "test args a",
     "headers": {
-      ":path": "\/waf\/args\/?a=A",
+      ":path": "\/content-filter\/args\/?a=A",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
@@ -474,14 +502,14 @@
       "tags": [
         "aclid:--default--",
         "container:1e219d8ed6b4",
-        "wafname:args-checkes",
-        "wafid:argschecks",
+        "contentfiltername:args-checkes",
+        "contentfilterid:argschecks",
         "geo:united-states",
         "aclname:default-acl",
         "ip:13-129-64-253",
         "sante",
         "asn:nil",
-        "securitypolicy-entry:waf-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "securitypolicy:default-entry",
         "bot",
         "all"
@@ -490,7 +518,7 @@
     },
     "name": "test args b",
     "headers": {
-      ":path": "\/waf\/args\/?b=B",
+      ":path": "\/content-filter\/args\/?b=B",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
@@ -500,12 +528,12 @@
     "response": {
       "tags": [
         "asn:nil",
-        "securitypolicy-entry:waf-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "aclid:--default--",
         "sante",
         "aclname:default-acl",
-        "wafname:args-checkes",
-        "wafid:argschecks",
+        "contentfiltername:args-checkes",
+        "contentfilterid:argschecks",
         "ip:13-129-64-253",
         "securitypolicy:default-entry",
         "geo:united-states",
@@ -517,7 +545,7 @@
     },
     "name": "test args c",
     "headers": {
-      ":path": "\/waf\/args\/?c=C",
+      ":path": "\/content-filter\/args\/?c=C",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
@@ -533,10 +561,10 @@
         "securitypolicy:default-entry",
         "all",
         "geo:united-states",
-        "securitypolicy-entry:waf-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "ip:13-129-64-253",
-        "wafname:args-checkes",
-        "wafid:argschecks",
+        "contentfiltername:args-checkes",
+        "contentfilterid:argschecks",
         "bot",
         "container:1e219d8ed6b4"
       ],
@@ -544,7 +572,7 @@
     },
     "name": "test args d",
     "headers": {
-      ":path": "\/waf\/args\/?d=D",
+      ":path": "\/content-filter\/args\/?d=D",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
@@ -553,7 +581,7 @@
   {
     "response": {
       "tags": [
-        "securitypolicy-entry:waf-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "sante",
         "geo:united-states",
         "all",
@@ -563,15 +591,15 @@
         "aclname:default-acl",
         "ip:13-129-64-253",
         "asn:nil",
-        "wafname:args-checkes",
-        "wafid:argschecks",
+        "contentfiltername:args-checkes",
+        "contentfilterid:argschecks",
         "bot"
       ],
       "action": "pass"
     },
     "name": "test args a (n)",
     "headers": {
-      ":path": "\/waf\/args\/?a=1",
+      ":path": "\/content-filter\/args\/?a=1",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
@@ -584,11 +612,11 @@
         "ip:13-129-64-253",
         "sante",
         "aclid:--default--",
-        "wafname:args-checkes",
-        "wafid:argschecks",
+        "contentfiltername:args-checkes",
+        "contentfilterid:argschecks",
         "securitypolicy:default-entry",
         "all",
-        "securitypolicy-entry:waf-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "aclname:default-acl",
         "geo:united-states",
         "bot",
@@ -600,7 +628,7 @@
     },
     "name": "test args b (n)",
     "headers": {
-      ":path": "\/waf\/args\/?b=2",
+      ":path": "\/content-filter\/args\/?b=2",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
@@ -612,10 +640,10 @@
         "securitypolicy:default-entry",
         "all",
         "container:1e219d8ed6b4",
-        "securitypolicy-entry:waf-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "aclid:--default--",
-        "wafname:args-checkes",
-        "wafid:argschecks",
+        "contentfiltername:args-checkes",
+        "contentfilterid:argschecks",
         "aclname:default-acl",
         "geo:united-states",
         "sante",
@@ -629,7 +657,7 @@
     },
     "name": "test args c (n)",
     "headers": {
-      ":path": "\/waf\/args\/?c=3",
+      ":path": "\/content-filter\/args\/?c=3",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
@@ -642,12 +670,12 @@
         "container:1e219d8ed6b4",
         "all",
         "sante",
-        "securitypolicy-entry:waf-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "ip:13-129-64-253",
         "securitypolicy:default-entry",
         "asn:nil",
-        "wafname:args-checkes",
-        "wafid:argschecks",
+        "contentfiltername:args-checkes",
+        "contentfilterid:argschecks",
         "aclid:--default--",
         "bot",
         "aclname:default-acl"
@@ -656,7 +684,7 @@
     },
     "name": "test args d (n)",
     "headers": {
-      ":path": "\/waf\/args\/?d=4",
+      ":path": "\/content-filter\/args\/?d=4",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
@@ -670,11 +698,11 @@
         "aclid:--default--",
         "aclname:default-acl",
         "geo:united-states",
-        "securitypolicy-entry:waf-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "sante",
         "container:1e219d8ed6b4",
-        "wafname:args-checkes",
-        "wafid:argschecks",
+        "contentfiltername:args-checkes",
+        "contentfilterid:argschecks",
         "securitypolicy:default-entry",
         "bot",
         "all"
@@ -683,7 +711,7 @@
     },
     "name": "test args a (nosig)",
     "headers": {
-      ":path": "\/waf\/args\/?a=AZDGSDQZE16Z",
+      ":path": "\/content-filter\/args\/?a=AZDGSDQZE16Z",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
@@ -701,16 +729,16 @@
         "sante",
         "securitypolicy:default-entry",
         "asn:nil",
-        "securitypolicy-entry:waf-args-tests",
-        "wafname:args-checkes",
-        "wafid:argschecks",
+        "securitypolicy-entry:content-filter-args-tests",
+        "contentfiltername:args-checkes",
+        "contentfilterid:argschecks",
         "bot"
       ],
       "action": "pass"
     },
     "name": "test args b (nosig)",
     "headers": {
-      ":path": "\/waf\/args\/?b=AZDGSDQZE16Z",
+      ":path": "\/content-filter\/args\/?b=AZDGSDQZE16Z",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
@@ -722,10 +750,10 @@
         "geo:united-states",
         "securitypolicy:default-entry",
         "container:1e219d8ed6b4",
-        "securitypolicy-entry:waf-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "aclname:default-acl",
-        "wafname:args-checkes",
-        "wafid:argschecks",
+        "contentfiltername:args-checkes",
+        "contentfilterid:argschecks",
         "all",
         "asn:nil",
         "ip:13-129-64-253",
@@ -737,7 +765,7 @@
     },
     "name": "test args c (nosig)",
     "headers": {
-      ":path": "\/waf\/args\/?c=AZDGSDQZE16Z",
+      ":path": "\/content-filter\/args\/?c=AZDGSDQZE16Z",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
@@ -749,14 +777,14 @@
         "asn:nil",
         "container:1e219d8ed6b4",
         "geo:united-states",
-        "securitypolicy-entry:waf-args-tests",
+        "securitypolicy-entry:content-filter-args-tests",
         "aclid:--default--",
         "sante",
         "ip:13-129-64-253",
         "all",
         "aclname:default-acl",
-        "wafname:args-checkes",
-        "wafid:argschecks",
+        "contentfiltername:args-checkes",
+        "contentfilterid:argschecks",
         "bot",
         "securitypolicy:default-entry"
       ],
@@ -764,7 +792,7 @@
     },
     "name": "test args d (nosig)",
     "headers": {
-      ":path": "\/waf\/args\/?d=AZDGSDQZE16Z",
+      ":path": "\/content-filter\/args\/?d=AZDGSDQZE16Z",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
@@ -781,8 +809,8 @@
         "securitypolicy-entry:default",
         "ip:13-129-64-253",
         "geo:united-states",
-        "wafid:--default--",
-        "wafname:default-waf",
+        "contentfilterid:--default--",
+        "contentfiltername:default-contentfilter",
         "all",
         "bot",
         "container:1e219d8ed6b4"
@@ -795,7 +823,7 @@
     "headers": {
       "x-forwarded-for": "13.129.64.253",
       "long-header": "Overlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_header",
-      ":path": "\/waf\/",
+      ":path": "\/content-filter\/",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
@@ -809,20 +837,20 @@
         "aclname:default-acl",
         "all",
         "asn:nil",
-        "wafname:e2e-waf-short-headers",
-        "wafid:e2e000000002",
+        "contentfiltername:e2e-content-filter-short-headers",
+        "contentfilterid:e2e000000002",
         "ip:13-129-64-253",
         "container:1e219d8ed6b4",
         "sante",
         "bot",
-        "securitypolicy-entry:waf-short-headers"
+        "securitypolicy-entry:content-filter-short-headers"
       ],
       "action": "pass"
     },
     "name": "short headers ok",
     "headers": {
       "x-forwarded-for": "13.129.64.253",
-      ":path": "\/waf-short-headers\/",
+      ":path": "\/content-filter-short-headers\/",
       ":method": "GET",
       "short-header": "01234567890123456789012345678901234567890123456789",
       ":authority": "localhost:30081"
@@ -836,10 +864,10 @@
         "geo:united-states",
         "sante",
         "container:1e219d8ed6b4",
-        "securitypolicy-entry:waf-short-headers",
+        "securitypolicy-entry:content-filter-short-headers",
         "aclid:--default--",
-        "wafname:e2e-waf-short-headers",
-        "wafid:e2e000000002",
+        "contentfiltername:e2e-content-filter-short-headers",
+        "contentfilterid:e2e000000002",
         "asn:nil",
         "all",
         "bot",
@@ -852,7 +880,7 @@
     "name": "short headers reject",
     "headers": {
       "x-forwarded-for": "13.129.64.253",
-      ":path": "\/waf-short-headers\/",
+      ":path": "\/content-filter-short-headers\/",
       ":method": "GET",
       "short-header": "01234567890123456789012345678901234567890123456789A",
       ":authority": "localhost:30081"
@@ -863,13 +891,13 @@
       "tags": [
         "ip:13-129-64-253",
         "securitypolicy:default-entry",
-        "securitypolicy-entry:waf-restrict-tests",
+        "securitypolicy-entry:content-filter-restrict-tests",
         "container:1e219d8ed6b4",
         "aclid:--default--",
         "asn:nil",
         "geo:united-states",
-        "wafname:rr",
-        "wafid:rr",
+        "contentfiltername:rr",
+        "contentfilterid:rr",
         "aclname:default-acl",
         "sante",
         "bot",
@@ -894,14 +922,14 @@
       "tags": [
         "securitypolicy:default-entry",
         "aclname:default-acl",
-        "wafid:rr",
-        "wafname:rr",
+        "contentfilterid:rr",
+        "contentfiltername:rr",
         "all",
         "sante",
         "container:1e219d8ed6b4",
         "geo:united-states",
         "aclid:--default--",
-        "securitypolicy-entry:waf-restrict-tests",
+        "securitypolicy-entry:content-filter-restrict-tests",
         "ip:13-129-64-253",
         "bot",
         "asn:nil"

@@ -1,11 +1,11 @@
-import WAFSigsEditor from '@/doc-editors/WAFSigsEditor.vue'
+import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
 import {beforeEach, describe, expect, test} from '@jest/globals'
 import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
-import {WAFRule} from '@/types'
+import {ContentFilterRule} from '@/types'
 
-describe('WAFSigsEditor.vue', () => {
-  let docs: WAFRule[]
+describe('ContentFilterRulesEditor.vue', () => {
+  let docs: ContentFilterRule[]
   let wrapper: Wrapper<Vue>
   beforeEach(async () => {
     docs = [{
@@ -18,7 +18,7 @@ describe('WAFSigsEditor.vue', () => {
       'category': 'sqli',
       'subcategory': 'statement injection',
     }]
-    wrapper = shallowMount(WAFSigsEditor, {
+    wrapper = shallowMount(ContentFilterRulesEditor, {
       propsData: {
         selectedDoc: docs[0],
       },

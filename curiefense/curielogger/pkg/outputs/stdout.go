@@ -3,6 +3,8 @@ package outputs
 import (
 	"os"
 
+	"github.com/curiefense/curiefense/curielogger/pkg/entities"
+	jsoniter "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -19,9 +21,11 @@ func NewStdout(v *viper.Viper) *Stdout {
 	return &Stdout{}
 }
 
-func (b *Stdout) Write(p []byte) (n int, err error) {
-	rst := append(p, []byte("\n")...)
-	return os.Stdout.Write(rst)
+func (g *Stdout) Write(log entities.CuriefenseLog) error {
+	b, _ := jsoniter.Marshal(log)
+	rst := append(b, []byte("\n")...)
+	_, err := os.Stdout.Write(rst)
+	return err
 }
 
 func (b *Stdout) Close() error {

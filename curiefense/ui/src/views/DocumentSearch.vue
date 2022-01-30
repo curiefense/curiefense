@@ -85,9 +85,9 @@
                 v-html="highlightSearchValue(doc.name)">
             </td>
             <td class="is-size-7 py-3 width-200px doc-description-cell"
-                :title="doc.notes || doc.description">
+                :title="doc.description || doc.description">
               <div class="vertical-scroll scrollbox-shadowed"
-                   v-html="highlightSearchValue(doc.notes || doc.description)">
+                   v-html="highlightSearchValue(doc.description || doc.description)">
               </div>
             </td>
             <td class="is-size-7 py-3 width-200px doc-tags-cell"
@@ -136,7 +136,7 @@
 <script lang="ts">
 import _ from 'lodash'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
-import WAFEditor from '@/doc-editors/WAFEditor.vue'
+import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
@@ -149,12 +149,11 @@ import Utils from '@/assets/Utils'
 
 type SearchDocument = Document & {
   docType: DocumentType
-  notes: string
   description: string
   tags: string
   connections: string[]
   connectedACL: string[]
-  connectedWAF: string[]
+  connectedContentFilter: string[]
   connectedRateLimits: string[]
   connectedSecurityPolicies: string[]
   map: SecurityPolicyEntryMatch[]
@@ -172,7 +171,7 @@ export default Vue.extend({
   data() {
     const titles = DatasetsUtils.titles
     // Order is important
-    // We load [securitypolicies] before [aclprofiles, wafpolicies, ratelimits] so we can pull all references correctly
+    // We load [securitypolicies] before [aclprofiles, contentfilterprofiles, ratelimits] so we can pull all references correctly
     const componentsMap: {
       [key in DocumentType]?: {
         component: VueConstructor
@@ -188,26 +187,26 @@ export default Vue.extend({
       'aclprofiles': {
         component: ACLEditor,
         title: titles['aclprofiles'],
-        fields: 'id, name, allow, allow_bot, deny_bot, bypass, deny, force_deny',
+        fields: 'id, name, allow, allow_bot, deny_bot, passthrough, deny, force_deny',
       },
       'flowcontrol': {
         component: FlowControlPolicyEditor,
         title: titles['flowcontrol'],
-        fields: 'id, name, notes, include, exclude',
+        fields: 'id, name, description, include, exclude',
       },
       'globalfilters': {
         component: GlobalFilterListEditor,
         title: titles['globalfilters'],
-        fields: 'id, name, notes, tags',
+        fields: 'id, name, description, tags',
       },
       'ratelimits': {
         component: RateLimitsEditor,
         title: titles['ratelimits'],
         fields: 'id, name, description',
       },
-      'wafpolicies': {
-        component: WAFEditor,
-        title: titles['wafpolicies'],
+      'contentfilterprofiles': {
+        component: ContentFilterEditor,
+        title: titles['contentfilterprofiles'],
         fields: 'id, name',
       },
     }
@@ -251,7 +250,7 @@ export default Vue.extend({
       description: {
         title: 'Description',
         filter: (doc: SearchDocument): boolean => {
-          return (this as any).searchValueRegex.test(doc.notes || doc.description)
+          return (this as any).searchValueRegex.test(doc.description || doc.description)
         },
       },
       tags: {
@@ -281,9 +280,9 @@ export default Vue.extend({
 
       componentsMap: componentsMap,
 
-      // Referenced IDs of [aclprofiles, wafpolicies, ratelimits] in [securitypolicies]
+      // Referenced IDs of [aclprofiles, contentfilterprofiles, ratelimits] in [securitypolicies]
       referencedACL: {} as ReferencesMap,
-      referencedWAF: {} as ReferencesMap,
+      referencedContentFilter: {} as ReferencesMap,
       referencedLimit: {} as ReferencesMap,
     }
   },
@@ -341,14 +340,14 @@ export default Vue.extend({
             // Build tags based on document type
             if (doctype === 'aclprofiles') {
               const forceDenyTags = doc.force_deny.filter(Boolean).join(', ').toLowerCase()
-              const bypassTags = doc.bypass.filter(Boolean).join(', ').toLowerCase()
+              const passthroughTags = doc.passthrough.filter(Boolean).join(', ').toLowerCase()
               const allowBotTags = doc.allow_bot.filter(Boolean).join(', ').toLowerCase()
               const denyBotTags = doc.deny_bot.filter(Boolean).join(', ').toLowerCase()
               const allowTags = doc.allow.filter(Boolean).join(', ').toLowerCase()
               const denyTags = doc.deny.filter(Boolean).join(', ').toLowerCase()
               doc.tags = [
                 forceDenyTags,
-                bypassTags,
+                passthroughTags,
                 allowBotTags,
                 denyBotTags,
                 allowTags,
@@ -366,16 +365,16 @@ export default Vue.extend({
             // Build connections based on document type
             if (doctype === 'securitypolicies') {
               this.buildSecurityPolicyConnections(doc)
-              this.saveWafAclLimitConnections(doc)
+              this.saveContentFilterAclLimitConnections(doc)
             }
             if (doctype === 'aclprofiles') {
-              this.buildWafAclLimitConnections(doc, this.referencedACL)
+              this.buildContentFilterAclLimitConnections(doc, this.referencedACL)
             }
-            if (doctype === 'wafpolicies') {
-              this.buildWafAclLimitConnections(doc, this.referencedWAF)
+            if (doctype === 'contentfilterprofiles') {
+              this.buildContentFilterAclLimitConnections(doc, this.referencedContentFilter)
             }
             if (doctype === 'ratelimits') {
-              this.buildWafAclLimitConnections(doc, this.referencedLimit)
+              this.buildContentFilterAclLimitConnections(doc, this.referencedLimit)
             }
             this.docs.push(doc)
           }
@@ -388,15 +387,15 @@ export default Vue.extend({
 
     buildSecurityPolicyConnections(doc: SearchDocument) {
       const connectedACL: string[] = []
-      const connectedWAF: string[] = []
+      const connectedContentFilter: string[] = []
       const connectedRateLimits: string[] = []
       for (let i = 0; i < doc.map.length; i++) {
         const map = doc.map[i]
         if (!connectedACL.includes(map.acl_profile)) {
           connectedACL.push(map.acl_profile)
         }
-        if (!connectedWAF.includes(map.waf_profile)) {
-          connectedWAF.push(map.waf_profile)
+        if (!connectedContentFilter.includes(map.content_filter_profile)) {
+          connectedContentFilter.push(map.content_filter_profile)
         }
         for (let j = 0; j < map.limit_ids.length; j++) {
           if (!connectedRateLimits.includes(map.limit_ids[j])) {
@@ -405,12 +404,12 @@ export default Vue.extend({
         }
       }
       doc.connectedACL = connectedACL
-      doc.connectedWAF = connectedWAF
+      doc.connectedContentFilter = connectedContentFilter
       doc.connectedRateLimits = connectedRateLimits
-      doc.connections = [].concat(connectedACL, connectedWAF, connectedRateLimits)
+      doc.connections = [].concat(connectedACL, connectedContentFilter, connectedRateLimits)
     },
 
-    buildWafAclLimitConnections(doc: SearchDocument, referencesMap: ReferencesMap) {
+    buildContentFilterAclLimitConnections(doc: SearchDocument, referencesMap: ReferencesMap) {
       if (!referencesMap[doc.id] || referencesMap[doc.id].length === 0) {
         return
       }
@@ -418,7 +417,7 @@ export default Vue.extend({
       doc.connections = referencesMap[doc.id]
     },
 
-    saveWafAclLimitConnections(doc: SearchDocument) {
+    saveContentFilterAclLimitConnections(doc: SearchDocument) {
       for (let i = 0; i < doc.map.length; i++) {
         const map = doc.map[i]
         // initialize array if needed
@@ -428,11 +427,11 @@ export default Vue.extend({
         // add map id to referenced acl
         this.referencedACL[map.acl_profile].push(doc.id)
         // initialize array if needed
-        if (!this.referencedWAF[map.waf_profile] || this.referencedWAF[map.waf_profile].length === 0) {
-          this.referencedWAF[map.waf_profile] = []
+        if (!this.referencedContentFilter[map.content_filter_profile] || this.referencedContentFilter[map.content_filter_profile].length === 0) {
+          this.referencedContentFilter[map.content_filter_profile] = []
         }
-        // add map id to referenced waf
-        this.referencedWAF[map.waf_profile].push(doc.id)
+        // add map id to referenced content filter
+        this.referencedContentFilter[map.content_filter_profile].push(doc.id)
         for (let j = 0; j < map.limit_ids.length; j++) {
           // initialize array if needed
           if (!this.referencedLimit[map.limit_ids[j]] || this.referencedLimit[map.limit_ids[j]].length === 0) {
@@ -460,10 +459,10 @@ export default Vue.extend({
         connections = connections.concat(
             `<b>${this.componentsMap['aclprofiles'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
       }
-      if (doc.connectedWAF && doc.connectedWAF.length > 0) {
-        const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedWAF.join('<br/>'))
+      if (doc.connectedContentFilter && doc.connectedContentFilter.length > 0) {
+        const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedContentFilter.join('<br/>'))
         connections = connections.concat(
-            `<b>${this.componentsMap['wafpolicies'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
+            `<b>${this.componentsMap['contentfilterprofiles'].title}:</b><br/>${highlightedConnectedEntities}<br/>`)
       }
       if (doc.connectedRateLimits && doc.connectedRateLimits.length > 0) {
         const highlightedConnectedEntities = this.highlightSearchValue(doc.connectedRateLimits.join('<br/>'))

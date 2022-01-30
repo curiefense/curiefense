@@ -2,6 +2,7 @@ use crate::logs::Logs;
 use redis::RedisResult;
 
 use crate::config::limit::Limit;
+use crate::config::limit::LimitThreshold;
 use crate::interface::{SimpleActionT, SimpleDecision, Tags};
 use crate::redis::redis_conn;
 use crate::utils::{select_string, RequestInfo};
@@ -29,11 +30,12 @@ fn limit_react(
     tags: &mut Tags,
     cnx: &mut redis::Connection,
     limit: &Limit,
+    threshold: &LimitThreshold,
     key: String,
 ) -> SimpleDecision {
     tags.insert(&limit.name);
-    let action = if let SimpleActionT::Ban(subaction, ttl) = &limit.action.atype {
-        logs.info(format!("Banned key {} for {}s", key, ttl));
+    let action = if let SimpleActionT::Ban(subaction, duration) = &threshold.action.atype {
+        logs.info(format!("Banned key {} for {}s", key, duration));
         let ban_key = get_ban_key(&key);
         if let Err(rr) = redis::pipe()
             .cmd("SET")
@@ -41,14 +43,14 @@ fn limit_react(
             .arg(1)
             .cmd("EXPIRE")
             .arg(&ban_key)
-            .arg(*ttl)
+            .arg(*duration)
             .query::<()>(cnx)
         {
             println!("*** Redis error {}", rr);
         }
         *subaction.clone()
     } else {
-        limit.action.clone()
+        threshold.action.clone()
     };
     SimpleDecision::Action(
         action,
@@ -60,13 +62,12 @@ fn limit_react(
     )
 }
 
-fn redis_check_limit(
+fn redis_get_limit(
     cnx: &mut redis::Connection,
     key: &str,
-    limit: u64,
-    ttl: u64,
+    timeframe: u64,
     pairvalue: Option<String>,
-) -> RedisResult<bool> {
+) -> RedisResult<i64> {
     let (mcurrent, mexpire): (Option<i64>, Option<i64>) = match &pairvalue {
         None => redis::pipe().cmd("INCR").arg(key).cmd("TTL").arg(key).query(cnx)?,
         Some(pv) => redis::pipe()
@@ -84,9 +85,10 @@ fn redis_check_limit(
     let expire = mexpire.unwrap_or(-1);
 
     if expire < 0 {
-        let _: () = redis::cmd("EXPIRE").arg(key).arg(ttl).query(cnx)?;
+        let _: () = redis::cmd("EXPIRE").arg(key).arg(timeframe).query(cnx)?;
     }
-    Ok(current > limit as i64)
+
+    Ok(current)
 }
 
 fn limit_match(tags: &Tags, elem: &Limit) -> bool {
@@ -128,30 +130,37 @@ pub fn limit_check(
         }
 
         let key = match build_key(security_policy_name, reqinfo, limit) {
-            None => return SimpleDecision::Pass,
+            // if we can't build the key, it usually means that a header is missing.
+            // If that is the case, we continue to the next limit.
+            None => continue,
             Some(k) => k,
         };
         logs.debug(format!("limit={:?} key={}", limit, key));
 
-        if limit.limit == 0 {
-            logs.debug("limit=0");
-            return limit_react(logs, tags, &mut redis, limit, key);
-        }
-
         if is_banned(&mut redis, &key) {
             logs.debug("is banned!");
             tags.insert(&limit.name);
-            return limit_react(logs, tags, &mut redis, limit, key);
+            let ban_threshold: &LimitThreshold = limit
+                .thresholds
+                .iter()
+                .find(|t| matches!(t.action.atype, SimpleActionT::Ban(_, _)))
+                .unwrap_or(&limit.thresholds[0]);
+            return limit_react(logs, tags, &mut redis, limit, ban_threshold, key);
         }
 
         let pairvalue = limit.pairwith.as_ref().and_then(|sel| select_string(reqinfo, sel));
 
-        match redis_check_limit(&mut redis, &key, limit.limit, limit.ttl, pairvalue) {
+        match redis_get_limit(&mut redis, &key, limit.timeframe, pairvalue) {
             Err(rr) => logs.error(rr),
-            Ok(true) => {
-                return limit_react(logs, tags, &mut redis, limit, key);
-            }
-            Ok(false) => (),
+            Ok(current_count) => {
+                for threshold in &limit.thresholds {
+                    // Only one action with highest limit larger than current
+                    // counter will be applied, all the rest will be skipped.
+                    if current_count > threshold.limit as i64 {
+                        return limit_react(logs, tags, &mut redis, limit, &threshold, key);
+                    }
+                }
+            },
         }
     }
     SimpleDecision::Pass

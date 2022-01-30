@@ -79,16 +79,16 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import {WAFRule} from '@/types'
+import {ContentFilterRule} from '@/types'
 import _ from 'lodash'
 
 export default Vue.extend({
-  name: 'WAFSigsEditor',
+  name: 'ContentFilterRulesEditor',
   props: {
     selectedDoc: Object,
   },
   computed: {
-    localDoc(): WAFRule {
+    localDoc(): ContentFilterRule {
       return _.cloneDeep(this.selectedDoc)
     },
   },

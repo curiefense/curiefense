@@ -1,4 +1,4 @@
-import Utils from '../../assets/Utils'
+import Utils from '@/assets/Utils'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import * as bulmaToast from 'bulma-toast'
 import {Options} from 'bulma-toast'

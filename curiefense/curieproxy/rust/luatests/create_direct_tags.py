@@ -3,7 +3,7 @@ import json
 from urllib.parse import urlencode
 from typing import Set, Any, Tuple
 
-tags = ["allow", "allowbot", "deny", "denybot", "forcedeny", "bypass"]
+tags = ["allow", "allowbot", "deny", "denybot", "forcedeny", "passthrough"]
 
 reqs = []
 
@@ -31,8 +31,8 @@ def make_request(st: Set[str], b64: bool = False) -> Tuple[Any, str]:
                 "ip:23-129-64-253",
                 "aclname:from-tags",
                 "aclid:fromtags",
-                "wafname:default-waf",
-                "wafid:--default--",
+                "contentfiltername:default-contentfilter",
+                "contentfilterid:--default--",
                 "securitypolicy:default-entry",
                 "asn:396507",
                 "securitypolicy-entry:direct-association",
@@ -48,7 +48,7 @@ def make_request(st: Set[str], b64: bool = False) -> Tuple[Any, str]:
         r["response"]["action"] = "custom_response"
         r["response"]["block_mode"] = True
         r["response"]["status"] = 403
-    elif "bypass" in st:
+    elif "passthrough" in st:
         pass
     elif "deny" in st and "allow" not in st:
         r["response"]["action"] = "custom_response"

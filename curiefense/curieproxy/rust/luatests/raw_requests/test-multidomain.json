@@ -1,0 +1,63 @@
+[
+  {
+    "response": {
+      "tags": [
+        "asn:396507",
+        "sante",
+        "ip:23-129-64-253",
+        "contentfilterid:--default--",
+        "contentfiltername:default-contentfilter",
+        "container:1e219d8ed6b4",
+        "all",
+        "securitypolicy:dummy-domain-policy",
+        "securitypolicy-entry:default",
+        "aclid:--default--",
+        "geo:united-states",
+        "bot",
+        "aclname:default-acl"
+      ],
+      "action": "custom_response",
+      "block_mode": false,
+      "status": 403
+    },
+    "name": "md libinjection xss",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "23.129.64.253",
+      ":path": "\/test\/?a=1&b=%3Cscript%3Edocument.body.innerHTML=",
+      ":method": "GET",
+      ":authority": "dummydomain.com"
+    }
+  },
+  {
+    "response": {
+      "tags": [
+        "securitypolicy:more-specific-dummy-domain-policy",
+        "securitypolicy-entry:default",
+        "ip:23-129-64-253",
+        "sante",
+        "all",
+        "container:1e219d8ed6b4",
+        "geo:united-states",
+        "asn:396507",
+        "contentfilterid:--default--",
+        "contentfiltername:default-contentfilter",
+        "aclid:--default--",
+        "bot",
+        "aclname:default-acl"
+      ],
+      "action": "custom_response",
+      "block_mode": false,
+      "status": 403
+    },
+    "name": "md sqli (header)",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "23.129.64.253",
+      ":path": "\/test\/",
+      ":method": "GET",
+      ":authority": "specific.dummydomain.com",
+      "malicious": "xp_cmdshell"
+    }
+  }
+]

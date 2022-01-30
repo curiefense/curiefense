@@ -1,0 +1,32 @@
+[
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/rlban2",
+      ":authority": "www.example.com"
+    },
+    "delay": 0,
+    "pass": false
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/rlban1",
+      ":authority": "www.example.com"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/rlban2",
+      ":authority": "www.example.com"
+    },
+    "delay": 0,
+    "pass": true
+  }
+]

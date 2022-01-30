@@ -132,10 +132,10 @@ impl GeoIp {
             } }),
         );
 
+        out.insert("eu", json!(self.in_eu));
         out.insert(
             "country",
             json!({
-                "eu": self.in_eu,
                 "name": self.country_name,
                 "iso": self.country_iso
             }),

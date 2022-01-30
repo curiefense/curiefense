@@ -1,0 +1,8 @@
+[
+  {
+    "id": "100001",
+    "name": "100001",
+    "description": "SQLi Attempt Group",
+    "content_filter_rule_ids": ["100016"]
+  }
+]

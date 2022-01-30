@@ -44,10 +44,6 @@ popd || exit
 
 PARAMS=()
 
-if [ -n "$USE_FLUENTD" ]; then
-    PARAMS+=("-f" "use-es-fluentd.yaml")
-fi
-
 pushd deploy/curiefense-helm || exit
 ./deploy.sh -f use-local-bucket.yaml -f e2e-ci.yaml "${PARAMS[@]}" "$@"
 

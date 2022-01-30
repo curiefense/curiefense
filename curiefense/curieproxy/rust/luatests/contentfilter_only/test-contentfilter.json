@@ -1,6 +1,6 @@
 [
   {
-    "waf_id": "__default__",
+    "content_filter_id": "__default__",
     "response": {
       "action": "custom_response",
       "block_mode": false,
@@ -16,7 +16,7 @@
     }
   },
   {
-    "waf_id": "__default__",
+    "content_filter_id": "__default__",
     "response": {
       "action": "custom_response",
       "block_mode": false,
@@ -33,7 +33,7 @@
     }
   },
   {
-    "waf_id": "__default__",
+    "content_filter_id": "__default__",
     "response": {
       "action": "custom_response",
       "block_mode": false,
@@ -49,7 +49,7 @@
     }
   },
   {
-    "waf_id": "__default__",
+    "content_filter_id": "__default__",
     "response": {
       "action": "custom_response",
       "block_mode": false,
@@ -66,7 +66,7 @@
     }
   },
   {
-    "waf_id": "omitted",
+    "content_filter_id": "omitted",
     "response": {
       "action": "pass"
     },
@@ -74,13 +74,27 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "23.5.64.253",
-      ":path": "\/waf\/omitted?foo=xp_cmdshell",
+      ":path": "\/content-filter\/omitted?foo=xp_cmdshell",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "omitted",
+    "content_filter_id": "omitted_group",
+    "response": {
+      "action": "pass"
+    },
+    "name": "omit sqli group",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "23.5.64.253",
+      ":path": "\/content-filter\/omitted-group?foo=xp_cmdshell",
+      ":method": "GET",
+      ":authority": "localhost:30081"
+    }
+  },
+  {
+    "content_filter_id": "omitted",
     "response": {
       "action": "custom_response",
       "block_mode": true,
@@ -90,14 +104,14 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "23.5.64.253",
-      ":path": "\/waf\/omitted",
+      ":path": "\/content-filter\/omitted",
       ":method": "GET",
       ":authority": "localhost:30081",
       "malicious": "xp_cmdshell"
     }
   },
   {
-    "waf_id": "__default__",
+    "content_filter_id": "__default__",
     "response": {
       "action": "custom_response",
       "block_mode": false,
@@ -107,13 +121,13 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "13.129.64.253",
-      ":path": "\/waf\/misc\/?v=information_schema%28",
+      ":path": "\/content-filter\/misc\/?v=information_schema%28",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "omitted",
+    "content_filter_id": "omitted",
     "response": {
       "action": "custom_response",
       "block_mode": true,
@@ -123,13 +137,13 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "13.129.64.253",
-      ":path": "\/waf\/omitted\/?v=information_schema%28",
+      ":path": "\/content-filter\/omitted\/?v=information_schema%28",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "__default__",
+    "content_filter_id": "__default__",
     "response": {
       "action": "custom_response",
       "block_mode": false,
@@ -139,13 +153,13 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "13.129.64.253",
-      ":path": "\/waf\/misc\/?v=information_schema%28&x=xp_cmdshell",
+      ":path": "\/content-filter\/misc\/?v=information_schema%28&x=xp_cmdshell",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "omitted",
+    "content_filter_id": "omitted",
     "response": {
       "action": "custom_response",
       "block_mode": true,
@@ -155,13 +169,13 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "13.129.64.253",
-      ":path": "\/waf\/omitted\/?v=information_schema%28&x=xp_cmdshell",
+      ":path": "\/content-filter\/omitted\/?v=information_schema%28&x=xp_cmdshell",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "noinject",
+    "content_filter_id": "noinject",
     "response": {
       "action": "pass"
     },
@@ -169,13 +183,13 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "23.129.64.253",
-      ":path": "\/waf\/noinjection\/foo",
+      ":path": "\/content-filter\/noinjection\/foo",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "omitted",
+    "content_filter_id": "omitted",
     "response": {
       "action": "custom_response",
       "block_mode": true,
@@ -185,13 +199,13 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "13.129.64.253",
-      ":path": "\/waf\/omitted\/?v=AZDGSDQZE16Z",
+      ":path": "\/content-filter\/omitted\/?v=AZDGSDQZE16Z",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "noinject",
+    "content_filter_id": "noinject",
     "response": {
       "action": "pass"
     },
@@ -199,13 +213,13 @@
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "13.129.64.253",
-      ":path": "\/waf\/noinjection\/?v=AZDGSDQZE16Z",
+      ":path": "\/content-filter\/noinjection\/?v=AZDGSDQZE16Z",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "argschecks",
+    "content_filter_id": "argschecks",
     "response": {
       "action": "custom_response",
       "block_mode": true,
@@ -213,92 +227,92 @@
     },
     "name": "too many args",
     "headers": {
-      ":path": "\/waf\/args\/?a=A&b=B&c=C&d=D&e=E",
+      ":path": "\/content-filter\/args\/?a=A&b=B&c=C&d=D&e=E",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "argschecks",
+    "content_filter_id": "argschecks",
     "response": {
       "action": "pass"
     },
     "name": "passing",
     "headers": {
-      ":path": "\/waf\/args\/?a=A&b=B&c=C",
+      ":path": "\/content-filter\/args\/?a=A&b=B&c=C",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "argschecks",
+    "content_filter_id": "argschecks",
     "response": {
       "action": "pass"
     },
     "name": "test args a",
     "headers": {
-      ":path": "\/waf\/args\/?a=A",
+      ":path": "\/content-filter\/args\/?a=A",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "argschecks",
+    "content_filter_id": "argschecks",
     "response": {
       "action": "pass"
     },
     "name": "test args b",
     "headers": {
-      ":path": "\/waf\/args\/?b=B",
+      ":path": "\/content-filter\/args\/?b=B",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "argschecks",
+    "content_filter_id": "argschecks",
     "response": {
       "action": "pass"
     },
     "name": "test args c",
     "headers": {
-      ":path": "\/waf\/args\/?c=C",
+      ":path": "\/content-filter\/args\/?c=C",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "argschecks",
+    "content_filter_id": "argschecks",
     "response": {
       "action": "pass"
     },
     "name": "test args d",
     "headers": {
-      ":path": "\/waf\/args\/?d=D",
+      ":path": "\/content-filter\/args\/?d=D",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "argschecks",
+    "content_filter_id": "argschecks",
     "response": {
       "action": "pass"
     },
     "name": "test args a (n)",
     "headers": {
-      ":path": "\/waf\/args\/?a=1",
+      ":path": "\/content-filter\/args\/?a=1",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "argschecks",
+    "content_filter_id": "argschecks",
     "response": {
       "action": "custom_response",
       "block_mode": true,
@@ -306,14 +320,14 @@
     },
     "name": "test args b (n)",
     "headers": {
-      ":path": "\/waf\/args\/?b=2",
+      ":path": "\/content-filter\/args\/?b=2",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "argschecks",
+    "content_filter_id": "argschecks",
     "response": {
       "action": "custom_response",
       "block_mode": true,
@@ -321,79 +335,79 @@
     },
     "name": "test args c (n)",
     "headers": {
-      ":path": "\/waf\/args\/?c=3",
+      ":path": "\/content-filter\/args\/?c=3",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "argschecks",
+    "content_filter_id": "argschecks",
     "response": {
       "action": "pass"
     },
     "name": "test args d (n)",
     "headers": {
-      ":path": "\/waf\/args\/?d=4",
+      ":path": "\/content-filter\/args\/?d=4",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "argschecks",
+    "content_filter_id": "argschecks",
     "response": {
       "action": "pass"
     },
     "name": "test args a (nosig)",
     "headers": {
-      ":path": "\/waf\/args\/?a=AZDGSDQZE16Z",
+      ":path": "\/content-filter\/args\/?a=AZDGSDQZE16Z",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "argschecks",
+    "content_filter_id": "argschecks",
     "response": {
       "action": "pass"
     },
     "name": "test args b (nosig)",
     "headers": {
-      ":path": "\/waf\/args\/?b=AZDGSDQZE16Z",
+      ":path": "\/content-filter\/args\/?b=AZDGSDQZE16Z",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "argschecks",
+    "content_filter_id": "argschecks",
     "response": {
       "action": "pass"
     },
     "name": "test args c (nosig)",
     "headers": {
-      ":path": "\/waf\/args\/?c=AZDGSDQZE16Z",
+      ":path": "\/content-filter\/args\/?c=AZDGSDQZE16Z",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "argschecks",
+    "content_filter_id": "argschecks",
     "response": {
       "action": "pass"
     },
     "name": "test args d (nosig)",
     "headers": {
-      ":path": "\/waf\/args\/?d=AZDGSDQZE16Z",
+      ":path": "\/content-filter\/args\/?d=AZDGSDQZE16Z",
       ":method": "GET",
       "x-forwarded-for": "13.129.64.253",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "__default__",
+    "content_filter_id": "__default__",
     "response": {
       "action": "custom_response",
       "block_mode": false,
@@ -403,27 +417,27 @@
     "headers": {
       "x-forwarded-for": "13.129.64.253",
       "long-header": "Overlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_headerOverlong_header",
-      ":path": "\/waf\/",
+      ":path": "\/content-filter\/",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "e2e000000002",
+    "content_filter_id": "e2e000000002",
     "response": {
       "action": "pass"
     },
     "name": "short headers ok",
     "headers": {
       "x-forwarded-for": "13.129.64.253",
-      ":path": "\/waf-short-headers\/",
+      ":path": "\/content-filter-short-headers\/",
       ":method": "GET",
       "short-header": "01234567890123456789012345678901234567890123456789",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "e2e000000002",
+    "content_filter_id": "e2e000000002",
     "response": {
       "action": "custom_response",
       "block_mode": true,
@@ -432,14 +446,14 @@
     "name": "short headers reject",
     "headers": {
       "x-forwarded-for": "13.129.64.253",
-      ":path": "\/waf-short-headers\/",
+      ":path": "\/content-filter-short-headers\/",
       ":method": "GET",
       "short-header": "01234567890123456789012345678901234567890123456789A",
       ":authority": "localhost:30081"
     }
   },
   {
-    "waf_id": "rr",
+    "content_filter_id": "rr",
     "response": {
       "action": "custom_response",
       "block_mode": true,
@@ -456,7 +470,7 @@
     }
   },
   {
-    "waf_id": "rr",
+    "content_filter_id": "rr",
     "response": {
       "action": "custom_response",
       "block_mode": true,

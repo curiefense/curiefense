@@ -7,7 +7,7 @@ import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
 import axios from 'axios'
 import _ from 'lodash'
-import {ACLProfile, Branch, Commit, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, WAFPolicy} from '@/types'
+import {ACLProfile, Branch, Commit, ContentFilterProfile, Document, FlowControlPolicy, GlobalFilter, RateLimit, SecurityPolicy} from '@/types'
 
 jest.mock('axios')
 
@@ -24,7 +24,7 @@ describe('DocumentEditor.vue', () => {
   let securityPoliciesDocs: SecurityPolicy[]
   let securityPoliciesDocsLogs: Commit[][]
   let flowControlPolicyDocs: FlowControlPolicy[]
-  let wafDocs: WAFPolicy[]
+  let contentFilterDocs: ContentFilterProfile[]
   let rateLimitsDocs: RateLimit[]
   beforeEach((done) => {
     gitData = [
@@ -150,7 +150,7 @@ describe('DocumentEditor.vue', () => {
           'google',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'internal',
         ],
         'deny': [
@@ -169,7 +169,7 @@ describe('DocumentEditor.vue', () => {
           'yahoo',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'devops',
         ],
         'deny': [
@@ -495,7 +495,7 @@ describe('DocumentEditor.vue', () => {
           'google',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'internal',
         ],
         'deny': [
@@ -513,7 +513,7 @@ describe('DocumentEditor.vue', () => {
           'google',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'internal',
         ],
         'deny': [
@@ -530,7 +530,7 @@ describe('DocumentEditor.vue', () => {
         'name': 'API Discovery',
         'source': 'self-managed',
         'mdate': '2020-05-23T00:04:41',
-        'notes': 'Tag API Requests',
+        'description': 'Tag API Requests',
         'active': true,
         'tags': ['api'],
         'action': {
@@ -549,7 +549,7 @@ describe('DocumentEditor.vue', () => {
         'name': 'devop internal demo',
         'source': 'self-managed',
         'mdate': '2020-05-23T00:04:41',
-        'notes': 'this is my own list',
+        'description': 'this is my own list',
         'active': false,
         'tags': ['internal', 'devops'],
         'action': {
@@ -590,8 +590,8 @@ describe('DocumentEditor.vue', () => {
             'match': '/',
             'acl_profile': '5828321c37e0',
             'acl_active': false,
-            'waf_profile': '009e846e819e',
-            'waf_active': false,
+            'content_filter_profile': '009e846e819e',
+            'content_filter_active': false,
             'limit_ids': [],
           },
         ],
@@ -614,7 +614,7 @@ describe('DocumentEditor.vue', () => {
     flowControlPolicyDocs = [
       {
         'active': true,
-        'notes': '',
+        'description': '',
         'exclude': [],
         'include': ['all'],
         'name': 'flow control policy',
@@ -647,13 +647,13 @@ describe('DocumentEditor.vue', () => {
           'type': 'default',
           'params': {},
         },
-        'ttl': 60,
+        'timeframe': 60,
         'id': 'c03dabe4b9ca',
       },
     ]
-    wafDocs = [{
+    contentFilterDocs = [{
       'id': '009e846e819e',
-      'name': 'waf',
+      'name': 'content filter',
       'ignore_alphanum': true,
       'max_header_length': 1024,
       'max_cookie_length': 2048,
@@ -669,9 +669,13 @@ describe('DocumentEditor.vue', () => {
       'id': 'f971e92459e2',
       'name': 'Rate Limit Example Rule 5/60',
       'description': '5 requests per minute',
-      'ttl': '60',
-      'limit': '5',
-      'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
+      'timeframe': '60',
+      'thresholds': [
+        {
+          'limit': '5',
+          'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
+        }
+      ],
       'include': ['badpeople'],
       'exclude': ['goodpeople'],
       'key': [{'attrs': 'ip'}],
@@ -750,14 +754,14 @@ describe('DocumentEditor.vue', () => {
       if (path === `/conf/api/v2/configs/${branch}/d/flowcontrol/e/c03dabe4b9ca/`) {
         return Promise.resolve({data: flowControlPolicyDocs[0]})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/wafpolicies/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve({data: _.map(wafDocs, (i) => _.pick(i, 'id', 'name'))})
+          return Promise.resolve({data: _.map(contentFilterDocs, (i) => _.pick(i, 'id', 'name'))})
         }
-        return Promise.resolve({data: wafDocs})
+        return Promise.resolve({data: contentFilterDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/wafpolicies/e/009e846e819e/`) {
-        return Promise.resolve({data: wafDocs[0]})
+      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/e/009e846e819e/`) {
+        return Promise.resolve({data: contentFilterDocs[0]})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
@@ -1375,7 +1379,7 @@ describe('DocumentEditor.vue', () => {
     test('should be able to add multiple new documents in a row with different IDs', async () => {
       const newDocIDs: string[] = []
       const postSpy = jest.spyOn(axios, 'post')
-      postSpy.mockImplementation((url, data) => {
+      postSpy.mockImplementation((url, data: Partial<Document>) => {
         newDocIDs.push(data.id)
         return Promise.resolve()
       })
@@ -1429,8 +1433,8 @@ describe('DocumentEditor.vue', () => {
       expect(deleteSpy).not.toHaveBeenCalled()
     })
 
-    test('should not be able to delete an WAF Policy document if it is referenced by a security policy', async () => {
-      // switch to WAF Policies
+    test('should not be able to delete an Content Filter Profile document if it is referenced by a security policy', async () => {
+      // switch to Content Filter Profiles
       const docTypeSelection = wrapper.find('.doc-type-selection')
       docTypeSelection.trigger('click')
       const docTypeOptions = docTypeSelection.findAll('option')

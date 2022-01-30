@@ -1,5 +1,7 @@
-import {ACLProfile, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, WAFPolicy, WAFRule} from '@/types'
-import {httpRequestMethods} from '@/types/const'
+import {
+  ACLProfile, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, ContentFilterProfile,
+  ContentFilterRule, ContentFilterRuleGroup, HttpRequestMethods,
+} from '@/types'
 
 const titles: { [key: string]: string } = {
   'admin': 'Admin',
@@ -8,7 +10,7 @@ const titles: { [key: string]: string } = {
   'args': 'Arguments',
   'attrs': 'Attributes',
   'audit-log': 'Audit Log',
-  'bypass': 'Bypass',
+  'passthrough': 'Passthrough',
   'cookies': 'Cookies',
   'curiefense-lists': 'Curiefense Lists',
   'customsigs': 'Custom Signatures',
@@ -38,14 +40,16 @@ const titles: { [key: string]: string } = {
   'ratelimits-singular': 'Rate Limit',
   'securitypolicies': 'Security Policies',
   'securitypolicies-singular': 'Security Policy',
-  'wafpolicies': 'WAF Policies',
-  'wafpolicies-singular': 'WAF Policy',
-  'wafrules': 'WAF Rules',
-  'wafrules-singular': 'WAF Rule',
+  'contentfilterprofiles': 'Content Filter Profiles',
+  'contentfilterprofiles-singular': 'Content Filter Profile',
+  'contentfilterrules': 'Content Filter Rules',
+  'contentfilterrules-singular': 'Content Filter Rule',
   'globalfilters': 'Global Filters',
   'globalfilters-singular': 'Global Filter',
   'flowcontrol': 'Flow Control Policies',
   'flowcontrol-singular': 'Flow Control Policy',
+  'contentfiltergroups': 'Content Filter Rules Groups',
+  'contentfiltergroups-singular': 'Content Filter Rules Group',
 }
 
 const limitOptionsTypes = {
@@ -69,7 +73,7 @@ function generateUUID2(): string {
 }
 
 const defaultFlowControlSequenceItem = {
-  'method': httpRequestMethods[0],
+  'method': 'GET' as HttpRequestMethods,
   'uri': '/',
   'cookies': {},
   'headers': {
@@ -86,16 +90,16 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'allow': [],
       'allow_bot': [],
       'deny_bot': [],
-      'bypass': [],
+      'passthrough': [],
       'force_deny': [],
       'deny': [],
     }
   },
 
-  wafpolicies(): WAFPolicy {
+  contentfilterprofiles(): ContentFilterProfile {
     return {
       'id': generateUUID2(),
-      'name': 'New WAF Policy',
+      'name': 'New Content Filter Profile',
       'ignore_alphanum': true,
 
       'max_header_length': 1024,
@@ -127,7 +131,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'name': 'New Global Filter',
       'source': 'self-managed',
       'mdate': (new Date()).toISOString(),
-      'notes': 'New List Notes and Remarks',
+      'description': 'New List Description and Remarks',
       'active': true,
       'tags': [],
       'action': {
@@ -151,9 +155,9 @@ const newDocEntryFactory: { [key: string]: Function } = {
           'match': '/',
           'name': 'default',
           'acl_profile': '__default__',
-          'waf_profile': '__default__',
+          'content_filter_profile': '__default__',
           'acl_active': true,
-          'waf_active': true,
+          'content_filter_active': true,
           'limit_ids': [],
         },
       ],
@@ -165,16 +169,18 @@ const newDocEntryFactory: { [key: string]: Function } = {
       'id': generateUUID2(),
       'description': 'New Rate Limit Rule',
       'name': 'New Rate Limit Rule',
-      'limit': '3',
+      'thresholds': [
+        {
+          'limit': '3',
+          'action': {'type': 'default'},
+        },
+      ],
       'key': [
         {
           'attrs': 'ip',
         },
       ],
-      'ttl': '180',
-      'action': {
-        'type': 'default',
-      },
+      'timeframe': '180',
       'exclude': ['allowlist'],
       'include': ['blocklist'],
       'pairwith': {
@@ -187,9 +193,9 @@ const newDocEntryFactory: { [key: string]: Function } = {
     return {
       'id': generateUUID2(),
       'name': 'New Flow Control Policy',
-      'ttl': 60,
+      'timeframe': 60,
       'active': true,
-      'notes': 'New Flow Control Policy Notes and Remarks',
+      'description': 'New Flow Control Policy Description and Remarks',
       'key': [
         {
           'attrs': 'ip',
@@ -204,20 +210,28 @@ const newDocEntryFactory: { [key: string]: Function } = {
         {...defaultFlowControlSequenceItem},
         {
           ...defaultFlowControlSequenceItem,
-          method: 'POST',
+          method: 'POST' as HttpRequestMethods,
         },
       ],
     }
   },
 
-  wafrules(): WAFRule {
+  contentfilterrules(): ContentFilterRule {
     return {
       'id': generateUUID2(),
-      'name': 'New WAF Rule',
+      'name': 'New Content Filter Rule',
       'operand': '',
     }
   },
 
+  contentfiltergroups(): ContentFilterRuleGroup {
+    return {
+      id: generateUUID2(),
+      name: 'New Content Filter Rule Group',
+      description: '',
+      content_filter_rule_ids: [],
+    }
+  },
 }
 
 export default {

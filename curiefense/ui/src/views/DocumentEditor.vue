@@ -205,19 +205,20 @@
 <script lang="ts">
 import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
-import RequestsUtils, {MethodNames} from '@/assets/RequestsUtils.ts'
+import RequestsUtils from '@/assets/RequestsUtils.ts'
 import Utils from '@/assets/Utils.ts'
 import ACLEditor from '@/doc-editors/ACLEditor.vue'
-import WAFEditor from '@/doc-editors/WAFEditor.vue'
-import WAFSigsEditor from '@/doc-editors/WAFSigsEditor.vue'
+import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
+import ContentFilterRulesEditor from '@/doc-editors/ContentFilterRulesEditor.vue'
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import RateLimitsEditor from '@/doc-editors/RateLimitsEditor.vue'
 import GlobalFilterListEditor from '@/doc-editors/GlobalFilterListEditor.vue'
 import FlowControlPolicyEditor from '@/doc-editors/FlowControlPolicyEditor.vue'
+import ContentFilterRuleGroupEditor from '@/doc-editors/ContentFilterRuleGroupEditor.vue'
 import GitHistory from '@/components/GitHistory.vue'
 import {mdiSourceBranch, mdiSourceCommit} from '@mdi/js'
 import Vue from 'vue'
-import {BasicDocument, Commit, Document, DocumentType, SecurityPolicy} from '@/types'
+import {BasicDocument, Commit, Document, DocumentType, HttpRequestMethods, SecurityPolicy} from '@/types'
 import axios, {AxiosResponse} from 'axios'
 
 export default Vue.extend({
@@ -253,7 +254,7 @@ export default Vue.extend({
 
       // To prevent deletion of docs referenced by Security Policies
       referencedIDsACL: [],
-      referencedIDsWAF: [],
+      referencedIDsContentFilter: [],
       referencedIDsLimits: [],
 
       selectedBranch: null,
@@ -277,8 +278,9 @@ export default Vue.extend({
         'globalfilters': {component: GlobalFilterListEditor},
         'ratelimits': {component: RateLimitsEditor},
         'securitypolicies': {component: SecurityPoliciesEditor},
-        'wafpolicies': {component: WAFEditor},
-        'wafrules': {component: WAFSigsEditor},
+        'contentfilterprofiles': {component: ContentFilterEditor},
+        'contentfilterrules': {component: ContentFilterRulesEditor},
+        'contentfiltergroups': {component: ContentFilterRuleGroupEditor},
       },
 
       apiRoot: RequestsUtils.confAPIRoot,
@@ -330,8 +332,8 @@ export default Vue.extend({
       if (this.selectedDocType === 'aclprofiles') {
         return this.referencedIDsACL.includes(this.selectedDocID)
       }
-      if (this.selectedDocType === 'wafpolicies') {
-        return this.referencedIDsWAF.includes(this.selectedDocID)
+      if (this.selectedDocType === 'contentfilterprofiles') {
+        return this.referencedIDsContentFilter.includes(this.selectedDocID)
       }
       if (this.selectedDocType === 'ratelimits') {
         return this.referencedIDsLimits.includes(this.selectedDocID)
@@ -556,7 +558,7 @@ export default Vue.extend({
       this.setLoadingDocStatus(false)
     },
 
-    async saveChanges(methodName?: MethodNames, successMessage?: string, failureMessage?: string) {
+    async saveChanges(methodName?: HttpRequestMethods, successMessage?: string, failureMessage?: string) {
       this.isSaveLoading = true
       if (!methodName) {
         methodName = 'PUT'
@@ -614,17 +616,17 @@ export default Vue.extend({
       const response = await RequestsUtils.sendRequest({methodName: 'GET', url: `configs/${this.selectedBranch}/d/securitypolicies/`})
       const docs = response?.data
       const referencedACL: string[] = []
-      const referencedWAF: string[] = []
+      const referencedContentFilter: string[] = []
       const referencedLimit: string[] = []
       _.forEach(docs, (doc) => {
         _.forEach(doc.map, (mapEntry) => {
           referencedACL.push(mapEntry['acl_profile'])
-          referencedWAF.push(mapEntry['waf_profile'])
+          referencedContentFilter.push(mapEntry['content_filter_profile'])
           referencedLimit.push(mapEntry['limit_ids'])
         })
       })
       this.referencedIDsACL = _.uniq(referencedACL)
-      this.referencedIDsWAF = _.uniq(referencedWAF)
+      this.referencedIDsContentFilter = _.uniq(referencedContentFilter)
       this.referencedIDsLimits = _.uniq(_.flatten(referencedLimit))
     },
 

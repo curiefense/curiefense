@@ -4,7 +4,7 @@ pub mod limit;
 pub mod globalfilter;
 pub mod raw;
 pub mod utils;
-pub mod waf;
+pub mod contentfilter;
 
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -17,15 +17,15 @@ use std::time::SystemTime;
 use crate::logs::Logs;
 use flow::{flow_resolve, FlowElement, SequenceKey};
 use hostmap::{HostMap, SecurityPolicy};
-use limit::{limit_order, Limit};
+use limit::{Limit};
 use globalfilter::GlobalFilterSection;
-use raw::{AclProfile, RawFlowEntry, RawHostMap, RawLimit, RawGlobalFilterSection, RawSecurityPolicy, RawWafProfile};
+use raw::{AclProfile, RawFlowEntry, RawHostMap, RawLimit, RawGlobalFilterSection, RawSecurityPolicy, RawContentFilterProfile, RawContentFilterGroup};
 use utils::Matching;
-use waf::{resolve_signatures, WafProfile, WafSignatures};
+use contentfilter::{resolve_rules, ContentFilterProfile, ContentFilterRules, ContentFilterGroup};
 
 lazy_static! {
     pub static ref CONFIG: RwLock<Config> = RwLock::new(Config::empty());
-    pub static ref HSDB: RwLock<Option<WafSignatures>> = RwLock::new(None);
+    pub static ref HSDB: RwLock<Option<ContentFilterRules>> = RwLock::new(None);
 }
 
 pub fn with_config<R, F>(basepath: &str, logs: &mut Logs, f: F) -> Option<R>
@@ -71,7 +71,8 @@ pub struct Config {
     pub last_mod: SystemTime,
     pub container_name: Option<String>,
     pub flows: HashMap<SequenceKey, Vec<FlowElement>>,
-    pub waf_profiles: HashMap<String, WafProfile>,
+    pub content_filter_profiles: HashMap<String, ContentFilterProfile>,
+    pub content_filter_groups: HashMap<String, ContentFilterGroup>,
 }
 
 fn from_map<V: Clone>(mp: &HashMap<String, V>, k: &str) -> Result<V, String> {
@@ -88,7 +89,7 @@ impl Config {
         rawmaps: Vec<RawSecurityPolicy>,
         limits: &HashMap<String, Limit>,
         acls: &HashMap<String, AclProfile>,
-        wafprofiles: &HashMap<String, WafProfile>,
+        contentfilterprofiles: &HashMap<String, ContentFilterProfile>,
     ) -> (Vec<Matching<SecurityPolicy>>, Option<SecurityPolicy>) {
         let mut default: Option<SecurityPolicy> = None;
         let mut entries: Vec<Matching<SecurityPolicy>> = Vec::new();
@@ -101,11 +102,11 @@ impl Config {
                     AclProfile::default()
                 }
             };
-            let waf_profile: WafProfile = match wafprofiles.get(&rawmap.waf_profile) {
+            let content_filter_profile: ContentFilterProfile = match contentfilterprofiles.get(&rawmap.content_filter_profile) {
                 Some(p) => p.clone(),
                 None => {
-                    logs.warning(format!("Unknown WAF profile {}", &rawmap.waf_profile));
-                    WafProfile::default()
+                    logs.warning(format!("Unknown Content Filter profile {}", &rawmap.content_filter_profile));
+                    ContentFilterProfile::default()
                 }
             };
             let mut olimits: Vec<Limit> = Vec::new();
@@ -115,14 +116,12 @@ impl Config {
                     Err(rr) => logs.error(format!("When resolving limits in rawmap {}, {}", rawmap.name, rr)),
                 }
             }
-            // limits 0 are tried first, than in decreasing order of the limit field
-            olimits.sort_unstable_by(limit_order);
             let mapname = rawmap.name.clone();
             let securitypolicy = SecurityPolicy {
                 acl_active: rawmap.acl_active,
                 acl_profile,
-                waf_active: rawmap.waf_active,
-                waf_profile,
+                content_filter_active: rawmap.content_filter_active,
+                content_filter_profile,
                 limits: olimits,
                 name: rawmap.name,
             };
@@ -152,7 +151,8 @@ impl Config {
         rawlimits: Vec<RawLimit>,
         rawglobalfilters: Vec<RawGlobalFilterSection>,
         rawacls: Vec<AclProfile>,
-        rawwafprofiles: Vec<RawWafProfile>,
+        rawcontentfilterprofiles: Vec<RawContentFilterProfile>,
+        rawcontentfiltergroups: Vec<RawContentFilterGroup>,
         container_name: Option<String>,
         rawflows: Vec<RawFlowEntry>,
     ) -> Config {
@@ -160,12 +160,13 @@ impl Config {
         let mut securitypolicies: Vec<Matching<HostMap>> = Vec::new();
 
         let limits = Limit::resolve(logs, rawlimits);
-        let waf_profiles = WafProfile::resolve(logs, rawwafprofiles);
+        let content_filter_groups = ContentFilterGroup::resolve(rawcontentfiltergroups);
+        let content_filter_profiles = ContentFilterProfile::resolve(logs, rawcontentfilterprofiles, &content_filter_groups);
         let acls = rawacls.into_iter().map(|a| (a.id.clone(), a)).collect();
 
         // build the entries while looking for the default entry
         for rawmap in rawmaps {
-            let (entries, default_entry) = Config::resolve_security_policies(logs, rawmap.map, &limits, &acls, &waf_profiles);
+            let (entries, default_entry) = Config::resolve_security_policies(logs, rawmap.map, &limits, &acls, &content_filter_profiles);
             if default_entry.is_none() {
                 logs.warning(format!(
                     "HostMap entry '{}', id '{}' does not have a default entry",
@@ -198,6 +199,9 @@ impl Config {
             }
         }
 
+        // order by decreasing matcher length, so that more specific rules are matched first
+        securitypolicies.sort_by(|a, b| b.matcher.as_str().len().cmp(&a.matcher.as_str().len()));
+
         let globalfilters = GlobalFilterSection::resolve(logs, rawglobalfilters);
 
         let flows = flow_resolve(logs, rawflows);
@@ -209,7 +213,8 @@ impl Config {
             last_mod,
             container_name,
             flows,
-            waf_profiles,
+            content_filter_profiles,
+            content_filter_groups,
         }
     }
 
@@ -243,7 +248,7 @@ impl Config {
         out
     }
 
-    pub fn reload(&self, logs: &mut Logs, basepath: &str) -> Option<(Config, WafSignatures)> {
+    pub fn reload(&self, logs: &mut Logs, basepath: &str) -> Option<(Config, ContentFilterRules)> {
         let last_mod = std::fs::metadata(basepath)
             .and_then(|x| x.modified())
             .unwrap_or_else(|rr| {
@@ -262,17 +267,15 @@ impl Config {
         let globalfilters = Config::load_config_file(logs, &bjson, "globalfilter-lists.json");
         let limits = Config::load_config_file(logs, &bjson, "limits.json");
         let acls = Config::load_config_file(logs, &bjson, "acl-profiles.json");
-        let wafprofiles = Config::load_config_file(logs, &bjson, "waf-profiles.json");
-        let wafsignatures = Config::load_config_file(logs, &bjson, "waf-signatures.json");
+        let contentfilterprofiles = Config::load_config_file(logs, &bjson, "contentfilter-profiles.json");
+        let contentfiltergroups = Config::load_config_file(logs, &bjson, "contentfilter-groups.json");
+        let contentfilterrules = Config::load_config_file(logs, &bjson, "contentfilter-rules.json");
         let flows = Config::load_config_file(logs, &bjson, "flow-control.json");
 
         let container_name = std::fs::read_to_string("/etc/hostname")
             .ok()
             .map(|s| s.trim().to_string());
-        let hsdb = resolve_signatures(wafsignatures).unwrap_or_else(|rr| {
-            logs.error(rr);
-            WafSignatures::empty()
-        });
+
         let config = Config::resolve(
             logs,
             last_mod,
@@ -280,10 +283,15 @@ impl Config {
             limits,
             globalfilters,
             acls,
-            wafprofiles,
+            contentfilterprofiles,
+            contentfiltergroups,
             container_name,
             flows,
         );
+        let hsdb = resolve_rules(contentfilterrules, &config.content_filter_groups).unwrap_or_else(|rr| {
+            logs.error(rr);
+            ContentFilterRules::empty()
+        });
         Some((config, hsdb))
     }
 
@@ -295,7 +303,8 @@ impl Config {
             default: None,
             container_name: None,
             flows: HashMap::new(),
-            waf_profiles: HashMap::new(),
+            content_filter_profiles: HashMap::new(),
+            content_filter_groups: HashMap::new(),
         }
     }
 }

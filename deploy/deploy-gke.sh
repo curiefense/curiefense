@@ -20,7 +20,7 @@ REGION=${REGION:-us-central1-a}
 create_cluster () {
 	echo "-- Create cluster $CLUSTER_NAME --"
 	# 4 CPUs, 16GB
-	gcloud container clusters create "$CLUSTER_NAME" --num-nodes=1 --machine-type=n2-standard-8 --region="$REGION"
+	gcloud container clusters create "$CLUSTER_NAME" --num-nodes=1 --machine-type=n2-standard-8 --region="$REGION" --cluster-version=1.20
 	gcloud container clusters get-credentials --region="$REGION" "$CLUSTER_NAME"
 }
 
@@ -40,12 +40,12 @@ deploy_curiefense () {
 	kubectl create namespace curiefense
 	kubectl create namespace istio-system
 	kubectl apply -f "$S3CFG_PATH"
-	kubectl apply -f "$BASEDIR/curiefense-helm/example-dbsecret.yaml"
 	kubectl apply -f "$BASEDIR/curiefense-helm/example-uiserver-tls.yaml"
 	if [ "$jaeger" = "y" ] || [ "$all" = "y" ]; then
 		kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.8/samples/addons/jaeger.yaml
 		kubectl apply -f "$BASEDIR/../e2e/latency/jaeger-service.yml"
 	fi
+	export JWT_WORKAROUND=yes
 	cd "$BASEDIR/istio-helm/" || exit 1
 	./deploy.sh --set 'global.tracer.zipkin.address=zipkin.istio-system:9411' --set 'gateways.istio-ingressgateway.autoscaleMax=1'
 	sleep 5

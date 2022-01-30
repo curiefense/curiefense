@@ -29,11 +29,11 @@
             }
         ],
         "active": true,
-        "notes": "New Flow Control Notes and Remarks",
+        "description": "New Flow Control Notes and Remarks",
         "action": {
             "type": "default"
         },
-        "ttl": 60,
+        "timeframe": 60,
         "id": "c03dabe4b9ca"
     }
 ]

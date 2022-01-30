@@ -4,9 +4,7 @@ import jsonschema
 jsonschema.Draft4Validator = jsonschema.Draft3Validator
 
 from flask import Blueprint, request, current_app, abort, make_response
-from flask_restplus import Resource, Api, fields, marshal, reqparse
-from collections import defaultdict
-import datetime
+from flask_restx import Resource, Api, fields, marshal, reqparse
 from curieconf import utils
 from curieconf.utils import cloud
 import requests
@@ -38,6 +36,13 @@ class AnyType(fields.Raw):
 
 # limit
 
+m_threshold = api.model(
+    "Rate Limit Threshold",
+    {
+        "limit": fields.String(required=True),
+        "action": fields.Raw(required=True),
+    },
+)
 
 m_limit = api.model(
     "Rate Limit",
@@ -45,16 +50,14 @@ m_limit = api.model(
         "id": fields.String(required=True),
         "name": fields.String(required=True),
         "description": fields.String(required=True),
-        "ttl": fields.String(required=True),
-        "limit": fields.String(required=True),
-        "action": fields.Raw(required=True),
+        "timeframe": fields.String(required=True),
+        "thresholds": fields.List(fields.Nested(m_threshold)),
         "include": fields.Raw(required=True),
         "exclude": fields.Raw(required=True),
         "key": AnyType(required=True),
         "pairwith": fields.Raw(required=True),
     },
 )
-
 
 # securitypolicy
 
@@ -65,8 +68,8 @@ m_secprofilemap = api.model(
         "match": fields.String(required=True),
         "acl_profile": fields.String(required=True),
         "acl_active": fields.Boolean(required=True),
-        "waf_profile": fields.String(required=True),
-        "waf_active": fields.Boolean(required=True),
+        "content_filter_profile": fields.String(required=True),
+        "content_filter_active": fields.Boolean(required=True),
         "limit_ids": fields.List(fields.Raw()),
     },
 )
@@ -85,10 +88,10 @@ m_securitypolicy = api.model(
     },
 )
 
-# wafrule
+# content filter rule
 
-m_wafrule = api.model(
-    "WAF Rule",
+m_contentfilterrule = api.model(
+    "Content Filter Rule",
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
@@ -101,10 +104,22 @@ m_wafrule = api.model(
     },
 )
 
-# wafpolicy
+# contentfiltergroup
 
-m_wafpolicy = api.model(
-    "WAF Policy",
+m_contentfiltergroup = api.model(
+    "Content Filter Group",
+    {
+        "id": fields.String(required=True),
+        "name": fields.String(required=True),
+        "description": fields.String(required=True),
+        "content_filter_rule_ids": fields.List(fields.String(), skip_none=True),
+    },
+)
+
+# content filter profile
+
+m_contentfilterprofile = api.model(
+    "Content Filter Profile",
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
@@ -131,7 +146,7 @@ m_aclprofile = api.model(
         "allow": fields.List(fields.String()),
         "allow_bot": fields.List(fields.String()),
         "deny_bot": fields.List(fields.String()),
-        "bypass": fields.List(fields.String()),
+        "passthrough": fields.List(fields.String()),
         "deny": fields.List(fields.String()),
         "force_deny": fields.List(fields.String()),
     },
@@ -146,14 +161,13 @@ m_globalfilter = api.model(
         "name": fields.String(required=True),
         "source": fields.String(required=True),
         "mdate": fields.String(required=True),
-        "notes": fields.String(required=True),
+        "description": fields.String(required=True),
         "active": fields.Boolean(required=True),
         "action": fields.Raw(required=True),
         "tags": fields.List(fields.String()),
         "rule": AnyType(),
     },
 )
-
 
 # Flow Control
 
@@ -162,25 +176,25 @@ m_flowcontrol = api.model(
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
-        "ttl": fields.Integer(required=True),
+        "timeframe": fields.Integer(required=True),
         "key": fields.List(fields.Raw(required=True)),
         "sequence": fields.List(fields.Raw(required=True)),
         "action": fields.Raw(required=True),
         "include": fields.List(fields.String()),
         "exclude": fields.List(fields.String()),
-        "notes": fields.String(required=True),
+        "description": fields.String(required=True),
         "active": fields.Boolean(required=True),
     },
 )
-
 
 ### mapping from doc name to model
 
 models = {
     "ratelimits": m_limit,
     "securitypolicies": m_securitypolicy,
-    "wafrules": m_wafrule,
-    "wafpolicies": m_wafpolicy,
+    "contentfilterrules": m_contentfilterrule,
+    "contentfiltergroups": m_contentfiltergroup,
+    "contentfilterprofiles": m_contentfilterprofile,
     "aclprofiles": m_aclprofile,
     "globalfilters": m_globalfilter,
     "flowcontrol": m_flowcontrol,
@@ -194,7 +208,6 @@ m_document_mask = api.model(
         "id": fields.String(required=True),
         "name": fields.String(required=True),
         "description": fields.String(required=True),
-        "notes": fields.String(required=True),
         "map": fields.List(fields.Nested(m_secprofilemap)),
         "include": fields.Wildcard(fields.Raw()),
         "exclude": fields.Wildcard(fields.Raw()),
@@ -202,7 +215,7 @@ m_document_mask = api.model(
         "allow": fields.List(fields.String()),
         "allow_bot": fields.List(fields.String()),
         "deny_bot": fields.List(fields.String()),
-        "bypass": fields.List(fields.String()),
+        "passthrough": fields.List(fields.String()),
         "deny": fields.List(fields.String()),
         "force_deny": fields.List(fields.String()),
         "match": fields.String(),
@@ -328,33 +341,44 @@ base_path = Path(__file__).parent
 acl_profile_file_path = (base_path / "./json/acl-profile.schema").resolve()
 with open(acl_profile_file_path) as json_file:
     acl_profile_schema = json.load(json_file)
-ratelimits_file_path = (base_path / "../json/rate-limits.schema").resolve()
+ratelimits_file_path = (base_path / "./json/rate-limits.schema").resolve()
 with open(ratelimits_file_path) as json_file:
     ratelimits_schema = json.load(json_file)
 securitypolicies_file_path = (base_path / "./json/security-policies.schema").resolve()
 with open(securitypolicies_file_path) as json_file:
     securitypolicies_schema = json.load(json_file)
-waf_policy_file_path = (base_path / "../json/waf-policy.schema").resolve()
-with open(waf_policy_file_path) as json_file:
-    waf_policy_schema = json.load(json_file)
+content_filter_profile_file_path = (
+    base_path / "./json/content-filter-profile.schema"
+).resolve()
+with open(content_filter_profile_file_path) as json_file:
+    content_filter_profile_schema = json.load(json_file)
 globalfilters_file_path = (base_path / "./json/global-filters.schema").resolve()
 with open(globalfilters_file_path) as json_file:
     globalfilters_schema = json.load(json_file)
 flowcontrol_file_path = (base_path / "../json/flow-control.schema").resolve()
 with open(flowcontrol_file_path) as json_file:
     flowcontrol_schema = json.load(json_file)
-waf_rule_file_path = (base_path / "../json/waf-rule.schema").resolve()
-with open(waf_rule_file_path) as json_file:
-    waf_rule_schema = json.load(json_file)
+content_filter_rule_file_path = (
+    base_path / "./json/content-filter-rule.schema"
+).resolve()
+with open(content_filter_rule_file_path) as json_file:
+    content_filter_rule_schema = json.load(json_file)
+content_filter_groups_file_path = (
+    base_path / "./json/content-filter-groups.schema"
+).resolve()
+with open(content_filter_groups_file_path) as json_file:
+    content_filter_groups_schema = json.load(json_file)
+
 
 schema_type_map = {
     "ratelimits": ratelimits_schema,
     "securitypolicies": securitypolicies_schema,
-    "wafpolicies": waf_policy_schema,
+    "contentfilterprofiles": content_filter_profile_schema,
     "aclprofiles": acl_profile_schema,
     "globalfilters": globalfilters_schema,
     "flowcontrol": flowcontrol_schema,
-    "wafrules": waf_rule_schema,
+    "contentfilterrules": content_filter_rule_schema,
+    "contentfiltergroups": content_filter_groups_schema,
 }
 
 

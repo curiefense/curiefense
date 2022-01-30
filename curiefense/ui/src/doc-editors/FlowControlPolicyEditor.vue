@@ -30,15 +30,15 @@
             </div>
             <div class="field">
               <label class="label is-small has-text-left form-label">
-                TTL
+                Time Frame
               </label>
               <div class="control suffix seconds-suffix">
-                <input class="input is-small document-ttl"
+                <input class="input is-small document-timeframe"
                        type="number"
                        title="Flow control policy duration"
                        placeholder="Flow control policy duration"
                        @change="emitDocUpdate"
-                       v-model.number="localDoc.ttl">
+                       v-model.number="localDoc.timeframe">
               </div>
             </div>
             <div class="field">
@@ -72,12 +72,12 @@
                                label-separated-line/>
             </div>
             <div class="field">
-              <label class="label is-small">Notes</label>
+              <label class="label is-small">Description</label>
               <div class="control">
-                <textarea class="is-small textarea document-notes"
-                          title="Notes"
+                <textarea class="is-small textarea document-description"
+                          title="Description"
                           @change="emitDocUpdate"
-                          v-model="localDoc.notes"
+                          v-model="localDoc.description"
                           rows="2">
                 </textarea>
               </div>

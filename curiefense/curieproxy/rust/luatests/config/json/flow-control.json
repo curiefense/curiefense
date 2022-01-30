@@ -46,11 +46,11 @@
             }
         ],
         "active": true,
-        "notes": "New Flow Control Notes and Remarks",
+        "description": "New Flow Control Description and Remarks",
         "action": {
             "type": "default"
         },
-        "ttl": 4,
+        "timeframe": 4,
         "id": "c03dabe4b9ca"
     },
     {
@@ -96,11 +96,11 @@
             }
         ],
         "active": true,
-        "notes": "abc",
+        "description": "abc",
         "action": {
             "type": "default"
         },
-        "ttl": 4,
+        "timeframe": 4,
         "id": "d03dabe4b9ca"
     },
     {
@@ -135,17 +135,17 @@
             }
         ],
         "active": true,
-        "notes": "abc",
+        "description": "abc",
         "action": {
             "type": "ban",
             "params": {
-                "ttl": "3600",
+                "duration": "3600",
                 "action": {
                     "type": "default"
                 }
             }
         },
-        "ttl": 4,
+        "timeframe": 4,
         "id": "d03dabe4b9ca"
     },
     {
@@ -184,11 +184,50 @@
             }
         ],
         "active": true,
-        "notes": "",
+        "description": "",
         "action": {
             "type": "default"
         },
-        "ttl": 4,
-        "id": "c03dabe4b9ca"
+        "timeframe": 4,
+        "id": "c03dabe4b9cb"
+    },
+    {
+        "exclude": [],
+        "include": [
+            "all"
+        ],
+        "name": "Flow Control (challenge)",
+        "key": [
+            {
+                "attrs": "ip"
+            }
+        ],
+        "sequence": [
+            {
+                "method": "GET",
+                "uri": "/rlchl1",
+                "cookies": {},
+                "headers": {
+                    "host": "www.example.com"
+                },
+                "args": {}
+            },
+            {
+                "method": "GET",
+                "uri": "/rlchl2",
+                "cookies": {},
+                "headers": {
+                    "host": "www.example.com"
+                },
+                "args": {}
+            }
+        ],
+        "active": true,
+        "description": "abc",
+        "action": {
+            "type": "challenge"
+        },
+        "timeframe": 4,
+        "id": "flowchallenge"
     }
 ]

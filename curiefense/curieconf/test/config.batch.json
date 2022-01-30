@@ -10,16 +10,18 @@
                 "id": "f971e92459e2",
                 "name": "New Rate Limit Rule rrt",
                 "description": "New Rate Limit Rule",
-                "ttl": "180",
+                "timeframe": "180",
+                "thresholds": [{
+                    "limit": "3",
+                    "action": {
+                        "type": "default"
+                    }
+                }],
                 "key": [
                     {
                         "attrs": "remote_addr"
                     }
                 ],
-                "limit": "3",
-                "action": {
-                    "type": "default"
-                },
                 "include": ["blacklist"],
                 "exclude": ["whitelist"],
                 "pairwith": {
@@ -30,16 +32,20 @@
                 "id": "739ae4cf811d",
                 "name": "New Rate Limit Rule",
                 "description": "New Rate Limit Rule",
-                "ttl": "180",
+                "timeframe": "180",
+                "thresholds": [
+                    {
+                        "limit": "3",
+                        "action": {
+                            "type": "default"
+                        }
+                    }
+                ],
                 "key": [
                     {
                         "attrs": "remote_addr"
                     }
                 ],
-                "limit": "3",
-                "action": {
-                    "type": "default"
-                },
                 "include": ["blacklist"],
                 "exclude": ["whitelist"],
                 "pairwith": {
@@ -55,9 +61,9 @@
                 "map": [
                     {
                         "limit_ids": [],
-                        "waf_active": true,
+                        "content_filter_active": true,
                         "acl_active": true,
-                        "waf_profile": "__default__",
+                        "content_filter_profile": "__default__",
                         "acl_profile": "__default__",
                         "name": "default",
                         "match": "/"
@@ -71,37 +77,37 @@
                 "map": [
                     {
                         "limit_ids": [],
-                        "waf_active": true,
+                        "content_filter_active": true,
                         "acl_active": true,
-                        "waf_profile": "__default__",
+                        "content_filter_profile": "__default__",
                         "acl_profile": "__default__",
                         "name": "Deny Custom Sig",
                         "match": "/deny-custom-sig"
                     },
                     {
                         "limit_ids": [],
-                        "waf_active": true,
+                        "content_filter_active": true,
                         "acl_active": true,
-                        "waf_profile": "__default__",
+                        "content_filter_profile": "__default__",
                         "acl_profile": "__default__",
                         "name": "Allow Custom Sig",
                         "match": "/allow-custom-sig"
                     },
                     {
                         "limit_ids": [],
-                        "waf_active": true,
+                        "content_filter_active": true,
                         "acl_active": true,
-                        "waf_profile": "__default__",
+                        "content_filter_profile": "__default__",
                         "acl_profile": "__default__",
                         "name": "Admin",
                         "match": "/admin"
                     },
                     {
                         "limit_ids": [],
-                        "waf_active": true,
+                        "content_filter_active": true,
                         "acl_active": true,
                         "acl_profile": "__default__",
-                        "waf_profile": "__default__",
+                        "content_filter_profile": "__default__",
                         "name": "default",
                         "match": "/"
                     }
@@ -114,18 +120,18 @@
                 "map": [
                     {
                         "limit_ids": [],
-                        "waf_active": true,
+                        "content_filter_active": true,
                         "acl_active": true,
-                        "waf_profile": "__default__",
+                        "content_filter_profile": "__default__",
                         "acl_profile": "__default__",
                         "name": "default",
                         "match": "/"
                     },
                     {
                         "limit_ids": [],
-                        "waf_active": true,
+                        "content_filter_active": true,
                         "acl_active": true,
-                        "waf_profile": "__default__",
+                        "content_filter_profile": "__default__",
                         "acl_profile": "__default__",
                         "name": "Admin",
                         "match": "/admin"
@@ -133,7 +139,7 @@
                 ]
             }
         ],
-        "wafrules": [
+        "contentfilterrules": [
             {
                 "id": "100000",
                 "name": "100000",
@@ -145,10 +151,10 @@
                 "subcategory": "statement injection"
             }
         ],
-        "wafpolicies": [
+        "contentfilterprofiles": [
             {
                 "id": "__default__",
-                "name": "default waf",
+                "name": "default contentfilter",
                 "ignore_alphanum": true,
                 "max_header_length": 1024,
                 "max_cookie_length": 1024,
@@ -263,7 +269,7 @@
             },
             {
                 "id": "CgXowRvO6zGjW9WMpoESC",
-                "name": "waf 002",
+                "name": "content filter 002",
                 "ignore_alphanum": true,
                 "max_header_length": 1024,
                 "max_cookie_length": 1024,
@@ -396,7 +402,7 @@
                     "vpn",
                     "tor"
                 ],
-                "bypass": [
+                "passthrough": [
                     "internalip"
                 ],
                 "deny": [
@@ -412,7 +418,7 @@
                 "allow": [],
                 "allow_bot": [],
                 "deny_bot": [],
-                "bypass": [],
+                "passthrough": [],
                 "deny": [],
                 "force_deny": []
             }
@@ -603,7 +609,7 @@
             {
                 "id": "c03dabe4b9ca",
                 "name": "Flow Control Policy Example",
-                "ttl": 60,
+                "timeframe": 60,
                 "key": [
                     {
                         "attrs": "ip"
@@ -632,7 +638,7 @@
                 "action": {
                     "type": "ban",
                     "params": {
-                        "ttl": "123",
+                        "duration": "123",
                         "action": {
                             "type": "default"
                         }

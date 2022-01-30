@@ -3,7 +3,7 @@ import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals
 import {shallowMount, Wrapper} from '@vue/test-utils'
 import axios from 'axios'
 import Vue from 'vue'
-import {ACLProfile, BasicDocument, Branch, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, WAFPolicy} from '@/types'
+import {ACLProfile, BasicDocument, Branch, FlowControlPolicy, RateLimit, GlobalFilter, SecurityPolicy, ContentFilterProfile} from '@/types'
 
 jest.useFakeTimers()
 jest.mock('axios')
@@ -17,7 +17,7 @@ describe('DocumentSearch.vue', () => {
   let securityPoliciesDocs: SecurityPolicy[]
   let flowControlPolicyDocs: FlowControlPolicy[]
   let rateLimitDocs: RateLimit[]
-  let wafDocs: WAFPolicy[]
+  let contentFilterDocs: ContentFilterProfile[]
   beforeEach((done) => {
     gitData = [
       {
@@ -142,7 +142,7 @@ describe('DocumentSearch.vue', () => {
           'google',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'internal',
         ],
         'deny': [
@@ -161,7 +161,7 @@ describe('DocumentSearch.vue', () => {
           'yahoo',
         ],
         'deny_bot': [],
-        'bypass': [
+        'passthrough': [
           'devops',
         ],
         'deny': [
@@ -178,7 +178,7 @@ describe('DocumentSearch.vue', () => {
         'name': 'API Discovery',
         'source': 'self-managed',
         'mdate': '2020-05-23T00:04:41',
-        'notes': 'Default Tag API Requests',
+        'description': 'Default Tag API Requests',
         'active': true,
         'tags': ['api'],
         'action': {
@@ -230,7 +230,7 @@ describe('DocumentSearch.vue', () => {
         'name': 'devop internal demo',
         'source': 'self-managed',
         'mdate': '2020-05-23T00:04:41',
-        'notes': 'this is my own list',
+        'description': 'this is my own list',
         'active': false,
         'tags': ['internal', 'devops'],
         'action': {
@@ -257,8 +257,8 @@ describe('DocumentSearch.vue', () => {
             'match': '/',
             'acl_profile': '5828321c37e0',
             'acl_active': false,
-            'waf_profile': '__default__',
-            'waf_active': false,
+            'content_filter_profile': '__default__',
+            'content_filter_active': false,
             'limit_ids': ['f971e92459e2'],
           },
           {
@@ -266,8 +266,8 @@ describe('DocumentSearch.vue', () => {
             'match': '/foo',
             'acl_profile': '__default__',
             'acl_active': false,
-            'waf_profile': '__default__',
-            'waf_active': false,
+            'content_filter_profile': '__default__',
+            'content_filter_active': false,
             'limit_ids': ['f971e92459e2'],
           },
           {
@@ -275,8 +275,8 @@ describe('DocumentSearch.vue', () => {
             'match': '/foo',
             'acl_profile': '__default__',
             'acl_active': false,
-            'waf_profile': '__default__',
-            'waf_active': false,
+            'content_filter_profile': '__default__',
+            'content_filter_active': false,
             'limit_ids': ['f971e92459e2'],
           },
         ],
@@ -285,7 +285,7 @@ describe('DocumentSearch.vue', () => {
     flowControlPolicyDocs = [
       {
         'active': true,
-        'notes': '',
+        'description': '',
         'exclude': [],
         'include': ['all'],
         'name': 'flow control policy',
@@ -318,7 +318,7 @@ describe('DocumentSearch.vue', () => {
           'type': 'default',
           'params': {},
         },
-        'ttl': 60,
+        'timeframe': 60,
         'id': 'c03dabe4b9ca',
       },
     ]
@@ -327,19 +327,23 @@ describe('DocumentSearch.vue', () => {
         'id': 'f971e92459e2',
         'name': 'Rate Limit Example Rule 5/60',
         'description': '5 requests per minute',
-        'ttl': '60',
-        'limit': '5',
-        'action': {'type': 'default'},
+        'timeframe': '60',
+        'thresholds': [
+          {
+            'limit': '5',
+            'action': {'type': 'default'},
+          }
+        ],
         'include': ['badpeople'],
         'exclude': ['goodpeople'],
         'key': [{'attrs': 'ip'}],
         'pairwith': {'self': 'self'},
       },
     ]
-    wafDocs = [
+    contentFilterDocs = [
       {
         'id': '01b2abccc275',
-        'name': 'default waf',
+        'name': 'default contentfilter',
         'ignore_alphanum': true,
         'max_header_length': 1024,
         'max_cookie_length': 1024,
@@ -372,8 +376,8 @@ describe('DocumentSearch.vue', () => {
       if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
         return Promise.resolve({data: rateLimitDocs})
       }
-      if (path === `/conf/api/v2/configs/${branch}/d/wafpolicies/`) {
-        return Promise.resolve({data: wafDocs})
+      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/`) {
+        return Promise.resolve({data: contentFilterDocs})
       }
       return Promise.resolve({data: []})
     })
@@ -427,7 +431,7 @@ describe('DocumentSearch.vue', () => {
     expect(isItemInFilteredDocs(profilingListDocs[1], 'globalfilters')).toBeTruthy()
     expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
     expect(isItemInFilteredDocs(flowControlPolicyDocs[0], 'flowcontrol')).toBeTruthy()
-    expect(isItemInFilteredDocs(wafDocs[0], 'wafpolicies')).toBeTruthy()
+    expect(isItemInFilteredDocs(contentFilterDocs[0], 'contentfilterprofiles')).toBeTruthy()
     expect(isItemInFilteredDocs(rateLimitDocs[0], 'ratelimits')).toBeTruthy()
     expect(numberOfFilteredDocs()).toEqual(8)
   })
@@ -455,7 +459,7 @@ describe('DocumentSearch.vue', () => {
 
   test('should not display duplicated values in connections even if connected twice', async () => {
     const wantedIDsACL = ['5828321c37e0', '__default__']
-    const wantedIDsWAF = ['__default__']
+    const wantedIDsContentFilter = ['__default__']
     const wantedIDsRateLimit = ['f971e92459e2']
     // switch filter type to security policy
     const searchTypeSelection = wrapper.find('.search-type-selection')
@@ -478,10 +482,10 @@ describe('DocumentSearch.vue', () => {
     // check that security policy exists without duplicated connections
     expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
     expect(connectionsCell.text()).toContain(`ACL Profiles:${wantedIDsACL.join('')}`)
-    expect(connectionsCell.text()).toContain(`WAF Policies:${wantedIDsWAF.join('')}`)
+    expect(connectionsCell.text()).toContain(`Content Filter Profiles:${wantedIDsContentFilter.join('')}`)
     expect(connectionsCell.text()).toContain(`Rate Limits:${wantedIDsRateLimit.join('')}`)
     expect(doc.connectedACL).toEqual(wantedIDsACL)
-    expect(doc.connectedWAF).toEqual(wantedIDsWAF)
+    expect(doc.connectedContentFilter).toEqual(wantedIDsContentFilter)
     expect(doc.connectedRateLimits).toEqual(wantedIDsRateLimit)
   })
 
@@ -510,7 +514,7 @@ describe('DocumentSearch.vue', () => {
       expect(isItemInFilteredDocs(aclDocs[1], 'aclprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(profilingListDocs[0], 'globalfilters')).toBeTruthy()
       expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
-      expect(isItemInFilteredDocs(wafDocs[0], 'wafpolicies')).toBeTruthy()
+      expect(isItemInFilteredDocs(contentFilterDocs[0], 'contentfilterprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(rateLimitDocs[0], 'ratelimits')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(6)
     })
@@ -532,7 +536,7 @@ describe('DocumentSearch.vue', () => {
       expect(isItemInFilteredDocs(aclDocs[1], 'aclprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(profilingListDocs[0], 'globalfilters')).toBeTruthy()
       expect(isItemInFilteredDocs(securityPoliciesDocs[0], 'securitypolicies')).toBeTruthy()
-      expect(isItemInFilteredDocs(wafDocs[0], 'wafpolicies')).toBeTruthy()
+      expect(isItemInFilteredDocs(contentFilterDocs[0], 'contentfilterprofiles')).toBeTruthy()
       expect(isItemInFilteredDocs(rateLimitDocs[0], 'ratelimits')).toBeTruthy()
       expect(numberOfFilteredDocs()).toEqual(6)
     })

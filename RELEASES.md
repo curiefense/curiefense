@@ -62,7 +62,12 @@ In order to accommodate downstream projects, new Curiefense releases are produce
 schedule (at the end of each quarter), with an acceptable delay of up to 2 weeks, with a hard
 deadline of 3 weeks.
 
+TBD: To Be Defined
+NRY: Not Released Yet
+
+
 | Version |  Expected  |   Actual   | Difference | End of Life |
 |:-------:|:----------:|:----------:|:----------:|:-----------:|
 | [1.3.0](https://github.com/curiefense/curiefense/releases/tag/v1.3.0)   | 2021/03/02 | 2021/03/02 |  +0 days   |     TBD     |
 | [1.4.0](https://github.com/curiefense/curiefense/releases/tag/v1.4.0)   | 2021/06/30 | 2021/07/27 |  +27 days  |     TBD     |
+| [1.4.1](https://github.com/curiefense/curiefense/releases/tag/v1.4.1)   | 2021/08/31 | NRY | NRY   |     TBD     |

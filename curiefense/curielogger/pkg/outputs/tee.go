@@ -1,36 +1,42 @@
 package outputs
 
 import (
-	"go.uber.org/atomic"
-	"io"
 	"sync"
+
+	"github.com/curiefense/curiefense/curielogger/pkg/entities"
+	"go.uber.org/atomic"
 )
 
+type LogCloser interface {
+	Write(log entities.CuriefenseLog) error
+	Close() error
+}
+
 type Tee struct {
-	fanOuts []io.WriteCloser
+	fanOuts []LogCloser
 	closed  *atomic.Bool
 }
 
-func NewTee(drivers []io.WriteCloser) io.WriteCloser {
+func NewTee(drivers []LogCloser) LogCloser {
 	return &Tee{fanOuts: drivers, closed: atomic.NewBool(false)}
 }
 
-func (b *Tee) Write(p []byte) (n int, err error) {
+func (b *Tee) Write(log entities.CuriefenseLog) (err error) {
 	if b.closed.Load() {
-		return 0, nil
+		return nil
 	}
 	wg := sync.WaitGroup{}
 	wg.Add(len(b.fanOuts))
 	for _, d := range b.fanOuts {
-		go func(w io.WriteCloser) {
+		go func(w LogCloser) {
 			defer wg.Done()
-			if _, e := w.Write(p); e != nil {
+			if e := w.Write(log); e != nil {
 				err = e
 			}
 		}(d)
 	}
 	wg.Wait()
-	return len(p), err
+	return err
 }
 
 func (b *Tee) Close() error {

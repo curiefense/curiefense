@@ -37,15 +37,15 @@
                         "title": "Match",
                         "description": "Regex to match host headers (domain names) for this URL map entry"
                     },
-                    "waf_profile": {
+                    "content_filter_profile": {
                         "type": "string",
-                        "title": "WAF Profile",
-                        "description": "WAF profile to be used by this URL map entry"
+                        "title": "Content Filter Profile",
+                        "description": "Content Filter profile to be used by this URL map entry"
                     },
-                    "waf_active": {
+                    "content_filter_active": {
                         "type": "boolean",
-                        "title": "WAF Active",
-                        "description": "When true, URL map entry will use the given WAF profile"
+                        "title": "Content Filter Active",
+                        "description": "When true, URL map entry will use the given Content Filter profile"
                     },
                     "acl_profile": {
                         "type": "string",

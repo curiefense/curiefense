@@ -64,7 +64,7 @@
             <input
                 class="input is-small action-duration"
                 type="text"
-                v-model="localAction.params.ttl"
+                v-model="localAction.params.duration"
                 @change="emitActionUpdate"
                 title="Duration"
                 placeholder="Duration">
@@ -138,7 +138,7 @@ export const responseActions = {
   'monitor': {'title': 'Tag Only'},
   'response': {'title': 'Response', 'params': {'status': '', 'content': ''}},
   'redirect': {'title': 'Redirect', 'params': {'status': '30[12378]', 'location': 'https?://.+'}},
-  'ban': {'title': 'Ban', 'params': {'ttl': '[0-9]+', 'action': {'type': 'default', 'params': {}}}},
+  'ban': {'title': 'Ban', 'params': {'duration': '[0-9]+', 'action': {'type': 'default', 'params': {}}}},
   'request_header': {'title': 'Header', 'params': {'headers': ''}},
 }
 
@@ -204,7 +204,7 @@ export default Vue.extend({
         this.localAction.params.location = oldParams.location ? oldParams.location : ''
       }
       if (this.localAction.type === 'ban') {
-        this.localAction.params.ttl = oldParams.ttl ? oldParams.ttl : ''
+        this.localAction.params.duration = oldParams.duration ? oldParams.duration : ''
         this.localAction.params.action = oldParams.action ? oldParams.action : {
           type: 'default',
         }

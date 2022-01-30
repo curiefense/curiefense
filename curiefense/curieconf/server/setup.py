@@ -27,7 +27,7 @@ setup(
         "flask",
         "flask_cors",
         "flask_pymongo",
-        "flask-restplus",
+        "flask-restx",
         "werkzeug==0.16.1",
         "gitpython",
         "colorama",

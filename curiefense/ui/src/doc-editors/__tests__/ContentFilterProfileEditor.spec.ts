@@ -1,22 +1,23 @@
-import WAFEditor from '@/doc-editors/WAFEditor.vue'
+import ContentFilterEditor from '@/doc-editors/ContentFilterProfileEditor.vue'
 import {beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount, Wrapper} from '@vue/test-utils'
 import Vue from 'vue'
-import {ArgsCookiesHeadersType, NamesRegexType, WAFPolicy, WAFRule} from '@/types'
+import {ArgsCookiesHeadersType, NamesRegexType, ContentFilterProfile, ContentFilterRuleGroup, ContentFilterRule} from '@/types'
 import AutocompleteInput from '@/components/AutocompleteInput.vue'
 import _ from 'lodash'
 import axios from 'axios'
 
 jest.mock('axios')
 
-describe('WAFEditor.vue', () => {
-  let docs: WAFPolicy[]
+describe('ContentFilterProfileEditor.vue', () => {
+  let docs: ContentFilterProfile[]
   let wrapper: Wrapper<Vue>
-  let wafRulesDocs: WAFRule[]
+  let contentFilterRulesDocs: ContentFilterRule[]
+  let contentFilterGroupsDocs: ContentFilterRuleGroup[]
   beforeEach(() => {
     docs = [{
       'id': '__default__',
-      'name': 'default waf',
+      'name': 'default contentfilter',
       'ignore_alphanum': true,
       'max_header_length': 1024,
       'max_cookie_length': 2048,
@@ -28,7 +29,7 @@ describe('WAFEditor.vue', () => {
       'headers': {'names': [], 'regex': []},
       'cookies': {'names': [], 'regex': []},
     }]
-    wafRulesDocs = [
+    contentFilterRulesDocs = [
       {
         'id': '100000',
         'name': '100000',
@@ -60,23 +61,42 @@ describe('WAFEditor.vue', () => {
         'msg': 'SQLi Attempt (Conditional Operator Detected)',
       },
     ]
+    contentFilterGroupsDocs = [
+      {
+        id: '1000',
+        name: '1000',
+        description: '',
+        content_filter_rule_ids: ['100000', '100001'],
+      },
+      {
+        id: '1001',
+        name: '1001',
+        description: '',
+        content_filter_rule_ids: [],
+      },
+    ]
     jest.spyOn(axios, 'get').mockImplementation((path, config) => {
       if (!wrapper) {
         return Promise.resolve({data: []})
       }
       const branch = (wrapper.vm as any).selectedBranch
-      if (path === `/conf/api/v2/configs/${branch}/d/wafrules/`) {
+      if (path === `/conf/api/v2/configs/${branch}/d/contentfilterrules/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve({data: _.map(wafRulesDocs, (i) => _.pick(i, 'id', 'name'))})
+          return Promise.resolve({data: _.map(contentFilterRulesDocs, (i) => _.pick(i, 'id', 'name'))})
         }
-        return Promise.resolve({data: wafRulesDocs})
+        return Promise.resolve({data: contentFilterRulesDocs})
+      } else if (path === `/conf/api/v2/configs/${branch}/d/contentfiltergroups/`) {
+        if (config?.headers?.['x-fields'] === 'id, name') {
+          return Promise.resolve({data: _.map(contentFilterGroupsDocs, (i) => _.pick(i, 'id', 'name'))})
+        }
+        return Promise.resolve({data: contentFilterGroupsDocs})
       }
       return Promise.resolve({data: []})
     })
-    const onUpdate = (doc: WAFPolicy) => {
+    const onUpdate = (doc: ContentFilterProfile) => {
       wrapper.setProps({selectedDoc: doc})
     }
-    wrapper = shallowMount(WAFEditor, {
+    wrapper = shallowMount(ContentFilterEditor, {
       propsData: {
         selectedDoc: docs[0],
         selectedBranch: 'master',
@@ -134,23 +154,14 @@ describe('WAFEditor.vue', () => {
   })
 
   test('should unpack exclusions correctly from model for view', async () => {
-    const unpackedExclusions = '100040 100041'
+    const unpackedExclusions = '1000 (Group)\n100000\n100001'
     const packedExclusions = {
-      '100040': 1,
-      '100041': 1,
+      1000: 'group',
+      100000: 'rule',
+      100001: 'rule',
     }
     const actualUnpackedExclusions = (wrapper.vm as any).unpackExclusions(packedExclusions)
     expect(actualUnpackedExclusions).toEqual(unpackedExclusions)
-  })
-
-  test('should pack exclusions correctly from view for model', async () => {
-    const unpackedExclusions = '100040 100041'
-    const packedExclusions = {
-      '100040': 1,
-      '100041': 1,
-    }
-    const actualPackedExclusions = (wrapper.vm as any).packExclusions(unpackedExclusions)
-    expect(actualPackedExclusions).toEqual(packedExclusions)
   })
 
   test('should unpack empty exclusions correctly from model for view', async () => {
@@ -160,11 +171,15 @@ describe('WAFEditor.vue', () => {
     expect(actualUnpackedExclusions).toEqual(unpackedExclusions)
   })
 
-  test('should pack empty exclusions correctly from view for model', async () => {
-    const unpackedExclusions = ''
-    const packedExclusions = {}
-    const actualPackedExclusions = (wrapper.vm as any).packExclusions(unpackedExclusions)
-    expect(actualPackedExclusions).toEqual(packedExclusions)
+  test('should remove nonexisting exclusions from model for view', async () => {
+    delete (wrapper.vm as any).contentFilter.group
+    const unpackedExclusions = (wrapper.vm as any).unpackExclusions({
+      1000: 'group',
+      100000: 'rule',
+      100001: 'rule',
+      900001: 'rule',
+    })
+    expect(unpackedExclusions).toEqual('100000\n100001')
   })
 
   buildTabDescribe('headers')
@@ -261,11 +276,27 @@ describe('WAFEditor.vue', () => {
 
           test('should add exclusions when creating new parameter', async () => {
             const wantedValue = {
-              '100040': 1,
-              '100041': 1,
+              1000: 'group',
+              100000: 'rule',
+              100001: 'rule',
             }
             const autocompleteInput = wrapper.findComponent(AutocompleteInput)
-            autocompleteInput.vm.$emit('value-submitted', _.keys(wantedValue).join(' '))
+            autocompleteInput.vm.$emit('value-submitted', '100000\n100001\n1000 (Group)')
+            await Vue.nextTick()
+            const confirmButton = newRow.find('.confirm-add-new-parameter')
+            confirmButton.trigger('click')
+            await Vue.nextTick()
+            const actualValue = (wrapper.vm as any).localDoc[tab][type][0].exclusions
+            expect(actualValue).toEqual(wantedValue)
+          })
+
+          test('should remove nonexisting exclusions when creating new parameter', async () => {
+            const wantedValue = {
+              1000: 'group',
+              100000: 'rule',
+            }
+            const autocompleteInput = wrapper.findComponent(AutocompleteInput)
+            autocompleteInput.vm.$emit('value-submitted', '100000\n9acf66222\n1000 (Group)\n900')
             await Vue.nextTick()
             const confirmButton = newRow.find('.confirm-add-new-parameter')
             confirmButton.trigger('click')
@@ -279,6 +310,8 @@ describe('WAFEditor.vue', () => {
               {value: '100000'},
               {value: '100001'},
               {value: '100002'},
+              {value: '1000 (Group)'},
+              {value: '1001 (Group)'},
             ]
             const autocompleteInput = wrapper.findComponent(AutocompleteInput)
             const actualValue = autocompleteInput.props('suggestions')
@@ -286,9 +319,11 @@ describe('WAFEditor.vue', () => {
           })
 
           test('should have correct filtered suggestions passed to AutocompleteInput', async () => {
-            const existingRuleIDs = '100000 100002'
+            const existingRuleIDs = '100000\n100002'
             const wantedValue = [
               {value: '100001'},
+              {value: '1000 (Group)'},
+              {value: '1001 (Group)'},
             ]
             const autocompleteInput = wrapper.findComponent(AutocompleteInput)
             autocompleteInput.vm.$emit('value-submitted', existingRuleIDs)
@@ -307,6 +342,15 @@ describe('WAFEditor.vue', () => {
             await wrapper.vm.$forceUpdate()
             const rows = wrapper.findAll('.entry-row')
             expect(rows.length).toEqual(0)
+          })
+
+          test('should reset data when cancel button is clicked', async () => {
+            const cancelButton = wrapper.find('.cancel-new-parameter')
+            cancelButton.trigger('click')
+            await Vue.nextTick()
+            const {defaultNewEntry, newContentFilterLine, newEntry} = wrapper.vm as any
+            expect(newContentFilterLine).toBeFalsy()
+            expect(newEntry).toEqual(defaultNewEntry)
           })
         })
       }

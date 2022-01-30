@@ -220,27 +220,6 @@ services:
     networks:
       - curiemesh
 
-  # uncomment this to replace logstash with fluentd
-  # fluentd:
-  #   container_name: fluentd
-  #   hostname: fluentd
-  #   image: "curiefense/fluentd:${DOCKER_TAG}"
-  #   restart: always
-  #   volumes:
-  #     - type: bind
-  #       source: ./fluent.conf
-  #       target: /fluentd/etc/fluent.conf
-  #       read_only: true
-  #   environment:
-  #     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-  #     - CURIEFENSE_INDEX_NAME=curieaccesslog
-  #   networks:
-  #     - curiemesh
-  #   ports:
-  #     # http input
-  #     - 5001:5001
-
-
 networks:
   curiemesh:
     name: curiemesh

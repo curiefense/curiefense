@@ -22,9 +22,9 @@ pub struct RawSecurityPolicy {
     pub match_: String,
     pub name: String,
     pub acl_profile: String,
-    pub waf_profile: String,
+    pub content_filter_profile: String,
     pub acl_active: bool,
-    pub waf_active: bool,
+    pub content_filter_active: bool,
     pub limit_ids: Vec<String>,
 }
 
@@ -118,15 +118,22 @@ pub struct RawGlobalFilterSSection {
 pub struct RawLimit {
     pub id: String,
     pub name: String,
-    pub limit: String,
-    pub ttl: String,
+    pub timeframe: String,
     #[serde(default)]
     pub key: Vec<HashMap<String, String>>,
+    #[serde(default)]
+    pub thresholds: Vec<RawLimitThreshold>,
     #[serde(default)]
     pub include: Vec<String>,
     #[serde(default)]
     pub exclude: Vec<String>,
     pub pairwith: HashMap<String, String>,
+
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct RawLimitThreshold {
+    pub limit: String,
     pub action: RawAction,
 }
 
@@ -194,7 +201,7 @@ pub struct RawActionParams {
     pub reason: Option<String>,
     pub content: Option<String>,
     pub location: Option<String>,
-    pub ttl: Option<String>,
+    pub duration: Option<String>,
 }
 
 impl std::default::Default for RawActionParams {
@@ -207,7 +214,7 @@ impl std::default::Default for RawActionParams {
             reason: None,
             content: None,
             location: None,
-            ttl: None,
+            duration: None,
         }
     }
 }
@@ -220,7 +227,7 @@ pub struct AclProfile {
     pub allow_bot: HashSet<String>,
     pub deny: HashSet<String>,
     pub deny_bot: HashSet<String>,
-    pub bypass: HashSet<String>,
+    pub passthrough: HashSet<String>,
     pub force_deny: HashSet<String>,
 }
 
@@ -233,14 +240,14 @@ impl AclProfile {
             allow_bot: HashSet::new(),
             deny: HashSet::new(),
             deny_bot: HashSet::new(),
-            bypass: HashSet::new(),
+            passthrough: HashSet::new(),
             force_deny: HashSet::new(),
         }
     }
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RawWafProfile {
+pub struct RawContentFilterProfile {
     pub id: String,
     pub name: String,
     pub ignore_alphanum: bool,
@@ -250,27 +257,35 @@ pub struct RawWafProfile {
     pub max_headers_count: usize,
     pub max_cookies_count: usize,
     pub max_args_count: usize,
-    pub args: RawWafProperties,
-    pub headers: RawWafProperties,
-    pub cookies: RawWafProperties,
+    pub args: RawContentFilterProperties,
+    pub headers: RawContentFilterProperties,
+    pub cookies: RawContentFilterProperties,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RawWafProperties {
-    pub names: Vec<RawWafEntryMatch>,
-    pub regex: Vec<RawWafEntryMatch>,
+pub struct RawContentFilterProperties {
+    pub names: Vec<RawContentFilterEntryMatch>,
+    pub regex: Vec<RawContentFilterEntryMatch>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RawWafEntryMatch {
+pub struct RawContentFilterEntryMatch {
     pub key: String,
     pub reg: Option<String>,
     pub restrict: bool,
-    pub exclusions: Option<HashMap<String, u64>>,
+    pub exclusions: Option<HashMap<String, String>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct WafSignature {
+pub struct RawContentFilterGroup {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub content_filter_rule_ids: Option<Vec<String>>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct RawContentFilterRule {
     pub id: String,
     pub name: String,
     pub msg: String,
@@ -290,7 +305,7 @@ pub struct RawFlowEntry {
     #[serde(default)]
     pub key: Vec<HashMap<String, String>>,
     pub active: bool,
-    pub ttl: u64,
+    pub timeframe: u64,
     pub action: RawAction,
     pub sequence: Vec<RawFlowStep>,
 }

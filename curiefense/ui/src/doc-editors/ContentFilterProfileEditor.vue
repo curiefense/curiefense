@@ -159,13 +159,13 @@
                            v-if="localDoc && localDoc[tab]">
                       <thead>
                       <tr>
-                        <th class="has-text-centered">Parameter</th>
-                        <th class="has-text-centered">Matching Value</th>
-                        <th class="has-text-centered">Restrict?</th>
-                        <th class="has-text-centered">Mask?</th>
-                        <th class="has-text-centered">Exclude WAF Rule</th>
-                        <th class="has-text-centered">
-                          <a v-show="newWAFLine !== tab"
+                        <th class="has-text-centered width-30pct">Parameter</th>
+                        <th class="has-text-centered width-25pct">Matching Value</th>
+                        <th class="has-text-centered width-5pct">Restrict?</th>
+                        <th class="has-text-centered width-5pct">Mask?</th>
+                        <th class="has-text-centered width-30pct">Ignore Content Filter</th>
+                        <th class="has-text-centered width-5pct">
+                          <a v-show="newContentFilterLine !== tab"
                              class="has-text-grey-dark is-small new-parameter-button"
                              title="Add new parameter"
                              tabindex="0"
@@ -175,22 +175,23 @@
                              @keypress.enter="openAddNewParameter(tab)">
                             <span class="icon is-small"><i class="fas fa-plus"></i></span>
                           </a>
-                          <a v-show="newWAFLine === tab"
-                             class="has-text-grey-dark is-small" title="Cancel adding new parameter"
+                          <a v-show="newContentFilterLine === tab"
+                             class="has-text-grey-dark is-small cancel-new-parameter"
+                             title="Cancel adding new parameter"
                              tabindex="0"
-                             @click="newWAFLine = null"
+                             @click="cancelNewParemeter"
                              @keypress.space.prevent
-                             @keypress.space="newWAFLine = null"
-                             @keypress.enter="newWAFLine = null">
+                             @keypress.space="cancelNewParemeter"
+                             @keypress.enter="cancelNewParemeter">
                             <span class="icon is-small"><i class="fas fa-minus"></i></span>
                           </a>
                         </th>
                       </tr>
                       </thead>
                       <tbody>
-                      <tr v-if="newWAFLine === tab"
+                      <tr v-if="newContentFilterLine === tab"
                           class="has-background-warning-light new-parameter-row">
-                        <td class="px-0 py-0">
+                        <td class="px-0 py-0 width-30pct">
                           <table class="table is-fullwidth has-background-warning-light">
                             <tr>
                               <td class="is-fullwidth">
@@ -220,7 +221,7 @@
                                              type="text"
                                              v-model="newEntry.key"
                                              placeholder="Key"
-                                             title="Key"/>
+                                             title="Key" />
                                     </div>
                                   </div>
                                 </div>
@@ -228,56 +229,56 @@
                             </tr>
                           </table>
                         </td>
-                        <td>
+                        <td class="width-25pct">
                           <p class="control has-icons-left">
                             <input required
                                    class="input is-small new-entry-reg"
                                    type="text"
                                    v-model="newEntry.reg"
                                    placeholder="Value"
-                                   title="Value regex"/>
+                                   title="Value regex" />
                             <span class="icon is-small is-left has-text-grey">
-                                  <i class="fas fa-code"></i>
-                                </span>
+                              <i class="fas fa-code"></i>
+                            </span>
                           </p>
                         </td>
-                        <td class="has-text-centered">
+                        <td class="has-text-centered width-5pct">
                           <label class="checkbox">
                             <input type="checkbox"
                                    class="new-entry-restrict"
                                    v-model="newEntry.restrict"/>
                           </label>
                         </td>
-                        <td class="has-text-centered">
+                        <td class="has-text-centered width-5pct">
                           <label class="checkbox">
                             <input type="checkbox"
                                    class="new-entry-mask"
                                    v-model="newEntry.mask"/>
                           </label>
                         </td>
-                        <td>
+                        <td class="width-30pct">
                           <autocomplete-input
-                              :suggestions="entryExclusionsSuggestions(newEntry)"
-                              :clear-input-after-selection="false"
-                              :auto-focus="false"
-                              class="new-entry-exclusions"
-                              selection-type="multiple"
-                              title="Space separated rule IDs"
-                              @value-submitted="updateEntryExclusions(newEntry, $event)"/>
+                            input-type="textarea"
+                            :suggestions="entryExclusionsSuggestions(newEntry)"
+                            :clear-input-after-selection="false"
+                            :auto-focus="false"
+                            class="new-entry-exclusions"
+                            selection-type="multiple"
+                            :title="autocompleteTitle"
+                            @value-submitted="updateEntryExclusions(newEntry, $event)" />
                         </td>
-                        <td class="has-text-centered">
+                        <td class="has-text-centered width-5pct">
                           <button title="Add new parameter"
                                   class="button is-light is-small confirm-add-new-parameter"
                                   @click="addNewParameter">
                             <span class="icon is-small"><i class="fas fa-plus fa-xs"></i></span>
                           </button>
                         </td>
-
                       </tr>
                       <tr v-for="(entry, idx) in localDoc[tab].names"
                           class="entry-row"
                           :key="genRowKey(tab, 'names', idx)">
-                        <td>
+                        <td class="width-30pct">
                           <div class="field">
                             <p class="control has-icons-left">
                               <input required
@@ -293,7 +294,7 @@
                             </p>
                           </div>
                         </td>
-                        <td>
+                        <td class="width-25pct">
                           <p class="control has-icons-left">
                             <input required
                                    class="input is-small entry-reg"
@@ -301,13 +302,13 @@
                                    @change="emitDocUpdate"
                                    v-model="entry.reg"
                                    placeholder="Value"
-                                   title="Value regex"/>
+                                   title="Value regex" />
                             <span class="icon is-small is-left has-text-grey">
                               <i class="fas fa-code"></i>
                             </span>
                           </p>
                         </td>
-                        <td class="has-text-centered">
+                        <td class="has-text-centered width-5pct">
                           <label class="checkbox">
                             <input type="checkbox"
                                    class="entry-restrict"
@@ -315,7 +316,7 @@
                                    v-model="entry.restrict"/>
                           </label>
                         </td>
-                        <td class="has-text-centered">
+                        <td class="has-text-centered width-5pct">
                           <label class="checkbox">
                             <input type="checkbox"
                                    class="entry-mask"
@@ -323,18 +324,19 @@
                                    v-model="entry.mask"/>
                           </label>
                         </td>
-                        <td>
+                        <td class="width-30pct">
                           <autocomplete-input
-                              :suggestions="entryExclusionsSuggestions(entry)"
-                              :clear-input-after-selection="false"
-                              :initial-value="unpackExclusions(entry.exclusions)"
-                              :auto-focus="false"
-                              class="entry-exclusions"
-                              selection-type="multiple"
-                              title="Space separated rule IDs"
-                              @value-submitted="updateEntryExclusions(entry, $event)"/>
+                            input-type="textarea"
+                            :suggestions="entryExclusionsSuggestions(entry)"
+                            :clear-input-after-selection="false"
+                            :initial-value="unpackExclusions(entry.exclusions)"
+                            :auto-focus="false"
+                            class="entry-exclusions"
+                            selection-type="multiple"
+                            :title="autocompleteTitle"
+                            @value-submitted="updateEntryExclusions(entry, $event)" />
                         </td>
-                        <td class="has-text-centered">
+                        <td class="has-text-centered width-5pct">
                           <button title="Delete entry"
                                   :data-curie="genRowKey(tab, 'names', idx)"
                                   @click="deleteEntryRow(tab, 'names', idx)"
@@ -348,7 +350,7 @@
                       <tr v-for="(entry, idx) in localDoc[tab].regex"
                           class="entry-row"
                           :key="genRowKey(tab, 'regex', idx)">
-                        <td>
+                        <td class="width-30pct">
                           <div class="field">
                             <p class="control has-icons-left">
                               <input required
@@ -364,7 +366,7 @@
                             </p>
                           </div>
                         </td>
-                        <td>
+                        <td class="width-25pct">
                           <p class="control has-icons-left">
                             <input required
                                    class="input is-small entry-reg"
@@ -378,34 +380,35 @@
                             </span>
                           </p>
                         </td>
-                        <td class="has-text-centered">
+                        <td class="has-text-centered width-5pct">
                           <label class="checkbox">
                             <input type="checkbox"
                                    class="entry-restrict"
                                    @change="emitDocUpdate"
-                                   v-model="entry.restrict"/>
+                                   v-model="entry.restrict" />
                           </label>
                         </td>
-                        <td class="has-text-centered">
+                        <td class="has-text-centered width-5pct">
                           <label class="checkbox">
                             <input type="checkbox"
                                    class="entry-mask"
                                    @change="emitDocUpdate"
-                                   v-model="entry.mask"/>
+                                   v-model="entry.mask" />
                           </label>
                         </td>
-                        <td>
+                        <td class="width-30pct">
                           <autocomplete-input
-                              :suggestions="entryExclusionsSuggestions(entry)"
-                              :clear-input-after-selection="false"
-                              :initial-value="unpackExclusions(entry.exclusions)"
-                              :auto-focus="false"
-                              class="entry-exclusions"
-                              selection-type="multiple"
-                              title="Space separated rule IDs"
-                              @value-submitted="updateEntryExclusions(entry, $event)"/>
+                            input-type="textarea"
+                            :suggestions="entryExclusionsSuggestions(entry)"
+                            :clear-input-after-selection="false"
+                            :initial-value="unpackExclusions(entry.exclusions)"
+                            :auto-focus="false"
+                            class="entry-exclusions"
+                            selection-type="multiple"
+                            :title="autocompleteTitle"
+                            @value-submitted="updateEntryExclusions(entry, $event)" />
                         </td>
-                        <td class="has-text-centered">
+                        <td class="has-text-centered width-5pct">
                           <button title="Delete entry"
                                   :data-curie="genRowKey(tab, 'regex', idx)"
                                   @click="deleteEntryRow(tab, 'regex', idx)"
@@ -421,7 +424,6 @@
                   </td>
                 </tr>
               </table>
-
             </div>
           </div>
         </div>
@@ -435,13 +437,15 @@
 import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import Vue from 'vue'
-import {ArgsCookiesHeadersType, NamesRegexType, WAFEntryMatch, WAFPolicy, WAFRule} from '@/types'
+import {
+  ArgsCookiesHeadersType, NamesRegexType, ContentFilterEntryMatch, ContentFilterProfile, ContentFilterIgnoreType,
+  ContentFilterRuleGroup, ContentFilterRule,
+} from '@/types'
 import AutocompleteInput, {AutocompleteSuggestion} from '@/components/AutocompleteInput.vue'
 import RequestsUtils from '@/assets/RequestsUtils'
-import {AxiosResponse} from 'axios'
 
 export default Vue.extend({
-  name: 'WAFEditor',
+  name: 'ContentFilterEditor',
   components: {AutocompleteInput},
   props: {
     selectedDoc: Object,
@@ -450,26 +454,32 @@ export default Vue.extend({
   },
 
   data() {
-    const defaultNewEntry: WAFEntryMatch = {
+    const defaultNewEntry: ContentFilterEntryMatch = {
       type: 'names',
       key: '',
       reg: '',
       restrict: false,
       mask: false,
-      exclusions: null,
+      exclusions: {},
     }
     return {
       tab: 'args' as ArgsCookiesHeadersType,
-      newWAFLine: null as ArgsCookiesHeadersType,
+      newContentFilterLine: null as ArgsCookiesHeadersType,
       newEntry: defaultNewEntry,
       titles: DatasetsUtils.titles,
       defaultNewEntry: defaultNewEntry,
-      wafRuleIDsSuggestions: [] as AutocompleteSuggestion[],
+      contentFilterSuggestions: [] as AutocompleteSuggestion[],
+      contentFilter: {
+        group: [] as ContentFilterRuleGroup[],
+        rule: [] as ContentFilterRule[],
+      },
+      autocompleteTitle: 'Rule or group name',
+      groupSuffix: '(Group)',
     }
   },
 
   computed: {
-    localDoc(): WAFPolicy {
+    localDoc(): ContentFilterProfile {
       return _.cloneDeep(this.selectedDoc)
     },
   },
@@ -480,43 +490,67 @@ export default Vue.extend({
     },
 
     openAddNewParameter(tab: ArgsCookiesHeadersType) {
-      this.newWAFLine = tab
+      this.newContentFilterLine = tab
+      this.newEntry = {...this.defaultNewEntry}
+    },
+
+    cancelNewParemeter() {
+      this.newContentFilterLine = null
       this.newEntry = {...this.defaultNewEntry}
     },
 
     addNewParameter() {
       const newEntry = _.cloneDeep(this.newEntry)
-      this.newEntry = this.newWAFLine = null
+      this.newEntry = null
+      this.newContentFilterLine = null
       const type: NamesRegexType = newEntry.type
       delete newEntry.type
       this.localDoc[this.tab][type].unshift(newEntry)
       this.emitDocUpdate()
     },
 
-    updateEntryExclusions(entry: WAFEntryMatch, exclusions: string) {
-      entry.exclusions = this.packExclusions(exclusions)
+    updateEntryExclusions(entry: ContentFilterEntryMatch, exclusions: string) {
+      const result: ContentFilterEntryMatch['exclusions'] = {}
+      const exclusionsArray: string[] = exclusions.trim().split('\n')
+      exclusionsArray.forEach((ex) => {
+        const exclusionType = ex.endsWith(this.groupSuffix) ? 'group' : 'rule'
+        const exId = this.getContentFilterId(exclusionType, ex)
+        if ( exId ) {
+          result[exId] = exclusionType
+        }
+      })
+      entry.exclusions = result
       this.emitDocUpdate()
     },
 
-    entryExclusionsSuggestions(entry: WAFEntryMatch) {
-      return _.filter(this.wafRuleIDsSuggestions, ((suggestion) => {
-        return !_.keys(entry.exclusions).includes(suggestion.value)
-      }))
+    entryExclusionsSuggestions({exclusions}: ContentFilterEntryMatch) {
+      return _.filter(this.contentFilterSuggestions, ({value}) => {
+        const exclusionType = value.endsWith(this.groupSuffix) ? 'group' : 'rule'
+        const exId = this.getContentFilterId(exclusionType, value)
+        return !exclusions?.[exId]
+      })
     },
 
-    packExclusions(exclusions: string) {
-      const ret = {}
-      if (_.size(exclusions) === 0 || !exclusions) {
-        return ret
-      }
-
-      return _.fromPairs(_.map(exclusions.split(' '), (ex) => {
-        return [ex.trim(), 1]
-      }))
+    unpackExclusions(exclusions: ContentFilterEntryMatch['exclusions']) {
+      const result: string[] = []
+      Object.keys(exclusions).forEach(
+        (exId) => {
+          const exclusionType = exclusions[exId]
+          const name = (this.contentFilter[exclusionType] as (ContentFilterRule | ContentFilterRuleGroup)[])?.find(
+            ({id}) => id === exId,
+          )?.name
+          if (name) {
+            result.push(exclusionType === 'group' ? `${name} ${this.groupSuffix}` : name)
+          }
+        },
+      )
+      return result.join('\n')
     },
 
-    unpackExclusions(exclusions: WAFEntryMatch['exclusions']) {
-      return _.keys(exclusions).join(' ')
+    getContentFilterId(exclusionType: ContentFilterIgnoreType, exclusions: string) {
+      return (this.contentFilter[exclusionType] as (ContentFilterRule | ContentFilterRuleGroup)[]).find(
+        ({name}) => exclusions.includes(name),
+      )?.id
     },
 
     genRowKey(tab: string, type: string, idx: number) {
@@ -528,25 +562,38 @@ export default Vue.extend({
       this.emitDocUpdate()
     },
 
-    loadWAFRuleIDs() {
-      const branch = this.selectedBranch
-
-      RequestsUtils.sendRequest({
-        methodName: 'GET',
-        url: `configs/${branch}/d/wafrules/`,
-        config: {headers: {'x-fields': 'id'}},
-      }).then((response: AxiosResponse<WAFRule[]>) => {
-        this.wafRuleIDsSuggestions = _.sortBy(_.map(response.data, (entity) => {
-          return {
-            value: entity.id,
-          }
-        }))
-      })
+    async loadContentFilterRuleIDs() {
+      const [cfRules, cfGroups] = await Promise.all([
+        RequestsUtils.sendRequest({
+          methodName: 'GET',
+          url: `configs/${this.selectedBranch}/d/contentfilterrules/`,
+          config: {headers: {'x-fields': 'id, name'}},
+        }),
+        RequestsUtils.sendRequest({
+          methodName: 'GET',
+          url: `configs/${this.selectedBranch}/d/contentfiltergroups/`,
+          config: {headers: {'x-fields': 'id, name'}},
+        }),
+      ])
+      this.contentFilter = {
+        rule: cfRules.data,
+        group: cfGroups.data,
+      }
+      this.contentFilterSuggestions = [
+        ..._.sortBy(_.map(this.contentFilter.rule, ({name}) => ({value: name}))),
+        ..._.sortBy(_.map(this.contentFilter.group, ({name}) => ({value: `${name} ${this.groupSuffix}`}))),
+      ]
     },
   },
 
   created() {
-    this.loadWAFRuleIDs()
+    this.loadContentFilterRuleIDs()
   },
 })
 </script>
+
+<style>
+  .dropdown .dropdown-menu {
+    width: auto;
+  }
+</style>

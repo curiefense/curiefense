@@ -1,27 +1,27 @@
 import axios, {AxiosRequestConfig, AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
-
-export type MethodNames = 'GET' | 'PUT' | 'POST' | 'DELETE'
+import {HttpRequestMethods} from '@/types'
 
 const confAPIRoot = '/conf/api'
 const confAPIVersion = 'v2'
 const logsAPIRoot = '/logs/api'
 const logsAPIVersion = 'v2'
 
-const axiosMethodsMap: Record<MethodNames, Function> = {
+// eslint-disable-next-line no-unused-vars
+const axiosMethodsMap: Partial<{ [key in HttpRequestMethods]: Function }> = {
   'GET': axios.get,
   'PUT': axios.put,
   'POST': axios.post,
   'DELETE': axios.delete,
 }
 
-const processRequest = (methodName: MethodNames, apiUrl: string, data: any, config: AxiosRequestConfig,
+const processRequest = (methodName: HttpRequestMethods, apiUrl: string, data: any, config: AxiosRequestConfig,
                         successMessage: string, failureMessage: string, undoFunction: () => any, onFail?: Function) => {
   // Get correct axios method
   if (!methodName) {
     methodName = 'GET'
   } else {
-    methodName = <MethodNames>methodName.toUpperCase()
+    methodName = <HttpRequestMethods>methodName.toUpperCase()
   }
   const axiosMethod = axiosMethodsMap[methodName]
   if (!axiosMethod) {
@@ -65,7 +65,7 @@ const processRequest = (methodName: MethodNames, apiUrl: string, data: any, conf
 }
 
 export interface IRequestParams {
-  methodName: MethodNames,
+  methodName: HttpRequestMethods,
   url: string,
   data?: any,
   config?: AxiosRequestConfig,

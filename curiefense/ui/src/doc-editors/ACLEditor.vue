@@ -106,7 +106,7 @@ export default Vue.extend({
 
   data() {
     return {
-      operations: ['force_deny', 'bypass', 'allow_bot', 'deny_bot', 'allow', 'deny'] as ACLProfileFilter[],
+      operations: ['force_deny', 'passthrough', 'allow_bot', 'deny_bot', 'allow', 'deny'] as ACLProfileFilter[],
       titles: DatasetsUtils.titles,
       addNewColName: null,
     }
@@ -118,7 +118,7 @@ export default Vue.extend({
 
     duplicateTags(): Dictionary<string> {
       const doc = this.localDoc
-      const allTags = _.concat(doc['force_deny'], doc['bypass'],
+      const allTags = _.concat(doc['force_deny'], doc['passthrough'],
           doc['allow_bot'], doc['deny_bot'], doc['allow'], doc['deny'])
       const dupTags = _.filter(allTags, (val, i, iteratee) => _.includes(iteratee, val, i + 1))
       const result = _.fromPairs(_.zip(dupTags, dupTags))
@@ -217,7 +217,7 @@ export default Vue.extend({
   @extend .has-background-danger;
 }
 
-.bar-bypass {
+.bar-passthrough {
   @extend .has-background-success;
 }
 

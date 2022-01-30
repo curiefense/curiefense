@@ -3,93 +3,100 @@ use libinjection::{sqli, xss};
 use serde_json::{json, Value};
 use std::collections::{HashMap, HashSet};
 
-use crate::config::raw::WafSignature;
-use crate::config::waf::{Section, SectionIdx, WafEntryMatch, WafProfile, WafSection, WafSignatures};
+use crate::config::contentfilter::{Section, SectionIdx, ContentFilterEntryMatch, ContentFilterProfile, ContentFilterSection, ContentFilterRules, ContentFilterRule};
 use crate::interface::{Action, ActionType};
 use crate::requestfields::RequestField;
 use crate::utils::RequestInfo;
 
 #[derive(Debug, Clone)]
-pub struct WafMatched {
+pub struct ContentFilterMatched {
     pub section: SectionIdx,
     pub name: String,
     pub value: String,
 }
 
-impl WafMatched {
+impl ContentFilterMatched {
     fn new(section: SectionIdx, name: String, value: String) -> Self {
-        WafMatched { section, name, value }
+        ContentFilterMatched { section, name, value }
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct WafMatch {
-    pub matched: WafMatched,
-    pub ids: Vec<WafSignature>,
+pub struct ContentFilterMatch {
+    pub matched: ContentFilterMatched,
+    pub ids: Vec<ContentFilterRule>,
 }
 
 #[derive(Debug, Clone)]
-pub enum WafBlock {
+pub enum ContentFilterBlock {
     TooManyEntries(SectionIdx),
     EntryTooLarge(SectionIdx, String),
-    Mismatch(WafMatched),
-    SqlInjection(WafMatched, String), // fingerprint
-    Xss(WafMatched),
-    Policies(Vec<WafMatch>),
+    Mismatch(ContentFilterMatched),
+    SqlInjection(ContentFilterMatched, String), // fingerprint
+    Xss(ContentFilterMatched),
+    Policies(Vec<ContentFilterMatch>),
 }
 
-impl WafBlock {
+impl ContentFilterBlock {
     pub fn to_action(&self) -> Action {
         let reason = match self {
-            WafBlock::Policies(ids) => ids
+            ContentFilterBlock::Policies(ids) => ids
                 .first()
                 .and_then(|e| {
                     e.ids.first().map(|sig| {
+                        let mut groups = Vec::new();
+                        for (group_id, group_name) in &sig.groups {
+                            groups.push(json!({
+                                "content_filter_group_id": group_id,
+                                "content_filter_group_name": group_name,
+                            }));
+                        }
                         json!({
                             "section": e.matched.section,
                             "name": e.matched.name,
                             "value": e.matched.value,
-                            "initiator": "waf",
+                            "initiator": "content_filter",
                             "sig_category": sig.category,
                             "sig_subcategory": sig.subcategory,
                             "sig_operand": sig.operand,
                             "sig_id": sig.id,
                             "sig_severity": sig.severity,
                             "sig_msg": sig.msg,
+                            "content_filter_groups": json!(groups),
                         })
                     })
                 })
                 .unwrap_or(Value::Null),
-            WafBlock::TooManyEntries(idx) => json!({
+            ContentFilterBlock::TooManyEntries(idx) => json!({
                 "section": idx,
-                "initiator": "waf",
+                "initiator": "content_filter",
                 "value": "Too many entries"
             }),
-            WafBlock::EntryTooLarge(idx, nm) => json!({
+            ContentFilterBlock::EntryTooLarge(idx, nm) => json!({
                 "section": idx,
                 "name": nm,
-                "initiator": "waf",
+                "initiator": "content_filter",
                 "value": "Entry too large"
             }),
-            WafBlock::SqlInjection(wmatch, fp) => json!({
+            ContentFilterBlock::SqlInjection(wmatch, fp) => json!({
                 "section": wmatch.section,
                 "name": wmatch.name,
-                "initiator": "waf",
+                "initiator": "content_filter",
                 "value": "SQLi",
                 "matched": wmatch.value,
                 "fingerprint": fp
             }),
-            WafBlock::Xss(wmatch) => json!({
+            ContentFilterBlock::Xss(wmatch) => json!({
                 "section": wmatch.section,
                 "name": wmatch.name,
-                "initiator": "waf",
+                "initiator": "content_filter",
                 "value": "WSS",
                 "matched": wmatch.value
             }),
-            WafBlock::Mismatch(wmatch) => json!({
+            ContentFilterBlock::Mismatch(wmatch) => json!({
                 "section": wmatch.section,
                 "name": wmatch.name,
-                "initiator": "waf",
+                "initiator": "content_filter",
                 "value": wmatch.value,
                 "msg": "Mismatch"
             }),
@@ -122,12 +129,12 @@ impl Default for Omitted {
     }
 }
 
-/// Runs the WAF part of curiefense
-pub fn waf_check(
+/// Runs the Content Filter part of curiefense
+pub fn content_filter_check(
     rinfo: &RequestInfo,
-    profile: &WafProfile,
-    hsdb: std::sync::RwLockReadGuard<Option<WafSignatures>>,
-) -> Result<(), WafBlock> {
+    profile: &ContentFilterProfile,
+    hsdb: std::sync::RwLockReadGuard<Option<ContentFilterRules>>,
+) -> Result<(), ContentFilterBlock> {
     use SectionIdx::*;
     let mut omit = Default::default();
 
@@ -169,18 +176,18 @@ pub fn waf_check(
 /// checks a section (headers, args, cookies) against the policy
 fn section_check(
     idx: SectionIdx,
-    section: &WafSection,
+    section: &ContentFilterSection,
     params: &RequestField,
     ignore_alphanum: bool,
     omit: &mut Omitted,
-) -> Result<(), WafBlock> {
+) -> Result<(), ContentFilterBlock> {
     if params.len() > section.max_count {
-        return Err(WafBlock::TooManyEntries(idx));
+        return Err(ContentFilterBlock::TooManyEntries(idx));
     }
 
     for (name, value) in params.iter() {
         if value.len() > section.max_length {
-            return Err(WafBlock::EntryTooLarge(idx, name.clone()));
+            return Err(ContentFilterBlock::EntryTooLarge(idx, name.clone()));
         }
 
         // automatically ignored
@@ -190,7 +197,7 @@ fn section_check(
         }
 
         // logic for checking an entry
-        let mut check_entry = |name_entry: &WafEntryMatch| {
+        let mut check_entry = |name_entry: &ContentFilterEntryMatch| {
             let matched = if let Some(re) = &name_entry.reg {
                 re.is_match(value)
             } else {
@@ -199,7 +206,7 @@ fn section_check(
             if matched {
                 omit.entries.at(idx).insert(name.clone());
             } else if name_entry.restrict {
-                return Err(WafBlock::Mismatch(WafMatched::new(idx, name.clone(), value.clone())));
+                return Err(ContentFilterBlock::Mismatch(ContentFilterMatched::new(idx, name.clone(), value.clone())));
             } else if !name_entry.exclusions.is_empty() {
                 omit.exclusions
                     .at(idx)
@@ -231,7 +238,7 @@ fn injection_check(
     params: &RequestField,
     omit: &Omitted,
     hca_keys: &mut HashMap<String, (SectionIdx, String)>,
-) -> Result<(), WafBlock> {
+) -> Result<(), ContentFilterBlock> {
     for (name, value) in params.iter() {
         if !omit.entries.get(idx).contains(name) {
             if !omit
@@ -243,15 +250,15 @@ fn injection_check(
             {
                 if let Some((b, fp)) = sqli(value) {
                     if b {
-                        return Err(WafBlock::SqlInjection(
-                            WafMatched::new(idx, name.clone(), value.clone()),
+                        return Err(ContentFilterBlock::SqlInjection(
+                            ContentFilterMatched::new(idx, name.clone(), value.clone()),
                             fp,
                         ));
                     }
                 }
                 if let Some(b) = xss(value) {
                     if b {
-                        return Err(WafBlock::Xss(WafMatched::new(idx, name.clone(), value.clone())));
+                        return Err(ContentFilterBlock::Xss(ContentFilterMatched::new(idx, name.clone(), value.clone())));
                     }
                 }
             }
@@ -265,9 +272,9 @@ fn injection_check(
 
 fn hyperscan(
     hca_keys: HashMap<String, (SectionIdx, String)>,
-    hsdb: std::sync::RwLockReadGuard<Option<WafSignatures>>,
+    hsdb: std::sync::RwLockReadGuard<Option<ContentFilterRules>>,
     exclusions: &Section<HashMap<String, HashSet<String>>>,
-) -> anyhow::Result<Option<WafBlock>> {
+) -> anyhow::Result<Option<ContentFilterBlock>> {
     let sigs = match &*hsdb {
         None => return Err(anyhow::anyhow!("Hyperscan database not loaded")),
         Some(x) => x,
@@ -301,8 +308,8 @@ fn hyperscan(
             Matching::Continue
         })?;
         if !ids.is_empty() {
-            matches.push(WafMatch {
-                matched: WafMatched::new(sid, name, k),
+            matches.push(ContentFilterMatch {
+                matched: ContentFilterMatched::new(sid, name, k),
                 ids,
             })
         }
@@ -310,6 +317,6 @@ fn hyperscan(
     Ok(if matches.is_empty() {
         None
     } else {
-        Some(WafBlock::Policies(matches))
+        Some(ContentFilterBlock::Policies(matches))
     })
 }

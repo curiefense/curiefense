@@ -57,6 +57,38 @@ def get_bucket(url):
             )  # , url=os.path.dirname(u.path))
         elif u.scheme == "azblob":
             storage = get_driver(DriverName.AZURE)(os.path.dirname(u.path))
+        elif u.scheme == "minio":
+            endpoint = os.environ.get("CURIE_MINIO_HOST", "minio")
+            akey = os.environ.get("CURIE_MINIO_ACCESS_KEY")
+            skey = os.environ.get("CURIE_MINIO_SECRET_KEY")
+            if not (akey and skey):
+                miniopth = os.environ.get("CURIE_MINIOCFG_PATH")
+                if not miniopth:
+                    for miniopth in [
+                        os.path.expanduser("~/.miniocfg"),
+                        "/var/run/secrets/miniocfg/miniocfg",
+                        "/var/run/secrets/miniocfg",
+                    ]:
+                        if os.path.isfile(miniopth):
+                            break
+                    else:
+                        raise Exception(
+                            "Did not find any credential to access %s" % url
+                        )
+                from configparser import ConfigParser
+
+                c = ConfigParser()
+                c.read(miniopth)
+                akey = c.get("default", "access_key")
+                skey = c.get("default", "secret_key")
+            if os.environ.get("CURIE_MINIO_SECURE", "TRUE") == "FALSE":
+                # testing environment only: no TLS
+                msec = False
+            else:
+                msec = True
+            storage = get_driver(DriverName.MINIO)(
+                endpoint=endpoint, key=akey, secret=skey, secure=msec
+            )
         else:
             raise Exception("Unknown or unsupported bucket URL scheme: [%s]" % u.scheme)
         bucket = storage.get_container(u.netloc)
