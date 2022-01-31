@@ -35,7 +35,7 @@ class TestUrlMap:
     def test_aclwaffilter(self, target):
         assert not target.is_reachable("/acl-waf/")
         assert not target.is_reachable(
-            "/acl/", headers={"Long-header": "Overlong_header" * 100}
+            "/acl-waf/", headers={"Long-header": "Overlong_header" * 100}
         )
 
     def test_nondefault_wafpolicy_short_headers(self, target):

@@ -49,8 +49,8 @@ class UrlMapHelper:
                         "match": "/acl/",
                         "acl_profile": "__default__",
                         "acl_active": True,
-                        "contentfilterprofiles": "__default__",
-                        "waf_active": False,
+                        "content_filter_profile": "__default__",
+                        "content_filter_active": False,
                         "limit_ids": [],
                         "isnew": True,
                     },
@@ -59,8 +59,8 @@ class UrlMapHelper:
                         "match": "/acl-bypassall/",
                         "acl_profile": "e2e00ac10000",
                         "acl_active": True,
-                        "contentfilterprofiles": "__default__",
-                        "waf_active": True,
+                        "content_filter_profile": "__default__",
+                        "content_filter_active": True,
                         "limit_ids": [],
                         "isnew": True,
                     },
@@ -69,8 +69,8 @@ class UrlMapHelper:
                         "match": "/acl-waf/",
                         "acl_profile": "__default__",
                         "acl_active": True,
-                        "contentfilterprofiles": "__default__",
-                        "waf_active": True,
+                        "content_filter_profile": "__default__",
+                        "content_filter_active": True,
                         "limit_ids": [],
                         "isnew": True,
                     },
@@ -79,8 +79,8 @@ class UrlMapHelper:
                         "match": "/waf/",
                         "acl_profile": "__default__",
                         "acl_active": False,
-                        "contentfilterprofiles": "__default__",
-                        "waf_active": True,
+                        "content_filter_profile": "__default__",
+                        "content_filter_active": True,
                         "limit_ids": [],
                         "isnew": True,
                     },
@@ -89,8 +89,8 @@ class UrlMapHelper:
                         "match": "/waf-short-headers/",
                         "acl_profile": "__default__",
                         "acl_active": False,
-                        "contentfilterprofiles": "e2e000000002",
-                        "waf_active": True,
+                        "content_filter_profile": "e2e000000002",
+                        "content_filter_active": True,
                         "limit_ids": [],
                         "isnew": True,
                     },
@@ -99,8 +99,8 @@ class UrlMapHelper:
                         "match": "/nofilter/",
                         "acl_profile": "__default__",
                         "acl_active": False,
-                        "contentfilterprofiles": "__default__",
-                        "waf_active": False,
+                        "content_filter_profile": "__default__",
+                        "content_filter_active": False,
                         "limit_ids": [],
                     },
                 ],
@@ -120,7 +120,7 @@ def urlmap_config(cli, acl, api_config):
         f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['acl_setting']} /dev/stdin", inputjson=default_acl
     )
     # Add waf profile entry
-    wafpolicy = cli.call(f"doc get {BaseHelper.TEST_CONFIG_NAME} wafpolicies")
+    wafpolicy = cli.call(f"doc get {BaseHelper.TEST_CONFIG_NAME} {api_config['wafpolicies']}")
     wafpolicy.append(UrlMapHelper.waf_short_headers_json())
     cli.call(
         f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['wafpolicies']} /dev/stdin", inputjson=wafpolicy
