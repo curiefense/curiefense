@@ -200,8 +200,8 @@ class WafPoliciesHelper:
                                "match": "/",
                                "acl_profile": "__default__",
                                "acl_active": True,
-                               "waf_profile": "__default__",
-                               "waf_active": True,
+                               "content_filter_profile": "__default__",
+                               "content_filter_active": True,
                                "limit_ids": [],
                            }
                        ]
@@ -211,8 +211,8 @@ class WafPoliciesHelper:
                                "match": f"/{k}",
                                "acl_profile": "__default__",
                                "acl_active": True,
-                               "waf_profile": v,
-                               "waf_active": True,
+                               "content_filter_profile": v,
+                               "content_filter_active": True,
                                "limit_ids": [],
                            }
                            for k, v in map_path.items()
@@ -241,11 +241,11 @@ def restrict(request):
 def waf_test_config(cli, target, api_config):
     cli.revert_and_enable()
     # Add new Waf policies
-    waf_rules = cli.call(f"doc get {BaseHelper.TEST_CONFIG_NAME} wafpolicies")
+    waf_rules = cli.call(f"doc get {BaseHelper.TEST_CONFIG_NAME} {api_config['wafpolicies']}")
     (new_rules, new_urlmap) = WafPoliciesHelper.gen_waf_rules()
     waf_rules.extend(new_rules)
     # Apply waf_policies
-    cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['waf_settings']} /dev/stdin", inputjson=waf_rules)
+    cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['wafpolicies']} /dev/stdin", inputjson=waf_rules)
     # Apply new_urlmap
     cli.call(f"doc update {BaseHelper.TEST_CONFIG_NAME} {api_config['url_map']} /dev/stdin", inputjson=new_urlmap)
     cli.publish_and_apply()
