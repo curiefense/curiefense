@@ -1,7 +1,7 @@
 import SecurityPoliciesEditor from '@/doc-editors/SecurityPoliciesEditor.vue'
 import {afterEach, beforeEach, describe, expect, jest, test} from '@jest/globals'
 import {shallowMount, Wrapper} from '@vue/test-utils'
-import {ACLProfile, RateLimit, SecurityPolicy, ContentFilterProfile} from '@/types'
+import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy} from '@/types'
 import axios from 'axios'
 import Vue from 'vue'
 import _ from 'lodash'
@@ -148,7 +148,7 @@ describe('SecurityPoliciesEditor.vue', () => {
           {
             'limit': '5',
             'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
-          }
+          },
         ],
         'include': ['badpeople'],
         'exclude': ['goodpeople'],
@@ -164,7 +164,7 @@ describe('SecurityPoliciesEditor.vue', () => {
           {
             'limit': '5',
             'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
-          }
+          },
         ],
         'include': ['badpeople'],
         'exclude': ['goodpeople'],
@@ -220,7 +220,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     })
   })
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks()
   })
 
   test('should not send new requests to API if document data updates but document ID does not', async () => {
@@ -332,7 +332,8 @@ describe('SecurityPoliciesEditor.vue', () => {
       const entryContentFilterSelection = currentEntryRow.find('.current-entry-content-filter-selection')
       expect((entryContentFilterSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
       const entryContentFilterActive = currentEntryRow.find('.current-entry-content-filter-active')
-      expect((entryContentFilterActive.element as HTMLInputElement).checked).toEqual(securityPoliciesDocs[0].map[0].content_filter_active)
+      expect((entryContentFilterActive.element as HTMLInputElement).checked)
+        .toEqual(securityPoliciesDocs[0].map[0].content_filter_active)
       const entryACLSelection = currentEntryRow.find('.current-entry-acl-selection')
       expect((entryACLSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
       const entryACLActive = currentEntryRow.find('.current-entry-acl-active')
@@ -525,6 +526,18 @@ describe('SecurityPoliciesEditor.vue', () => {
       input.trigger('input')
       await Vue.nextTick();
       (input.element as HTMLInputElement).value = 'example.com'
+      input.trigger('input')
+      await Vue.nextTick()
+      expect(wrapper.emitted('form-invalid')).toBeTruthy()
+      expect(wrapper.emitted('form-invalid')[1]).toEqual([false])
+    })
+
+    test('should emit form is valid when changing match to valid one starting with special character', async () => {
+      const input = wrapper.find('.document-domain-name');
+      (input.element as HTMLInputElement).value = securityPoliciesDocs[0].match
+      input.trigger('input')
+      await Vue.nextTick();
+      (input.element as HTMLInputElement).value = '(api|service).company.(io|com)'
       input.trigger('input')
       await Vue.nextTick()
       expect(wrapper.emitted('form-invalid')).toBeTruthy()
@@ -847,7 +860,8 @@ describe('SecurityPoliciesEditor.vue', () => {
         const entryContentFilterSelection = currentEntryRow.find('.current-entry-content-filter-selection')
         expect((entryContentFilterSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         const entryContentFilterActive = currentEntryRow.find('.current-entry-content-filter-active')
-        expect((entryContentFilterActive.element as HTMLInputElement).checked).toEqual(securityPoliciesDocs[0].map[1].content_filter_active)
+        expect((entryContentFilterActive.element as HTMLInputElement).checked)
+          .toEqual(securityPoliciesDocs[0].map[1].content_filter_active)
         const entryACLSelection = currentEntryRow.find('.current-entry-acl-selection')
         expect((entryACLSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         const entryACLActive = currentEntryRow.find('.current-entry-acl-active')
@@ -910,7 +924,8 @@ describe('SecurityPoliciesEditor.vue', () => {
         const entryContentFilterSelection = currentEntryRow.find('.current-entry-content-filter-selection')
         expect((entryContentFilterSelection.element as HTMLSelectElement).selectedIndex).toEqual(1)
         const entryContentFilterActive = currentEntryRow.find('.current-entry-content-filter-active')
-        expect((entryContentFilterActive.element as HTMLInputElement).checked).toEqual(securityPoliciesDocs[0].map[1].content_filter_active)
+        expect((entryContentFilterActive.element as HTMLInputElement).checked)
+          .toEqual(securityPoliciesDocs[0].map[1].content_filter_active)
         const entryACLSelection = currentEntryRow.find('.current-entry-acl-selection')
         expect((entryACLSelection.element as HTMLSelectElement).selectedIndex).toEqual(0)
         const entryACLActive = currentEntryRow.find('.current-entry-acl-active')

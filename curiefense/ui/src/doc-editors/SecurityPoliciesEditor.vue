@@ -75,7 +75,9 @@
                 <td class="is-size-7 entry-content-filter"
                     :class="mapEntry.content_filter_active ? 'has-text-success' : 'has-text-danger'"
                     :title="mapEntry.content_filter_active ? 'Active mode' : 'Learning mode'">
-                  {{ contentFilterProfileName(mapEntry.content_filter_profile) ? contentFilterProfileName(mapEntry.content_filter_profile)[1] : '' }}
+                  {{
+                    contentFilterProfileName(mapEntry.content_filter_profile) ? contentFilterProfileName(mapEntry.content_filter_profile)[1] : ''
+                  }}
                 </td>
                 <td class="is-size-7 entry-acl"
                     :class="mapEntry.acl_active ? 'has-text-success' : 'has-text-danger'"
@@ -337,7 +339,7 @@ import _ from 'lodash'
 import DatasetsUtils from '@/assets/DatasetsUtils.ts'
 import RequestsUtils from '@/assets/RequestsUtils.ts'
 import Vue, {VueConstructor} from 'vue'
-import {ACLProfile, RateLimit, SecurityPolicy, SecurityPolicyEntryMatch, ContentFilterProfile} from '@/types'
+import {ACLProfile, ContentFilterProfile, RateLimit, SecurityPolicy, SecurityPolicyEntryMatch} from '@/types'
 import {AxiosResponse} from 'axios'
 import Utils from '@/assets/Utils'
 
@@ -407,32 +409,31 @@ export default (Vue as VueConstructor<Vue & {
       }
     },
 
-    isURLValid( url: string ) {
-      const URL_REGEX = /^[A-Za-z0-9]+[A-Za-z0-9%-._~:/?#[\]@!$&'()*+,;=]*$/g
-      return URL_REGEX.test( url )
+    isURLValid(url: string) {
+      const URL_REGEX = /^[A-Za-z0-9%-._~:/?#[\]@!$&'()*+,;=|]*$/g
+      return URL_REGEX.test(url)
     },
 
     isSelectedDomainMatchValid(): boolean {
       const newDomainMatch = this.localDoc.match?.trim()
       const isDomainMatchEmpty = newDomainMatch === ''
       const isDomainMatchDuplicate = this.domainNames.includes(
-        newDomainMatch,
+          newDomainMatch,
       ) ? this.initialDocDomainMatch !== newDomainMatch : false
-      const domainMatchContainsInvalidCharacters = !newDomainMatch.length || this.isURLValid( newDomainMatch )
-      return !isDomainMatchEmpty && !isDomainMatchDuplicate && domainMatchContainsInvalidCharacters
+      const domainMatchContainsInvalidCharacters = !this.isURLValid(newDomainMatch)
+      return !isDomainMatchEmpty && !isDomainMatchDuplicate && !domainMatchContainsInvalidCharacters
     },
 
     isSelectedMapEntryMatchValid(index: number): boolean {
       const newMapEntryMatch = this.localDoc.map[index] ? this.localDoc.map[index].match.trim() : ''
-      let isValid = newMapEntryMatch.startsWith( '/' )
-      if ( isValid ) {
-        const unslashedValue = newMapEntryMatch.substring(1)
-        const mapEntryMatchContainsInvalidCharacters = !unslashedValue.length || this.isURLValid( unslashedValue )
+      let isValid = newMapEntryMatch.startsWith('/')
+      if (isValid) {
         const isMapEntryMatchEmpty = newMapEntryMatch === ''
         const isMapEntryMatchDuplicate = this.entriesMatchNames.includes(
-          newMapEntryMatch,
+            newMapEntryMatch,
         ) ? this.initialMapEntryMatch !== newMapEntryMatch : false
-        isValid = !isMapEntryMatchEmpty && !isMapEntryMatchDuplicate && mapEntryMatchContainsInvalidCharacters
+        const mapEntryMatchContainsInvalidCharacters = !this.isURLValid(newMapEntryMatch.substring(1))
+        isValid = !isMapEntryMatchEmpty && !isMapEntryMatchDuplicate && !mapEntryMatchContainsInvalidCharacters
       }
       return isValid
     },
@@ -454,7 +455,7 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     addRateLimitToEntry(mapEntry: SecurityPolicyEntryMatch, id: string) {
-      if ( id ) {
+      if (id) {
         mapEntry.limit_ids.push(id)
         this.limitNewEntryModeMapEntryId = null
         this.limitMapEntryId = null
