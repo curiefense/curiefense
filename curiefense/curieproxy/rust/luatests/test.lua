@@ -285,9 +285,7 @@ local function test_content_filter(request_path)
     end
 
     if not good then
-      for _, log in ipairs(r.logs) do
-          print(log["elapsed_micros"] .. "µs " .. log["message"])
-      end
+      show_logs(r.logs)
       error("mismatch in " .. raw_request_map.name)
     end
   end
@@ -314,5 +312,11 @@ end
 for file in lfs.dir[[luatests/flows]] do
   if ends_with(file, ".json") then
     test_flow("luatests/flows/" .. file)
+  end
+end
+
+for file in lfs.dir[[luatests/ratelimit]] do
+  if ends_with(file, ".json") then
+    test_ratelimit("luatests/ratelimit/" .. file)
   end
 end
