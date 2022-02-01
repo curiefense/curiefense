@@ -436,12 +436,12 @@ export default (Vue as VueConstructor<Vue & {
       return isValid
     },
 
-    aclProfileName(id: string): string[] {
+    aclProfileName(id: string): string {
       const profile = _.find(this.aclProfileNames, (profile) => profile[0] === id)
       return profile?.[1] || ''
     },
 
-    contentFilterProfileName(id: string): string[] {
+    contentFilterProfileName(id: string): string {
       const profile = _.find(this.contentFilterProfileNames, (profile) => profile[0] === id)
       return profile?.[1] || ''
     },

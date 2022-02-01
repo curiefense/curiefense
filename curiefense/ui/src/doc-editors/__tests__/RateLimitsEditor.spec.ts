@@ -25,8 +25,8 @@ describe('RateLimitsEditor.vue', () => {
       'thresholds': [
         {
           'limit': '5',
-          'action': {'type': 'default'}
-        }
+          'action': {'type': 'default'},
+        },
       ],
       'timeframe': '60',
       'include': ['blocklist'],
@@ -114,10 +114,10 @@ describe('RateLimitsEditor.vue', () => {
         selectedBranch: 'master',
       },
       mocks: {
-        $router: mockRouter
+        $router: mockRouter,
       },
       listeners: {
-        'update:selectedDoc': onUpdate
+        'update:selectedDoc': onUpdate,
       },
     })
   })
@@ -341,10 +341,10 @@ describe('RateLimitsEditor.vue', () => {
     })
 
     test('should update threshold when change event occurs', async () => {
-      const newLimitOption = "20"
+      const newLimitOption = '20'
       const newActionOption = {
-        new: "value",
-        params: {}
+        new: 'value',
+        params: {},
       }
       const thresholdLimitField = wrapper.find('.document-limit')
       thresholdLimitField.setValue(newLimitOption)
@@ -356,7 +356,6 @@ describe('RateLimitsEditor.vue', () => {
       expect((wrapper.vm as any).localDoc.thresholds[0].limit).toEqual(newLimitOption)
       expect((wrapper.vm as any).localDoc.thresholds[0].action).toEqual(newActionOption)
     })
-
   })
 
   describe('event', () => {

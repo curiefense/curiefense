@@ -332,7 +332,7 @@ describe('DocumentSearch.vue', () => {
           {
             'limit': '5',
             'action': {'type': 'default'},
-          }
+          },
         ],
         'include': ['badpeople'],
         'exclude': ['goodpeople'],

@@ -674,7 +674,7 @@ describe('DocumentEditor.vue', () => {
         {
           'limit': '5',
           'action': {'type': 'default', 'params': {'action': {'type': 'default', 'params': {}}}},
-        }
+        },
       ],
       'include': ['badpeople'],
       'exclude': ['goodpeople'],
