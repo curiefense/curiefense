@@ -75,14 +75,12 @@
                 <td class="is-size-7 entry-content-filter"
                     :class="mapEntry.content_filter_active ? 'has-text-success' : 'has-text-danger'"
                     :title="mapEntry.content_filter_active ? 'Active mode' : 'Learning mode'">
-                  {{
-                    contentFilterProfileName(mapEntry.content_filter_profile) ? contentFilterProfileName(mapEntry.content_filter_profile)[1] : ''
-                  }}
+                  {{ contentFilterProfileName(mapEntry.content_filter_profile) }}
                 </td>
                 <td class="is-size-7 entry-acl"
                     :class="mapEntry.acl_active ? 'has-text-success' : 'has-text-danger'"
                     :title="mapEntry.acl_active ? 'Active mode' : 'Learning mode'">
-                  {{ aclProfileName(mapEntry.acl_profile) ? aclProfileName(mapEntry.acl_profile)[1] : '' }}
+                  {{ aclProfileName(mapEntry.acl_profile) }}
                 </td>
                 <td class="is-size-7 entry-rate-limits-count"
                     v-if="existingRateLimitIDs(mapEntry)">
@@ -439,13 +437,13 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     aclProfileName(id: string): string[] {
-      return _.find(this.aclProfileNames, (profile) => profile[0] === id)
+      const profile = _.find(this.aclProfileNames, (profile) => profile[0] === id)
+      return profile?.[1] || ''
     },
 
     contentFilterProfileName(id: string): string[] {
-      return _.find(this.contentFilterProfileNames, (profile) => {
-        return profile[0] === id
-      })
+      const profile = _.find(this.contentFilterProfileNames, (profile) => profile[0] === id)
+      return profile?.[1] || ''
     },
 
     newLimitRules(currentRateLimitIDs: string[]): RateLimit[] {
