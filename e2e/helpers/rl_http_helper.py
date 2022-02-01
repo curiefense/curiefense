@@ -833,8 +833,8 @@ class RateLimitHTTPHelper:
                                "match": "/",
                                "acl_profile": "__default__",
                                "acl_active": True,
-                               "waf_profile": "__default__",
-                               "waf_active": True,
+                               "content_filter_profile": "__default__",
+                               "content_filter_active": True,
                                "limit_ids": ["e2e100000000"],
                            }
                        ]
@@ -844,8 +844,8 @@ class RateLimitHTTPHelper:
                                "match": f"/{k}",
                                "acl_profile": "__default__",
                                "acl_active": True,
-                               "waf_profile": "__default__",
-                               "waf_active": True,
+                               "content_filter_profile": "__default__",
+                               "content_filter_active": True,
                                "limit_ids": [v],
                            }
                            for k, v in map_path.items()
