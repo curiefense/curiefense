@@ -1,6 +1,7 @@
 import pytest
 from e2e.core.base_helper import cli, target, log_fixture, BaseHelper
 from e2e.helpers.rl_helper import RateLimitHelper
+from typing import List, Optional
 
 
 class RateLimitHeaderHelper:
@@ -8,12 +9,54 @@ class RateLimitHeaderHelper:
     @staticmethod
     def gen_rl_rules(authority):
         rl_rules = []
+        prof_rules = []
         map_path = {}
+
+        def build_profiling_rule(id: str, name: str, prefix: str, **kwargs) -> List[str]:
+            for n in ["cookies", "headers", "args", "attrs"]:
+                r: Optional[str] = kwargs.get("%s_%s" % (prefix, n))
+                if r is None:
+                    continue
+                if isinstance(r, dict):
+                    (k, v) = list(r.items())[0]
+                    if n == "attrs":
+                        if k == "tags":
+                            return [v]
+                        entry = [k, v, "annotation"]
+                    else:
+                        entry = [n, [k, v], "annotation"]
+                else:
+                    entry = [n, r, "annotation"]
+                prof_rules.append(
+                    {
+                        "id": id,
+                        "name": name,
+                        "source": "self-managed",
+                        "mdate": "2020-11-22T00:00:00.000Z",
+                        "description": "E2E test tag rules",
+                        "entries_relation": "OR",
+                        "active": True,
+                        "tags": [id],
+                        "rule": {
+                            "relation": "OR",
+                            "sections": [
+                                {
+                                    "relation": "OR",
+                                    "entries": [entry],
+                                },
+                            ],
+                        },
+                    }
+                )
+                return [id]
+            return []
 
         def add_rl_rule(
                 path, ttl, limit, action_ext=None, subaction_ext=None, param_ext=None, **kwargs
         ):
-            rule_id = f"e2e{BaseHelper.generate_random_mixed_string(9)}"
+            rule_id = f"e2e1{len(rl_rules):0>9}"
+            incl_id = f"incl{len(rl_rules):0>9}"
+            excl_id = f"excl{len(rl_rules):0>9}"
 
             if subaction_ext is None:
                 subaction_ext = {}
@@ -22,37 +65,33 @@ class RateLimitHeaderHelper:
             if param_ext is None:
                 param_ext = {}
             map_path[path] = rule_id
+            incl = build_profiling_rule(incl_id, incl_id, "incl", **kwargs)
+            excl = build_profiling_rule(excl_id, excl_id, "excl", **kwargs)
             rl_rules.append(
                 {
                     "id": rule_id,
                     "name": path,
                     "description": 'rate limit http test',
-                    "ttl": ttl,
-                    "limit": limit,
-                    "action": {
-                        "type": kwargs.get("action", "default"),
-                        "params": {
+                    "timeframe": ttl,
+                    "thresholds": [
+                        {
+                            "limit": limit,
                             "action": {
-                                "type": kwargs.get("subaction", "default"),
-                                "params": kwargs.get("subaction_params", {}),
-                                **subaction_ext,
+                                "type": kwargs.get("action", "default"),
+                                "params": {
+                                    "action": {
+                                        "type": kwargs.get("subaction", "default"),
+                                        "params": kwargs.get("subaction_params", {}),
+                                        **subaction_ext,
+                                    },
+                                    **param_ext,
+                                },
+                                **action_ext,
                             },
-                            **param_ext,
-                        },
-                        **action_ext,
-                    },
-                    "include": {
-                        "cookies": kwargs.get("incl_cookies", {}),
-                        "headers": kwargs.get("incl_headers", {}),
-                        "args": kwargs.get("incl_args", {}),
-                        "attrs": kwargs.get("incl_attrs", {}),
-                    },
-                    "exclude": {
-                        "cookies": kwargs.get("excl_cookies", {}),
-                        "headers": kwargs.get("excl_headers", {}),
-                        "args": kwargs.get("excl_args", {}),
-                        "attrs": kwargs.get("excl_attrs", {}),
-                    },
+                        }
+                    ],
+                    "include": incl,
+                    "exclude": excl,
                     "key": kwargs.get("key", [{"attrs": "ip"}]),
                     "pairwith": kwargs.get("pairwith", {"self": "self"}),
                 }
@@ -448,7 +487,7 @@ class RateLimitHeaderHelper:
             limit=4,
             pairwith=({"headers": "header_event_ban_503_ip"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "ip"}]
         ),
         add_rl_rule(
@@ -457,7 +496,7 @@ class RateLimitHeaderHelper:
             limit=4,
             pairwith=({"headers": "header_event_ban_503_uri"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "uri"}]
         ),
         add_rl_rule(
@@ -466,7 +505,7 @@ class RateLimitHeaderHelper:
             limit=4,
             pairwith=({"headers": "header_event_ban_503_query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "query"}]
         ),
         add_rl_rule(
@@ -475,7 +514,7 @@ class RateLimitHeaderHelper:
             limit=4,
             pairwith=({"headers": "header_event_ban_503_path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
@@ -484,7 +523,7 @@ class RateLimitHeaderHelper:
             limit=4,
             pairwith=({"headers": "header_event_ban_503_asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "asn"}]
         ),
         add_rl_rule(
@@ -493,7 +532,7 @@ class RateLimitHeaderHelper:
             limit=4,
             pairwith=({"headers": "header_event_ban_503_method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}]
         ),
         add_rl_rule(
@@ -502,7 +541,7 @@ class RateLimitHeaderHelper:
             limit=4,
             pairwith=({"headers": "header_event_ban_503_company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "company"}]
         ),
         add_rl_rule(
@@ -511,7 +550,7 @@ class RateLimitHeaderHelper:
             limit=4,
             pairwith=({"headers": "header_event_ban_503_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "country"}]
         ),
         add_rl_rule(
@@ -520,7 +559,7 @@ class RateLimitHeaderHelper:
             limit=4,
             pairwith=({"headers": "header_event_ban_503_authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}]
         ),
         add_rl_rule(
@@ -529,7 +568,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_chl_ip"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "ip"}]
         ),
@@ -539,7 +578,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_chl_uri"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "uri"}]
         ),
@@ -549,7 +588,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_chl_query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "query"}]
         ),
@@ -559,7 +598,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_chl_path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "path"}]
         ),
@@ -569,7 +608,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_chl_method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "method"}]
         ),
@@ -579,7 +618,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_chl_company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "company"}]
         ),
@@ -589,7 +628,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_chl_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "ip"}]
         ),
@@ -599,7 +638,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_chl_asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "asn"}]
         ),
@@ -609,7 +648,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "ip"}]
         ),
@@ -619,7 +658,7 @@ class RateLimitHeaderHelper:
             limit=1,
             pairwith=({"headers": "header_event_ban_tag_ip"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "ip"}]
         ),
@@ -629,7 +668,7 @@ class RateLimitHeaderHelper:
             limit=1,
             pairwith=({"headers": "header_event_ban_tag_uri"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "uri"}]
         ),
@@ -639,7 +678,7 @@ class RateLimitHeaderHelper:
             limit=1,
             pairwith=({"headers": "header_event_ban_tag_query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "query"}]
         ),
@@ -649,7 +688,7 @@ class RateLimitHeaderHelper:
             limit=1,
             pairwith=({"headers": "header_event_ban_tag_path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "path"}]
         ),
@@ -659,7 +698,7 @@ class RateLimitHeaderHelper:
             limit=1,
             pairwith=({"headers": "header_event_ban_tag_asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "asn"}]
         ),
@@ -669,7 +708,7 @@ class RateLimitHeaderHelper:
             limit=1,
             pairwith=({"headers": "header_event_ban_tag_method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "method"}]
         ),
@@ -679,7 +718,7 @@ class RateLimitHeaderHelper:
             limit=1,
             pairwith=({"headers": "header_event_ban_tag_company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "company"}]
         ),
@@ -689,7 +728,7 @@ class RateLimitHeaderHelper:
             limit=1,
             pairwith=({"headers": "header_event_ban_tag_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "country"}]
         ),
@@ -699,7 +738,7 @@ class RateLimitHeaderHelper:
             limit=1,
             pairwith=({"headers": "header_event_ban_tag_authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "authority"}]
         ),
@@ -709,7 +748,7 @@ class RateLimitHeaderHelper:
             limit=3,
             pairwith=({"headers": "header_event_ban_res_ip"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_ip"},
             key=[{"attrs": "ip"}]
@@ -720,7 +759,7 @@ class RateLimitHeaderHelper:
             limit=3,
             pairwith=({"headers": "header_event_ban_res_uri"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_uri"},
             key=[{"attrs": "uri"}]
@@ -731,7 +770,7 @@ class RateLimitHeaderHelper:
             limit=3,
             pairwith=({"headers": "header_event_ban_res_query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_query"},
             key=[{"attrs": "query"}]
@@ -742,7 +781,7 @@ class RateLimitHeaderHelper:
             limit=3,
             pairwith=({"headers": "header_event_ban_res_path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_path"},
             key=[{"attrs": "path"}]
@@ -753,7 +792,7 @@ class RateLimitHeaderHelper:
             limit=3,
             pairwith=({"headers": "header_event_ban_res_asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_asn"},
             key=[{"attrs": "asn"}]
@@ -764,7 +803,7 @@ class RateLimitHeaderHelper:
             limit=3,
             pairwith=({"headers": "header_event_ban_res_method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_method"},
             key=[{"attrs": "method"}]
@@ -776,7 +815,7 @@ class RateLimitHeaderHelper:
             limit=3,
             pairwith=({"headers": "header_event_ban_res_company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_company"},
             key=[{"attrs": "company"}]
@@ -787,7 +826,7 @@ class RateLimitHeaderHelper:
             limit=3,
             pairwith=({"headers": "header_event_ban_res_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_country"},
             key=[{"attrs": "country"}]
@@ -798,7 +837,7 @@ class RateLimitHeaderHelper:
             limit=3,
             pairwith=({"headers": "header_event_ban_res_authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_authority"},
             key=[{"attrs": "authority"}]
@@ -809,7 +848,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_red_ip"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "ip"}]
@@ -820,7 +859,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_red_asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "asn"}]
@@ -831,7 +870,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_red_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "country"}]
@@ -842,7 +881,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_red_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "path"}]
@@ -853,7 +892,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_red_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "query"}]
@@ -864,7 +903,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_red_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "uri"}]
@@ -875,7 +914,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_red_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "method"}]
@@ -886,7 +925,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_red_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "company"}]
@@ -897,7 +936,7 @@ class RateLimitHeaderHelper:
             limit=5,
             pairwith=({"headers": "header_event_ban_red_country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "authority"}]

@@ -1,7 +1,7 @@
 import pytest
 from e2e.core.base_helper import cli, target, log_fixture, BaseHelper
 from e2e.helpers.rl_helper import RateLimitHelper
-import time
+from typing import List, Optional
 
 
 class RateLimitCookieHelper:
@@ -9,12 +9,54 @@ class RateLimitCookieHelper:
     @staticmethod
     def gen_rl_rules(authority):
         rl_rules = []
+        prof_rules = []
         map_path = {}
+
+        def build_profiling_rule(id: str, name: str, prefix: str, **kwargs) -> List[str]:
+            for n in ["cookies", "headers", "args", "attrs"]:
+                r: Optional[str] = kwargs.get("%s_%s" % (prefix, n))
+                if r is None:
+                    continue
+                if isinstance(r, dict):
+                    (k, v) = list(r.items())[0]
+                    if n == "attrs":
+                        if k == "tags":
+                            return [v]
+                        entry = [k, v, "annotation"]
+                    else:
+                        entry = [n, [k, v], "annotation"]
+                else:
+                    entry = [n, r, "annotation"]
+                prof_rules.append(
+                    {
+                        "id": id,
+                        "name": name,
+                        "source": "self-managed",
+                        "mdate": "2020-11-22T00:00:00.000Z",
+                        "description": "E2E test tag rules",
+                        "entries_relation": "OR",
+                        "active": True,
+                        "tags": [id],
+                        "rule": {
+                            "relation": "OR",
+                            "sections": [
+                                {
+                                    "relation": "OR",
+                                    "entries": [entry],
+                                },
+                            ],
+                        },
+                    }
+                )
+                return [id]
+            return []
 
         def add_rl_rule(
                 path, ttl, limit, action_ext=None, subaction_ext=None, param_ext=None, **kwargs
         ):
-            rule_id = f"e2e{BaseHelper.generate_random_mixed_string(9)}"
+            rule_id = f"e2e1{len(rl_rules):0>9}"
+            incl_id = f"incl{len(rl_rules):0>9}"
+            excl_id = f"excl{len(rl_rules):0>9}"
 
             if subaction_ext is None:
                 subaction_ext = {}
@@ -23,37 +65,33 @@ class RateLimitCookieHelper:
             if param_ext is None:
                 param_ext = {}
             map_path[path] = rule_id
+            incl = build_profiling_rule(incl_id, incl_id, "incl", **kwargs)
+            excl = build_profiling_rule(excl_id, excl_id, "excl", **kwargs)
             rl_rules.append(
                 {
                     "id": rule_id,
                     "name": path,
                     "description": 'rate limit http test',
-                    "ttl": ttl,
-                    "limit": limit,
-                    "action": {
-                        "type": kwargs.get("action", "default"),
-                        "params": {
+                    "timeframe": ttl,
+                    "thresholds": [
+                        {
+                            "limit": limit,
                             "action": {
-                                "type": kwargs.get("subaction", "default"),
-                                "params": kwargs.get("subaction_params", {}),
-                                **subaction_ext,
+                                "type": kwargs.get("action", "default"),
+                                "params": {
+                                    "action": {
+                                        "type": kwargs.get("subaction", "default"),
+                                        "params": kwargs.get("subaction_params", {}),
+                                        **subaction_ext,
+                                    },
+                                    **param_ext,
+                                },
+                                **action_ext,
                             },
-                            **param_ext,
-                        },
-                        **action_ext,
-                    },
-                    "include": {
-                        "cookies": kwargs.get("incl_cookies", {}),
-                        "headers": kwargs.get("incl_headers", {}),
-                        "args": kwargs.get("incl_args", {}),
-                        "attrs": kwargs.get("incl_attrs", {}),
-                    },
-                    "exclude": {
-                        "cookies": kwargs.get("excl_cookies", {}),
-                        "headers": kwargs.get("excl_headers", {}),
-                        "args": kwargs.get("excl_args", {}),
-                        "attrs": kwargs.get("excl_attrs", {}),
-                    },
+                        }
+                    ],
+                    "include": incl,
+                    "exclude": excl,
                     "key": kwargs.get("key", [{"attrs": "ip"}]),
                     "pairwith": kwargs.get("pairwith", {"self": "self"}),
                 }
@@ -693,7 +731,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "ip"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
@@ -702,7 +740,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "ip"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "query"}]
         ),
         add_rl_rule(
@@ -711,7 +749,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "ip"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "uri"}]
         ),
         add_rl_rule(
@@ -720,7 +758,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "ip"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}]
         ),
         add_rl_rule(
@@ -729,7 +767,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "ip"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}]
         ),
         add_rl_rule(
@@ -738,7 +776,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "uri"}]
         ),
         add_rl_rule(
@@ -747,7 +785,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
@@ -756,7 +794,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "query"}]
         ),
         add_rl_rule(
@@ -765,7 +803,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}]
         ),
         add_rl_rule(
@@ -774,7 +812,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}]
         ),
         add_rl_rule(
@@ -783,7 +821,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "uri"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "ip"}]
         ),
         add_rl_rule(
@@ -792,7 +830,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "uri"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "asn"}]
         ),
         add_rl_rule(
@@ -801,7 +839,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "uri"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}]
         ),
         add_rl_rule(
@@ -810,7 +848,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "uri"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "country"}]
         ),
         add_rl_rule(
@@ -819,7 +857,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "uri"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "company"}]
         ),
         add_rl_rule(
@@ -828,7 +866,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "uri"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}]
         ),
         add_rl_rule(
@@ -837,7 +875,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "ip"}]
         ),
         add_rl_rule(
@@ -846,7 +884,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "asn"}]
         ),
         add_rl_rule(
@@ -855,7 +893,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}]
         ),
         add_rl_rule(
@@ -864,7 +902,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "country"}]
         ),
         add_rl_rule(
@@ -873,7 +911,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "company"}]
         ),
         add_rl_rule(
@@ -882,7 +920,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}]
         ),
         add_rl_rule(
@@ -891,7 +929,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "ip"}]
         ),
         add_rl_rule(
@@ -900,7 +938,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "asn"}]
         ),
         add_rl_rule(
@@ -909,7 +947,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}]
         ),
         add_rl_rule(
@@ -918,7 +956,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "country"}]
         ),
         add_rl_rule(
@@ -927,7 +965,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "company"}]
         ),
         add_rl_rule(
@@ -936,7 +974,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}]
         ),
         add_rl_rule(
@@ -945,7 +983,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "ip"}]
         ),
         add_rl_rule(
@@ -954,7 +992,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "uri"}]
         ),
         add_rl_rule(
@@ -963,7 +1001,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
@@ -972,7 +1010,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "query"}]
         ),
         add_rl_rule(
@@ -981,7 +1019,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "asn"}]
         ),
         add_rl_rule(
@@ -990,7 +1028,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "country"}]
         ),
         add_rl_rule(
@@ -999,7 +1037,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "company"}]
         ),
         add_rl_rule(
@@ -1008,7 +1046,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}]
         ),
         add_rl_rule(
@@ -1017,7 +1055,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "uri"}]
         ),
         add_rl_rule(
@@ -1026,7 +1064,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(5)},
+            param_ext={"duration": str(5)},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
@@ -1035,7 +1073,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "query"}]
         ),
         add_rl_rule(
@@ -1044,7 +1082,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}]
         ),
         add_rl_rule(
@@ -1053,7 +1091,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}]
         ),
         add_rl_rule(
@@ -1062,7 +1100,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "uri"}]
         ),
         add_rl_rule(
@@ -1071,7 +1109,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
@@ -1080,7 +1118,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "query"}]
         ),
         add_rl_rule(
@@ -1089,7 +1127,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}]
         ),
         add_rl_rule(
@@ -1098,7 +1136,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}]
         ),
         add_rl_rule(
@@ -1107,7 +1145,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "ip"}]
         ),
         add_rl_rule(
@@ -1116,7 +1154,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "uri"}]
         ),
         add_rl_rule(
@@ -1125,7 +1163,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
@@ -1134,7 +1172,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "query"}]
         ),
         add_rl_rule(
@@ -1143,7 +1181,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}]
         ),
         add_rl_rule(
@@ -1152,7 +1190,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "asn"}]
         ),
         add_rl_rule(
@@ -1161,7 +1199,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "company"}]
         ),
         add_rl_rule(
@@ -1170,7 +1208,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "country"}]
         ),
         add_rl_rule(
@@ -1180,7 +1218,7 @@ class RateLimitCookieHelper:
             pairwith=({"attrs": "ip"}),
             action_ext=({"type": "ban"}),
             subaction="challenge",
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
@@ -1190,7 +1228,7 @@ class RateLimitCookieHelper:
             pairwith=({"attrs": "ip"}),
             action_ext=({"type": "ban"}),
             subaction="challenge",
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "uri"}]
         ),
         add_rl_rule(
@@ -1200,7 +1238,7 @@ class RateLimitCookieHelper:
             pairwith=({"attrs": "ip"}),
             action_ext=({"type": "ban"}),
             subaction="challenge",
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "query"}]
         ),
         add_rl_rule(
@@ -1210,7 +1248,7 @@ class RateLimitCookieHelper:
             pairwith=({"attrs": "ip"}),
             action_ext=({"type": "ban"}),
             subaction="challenge",
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}]
         ),
         add_rl_rule(
@@ -1220,7 +1258,7 @@ class RateLimitCookieHelper:
             pairwith=({"attrs": "ip"}),
             action_ext=({"type": "ban"}),
             subaction="challenge",
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}]
         ),
         add_rl_rule(
@@ -1229,7 +1267,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "uri"}],
             subaction="challenge",
         ),
@@ -1239,7 +1277,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "path"}],
             subaction="challenge",
         ),
@@ -1249,7 +1287,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "query"}],
             subaction="challenge",
         ),
@@ -1259,7 +1297,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}],
             subaction="challenge",
         ),
@@ -1269,7 +1307,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}],
             subaction="challenge",
         ),
@@ -1279,7 +1317,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "uri"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "ip"}],
             subaction="challenge",
         ),
@@ -1289,7 +1327,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "uri"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "asn"}],
             subaction="challenge",
         ),
@@ -1299,7 +1337,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "uri"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}],
             subaction="challenge",
         ),
@@ -1309,7 +1347,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "uri"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "company"}],
             subaction="challenge",
         ),
@@ -1319,7 +1357,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "uri"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}],
             subaction="challenge",
         ),
@@ -1329,7 +1367,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "ip"}],
             subaction="challenge",
         ),
@@ -1339,7 +1377,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "asn"}],
             subaction="challenge",
         ),
@@ -1349,7 +1387,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}],
             subaction="challenge",
         ),
@@ -1359,7 +1397,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "company"}],
             subaction="challenge",
         ),
@@ -1369,7 +1407,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "path"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}],
             subaction="challenge",
         ),
@@ -1379,7 +1417,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "ip"}],
             subaction="challenge",
         ),
@@ -1389,7 +1427,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "asn"}],
             subaction="challenge",
         ),
@@ -1399,7 +1437,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}],
             subaction="challenge",
         ),
@@ -1409,7 +1447,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "company"}],
             subaction="challenge",
         ),
@@ -1419,7 +1457,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}],
             subaction="challenge",
         ),
@@ -1429,7 +1467,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "query"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}],
             subaction="challenge",
         ),
@@ -1439,7 +1477,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "ip"}],
             subaction="challenge",
         ),
@@ -1449,7 +1487,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "uri"}],
             subaction="challenge",
         ),
@@ -1459,7 +1497,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "query"}],
             subaction="challenge",
         ),
@@ -1469,7 +1507,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "path"}],
             subaction="challenge",
         ),
@@ -1479,7 +1517,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "asn"}],
             subaction="challenge",
         ),
@@ -1489,7 +1527,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "country"}],
             subaction="challenge",
         ),
@@ -1499,7 +1537,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "company"}],
             subaction="challenge",
         ),
@@ -1509,7 +1547,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "method"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}],
             subaction="challenge",
         ),
@@ -1519,7 +1557,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "uri"}],
             subaction="challenge",
         ),
@@ -1529,7 +1567,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "path"}],
             subaction="challenge",
         ),
@@ -1539,7 +1577,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "query"}],
             subaction="challenge",
         ),
@@ -1549,7 +1587,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}],
             subaction="challenge",
         ),
@@ -1559,7 +1597,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "company"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}],
             subaction="challenge",
         ),
@@ -1569,7 +1607,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "uri"}],
             subaction="challenge",
         ),
@@ -1579,7 +1617,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "query"}],
             subaction="challenge",
         ),
@@ -1589,7 +1627,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "path"}],
             subaction="challenge",
         ),
@@ -1599,7 +1637,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}],
             subaction="challenge",
         ),
@@ -1609,7 +1647,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "country"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}],
             subaction="challenge",
         ),
@@ -1619,7 +1657,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "ip"}],
             subaction="challenge",
         ),
@@ -1629,7 +1667,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "uri"}],
             subaction="challenge",
         ),
@@ -1639,7 +1677,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "query"}],
             subaction="challenge",
         ),
@@ -1649,7 +1687,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "path"}],
             subaction="challenge",
         ),
@@ -1659,7 +1697,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "asn"}],
             subaction="challenge",
         ),
@@ -1669,7 +1707,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}],
             subaction="challenge",
         ),
@@ -1679,7 +1717,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "company"}],
             subaction="challenge",
         ),
@@ -1689,7 +1727,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "authority"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "country"}],
             subaction="challenge",
         ),
@@ -1700,7 +1738,7 @@ class RateLimitCookieHelper:
             pairwith=({"attrs": "ip"}),
             action_ext=({"type": "ban"}),
             subaction="monitor",
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
@@ -1709,7 +1747,7 @@ class RateLimitCookieHelper:
             limit=1,
             pairwith=({"attrs": "asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             key=[{"attrs": "uri"}],
             subaction="monitor",
         ),
@@ -1722,7 +1760,7 @@ class RateLimitCookieHelper:
             action_ext=({"type": "ban"}),
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
-            param_ext={"ttl": str(3)},
+            param_ext={"duration": str(3)},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
@@ -1731,7 +1769,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(3)},
+            param_ext={"duration": str(3)},
             key=[{"attrs": "uri"}],
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
@@ -1745,7 +1783,7 @@ class RateLimitCookieHelper:
             action_ext=({"type": "ban"}),
             subaction="response",
             subaction_params={"status": "503", "content": "response_attr_ip_by_path"},
-            param_ext={"ttl": str(3)},
+            param_ext={"duration": str(3)},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
@@ -1754,7 +1792,7 @@ class RateLimitCookieHelper:
             limit=2,
             pairwith=({"attrs": "asn"}),
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(3)},
+            param_ext={"duration": str(3)},
             key=[{"attrs": "uri"}],
             subaction="response",
             subaction_params={"status": "503", "content": "response_attr_ip_by_uri"},

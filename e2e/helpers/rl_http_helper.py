@@ -1,6 +1,7 @@
 import pytest
 from e2e.core.base_helper import cli, target, log_fixture, BaseHelper
 from e2e.helpers.rl_helper import RateLimitHelper
+from typing import List, Optional
 
 
 class RateLimitHTTPHelper:
@@ -8,12 +9,54 @@ class RateLimitHTTPHelper:
     @staticmethod
     def gen_rl_rules(authority):
         rl_rules = []
+        prof_rules = []
         map_path = {}
+
+        def build_profiling_rule(id: str, name: str, prefix: str, **kwargs) -> List[str]:
+            for n in ["cookies", "headers", "args", "attrs"]:
+                r: Optional[str] = kwargs.get("%s_%s" % (prefix, n))
+                if r is None:
+                    continue
+                if isinstance(r, dict):
+                    (k, v) = list(r.items())[0]
+                    if n == "attrs":
+                        if k == "tags":
+                            return [v]
+                        entry = [k, v, "annotation"]
+                    else:
+                        entry = [n, [k, v], "annotation"]
+                else:
+                    entry = [n, r, "annotation"]
+                prof_rules.append(
+                    {
+                        "id": id,
+                        "name": name,
+                        "source": "self-managed",
+                        "mdate": "2020-11-22T00:00:00.000Z",
+                        "description": "E2E test tag rules",
+                        "entries_relation": "OR",
+                        "active": True,
+                        "tags": [id],
+                        "rule": {
+                            "relation": "OR",
+                            "sections": [
+                                {
+                                    "relation": "OR",
+                                    "entries": [entry],
+                                },
+                            ],
+                        },
+                    }
+                )
+                return [id]
+            return []
 
         def add_rl_rule(
                 path, ttl, limit, action_ext=None, subaction_ext=None, param_ext=None, **kwargs
         ):
-            rule_id = f"e2e{BaseHelper.generate_random_mixed_string(9)}"
+            rule_id = f"e2e1{len(rl_rules):0>9}"
+            incl_id = f"incl{len(rl_rules):0>9}"
+            excl_id = f"excl{len(rl_rules):0>9}"
 
             if subaction_ext is None:
                 subaction_ext = {}
@@ -22,37 +65,33 @@ class RateLimitHTTPHelper:
             if param_ext is None:
                 param_ext = {}
             map_path[path] = rule_id
+            incl = build_profiling_rule(incl_id, incl_id, "incl", **kwargs)
+            excl = build_profiling_rule(excl_id, excl_id, "excl", **kwargs)
             rl_rules.append(
                 {
                     "id": rule_id,
                     "name": path,
                     "description": 'rate limit http test',
-                    "ttl": ttl,
-                    "limit": limit,
-                    "action": {
-                        "type": kwargs.get("action", "default"),
-                        "params": {
+                    "timeframe": ttl,
+                    "thresholds": [
+                        {
+                            "limit": limit,
                             "action": {
-                                "type": kwargs.get("subaction", "default"),
-                                "params": kwargs.get("subaction_params", {}),
-                                **subaction_ext,
+                                "type": kwargs.get("action", "default"),
+                                "params": {
+                                    "action": {
+                                        "type": kwargs.get("subaction", "default"),
+                                        "params": kwargs.get("subaction_params", {}),
+                                        **subaction_ext,
+                                    },
+                                    **param_ext,
+                                },
+                                **action_ext,
                             },
-                            **param_ext,
-                        },
-                        **action_ext,
-                    },
-                    "include": {
-                        "cookies": kwargs.get("incl_cookies", {}),
-                        "headers": kwargs.get("incl_headers", {}),
-                        "args": kwargs.get("incl_args", {}),
-                        "attrs": kwargs.get("incl_attrs", {}),
-                    },
-                    "exclude": {
-                        "cookies": kwargs.get("excl_cookies", {}),
-                        "headers": kwargs.get("excl_headers", {}),
-                        "args": kwargs.get("excl_args", {}),
-                        "attrs": kwargs.get("excl_attrs", {}),
-                    },
+                        }
+                    ],
+                    "include": incl,
+                    "exclude": excl,
                     "key": kwargs.get("key", [{"attrs": "ip"}]),
                     "pairwith": kwargs.get("pairwith", {"self": "self"}),
                 }
@@ -403,7 +442,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "ip"}]
         ),
         add_rl_rule(
@@ -411,7 +450,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "uri"}]
         ),
         add_rl_rule(
@@ -419,7 +458,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "query"}]
         ),
         add_rl_rule(
@@ -427,7 +466,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "path"}]
         ),
         add_rl_rule(
@@ -435,7 +474,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "asn"}]
         ),
         add_rl_rule(
@@ -443,7 +482,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "method"}]
         ),
         add_rl_rule(
@@ -451,7 +490,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "company"}]
         ),
         add_rl_rule(
@@ -459,7 +498,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "country"}]
         ),
         add_rl_rule(
@@ -467,7 +506,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=4,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             key=[{"attrs": "authority"}]
         ),
         add_rl_rule(
@@ -475,7 +514,7 @@ class RateLimitHTTPHelper:
             ttl=5,
             limit=5,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "ip"}]
         ),
@@ -484,7 +523,7 @@ class RateLimitHTTPHelper:
             ttl=5,
             limit=5,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "uri"}]
         ),
@@ -493,7 +532,7 @@ class RateLimitHTTPHelper:
             ttl=5,
             limit=5,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "query"}]
         ),
@@ -502,7 +541,7 @@ class RateLimitHTTPHelper:
             ttl=5,
             limit=5,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "path"}]
         ),
@@ -511,7 +550,7 @@ class RateLimitHTTPHelper:
             ttl=5,
             limit=5,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "method"}]
         ),
@@ -520,7 +559,7 @@ class RateLimitHTTPHelper:
             ttl=5,
             limit=5,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "company"}]
         ),
@@ -529,7 +568,7 @@ class RateLimitHTTPHelper:
             ttl=5,
             limit=5,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "ip"}]
         ),
@@ -538,7 +577,7 @@ class RateLimitHTTPHelper:
             ttl=5,
             limit=5,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "asn"}]
         ),
@@ -547,7 +586,7 @@ class RateLimitHTTPHelper:
             ttl=5,
             limit=5,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(6)},
+            param_ext={"duration": str(6)},
             subaction="challenge",
             key=[{"attrs": "ip"}]
         ),
@@ -556,7 +595,7 @@ class RateLimitHTTPHelper:
             ttl=20,
             limit=1,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "ip"}]
         ),
@@ -565,7 +604,7 @@ class RateLimitHTTPHelper:
             ttl=20,
             limit=1,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "uri"}]
         ),
@@ -574,7 +613,7 @@ class RateLimitHTTPHelper:
             ttl=20,
             limit=1,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "query"}]
         ),
@@ -583,7 +622,7 @@ class RateLimitHTTPHelper:
             ttl=20,
             limit=1,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "path"}]
         ),
@@ -592,7 +631,7 @@ class RateLimitHTTPHelper:
             ttl=20,
             limit=1,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "asn"}]
         ),
@@ -601,7 +640,7 @@ class RateLimitHTTPHelper:
             ttl=20,
             limit=1,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "method"}]
         ),
@@ -610,7 +649,7 @@ class RateLimitHTTPHelper:
             ttl=20,
             limit=1,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "company"}]
         ),
@@ -619,7 +658,7 @@ class RateLimitHTTPHelper:
             ttl=20,
             limit=1,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "country"}]
         ),
@@ -628,7 +667,7 @@ class RateLimitHTTPHelper:
             ttl=20,
             limit=1,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(22)},
+            param_ext={"duration": str(22)},
             subaction="monitor",
             key=[{"attrs": "authority"}]
         ),
@@ -637,7 +676,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=3,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_ip"},
             key=[{"attrs": "ip"}]
@@ -647,7 +686,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=3,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_uri"},
             key=[{"attrs": "uri"}]
@@ -657,7 +696,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=3,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_query"},
             key=[{"attrs": "query"}]
@@ -667,7 +706,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=3,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_path"},
             key=[{"attrs": "path"}]
@@ -677,7 +716,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=3,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_asn"},
             key=[{"attrs": "asn"}]
@@ -687,7 +726,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=3,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_method"},
             key=[{"attrs": "method"}]
@@ -697,7 +736,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=3,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_ip"},
             key=[{"attrs": "ip"}]
@@ -707,7 +746,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=3,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_company"},
             key=[{"attrs": "company"}]
@@ -717,7 +756,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=3,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_country"},
             key=[{"attrs": "country"}]
@@ -727,7 +766,7 @@ class RateLimitHTTPHelper:
             ttl=2,
             limit=3,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(4)},
+            param_ext={"duration": str(4)},
             subaction="response",
             subaction_params={"status": "503", "content": "response_body_authority"},
             key=[{"attrs": "authority"}]
@@ -737,7 +776,7 @@ class RateLimitHTTPHelper:
             ttl=3,
             limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(5)},
+            param_ext={"duration": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "ip"}]
@@ -747,7 +786,7 @@ class RateLimitHTTPHelper:
             ttl=3,
             limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(5)},
+            param_ext={"duration": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "asn"}]
@@ -757,7 +796,7 @@ class RateLimitHTTPHelper:
             ttl=3,
             limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(5)},
+            param_ext={"duration": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "country"}]
@@ -767,7 +806,7 @@ class RateLimitHTTPHelper:
             ttl=3,
             limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(5)},
+            param_ext={"duration": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "path"}]
@@ -777,7 +816,7 @@ class RateLimitHTTPHelper:
             ttl=3,
             limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(5)},
+            param_ext={"duration": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "query"}]
@@ -787,7 +826,7 @@ class RateLimitHTTPHelper:
             ttl=3,
             limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(5)},
+            param_ext={"duration": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "uri"}]
@@ -797,7 +836,7 @@ class RateLimitHTTPHelper:
             ttl=3,
             limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(5)},
+            param_ext={"duration": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "company"}]
@@ -807,7 +846,7 @@ class RateLimitHTTPHelper:
             ttl=3,
             limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(5)},
+            param_ext={"duration": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "method"}]
@@ -817,7 +856,7 @@ class RateLimitHTTPHelper:
             ttl=3,
             limit=7,
             action_ext=({"type": "ban"}),
-            param_ext={"ttl": str(5)},
+            param_ext={"duration": str(5)},
             subaction="redirect",
             subaction_params={"status": "200", "location": "https://google.com"},
             key=[{"attrs": "authority"}]

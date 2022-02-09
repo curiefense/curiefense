@@ -250,7 +250,7 @@ class RateLimitHelper:
                         "name": name,
                         "source": "self-managed",
                         "mdate": "2020-11-22T00:00:00.000Z",
-                        "notes": "E2E test tag rules",
+                        "description": "E2E test tag rules",
                         "entries_relation": "OR",
                         "active": True,
                         "tags": [id],
@@ -289,27 +289,30 @@ class RateLimitHelper:
                     "id": rule_id,
                     "name": "Rate Limit Rule 3/10 " + path,
                     "description": "3 requests per 10 seconds",
-                    "ttl": "10",
-                    "limit": "3",
-                    "action": {
-                        "type": kwargs.get("action", "default"),
-                        "params": {
+                    "timeframe": "10",
+                    "thresholds": [
+                        {
+                            "limit": "3",
                             "action": {
-                                "type": kwargs.get("subaction", "default"),
-                                "params": kwargs.get("subaction_params", {}),
-                                **subaction_ext,
+                                "type": kwargs.get("action", "default"),
+                                "params": {
+                                    "action": {
+                                        "type": kwargs.get("subaction", "default"),
+                                        "params": kwargs.get("subaction_params", {}),
+                                        **subaction_ext,
+                                    },
+                                    **param_ext,
+                                },
+                                **action_ext,
                             },
-                            **param_ext,
-                        },
-                        **action_ext,
-                    },
+                        }
+                    ],
                     "include": incl,
                     "exclude": excl,
                     "key": kwargs.get("key", [{"attrs": "ip"}]),
                     "pairwith": kwargs.get("pairwith", {"self": "self"}),
                 }
             )
-
         # RL scope
         add_rl_rule(
             "scope-cookies",
@@ -420,7 +423,7 @@ class RateLimitHelper:
             "action-ban-503",
             action="ban",
             subaction="default",
-            param_ext={"ttl": "10"},
+            param_ext={"duration": "10"},
             excl_attrs={"tags": "allowlist"},
             incl_attrs={"tags": "blocklist"},
         )
@@ -428,14 +431,14 @@ class RateLimitHelper:
             "action-ban-challenge",
             action="ban",
             subaction="challenge",
-            param_ext={"ttl": "10"},
+            param_ext={"duration": "10"},
             subaction_params={"action": {"type": "default", "params": {}}},
         )
         add_rl_rule(
             "action-ban-tagonly",
             action="ban",
             subaction="monitor",
-            param_ext={"ttl": "10"},
+            param_ext={"duration": "10"},
             subaction_params={"action": {"type": "default", "params": {}}},
         )
         add_rl_rule(
@@ -449,7 +452,7 @@ class RateLimitHelper:
             "action-ban-redirect",
             action="ban",
             subaction="redirect",
-            param_ext={"ttl": "10"},
+            param_ext={"duration": "10"},
             subaction_ext={"status": "124", "ttl": "10", "location": "/redirect/"},
             subaction_params={
                 "location": "/redirect",
@@ -461,7 +464,7 @@ class RateLimitHelper:
             "action-ban-header",
             action="ban",
             subaction="request_header",
-            param_ext={"ttl": "10"},
+            param_ext={"duration": "10"},
             subaction_ext={"headers": "Header-Name"},
             subaction_params={
                 "headers": {"foo": "bar"},
