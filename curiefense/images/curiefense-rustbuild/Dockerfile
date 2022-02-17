@@ -24,9 +24,9 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y && \
 
 RUN cp /root/curiefense.so /usr/local/lib/lua/5.1/curiefense.so
 COPY curieproxy/lua/shared-objects/grasshopper.so /usr/local/lib/lua/5.1/grasshopper.so
-RUN mkdir -p /config/current
-COPY confdb-initial-data/master/config /config/current/config
-COPY curieproxy/rust/luatests/config/json /config/current/config/json
+RUN mkdir -p /cf-config/current
+COPY confdb-initial-data/master/config /cf-config/current/config
+COPY curieproxy/rust/luatests/config/json /cf-config/current/config/json
 
 RUN useradd -m -s /bin/bash builder
 USER builder

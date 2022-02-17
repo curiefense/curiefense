@@ -40,7 +40,7 @@ fn lua_inspect_content_filter(
     let (meta, headers, lua_body, str_ip, content_filter_id) = args;
 
     let res = match lua_body {
-        None => inspect_content_filter("/config/current/config", meta, headers, None, str_ip, content_filter_id),
+        None => inspect_content_filter("/cf-config/current/config", meta, headers, None, str_ip, content_filter_id),
         Some(body) => inspect_content_filter(
             "/config/current/config",
             meta,
@@ -114,9 +114,9 @@ fn lua_inspect_request(
 
     // TODO: solve the lifetime issue for the &[u8] to reduce duplication
     let res = match lua_body {
-        None => inspect_request("/config/current/config", meta, headers, None, str_ip, grasshopper),
+        None => inspect_request("/cf-config/current/config", meta, headers, None, str_ip, grasshopper),
         Some(body) => inspect_request(
-            "/config/current/config",
+            "/cf-config/current/config",
             meta,
             headers,
             Some(body.as_bytes()),
@@ -182,7 +182,7 @@ mod tests {
     #[test]
     fn config_load() {
         let mut logs = Logs::default();
-        let cfg = with_config("../../config", &mut logs, |_, c| c.clone());
+        let cfg = with_config("../../cf-config", &mut logs, |_, c| c.clone());
         if cfg.is_some() {
             match logs.logs.len() {
                 1 => {
@@ -192,7 +192,7 @@ mod tests {
                     assert!(logs.logs[0]
                         .message
                         .to_string()
-                        .contains("../../config: No such file or directory"))
+                        .contains("../../cf-config: No such file or directory"))
                 }
                 n => {
                     for r in logs.logs.iter() {

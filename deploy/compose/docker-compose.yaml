@@ -6,7 +6,7 @@ services:
     image: "curiefense/curieproxy-envoy:${DOCKER_TAG}"
     restart: always
     volumes:
-      - curieproxy_config:/config
+      - curieproxy_config:/cf-config
     environment:
       - ENVOY_UID
       - TARGET_ADDRESS=echo
@@ -31,7 +31,7 @@ services:
     image: "curiefense/confserver:${DOCKER_TAG}"
     restart: always
     volumes:
-      - persistent_confdb:/config
+      - persistent_confdb:/cf-persistent-config
       - local_bucket:/bucket
     tty: true
     environment:
@@ -55,7 +55,7 @@ services:
     restart: always
     volumes:
       - local_bucket:/bucket
-      - curieproxy_config:/config
+      - curieproxy_config:/cf-config
     tty: true
     environment:
       - CURIE_BUCKET_LINK

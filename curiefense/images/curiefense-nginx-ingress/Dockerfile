@@ -58,13 +58,13 @@ RUN sed -i "/^http {/a log_format curiefenselog escape=none '\$request_map';" /n
 COPY curieproxy/lua/shared-objects/*.so /usr/local/lib/lua/5.1/
 COPY --from=rustbin /root/curiefense.so /usr/local/lib/lua/5.1/
 
-COPY curieproxy/config /bootstrap-config/config
+COPY curieproxy/config /cf-bootstrap-config/config
 COPY curieproxy/lua /lua
 RUN rm -f /lua/session.lua && ln -s /lua/session_nginx.lua /lua/session.lua
 
 ENTRYPOINT ["/curiefense-nginx.sh"]
 
-RUN mkdir /config && chmod a+rwxt /config
+RUN mkdir /cf-config && chmod a+rwxt /cf-config
 RUN mkfifo /nginx-accesslogs
 
 COPY curiefense-nginx.sh /curiefense-nginx.sh

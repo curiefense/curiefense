@@ -3,13 +3,13 @@
 ^Run mode is \[SYNC_ONCE\]
 ^Run mode is \[PERIODIC_SYNC\]
 ^Synchronizing once
-^Creating configuration \[/config/configs/\S+\]
+^Creating configuration \[/cf-config/configs/\S+\]
 ^Pulling new version of \[config/\S+\]
 ^\s*\S+: \S+$
 ^Pulling \S+\.json$
 ^Synchronizing conf every 10 seconds
 ^Sleeping
-^'/bootstrap-config\S*' -> '/config/\S+'
+^'/bootstrap-config\S*' -> '/cf-config/\S+'
 ^\S+T\S+Z	info	
 ^\s*$
 ^\s*\S+:$

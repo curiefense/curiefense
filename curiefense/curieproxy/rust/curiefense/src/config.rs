@@ -60,7 +60,7 @@ pub fn with_config_default_path<R, F>(logs: &mut Logs, f: F) -> Option<R>
 where
     F: FnOnce(&mut Logs, &Config) -> R,
 {
-    with_config("/config/current/config", logs, f)
+    with_config("/cf-config/current/config", logs, f)
 }
 
 #[derive(Debug, Clone)]

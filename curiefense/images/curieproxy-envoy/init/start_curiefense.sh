@@ -1,13 +1,13 @@
 #! /bin/bash
 
-if [ ! -e /config/bootstrap ]
+if [ ! -e /cf-config/bootstrap ]
 then
-	cp -va /bootstrap-config /config/bootstrap
+	cp -va /bootstrap-config /cf-config/bootstrap
 fi
 
-if [ ! -e /config/current ]
+if [ ! -e /cf-config/current ]
 then
-	ln -s bootstrap /config/current
+	ln -s bootstrap /cf-config/current
 fi
 
 TADDR="${TARGET_ADDRESS:-echo}"

@@ -1,4 +1,4 @@
-^Config already present in /config/confdb, exiting
+^Config already present in /cf-config/confdb, exiting
 ^Configuration of bucket \S+ successful
 ^Trying to request export to bucket \S+
 ^Export to bucket \S+ successful
@@ -67,10 +67,10 @@
 ^spawned uWSGI worker \S+ \(pid: \S+ cores: \S+
 ^running "unix_signal:15 gracefully_kill_them_all" \(master-start\)...
 ^\[pid: \S+|app: \S+|req: \S+/\S+\] \S+ \(\) \{\S+ vars in \S+ bytes\} [[^]]+] (GET|PUT|DELETE|POST) /api/v2/\S* => generated \S+ bytes in \S+ msecs (HTTP/1.[01] 200)
-^Config directory /config/confdb is empty
+^Config directory /cf-config/confdb is empty
 ^Cloning configuration from /bootstrap/confdb.bundle
-^Cloning into bare repository '/config/confdb'...
-^Initialized empty Git repository in /config/confdb/
+^Cloning into bare repository '/cf-config/confdb'...
+^Initialized empty Git repository in /cf-config/confdb/
 ^Cloning into 'bootstrap-repo'...
 ^warning: You appear to have cloned an empty repository.
 ^done.
@@ -88,7 +88,7 @@
 ^  \(use "git branch --unset-upstream" to fixup\)
 ^\[master \S+\] Create config \[master\]
 ^ rewrite config/.*.json \(\S+%\)
-^To /config/confdb
+^To /cf-config/confdb
 ^ \* \[new branch\]      \S+ -> \S+
 ^os: Linux-.*
 ^\S+-\S+-\S+ \S+:\S+:\S+,\S+ INFO

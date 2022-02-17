@@ -19,21 +19,21 @@ fi
 
 if [ "$RUN_MODE" = "SYNC_ONCE" ]; then
     info "Synchronizing once"
-    curieconfctl sync pull "${CURIE_BUCKET_LINK}" /config
+    curieconfctl sync pull "${CURIE_BUCKET_LINK}" /cf-config
     exit 0
 fi
 
 if [ "$RUN_MODE" = "COPY_BOOTSTRAP" ]; then
     info "Copying bootstrap config"
-    if [ ! -e /config/bootstrap ]
+    if [ ! -e /cf-config/bootstrap ]
     then
-        mkdir -p /config
-        cp -va /bootstrap-config /config/bootstrap
+        mkdir -p /cf-config
+        cp -va /bootstrap-config /cf-config/bootstrap
     fi
 
-    if [ ! -e /config/current ]
+    if [ ! -e /cf-config/current ]
     then
-        ln -s bootstrap /config/current
+        ln -s bootstrap /cf-config/current
     fi
     exit 0
 fi
@@ -44,7 +44,7 @@ if [ "$RUN_MODE" = "PERIODIC_SYNC" ] || [ -z "$RUN_MODE" ]; then
     while :;
     do
         info "Pulling ${CURIE_BUCKET_LINK}"
-        curieconfctl sync pull "${CURIE_BUCKET_LINK}" /config
+        curieconfctl sync pull "${CURIE_BUCKET_LINK}" /cf-config
         info "Sleeping"
         sleep $PERIOD
     done
