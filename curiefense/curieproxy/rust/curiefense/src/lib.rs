@@ -179,6 +179,21 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
                 Some((0, dec.tags))
             }
         }
+        // bot blocked, human blocked
+        // effect would be identical to the following case except for logging purpose
+        AclResult::Match(BotHuman {
+            bot: Some(AclDecision {
+                allowed: false,
+                tags: dtags,
+            }),
+            human: Some(AclDecision {
+                allowed: false,
+                tags: _,
+            }),
+        }) => {
+            logs.debug("ACL human block detected");
+            Some((5, dtags))
+        }
         // human blocked, always block, even if it is a bot
         AclResult::Match(BotHuman {
             bot: _,
