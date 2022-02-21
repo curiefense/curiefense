@@ -511,6 +511,7 @@ describe('SecurityPoliciesEditor.vue', () => {
     test('should emit form is invalid when changing match to already existing one', async () => {
       const input = wrapper.find('.document-domain-name')
       input.setValue(securityPoliciesDocs[0].match)
+      input.trigger('input')
       await Vue.nextTick()
       expect(wrapper.emitted('form-invalid')).toBeTruthy()
       expect(wrapper.emitted('form-invalid')[0]).toEqual([true])

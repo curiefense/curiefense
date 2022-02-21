@@ -199,7 +199,7 @@
 import _ from 'lodash'
 import Vue, {PropType} from 'vue'
 import Utils from '@/assets/Utils.ts'
-import {Category, Relation, GlobalFilter, GlobalFilterSection, GlobalFilterSectionEntry} from '@/types'
+import {Category, GlobalFilter, GlobalFilterSection, GlobalFilterSectionEntry, Relation} from '@/types'
 
 export default Vue.extend({
   name: 'EntriesRelationList',
