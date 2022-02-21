@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use crate::config::flow::{FlowElement, SequenceKey};
 use crate::config::utils::RequestSelector;
-use crate::interface::{SimpleDecision, Tags};
+use crate::interface::{stronger_decision, SimpleDecision, Tags};
 use crate::utils::{check_selector_cond, select_string, RequestInfo};
 
 fn session_sequence_key(ri: &RequestInfo) -> SequenceKey {
@@ -97,12 +97,16 @@ pub fn flow_check(
                         if is_banned(&mut cnx, &ban_key) {
                             logs.debug(format!("Key {} is banned!", ban_key));
                             tags.insert(&elem.name);
-                            bad = SimpleDecision::Action(
-                                elem.action.clone(),
-                                serde_json::json!({
-                                    "initiator": "flow_check",
-                                    "name": elem.name,
-                                }),
+
+                            bad = stronger_decision(
+                                bad,
+                                SimpleDecision::Action(
+                                    elem.action.clone(),
+                                    serde_json::json!({
+                                        "initiator": "flow_check",
+                                        "name": elem.name,
+                                    }),
+                                ),
                             );
                         } else {
                             match check_flow(&mut cnx, &redis_key, elem.step, elem.timeframe, elem.is_last)? {
@@ -114,12 +118,15 @@ pub fn flow_check(
                                     tags.insert(&elem.name);
                                     let action =
                                         extract_bannable_action(&mut cnx, logs, &elem.action, &redis_key, &ban_key);
-                                    bad = SimpleDecision::Action(
-                                        action,
-                                        serde_json::json!({
-                                            "initiator": "flow_check",
-                                            "name": elem.name
-                                        }),
+                                    bad = stronger_decision(
+                                        bad,
+                                        SimpleDecision::Action(
+                                            action,
+                                            serde_json::json!({
+                                                "initiator": "flow_check",
+                                                "name": elem.name
+                                            }),
+                                        ),
                                     );
                                 }
                                 FlowResult::NonLast => {}

@@ -1,0 +1,36 @@
+[
+  {
+    "headers": {
+      ":authority": "www.collision.com",
+      ":method": "GET",
+      ":path": "/step2",
+      "user-agent": "dummy",
+      "host": "www.collision.com",
+      "x-forwarded-for": "2.3.4.5"
+    },
+    "name": "test multi flow actions",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 247,
+      "tags": [
+        "all",
+        "ip:2-3-4-5",
+        "sante",
+        "securitypolicy-entry:default",
+        "contentfiltername:default-contentfilter",
+        "securitypolicy:default-entry",
+        "aclname:default-acl",
+        "aclid:--default--",
+        "contentfilterid:--default--",
+        "bot",
+        "geo:france",
+        "asn:3215",
+        "challenge-phase01",
+        "flow-control--action-collision-3-",
+        "flow-control--action-collision-1-",
+        "flow-control--action-collision-2-"
+      ]
+    }
+  }
+]

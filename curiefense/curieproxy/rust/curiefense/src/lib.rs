@@ -136,6 +136,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
     logs.debug("challenge phase2 ignored");
 
     if let SimpleDecision::Action(action, reason) = globalfilter_dec {
+        logs.debug(format!("Global filter decision {:?}", reason));
         let decision = action.to_decision(is_human, &mgh, &reqinfo.headers, reason);
         if decision.is_final() {
             return (decision, tags);

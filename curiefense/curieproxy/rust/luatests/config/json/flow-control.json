@@ -146,7 +146,7 @@
             }
         },
         "timeframe": 4,
-        "id": "d03dabe4b9ca"
+        "id": "d03dabe4b9cx"
     },
     {
         "exclude": [],
@@ -229,5 +229,126 @@
         },
         "timeframe": 4,
         "id": "flowchallenge"
+    },
+    {
+        "exclude": [],
+        "include": [
+            "all"
+        ],
+        "name": "Flow Control (action collision 1)",
+        "key": [
+            {
+                "attrs": "ip"
+            }
+        ],
+        "sequence": [
+            {
+                "method": "GET",
+                "uri": "/step1",
+                "cookies": {},
+                "headers": {
+                    "host": "www.collision.com"
+                },
+                "args": {}
+            },
+            {
+                "method": "GET",
+                "uri": "/step2",
+                "cookies": {},
+                "headers": {
+                    "host": "www.collision.com"
+                },
+                "args": {}
+            }
+        ],
+        "active": true,
+        "description": "abc",
+        "action": {
+            "type": "monitor"
+        },
+        "timeframe": 4,
+        "id": "col1"
+    },
+    {
+        "exclude": [],
+        "include": [
+            "all"
+        ],
+        "name": "Flow Control (action collision 2)",
+        "key": [
+            {
+                "attrs": "ip"
+            }
+        ],
+        "sequence": [
+            {
+                "method": "GET",
+                "uri": "/step1",
+                "cookies": {},
+                "headers": {
+                    "host": "www.collision.com"
+                },
+                "args": {}
+            },
+            {
+                "method": "GET",
+                "uri": "/step2",
+                "cookies": {},
+                "headers": {
+                    "host": "www.collision.com"
+                },
+                "args": {}
+            }
+        ],
+        "active": true,
+        "description": "abc",
+        "action": {
+            "type": "challenge"
+        },
+        "timeframe": 4,
+        "id": "col2"
+    },
+    {
+        "exclude": [],
+        "include": [
+            "all"
+        ],
+        "name": "Flow Control (action collision 3)",
+        "key": [
+            {
+                "attrs": "ip"
+            }
+        ],
+        "sequence": [
+            {
+                "method": "GET",
+                "uri": "/step1",
+                "cookies": {},
+                "headers": {
+                    "host": "www.collision.com"
+                },
+                "args": {}
+            },
+            {
+                "method": "GET",
+                "uri": "/step2",
+                "cookies": {},
+                "headers": {
+                    "host": "www.collision.com"
+                },
+                "args": {}
+            }
+        ],
+        "active": true,
+        "description": "abc",
+        "action": {
+            "params": {
+                "location": "http://www.redir.com",
+                "status": "333"
+            },
+            "type": "redirect"
+        },
+        "timeframe": 4,
+        "id": "col3"
     }
 ]

@@ -13,6 +13,20 @@ pub enum SimpleDecision {
     Action(SimpleAction, serde_json::Value),
 }
 
+pub fn stronger_decision(d1: SimpleDecision, d2: SimpleDecision) -> SimpleDecision {
+    match (&d1, &d2) {
+        (SimpleDecision::Pass, _) => d2,
+        (_, SimpleDecision::Pass) => d1,
+        (SimpleDecision::Action(s1, _), SimpleDecision::Action(s2, _)) => {
+            if s1.atype.priority() >= s2.atype.priority() {
+                d1
+            } else {
+                d2
+            }
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum Decision {
     Pass,
@@ -139,13 +153,28 @@ pub struct Action {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SimpleActionT {
-    Default,
     Monitor,
-    Ban(Box<SimpleAction>, u64), // duration, ttl
     RequestHeader(HashMap<String, String>),
     Response(String),
     Redirect(String),
     Challenge,
+    Default,
+    Ban(Box<SimpleAction>, u64), // duration, ttl
+}
+
+impl SimpleActionT {
+    fn priority(&self) -> u32 {
+        use SimpleActionT::*;
+        match self {
+            Ban(sub, _) => 10 + sub.atype.priority(),
+            Default => 8,
+            Challenge => 6,
+            Redirect(_) => 4,
+            Response(_) => 3,
+            RequestHeader(_) => 2,
+            Monitor => 1,
+        }
+    }
 }
 
 // an action with its semantic meaning
