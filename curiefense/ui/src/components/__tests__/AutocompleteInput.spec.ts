@@ -404,8 +404,8 @@ describe('AutocompleteInput.vue', () => {
       })
       await Vue.nextTick();
       (input.element as HTMLInputElement).value = 'test:CHECK-CASE_01'
-      input.trigger('input');
-      await Vue.nextTick();
+      input.trigger('input')
+      await Vue.nextTick()
       input.trigger('keydown.space')
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
       expect(wrapper.emitted('value-submitted')[0]).toEqual(['test:check-case-01'])
@@ -543,7 +543,7 @@ describe('AutocompleteInput.vue', () => {
     })
 
     test('should add a new line after selected value when suggestion clicked', async () => {
-      const textarea = wrapper.find('.autocomplete-input');
+      const textarea = wrapper.find('.autocomplete-input')
       textarea.setValue('value')
       textarea.trigger('input')
       await Vue.nextTick()
@@ -555,14 +555,14 @@ describe('AutocompleteInput.vue', () => {
     })
 
     test('should move cursor to end when textarea clicked', async () => {
-      const textarea = wrapper.find('.autocomplete-input');
+      const textarea = wrapper.find('.autocomplete-input')
       textarea.trigger('mousedown')
       await Vue.nextTick()
       expect((wrapper.vm as any).$refs.autocompleteInput.selectionStart).toEqual(initialValueDisplayed.length)
     })
 
     test('should not add more than 1 new line when enter pressed', async () => {
-      const textarea = wrapper.find('.autocomplete-input');
+      const textarea = wrapper.find('.autocomplete-input')
       textarea.trigger('keydown.enter')
       await Vue.nextTick()
       expect(wrapper.emitted('value-submitted')).toBeTruthy()
@@ -579,7 +579,7 @@ describe('AutocompleteInput.vue', () => {
     })
 
     test('should add new line on focus', async () => {
-      const textarea = wrapper.find('.autocomplete-input');
+      const textarea = wrapper.find('.autocomplete-input')
       textarea.trigger('focus')
       await Vue.nextTick()
       let {autocompleteValue} = wrapper.vm as any
@@ -593,7 +593,7 @@ describe('AutocompleteInput.vue', () => {
     })
 
     test('should delete whole last line when delete pressed', async () => {
-      const textarea = wrapper.find('.autocomplete-input');
+      const textarea = wrapper.find('.autocomplete-input')
       textarea.trigger('keydown.delete')
       await Vue.nextTick()
       expect(wrapper.emitted('value-submitted')).toBeTruthy()

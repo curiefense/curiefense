@@ -29,6 +29,8 @@ describe('ContentFilterRuleGroupEditor.vue', () => {
       ...docExample,
       id: `${parseInt(docExample['id']) + index}`,
       name: `${parseInt(docExample['id']) + index}`,
+      notes: '',
+      risk: 1,
     }))
     selectedDoc = {
       id: '1',

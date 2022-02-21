@@ -410,7 +410,7 @@ describe('ResponseAction.vue', () => {
           },
         })
         await Vue.nextTick()
-        const durationInput = wrapper.find('.action-duration');
+        const durationInput = wrapper.find('.action-duration')
         durationInput.setValue(wantedEmit.params.duration)
         durationInput.trigger('change')
         await Vue.nextTick()
@@ -620,7 +620,7 @@ describe('ResponseAction.vue', () => {
           },
         })
         await Vue.nextTick()
-        const durationInput = wrapper.find('.action-duration');
+        const durationInput = wrapper.find('.action-duration')
         durationInput.setValue(wantedEmit.params.duration)
         durationInput.trigger('change')
         await Vue.nextTick()

@@ -113,9 +113,9 @@ export default (Vue as VueConstructor<Vue & {
   },
 
   watch: {
-    initialValue( newVal ) {
-      const newValFiltered = this.filterFunction ? this.filterFunction( newVal ) : newVal
-      if ( this.autocompleteValue !== newVal ) {
+    initialValue(newVal) {
+      const newValFiltered = this.filterFunction ? this.filterFunction(newVal) : newVal
+      if (this.autocompleteValue !== newVal) {
         this.autocompleteValue = newValFiltered
         this.closeDropdown()
       }
@@ -138,7 +138,7 @@ export default (Vue as VueConstructor<Vue & {
   data() {
     const {filterFunction, initialValue} = this
     return {
-      autocompleteValue: filterFunction ? filterFunction( initialValue ) : initialValue,
+      autocompleteValue: filterFunction ? filterFunction(initialValue) : initialValue,
       open: false,
       focusedSuggestionIndex: -1,
       inputBlurredTimeout: null,

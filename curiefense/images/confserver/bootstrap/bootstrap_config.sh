@@ -4,7 +4,7 @@ set -e
 
 # to be run in an initContainer
 # Will deploy specified configuration as a bootstrap config, if there is no config in /config/confdb
-TARGETDIR="/config/confdb"
+TARGETDIR="/tmp/config/confdb"
 
 if [ -e "$TARGETDIR" ]; then
 	echo "Config already present in $TARGETDIR, exiting"

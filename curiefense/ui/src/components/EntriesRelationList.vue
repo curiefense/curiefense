@@ -486,11 +486,11 @@ export default Vue.extend({
       )
       if (this.duplicatedEntries.length) {
         const duplicatesMsg = this.duplicatedEntries.reduce(
-          ( prev: string, [section, category, value]: GlobalFilterSectionEntry ) => {
-              const sectionMsg = this.rule.sections.length > 1 ? `Section ${section + 1}: ` : ''
-              return `${prev}<br/>` +
+          (prev: string, [section, category, value]: GlobalFilterSectionEntry) => {
+            const sectionMsg = this.rule.sections.length > 1 ? `Section ${section + 1}: ` : ''
+            return `${prev}<br/>` +
                   `${sectionMsg}${this.listEntryTypes[category as Category]?.title} = ${this.dualCell(value)}`
-            },
+          },
             '',
         )
         this.addError('duplicate')
@@ -500,7 +500,7 @@ export default Vue.extend({
       }
     },
 
-    isEntryDuplicate( sectionIndex: number, [currentCategory, currentValue]: GlobalFilterSectionEntry ) {
+    isEntryDuplicate(sectionIndex: number, [currentCategory, currentValue]: GlobalFilterSectionEntry) {
       const index = this.duplicatedEntries.findIndex(
           ([section, category, value]) => {
             return section === sectionIndex && category === currentCategory && _.isEqual(value, currentValue)

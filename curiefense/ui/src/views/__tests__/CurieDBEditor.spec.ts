@@ -231,7 +231,7 @@ describe('CurieDBEditor.vue', () => {
     const wantedFileName = 'publishinfo'
     const wantedFileType = 'json'
     const wantedFileData = publishInfoData
-    const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {});
+    const downloadFileSpy = jest.spyOn(Utils, 'downloadFile').mockImplementation(() => {})
     wrapper.setData({selectedKeyValue: null})
     // force update because downloadFile is mocked after it is read to be used as event handler
     await (wrapper.vm as any).$forceUpdate()

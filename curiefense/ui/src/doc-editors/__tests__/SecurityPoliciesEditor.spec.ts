@@ -541,14 +541,11 @@ describe('SecurityPoliciesEditor.vue', () => {
 
     test('should emit form is valid when changing match to valid one starting with special character', async () => {
       const input = wrapper.find('.document-domain-name')
-      input.setValue(securityPoliciesDocs[0].match)
-      input.trigger('input')
-      await Vue.nextTick()
       input.setValue('(api|service).company.(io|com)')
       input.trigger('input')
       await Vue.nextTick()
       expect(wrapper.emitted('form-invalid')).toBeTruthy()
-      expect(wrapper.emitted('form-invalid')[1]).toEqual([false])
+      expect(wrapper.emitted('form-invalid')[0]).toEqual([false])
     })
 
     test('should emit form is invalid when changing map entry match to already existing one', async () => {

@@ -83,7 +83,7 @@ export default Vue.extend({
       apiRoot: RequestsUtils.confAPIRoot,
       apiVersion: RequestsUtils.confAPIVersion,
       filterTag(tag: string) {
-        return tag.replace( /[^\w: ]|_/g, '-' ).toLowerCase()
+        return tag.replace(/[^\w: ]|_/g, '-').toLowerCase()
       },
     }
   },

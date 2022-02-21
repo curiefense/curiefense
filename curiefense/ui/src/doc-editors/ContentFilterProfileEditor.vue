@@ -542,7 +542,7 @@ export default Vue.extend({
       exclusionsArray.forEach((ex) => {
         const exclusionType = ex.endsWith(this.groupSuffix) ? 'group' : 'rule'
         const exId = this.getContentFilterId(exclusionType, ex)
-        if ( exId ) {
+        if (exId) {
           result[exId] = exclusionType
         }
       })
