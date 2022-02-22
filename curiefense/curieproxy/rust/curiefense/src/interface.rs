@@ -166,7 +166,7 @@ impl SimpleActionT {
     fn priority(&self) -> u32 {
         use SimpleActionT::*;
         match self {
-            Ban(sub, _) => 10 + sub.atype.priority(),
+            Ban(sub, _) => sub.atype.priority(),
             Default => 8,
             Challenge => 6,
             Redirect(_) => 4,
