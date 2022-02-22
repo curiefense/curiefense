@@ -4,7 +4,7 @@
       <div class="card-content">
         <div class="media">
           <div class="media-content">
-            <div class="columns">
+            <div class="columns mb-0">
               <div class="column is-4">
                 <div class="field">
                   <label class="label is-small">
@@ -33,9 +33,30 @@
                   </div>
                 </div>
                 <div class="field">
+                  <label class="label is-small">Category</label>
+                  <div class="control">
+                    <input class="input is-small document-category"
+                           title="Category"
+                           placeholder="Category"
+                           v-model="localDoc.category"
+                           @change="emitDocUpdate()"/>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label is-small">Subcategory</label>
+                  <div class="control">
+                    <input class="input is-small document-subcategory"
+                           title="Subcategory"
+                           placeholder="Subcategory"
+                           v-model="localDoc.subcategory"
+                           @change="emitDocUpdate()"/>
+                  </div>
+                </div>
+                <div class="field">
                   <label class="label is-small">Risk Level</label>
                   <div class="control select is-small">
                     <select v-model="localDoc.risk"
+                            @change="emitDocUpdate"
                             class="risk-level-selection"
                             title="Risk level">
                       <option v-for="(riskLevel, index) in riskLevels"
@@ -61,21 +82,6 @@
                 <span class="icon is-small is-left has-text-grey">
                       <i class="fas fa-code"></i>
                     </span>
-              </div>
-            </div>
-            <div class="field is-grouped is-grouped-multiline">
-              <div class="control">
-                <div class="tags has-addons">
-                  <span class="tag">category</span>
-                  <span class="tag has-text-info document-category">{{ localDoc.category }}</span>
-                </div>
-              </div>
-
-              <div class="control">
-                <div class="tags has-addons">
-                  <span class="tag">subcategory</span>
-                  <span class="tag has-text-info document-subcategory">{{ localDoc.subcategory }}</span>
-                </div>
               </div>
             </div>
           </div>

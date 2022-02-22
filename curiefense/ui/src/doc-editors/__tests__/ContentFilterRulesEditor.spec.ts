@@ -47,11 +47,13 @@ describe('ContentFilterRulesEditor.vue', () => {
     })
 
     test('should have correct category displayed', () => {
-      expect(wrapper.find('.document-category').text()).toEqual(docs[0].category)
+      const element = wrapper.find('.document-category').element as HTMLInputElement
+      expect(element.value).toEqual(docs[0].category)
     })
 
     test('should have correct subcategory displayed', () => {
-      expect(wrapper.find('.document-subcategory').text()).toEqual(docs[0].subcategory)
+      const element = wrapper.find('.document-subcategory').element as HTMLInputElement
+      expect(element.value).toEqual(docs[0].subcategory)
     })
   })
 
@@ -62,6 +64,55 @@ describe('ContentFilterRulesEditor.vue', () => {
     const element = wrapper.find('.document-name')
     element.setValue(wantedName)
     element.trigger('change')
+    await Vue.nextTick()
+    expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+    expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
+  })
+
+  test('should emit doc update when notes input changes', async () => {
+    const wantedNotes = 'new notes'
+    const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
+    wantedEmit.notes = wantedNotes
+    const element = wrapper.find('.document-notes')
+    element.setValue(wantedNotes)
+    element.trigger('change')
+    await Vue.nextTick()
+    expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+    expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
+  })
+
+  test('should emit doc update when category input changes', async () => {
+    const wantedCategory = 'new category'
+    const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
+    wantedEmit.category = wantedCategory
+    const element = wrapper.find('.document-category')
+    element.setValue(wantedCategory)
+    element.trigger('change')
+    await Vue.nextTick()
+    expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+    expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
+  })
+
+  test('should emit doc update when subcategory input changes', async () => {
+    const wantedSubcategory = 'new category'
+    const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
+    wantedEmit.subcategory = wantedSubcategory
+    const element = wrapper.find('.document-subcategory')
+    element.setValue(wantedSubcategory)
+    element.trigger('change')
+    await Vue.nextTick()
+    expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
+    expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
+  })
+
+  test('should emit doc update when risk level input changes', async () => {
+    const wantedRisk = 3
+    const wantedEmit = JSON.parse(JSON.stringify(docs[0]))
+    wantedEmit.risk = wantedRisk
+    const selection = wrapper.find('.risk-level-selection')
+    const options = selection.findAll('option')
+    options.at(2).setSelected() // index => value: 0 => 1, 1 => 2, 2 => 3
+    selection.trigger('change')
     await Vue.nextTick()
     expect(wrapper.emitted('update:selectedDoc')).toBeTruthy()
     expect(wrapper.emitted('update:selectedDoc')[0]).toEqual([wantedEmit])
