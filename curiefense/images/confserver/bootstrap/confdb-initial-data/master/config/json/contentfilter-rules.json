@@ -1430,16 +1430,6 @@
     "subcategory": "generic"
   },
   {
-    "id": "100145",
-    "name": "100145",
-    "msg": "system resource",
-    "operand": "rfi?..",
-    "severity": 5,
-    "certainity": 5,
-    "category": "generic",
-    "subcategory": "generic"
-  },
-  {
     "id": "100146",
     "name": "100146",
     "msg": "system resource",
