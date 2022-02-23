@@ -136,6 +136,12 @@ impl Tags {
     pub fn as_hash_ref(&self) -> &HashSet<String> {
         &self.0
     }
+
+    pub fn selector(&self) -> String {
+        let mut tvec: Vec<&str> = self.0.iter().map(|s| s.as_ref()).collect();
+        tvec.sort_unstable();
+        tvec.join("*")
+    }
 }
 
 // an action, as formatted for outside consumption
@@ -470,4 +476,21 @@ pub fn challenge_phase02<GH: Grasshopper>(gh: &GH, uri: &str, headers: &RequestF
         content: "{}".to_string(),
         extra_tags: Some(["challenge_phase02"].iter().map(|s| s.to_string()).collect()),
     }))
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn tag_selector() {
+        let tags = Tags::from_slice(&["ccc".to_string(), "bbb".to_string(), "aaa".to_string()]);
+        assert_eq!(tags.selector(), "aaa*bbb*ccc");
+    }
+
+    #[test]
+    fn tag_selector_r() {
+        let tags = Tags::from_slice(&["aaa".to_string(), "ccc".to_string(), "bbb".to_string()]);
+        assert_eq!(tags.selector(), "aaa*bbb*ccc");
+    }
 }

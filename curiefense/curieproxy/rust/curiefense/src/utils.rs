@@ -377,6 +377,7 @@ pub fn map_request(
 }
 
 enum Selected<'a> {
+    OStr(String),
     Str(&'a String),
     U32(u32),
 }
@@ -385,7 +386,7 @@ enum Selected<'a> {
 ///
 /// the reason we return this selected type instead of something directly string-like is
 /// to avoid copies, because in the Asn case there is no way to return a reference
-fn selector<'a>(reqinfo: &'a RequestInfo, sel: &RequestSelector) -> Option<Selected<'a>> {
+fn selector<'a>(reqinfo: &'a RequestInfo, sel: &RequestSelector, tags: &Tags) -> Option<Selected<'a>> {
     match sel {
         RequestSelector::Args(k) => reqinfo.rinfo.qinfo.args.get(k).map(Selected::Str),
         RequestSelector::Header(k) => reqinfo.headers.get(k).map(Selected::Str),
@@ -399,22 +400,25 @@ fn selector<'a>(reqinfo: &'a RequestInfo, sel: &RequestSelector) -> Option<Selec
         RequestSelector::Authority => Some(Selected::Str(&reqinfo.rinfo.host)),
         RequestSelector::Company => reqinfo.rinfo.geoip.company.as_ref().map(Selected::Str),
         RequestSelector::Asn => reqinfo.rinfo.geoip.asn.map(Selected::U32),
+        RequestSelector::Tags => Some(Selected::OStr(tags.selector())),
     }
 }
 
-pub fn select_string(reqinfo: &RequestInfo, sel: &RequestSelector) -> Option<String> {
-    selector(reqinfo, sel).map(|r| match r {
+pub fn select_string(reqinfo: &RequestInfo, sel: &RequestSelector, tags: &Tags) -> Option<String> {
+    selector(reqinfo, sel, tags).map(|r| match r {
         Selected::Str(s) => (*s).clone(),
         Selected::U32(n) => format!("{}", n),
+        Selected::OStr(s) => s,
     })
 }
 
 pub fn check_selector_cond(reqinfo: &RequestInfo, tags: &Tags, sel: &RequestSelectorCondition) -> bool {
     match sel {
         RequestSelectorCondition::Tag(t) => tags.contains(t),
-        RequestSelectorCondition::N(sel, re) => match selector(reqinfo, sel) {
+        RequestSelectorCondition::N(sel, re) => match selector(reqinfo, sel, tags) {
             None => false,
             Some(Selected::Str(s)) => re.is_match(s),
+            Some(Selected::OStr(s)) => re.is_match(&s),
             Some(Selected::U32(s)) => re.is_match(&format!("{}", s)),
         },
     }

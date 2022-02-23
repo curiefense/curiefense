@@ -11,10 +11,16 @@ fn session_sequence_key(ri: &RequestInfo) -> SequenceKey {
     SequenceKey(ri.rinfo.meta.method.to_string() + &ri.rinfo.host + &ri.rinfo.qinfo.qpath)
 }
 
-fn build_redis_key(reqinfo: &RequestInfo, key: &[RequestSelector], entry_id: &str, entry_name: &str) -> Option<String> {
+fn build_redis_key(
+    reqinfo: &RequestInfo,
+    tags: &Tags,
+    key: &[RequestSelector],
+    entry_id: &str,
+    entry_name: &str,
+) -> Option<String> {
     let mut tohash = entry_id.to_string() + entry_name;
     for kpart in key.iter() {
-        tohash += &select_string(reqinfo, kpart)?;
+        tohash += &select_string(reqinfo, kpart, tags)?;
     }
     Some(format!("{:X}", md5::compute(tohash)))
 }
@@ -90,7 +96,7 @@ pub fn flow_check(
                     continue;
                 }
                 logs.debug(format!("Checking flow control {} (step {})", elem.name, elem.step));
-                match build_redis_key(reqinfo, &elem.key, &elem.id, &elem.name) {
+                match build_redis_key(reqinfo, tags, &elem.key, &elem.id, &elem.name) {
                     Some(redis_key) => {
                         // check for banned users : this will be triggered at every step of the checks
                         let ban_key = get_ban_key(&redis_key);

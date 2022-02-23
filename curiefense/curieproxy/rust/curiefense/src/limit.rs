@@ -8,9 +8,9 @@ use crate::interface::{SimpleActionT, SimpleDecision, Tags};
 use crate::redis::redis_conn;
 use crate::utils::{select_string, RequestInfo};
 
-fn build_key(security_policy_name: &str, reqinfo: &RequestInfo, limit: &Limit) -> Option<String> {
+fn build_key(security_policy_name: &str, reqinfo: &RequestInfo, tags: &Tags, limit: &Limit) -> Option<String> {
     let mut key = security_policy_name.to_string() + &limit.id;
-    for kpart in limit.key.iter().map(|r| select_string(reqinfo, r)) {
+    for kpart in limit.key.iter().map(|r| select_string(reqinfo, r, tags)) {
         key += &kpart?;
     }
     Some(format!("{:X}", md5::compute(key)))
@@ -104,7 +104,7 @@ pub fn limit_check(
             continue;
         }
 
-        let key = match build_key(security_policy_name, reqinfo, limit) {
+        let key = match build_key(security_policy_name, reqinfo, tags, limit) {
             // if we can't build the key, it usually means that a header is missing.
             // If that is the case, we continue to the next limit.
             None => continue,
@@ -127,8 +127,8 @@ pub fn limit_check(
         // if the pairvalue is set, but could not be retrieved, do not count this request
         let pairvalue = match &limit.pairwith {
             None => None,
-            Some(sel) => match select_string(reqinfo, sel) {
-                None => return SimpleDecision::Pass,
+            Some(sel) => match select_string(reqinfo, sel, tags) {
+                None => continue,
                 Some(x) => Some(x),
             },
         };

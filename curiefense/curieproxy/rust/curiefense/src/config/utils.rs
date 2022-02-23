@@ -14,6 +14,7 @@ pub enum RequestSelector {
     Header(String),
     Company,
     Authority,
+    Tags,
 }
 
 #[derive(Debug, Clone)]
@@ -42,6 +43,7 @@ pub fn decode_attribute(s: &str) -> Option<RequestSelector> {
         "asn" => Some(RequestSelector::Asn),
         "company" => Some(RequestSelector::Company),
         "authority" => Some(RequestSelector::Authority),
+        "tags" => Some(RequestSelector::Tags),
         _ => None,
     }
 }
