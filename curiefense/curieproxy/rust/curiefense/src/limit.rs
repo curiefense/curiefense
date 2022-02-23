@@ -124,7 +124,14 @@ pub fn limit_check(
             return limit_react(logs, tags, &mut redis, limit, ban_threshold, key, &ban_key);
         }
 
-        let pairvalue = limit.pairwith.as_ref().and_then(|sel| select_string(reqinfo, sel));
+        // if the pairvalue is set, but could not be retrieved, do not count this request
+        let pairvalue = match &limit.pairwith {
+            None => None,
+            Some(sel) => match select_string(reqinfo, sel) {
+                None => return SimpleDecision::Pass,
+                Some(x) => Some(x),
+            },
+        };
 
         match redis_get_limit(&mut redis, &key, limit.timeframe, pairvalue) {
             Err(rr) => logs.error(rr),
@@ -133,7 +140,7 @@ pub fn limit_check(
                     // Only one action with highest limit larger than current
                     // counter will be applied, all the rest will be skipped.
                     if current_count > threshold.limit as i64 {
-                        return limit_react(logs, tags, &mut redis, limit, &threshold, key, &ban_key);
+                        return limit_react(logs, tags, &mut redis, limit, threshold, key, &ban_key);
                     }
                 }
             }

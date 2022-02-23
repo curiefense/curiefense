@@ -115,6 +115,17 @@
                 ]
             },
             {
+                "match": "^/limits/header",
+                "name": "limits header",
+                "acl_profile": "__default__",
+                "content_filter_profile": "__default__",
+                "acl_active": true,
+                "content_filter_active": true,
+                "limit_ids": [
+                    "4d1d9d405hdr"
+                ]
+            },
+            {
                 "match": "^/limits/method",
                 "name": "limits simple",
                 "acl_profile": "__default__",

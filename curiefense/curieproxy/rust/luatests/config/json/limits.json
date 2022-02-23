@@ -4,12 +4,14 @@
         "name": "Rate Limit Example Rule 3/3",
         "description": "3 requests in 3s",
         "timeframe": "3",
-        "thresholds": [{
-            "limit": "3",
-            "action": {
-                "type": "default"
+        "thresholds": [
+            {
+                "limit": "3",
+                "action": {
+                    "type": "default"
+                }
             }
-        }],
+        ],
         "include": [],
         "exclude": [],
         "key": [
@@ -26,12 +28,14 @@
         "name": "Rate Limit Example Rule 3/3",
         "description": "3 requests in 3s",
         "timeframe": "3",
-        "thresholds": [{
-            "limit": "3",
-            "action": {
-                "type": "default"
+        "thresholds": [
+            {
+                "limit": "3",
+                "action": {
+                    "type": "default"
+                }
             }
-        }],
+        ],
         "include": [],
         "exclude": [],
         "key": [
@@ -48,12 +52,14 @@
         "name": "Rate Limit Example Rule 3/3",
         "description": "3 requests in 3s",
         "timeframe": "3",
-        "thresholds": [{
-            "limit": "3",
-            "action": {
-                "type": "default"
+        "thresholds": [
+            {
+                "limit": "3",
+                "action": {
+                    "type": "default"
+                }
             }
-        }],
+        ],
         "include": [
             "hdrfoobar"
         ],
@@ -72,12 +78,14 @@
         "name": "Rate Limit Example Rule 3/3",
         "description": "3 requests in 3s",
         "timeframe": "3",
-        "thresholds": [{
-            "limit": "3",
-            "action": {
-                "type": "default"
+        "thresholds": [
+            {
+                "limit": "3",
+                "action": {
+                    "type": "default"
+                }
             }
-        }],
+        ],
         "include": [],
         "exclude": [
             "hdrfoobar"
@@ -96,13 +104,15 @@
         "name": "Rate Limit Example with company",
         "description": "3 requests in 3s",
         "timeframe": "3",
-        "thresholds": [{
-            "limit": "3",
-            "action": {
-                "type": "response",
-                "content": "body"
+        "thresholds": [
+            {
+                "limit": "3",
+                "action": {
+                    "type": "response",
+                    "content": "body"
+                }
             }
-        }],
+        ],
         "include": [
             "asn:CLOUDFARE",
             "authority:foo"
@@ -122,15 +132,17 @@
         "name": "Rate Limit redirection",
         "description": "3 requests in 3s",
         "timeframe": "3",
-        "thresholds": [{
-            "limit": "3",
-            "action": {
-                "type": "redirect",
-                "params": {
-                    "location": "/1234"
+        "thresholds": [
+            {
+                "limit": "3",
+                "action": {
+                    "type": "redirect",
+                    "params": {
+                        "location": "/1234"
+                    }
                 }
             }
-        }],
+        ],
         "include": [],
         "exclude": [],
         "key": [
@@ -147,18 +159,20 @@
         "name": "Rate Limit Rule 3/10 scope-country-include",
         "description": "3 requests per 10 seconds",
         "timeframe": "10",
-        "thresholds": [{
-            "limit": "3",
-            "action": {
-                "type": "default",
-                "params": {
-                    "action": {
-                        "type": "default",
-                        "params": {}
+        "thresholds": [
+            {
+                "limit": "3",
+                "action": {
+                    "type": "default",
+                    "params": {
+                        "action": {
+                            "type": "default",
+                            "params": {}
+                        }
                     }
                 }
             }
-        }],
+        ],
         "include": [
             "geo:united-states"
         ],
@@ -177,18 +191,20 @@
         "name": "Rate limit ban",
         "description": "3 requests per 2 seconds",
         "timeframe": "2",
-        "thresholds": [{
-            "limit": "3",
-            "action": {
-                "type": "ban",
-                "params": {
-                    "duration": "4",
-                    "action": {
-                        "type": "default"
+        "thresholds": [
+            {
+                "limit": "3",
+                "action": {
+                    "type": "ban",
+                    "params": {
+                        "duration": "4",
+                        "action": {
+                            "type": "default"
+                        }
                     }
                 }
             }
-        }],
+        ],
         "include": [],
         "exclude": [],
         "key": [
@@ -205,12 +221,14 @@
         "name": "Multilimit test A",
         "description": ":)",
         "timeframe": "5",
-        "thresholds": [{
-            "limit": "2",
-            "action": {
-                "type": "default"
+        "thresholds": [
+            {
+                "limit": "2",
+                "action": {
+                    "type": "default"
+                }
             }
-        }],
+        ],
         "include": [],
         "exclude": [],
         "key": [
@@ -227,12 +245,14 @@
         "name": "Multilimit test B",
         "description": ":)",
         "timeframe": "5",
-        "thresholds": [{
-            "limit": "3",
-            "action": {
-                "type": "default"
+        "thresholds": [
+            {
+                "limit": "3",
+                "action": {
+                    "type": "default"
+                }
             }
-        }],
+        ],
         "include": [],
         "exclude": [],
         "key": [
@@ -249,12 +269,14 @@
         "name": "Limit per method",
         "description": ":)",
         "timeframe": "5",
-        "thresholds": [{
-            "limit": "3",
-            "action": {
-                "type": "default"
+        "thresholds": [
+            {
+                "limit": "3",
+                "action": {
+                    "type": "default"
+                }
             }
-        }],
+        ],
         "include": [],
         "exclude": [],
         "key": [
@@ -264,6 +286,30 @@
         ],
         "pairwith": {
             "attrs": "method"
+        }
+    },
+    {
+        "id": "4d1d9d405hdr",
+        "name": "Limit per header",
+        "description": ":)",
+        "timeframe": "5",
+        "thresholds": [
+            {
+                "limit": "2",
+                "action": {
+                    "type": "default"
+                }
+            }
+        ],
+        "include": [],
+        "exclude": [],
+        "key": [
+            {
+                "attrs": "ip"
+            }
+        ],
+        "pairwith": {
+            "headers": "limitheader"
         }
     },
     {
