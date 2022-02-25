@@ -1268,6 +1268,15 @@ ACL_BYPASSALL = {
 }
 
 CONTENT_FILTER_SHORT_HEADERS = {
+    "id": "e2e000000002",
+    "name": "e2e content filter short headers",
+    "ignore_alphanum": True,
+    "args": {"names": [], "regex": []},
+    "headers": {"max_length": 50, "max_count": 42, "names": [], "regex": []},
+    "cookies": {"names": [], "regex": []},
+}
+
+CONTENT_FILTER_MISC_HEADERS = {
     "id": "e2e000000002m",
     "name": "e2e waf misc headers",
     "ignore_alphanum": False,
@@ -1391,8 +1400,8 @@ SECURITYPOLICY = [
                 "match": "/waf-misc-headers/",
                 "acl_profile": "__default__",
                 "acl_active": False,
-                "waf_profile": "e2e000000002m",
-                "waf_active": True,
+                "content_filter_profile": "e2e000000002m",
+                "content_filter_active": True,
                 "limit_ids": [],
                 "isnew": True,
             },
@@ -1423,6 +1432,7 @@ def securitypolicy_config(cli, acl):
     # Add content filter profile entry
     contentfilterprofile = cli.call(f"doc get {TEST_CONFIG_NAME} contentfilterprofiles")
     contentfilterprofile.append(CONTENT_FILTER_SHORT_HEADERS)
+    contentfilterprofile.append(CONTENT_FILTER_MISC_HEADERS)
     cli.call(
         f"doc update {TEST_CONFIG_NAME} contentfilterprofiles /dev/stdin",
         inputjson=contentfilterprofile,

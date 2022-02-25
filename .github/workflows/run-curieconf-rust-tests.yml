@@ -15,6 +15,9 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v2
 
+      - name: install dependencies
+        run: sudo apt-get -y --no-install-recommends install libhyperscan-dev pkg-config libluajit-5.1-dev luajit
+
       - name: Install stable toolchain
         uses: actions-rs/toolchain@v1
         with:
