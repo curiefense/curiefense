@@ -48,6 +48,11 @@ end
 
 -- test that two lists contain the same tags
 local function compare_tag_list(name, actual, expected)
+  -- do not check tags when they are unspecified
+  if expected == nil then
+    return true
+  end
+
   local m_actual = {}
   local good = true
   for _, a in ipairs(actual) do
@@ -67,15 +72,17 @@ local function compare_tag_list(name, actual, expected)
     for _, e in ipairs(actual) do
       print("  " .. e)
     end
-    error("^ missing tags in " .. name)
+    print("^ missing tags in " .. name)
+    return false
   end
   for a, _ in pairs(m_actual) do
     print(a)
     good = false
   end
   if not good then
-    error("^ extra tags in " .. name)
+    print("^ extra tags in " .. name)
   end
+  return good
 end
 
 local function run_inspect_request(raw_request_map)
@@ -117,8 +124,7 @@ local function test_raw_request(request_path)
     local response = run_inspect_request(raw_request_map)
     local r = cjson.decode(response)
 
-    compare_tag_list(raw_request_map.name, r.request_map.tags, raw_request_map.response.tags)
-    local good = true
+    local good = compare_tag_list(raw_request_map.name, r.request_map.tags, raw_request_map.response.tags)
     if r.action ~= raw_request_map.response.action then
       print("Expected action " .. cjson.encode(raw_request_map.response.action) ..
         ", but got " .. cjson.encode(r.action))
@@ -139,10 +145,70 @@ local function test_raw_request(request_path)
 
     if not good then
       show_logs(r.logs)
+      print(response)
       error("mismatch in " .. raw_request_map.name)
     end
   end
 end
+
+-- with stats
+local function test_raw_request_stats(request_path, pverbose)
+  print("Testing " .. request_path)
+  local total = 0
+  local ok = 0
+  local raw_request_maps = load_json_file(request_path)
+  for _, raw_request_map in pairs(raw_request_maps) do
+
+    total = total + 1
+
+    local verbose = pverbose
+    if raw_request_map["verbose"] ~= nil then
+      verbose = raw_request_map["verbose"]
+    end
+
+    local response = run_inspect_request(raw_request_map)
+    local r = cjson.decode(response)
+
+    local good = compare_tag_list(raw_request_map.name, r.request_map.tags, raw_request_map.response.tags)
+    if r.action ~= raw_request_map.response.action then
+      if verbose then
+        print("Expected action " .. cjson.encode(raw_request_map.response.action) ..
+          ", but got " .. cjson.encode(r.action))
+      end
+      good = false
+    end
+    if r.response ~= cjson.null then
+      if r.response.status ~= raw_request_map.response.status then
+        if verbose then
+          print("Expected status " .. cjson.encode(raw_request_map.response.status) ..
+            ", but got " .. cjson.encode(r.response.status))
+        end
+        good = false
+      end
+      if r.response.block_mode ~= raw_request_map.response.block_mode then
+        if verbose then
+          print("Expected block_mode " .. cjson.encode(raw_request_map.response.block_mode) ..
+            ", but got " .. cjson.encode(r.response.block_mode))
+        end
+        good = false
+      end
+    end
+
+    if not good then
+      if verbose then
+        for _, log in ipairs(r.logs) do
+            print(log["elapsed_micros"] .. "µs " .. log["message"])
+        end
+        print(response)
+      end
+      print("mismatch in " .. raw_request_map.name)
+    else
+      ok = ok + 1
+    end
+  end
+  print("good: " .. ok .. "/" .. total .. " - " .. string.format("%.2f%%", 100.0 * ok / total))
+end
+
 
 local function test_masking(request_path)
   print("Testing " .. request_path)
@@ -152,6 +218,7 @@ local function test_masking(request_path)
     local response = run_inspect_request(raw_request_map)
     local p = string.find(response, secret)
     if p ~= nil then
+      print(response)
       error("Could find secret in response: " .. response)
     end
   end
@@ -302,6 +369,15 @@ local function test_content_filter(request_path)
       error("mismatch in " .. raw_request_map.name)
     end
   end
+end
+
+if arg[1] == "GOWAF" then
+  for file in lfs.dir[[luatests/gowaf]] do
+    if ends_with(file, ".json") then
+      test_raw_request_stats("luatests/gowaf/" .. file, false)
+    end
+  end
+  os.exit()
 end
 
 for file in lfs.dir[[luatests/masking]] do
