@@ -1279,5 +1279,131 @@
     "operand": "<(a|script|img|iframe)[^>]+src",
     "risk": 5,
     "subcategory": "xss"
+  },
+  {
+    "category": "NoSQL",
+    "id": "800000",
+    "msg": "NoSQL filter bypass",
+    "name": "800000",
+    "operand": "(true|')\\s*,\\s*\\$(where|or)\\s*:",
+    "risk": 4,
+    "subcategory": "injection"
+  },
+  {
+    "category": "Path Traversal",
+    "id": "800001",
+    "msg": "Path Traversal I (Unix)",
+    "name": "800001",
+    "operand": "file://0*::\\d+/",
+    "risk": 4,
+    "subcategory": "unixI"
+  },
+  {
+    "category": "Path Traversal",
+    "id": "800002",
+    "msg": "Path Traversal I (Windows)",
+    "name": "800002",
+    "operand": "\\\\\\\\0*::\\d+\\\\.\\$\\\\",
+    "risk": 4,
+    "subcategory": "inI"
+  },
+  {
+    "category": "CRLF",
+    "id": "800003",
+    "msg": "CRLF",
+    "name": "800003",
+    "operand": "(%0d%0a|%3f%0d|%0a%0d|%25%30%4[14]|%25%30%4[14]%25%30%4[14]|%25%0a%0a)[-A-Za-z0-9]+:",
+    "risk": 4,
+    "subcategory": "CRLF"
+  },
+  {
+    "category": "LDAP injection",
+    "id": "800004",
+    "msg": "Ldap injection",
+    "name": "800004",
+    "operand": "\\(\\s*uid\\s*=\\s*\\*\\s*\\)",
+    "risk": 4,
+    "subcategory": "injection"
+  },
+  {
+    "category": "SST injection",
+    "id": "800005",
+    "msg": "SST php injection",
+    "name": "800005",
+    "operand": "\\{php\\}.*\\{/php\\}",
+    "risk": 4,
+    "subcategory": "php"
+  },
+  {
+    "category": "SST injection",
+    "id": "800006",
+    "msg": "SST java injection",
+    "name": "800006",
+    "operand": "\\$\\{.*\\.getResource\\s*\\(\\s*\"",
+    "risk": 4,
+    "subcategory": "php"
+  },
+  {
+    "category": "SST injection",
+    "id": "800007",
+    "msg": "SST ? injection",
+    "name": "800007",
+    "operand": "\\{\\{[^}]+\\|attr\\(\".*\\}\\}",
+    "risk": 4,
+    "subcategory": "?"
+  },
+  {
+    "category": "Shell injection",
+    "id": "800008",
+    "msg": "Shell injection",
+    "name": "800008",
+    "operand": "\\$\\{\\s*IFS\\s*\\}",
+    "risk": 4,
+    "subcategory": "?"
+  },
+  {
+    "category": "Shell injection",
+    "id": "800009",
+    "msg": "Shell injection",
+    "name": "800009",
+    "operand": "\\|\\s*/bin/",
+    "risk": 4,
+    "subcategory": "?"
+  },
+  {
+    "category": "Email injection",
+    "id": "800010",
+    "msg": "Email injection",
+    "name": "800010",
+    "operand": "\nRCPT TO: .*@",
+    "risk": 4,
+    "subcategory": "SMTP"
+  },
+  {
+    "category": "Email injection",
+    "id": "800011",
+    "msg": "Email injection",
+    "name": "800011",
+    "operand": "\r\nQUIT\r\n",
+    "risk": 4,
+    "subcategory": "?"
+  },
+  {
+    "category": "Email injection",
+    "id": "800012",
+    "msg": "Email injection",
+    "name": "800012",
+    "operand": "\r\nV\\d+ [A-Z]+\r\n",
+    "risk": 4,
+    "subcategory": "IMAP"
+  },
+  {
+    "category": "GraphQL injection",
+    "id": "800013",
+    "msg": "GraphQl injection",
+    "name": "800013",
+    "operand": "\\{\\s*__schema\\s*\\{.*[Tt]ype",
+    "risk": 4,
+    "subcategory": "?"
   }
 ]

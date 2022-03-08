@@ -6,28 +6,28 @@
         "args": {
             "names": [],
             "regex": [],
-            "min_risk": 1,
+            "min_risk": 4,
             "max_count": 512,
             "max_length": 1024
         },
         "headers": {
             "names": [],
             "regex": [],
-            "min_risk": 1,
+            "min_risk": 4,
             "max_count": 42,
             "max_length": 1024
         },
         "cookies": {
             "names": [],
             "regex": [],
-            "min_risk": 1,
+            "min_risk": 4,
             "max_count": 42,
             "max_length": 1024
         },
         "path": {
             "names": [],
             "regex": [],
-            "min_risk": 1,
+            "min_risk": 4,
             "max_count": 42,
             "max_length": 1024
         },
