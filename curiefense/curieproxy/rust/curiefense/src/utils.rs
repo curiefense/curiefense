@@ -84,7 +84,10 @@ fn map_args(
             logs.debug("body parsed");
         }
     }
-    let path_as_map = RequestField::singleton(dec, "path".to_string(), qpath.clone());
+    let mut path_as_map = RequestField::singleton(dec, "path".to_string(), qpath.clone());
+    for (i, p) in qpath.split('/').enumerate() {
+        path_as_map.add(format!("part{}", i), p.to_string());
+    }
 
     QueryInfo {
         qpath,
@@ -244,6 +247,7 @@ impl RequestInfo {
             "headers": self.headers.fields,
             "cookies": self.cookies.fields,
             "args": self.rinfo.qinfo.args.fields,
+            "path": self.rinfo.qinfo.path_as_map.fields,
             "attrs": attrs,
             "tags": tags,
             "geo": geo

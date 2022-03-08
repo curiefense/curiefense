@@ -191,12 +191,13 @@ fn section_check(
     ignore_alphanum: bool,
     omit: &mut Omitted,
 ) -> Result<(), ContentFilterBlock> {
-    if params.len() > section.max_count {
+    if idx != SectionIdx::Path && params.len() > section.max_count {
         return Err(ContentFilterBlock::TooManyEntries(idx));
     }
 
     for (name, value) in params.iter() {
-        if value.len() > section.max_length {
+        // skip decoded parameters for length checks
+        if !name.ends_with(":decoded") && value.len() > section.max_length {
             return Err(ContentFilterBlock::EntryTooLarge(idx, name.clone()));
         }
 
@@ -357,7 +358,6 @@ fn mask_section(sec: &mut RequestField, section: &ContentFilterSection) -> bool 
     out
 }
 
-// TODO remove decoded values
 pub fn masking(req: RequestInfo, profile: &ContentFilterProfile) -> RequestInfo {
     let mut ri = req;
     mask_section(&mut ri.headers, profile.sections.get(SectionIdx::Headers));
@@ -368,6 +368,11 @@ pub fn masking(req: RequestInfo, profile: &ContentFilterProfile) -> RequestInfo 
 
     let arg_masked = mask_section(&mut ri.rinfo.qinfo.args, profile.sections.get(SectionIdx::Args));
     if arg_masked {
+        ri.rinfo.qinfo.query = "*MASKED*".into();
+        ri.rinfo.qinfo.uri = "*MASKED*".into();
+    }
+    let path_masked = mask_section(&mut ri.rinfo.qinfo.path_as_map, profile.sections.get(SectionIdx::Path));
+    if path_masked {
         ri.rinfo.qinfo.query = "*MASKED*".into();
         ri.rinfo.qinfo.uri = "*MASKED*".into();
     }
