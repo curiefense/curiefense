@@ -1,5 +1,6 @@
 use crate::config::contentfilter::Transformation;
 use crate::utils::decoders::DecodingResult;
+use crate::utils::masker;
 use std::collections::{hash_map, HashMap};
 
 /// a newtype for user supplied data that can collide
@@ -61,6 +62,12 @@ impl RequestField {
             }
         }
         self.base_add(key, value);
+    }
+
+    pub fn mask(&mut self, masking_seed: &[u8], key: &str) {
+        if let Some(v) = self.fields.get_mut(key) {
+            *v = masker(masking_seed, v);
+        }
     }
 
     pub fn get(&self, k: &str) -> Option<&String> {

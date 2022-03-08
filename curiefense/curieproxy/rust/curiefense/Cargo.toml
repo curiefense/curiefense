@@ -28,6 +28,7 @@ multipart = "0.17.1"
 xmlparser = "0.13.3"
 nom = "6.2.1"
 rand = "0.8.4"
+sha2 = "0.10"
 
 [dependencies.hyperscan]
 version = "0.2"

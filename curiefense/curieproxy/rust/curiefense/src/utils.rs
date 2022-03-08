@@ -3,6 +3,7 @@ use crate::maxmind::get_country;
 use itertools::Itertools;
 use maxminddb::geoip2::model;
 use serde_json::json;
+use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::net::IpAddr;
 
@@ -444,6 +445,15 @@ pub fn check_selector_cond(reqinfo: &RequestInfo, tags: &Tags, sel: &RequestSele
             Some(Selected::U32(s)) => re.is_match(&format!("{}", s)),
         },
     }
+}
+
+pub fn masker(seed: &[u8], value: &str) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(seed);
+    hasher.update(value.as_bytes());
+    let bytes = hasher.finalize();
+    let hash_str = format!("{:x}", bytes);
+    format!("MASKED{{{}}}", &hash_str[0..7])
 }
 
 #[cfg(test)]

@@ -258,6 +258,8 @@ pub struct RawContentFilterProfile {
     #[serde(default)]
     pub path: RawContentFilterProperties,
     pub decoding: Option<ContentFilterDecoding>,
+    // random seed for masking
+    pub seed: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

@@ -27,6 +27,7 @@ pub struct ContentFilterProfile {
     pub ignore_alphanum: bool,
     pub sections: Section<ContentFilterSection>,
     pub decoding: Vec<Transformation>,
+    pub seed: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -74,6 +75,7 @@ impl Default for ContentFilterProfile {
                 },
             },
             decoding: Vec::default(),
+            seed: None,
         }
     }
 }
@@ -271,6 +273,7 @@ fn convert_entry(
                 path: mk_section(entry.path, content_filter_groups)?,
             },
             decoding,
+            seed: entry.seed,
         },
     ))
 }

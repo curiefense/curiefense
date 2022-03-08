@@ -1,3 +1,4 @@
+use crate::utils::masker;
 use hyperscan::Matching;
 use libinjection::{sqli, xss};
 use serde_json::{json, Value};
@@ -345,38 +346,50 @@ fn hyperscan(
     })
 }
 
-fn mask_section(sec: &mut RequestField, section: &ContentFilterSection) -> bool {
+fn mask_section(masking_seed: &[u8], sec: &mut RequestField, section: &ContentFilterSection) -> bool {
     let mut out = false;
     for (name, value) in sec.iter_mut() {
         if section.names.get(name).map(|e| e.mask).unwrap_or(false)
             || section.regex.iter().any(|(re, v)| v.mask && re.is_match(name))
         {
-            *value = "*MASKED*".to_string();
+            *value = masker(masking_seed, &value);
             out = true;
         }
     }
     out
 }
 
-pub fn masking(req: RequestInfo, profile: &ContentFilterProfile) -> RequestInfo {
+pub fn masking(masking_seed: &[u8], req: RequestInfo, profile: &ContentFilterProfile) -> RequestInfo {
     let mut ri = req;
-    mask_section(&mut ri.headers, profile.sections.get(SectionIdx::Headers));
-    let cookies_masked = mask_section(&mut ri.cookies, profile.sections.get(SectionIdx::Cookies));
+    mask_section(masking_seed, &mut ri.headers, profile.sections.get(SectionIdx::Headers));
+    let cookies_masked = mask_section(masking_seed, &mut ri.cookies, profile.sections.get(SectionIdx::Cookies));
     if cookies_masked {
-        ri.headers.fields.insert("cookie".into(), "*REDACTED*".into());
+        ri.headers.mask(masking_seed, "cookie");
     }
 
-    let arg_masked = mask_section(&mut ri.rinfo.qinfo.args, profile.sections.get(SectionIdx::Args));
+    let arg_masked = mask_section(
+        masking_seed,
+        &mut ri.rinfo.qinfo.args,
+        profile.sections.get(SectionIdx::Args),
+    );
     if arg_masked {
-        ri.rinfo.qinfo.query = "*MASKED*".into();
-        ri.rinfo.qinfo.uri = "*MASKED*".into();
+        ri.rinfo.qinfo.query = masker(masking_seed, &ri.rinfo.qinfo.query);
+        ri.rinfo.qinfo.uri = masker(masking_seed, &ri.rinfo.qinfo.uri);
     }
-    let path_masked = mask_section(&mut ri.rinfo.qinfo.path_as_map, profile.sections.get(SectionIdx::Path));
+    let path_masked = mask_section(
+        masking_seed,
+        &mut ri.rinfo.qinfo.path_as_map,
+        profile.sections.get(SectionIdx::Path),
+    );
     if path_masked {
-        ri.rinfo.qinfo.query = "*MASKED*".into();
-        ri.rinfo.qinfo.uri = "*MASKED*".into();
+        ri.rinfo.qinfo.query = masker(masking_seed, &ri.rinfo.qinfo.query);
+        ri.rinfo.qinfo.uri = masker(masking_seed, &ri.rinfo.qinfo.uri);
     }
-    mask_section(&mut ri.rinfo.qinfo.path_as_map, profile.sections.get(SectionIdx::Path));
+    mask_section(
+        masking_seed,
+        &mut ri.rinfo.qinfo.path_as_map,
+        profile.sections.get(SectionIdx::Path),
+    );
     ri
 }
 
@@ -411,7 +424,7 @@ mod test {
     fn no_masking() {
         let rinfo = test_request_info();
         let profile = ContentFilterProfile::default();
-        let masked = masking(rinfo.clone(), &profile);
+        let masked = masking(b"test", rinfo.clone(), &profile);
         assert_eq!(rinfo.headers, masked.headers);
         assert_eq!(rinfo.cookies, masked.cookies);
         assert_eq!(rinfo.rinfo.qinfo.args, masked.rinfo.qinfo.args);
@@ -432,11 +445,11 @@ mod test {
         let mut profile = ContentFilterProfile::default();
         let asection = profile.sections.at(SectionIdx::Args);
         asection.regex = vec![(regex::Regex::new(".").unwrap(), maskentry())];
-        let masked = masking(rinfo.clone(), &profile);
+        let masked = masking(b"test", rinfo.clone(), &profile);
         assert_eq!(rinfo.headers, masked.headers);
         assert_eq!(rinfo.cookies, masked.cookies);
         assert_eq!(
-            RequestField::raw_create(&[], &[("arg1", "*MASKED*"), ("arg2", "*MASKED*")]),
+            RequestField::raw_create(&[], &[("arg1", "MASKED{fac0029}"), ("arg2", "MASKED{7ce2d8d}")]),
             masked.rinfo.qinfo.args
         );
     }
@@ -447,11 +460,11 @@ mod test {
         let mut profile = ContentFilterProfile::default();
         let asection = profile.sections.at(SectionIdx::Args);
         asection.regex = vec![(regex::Regex::new("1").unwrap(), maskentry())];
-        let masked = masking(rinfo.clone(), &profile);
+        let masked = masking(b"test", rinfo.clone(), &profile);
         assert_eq!(rinfo.headers, masked.headers);
         assert_eq!(rinfo.cookies, masked.cookies);
         assert_eq!(
-            RequestField::raw_create(&[], &[("arg1", "*MASKED*"), ("arg2", "avalue2")]),
+            RequestField::raw_create(&[], &[("arg1", "MASKED{fac0029}"), ("arg2", "avalue2")]),
             masked.rinfo.qinfo.args
         );
     }
@@ -462,11 +475,11 @@ mod test {
         let mut profile = ContentFilterProfile::default();
         let asection = profile.sections.at(SectionIdx::Args);
         asection.names = ["arg1"].iter().map(|k| (k.to_string(), maskentry())).collect();
-        let masked = masking(rinfo.clone(), &profile);
+        let masked = masking(b"test", rinfo.clone(), &profile);
         assert_eq!(rinfo.headers, masked.headers);
         assert_eq!(rinfo.cookies, masked.cookies);
         assert_eq!(
-            RequestField::raw_create(&[], &[("arg1", "*MASKED*"), ("arg2", "avalue2")]),
+            RequestField::raw_create(&[], &[("arg1", "MASKED{fac0029}"), ("arg2", "avalue2")]),
             masked.rinfo.qinfo.args
         );
     }
@@ -477,11 +490,11 @@ mod test {
         let mut profile = ContentFilterProfile::default();
         let asection = profile.sections.at(SectionIdx::Args);
         asection.names = ["arg1", "arg2"].iter().map(|k| (k.to_string(), maskentry())).collect();
-        let masked = masking(rinfo.clone(), &profile);
+        let masked = masking(b"test", rinfo.clone(), &profile);
         assert_eq!(rinfo.headers, masked.headers);
         assert_eq!(rinfo.cookies, masked.cookies);
         assert_eq!(
-            RequestField::raw_create(&[], &[("arg1", "*MASKED*"), ("arg2", "*MASKED*")]),
+            RequestField::raw_create(&[], &[("arg1", "MASKED{fac0029}"), ("arg2", "MASKED{7ce2d8d}")]),
             masked.rinfo.qinfo.args
         );
     }

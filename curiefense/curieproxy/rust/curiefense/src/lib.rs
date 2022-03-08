@@ -84,7 +84,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
     // do all config queries in the lambda once
     // there is a lot of copying taking place, to minimize the lock time
     // this decision should be backed with benchmarks
-    let ((nm, securitypolicy), (ntags, globalfilter_dec), flows, reqinfo, is_human) =
+    let ((nm, securitypolicy), (ntags, globalfilter_dec), flows, reqinfo, is_human, masking_seed) =
         match with_config(configpath, logs, |slogs, cfg| {
             let murlmap =
                 match_securitypolicy(&raw.get_host(), &raw.meta.path, cfg, slogs).map(|(nm, um)| (nm, um.clone()));
@@ -92,6 +92,18 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
                 .as_ref()
                 .map(|u| u.1.content_filter_profile.decoding.as_ref())
                 .unwrap_or_default();
+            let masking_seed = murlmap
+                .as_ref()
+                .and_then(|u| u.1.content_filter_profile.seed.as_ref().map(|b| b.as_bytes().to_vec()))
+                .unwrap_or_else(|| {
+                    use rand::RngCore;
+                    use rand::SeedableRng;
+                    let mut rng = rand::rngs::StdRng::from_entropy();
+                    let mut seed: Vec<u8> = Vec::new();
+                    seed.resize(16, 0);
+                    rng.fill_bytes(&mut seed);
+                    seed
+                });
             let reqinfo = map_request(slogs, transformations, &raw);
             let nflows = cfg.flows.clone();
 
@@ -103,10 +115,12 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
             };
 
             let ntags = tag_request(is_human, cfg, &reqinfo);
-            (murlmap, ntags, nflows, reqinfo, is_human)
+            (murlmap, ntags, nflows, reqinfo, is_human, masking_seed)
         }) {
-            Some((Some(stuff), itags, iflows, rr, is_human)) => (stuff, itags, iflows, rr, is_human),
-            Some((None, _, _, rr, _)) => {
+            Some((Some(stuff), itags, iflows, rr, is_human, masking_seed)) => {
+                (stuff, itags, iflows, rr, is_human, masking_seed)
+            }
+            Some((None, _, _, rr, _, _)) => {
                 logs.debug("Could not find a matching securitypolicy");
                 return (Decision::Pass, tags, rr);
             }
@@ -130,7 +144,11 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
         .and_then(|gh| challenge_phase02(gh, &reqinfo.rinfo.qinfo.uri, &reqinfo.headers))
     {
         // TODO, check for monitor
-        return (dec, tags, masking(reqinfo, &securitypolicy.content_filter_profile));
+        return (
+            dec,
+            tags,
+            masking(&masking_seed, reqinfo, &securitypolicy.content_filter_profile),
+        );
     }
     logs.debug("challenge phase2 ignored");
 
@@ -138,7 +156,11 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
         logs.debug(format!("Global filter decision {:?}", reason));
         let decision = action.to_decision(is_human, &mgh, &reqinfo.headers, reason);
         if decision.is_final() {
-            return (decision, tags, masking(reqinfo, &securitypolicy.content_filter_profile));
+            return (
+                decision,
+                tags,
+                masking(&masking_seed, reqinfo, &securitypolicy.content_filter_profile),
+            );
         }
     }
 
@@ -149,7 +171,11 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
         Ok(SimpleDecision::Action(a, reason)) => {
             let decision = a.to_decision(is_human, &mgh, &reqinfo.headers, reason);
             if decision.is_final() {
-                return (decision, tags, masking(reqinfo, &securitypolicy.content_filter_profile));
+                return (
+                    decision,
+                    tags,
+                    masking(&masking_seed, reqinfo, &securitypolicy.content_filter_profile),
+                );
             }
         }
     }
@@ -160,7 +186,11 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
     if let SimpleDecision::Action(action, reason) = limit_check {
         let decision = action.to_decision(is_human, &mgh, &reqinfo.headers, reason);
         if decision.is_final() {
-            return (decision, tags, masking(reqinfo, &securitypolicy.content_filter_profile));
+            return (
+                decision,
+                tags,
+                masking(&masking_seed, reqinfo, &securitypolicy.content_filter_profile),
+            );
         }
     }
     logs.debug(format!("limit checks done ({} limits)", securitypolicy.limits.len()));
@@ -175,7 +205,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
                 return (
                     Decision::Pass,
                     tags,
-                    masking(reqinfo, &securitypolicy.content_filter_profile),
+                    masking(&masking_seed, reqinfo, &securitypolicy.content_filter_profile),
                 );
             } else {
                 logs.debug("ACL force block detected");
@@ -225,7 +255,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
                         return (
                             challenge_phase01(&gh, ua, dtags),
                             tags,
-                            masking(reqinfo, &securitypolicy.content_filter_profile),
+                            masking(&masking_seed, reqinfo, &securitypolicy.content_filter_profile),
                         );
                     }
                     (gua, ggh) => {
@@ -249,7 +279,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
             return (
                 acl_block(true, cde, &tgs),
                 tags,
-                masking(reqinfo, &securitypolicy.content_filter_profile),
+                masking(&masking_seed, reqinfo, &securitypolicy.content_filter_profile),
             );
         }
     }
@@ -281,7 +311,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
             }
         },
         tags,
-        masking(reqinfo, &securitypolicy.content_filter_profile),
+        masking(&masking_seed, reqinfo, &securitypolicy.content_filter_profile),
     )
 }
 
