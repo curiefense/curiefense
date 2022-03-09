@@ -33,6 +33,7 @@
         },
         "decoding": {
             "base64": true
-        }
+        },
+        "masking_seed": "CHANGEME"
     }
 ]

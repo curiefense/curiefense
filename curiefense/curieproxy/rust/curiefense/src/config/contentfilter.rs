@@ -27,7 +27,7 @@ pub struct ContentFilterProfile {
     pub ignore_alphanum: bool,
     pub sections: Section<ContentFilterSection>,
     pub decoding: Vec<Transformation>,
-    pub seed: Option<String>,
+    pub masking_seed: Vec<u8>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -38,8 +38,9 @@ pub enum Transformation {
     UrlDecode,
 }
 
-impl Default for ContentFilterProfile {
-    fn default() -> Self {
+impl ContentFilterProfile {
+    #[cfg(test)]
+    pub fn default_from_seed(seed: &str) -> Self {
         ContentFilterProfile {
             id: "__default__".to_string(),
             name: "default contentfilter".to_string(),
@@ -75,7 +76,7 @@ impl Default for ContentFilterProfile {
                 },
             },
             decoding: Vec::default(),
-            seed: None,
+            masking_seed: seed.as_bytes().to_vec(),
         }
     }
 }
@@ -273,7 +274,7 @@ fn convert_entry(
                 path: mk_section(entry.path, content_filter_groups)?,
             },
             decoding,
-            seed: entry.seed,
+            masking_seed: entry.masking_seed.as_bytes().to_vec(),
         },
     ))
 }

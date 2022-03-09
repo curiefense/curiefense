@@ -43,9 +43,11 @@
             "min_risk": 1,
             "names": [],
             "regex": []
-        }
+        },
+        "masking_seed": "CHANGEME"
     },
     {
+        "masking_seed": "CHANGEME",
         "args": {
             "max_count": 512,
             "max_length": 1024,
@@ -92,6 +94,7 @@
         }
     },
     {
+        "masking_seed": "CHANGEME",
         "args": {
             "max_count": 512,
             "max_length": 1024,
@@ -138,6 +141,7 @@
         }
     },
     {
+        "masking_seed": "CHANGEME",
         "args": {
             "max_count": 3,
             "max_length": 1024,
@@ -203,6 +207,7 @@
         }
     },
     {
+        "masking_seed": "CHANGEME",
         "args": {
             "max_count": 512,
             "max_length": 1024,
@@ -239,6 +244,7 @@
         }
     },
     {
+        "masking_seed": "CHANGEME",
         "args": {
             "max_count": 512,
             "max_length": 1024,
@@ -275,6 +281,7 @@
         }
     },
     {
+        "masking_seed": "CHANGEME",
         "args": {
             "max_count": 512,
             "max_length": 1024,
@@ -311,6 +318,7 @@
         }
     },
     {
+        "masking_seed": "CHANGEME",
         "args": {
             "max_count": 512,
             "max_length": 1024,
@@ -347,6 +355,7 @@
         }
     },
     {
+        "masking_seed": "CHANGEME",
         "args": {
             "max_count": 512,
             "max_length": 1024,
@@ -383,6 +392,7 @@
         }
     },
     {
+        "masking_seed": "CHANGEME",
         "args": {
             "max_count": 512,
             "max_length": 1024,
@@ -421,6 +431,7 @@
         }
     },
     {
+        "masking_seed": "CHANGEME",
         "args": {
             "max_count": 512,
             "max_length": 1024,
@@ -457,6 +468,7 @@
         }
     },
     {
+        "masking_seed": "CHANGEME",
         "args": {
             "max_count": 512,
             "max_length": 1024,
@@ -493,6 +505,7 @@
         }
     },
     {
+        "masking_seed": "CHANGEME",
         "id": "masking",
         "name": "masking tests",
         "ignore_alphanum": true,
@@ -512,7 +525,15 @@
                     "exclusions": {}
                 }
             ],
-            "names": []
+            "names": [
+                {
+                    "key": "creditcard",
+                    "reg": "\\d+",
+                    "restrict": false,
+                    "mask": true,
+                    "exclusions": {}
+                }
+            ]
         },
         "headers": {
             "regex": [
@@ -524,7 +545,15 @@
                     "exclusions": {}
                 }
             ],
-            "names": []
+            "names": [
+                {
+                    "key": "creditcard",
+                    "reg": "\\d+",
+                    "restrict": false,
+                    "mask": true,
+                    "exclusions": {}
+                }
+            ]
         },
         "cookies": {
             "regex": [
@@ -536,10 +565,39 @@
                     "exclusions": {}
                 }
             ],
-            "names": []
+            "names": [
+                {
+                    "key": "creditcard",
+                    "reg": "\\d+",
+                    "restrict": false,
+                    "mask": true,
+                    "exclusions": {}
+                }
+            ]
+        },
+        "path": {
+            "regex": [
+                {
+                    "key": "secret",
+                    "reg": null,
+                    "restrict": false,
+                    "mask": true,
+                    "exclusions": {}
+                }
+            ],
+            "names": [
+                {
+                    "key": "creditcard",
+                    "reg": "\\d+",
+                    "restrict": false,
+                    "mask": true,
+                    "exclusions": {}
+                }
+            ]
         }
     },
     {
+        "masking_seed": "CHANGEME",
         "args": {
             "max_count": 512,
             "max_length": 1024,
@@ -666,6 +724,7 @@
         }
     },
     {
+        "masking_seed": "CHANGEME",
         "id": "rre",
         "name": "rre",
         "ignore_alphanum": false,

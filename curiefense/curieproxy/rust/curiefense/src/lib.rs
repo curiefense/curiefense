@@ -84,51 +84,43 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
     // do all config queries in the lambda once
     // there is a lot of copying taking place, to minimize the lock time
     // this decision should be backed with benchmarks
-    let ((nm, securitypolicy), (ntags, globalfilter_dec), flows, reqinfo, is_human, masking_seed) =
+
+    let ((nm, securitypolicy), (ntags, globalfilter_dec), flows, reqinfo, is_human) =
         match with_config(configpath, logs, |slogs, cfg| {
-            let murlmap =
+            let mmapinfo =
                 match_securitypolicy(&raw.get_host(), &raw.meta.path, cfg, slogs).map(|(nm, um)| (nm, um.clone()));
-            let transformations = murlmap
-                .as_ref()
-                .map(|u| u.1.content_filter_profile.decoding.as_ref())
-                .unwrap_or_default();
-            let masking_seed = murlmap
-                .as_ref()
-                .and_then(|u| u.1.content_filter_profile.seed.as_ref().map(|b| b.as_bytes().to_vec()))
-                .unwrap_or_else(|| {
-                    use rand::RngCore;
-                    use rand::SeedableRng;
-                    let mut rng = rand::rngs::StdRng::from_entropy();
-                    let mut seed: Vec<u8> = Vec::new();
-                    seed.resize(16, 0);
-                    rng.fill_bytes(&mut seed);
-                    seed
-                });
-            let reqinfo = map_request(slogs, transformations, &raw);
-            let nflows = cfg.flows.clone();
+            match mmapinfo {
+                Some((nm, secpolicy)) => {
+                    let reqinfo = map_request(slogs, &secpolicy.content_filter_profile.decoding, &raw);
+                    let nflows = cfg.flows.clone();
 
-            // without grasshopper, default to being human
-            let is_human = if let Some(gh) = &mgh {
-                challenge_verified(gh, &reqinfo, slogs)
-            } else {
-                false
-            };
+                    // without grasshopper, default to being human
+                    let is_human = if let Some(gh) = &mgh {
+                        challenge_verified(gh, &reqinfo, slogs)
+                    } else {
+                        false
+                    };
 
-            let ntags = tag_request(is_human, cfg, &reqinfo);
-            (murlmap, ntags, nflows, reqinfo, is_human, masking_seed)
+                    let ntags = tag_request(is_human, cfg, &reqinfo);
+                    Some(((nm, secpolicy), ntags, nflows, reqinfo, is_human))
+                }
+                None => {
+                    slogs.error("Could not find a security policy");
+                    None
+                }
+            }
         }) {
-            Some((Some(stuff), itags, iflows, rr, is_human, masking_seed)) => {
-                (stuff, itags, iflows, rr, is_human, masking_seed)
-            }
-            Some((None, _, _, rr, _, _)) => {
-                logs.debug("Could not find a matching securitypolicy");
-                return (Decision::Pass, tags, rr);
-            }
-            None => {
+            Some(Some(x)) => x,
+            Some(None) => {
                 logs.debug("Something went wrong during request tagging");
                 return (Decision::Pass, tags, map_request(logs, &[], &raw));
             }
+            None => {
+                logs.debug("Something went wrong during security policy searching");
+                return (Decision::Pass, tags, map_request(logs, &[], &raw));
+            }
         };
+    let masking_seed = &securitypolicy.content_filter_profile.masking_seed;
 
     logs.debug("request tagged");
     tags.extend(ntags);
@@ -147,7 +139,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
         return (
             dec,
             tags,
-            masking(&masking_seed, reqinfo, &securitypolicy.content_filter_profile),
+            masking(masking_seed, reqinfo, &securitypolicy.content_filter_profile),
         );
     }
     logs.debug("challenge phase2 ignored");
@@ -159,7 +151,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
             return (
                 decision,
                 tags,
-                masking(&masking_seed, reqinfo, &securitypolicy.content_filter_profile),
+                masking(masking_seed, reqinfo, &securitypolicy.content_filter_profile),
             );
         }
     }
@@ -174,7 +166,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
                 return (
                     decision,
                     tags,
-                    masking(&masking_seed, reqinfo, &securitypolicy.content_filter_profile),
+                    masking(masking_seed, reqinfo, &securitypolicy.content_filter_profile),
                 );
             }
         }
@@ -189,7 +181,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
             return (
                 decision,
                 tags,
-                masking(&masking_seed, reqinfo, &securitypolicy.content_filter_profile),
+                masking(masking_seed, reqinfo, &securitypolicy.content_filter_profile),
             );
         }
     }
@@ -205,7 +197,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
                 return (
                     Decision::Pass,
                     tags,
-                    masking(&masking_seed, reqinfo, &securitypolicy.content_filter_profile),
+                    masking(masking_seed, reqinfo, &securitypolicy.content_filter_profile),
                 );
             } else {
                 logs.debug("ACL force block detected");
@@ -255,7 +247,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
                         return (
                             challenge_phase01(&gh, ua, dtags),
                             tags,
-                            masking(&masking_seed, reqinfo, &securitypolicy.content_filter_profile),
+                            masking(masking_seed, reqinfo, &securitypolicy.content_filter_profile),
                         );
                     }
                     (gua, ggh) => {
@@ -279,7 +271,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
             return (
                 acl_block(true, cde, &tgs),
                 tags,
-                masking(&masking_seed, reqinfo, &securitypolicy.content_filter_profile),
+                masking(masking_seed, reqinfo, &securitypolicy.content_filter_profile),
             );
         }
     }
@@ -311,7 +303,7 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
             }
         },
         tags,
-        masking(&masking_seed, reqinfo, &securitypolicy.content_filter_profile),
+        masking(masking_seed, reqinfo, &securitypolicy.content_filter_profile),
     )
 }
 

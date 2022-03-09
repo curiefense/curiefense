@@ -109,11 +109,11 @@ impl Config {
                 match contentfilterprofiles.get(&rawmap.content_filter_profile) {
                     Some(p) => p.clone(),
                     None => {
-                        logs.warning(format!(
+                        logs.error(format!(
                             "Unknown Content Filter profile {}",
                             &rawmap.content_filter_profile
                         ));
-                        ContentFilterProfile::default()
+                        continue
                     }
                 };
             let mut olimits: Vec<Limit> = Vec::new();

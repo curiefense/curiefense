@@ -1,6 +1,8 @@
 use crate::config::contentfilter::Transformation;
+use crate::config::utils::{DataSource, XDataSource};
 use crate::utils::decoders::DecodingResult;
 use crate::utils::masker;
+use std::collections::HashSet;
 use std::collections::{hash_map, HashMap};
 
 /// a newtype for user supplied data that can collide
@@ -8,21 +10,26 @@ use std::collections::{hash_map, HashMap};
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RequestField {
     pub decoding: Vec<Transformation>,
-    pub fields: HashMap<String, String>,
+    pub fields: HashMap<String, (String, HashSet<DataSource>)>,
 }
 
 impl RequestField {
-    fn base_add(&mut self, key: String, value: String) {
+    fn base_add(&mut self, key: String, ds: DataSource, value: String) {
         self.fields
             .entry(key)
-            .and_modify(|v| {
+            .and_modify(|(v, pds)| {
                 v.push(' ');
                 v.push_str(&value);
+                pds.insert(ds.clone());
             })
-            .or_insert(value);
+            .or_insert({
+                let mut hs = HashSet::new();
+                hs.insert(ds);
+                (value, hs)
+            });
     }
 
-    pub fn add(&mut self, key: String, value: String) {
+    pub fn add(&mut self, key: String, ds: DataSource, value: String) {
         let mut v = value.clone();
         // try to insert each value as its decoded base64 version, if it makes sense
         if !&v.is_empty() {
@@ -58,24 +65,43 @@ impl RequestField {
                 }
             }
             if changed {
-                self.base_add(key.clone() + ":decoded", v);
+                self.base_add(key.clone() + ":decoded", DataSource::DecodedFrom(key.clone()), v);
             }
         }
-        self.base_add(key, value);
+        self.base_add(key, ds, value);
     }
 
-    pub fn mask(&mut self, masking_seed: &[u8], key: &str) {
-        if let Some(v) = self.fields.get_mut(key) {
-            *v = masker(masking_seed, v);
-        }
+    pub fn mask(&mut self, masking_seed: &[u8], key: &str) -> HashSet<XDataSource> {
+        let remask = self
+            .fields
+            .get_mut(key)
+            .map(|(v, ds)| {
+                *v = masker(masking_seed, v);
+                ds.clone()
+            })
+            .unwrap_or_default();
+
+        remask
+            .into_iter()
+            .flat_map(|d| match d {
+                DataSource::Root => HashSet::new(),
+                DataSource::DecodedFrom(fr) => self.mask(masking_seed, &fr),
+                DataSource::X(x) => {
+                    let mut o = HashSet::new();
+                    o.insert(x);
+                    o
+                }
+                DataSource::FromBody => self.mask(masking_seed, "RAW_BODY"),
+            })
+            .collect()
     }
 
     pub fn get(&self, k: &str) -> Option<&String> {
-        self.fields.get(k)
+        self.fields.get(k).map(|(v, _)| v)
     }
 
     pub fn get_str(&self, k: &str) -> Option<&str> {
-        self.fields.get(k).map(|s| s.as_str())
+        self.fields.get(k).map(|(s, _)| s.as_str())
     }
 
     pub fn len(&self) -> usize {
@@ -86,8 +112,16 @@ impl RequestField {
         self.fields.is_empty()
     }
 
-    pub fn iter(&self) -> hash_map::Iter<'_, String, String> {
-        self.fields.iter()
+    pub fn iter(&self) -> impl Iterator<Item = (&str, &str)> + '_ {
+        self.fields.iter().map(|(k, (v, _))| (k.as_str(), v.as_str()))
+    }
+
+    pub fn to_json(&self) -> serde_json::Value {
+        serde_json::Value::Object(
+            self.iter()
+                .map(|(k, v)| (k.to_string(), serde_json::Value::String(v.to_string())))
+                .collect(),
+        )
     }
 
     pub fn new(decoding: &[Transformation]) -> Self {
@@ -97,29 +131,40 @@ impl RequestField {
         }
     }
 
-    pub fn singleton(decoding: &[Transformation], k: String, v: String) -> Self {
+    pub fn singleton(decoding: &[Transformation], k: String, ds: DataSource, v: String) -> Self {
         let mut out = RequestField::new(decoding);
-        out.add(k, v);
+        out.add(k, ds, v);
         out
     }
 
-    pub fn iter_mut(&mut self) -> hash_map::IterMut<'_, String, String> {
+    /// a bit unsafe w.r.t. matching, but I don't know how to type this :(
+    pub fn iter_mut(&mut self) -> hash_map::IterMut<'_, String, (String, HashSet<DataSource>)> {
         self.fields.iter_mut()
     }
 
-    pub fn from_iterator<I: IntoIterator<Item = (String, String)>>(dec: &[Transformation], iter: I) -> Self {
+    pub fn from_iterator<I: IntoIterator<Item = (String, DataSource, String)>>(
+        dec: &[Transformation],
+        iter: I,
+    ) -> Self {
         let mut out = RequestField::new(dec);
-        for (k, v) in iter {
-            out.add(k, v);
+        for (k, ds, v) in iter {
+            out.add(k, ds, v);
         }
         out
     }
 
     #[cfg(test)]
-    pub fn raw_create(decoding: &[Transformation], content: &[(&str, &str)]) -> Self {
+    pub fn raw_create(decoding: &[Transformation], content: &[(&str, &DataSource, &str)]) -> Self {
         RequestField {
             decoding: decoding.to_vec(),
-            fields: content.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect(),
+            fields: content
+                .iter()
+                .map(|(k, ds, v)| {
+                    let mut hs: HashSet<DataSource> = HashSet::new();
+                    hs.insert((*ds).clone());
+                    (k.to_string(), (v.to_string(), hs))
+                })
+                .collect(),
         }
     }
 }

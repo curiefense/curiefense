@@ -1,4 +1,6 @@
+use crate::config::utils::{DataSource, XDataSource};
 use crate::requestfields::RequestField;
+
 use itertools::Itertools;
 use nom::branch::alt;
 use nom::bytes::complete::{is_a, tag, take_while, take_while_m_n};
@@ -184,7 +186,7 @@ pub fn parse_urlencoded_params(args: &mut RequestField, query: &str) {
             Some((k, v)) => (urldecode_str_def(k), urldecode_str_def(v)),
             None => (urldecode_str_def(kv), String::new()),
         };
-        args.add(k, v);
+        args.add(k, DataSource::X(XDataSource::Uri), v);
     }
 }
 
@@ -202,7 +204,7 @@ pub fn parse_urlencoded_params_bytes(args: &mut RequestField, query: &[u8]) {
             Some((k, v)) => (urldecode_bytes_str(k), urldecode_bytes_str(v)),
             None => (urldecode_bytes_str(kv), String::new()),
         };
-        args.add(k, v);
+        args.add(k, DataSource::X(XDataSource::Uri), v);
     }
 }
 

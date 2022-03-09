@@ -1,6 +1,6 @@
 use regex::Regex;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum RequestSelector {
     Ip,
     Path,
@@ -15,6 +15,20 @@ pub enum RequestSelector {
     Company,
     Authority,
     Tags,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
+pub enum XDataSource {
+    CookieHeader,
+    Uri,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum DataSource {
+    Root,
+    DecodedFrom(String),
+    FromBody,
+    X(XDataSource),
 }
 
 #[derive(Debug, Clone)]

@@ -8,7 +8,32 @@
       "x-forwarded-for": "12.13.14.15"
     },
     "body": "secret=SECRETSECRET",
-    "name": "url argument masking",
-    "secret": "SECRETSECRET"
+    "name": "body argument masking",
+    "secret": "SECRET"
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/masking",
+      "user-agent": "dummy",
+      "x-forwarded-for": "12.13.14.15"
+    },
+    "body": "creditcard=123456789",
+    "name": "body argument masking (restricted)",
+    "secret": "123456789"
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/masking",
+      "user-agent": "dummy",
+      "x-forwarded-for": "12.13.14.15",
+      "content-type": "application/json"
+    },
+    "body": "{\"creditcard\":123456789}",
+    "name": "body argument masking (json)",
+    "secret": "123456789"
   }
 ]

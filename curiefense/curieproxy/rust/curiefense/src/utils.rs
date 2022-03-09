@@ -10,7 +10,7 @@ use std::net::IpAddr;
 pub mod decoders;
 
 use crate::body::parse_body;
-use crate::config::utils::{RequestSelector, RequestSelectorCondition};
+use crate::config::utils::{DataSource, RequestSelector, RequestSelectorCondition, XDataSource};
 use crate::interface::{Decision, Tags};
 use crate::logs::Logs;
 use crate::maxmind::{get_asn, get_city};
@@ -26,7 +26,7 @@ pub fn cookie_map(cookies: &mut RequestField, cookie: &str) {
         }
     }
     for (k, v) in cookie.split("; ").map(to_kv) {
-        cookies.add(k, v);
+        cookies.add(k, DataSource::X(XDataSource::CookieHeader), v);
     }
 }
 
@@ -40,10 +40,10 @@ pub fn map_headers(dec: &[Transformation], rawheaders: &HashMap<String, String>)
     let mut headers = RequestField::new(dec);
     for (k, v) in rawheaders {
         let lk = k.to_lowercase();
-        if k.to_lowercase() == "cookie" {
+        if lk == "cookie" {
             cookie_map(&mut cookies, &v);
         } else {
-            headers.add(lk, v.clone());
+            headers.add(lk, DataSource::Root, v.clone());
         }
     }
 
@@ -80,14 +80,19 @@ fn map_args(
         if let Err(rr) = parse_body(logs, &mut args, mcontent_type, body) {
             // if the body could not be parsed, store it in an argument, as if it was text
             logs.error(rr);
-            args.add("RAW_BODY".to_string(), String::from_utf8_lossy(body).to_string());
+            args.add(
+                "RAW_BODY".to_string(),
+                DataSource::Root,
+                String::from_utf8_lossy(body).to_string(),
+            );
         } else {
             logs.debug("body parsed");
         }
     }
-    let mut path_as_map = RequestField::singleton(dec, "path".to_string(), qpath.clone());
+    let mut path_as_map =
+        RequestField::singleton(dec, "path".to_string(), DataSource::X(XDataSource::Uri), qpath.clone());
     for (i, p) in qpath.split('/').enumerate() {
-        path_as_map.add(format!("part{}", i), p.to_string());
+        path_as_map.add(format!("part{}", i), DataSource::X(XDataSource::Uri), p.to_string());
     }
 
     QueryInfo {
@@ -245,10 +250,10 @@ impl RequestInfo {
                 .map(|(k, v)| (k.clone(), Some(v.clone()))),
         );
         serde_json::json!({
-            "headers": self.headers.fields,
-            "cookies": self.cookies.fields,
-            "args": self.rinfo.qinfo.args.fields,
-            "path": self.rinfo.qinfo.path_as_map.fields,
+            "headers": self.headers.to_json(),
+            "cookies": self.cookies.to_json(),
+            "args": self.rinfo.qinfo.args.to_json(),
+            "path": self.rinfo.qinfo.path_as_map.to_json(),
             "attrs": attrs,
             "tags": tags,
             "geo": geo
@@ -478,15 +483,15 @@ mod tests {
         let expected_args: RequestField = RequestField::from_iterator(
             &[],
             [
-                ("xa ", "12"),
-                ("bbbb", "12("),
-                ("cccc", ""),
-                ("b64", "YXJndW1lbnQ="),
-                ("b64:decoded", "argument"),
-                ("xa :decoded", "�"),
+                ("xa ", DataSource::X(XDataSource::Uri), "12"),
+                ("bbbb", DataSource::X(XDataSource::Uri), "12("),
+                ("cccc", DataSource::X(XDataSource::Uri), ""),
+                ("b64", DataSource::X(XDataSource::Uri), "YXJndW1lbnQ="),
+                ("b64:decoded", DataSource::DecodedFrom("b64".into()), "argument"),
+                ("xa :decoded", DataSource::DecodedFrom("xa ".into()), "�"),
             ]
             .iter()
-            .map(|(k, v)| (k.to_string(), v.to_string())),
+            .map(|(k, ds, v)| (k.to_string(), ds.clone(), v.to_string())),
         );
         assert_eq!(qinfo.args.get("b64:decoded").map(|s| s.as_str()), Some("argument"));
         assert_eq!(qinfo.args.fields, expected_args.fields);
