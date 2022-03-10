@@ -1,0 +1,13 @@
+[
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/waf/maskall?secret=SECRETSECRET",
+      "user-agent": "dummy",
+      "x-forwarded-for": "12.13.14.15"
+    },
+    "name": "url argument masking",
+    "secret": "SECRETSECRET"
+  }
+]

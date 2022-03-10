@@ -82,6 +82,15 @@
                 "limit_ids": []
             },
             {
+                "match": "^/waf/maskall",
+                "name": "mask all tests",
+                "acl_profile": "__default__",
+                "content_filter_profile": "maskall",
+                "acl_active": true,
+                "content_filter_active": true,
+                "limit_ids": []
+            },
+            {
                 "match": "^/limits/simple",
                 "name": "limits simple",
                 "acl_profile": "__default__",

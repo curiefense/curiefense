@@ -244,6 +244,37 @@
         }
     },
     {
+        "id": "maskall",
+        "name": "mask all arguments",
+        "ignore_alphanum": false,
+        "max_header_length": 1024,
+        "max_cookie_length": 1024,
+        "max_arg_length": 1024,
+        "max_headers_count": 42,
+        "max_cookies_count": 42,
+        "max_args_count": 3,
+        "args": {
+            "names": [],
+            "regex": [
+                {
+                    "key": ".*",
+                    "reg": "",
+                    "restrict": false,
+                    "mask": true,
+                    "exclusions": {}
+                }
+            ]
+        },
+        "headers": {
+            "names": [],
+            "regex": []
+        },
+        "cookies": {
+            "names": [],
+            "regex": []
+        }
+    },
+    {
         "id": "rr",
         "name": "rr",
         "ignore_alphanum": true,

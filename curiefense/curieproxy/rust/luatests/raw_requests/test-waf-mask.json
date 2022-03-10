@@ -1,0 +1,32 @@
+[
+  {
+    "response": {
+      "tags": [
+        "asn:396507",
+        "sante",
+        "ip:23-129-64-253",
+        "contentfilterid:maskall",
+        "contentfiltername:mask-all-arguments",
+        "container:1e219d8ed6b4",
+        "all",
+        "securitypolicy:default-entry",
+        "securitypolicy-entry:mask-all-tests",
+        "aclid:--default--",
+        "geo:united-states",
+        "bot",
+        "aclname:default-acl"
+      ],
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 403
+    },
+    "name": "mask all",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "23.129.64.253",
+      ":path": "\/waf\/maskall?a=1&b=%3Cscript%3Edocument.body.innerHTML=",
+      ":method": "GET",
+      ":authority": "localhost:30081"
+    }
+  }
+]
