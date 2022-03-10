@@ -39,7 +39,6 @@ pub enum Transformation {
 }
 
 impl ContentFilterProfile {
-    #[cfg(test)]
     pub fn default_from_seed(seed: &str) -> Self {
         ContentFilterProfile {
             id: "__default__".to_string(),

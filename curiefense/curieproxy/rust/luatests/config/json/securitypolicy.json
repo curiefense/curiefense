@@ -265,6 +265,15 @@
                 ]
             },
             {
+                "match": "/content-filter/mixedmatch",
+                "name": "mixed matcher",
+                "acl_profile": "__default__",
+                "acl_active": false,
+                "content_filter_profile": "mixedmatch",
+                "content_filter_active": true,
+                "limit_ids": []
+            },
+            {
                 "match": "/masking",
                 "name": "masking",
                 "acl_profile": "__default__",

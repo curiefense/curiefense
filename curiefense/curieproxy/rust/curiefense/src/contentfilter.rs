@@ -232,8 +232,10 @@ fn section_check(
         };
 
         // check name rules
-        for entry in section.names.get(name).iter() {
+        if let Some(entry) = section.names.get(name) {
             check_entry(entry)?;
+            // if an argument was matched by exact check, we do not try to match it against regex rules
+            continue;
         }
 
         // // check regex rules
@@ -352,15 +354,14 @@ fn mask_section(masking_seed: &[u8], sec: &mut RequestField, section: &ContentFi
     let to_mask: Vec<String> = sec
         .iter()
         .filter(|&(name, value)| {
-            section
-                .names
-                .get(name)
-                .map(|e| e.mask && match_value(e, value))
-                .unwrap_or(false)
-                || section
+            if let Some(e) = section.names.get(name) {
+                e.mask && match_value(e, value)
+            } else {
+                section
                     .regex
                     .iter()
                     .any(|(re, e)| e.mask && re.is_match(name) && match_value(e, value))
+            }
         })
         .map(|(name, _)| name.to_string())
         .collect();

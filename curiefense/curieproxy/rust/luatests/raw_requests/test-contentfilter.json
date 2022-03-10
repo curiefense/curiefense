@@ -1333,5 +1333,91 @@
       ":method": "GET",
       ":authority": "localhost:30081"
     }
+  },
+  {
+    "response": {
+      "tags": [
+        "asn:396507",
+        "sante",
+        "ip:23-129-64-253",
+        "container:1e219d8ed6b4",
+        "all",
+        "securitypolicy:default-entry",
+        "aclid:--default--",
+        "geo:united-states",
+        "bot",
+        "contentfilterid:mixedmatch",
+        "aclname:default-acl",
+        "securitypolicy-entry:mixed-matcher",
+        "contentfiltername:mixed-matching"
+      ],
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 403
+    },
+    "name": "mixed matching, non specific argument (block)",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "23.129.64.253",
+      ":path": "\/content-filter\/mixedmatch\/?nonspecifickey=2",
+      ":method": "GET",
+      ":authority": "localhost:30081"
+    }
+  },
+  {
+    "response": {
+      "tags": [
+        "asn:396507",
+        "sante",
+        "ip:23-129-64-253",
+        "container:1e219d8ed6b4",
+        "all",
+        "securitypolicy:default-entry",
+        "aclid:--default--",
+        "geo:united-states",
+        "bot",
+        "contentfilterid:mixedmatch",
+        "aclname:default-acl",
+        "securitypolicy-entry:mixed-matcher",
+        "contentfiltername:mixed-matching"
+      ],
+      "action": "pass"
+    },
+    "name": "mixed matching, non specific argument (pass)",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "23.129.64.253",
+      ":path": "\/content-filter\/mixedmatch\/?nonspecifickey=A",
+      ":method": "GET",
+      ":authority": "localhost:30081"
+    }
+  },
+  {
+    "response": {
+      "tags": [
+        "asn:396507",
+        "sante",
+        "ip:23-129-64-253",
+        "container:1e219d8ed6b4",
+        "all",
+        "securitypolicy:default-entry",
+        "aclid:--default--",
+        "geo:united-states",
+        "bot",
+        "contentfilterid:mixedmatch",
+        "aclname:default-acl",
+        "securitypolicy-entry:mixed-matcher",
+        "contentfiltername:mixed-matching"
+      ],
+      "action": "pass"
+    },
+    "name": "specific argument (pass)",
+    "headers": {
+      "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
+      "x-forwarded-for": "23.129.64.253",
+      ":path": "\/content-filter\/mixedmatch\/?specifickey=1",
+      ":method": "GET",
+      ":authority": "localhost:30081"
+    }
   }
 ]

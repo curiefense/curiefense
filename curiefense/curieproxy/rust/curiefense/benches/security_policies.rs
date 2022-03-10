@@ -43,7 +43,7 @@ fn gen_bogus_config(sz: usize) -> Config {
                 acl_active: false,
                 acl_profile: acl_profile.clone(),
                 content_filter_active: false,
-                content_filter_profile: ContentFilterProfile::default(),
+                content_filter_profile: ContentFilterProfile::default_from_seed("seed"),
                 limits: Vec::new(),
             },
         })
@@ -58,7 +58,7 @@ fn gen_bogus_config(sz: usize) -> Config {
             acl_active: false,
             acl_profile,
             content_filter_active: false,
-            content_filter_profile: ContentFilterProfile::default(),
+            content_filter_profile: ContentFilterProfile::default_from_seed("seed"),
             limits: Vec::new(),
         }),
     });

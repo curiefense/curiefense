@@ -830,5 +830,57 @@
                 }
             ]
         }
+    },
+    {
+        "args": {
+            "max_count": 24,
+            "max_length": 1024,
+            "min_risk": 1,
+            "names": [
+                {
+                    "key": "specifickey",
+                    "reg": null,
+                    "restrict": false,
+                    "mask": false
+                }
+            ],
+            "regex": [
+                {
+                    "exclusions": {},
+                    "key": ".*",
+                    "mask": false,
+                    "reg": "^[A-Z]+",
+                    "restrict": true
+                }
+            ]
+        },
+        "cookies": {
+            "max_count": 42,
+            "max_length": 1024,
+            "min_risk": 1,
+            "names": [],
+            "regex": []
+        },
+        "decoding": {
+            "base64": true
+        },
+        "headers": {
+            "max_count": 42,
+            "max_length": 1024,
+            "min_risk": 1,
+            "names": [],
+            "regex": []
+        },
+        "id": "mixedmatch",
+        "ignore_alphanum": false,
+        "name": "mixed matching",
+        "path": {
+            "max_count": 42,
+            "max_length": 2048,
+            "min_risk": 1,
+            "names": [],
+            "regex": []
+        },
+        "masking_seed": "CHANGEME"
     }
 ]

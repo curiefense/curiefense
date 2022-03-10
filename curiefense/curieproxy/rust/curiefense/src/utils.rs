@@ -41,7 +41,7 @@ pub fn map_headers(dec: &[Transformation], rawheaders: &HashMap<String, String>)
     for (k, v) in rawheaders {
         let lk = k.to_lowercase();
         if lk == "cookie" {
-            cookie_map(&mut cookies, &v);
+            cookie_map(&mut cookies, v);
         } else {
             headers.add(lk, DataSource::Root, v.clone());
         }
@@ -247,7 +247,7 @@ impl RequestInfo {
                 .meta
                 .extra
                 .into_iter()
-                .map(|(k, v)| (k.clone(), Some(v.clone()))),
+                .map(|(k, v)| (k, Some(v))),
         );
         serde_json::json!({
             "headers": self.headers.to_json(),
