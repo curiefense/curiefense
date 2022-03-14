@@ -353,5 +353,53 @@
         "pairwith": {
             "self": "self"
         }
+    },
+    {
+        "id": "samelocationA",
+        "name": "Same location limit, A",
+        "description": "Test identical limits attached to the same location",
+        "timeframe": "20",
+        "thresholds": [
+            {
+                "limit": "1",
+                "action": {
+                    "type": "monitor"
+                }
+            }
+        ],
+        "include": [],
+        "exclude": [],
+        "key": [
+            {
+                "headers": "org"
+            }
+        ],
+        "pairwith": {
+            "self": "self"
+        }
+    },
+    {
+        "id": "samelocationB",
+        "name": "Same location limit, B",
+        "description": "Test identical limits attached to the same location",
+        "timeframe": "20",
+        "thresholds": [
+            {
+                "limit": "1",
+                "action": {
+                    "type": "default"
+                }
+            }
+        ],
+        "include": [],
+        "exclude": [],
+        "key": [
+            {
+                "attrs": "ip"
+            }
+        ],
+        "pairwith": {
+            "self": "self"
+        }
     }
 ]

@@ -161,6 +161,20 @@
                 ]
             },
             {
+                "match": "^/limits/multilimits",
+                "name": "multiple limits same location",
+                "acl_profile": "__default__",
+                "waf_profile": "__default__",
+                "acl_active": true,
+                "waf_active": true,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": [
+                    "samelocationA",
+                    "samelocationB"
+                ]
+            },
+            {
                 "match": "^/rr/",
                 "name": "content filter restrict tests",
                 "acl_profile": "__default__",

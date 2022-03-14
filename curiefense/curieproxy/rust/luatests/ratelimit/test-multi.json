@@ -1,0 +1,35 @@
+[
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/limits/multilimits",
+      "org": "A",
+      ":authority": "localhost:30081"
+    },
+    "delay": 0,
+    "pass": true
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/limits/multilimits",
+      "org": "A",
+      ":authority": "localhost:30081"
+    },
+    "delay": 0,
+    "pass": false
+  },
+  {
+    "headers": {
+      "x-forwarded-for": "23.129.64.253",
+      ":method": "GET",
+      ":path": "/limits/multilimits",
+      "org": "A",
+      ":authority": "localhost:30081"
+    },
+    "delay": 0,
+    "pass": false
+  }
+]

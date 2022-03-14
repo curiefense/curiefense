@@ -4,7 +4,7 @@ use redis::RedisResult;
 
 use crate::config::limit::Limit;
 use crate::config::limit::LimitThreshold;
-use crate::interface::{SimpleActionT, SimpleDecision, Tags};
+use crate::interface::{stronger_decision, SimpleActionT, SimpleDecision, Tags};
 use crate::redis::redis_conn;
 use crate::utils::{select_string, RequestInfo};
 
@@ -22,11 +22,11 @@ fn limit_react(
     cnx: &mut redis::Connection,
     limit: &Limit,
     threshold: &LimitThreshold,
-    key: String,
+    key: &str,
     ban_key: &str,
 ) -> SimpleDecision {
     tags.insert(&limit.name);
-    let action = extract_bannable_action(cnx, logs, &threshold.action, &key, ban_key);
+    let action = extract_bannable_action(cnx, logs, &threshold.action, key, ban_key);
     SimpleDecision::Action(
         action,
         serde_json::json!({
@@ -98,6 +98,8 @@ pub fn limit_check(
         }
     };
 
+    let mut out = SimpleDecision::Pass;
+
     for limit in limits {
         if !limit_match(tags, limit) {
             logs.debug(format!("limit {} excluded", limit.name));
@@ -121,7 +123,10 @@ pub fn limit_check(
                 .iter()
                 .find(|t| matches!(t.action.atype, SimpleActionT::Ban(_, _)))
                 .unwrap_or(&limit.thresholds[0]);
-            return limit_react(logs, tags, &mut redis, limit, ban_threshold, key, &ban_key);
+            out = stronger_decision(
+                out,
+                limit_react(logs, tags, &mut redis, limit, ban_threshold, &key, &ban_key),
+            );
         }
 
         // if the pairvalue is set, but could not be retrieved, do not count this request
@@ -140,11 +145,14 @@ pub fn limit_check(
                     // Only one action with highest limit larger than current
                     // counter will be applied, all the rest will be skipped.
                     if current_count > threshold.limit as i64 {
-                        return limit_react(logs, tags, &mut redis, limit, threshold, key, &ban_key);
+                        out = stronger_decision(
+                            out,
+                            limit_react(logs, tags, &mut redis, limit, threshold, &key, &ban_key),
+                        );
                     }
                 }
             }
         }
     }
-    SimpleDecision::Pass
+    out
 }
