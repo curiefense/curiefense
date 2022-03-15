@@ -10,7 +10,7 @@ use crate::config::contentfilter::{
 use crate::config::utils::XDataSource;
 use crate::interface::{Action, ActionType};
 use crate::requestfields::RequestField;
-use crate::utils::{masker, RequestInfo};
+use crate::utils::RequestInfo;
 use crate::Logs;
 
 #[derive(Debug, Clone)]
@@ -395,10 +395,8 @@ pub fn masking(masking_seed: &[u8], req: RequestInfo, profile: &ContentFilterPro
     ));
     for x in to_mask {
         match x {
-            XDataSource::Uri => {
-                ri.rinfo.qinfo.query = masker(masking_seed, &ri.rinfo.qinfo.query);
-                ri.rinfo.qinfo.uri = masker(masking_seed, &ri.rinfo.qinfo.uri);
-            }
+            // for now, do not mask the Uri
+            XDataSource::Uri => (),
             XDataSource::CookieHeader => {
                 ri.headers.mask(masking_seed, "cookie");
             }
@@ -467,8 +465,8 @@ mod test {
             RequestField::raw_create(
                 &[],
                 &[
-                    ("arg1", &DataSource::X(XDataSource::Uri), "MASKED{fac0029}"),
-                    ("arg2", &DataSource::X(XDataSource::Uri), "MASKED{7ce2d8d}")
+                    ("arg1", &DataSource::X(XDataSource::Uri), "MASKED{fac00299}"),
+                    ("arg2", &DataSource::X(XDataSource::Uri), "MASKED{7ce2d8de}")
                 ]
             ),
             masked.rinfo.qinfo.args
@@ -488,7 +486,7 @@ mod test {
             RequestField::raw_create(
                 &[],
                 &[
-                    ("arg1", &DataSource::X(XDataSource::Uri), "MASKED{fac0029}"),
+                    ("arg1", &DataSource::X(XDataSource::Uri), "MASKED{fac00299}"),
                     ("arg2", &DataSource::X(XDataSource::Uri), "avalue2")
                 ]
             ),
@@ -509,7 +507,7 @@ mod test {
             RequestField::raw_create(
                 &[],
                 &[
-                    ("arg1", &DataSource::X(XDataSource::Uri), "MASKED{fac0029}"),
+                    ("arg1", &DataSource::X(XDataSource::Uri), "MASKED{fac00299}"),
                     ("arg2", &DataSource::X(XDataSource::Uri), "avalue2")
                 ]
             ),
@@ -530,8 +528,8 @@ mod test {
             RequestField::raw_create(
                 &[],
                 &[
-                    ("arg1", &DataSource::X(XDataSource::Uri), "MASKED{fac0029}"),
-                    ("arg2", &DataSource::X(XDataSource::Uri), "MASKED{7ce2d8d}")
+                    ("arg1", &DataSource::X(XDataSource::Uri), "MASKED{fac00299}"),
+                    ("arg2", &DataSource::X(XDataSource::Uri), "MASKED{7ce2d8de}")
                 ]
             ),
             masked.rinfo.qinfo.args

@@ -458,7 +458,7 @@ pub fn masker(seed: &[u8], value: &str) -> String {
     hasher.update(value.as_bytes());
     let bytes = hasher.finalize();
     let hash_str = format!("{:x}", bytes);
-    format!("MASKED{{{}}}", &hash_str[0..7])
+    format!("MASKED{{{}}}", &hash_str[0..8])
 }
 
 #[cfg(test)]
