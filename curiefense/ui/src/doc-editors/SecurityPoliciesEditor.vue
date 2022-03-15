@@ -425,8 +425,10 @@ export default (Vue as VueConstructor<Vue & {
       const isDomainMatchDuplicate = this.domainNames.includes(
           newDomainMatch,
       ) ? this.initialDocDomainMatch !== newDomainMatch : false
-      const domainMatchContainsInvalidCharacters = !this.isURLValid(newDomainMatch)
-      return !isDomainMatchEmpty && !isDomainMatchDuplicate && !domainMatchContainsInvalidCharacters
+      // TODO: Fix regex test for rust standards and re-apply this
+      // const domainMatchContainsInvalidCharacters = !this.isURLValid(newDomainMatch)
+      // return !isDomainMatchEmpty && !isDomainMatchDuplicate && !domainMatchContainsInvalidCharacters
+      return !isDomainMatchEmpty && !isDomainMatchDuplicate
     },
 
     isSelectedMapEntryMatchValid(index: number): boolean {
@@ -437,8 +439,10 @@ export default (Vue as VueConstructor<Vue & {
         const isMapEntryMatchDuplicate = this.entriesMatchNames.includes(
             newMapEntryMatch,
         ) ? this.initialMapEntryMatch !== newMapEntryMatch : false
-        const mapEntryMatchContainsInvalidCharacters = !this.isURLValid(newMapEntryMatch.substring(1))
-        isValid = !isMapEntryMatchEmpty && !isMapEntryMatchDuplicate && !mapEntryMatchContainsInvalidCharacters
+        // TODO: Fix regex test for rust standards and re-apply this
+        // const mapEntryMatchContainsInvalidCharacters = !this.isURLValid(newMapEntryMatch.substring(1))
+        // isValid = !isMapEntryMatchEmpty && !isMapEntryMatchDuplicate && !mapEntryMatchContainsInvalidCharacters
+        isValid = !isMapEntryMatchEmpty && !isMapEntryMatchDuplicate
       }
       return isValid
     },

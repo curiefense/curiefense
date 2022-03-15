@@ -535,13 +535,14 @@ export default Vue.extend({
     },
 
     validateRegex( id: string, value: string ) {
-      const val = value.trim().replaceAll(/\(\?[a-z]{1,3}\)/g, '') // remove unsupported in js mode modifiers
-      try {
-        this.clearError(id)
-        new RegExp(val)
-      } catch {
-        this.validate( val, /^[\w-]+$/, id )
-      }
+      // TODO: Fix regex test for rust standards and re-apply this
+      // const val = value.trim().replaceAll(/\(\?[a-z]{1,3}\)/g, '') // remove unsupported in js mode modifiers
+      // try {
+      //   this.clearError(id)
+      //   new RegExp(val)
+      // } catch {
+      //   this.validate( val, /^[\w-]+$/, id )
+      // }
     },
 
     validateNotEmpty( id: string, value: string ) {
