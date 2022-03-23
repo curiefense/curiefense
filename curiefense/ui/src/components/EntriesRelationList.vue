@@ -52,7 +52,7 @@
                 </tr>
 
                 <tr v-if="newEntrySectionIndex !== sectionIndex && editable">
-                  <td>
+                  <td colspan="2">
                     <a class="is-size-7 has-text-grey-lighter add-button add-entry-button"
                        title="add new row"
                        tabindex="0"
@@ -72,8 +72,6 @@
                        @keypress.enter="removeSection(sectionIndex)">
                       <i class="fas fa-trash"></i>
                     </a>
-                  </td>
-                  <td colspan="4">
                   </td>
                 </tr>
 
