@@ -539,8 +539,8 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     removeMapEntry(index: number) {
-      this.localDoc.map.splice(index, 1)
       this.changeSelectedMapEntry(-1)
+      this.localDoc.map.splice(index, 1)
     },
 
     referToRateLimit() {
@@ -584,10 +584,9 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     securityPoliciesDomainMatches() {
-      const branch = this.selectedBranch
       RequestsUtils.sendRequest({
         methodName: 'GET',
-        url: `configs/${branch}/d/securitypolicies/`,
+        url: `configs/${this.selectedBranch}/d/securitypolicies/`,
         config: {headers: {'x-fields': 'match'}},
       }).then((response: AxiosResponse<SecurityPolicy[]>) => {
         this.domainNames = _.map(response.data, 'match')
@@ -599,12 +598,22 @@ export default (Vue as VueConstructor<Vue & {
     selectedDoc: {
       handler: function(val, oldVal) {
         if (!val || !oldVal || _.isUndefined(oldVal.match) || val.id !== oldVal.id) {
-          this.securityPoliciesDomainMatches()
           this.initialDocDomainMatch = val.match
+          if (!this.domainNames.includes(val.match)) {
+            this.domainNames.push(val.match)
+          }
         }
       },
       immediate: true,
       deep: true,
+    },
+    selectedBranch: {
+      handler: function(val, oldVal) {
+        if (val && (!oldVal || !_.isEqual(val, oldVal))) {
+          this.securityPoliciesDomainMatches()
+        }
+      },
+      immediate: true,
     },
   },
 

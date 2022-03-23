@@ -201,7 +201,7 @@ const newDocEntryFactory: { [key: string]: Function } = {
         },
       ],
       'include': ['all'],
-      'exclude': [''],
+      'exclude': [],
       'key': [
         {
           'attrs': 'ip',

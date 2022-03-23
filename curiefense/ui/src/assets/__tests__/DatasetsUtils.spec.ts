@@ -103,7 +103,7 @@ describe('RequestsUtils.ts', () => {
       expect(document['key']).toEqual([{'attrs': 'ip'}])
       expect(document['thresholds'][0]['action']).toEqual({'type': 'default'})
       expect(document['pairwith']).toEqual({'self': 'self'})
-      expect(document['exclude']).toEqual([''])
+      expect(document['exclude']).toEqual([])
       expect(document['include']).toEqual(['all'])
     })
 
