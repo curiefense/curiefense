@@ -14,22 +14,22 @@ def pytest_addoption(parser):
         "--base-conf-url",
         help="Base url for confserver API",
         type=str,
-        default="http://35.234.114.192:30000/api/v2/",
+        default="http://localhost:30000/api/v2/",
     )
     parser.addoption(
         "--base-protected-url",
         help="Base URL for the protected website",
-        default="http://35.234.114.192:30081",
+        default="http://localhost:30081",
     )
     parser.addoption(
         "--base-ui-url",
         help="Base URL for the UI server",
-        default="http://35.234.114.192:30080",
+        default="http://localhost:30080",
     )
     parser.addoption(
         "--elasticsearch-url",
         help="Elasticsearch URL (ex. http://localhost:9200)",
-        default="http://35.234.114.192:9200",
+        default="http://localhost:9200",
     )
     parser.addoption(
         "--module",

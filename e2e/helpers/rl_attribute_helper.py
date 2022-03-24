@@ -117,7 +117,7 @@ class RateLimitCookieHelper:
             ttl=5,
             limit=3,
             pairwith=({"attrs": "path"}),
-            key=[{"attrs": 'query'}]
+            key=[{"attrs": "path"}]
         ),
         add_rl_rule(
             path="test_503_action_path_attribute_count_by_country",
@@ -162,7 +162,7 @@ class RateLimitCookieHelper:
             key=[{"attrs": 'asn'}]
         ),
         add_rl_rule(
-            path="test_503_action_uri_attribute_count_by_path",
+            path="test_503_action_uri_attribute_count_by_query",
             ttl=5,
             limit=3,
             pairwith=({"attrs": "uri"}),
