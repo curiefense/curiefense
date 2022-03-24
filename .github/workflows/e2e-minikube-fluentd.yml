@@ -1,4 +1,4 @@
-name: Run e2e tests on docker-compose
+name: Run e2e tests on minikube with fluentd
 
 on:
   pull_request:
@@ -6,12 +6,11 @@ on:
       - "deploy/**"
       - "curiefense/**"
       - "e2e/**"
-      - ".github/workflows/e2e-compose-tests.yml"
-
+      - ".github/workflows/e2e-tests.yml"
 
 jobs:
-  e2e-docker-compose:
-    runs-on: ubuntu-20.04
+  e2e-minikube-fluentd:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.8]
@@ -20,13 +19,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Run tests
+      - name: Setup Minikube
+        uses: manusa/actions-setup-minikube@v2.3.0
+        with:
+          driver: docker
+          minikube version: 'v1.22.0'
+          kubernetes version: 'v1.20.2'
+          github token: ${{ secrets.GITHUB_TOKEN }}
+          start args: "--memory='3Gi' --addons=ingress"
+
+      - name: Interact with the cluster
         run: |
             export BASEDIR=$(git rev-parse --show-toplevel)
             export VERSION=$(git rev-parse --short=12 HEAD)
+            export USE_FLUENTD=1
+            export JWT_WORKAROUND=1
 
             # Deploy all services: istio, curiefense, and echoserver (test app)
-            deploy/deploy-ci-compose.sh
+            deploy/deploy-ci.sh
 
             echo "-- Install curieconfctl --"
 
@@ -44,21 +54,15 @@ jobs:
 
             echo "-- Run e2e tests --"
             pushd e2e
-            IP=127.0.0.1
-            pytest -m all_modules --log-level INFO --base-protected-url http://$IP:30081 --base-conf-url http://$IP:30000/api/v2/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --junit-xml pytest.xml .
-            popd
 
-
-      - name: Dump compose logs
-        if: ${{ failure() }}
-        run: |
-            # Print logs from all services for debug
-            # purposes.
-            pushd deploy/compose
-            docker-compose logs
+            # TODO(flaper87): Work on enabling full e2e
+            # tests.
+            export IP=$(minikube ip)
+            export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
+            export IPPORT=$IP:$INGRESS_PORT
+            pytest -m all_modules --log-level INFO --base-protected-url http://$IPPORT --base-conf-url http://$IP:30000/api/v2/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:30200/ --junit-xml pytest.xml .
 
       - name: Publish Unit Test Results
-        # TODO implement https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories
         uses: EnricoMi/publish-unit-test-result-action@ea8720de4a2e723f8204d44fc0178744cf401c1a
         with:
           files: e2e/pytest.xml
