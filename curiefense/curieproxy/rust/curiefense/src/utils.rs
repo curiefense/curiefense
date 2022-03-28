@@ -166,8 +166,6 @@ pub struct RequestMeta {
     pub authority: Option<String>,
     pub method: String,
     pub path: String,
-    /// this field only exists for gradual Lua interop
-    /// TODO: remove when complete
     pub extra: HashMap<String, String>,
 }
 
@@ -353,8 +351,6 @@ pub fn map_request(
         Some(a) => a.clone(),
         None => "unknown".to_string(),
     };
-
-    // TODO : parse body
 
     let rinfo = RInfo {
         meta,

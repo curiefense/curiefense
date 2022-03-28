@@ -130,7 +130,6 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
             .as_ref()
             .and_then(|uri| challenge_phase02(gh, uri, &reqinfo.headers))
     }) {
-        // TODO, check for monitor
         return (dec, tags, masking(reqinfo, &securitypolicy.content_filter_profile));
     }
     logs.debug("challenge phase2 ignored");
@@ -146,7 +145,6 @@ pub fn inspect_generic_request_map<GH: Grasshopper>(
     match flow_check(logs, &flows, &reqinfo, &mut tags) {
         Err(rr) => logs.error(rr),
         Ok(SimpleDecision::Pass) => {}
-        // TODO, check for monitor
         Ok(SimpleDecision::Action(a, reason)) => {
             let decision = a.to_decision(is_human, &mgh, &reqinfo.headers, reason);
             if decision.is_final() {

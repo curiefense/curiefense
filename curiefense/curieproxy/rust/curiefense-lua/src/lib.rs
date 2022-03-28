@@ -112,18 +112,14 @@ fn lua_inspect_request(
     let (meta, headers, lua_body, str_ip, lua_grasshopper) = args;
     let grasshopper = lua_grasshopper.map(Luagrasshopper);
 
-    // TODO: solve the lifetime issue for the &[u8] to reduce duplication
-    let res = match lua_body {
-        None => inspect_request("/config/current/config", meta, headers, None, str_ip, grasshopper),
-        Some(body) => inspect_request(
-            "/config/current/config",
-            meta,
-            headers,
-            Some(body.as_bytes()),
-            str_ip,
-            grasshopper,
-        ),
-    };
+    let res = inspect_request(
+        "/config/current/config",
+        meta,
+        headers,
+        lua_body.as_ref().map(|b| b.as_bytes()),
+        str_ip,
+        grasshopper,
+    );
 
     Ok(match res {
         Err(rr) => (
@@ -180,18 +176,14 @@ fn lua_test_inspect_request(
     let (meta, headers, lua_body, str_ip, humanity) = args;
     let grasshopper = Some(DummyGrasshopper { humanity });
 
-    // TODO: solve the lifetime issue for the &[u8] to reduce duplication
-    let res = match lua_body {
-        None => inspect_request("/config/current/config", meta, headers, None, str_ip, grasshopper),
-        Some(body) => inspect_request(
-            "/config/current/config",
-            meta,
-            headers,
-            Some(body.as_bytes()),
-            str_ip,
-            grasshopper,
-        ),
-    };
+    let res = inspect_request(
+        "/config/current/config",
+        meta,
+        headers,
+        lua_body.as_ref().map(|b| b.as_bytes()),
+        str_ip,
+        grasshopper,
+    );
 
     Ok(match res {
         Err(rr) => (
