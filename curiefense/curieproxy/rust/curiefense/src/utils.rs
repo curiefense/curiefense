@@ -220,13 +220,7 @@ impl RequestInfo {
         .iter()
         .map(|(k, v)| (k.to_string(), v.clone()))
         .collect();
-        attrs.extend(
-            self.rinfo
-                .meta
-                .extra
-                .into_iter()
-                .map(|(k, v)| (k.clone(), Some(v.clone()))),
-        );
+        attrs.extend(self.rinfo.meta.extra.into_iter().map(|(k, v)| (k, Some(v))));
         serde_json::json!({
             "headers": self.headers,
             "cookies": self.cookies,
