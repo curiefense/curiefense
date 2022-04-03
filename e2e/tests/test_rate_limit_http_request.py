@@ -36,9 +36,14 @@ class TestRateLimitHttp:
 
     #  Action: 503  | Event: http | Count: Query
     def test_503_action_event_http_request_count_by_query(self, target):
+<<<<<<< HEAD
         RateLimitHelper.check_503_response(
             target, "test_503_action_event_http_request_count_by_query", 2, 5
         )
+=======
+        RateLimitHelper.check_503_response(target,
+                                           "test_503_action_event_http_request_count_by_query?az=sa", 2, 5)
+>>>>>>> 5bb5355c4ae398cab2972092fc84856f27ddd848
 
     #  Action: 503  | Event: http | Count: Method
     def test_503_action_event_http_request_count_by_method(self, target):
@@ -111,6 +116,7 @@ class TestRateLimitHttp:
         )
 
     #  Action: Tag only  | Event: http | Count: Query
+<<<<<<< HEAD
     def test_tag_only_action_event_http_request_count_by_query(
         self, target, log_fixture
     ):
@@ -122,6 +128,12 @@ class TestRateLimitHttp:
             "test-tag-only-http-query",
             1,
         )
+=======
+    def test_tag_only_action_event_http_request_count_by_query(self, target, log_fixture):
+        RateLimitHelper.check_rate_limits_action_tag_only_with_pattern(log_fixture, target,
+                                                                       "test_tag_only_http_query?i=y",
+                                                                       "tags", "test-tag-only-http-query", 1)
+>>>>>>> 5bb5355c4ae398cab2972092fc84856f27ddd848
 
     #  Action: Tag only  | Event: http | Count: Method
     def test_tag_only_action_event_http_request_count_by_method(
@@ -189,9 +201,14 @@ class TestRateLimitHttp:
 
     #  Action: Response | Event: http | Count: Query
     def test_response_action_event_http_request_count_by_query(self, cli, target):
+<<<<<<< HEAD
         RateLimitHelper.check_rate_limits_response_action(
             target, "test_response_http_query", "response_body_query", "302", 3, 4
         )
+=======
+        RateLimitHelper.check_rate_limits_response_action(target, "test_response_http_query?k=uy", "response_body_query",
+                                                          "302", 3, 4)
+>>>>>>> 5bb5355c4ae398cab2972092fc84856f27ddd848
 
     #  Action: Response | Event: http | Count: Path
     def test_response_action_event_http_request_count_by_path(self, cli, target):
@@ -248,9 +265,13 @@ class TestRateLimitHttp:
 
     #  Action: Challenge | Event: http | Count: Query
     def test_challenge_action_event_http_request_count_by_query(self, cli, target):
+<<<<<<< HEAD
         RateLimitHelper.check_rate_limit_challenge_action(
             target, "test_challenge_http_query", 4, 5
         )
+=======
+        RateLimitHelper.check_rate_limit_challenge_action(target, "test_challenge_http_query?l=q", 4, 5)
+>>>>>>> 5bb5355c4ae398cab2972092fc84856f27ddd848
 
     #  Action: Challenge | Event: http | Count: Path
     def test_challenge_action_event_http_request_count_by_path(self, cli, target):
@@ -302,9 +323,14 @@ class TestRateLimitHttp:
 
     #  Action: Redirect | Event: http | Count: Query
     def test_redirect_action_event_http_request_count_by_query(self, cli, target):
+<<<<<<< HEAD
         RateLimitHelper.check_rate_limit_redirect_action(
             target, "test_redirect_http_query", "200", 3, 3, "https://yahoo.com"
         )
+=======
+        RateLimitHelper.check_rate_limit_redirect_action(target, "test_redirect_http_query?m=te", "200", 3, 3,
+                                                         "https://yahoo.com")
+>>>>>>> 5bb5355c4ae398cab2972092fc84856f27ddd848
 
     #  Action: Redirect | Event: http | Count: Path
     def test_redirect_action_event_http_request_count_by_path(self, cli, target):
@@ -357,12 +383,17 @@ class TestRateLimitHttp:
         )
 
     #  Action: Ban | Subaction: 503 | Event: http | Count: Query
+<<<<<<< HEAD
     def test_ban_action_event_http_request_subaction_503_count_by_query(
         self, cli, target
     ):
         RateLimitHelper.check_503_response(
             target, "test_ban_http_subaction_503_count_by_query", 4, 4
         )
+=======
+    def test_ban_action_event_http_request_subaction_503_count_by_query(self, cli, target):
+        RateLimitHelper.check_503_response(target, "test_ban_http_subaction_503_count_by_query?cc=us", 4, 4)
+>>>>>>> 5bb5355c4ae398cab2972092fc84856f27ddd848
 
     #  Action: Ban | Subaction: 503 | Event: http | Count: Path
     def test_ban_action_event_http_request_subaction_503_count_by_path(
@@ -429,12 +460,18 @@ class TestRateLimitHttp:
         )
 
     #  Action: Ban | Subaction: Challenge | Event: http | Count: Query
+<<<<<<< HEAD
     def test_ban_action_event_http_request_subaction_challenge_count_by_query(
         self, cli, target
     ):
         RateLimitHelper.check_rate_limit_challenge_action(
             target, "test_ban_http_subaction_challenge_count_by_query", 6, 5
         )
+=======
+    def test_ban_action_event_http_request_subaction_challenge_count_by_query(self, cli, target):
+        RateLimitHelper.check_rate_limit_challenge_action(target, "test_ban_http_subaction_challenge_count_by_query?m=s",
+                                                          6, 5)
+>>>>>>> 5bb5355c4ae398cab2972092fc84856f27ddd848
 
     #  Action: Ban | Subaction: Challenge | Event: http | Count: Path
     def test_ban_action_event_http_request_subaction_challenge_count_by_path(
@@ -511,6 +548,7 @@ class TestRateLimitHttp:
         )
 
     #  Action: Ban | Subaction: Tag only | Event: http | Count: Query
+<<<<<<< HEAD
     def test_ban_action_event_http_request_subaction_tag_only_count_by_query(
         self, cli, target, log_fixture
     ):
@@ -522,6 +560,13 @@ class TestRateLimitHttp:
             "test-ban-http-sub-tag-count-by-query",
             1,
         )
+=======
+    def test_ban_action_event_http_request_subaction_tag_only_count_by_query(self, cli, target, log_fixture):
+        RateLimitHelper.check_rate_limits_action_tag_only_with_pattern(log_fixture, target,
+                                                                       "test_ban_http_sub_tag_count_by_query?n=b",
+                                                                       "tags",
+                                                                       "test-ban-http-sub-tag-count-by-query", 1)
+>>>>>>> 5bb5355c4ae398cab2972092fc84856f27ddd848
 
     #  Action: Ban | Subaction: Tag only | Event: http | Count: Path
     def test_ban_action_event_http_request_subaction_tag_only_count_by_path(
@@ -628,6 +673,7 @@ class TestRateLimitHttp:
         )
 
     #  Action: Ban | Subaction: Response | Event: http | Count: Query
+<<<<<<< HEAD
     def test_ban_action_event_http_request_subaction_response_count_by_query(
         self, cli, target, log_fixture
     ):
@@ -639,6 +685,11 @@ class TestRateLimitHttp:
             4,
             3,
         )
+=======
+    def test_ban_action_event_http_request_subaction_response_count_by_query(self, cli, target, log_fixture):
+        RateLimitHelper.check_rate_limits_response_action(target, "test_ban_http_sub_response_count_by_query?z=x",
+                                                          "response_body_query", "503", 4, 3)
+>>>>>>> 5bb5355c4ae398cab2972092fc84856f27ddd848
 
     #  Action: Ban | Subaction: Response | Event: http | Count: Path
     def test_ban_action_event_http_request_subaction_response_count_by_path(
@@ -784,6 +835,7 @@ class TestRateLimitHttp:
         )
 
     #  Action: Ban | Subaction: Redirect | Event: http | Count: Query
+<<<<<<< HEAD
     def test_ban_action_event_http_request_subaction_redirect_count_by_query(
         self, cli, target, log_fixture
     ):
@@ -795,6 +847,11 @@ class TestRateLimitHttp:
             7,
             "https://google.com",
         )
+=======
+    def test_ban_action_event_http_request_subaction_redirect_count_by_query(self, cli, target, log_fixture):
+        RateLimitHelper.check_rate_limit_redirect_action(target, "test_ban_http_sub_redirect_count_by_query?vv=re",
+                                                         "200", 5, 7, "https://google.com")
+>>>>>>> 5bb5355c4ae398cab2972092fc84856f27ddd848
 
     #  Action: Ban | Subaction: Redirect | Event: http | Count: Method
     def test_ban_action_event_http_request_subaction_redirect_count_by_method(

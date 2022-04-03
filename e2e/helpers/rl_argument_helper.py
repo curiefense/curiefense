@@ -506,7 +506,7 @@ class RateLimitCookieHelper:
             action_ext=({"type": "ban"}),
             param_ext={"duration": str(6)},
             subaction="challenge",
-            key=[{"attrs": "ip"}]
+            key=[{"attrs": "country"}]
         ),
         add_rl_rule(
             path="test_ban_argument_sub_chl_count_by_asn",
@@ -522,11 +522,11 @@ class RateLimitCookieHelper:
             path="test_ban_argument_sub_chl_count_by_authority",
             ttl=5,
             limit=5,
-            pairwith=({"args": "arg_event"}),
+            pairwith=({"args": "arg_event_ban_chl_authority"}),
             action_ext=({"type": "ban"}),
             param_ext={"duration": str(6)},
             subaction="challenge",
-            key=[{"attrs": "ip"}]
+            key=[{"attrs": "authority"}]
         ),
         add_rl_rule(
             path="test_ban_argument_sub_tag_count_by_ip",
