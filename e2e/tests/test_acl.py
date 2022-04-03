@@ -3,11 +3,10 @@ from e2e.core.base_helper import target, cli, BaseHelper
 from e2e.helpers.acl_helper import acl
 
 
-@pytest.mark.usefixtures('api_setup')
+@pytest.mark.usefixtures("api_setup")
 @pytest.mark.acl_tests
 @pytest.mark.all_modules
 class TestACL:
-
     def test_enforce_deny_all(self, acl, target):
         acl.reset_and_set_acl({"force_deny": "all"})
         assert not target.is_reachable("/deny-all")
@@ -26,6 +25,7 @@ class TestACL:
     def test_deny_bot_all(self, acl, target):
         acl.reset_and_set_acl({"deny_bot": "all"})
         res = target.query(path="/")
+        print(res)
         assert res.status_code == 247
         assert ";;window.rbzns={bereshit:" in res.text
 

@@ -4,7 +4,7 @@ from e2e.helpers.url_map_helper import urlmap_config
 from e2e.helpers.acl_helper import acl
 
 
-@pytest.mark.usefixtures('api_setup', 'urlmap_config')
+@pytest.mark.usefixtures("api_setup", "urlmap_config")
 @pytest.mark.all_modules
 @pytest.mark.url_map_tests
 class TestUrlMap:

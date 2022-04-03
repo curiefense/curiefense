@@ -35,48 +35,49 @@ def pytest_addoption(parser):
         "--module",
         action="store",
         default="all",
-        help="please enter module name as a must param: --module")
+        help="please enter module name as a must param: --module",
+    )
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def module(request):
-    module = request.config.getoption('--module')
+    module = request.config.getoption("--module")
     if not module:
-        with open(os.path.join(config.HOME_PATH, 'tests', 'config.json')) as config_file:
+        with open(
+            os.path.join(config.HOME_PATH, "tests", "config.json")
+        ) as config_file:
             config_data = json.load(config_file)
-            module = config_data['module']
+            module = config_data["module"]
     return module
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def api_config(request):
-    api_version = request.config.getoption('--base-conf-url').split("/")[-2]
-    api_config_files = {
-        'v1': 'v1_config.json',
-        'v2': 'v2_config.json'
-    }
-    with open(os.path.join(config.HOME_PATH, 'data/api_config', api_config_files[api_version])) as api_config:
+    api_version = request.config.getoption("--base-conf-url").split("/")[-2]
+    api_config_files = {"v1": "v1_config.json", "v2": "v2_config.json"}
+    with open(
+        os.path.join(config.HOME_PATH, "data/api_config", api_config_files[api_version])
+    ) as api_config:
         api_config_file = json.load(api_config)
     return api_config_file
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def data(module):
-    if module == 'all':
-        path = os.path.join(config.HOME_PATH, 'data')
+    if module == "all":
+        path = os.path.join(config.HOME_PATH, "data")
         only_files = [f for f in os.listdir(path) if isfile(join(path, f))]
         merged_data = {}
         for file in only_files:
-            with open(path + '/' + file,"r") as infile:
+            with open(path + "/" + file, "r") as infile:
                 loaded = json.load(infile)
                 merged_data.update(loaded)
         return merged_data
     else:
-        env_data_files = {
-            'acl': 'acl_data.json',
-            'rl': 'rl_data.json'
-        }
-        with open(os.path.join(config.HOME_PATH, 'data', env_data_files[module])) as data_file:
+        env_data_files = {"acl": "acl_data.json", "rl": "rl_data.json"}
+        with open(
+            os.path.join(config.HOME_PATH, "data", env_data_files[module])
+        ) as data_file:
             data = json.load(data_file)
         return data
 
@@ -84,6 +85,3 @@ def data(module):
 @pytest.fixture(scope="class")
 def api_setup(request, data):
     request.cls.data = data
-
-
-

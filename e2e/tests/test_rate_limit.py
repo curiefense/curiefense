@@ -4,7 +4,7 @@ from e2e.core.base_helper import cli, target, section, BaseHelper
 from e2e.helpers.rl_helper import ratelimit_config, RateLimitHelper
 
 
-@pytest.mark.usefixtures('api_setup', 'ratelimit_config')
+@pytest.mark.usefixtures("api_setup", "ratelimit_config")
 @pytest.mark.rate_limit_tests
 @pytest.mark.all_modules
 class TestRateLimit:

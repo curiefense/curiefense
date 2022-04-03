@@ -5,7 +5,7 @@ import pytest
 from e2e.core.base_helper import target, cli, log_fixture, BaseHelper
 
 
-@pytest.mark.usefixtures('api_setup')
+@pytest.mark.usefixtures("api_setup")
 @pytest.mark.log_tests
 @pytest.mark.all_modules
 class TestLogs(BaseHelper):
