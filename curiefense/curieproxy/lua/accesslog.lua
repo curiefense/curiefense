@@ -9,12 +9,12 @@ local LOG_KEY = "request.info"
 local function get_log_table(request_map)
   -- handle is userData which is not serializable
   local entries = {
-    ["geo"]     = "geo",
-    ["headers"] = "headers",
-    ["cookies"] = "cookies",
-    ["args"]    = "arguments",
-    ["attrs"]   = "attributes",
-    ["tags"]    = "tags"
+    ["geo"]        = "geo",
+    ["headers"]    = "headers",
+    ["cookies"]    = "cookies",
+    ["args"]       = "arguments",
+    ["attributes"] = "attributes",
+    ["tags"]       = "tags"
   }
 
   local log_table = {}

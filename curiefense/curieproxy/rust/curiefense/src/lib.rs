@@ -17,6 +17,7 @@ pub mod simple_executor;
 pub mod tagging;
 pub mod utils;
 
+use analyze::CfRulesArg;
 use body::body_too_large;
 use config::{with_config, HSDB};
 use contentfilter::content_filter_check;
@@ -173,6 +174,7 @@ pub async fn inspect_generic_request_map_async<GH: Grasshopper>(
         };
 
     tags.extend(ntags);
+
     analyze::analyze(
         logs,
         mgh,
@@ -183,6 +185,7 @@ pub async fn inspect_generic_request_map_async<GH: Grasshopper>(
         is_human,
         globalfilter_dec,
         &flows,
+        CfRulesArg::Global,
     )
     .await
 }

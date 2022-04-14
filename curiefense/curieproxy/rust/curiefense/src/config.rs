@@ -247,17 +247,11 @@ impl Config {
         out
     }
 
-    pub fn reload(&self, logs: &mut Logs, basepath: &str) -> Option<(Config, HashMap<String, ContentFilterRules>)> {
-        let last_mod = std::fs::metadata(basepath)
-            .and_then(|x| x.modified())
-            .unwrap_or_else(|rr| {
-                logs.error(|| format!("Could not get last modified time for {}: {}", basepath, rr));
-                SystemTime::now()
-            });
-        if self.last_mod == last_mod {
-            return None;
-        }
-
+    pub fn load(
+        logs: &mut Logs,
+        basepath: &str,
+        last_mod: SystemTime,
+    ) -> (Config, HashMap<String, ContentFilterRules>) {
         logs.debug("Loading new configuration - CFGLOAD");
         let mut bjson = PathBuf::from(basepath);
         bjson.push("json");
@@ -290,7 +284,22 @@ impl Config {
             container_name,
             flows,
         );
-        Some((config, hsdb))
+
+        (config, hsdb)
+    }
+
+    pub fn reload(&self, logs: &mut Logs, basepath: &str) -> Option<(Config, HashMap<String, ContentFilterRules>)> {
+        let last_mod = std::fs::metadata(basepath)
+            .and_then(|x| x.modified())
+            .unwrap_or_else(|rr| {
+                logs.error(|| format!("Could not get last modified time for {}: {}", basepath, rr));
+                SystemTime::now()
+            });
+        if self.last_mod == last_mod {
+            return None;
+        }
+
+        Some(Config::load(logs, basepath, last_mod))
     }
 
     pub fn empty() -> Config {

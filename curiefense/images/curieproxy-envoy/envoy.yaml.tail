@@ -45,7 +45,19 @@
               socket_address:
                 address: TARGET_ADDRESS_B
                 port_value: TARGET_PORT_B
-
+  - name: ext_proc_cluster
+    type: strict_dns
+    connect_timeout: 25s
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: ext_proc_cluster
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: extproc
+                port_value: 50051 
 admin:
   access_log_path: "/dev/null"
   address:

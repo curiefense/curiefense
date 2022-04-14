@@ -88,6 +88,30 @@ impl Decision {
     }
 }
 
+// helper function that reproduces the envoy log format
+pub fn jsonlog(dec: &Decision, rinfo: RequestInfo, tags: Tags) -> serde_json::Value {
+    let mut tgs = tags;
+    let (blocked, block_reason) = match dec {
+        Decision::Pass => (false, None),
+        Decision::Action(a) => {
+            if let Some(extra) = &a.extra_tags {
+                for t in extra {
+                    tgs.insert(t);
+                }
+            }
+            (a.block_mode, Some(&a.reason))
+        }
+    };
+
+    let val = serde_json::json!({
+        "tags": tgs,
+        "block_reason": block_reason,
+        "blocked": blocked,
+        "request": rinfo.into_json_notags()
+    });
+    val
+}
+
 /// a newtype representing tags, to make sure they are tagified when inserted
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Tags(HashSet<String>);

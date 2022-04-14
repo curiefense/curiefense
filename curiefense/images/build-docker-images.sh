@@ -29,6 +29,7 @@ if [ -n "$TESTIMG" ]; then
 else
     IMAGES=(confserver curielogger curieproxy-istio curieproxy-envoy \
         curieproxy-nginx curiefense-nginx-ingress curiesync grafana prometheus \
+        extproc \
         redis uiserver)
 fi
 

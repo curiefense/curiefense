@@ -259,7 +259,7 @@ Example, when actions needs to be taken:
          "c" : "cmd.exe",
          "foo" : "bar"
       },
-      "attrs" : {
+      "attributes" : {
          "ip" : "172.19.0.1",
          "ipnum" : "2886926337",
          "path" : "/test/",

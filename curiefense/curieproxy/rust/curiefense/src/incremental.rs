@@ -9,10 +9,11 @@ use std::collections::HashMap;
 */
 
 use crate::{
-    analyze::analyze,
+    analyze::{analyze, CfRulesArg},
     body::body_too_large,
     challenge_verified,
     config::{
+        contentfilter::ContentFilterRules,
         contentfilter::SectionIdx,
         flow::{FlowElement, SequenceKey},
         globalfilter::GlobalFilterSection,
@@ -28,11 +29,11 @@ use crate::{
     utils::{map_request, RawRequest, RequestInfo, RequestMeta},
 };
 
-pub struct IData<'t> {
-    logs: Logs,
+pub struct IData {
+    pub logs: Logs,
     meta: RequestMeta,
     headers: HashMap<String, String>,
-    secpol: &'t SecurityPolicy,
+    secpol: SecurityPolicy,
     body: Option<Vec<u8>>,
     trusted_hops: u32,
 }
@@ -56,7 +57,7 @@ pub fn inspect_init(
             logs,
             meta,
             headers: HashMap::new(),
-            secpol,
+            secpol: secpol.clone(),
             body: None,
             trusted_hops,
         }),
@@ -65,7 +66,7 @@ pub fn inspect_init(
 
 /// called when the content filter policy is violated
 /// no tags are returned though!
-fn early_block(idata: IData, action: Action) -> (Decision, Tags, RequestInfo) {
+fn early_block(idata: IData, action: Action) -> (Logs, (Decision, Tags, RequestInfo)) {
     let mut logs = idata.logs;
     let secpolicy = idata.secpol;
     let rawrequest = RawRequest {
@@ -81,17 +82,19 @@ fn early_block(idata: IData, action: Action) -> (Decision, Tags, RequestInfo) {
         0,
         &rawrequest,
     );
-    (Decision::Action(action), Tags::default(), reqinfo)
+    (logs, (Decision::Action(action), Tags::default(), reqinfo))
 }
 
 /// incrementally add headers, can exit early if there are too many headers, or they are too large
 ///
 /// other properties are not checked at this point (restrict for example), this early check purely exists as an anti DOS measure
-pub fn add_header(idata: IData, new_headers: HashMap<String, String>) -> Result<IData, (Decision, Tags, RequestInfo)> {
+pub fn add_header(
+    idata: IData,
+    new_headers: HashMap<String, String>,
+) -> Result<IData, (Logs, (Decision, Tags, RequestInfo))> {
     let mut dt = idata;
-    let secpol = dt.secpol;
-    if secpol.content_filter_active {
-        let hdrs = &secpol.content_filter_profile.sections.headers;
+    if dt.secpol.content_filter_active {
+        let hdrs = &dt.secpol.content_filter_profile.sections.headers;
         if dt.headers.len() + new_headers.len() > hdrs.max_count {
             return Err(early_block(
                 dt,
@@ -102,11 +105,9 @@ pub fn add_header(idata: IData, new_headers: HashMap<String, String>) -> Result<
             let kl = k.to_lowercase();
             if kl == "content-length" {
                 if let Ok(content_length) = v.parse::<usize>() {
-                    if content_length > secpol.content_filter_profile.max_body_size {
-                        return Err(early_block(
-                            dt,
-                            body_too_large(secpol.content_filter_profile.max_body_size, content_length),
-                        ));
+                    let max_size = dt.secpol.content_filter_profile.max_body_size;
+                    if content_length > max_size {
+                        return Err(early_block(dt, body_too_large(max_size, content_length)));
                     }
                 }
             }
@@ -125,16 +126,13 @@ pub fn add_header(idata: IData, new_headers: HashMap<String, String>) -> Result<
 }
 
 /// TODO, incremental filtering of body based on the security policy (mainly body length)
-pub fn add_body(idata: IData, new_body: Vec<u8>) -> Result<IData, (Decision, Tags, RequestInfo)> {
+pub fn add_body(idata: IData, new_body: Vec<u8>) -> Result<IData, (Logs, (Decision, Tags, RequestInfo))> {
     let mut dt = idata;
     let cur_body_size = dt.body.as_ref().map(|v| v.len()).unwrap_or(0);
     let new_size = cur_body_size + new_body.len();
-    let secpol = dt.secpol;
-    if new_size > secpol.content_filter_profile.max_body_size {
-        return Err(early_block(
-            dt,
-            body_too_large(secpol.content_filter_profile.max_body_size, new_size),
-        ));
+    let max_size = dt.secpol.content_filter_profile.max_body_size;
+    if new_size > max_size {
+        return Err(early_block(dt, body_too_large(max_size, new_size)));
     }
 
     match dt.body.as_mut() {
@@ -144,12 +142,13 @@ pub fn add_body(idata: IData, new_body: Vec<u8>) -> Result<IData, (Decision, Tag
     Ok(dt)
 }
 
-pub async fn finalize<'t, GH: Grasshopper>(
-    idata: IData<'t>,
+pub async fn finalize<GH: Grasshopper>(
+    idata: IData,
     mgh: Option<GH>,
     globalfilters: &[GlobalFilterSection],
     flows: &HashMap<SequenceKey, Vec<FlowElement>>,
-) -> (Decision, Tags, RequestInfo) {
+    mcfrules: Option<&HashMap<String, ContentFilterRules>>,
+) -> ((Decision, Tags, RequestInfo), Logs) {
     let mut logs = idata.logs;
     let secpolicy = idata.secpol;
     let rawrequest = RawRequest {
@@ -175,18 +174,22 @@ pub async fn finalize<'t, GH: Grasshopper>(
 
     let (mut tags, globalfilter_dec) = tag_request(is_human, globalfilters, &reqinfo);
     tags.insert("all");
-    analyze(
+    let dec = analyze(
         &mut logs,
         mgh,
         tags,
         &secpolicy.name,
-        secpolicy,
+        &secpolicy,
         reqinfo,
         is_human,
         globalfilter_dec,
         flows,
+        mcfrules
+            .map(|cfrules| CfRulesArg::Get(cfrules.get(&secpolicy.content_filter_profile.id)))
+            .unwrap_or(CfRulesArg::Global),
     )
-    .await
+    .await;
+    (dec, logs)
 }
 
 fn extract_ip(trusted_hops: usize, headers: &HashMap<String, String>) -> String {
@@ -315,6 +318,31 @@ mod test {
         )
         .unwrap();
         let idata = add_header(idata, hashmap(&[("kn", "DQSQSDQSDQSDQSD")]));
+        assert!(idata.is_err())
+    }
+
+    #[test]
+    fn body_too_large_cl() {
+        let mut cf = ContentFilterProfile::default_from_seed("seed");
+        cf.max_body_size = 100;
+        let cfg = empty_config(cf);
+        let idata = mk_idata(&cfg);
+        let idata = add_header(idata, hashmap(&[("content-length", "150"), ("k4", "v4"), ("k5", "v5")]));
+        assert!(idata.is_err())
+    }
+
+    #[test]
+    fn body_too_large_body() {
+        let mut cf = ContentFilterProfile::default_from_seed("seed");
+        cf.max_body_size = 100;
+        let cfg = empty_config(cf);
+        let idata = mk_idata(&cfg);
+        let idata = add_header(idata, hashmap(&[("content-length", "90"), ("k4", "v4"), ("k5", "v5")])).unwrap();
+        let idata = add_body(idata, vec![4, 5, 6, 8]).unwrap();
+        let mut emptybody: Vec<u8> = Vec::new();
+        emptybody.resize(50, 66);
+        let idata = add_body(idata, emptybody.clone()).unwrap();
+        let idata = add_body(idata, emptybody);
         assert!(idata.is_err())
     }
 }
