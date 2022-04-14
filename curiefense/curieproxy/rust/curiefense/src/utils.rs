@@ -245,6 +245,17 @@ pub struct RequestInfo {
 
 impl RequestInfo {
     pub fn into_json(self, tags: Tags) -> serde_json::Value {
+        let mut v = self.into_json_notags();
+        if let Some(m) = v.as_object_mut() {
+            m.insert(
+                "tags".to_string(),
+                serde_json::to_value(tags).unwrap_or(serde_json::Value::Null),
+            );
+        }
+        v
+    }
+
+    pub fn into_json_notags(self) -> serde_json::Value {
         let ipnum: Option<String> = self.rinfo.geoip.ip.as_ref().map(|i| match i {
             IpAddr::V4(a) => u32::from_be_bytes(a.octets()).to_string(),
             IpAddr::V6(a) => u128::from_be_bytes(a.octets()).to_string(),
@@ -268,8 +279,7 @@ impl RequestInfo {
             "cookies": self.cookies.to_json(),
             "args": self.rinfo.qinfo.args.to_json(),
             "path": self.rinfo.qinfo.path_as_map.to_json(),
-            "attrs": attrs,
-            "tags": tags,
+            "attributes": attrs,
             "geo": geo
         })
     }

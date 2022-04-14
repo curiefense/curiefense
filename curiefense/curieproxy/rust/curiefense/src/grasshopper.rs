@@ -16,16 +16,16 @@ pub struct DummyGrasshopper {}
 // use this when grasshopper can't be used
 impl Grasshopper for DummyGrasshopper {
     fn js_app(&self) -> Option<String> {
-        None
+        Some("dummy_grasshopper_for_testing_only".to_string())
     }
     fn js_bio(&self) -> Option<String> {
-        None
+        Some("dummy_grasshopper_for_testing_only".to_string())
     }
     fn parse_rbzid(&self, _rbzid: &str, _seed: &str) -> Option<bool> {
-        None
+        Some(false)
     }
     fn gen_new_seed(&self, _seed: &str) -> Option<String> {
-        None
+        Some("dummy_grasshopper_for_testing_only".to_string())
     }
     fn verify_workproof(&self, _workproof: &str, _seed: &str) -> Option<String> {
         None

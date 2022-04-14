@@ -1,12 +1,11 @@
 version: "3.7"
 services:
+
   curieproxy:
     container_name: curieproxy
     hostname: curieproxy
     image: "curiefense/curieproxy-envoy:${DOCKER_TAG}"
     restart: always
-    volumes:
-      - curieproxy_config:/cf-config
     environment:
       - ENVOY_UID
       - TARGET_ADDRESS_A=echo
@@ -55,6 +54,21 @@ services:
     secrets:
       - curieproxysslcrt
       - curieproxysslkey
+
+  extproc:
+    container_name: extproc
+    hostname: extproc
+    image: "curiefense/extproc:${DOCKER_TAG}"
+    restart: always
+    volumes:
+      - curieproxy_config:/cf-config
+    environment:
+      - XFF_TRUSTED_HOPS
+      - EXTPROC_LOG_LEVEL
+    networks:
+      curiemesh:
+        aliases:
+          - extproc
 
   confserver:
     container_name: confserver

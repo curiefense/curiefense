@@ -2,6 +2,7 @@ use serde_json::json;
 use std::collections::HashMap;
 
 use crate::acl::{check_acl, AclDecision, AclResult, BotHuman};
+use crate::config::contentfilter::ContentFilterRules;
 use crate::config::flow::{FlowElement, SequenceKey};
 use crate::config::hostmap::SecurityPolicy;
 use crate::config::HSDB;
@@ -30,6 +31,11 @@ fn acl_block(blocking: bool, code: i32, tags: &[String]) -> Decision {
     })
 }
 
+pub enum CfRulesArg<'t> {
+    Global,
+    Get(Option<&'t ContentFilterRules>),
+}
+
 #[allow(clippy::too_many_arguments)]
 pub async fn analyze<GH: Grasshopper>(
     logs: &mut Logs,
@@ -41,6 +47,7 @@ pub async fn analyze<GH: Grasshopper>(
     is_human: bool,
     globalfilter_dec: SimpleDecision,
     flows: &HashMap<SequenceKey, Vec<FlowElement>>,
+    cfrules: CfRulesArg<'_>,
 ) -> (Decision, Tags, RequestInfo) {
     let mut tags = itags;
     let masking_seed = &securitypolicy.content_filter_profile.masking_seed;
@@ -222,19 +229,18 @@ pub async fn analyze<GH: Grasshopper>(
         }
     }
 
+    let mut cfcheck =
+        |mrls| content_filter_check(logs, &mut tags, &reqinfo, &securitypolicy.content_filter_profile, mrls);
     // otherwise, run content_filter_check
-    let content_filter_result = match HSDB.read() {
-        Ok(rd) => content_filter_check(
-            logs,
-            &mut tags,
-            &reqinfo,
-            &securitypolicy.content_filter_profile,
-            rd.get(&securitypolicy.content_filter_profile.id),
-        ),
-        Err(rr) => {
-            logs.error(|| format!("Could not get lock on HSDB: {}", rr));
-            Ok(())
-        }
+    let content_filter_result = match cfrules {
+        CfRulesArg::Global => match HSDB.read() {
+            Ok(rd) => cfcheck(rd.get(&securitypolicy.content_filter_profile.id)),
+            Err(rr) => {
+                logs.error(|| format!("Could not get lock on HSDB: {}", rr));
+                Ok(())
+            }
+        },
+        CfRulesArg::Get(r) => cfcheck(r),
     };
     logs.debug("Content Filter checks done");
 

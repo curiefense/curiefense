@@ -37,6 +37,20 @@ impl LogLevel {
     }
 }
 
+impl std::str::FromStr for LogLevel {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "debug" => Ok(LogLevel::Debug),
+            "info" => Ok(LogLevel::Info),
+            "warning" => Ok(LogLevel::Warning),
+            "error" => Ok(LogLevel::Error),
+            _ => Err(format!("unknown loglevel {}", s)),
+        }
+    }
+}
+
 impl std::fmt::Display for Log {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{} {}µs {}", self.level.short(), self.elapsed_micros, self.message)

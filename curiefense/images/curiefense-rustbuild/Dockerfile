@@ -15,6 +15,7 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y && \
     cargo test && \
     cargo build --release && \
     cp target/release/libcuriefense_lua.so /root/curiefense.so && \
+    cp target/release/cf-externalprocessing /root/ && \
     rm -rf target /root/.cargo
 
 FROM ubuntu:${UBUNTU_VERSION} as tester
@@ -46,3 +47,4 @@ RUN sh luatests/run.sh
 
 FROM scratch
 COPY --from=builder /root/curiefense.so /root/curiefense.so
+COPY --from=builder /root/cf-externalprocessing /root/cf-externalprocessing

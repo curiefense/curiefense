@@ -4,6 +4,7 @@ members = [
     "curiefense",
     "curiefense-lua",
     "curiefense-ffi",
+    "curiefense-externalprocessing",
 ]
 
 [profile.bench]

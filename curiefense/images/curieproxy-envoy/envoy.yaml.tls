@@ -1,10 +1,8 @@
-static_resources:
-  listeners:
-  - name: main
+  - name: tls
     address:
       socket_address:
         address: 0.0.0.0
-        port_value: 80
+        port_value: 443
     filter_chains:
     - filters:
       - name: envoy.filters.network.http_connection_manager
@@ -37,24 +35,45 @@ static_resources:
                 metadata:
                   filter_metadata:
                     envoy.filters.http.lua:
-                      xff_trusted_hops: XFF_TRUSTED
+                      xff_trusted_hops: 1
           http_filters:
-          - name: envoy.filters.http.lua
+          - name: envoy.filters.http.ext_proc
             typed_config:
-              "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
-              inline_code: |
-                local session = require "lua.session_envoy"
-                function envoy_on_request(handle)
-                  session.inspect(handle)
-                end
+              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_proc.v3.ExternalProcessor
+              failure_mode_allow: false
+              message_timeout: 25s
+              async_mode: false              
+              request_attributes:
+              - user
+              response_attributes:
+              - server
+              processing_mode:
+                request_header_mode: "SEND"
+                response_header_mode: "SKIP"
+                request_body_mode: "STREAMED"
+                response_body_mode: "NONE"
+                request_trailer_mode: "SKIP"
+                response_trailer_mode: "SKIP"
+              grpc_service:
+                envoy_grpc:                  
+                  cluster_name: ext_proc_cluster
           - name: envoy.filters.http.router
             typed_config: {}
-
-  - name: secondary
+      transport_socket:
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+          common_tls_context:
+            tls_certificates:
+              - certificate_chain:
+                  filename: "/run/secrets/curieproxysslcrt"
+                private_key:
+                  filename: "/run/secrets/curieproxysslkey"
+  - name: tlsjuice
     address:
       socket_address:
         address: 0.0.0.0
-        port_value: 81
+        port_value: 444
     filter_chains:
     - filters:
       - name: envoy.filters.network.http_connection_manager
@@ -87,15 +106,37 @@ static_resources:
                 metadata:
                   filter_metadata:
                     envoy.filters.http.lua:
-                      xff_trusted_hops: XFF_TRUSTED
+                      xff_trusted_hops: 1
           http_filters:
-          - name: envoy.filters.http.lua
+          - name: envoy.filters.http.ext_proc
             typed_config:
-              "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
-              inline_code: |
-                local session = require "lua.session_envoy"
-                function envoy_on_request(handle)
-                  session.inspect(handle)
-                end
+              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_proc.v3.ExternalProcessor
+              failure_mode_allow: false
+              message_timeout: 25s
+              async_mode: false              
+              request_attributes:
+              - user
+              response_attributes:
+              - server
+              processing_mode:
+                request_header_mode: "SEND"
+                response_header_mode: "SKIP"
+                request_body_mode: "STREAMED"
+                response_body_mode: "NONE"
+                request_trailer_mode: "SKIP"
+                response_trailer_mode: "SKIP"
+              grpc_service:
+                envoy_grpc:                  
+                  cluster_name: ext_proc_cluster
           - name: envoy.filters.http.router
             typed_config: {}
+      transport_socket:
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+          common_tls_context:
+            tls_certificates:
+              - certificate_chain:
+                  filename: "/run/secrets/curieproxysslcrt"
+                private_key:
+                  filename: "/run/secrets/curieproxysslkey"
