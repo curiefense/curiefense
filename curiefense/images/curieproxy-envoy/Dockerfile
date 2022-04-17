@@ -1,7 +1,7 @@
 ARG RUSTBIN_TAG=latest
 FROM curiefense/curiefense-rustbuild-bionic:${RUSTBIN_TAG} AS rustbin
-FROM curiefense/envoy-cf:15d1607b3035c900ea943ac8e1fed6f15598a46b AS envoy-cf
-FROM envoyproxy/envoy:v1.21.1
+FROM curiefense/envoy-cf:51a980bae677cb6f32bce754b7c0e08a83382683 AS envoy-cf
+FROM envoyproxy/envoy:v1.22.0
 
 RUN apt-get update && \
     apt-get -qq -y --no-install-recommends install jq luarocks libpcre2-dev libgeoip-dev \
