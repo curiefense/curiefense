@@ -609,7 +609,7 @@ export default (Vue as VueConstructor<Vue & {
     },
     selectedBranch: {
       handler: function(val, oldVal) {
-        if (val && (!oldVal || !_.isEqual(val, oldVal))) {
+        if (val && !_.isEqual(val, oldVal)) {
           this.securityPoliciesDomainMatches()
         }
       },

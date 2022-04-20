@@ -233,25 +233,49 @@ describe('SecurityPoliciesEditor.vue', () => {
       const branch = (wrapper.vm as any).selectedBranch
       if (path === `/conf/api/v2/configs/${branch}/d/aclprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve({data: _.map(aclDocs, (i: ACLProfile) => _.pick(i, 'id', 'name'))})
+          return Promise.resolve(
+            {
+              data: _.map(aclDocs, (doc: ACLProfile) => {
+                return _.pick(doc, 'id', 'name')
+              }),
+            },
+          )
         }
         return Promise.resolve({data: aclDocs})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/securitypolicies/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve({data: _.map(securityPoliciesDocs, (i: SecurityPolicy) => _.pick(i, 'id', 'name'))})
+          return Promise.resolve(
+            {
+              data: _.map(securityPoliciesDocs, (doc: SecurityPolicy) => {
+                return _.pick(doc, 'id', 'name')
+              }),
+            },
+          )
         }
         return Promise.resolve({data: securityPoliciesDocs})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/contentfilterprofiles/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve({data: _.map(contentFilterDocs, (i: ContentFilterProfile) => _.pick(i, 'id', 'name'))})
+          return Promise.resolve(
+            {
+              data: _.map(contentFilterDocs, (doc: ContentFilterProfile) => {
+                return _.pick(doc, 'id', 'name')
+              }),
+            },
+          )
         }
         return Promise.resolve({data: contentFilterDocs})
       }
       if (path === `/conf/api/v2/configs/${branch}/d/ratelimits/`) {
         if (config && config.headers && config.headers['x-fields'] === 'id, name') {
-          return Promise.resolve({data: _.map(rateLimitsDocs, (i: RateLimit) => _.pick(i, 'id', 'name'))})
+          return Promise.resolve(
+            {
+              data: _.map(rateLimitsDocs, (doc: RateLimit) => {
+                return _.pick(doc, 'id', 'name')
+              }),
+            },
+          )
         }
         return Promise.resolve({data: rateLimitsDocs})
       }
