@@ -17,6 +17,7 @@ RUN cd /curieconf-client ; pip3 install --no-cache-dir .
 COPY curietasker /curietasker
 RUN cd /curietasker ; pip3 install --no-cache-dir .
 COPY init /init
+ENV PYTHONPATH $PYTHONPATH:/usr/lib/python3.7/site-packages/
 
 ENTRYPOINT ["/usr/bin/dumb-init", "/bin/bash", "/init/run.sh"]
 
