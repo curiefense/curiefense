@@ -52,15 +52,14 @@ deploy_curiefense () {
 	kubectl apply -f "$BASEDIR/curiefense-helm/example-miniocfg.yaml"
 	kubectl apply -f "$BASEDIR/curiefense-helm/example-uiserver-tls.yaml"
 	if [ "$jaeger" = "y" ] || [ "$all" = "y" ]; then
-		kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.8/samples/addons/jaeger.yaml
+		kubectl apply -f https://raw.githubusercontent.com/istio/istio/1.13.2/samples/addons/jaeger.yaml
 		kubectl apply -f "$BASEDIR/../e2e/latency/jaeger-service.yml"
 	fi
 	export JWT_WORKAROUND=yes
 	pushd "$BASEDIR/../curiefense-helm/istio-helm/" || exit 1
 	./deploy.sh --set 'global.tracer.zipkin.address=zipkin.istio-system:9411' --set 'gateways.istio-ingressgateway.autoscaleMax=1' -f "$BASEDIR/curiefense-helm/use-minio-istio.yaml" --set 'global.proxy.curiefense_minio_insecure=true' --set 'gateways.istio-ingressgateway.resources.limits.cpu=4'
-	sleep 5
-	pushd "$HOME/curiefense-helm/curiefense-helm/" || exit 1
 	popd || exit 1
+	sleep 5
 	pushd "$BASEDIR/../curiefense-helm/curiefense-helm/" || exit 1
 	./deploy.sh -f "$BASEDIR/curiefense-helm/use-minio-curiefense.yaml" --set 'global.settings.curiefense_minio_insecure=true'
 	kubectl apply -f "$BASEDIR/curiefense-helm/expose-services.yaml"
@@ -83,19 +82,20 @@ deploy_curiefense () {
 		done
 	fi
 	popd || exit 1
+	sleep 30
 }
 
 deploy_bookinfo () {
 	echo "-- Deploy target: bookinfo app --"
 	kubectl label namespace default istio-injection=enabled
-	if [ ! -d "$BASEDIR/istio-1.9.3/" ]; then
+	if [ ! -d "$BASEDIR/istio-1.13.2/" ]; then
 		pushd "$BASEDIR" || exit 1
-		wget 'https://github.com/istio/istio/releases/download/1.9.3/istio-1.9.3-linux-amd64.tar.gz'
-		tar -xf 'istio-1.9.3-linux-amd64.tar.gz'
+		wget 'https://github.com/istio/istio/releases/download/1.13.2/istio-1.13.2-linux-amd64.tar.gz'
+		tar -xf 'istio-1.13.2-linux-amd64.tar.gz'
 		popd || exit 1
 	fi
-	kubectl apply -f "$BASEDIR/istio-1.9.3/samples/bookinfo/platform/kube/bookinfo.yaml"
-	kubectl apply -f "$BASEDIR/istio-1.9.3/samples/bookinfo/networking/bookinfo-gateway.yaml"
+	kubectl apply -f "$BASEDIR/istio-1.13.2/samples/bookinfo/platform/kube/bookinfo.yaml"
+	kubectl apply -f "$BASEDIR/istio-1.13.2/samples/bookinfo/networking/bookinfo-gateway.yaml"
 	# also expose the "ratings" service directly
 	kubectl apply -f "$BASEDIR/../e2e/latency/ratings-virtualservice.yml"
 	# deploy 5 replicas to handle the test load
@@ -106,6 +106,7 @@ deploy_bookinfo () {
 				'{"spec":{"template":{"spec":{"nodeSelector": {"nodegroup": "curiefense"}}}}}'
 		done
 	fi
+	sleep 30
 }
 
 install_locust () {
@@ -121,6 +122,7 @@ install_locust () {
 	done
 
 	kubectl apply -f "$BASEDIR/../e2e/latency/locust-service.yml"
+	sleep 30
 }
 
 locust_perftest () {
@@ -131,7 +133,7 @@ locust_perftest () {
 
 	kubectl apply -f ~/reblaze/lua_filter.yaml
 	../e2e/set_config.py -u "$CONFSERVER_URL" defaultconfig
-	sleep 10
+	sleep 60
 	for REQSIZE in 0 1 2 4 8 16; do
 		./locusttest.sh cf-default-config $REQSIZE
 	done
@@ -157,7 +159,7 @@ locust_perftest () {
 	
 	echo "Generating test report..."
 	jupyter nbconvert --execute "$BASEDIR/../e2e/latency/Curiefense performance report locust.ipynb" --to html --template classic
-	mv "$BASEDIR/../e2e/latency/Curiefense performance report.html" "$BASEDIR/../e2e/latency/Curiefense performance report-$VERSION-$DATE.html"
+	mv "$BASEDIR/../e2e/latency/Curiefense performance report locust.html" "$BASEDIR/../e2e/latency/Curiefense performance report-$VERSION-$DATE.html"
 }
 
 
