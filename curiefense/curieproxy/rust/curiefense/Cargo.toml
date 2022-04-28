@@ -29,6 +29,7 @@ sha2 = "0.10"
 async-std = "1.11"
 futures = "0.3"
 futures-util = "0.3"
+async-graphql-parser = "3.0.38"
 
 [dependencies.hyperscan]
 version = "0.2"

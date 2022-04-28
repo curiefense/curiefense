@@ -243,14 +243,16 @@ pub enum ContentType {
     UrlEncoded,    // application/x-www-form-urlencoded
     Json,
     Xml,
+    Graphql, // application/graphql
 }
 
 impl ContentType {
-    pub const VALUES: [ContentType; 4] = [
+    pub const VALUES: [ContentType; 5] = [
         ContentType::Json,
         ContentType::MultipartForm,
         ContentType::UrlEncoded,
         ContentType::Xml,
+        ContentType::Graphql,
     ];
 }
 
