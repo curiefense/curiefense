@@ -9,7 +9,6 @@ global:
       confserver-init: "1m"
       confserver-nginx: "1m"
       confserver-uwsgi: "1m"
-      curietasker: "1m"
       prometheus: "1m"
       grafana: "1m"
       elasticsearch: "2m"

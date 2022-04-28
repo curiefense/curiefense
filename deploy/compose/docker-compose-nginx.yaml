@@ -66,14 +66,6 @@ services:
 #      - gc
 #      - azr
 
-  curietasker:
-    container_name: curietasker
-    hostname: curietasker
-    image: "curiefense/curietasker:${DOCKER_TAG}"
-    restart: always
-    networks:
-      - confnet
-
   redis:
     container_name: redis
     hostname: redis

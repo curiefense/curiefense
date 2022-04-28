@@ -72,7 +72,7 @@ deploy_curiefense () {
 			kubectl patch deployment -n istio-system "$deployment" -p \
 				'{"spec":{"template":{"spec":{"nodeSelector": {"nodegroup": "curiefense"}}}}}'
 		done
-		for deployment in curielogger curietasker kibana uiserver; do
+		for deployment in curielogger kibana uiserver; do
 			kubectl patch deployment -n curiefense "$deployment" -p \
 				'{"spec":{"template":{"spec":{"nodeSelector": {"nodegroup": "curiefense"}}}}}'
 		done
