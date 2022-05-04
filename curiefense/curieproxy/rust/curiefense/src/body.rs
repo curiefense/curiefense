@@ -20,6 +20,8 @@ use crate::logs::Logs;
 use crate::requestfields::RequestField;
 use crate::utils::decoders::parse_urlencoded_params_bytes;
 
+mod graphql;
+
 fn json_path(prefix: &[String]) -> String {
     if prefix.is_empty() {
         "JSON_ROOT".to_string()
@@ -132,7 +134,7 @@ fn close_xml_element(
     }
 }
 
-fn xml_increment_last(stack: &mut Vec<(String, u64)>) -> u64 {
+fn xml_increment_last(stack: &mut [(String, u64)]) -> u64 {
     if let Some(curtop) = stack.last_mut() {
         let prev = curtop.1;
         curtop.1 = prev + 1;
@@ -280,6 +282,11 @@ pub fn parse_body(
     if let Some(content_type) = mcontent_type {
         for t in active_accepted_types {
             match t {
+                ContentType::Graphql => {
+                    if content_type == "application/graphql" {
+                        return graphql::graphql_body(args, body);
+                    }
+                }
                 ContentType::Json => {
                     if content_type.ends_with("/json") {
                         return json_body(args, body);
@@ -363,9 +370,10 @@ mod tests {
             }
         }
         if args.len() != expected.len() {
+            println!("Spurious arguments:");
             for (k, v) in args.iter() {
                 if !expected.iter().any(|(ek, _)| ek == &k) {
-                    println!("Spurious argument {}: {}", k, v);
+                    println!(" ({:?}, {:?}),", k, v);
                 }
             }
             panic!("Spurious arguments");
@@ -662,6 +670,124 @@ mod tests {
             &[ContentType::Xml, ContentType::Json],
             br#"{"a": "b", "c": "d"}"#,
             &[("a", "b"), ("c", "d")],
+        );
+    }
+
+    #[test]
+    fn graphql_simple() {
+        test_parse_dec(
+            &[],
+            Some("application/graphql"),
+            &[ContentType::Graphql],
+            br#"{ hero { name } }"#,
+            &[("gdir-s0-hero-s0", "name")],
+        );
+    }
+
+    #[test]
+    fn graphql_alias() {
+        test_parse_dec(
+            &[],
+            Some("application/graphql"),
+            &[ContentType::Graphql],
+            br#"{ empireHero: hero(episode: EMPIRE) { name } jediHero: hero(episode: JEDI) { name } }"#,
+            &[
+                ("gdir-s0-hero-episode", "EMPIRE"),
+                ("gdir-s1-hero-episode", "JEDI"),
+                ("gdir-s0-hero-s0", "name"),
+                ("gdir-s0-hero-alias", "empireHero"),
+                ("gdir-s1-hero-alias", "jediHero"),
+                ("gdir-s1-hero-s0", "name"),
+            ],
+        );
+    }
+
+    #[test]
+    fn graphql_fragvars() {
+        test_parse_dec(
+            &[],
+            Some("application/graphql"),
+            &[ContentType::Graphql],
+            br#"query HeroComparison($first: Int = 3) {
+                leftComparison: hero(episode: EMPIRE) {
+                  ...comparisonFields
+                }
+                rightComparison: hero(episode: JEDI) {
+                  ...comparisonFields
+                }
+              }
+              
+              fragment comparisonFields on Character {
+                name
+                friendsConnection(first: $first) {
+                  totalCount
+                  edges {
+                    node {
+                      name
+                    }
+                  }
+                }
+              }"#,
+            &[
+                ("gdir-HeroComparison-s1-hero-alias", "rightComparison"),
+                ("gdir-HeroComparison-s0-hero-s0-frag", "comparisonFields"),
+                ("gfrag-comparisonFields-s1-friendsConnection-first", "$first"),
+                ("gfrag-comparisonFields-s1-friendsConnection-s0", "totalCount"),
+                ("gdir-HeroComparison-s0-hero-alias", "leftComparison"),
+                ("gdir-HeroComparison-s0-hero-episode", "EMPIRE"),
+                ("gdir-HeroComparison-s1-hero-episode", "JEDI"),
+                ("gfrag-comparisonFields-s0", "name"),
+                (
+                    "gfrag-comparisonFields-s1-friendsConnection-s1-edges-s0-node-s0",
+                    "name",
+                ),
+                ("gdir-HeroComparison-first-defvalue", "3"),
+                ("gdir-HeroComparison-s1-hero-s0-frag", "comparisonFields"),
+            ],
+        );
+    }
+
+    #[test]
+    fn graphql_dump_schema() {
+        test_parse_dec(
+            &[],
+            Some("application/graphql"),
+            &[ContentType::Graphql],
+            br#"{ __schema { types { name } } }"#,
+            &[("gdir-s0-__schema-s0-types-s0", "name")],
+        );
+    }
+
+    #[test]
+    fn graphql_sqli() {
+        test_parse_dec(
+            &[],
+            Some("application/graphql"),
+            &[ContentType::Graphql],
+            br#"{ login( input:{user:"admin" password:"password' or 1=1 -- -"}) { success jwt } }"#,
+            &[
+                ("gdir-s0-login-s1", "jwt"),
+                ("gdir-s0-login-s0", "success"),
+                (
+                    "gdir-s0-login-input",
+                    "{user: \"admin\",password: \"password' or 1=1 -- -\"}",
+                ),
+            ],
+        );
+    }
+
+    #[test]
+    fn graphql_userselect() {
+        test_parse_dec(
+            &[],
+            Some("application/graphql"),
+            &[ContentType::Graphql],
+            br#"query {
+                allUsers(id: 1337) {
+                  name
+                }
+              }"#,
+            &[("gdir-s0-allUsers-id", "1337"), ("gdir-s0-allUsers-s0", "name")],
         );
     }
 }

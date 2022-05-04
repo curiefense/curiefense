@@ -3,7 +3,7 @@ lua_package_path '/lua/?.lua;;';
 log_format curiefenselog escape=none '$request_map';
 
 upstream backend {
-    server echo:8080;
+    server ${TARGET_ADDRESS}:${TARGET_PORT};
 }
 
 server {
@@ -28,6 +28,5 @@ server {
             session.log(ngx)
         }
         proxy_pass http://backend;
-        # proxy_pass http://echo:8080;
     }
 }

@@ -407,6 +407,8 @@ local function test_content_filter(request_path)
   end
 end
 
+local prefix = nil
+
 if arg[1] == "GOWAF" then
   for file in lfs.dir[[luatests/gowaf]] do
     if ends_with(file, ".json") then
@@ -414,34 +416,36 @@ if arg[1] == "GOWAF" then
     end
   end
   os.exit()
+elseif arg[1] then
+  prefix = arg[1]
 end
 
 for file in lfs.dir[[luatests/raw_requests]] do
-  if ends_with(file, ".json") then
+  if startswith(file, prefix) and ends_with(file, ".json") then
     test_raw_request("luatests/raw_requests/" .. file)
   end
 end
 
 for file in lfs.dir[[luatests/masking]] do
-  if ends_with(file, ".json") then
+  if startswith(file, prefix) and ends_with(file, ".json") then
     test_masking("luatests/masking/" .. file)
   end
 end
 
 for file in lfs.dir[[luatests/contentfilter_only]] do
-  if ends_with(file, ".json") then
+  if startswith(file, prefix) and ends_with(file, ".json") then
     test_content_filter("luatests/contentfilter_only/" .. file)
   end
 end
 
 for file in lfs.dir[[luatests/ratelimit]] do
-  if ends_with(file, ".json") then
+  if startswith(file, prefix) and ends_with(file, ".json") then
     test_ratelimit("luatests/ratelimit/" .. file)
   end
 end
 
 for file in lfs.dir[[luatests/flows]] do
-  if ends_with(file, ".json") then
+  if startswith(file, prefix) and ends_with(file, ".json") then
     test_flow("luatests/flows/" .. file)
   end
 end

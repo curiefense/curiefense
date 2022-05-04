@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: locust
+  name: locust
+  namespace: locust
+spec:
+  ports:
+  - name: "locust"
+    port: 8089
+    targetPort: 8089
+    nodePort: 30400
+  selector:
+    app.kubernetes.io/name: locust
+    component: master
+  type: NodePort
+  externalTrafficPolicy: "Cluster"

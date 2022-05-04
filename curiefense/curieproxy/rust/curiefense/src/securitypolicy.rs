@@ -20,15 +20,15 @@ pub fn match_securitypolicy<'a>(
         .iter()
         .find(|e| e.matches(host))
         .map(|m| &m.inner)
-        .or_else(|| cfg.default.as_ref())?;
-    logs.debug(format!("Selected hostmap {}", hostmap.name));
+        .or(cfg.default.as_ref())?;
+    logs.debug(|| format!("Selected hostmap {}", hostmap.name));
     // find the first matching securitypolicy, or use the default, if it exists
     let securitypolicy: &SecurityPolicy = match hostmap
         .entries
         .iter()
         .find(|e| e.matches(path))
         .map(|m| &m.inner)
-        .or_else(|| hostmap.default.as_ref())
+        .or(hostmap.default.as_ref())
     {
         None => {
             logs.debug("This hostname has no default entry!");
@@ -36,6 +36,6 @@ pub fn match_securitypolicy<'a>(
         }
         Some(x) => x,
     };
-    logs.debug(format!("Selected hostmap entry {}", securitypolicy.name));
+    logs.debug(|| format!("Selected hostmap entry {}", securitypolicy.name));
     Some((hostmap.name.clone(), securitypolicy))
 }

@@ -6,7 +6,6 @@ pub mod limit;
 pub mod raw;
 pub mod utils;
 
-use crate::config::limit::Limit;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::path::Path;
@@ -14,19 +13,18 @@ use std::path::PathBuf;
 use std::sync::RwLock;
 use std::time::SystemTime;
 
+use crate::config::limit::Limit;
 use crate::logs::Logs;
 use contentfilter::{resolve_rules, ContentFilterProfile, ContentFilterRules};
 use flow::{flow_resolve, FlowElement, SequenceKey};
 use globalfilter::GlobalFilterSection;
 use hostmap::{HostMap, SecurityPolicy};
-use raw::{
-    AclProfile, RawContentFilterProfile, RawFlowEntry, RawGlobalFilterSection, RawHostMap, RawLimit, RawSecurityPolicy,
-};
+use raw::{AclProfile, RawFlowEntry, RawGlobalFilterSection, RawHostMap, RawLimit, RawSecurityPolicy};
 use utils::Matching;
 
 lazy_static! {
     pub static ref CONFIG: RwLock<Config> = RwLock::new(Config::empty());
-    pub static ref HSDB: RwLock<Option<ContentFilterRules>> = RwLock::new(None);
+    pub static ref HSDB: RwLock<HashMap<String, ContentFilterRules>> = RwLock::new(HashMap::new());
 }
 
 pub fn with_config<R, F>(basepath: &str, logs: &mut Logs, f: F) -> Option<R>
@@ -41,18 +39,18 @@ where
         Err(rr) =>
         // read failed :(
         {
-            logs.error(rr);
+            logs.error(|| rr.to_string());
             return None;
         }
     };
     let r = f(logs, &newconfig);
     match CONFIG.write() {
         Ok(mut w) => *w = newconfig,
-        Err(rr) => logs.error(rr),
+        Err(rr) => logs.error(|| rr.to_string()),
     };
     match HSDB.write() {
-        Ok(mut dbw) => *dbw = Some(newhsdb),
-        Err(rr) => logs.error(rr),
+        Ok(mut dbw) => *dbw = newhsdb,
+        Err(rr) => logs.error(|| rr.to_string()),
     };
     Some(r)
 }
@@ -98,7 +96,7 @@ impl Config {
             let acl_profile: AclProfile = match acls.get(&rawmap.acl_profile) {
                 Some(p) => p.clone(),
                 None => {
-                    logs.warning(format!("Unknown ACL profile {}", &rawmap.acl_profile));
+                    logs.warning(|| format!("Unknown ACL profile {}", &rawmap.acl_profile));
                     AclProfile::default()
                 }
             };
@@ -106,10 +104,7 @@ impl Config {
                 match contentfilterprofiles.get(&rawmap.content_filter_profile) {
                     Some(p) => p.clone(),
                     None => {
-                        logs.error(format!(
-                            "Unknown Content Filter profile {}",
-                            &rawmap.content_filter_profile
-                        ));
+                        logs.error(|| format!("Unknown Content Filter profile {}", &rawmap.content_filter_profile));
                         continue;
                     }
                 };
@@ -117,7 +112,7 @@ impl Config {
             for lid in rawmap.limit_ids {
                 match from_map(limits, &lid) {
                     Ok(lm) => olimits.push(lm),
-                    Err(rr) => logs.error(format!("When resolving limits in rawmap {}, {}", rawmap.name, rr)),
+                    Err(rr) => logs.error(format!("When resolving limits in rawmap {}, {}", rawmap.name, rr).as_str()),
                 }
             }
             let mapname = rawmap.name.clone();
@@ -136,10 +131,9 @@ impl Config {
                 default = Some(securitypolicy);
             } else {
                 match Matching::from_str(&rawmap.match_, securitypolicy) {
-                    Err(rr) => logs.warning(format!(
-                        "Invalid regex {} in entry {}: {}",
-                        &rawmap.match_, &mapname, rr
-                    )),
+                    Err(rr) => {
+                        logs.warning(format!("Invalid regex {} in entry {}: {}", &rawmap.match_, &mapname, rr).as_str())
+                    }
                     Ok(matcher) => entries.push(matcher),
                 }
             }
@@ -155,7 +149,7 @@ impl Config {
         rawlimits: Vec<RawLimit>,
         rawglobalfilters: Vec<RawGlobalFilterSection>,
         rawacls: Vec<AclProfile>,
-        rawcontentfilterprofiles: Vec<RawContentFilterProfile>,
+        content_filter_profiles: HashMap<String, ContentFilterProfile>,
         container_name: Option<String>,
         rawflows: Vec<RawFlowEntry>,
     ) -> Config {
@@ -163,7 +157,6 @@ impl Config {
         let mut securitypolicies: Vec<Matching<HostMap>> = Vec::new();
 
         let limits = Limit::resolve(logs, rawlimits);
-        let content_filter_profiles = ContentFilterProfile::resolve(logs, rawcontentfilterprofiles);
         let acls = rawacls.into_iter().map(|a| (a.id.clone(), a)).collect();
 
         // build the entries while looking for the default entry
@@ -171,10 +164,13 @@ impl Config {
             let (entries, default_entry) =
                 Config::resolve_security_policies(logs, rawmap.map, &limits, &acls, &content_filter_profiles);
             if default_entry.is_none() {
-                logs.warning(format!(
-                    "HostMap entry '{}', id '{}' does not have a default entry",
-                    rawmap.name, rawmap.id
-                ));
+                logs.warning(
+                    format!(
+                        "HostMap entry '{}', id '{}' does not have a default entry",
+                        &rawmap.name, &rawmap.id
+                    )
+                    .as_str(),
+                );
             }
             let mapname = rawmap.name.clone();
             let hostmap = HostMap {
@@ -185,22 +181,26 @@ impl Config {
             };
             if rawmap.match_ == "__default__" {
                 if default.is_some() {
-                    logs.error(format!(
-                        "HostMap entry '{}', id '{}' has several default entries",
-                        hostmap.name, hostmap.id
-                    ));
+                    logs.error(|| {
+                        format!(
+                            "HostMap entry '{}', id '{}' has several default entries",
+                            hostmap.name, hostmap.id
+                        )
+                    });
                 }
                 default = Some(hostmap);
             } else {
                 match Matching::from_str(&rawmap.match_, hostmap) {
-                    Err(rr) => logs.error(format!("Invalid regex {} in entry {}: {}", &rawmap.match_, mapname, rr)),
+                    Err(rr) => {
+                        logs.error(format!("Invalid regex {} in entry {}: {}", &rawmap.match_, mapname, rr).as_str())
+                    }
                     Ok(matcher) => securitypolicies.push(matcher),
                 }
             }
         }
 
         // order by decreasing matcher length, so that more specific rules are matched first
-        securitypolicies.sort_by(|a, b| b.matcher_len().cmp(&a.matcher_len()));
+        securitypolicies.sort_by_key(|b| std::cmp::Reverse(b.matcher_len()));
 
         let globalfilters = GlobalFilterSection::resolve(logs, rawglobalfilters);
 
@@ -224,7 +224,7 @@ impl Config {
         let file = match std::fs::File::open(path) {
             Ok(f) => f,
             Err(rr) => {
-                logs.error(format!("when loading {}: {}", fullpath, rr));
+                logs.error(|| format!("when loading {}: {}", fullpath, rr));
                 return Vec::new();
             }
         };
@@ -232,7 +232,7 @@ impl Config {
             Ok(vs) => vs,
             Err(rr) => {
                 // if it is not a json array, abort early and do not resolve anything
-                logs.error(format!("when parsing {}: {}", fullpath, rr));
+                logs.error(|| format!("when parsing {}: {}", fullpath, rr));
                 return Vec::new();
             }
         };
@@ -240,18 +240,18 @@ impl Config {
         for value in values {
             // for each entry, try to resolve it as a raw configuration value, failing otherwise
             match serde_json::from_value(value) {
-                Err(rr) => logs.error(format!("when resolving entry from {}: {}", fullpath, rr)),
+                Err(rr) => logs.error(|| format!("when resolving entry from {}: {}", fullpath, rr)),
                 Ok(v) => out.push(v),
             }
         }
         out
     }
 
-    pub fn reload(&self, logs: &mut Logs, basepath: &str) -> Option<(Config, ContentFilterRules)> {
+    pub fn reload(&self, logs: &mut Logs, basepath: &str) -> Option<(Config, HashMap<String, ContentFilterRules>)> {
         let last_mod = std::fs::metadata(basepath)
             .and_then(|x| x.modified())
             .unwrap_or_else(|rr| {
-                logs.error(format!("Could not get last modified time for {}: {}", basepath, rr));
+                logs.error(|| format!("Could not get last modified time for {}: {}", basepath, rr));
                 SystemTime::now()
             });
         if self.last_mod == last_mod {
@@ -266,7 +266,7 @@ impl Config {
         let globalfilters = Config::load_config_file(logs, &bjson, "globalfilter-lists.json");
         let limits = Config::load_config_file(logs, &bjson, "limits.json");
         let acls = Config::load_config_file(logs, &bjson, "acl-profiles.json");
-        let contentfilterprofiles = Config::load_config_file(logs, &bjson, "contentfilter-profiles.json");
+        let rawcontentfilterprofiles = Config::load_config_file(logs, &bjson, "contentfilter-profiles.json");
         let contentfilterrules = Config::load_config_file(logs, &bjson, "contentfilter-rules.json");
         let contentfiltergroups = Config::load_config_file(logs, &bjson, "contentfilter-groups.json");
         let flows = Config::load_config_file(logs, &bjson, "flow-control.json");
@@ -275,6 +275,10 @@ impl Config {
             .ok()
             .map(|s| s.trim().to_string());
 
+        let content_filter_profiles = ContentFilterProfile::resolve(logs, rawcontentfilterprofiles);
+
+        let hsdb = resolve_rules(logs, &content_filter_profiles, contentfilterrules, contentfiltergroups);
+
         let config = Config::resolve(
             logs,
             last_mod,
@@ -282,14 +286,10 @@ impl Config {
             limits,
             globalfilters,
             acls,
-            contentfilterprofiles,
+            content_filter_profiles,
             container_name,
             flows,
         );
-        let hsdb = resolve_rules(contentfilterrules, contentfiltergroups).unwrap_or_else(|rr| {
-            logs.error(rr);
-            ContentFilterRules::empty()
-        });
         Some((config, hsdb))
     }
 

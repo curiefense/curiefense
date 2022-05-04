@@ -86,7 +86,7 @@ impl Limit {
                 Ok((nm, lm)) => {
                     out.insert(nm, lm);
                 }
-                Err(rr) => logs.error(format!("limit id {}: {:?}", curid, rr)),
+                Err(rr) => logs.error(|| format!("limit id {}: {:?}", curid, rr)),
             }
         }
         out

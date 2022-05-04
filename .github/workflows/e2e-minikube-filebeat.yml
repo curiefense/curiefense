@@ -64,6 +64,7 @@ jobs:
       - name: Dump logs
         if: ${{ failure() }}
         run: |
+            kubectl -n istio-system describe pods
             kubectl -n curiefense describe pods
             echo "--- Logs for curielogger ---"
             kubectl -n curiefense logs --all-containers -l app.kubernetes.io/name=curielogger

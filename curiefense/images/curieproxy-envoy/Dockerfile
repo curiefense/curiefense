@@ -1,7 +1,7 @@
 ARG RUSTBIN_TAG=latest
 FROM curiefense/curiefense-rustbuild-bionic:${RUSTBIN_TAG} AS rustbin
-FROM curiefense/envoy-cf:0250ad715e8c0463d0d4389cbfab340bc7dd7587 AS envoy-cf
-FROM envoyproxy/envoy:v1.16.5
+FROM curiefense/envoy-cf:15d1607b3035c900ea943ac8e1fed6f15598a46b AS envoy-cf
+FROM envoyproxy/envoy:v1.21.1
 
 RUN apt-get update && \
     apt-get -qq -y --no-install-recommends install jq luarocks libpcre2-dev libgeoip-dev \
@@ -26,9 +26,9 @@ COPY init/start_curiefense.sh /start_curiefense.sh
 COPY curieproxy/lua /lua
 COPY curieproxy/lua/shared-objects/*.so /usr/local/lib/lua/5.1/
 COPY --from=rustbin /root/curiefense.so /usr/local/lib/lua/5.1/
-COPY curieproxy/config /bootstrap-config/config
+COPY curieproxy/cf-config /bootstrap-config/config
 COPY curieproxy/envoy.yaml.* /etc/envoy/
 
-RUN mkdir /config && chmod a+rwxt /config
+RUN mkdir /cf-config && chmod a+rwxt /cf-config
 
 ENTRYPOINT ["/start_curiefense.sh"]

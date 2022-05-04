@@ -1,11 +1,11 @@
 ARG RUSTBIN_TAG=latest
-FROM curiefense/curiefense-rustbuild-bionic:${RUSTBIN_TAG} AS rustbin
-FROM curiefense/envoy-istio-cf:66815c263c6b178df7cecacf69f9b374435d1bcd AS envoy-istio-cf
-FROM docker.io/istio/proxyv2:1.9.3
+FROM curiefense/curiefense-rustbuild-focal:${RUSTBIN_TAG} AS rustbin
+FROM curiefense/envoy-istio-cf:407e092226b2c0913357b16ddf0917cf71e69dd4 AS envoy-istio-cf
+FROM docker.io/istio/proxyv2:1.13.2
 
 RUN apt-get update && \
     apt-get -yq --no-install-recommends install jq luarocks libpcre2-dev \
-    libgeoip-dev python dumb-init gcc g++ make unzip libhyperscan4 libhyperscan-dev && \
+    libgeoip-dev python dumb-init gcc g++ make unzip libhyperscan5 libhyperscan-dev && \
     rm -rf /var/lib/apt/lists/*
 
 RUN luarocks install lrexlib-pcre2 && \
@@ -26,9 +26,9 @@ COPY init/start_curiefense_pilot.sh /start_curiefense_pilot.sh
 COPY curieproxy/lua /lua
 COPY curieproxy/lua/shared-objects/*.so /usr/local/lib/lua/5.1/
 COPY --from=rustbin /root/curiefense.so /usr/local/lib/lua/5.1/
-COPY curieproxy/config /bootstrap-config/config
+COPY curieproxy/cf-config /bootstrap-config/config
 
-RUN mkdir /config && chmod a+rwxt /config
+RUN mkdir /cf-config && chmod a+rwxt /cf-config
 
 ENTRYPOINT ["/usr/bin/dumb-init", "/start_curiefense_pilot.sh"]
 

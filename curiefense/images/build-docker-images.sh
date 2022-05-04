@@ -19,7 +19,7 @@ GITTAG="$(git describe --tag --long --dirty)"
 DOCKER_DIR_HASH="$(git rev-parse --short=12 HEAD:curiefense)"
 DOCKER_TAG="${DOCKER_TAG:-$GITTAG-$DOCKER_DIR_HASH}"
 STOP_ON_FAIL=${STOP_ON_FAIL:-yes}
-RUST_DISTROS=(bionic)
+RUST_DISTROS=(bionic focal)
 
 if [ -n "$TESTIMG" ]; then
     IMAGES=("$TESTIMG")
@@ -28,7 +28,7 @@ if [ -n "$TESTIMG" ]; then
     echo "Building only image $TESTIMG"
 else
     IMAGES=(confserver curielogger curieproxy-istio curieproxy-envoy \
-        curieproxy-nginx curiefense-nginx-ingress curiesync curietasker grafana prometheus \
+        curieproxy-nginx curiefense-nginx-ingress curiesync grafana prometheus \
         redis uiserver)
 fi
 

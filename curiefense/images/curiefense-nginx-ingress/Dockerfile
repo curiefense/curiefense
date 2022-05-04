@@ -58,7 +58,7 @@ RUN sed -i "/^http {/a log_format curiefenselog escape=none '\$request_map';" /n
 COPY curieproxy/lua/shared-objects/*.so /usr/local/lib/lua/5.1/
 COPY --from=rustbin /root/curiefense.so /usr/local/lib/lua/5.1/
 
-COPY curieproxy/config /cf-bootstrap-config/config
+COPY curieproxy/cf-config /cf-bootstrap-config/config
 COPY curieproxy/lua /lua
 RUN rm -f /lua/session.lua && ln -s /lua/session_nginx.lua /lua/session.lua
 

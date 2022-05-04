@@ -17,33 +17,27 @@ Curiefense is a new application security platform, which protects sites, service
 
 ## Getting Started
 
-## 📚 Documentation
+## Documentation
 
 * [Curiefense Documentation](https://docs.curiefense.io)
 * [Quick Start Guide](https://docs.curiefense.io/installation/getting-started-with-curiefense)
 * [FAQ](https://www.curiefense.io/faq)
 
-### 🐳 Docker
+### Docker
 ```bash
 git clone https://github.com/curiefense/curiefense.git
 cd curiefense/deploy/compose/
 docker-compose up
 ```
 
-### 🐯 Katacoda
-This learning platform will allow you to explore what Curiefense can do without needing to install anything. Current lessons available:
-
-* [Deploy Curiefense](https://www.katacoda.com/curiefense/scenarios/getting-started)
-* [API Basics](https://www.katacoda.com/curiefense/scenarios/api-basics)
-
-### 📼 Video Overview
+### Video Overview
 
 <a href="https://www.youtube.com/watch?v=HkoDPW46a8I&t" target="_blank">
 <img width="450" src="https://p21.p4.n0.cdn.getcloudapp.com/items/d5u12qLG/44410d32-819d-4333-9703-063653794b05.jpg"></a>
 
 <br>
 
-## 👩‍💻👨🏽‍💻 Community
+## Community
 
 There are many ways to get involved with Curiefense. 
 

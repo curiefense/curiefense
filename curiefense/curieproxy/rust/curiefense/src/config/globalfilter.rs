@@ -220,7 +220,7 @@ impl GlobalFilterSection {
                         re: match Regex::new(s) {
                             Ok(r) => Some(r),
                             Err(rr) => {
-                                logs.error(format!("Bad regex {}: {}", s, rr));
+                                logs.error(|| format!("Bad regex {}: {}", s, rr));
                                 None
                             }
                         },
@@ -247,7 +247,7 @@ impl GlobalFilterSection {
                         re: match Regex::new(&v) {
                             Ok(r) => Some(r),
                             Err(rr) => {
-                                logs.error(format!("Bad regex {}: {}", v, rr));
+                                logs.error(|| format!("Bad regex {}: {}", v, rr));
                                 None
                             }
                         },
@@ -261,7 +261,7 @@ impl GlobalFilterSection {
                         re: match Regex::new(nval) {
                             Ok(r) => Some(r),
                             Err(rr) => {
-                                logs.error(format!("Bad regex {}: {}", nval, rr));
+                                logs.error(|| format!("Bad regex {}: {}", nval, rr));
                                 None
                             }
                         },
@@ -344,7 +344,7 @@ impl GlobalFilterSection {
 
         for rgf in rawglobalfilters.into_iter().filter(|s| s.active) {
             match convert_section(logs, rgf) {
-                Err(rr) => logs.error(rr),
+                Err(rr) => logs.error(|| rr.to_string()),
                 Ok(gfilter) => out.push(gfilter),
             }
         }

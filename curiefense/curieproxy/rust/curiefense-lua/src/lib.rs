@@ -2,14 +2,14 @@ mod lua;
 
 use crate::lua::Luagrasshopper;
 
-use curiefense::interface::Tags;
+use curiefense::grasshopper::Grasshopper;
 use curiefense::utils::RequestMeta;
 use mlua::prelude::*;
 use std::collections::HashMap;
 
 use curiefense::content_filter_check_generic_request_map;
 use curiefense::inspect_generic_request_map;
-use curiefense::interface::{Decision, Grasshopper};
+use curiefense::interface::Decision;
 use curiefense::logs::Logs;
 use curiefense::utils::{InspectionResult, RawRequest};
 
@@ -39,24 +39,14 @@ fn lua_inspect_content_filter(
 ) -> LuaResult<(String, Option<String>)> {
     let (meta, headers, lua_body, str_ip, content_filter_id) = args;
 
-    let res = match lua_body {
-        None => inspect_content_filter(
-            "/cf-config/current/config",
-            meta,
-            headers,
-            None,
-            str_ip,
-            content_filter_id,
-        ),
-        Some(body) => inspect_content_filter(
-            "/cf-config/current/config",
-            meta,
-            headers,
-            Some(body.as_bytes()),
-            str_ip,
-            content_filter_id,
-        ),
-    };
+    let res = inspect_content_filter(
+        "/cf-config/current/config",
+        meta,
+        headers,
+        lua_body.as_ref().map(|s| s.as_bytes()),
+        str_ip,
+        content_filter_id,
+    );
 
     Ok(match res {
         Err(rr) => (
@@ -125,17 +115,14 @@ fn lua_inspect_request(
 ) -> LuaResult<(String, Option<String>)> {
     let (meta, headers, lua_body, str_ip, lua_grasshopper) = args;
     let grasshopper = lua_grasshopper.map(Luagrasshopper);
-    let res = match lua_body {
-        None => inspect_request("/cf-config/current/config", meta, headers, None, str_ip, grasshopper),
-        Some(body) => inspect_request(
-            "/cf-config/current/config",
-            meta,
-            headers,
-            Some(body.as_bytes()),
-            str_ip,
-            grasshopper,
-        ),
-    };
+    let res = inspect_request(
+        "/cf-config/current/config",
+        meta,
+        headers,
+        lua_body.as_ref().map(|b| b.as_bytes()),
+        str_ip,
+        grasshopper,
+    );
 
     Ok(match res {
         Err(rr) => (
@@ -150,7 +137,7 @@ struct DummyGrasshopper {
     humanity: bool,
 }
 
-impl curiefense::interface::Grasshopper for DummyGrasshopper {
+impl Grasshopper for DummyGrasshopper {
     fn js_app(&self) -> Option<std::string::String> {
         None
     }
@@ -192,18 +179,14 @@ fn lua_test_inspect_request(
     let (meta, headers, lua_body, str_ip, humanity) = args;
     let grasshopper = Some(DummyGrasshopper { humanity });
 
-    // TODO: solve the lifetime issue for the &[u8] to reduce duplication
-    let res = match lua_body {
-        None => inspect_request("/cf-config/current/config", meta, headers, None, str_ip, grasshopper),
-        Some(body) => inspect_request(
-            "/cf-config/current/config",
-            meta,
-            headers,
-            Some(body.as_bytes()),
-            str_ip,
-            grasshopper,
-        ),
-    };
+    let res = inspect_request(
+        "/cf-config/current/config",
+        meta,
+        headers,
+        lua_body.as_ref().map(|b| b.as_bytes()),
+        str_ip,
+        grasshopper,
+    );
 
     Ok(match res {
         Err(rr) => (
@@ -233,8 +216,7 @@ fn inspect_request<GH: Grasshopper>(
         headers,
         mbody,
     };
-    let (dec, tags, masked_rinfo) =
-        inspect_generic_request_map(configpath, grasshopper, raw, Tags::default(), &mut logs);
+    let (dec, tags, masked_rinfo) = inspect_generic_request_map(configpath, grasshopper, raw, &mut logs);
 
     Ok(InspectionResult {
         decision: dec,
@@ -273,10 +255,11 @@ mod tests {
         let cfg = with_config("../../cf-config", &mut logs, |_, c| c.clone());
         if cfg.is_some() {
             match logs.logs.len() {
-                1 => {
+                2 => {
                     assert!(logs.logs[0].message.to_string().contains("CFGLOAD"));
+                    assert!(logs.logs[1].message.to_string().contains("Loaded profile"));
                 }
-                11 => {
+                10 => {
                     assert!(logs.logs[0]
                         .message
                         .to_string()
@@ -284,7 +267,7 @@ mod tests {
                 }
                 n => {
                     for r in logs.logs.iter() {
-                        println!("{}", r.to_string());
+                        println!("{}", r);
                     }
                     panic!("Invalid amount of logs: {}", n);
                 }

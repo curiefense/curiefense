@@ -1,12 +1,12 @@
-👋 Hey there fellow open source contributor! Please read the following guidelines below carefully to maximize the chances of your PR being merged. ⤵️
+Hey there fellow open source contributor! Please read the following guidelines below carefully to maximize the chances of your PR being merged. ⤵️
 
-# 💬 Communication
+# Communication
 
-* ⚠️ **Before starting work on a major feature**, please reach out to us via [GitHub Issues](https://github.com/curiefense/curiefense/issues/new?assignees=&labels=&template=feature_request.md&title=) or [ Discussions](https://github.com/curiefense/curiefense/discussions/categories/q-a). We will make sure no one else is already working on it.
+* **Before starting work on a major feature**, please reach out to us via [GitHub Issues](https://github.com/curiefense/curiefense/issues/new?assignees=&labels=&template=feature_request.md&title=) or [ Discussions](https://github.com/curiefense/curiefense/discussions/categories/q-a). We will make sure no one else is already working on it.
 
 * Small patches and bug fixes don't need prior communication.
 
-# 📑 Contributing With Maintenance
+# Contributing With Maintenance
 
 One important fact of curiefense is that you don't have to be "a maintainer" to
 be able to contribute with reviews, triaging, or any other maintenance task.
@@ -34,7 +34,7 @@ every release) or during a backlog review meeting.
 should not be anyone assigned to an issue that is not being worked on.
 
 
-# 👩‍💻 Contributing With Code
+# Contributing With Code
 
 Curiefense follows a very simple process that is referred to as the [GitHub
 Flow](https://guides.github.com/introduction/flow/). The goal for this flow is
@@ -66,7 +66,7 @@ reviewers start looking at the PRs:
   * `Add run-curieconf-client-tests.yml`
   * `Update getting started documentation`
 
-> 💡 ProTip: check out "[How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/)"
+> ProTip: check out "[How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/)"
 
 * Your PR commit message will be used as the commit message when your PR is merged. You should
   update this field if your PR diverges during review.

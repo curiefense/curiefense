@@ -17,7 +17,6 @@ struct FlowEntry {
     exclude: HashSet<String>,
     name: String,
     key: Vec<RequestSelector>,
-    active: bool,
     timeframe: u64,
     action: SimpleAction,
     sequence: Vec<FlowStep>,
@@ -66,7 +65,6 @@ impl FlowEntry {
             include: rawentry.include.into_iter().collect(),
             exclude: rawentry.exclude.into_iter().collect(),
             name: rawentry.name,
-            active: rawentry.active,
             timeframe: rawentry.timeframe,
             action: SimpleAction::resolve(&rawentry.action).with_context(|| "when resolving the action entry")?,
             key: mkey?,
@@ -111,7 +109,7 @@ pub fn flow_resolve(logs: &mut Logs, rawentries: Vec<RawFlowEntry>) -> HashMap<S
             continue;
         }
         match FlowEntry::convert(rawentry) {
-            Err(rr) => logs.warning(rr),
+            Err(rr) => logs.warning(|| rr.to_string()),
             Ok(entry) => {
                 let nsteps = entry.sequence.len();
                 for (stepid, step) in entry.sequence.into_iter().enumerate() {

@@ -20,7 +20,7 @@ lazy_static! {
 
 /// Retrieves the english name of the country associated with this IP
 #[cfg(not(test))]
-pub fn get_country(addr: IpAddr) -> Result<Country, String> {
+pub fn get_country(addr: IpAddr) -> Result<Country<'static>, String> {
     match COUNTRY.deref() {
         Err(rr) => Err(format!("could not read country db: {}", rr)),
         Ok(db) => db.lookup(addr).map_err(|rr| format!("{}", rr)),
@@ -28,7 +28,7 @@ pub fn get_country(addr: IpAddr) -> Result<Country, String> {
 }
 
 #[cfg(not(test))]
-pub fn get_asn(addr: IpAddr) -> Result<Asn, String> {
+pub fn get_asn(addr: IpAddr) -> Result<Asn<'static>, String> {
     match ASN.deref() {
         Err(rr) => Err(format!("could not read ASN db: {}", rr)),
         Ok(db) => db.lookup(addr).map_err(|rr| format!("{}", rr)),
@@ -36,7 +36,7 @@ pub fn get_asn(addr: IpAddr) -> Result<Asn, String> {
 }
 
 #[cfg(not(test))]
-pub fn get_city(addr: IpAddr) -> Result<City, String> {
+pub fn get_city(addr: IpAddr) -> Result<City<'static>, String> {
     match CITY.deref() {
         Err(rr) => Err(format!("could not read city db: {}", rr)),
         Ok(db) => db.lookup(addr).map_err(|rr| format!("{}", rr)),
@@ -44,16 +44,16 @@ pub fn get_city(addr: IpAddr) -> Result<City, String> {
 }
 
 #[cfg(test)]
-pub fn get_country(_addr: IpAddr) -> Result<Country, String> {
+pub fn get_country(_addr: IpAddr) -> Result<Country<'static>, String> {
     Err("TEST".into())
 }
 
 #[cfg(test)]
-pub fn get_asn(_addr: IpAddr) -> Result<Asn, String> {
+pub fn get_asn(_addr: IpAddr) -> Result<Asn<'static>, String> {
     Err("TEST".into())
 }
 
 #[cfg(test)]
-pub fn get_city(_addr: IpAddr) -> Result<City, String> {
+pub fn get_city(_addr: IpAddr) -> Result<City<'static>, String> {
     Err("TEST".into())
 }

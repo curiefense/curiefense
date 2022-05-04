@@ -86,7 +86,7 @@ fn map_args(
 
     let body_decoding = if let Some(body) = mbody {
         if let Err(rr) = parse_body(logs, &mut args, mcontent_type, accepted_types, body) {
-            logs.debug(format!("Body parsing failed: {}", rr));
+            logs.debug(|| format!("Body parsing failed: {}", rr));
             // if the body could not be parsed, store it in an argument, as if it was text
             args.add(
                 "RAW_BODY".to_string(),
@@ -315,24 +315,24 @@ pub fn find_geoip(logs: &mut Logs, ipstr: String) -> GeoIp {
     let ip = match pip {
         Ok(x) => x,
         Err(rr) => {
-            logs.error(format!("When parsing ip {}", rr));
+            logs.error(|| format!("When parsing ip {}", rr));
             return geoip;
         }
     };
 
-    let get_name = |mmap: Option<&std::collections::BTreeMap<String, String>>| {
+    let get_name = |mmap: &Option<std::collections::BTreeMap<&str, &str>>| {
         mmap.as_ref().and_then(|mp| mp.get("en")).map(|s| s.to_lowercase())
     };
 
     if let Ok(asninfo) = get_asn(ip) {
         geoip.asn = asninfo.autonomous_system_number;
-        geoip.company = asninfo.autonomous_system_organization;
+        geoip.company = asninfo.autonomous_system_organization.map(|s| s.to_string());
     }
 
     let extract_continent = |g: &mut GeoIp, mcnt: Option<model::Continent>| {
         if let Some(continent) = mcnt {
-            g.continent_code = continent.code.clone();
-            g.continent_name = get_name(continent.names.as_ref());
+            g.continent_code = continent.code.map(|s| s.to_string());
+            g.continent_name = get_name(&continent.names);
         }
     };
 
@@ -340,7 +340,7 @@ pub fn find_geoip(logs: &mut Logs, ipstr: String) -> GeoIp {
         if let Some(country) = mcnt {
             g.in_eu = country.is_in_european_union;
             g.country_iso = country.iso_code.as_ref().map(|s| s.to_lowercase());
-            g.country_name = get_name(country.names.as_ref());
+            g.country_name = get_name(&country.names);
         }
     };
 
@@ -361,15 +361,15 @@ pub fn find_geoip(logs: &mut Logs, ipstr: String) -> GeoIp {
         if let Some(subs) = cty.subdivisions {
             match &subs[..] {
                 [] => (),
-                [region] => geoip.region = get_name(region.names.as_ref()),
+                [region] => geoip.region = get_name(&region.names),
                 [region, subregion] => {
-                    geoip.region = region.iso_code.clone();
-                    geoip.subregion = subregion.iso_code.clone();
+                    geoip.region = region.iso_code.map(|s| s.to_string());
+                    geoip.subregion = subregion.iso_code.map(|s| s.to_string());
                 }
-                _ => logs.error(format!("Too many subdivisions were reported for {}", ip)),
+                _ => logs.error(|| format!("Too many subdivisions were reported for {}", ip)),
             }
         }
-        geoip.city_name = cty.city.as_ref().and_then(|c| get_name(c.names.as_ref()));
+        geoip.city_name = cty.city.as_ref().and_then(|c| get_name(&c.names));
     }
 
     geoip.ip = Some(ip);

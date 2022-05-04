@@ -1,0 +1,20 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: curiefense-xff-filter-2-hops
+  namespace: istio-system
+spec:
+  workloadSelector:
+    labels:
+      curiefense: "enabled"
+  configPatches:
+  - applyTo: HTTP_ROUTE
+    # applies to every route; add match if necessary
+    patch:
+      operation: MERGE
+      value:
+        metadata:
+          filter_metadata:
+            envoy.filters.http.lua:
+              xff_trusted_hops: "2"

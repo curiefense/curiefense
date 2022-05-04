@@ -5,7 +5,8 @@ use serde_json::json;
 use std::collections::{HashMap, HashSet};
 
 use crate::config::contentfilter::{
-    ContentFilterEntryMatch, ContentFilterProfile, ContentFilterRules, ContentFilterSection, Section, SectionIdx,
+    rule_tags, ContentFilterEntryMatch, ContentFilterProfile, ContentFilterRules, ContentFilterSection, Section,
+    SectionIdx,
 };
 use crate::config::raw::ContentFilterRule;
 use crate::config::utils::XDataSource;
@@ -110,18 +111,10 @@ impl ContentFilterBlock {
     }
 }
 
+#[derive(Default)]
 struct Omitted {
     entries: Section<HashSet<String>>,
     exclusions: Section<HashMap<String, HashSet<String>>>,
-}
-
-impl Default for Omitted {
-    fn default() -> Self {
-        Omitted {
-            entries: Default::default(),
-            exclusions: Default::default(),
-        }
-    }
 }
 
 fn get_section(idx: SectionIdx, rinfo: &RequestInfo) -> &RequestField {
@@ -140,7 +133,7 @@ pub fn content_filter_check(
     tags: &mut Tags,
     rinfo: &RequestInfo,
     profile: &ContentFilterProfile,
-    hsdb: std::sync::RwLockReadGuard<Option<ContentFilterRules>>,
+    mhsdb: Option<&ContentFilterRules>,
 ) -> Result<(), ContentFilterBlock> {
     use SectionIdx::*;
     let mut omit = Default::default();
@@ -154,6 +147,7 @@ pub fn content_filter_check(
     // check section profiles
     for idx in &[Path, Headers, Cookies, Args] {
         section_check(
+            logs,
             tags,
             *idx,
             profile.sections.get(*idx),
@@ -171,35 +165,38 @@ pub fn content_filter_check(
 
     let mut hca_keys: HashMap<String, (SectionIdx, String)> = HashMap::new();
 
-    // run libinjection on non-whitelisted sections, and populate the hca_keys table
+    // list of non whitelisted entries
     for idx in &[Path, Headers, Cookies, Args] {
-        // note that there is no risk check with injection, every match triggers a block.
-        injection_check(
-            tags,
-            *idx,
-            get_section(*idx, rinfo),
-            &omit,
-            &mut hca_keys,
-            test_xss,
-            test_sqli,
-        );
+        let section_content = get_section(*idx, rinfo)
+            .iter()
+            .filter(|(name, _)| !omit.entries.get(*idx).contains(*name))
+            .map(|(name, value)| (value.to_string(), (*idx, name.to_string())));
+        hca_keys.extend(section_content);
     }
 
-    logs.info(format!("TO TEST: {:?}", hca_keys));
+    injection_check(tags, &hca_keys, &omit, test_xss, test_sqli);
 
     let mut specific_tags = Tags::default();
+
     // finally, hyperscan check
-    if let Err(rr) = hyperscan(
-        logs,
-        tags,
-        &mut specific_tags,
-        hca_keys,
-        hsdb,
-        &kept,
-        &profile.ignore,
-        &omit.exclusions,
-    ) {
-        logs.error(rr)
+    match mhsdb {
+        Some(hsdb) => {
+            if let Err(rr) = hyperscan(
+                logs,
+                tags,
+                &mut specific_tags,
+                hca_keys,
+                hsdb,
+                &kept,
+                &profile.ignore,
+                &omit.exclusions,
+            ) {
+                logs.error(|| rr.to_string())
+            }
+        }
+        None => {
+            logs.warning(||format!("no hsdb found for profile {}, it probably means that no rules were matched by the active/report/ignore", profile.id));
+        }
     }
 
     let sactive = specific_tags.intersect(&profile.active);
@@ -228,6 +225,7 @@ pub fn content_filter_check(
 
 /// checks a section (headers, args, cookies) against the policy
 fn section_check(
+    logs: &mut Logs,
     tags: &Tags,
     idx: SectionIdx,
     section: &ContentFilterSection,
@@ -236,13 +234,21 @@ fn section_check(
     omit: &mut Omitted,
 ) -> Result<(), ContentFilterBlock> {
     if idx != SectionIdx::Path && params.len() > section.max_count {
-        return Err(ContentFilterBlock::TooManyEntries(idx));
+        if section.max_count > 0 {
+            return Err(ContentFilterBlock::TooManyEntries(idx));
+        } else {
+            logs.warning(|| format!("In section {:?}, param_count = 0", idx));
+        }
     }
 
     for (name, value) in params.iter() {
         // skip decoded parameters for length checks
         if !name.ends_with(":decoded") && value.len() > section.max_length {
-            return Err(ContentFilterBlock::EntryTooLarge(idx, name.to_string()));
+            if section.max_length > 0 {
+                return Err(ContentFilterBlock::EntryTooLarge(idx, name.to_string()));
+            } else {
+                logs.warning(|| format!("In section {:?}, max_length = 0", idx));
+            }
         }
 
         // automatically ignored
@@ -299,46 +305,40 @@ fn section_check(
 /// this is stupid and needs to be changed
 fn injection_check(
     tags: &mut Tags,
-    idx: SectionIdx,
-    params: &RequestField,
+    hca_keys: &HashMap<String, (SectionIdx, String)>,
     omit: &Omitted,
-    hca_keys: &mut HashMap<String, (SectionIdx, String)>,
     test_xss: bool,
     test_sqli: bool,
 ) {
-    for (name, value) in params.iter() {
-        if !omit.entries.get(idx).contains(name) {
-            let omit_tags = omit.exclusions.get(idx).get(name);
-            let rtest_xss = test_xss
-                && !omit_tags
-                    .map(|tgs| LIBINJECTION_XSS_TAGS.intersection(tgs).next().is_some())
-                    .unwrap_or(false);
-            let rtest_sqli = test_sqli
-                && !omit_tags
-                    .map(|tgs| LIBINJECTION_SQLI_TAGS.intersection(tgs).next().is_some())
-                    .unwrap_or(false);
-            if rtest_sqli {
-                if let Some((b, _)) = sqli(value) {
-                    if b {
-                        tags.insert_qualified("cf-rule-id", "libinjection-sqli");
-                        tags.insert_qualified("cf-rule-category", "libinjection");
-                        tags.insert_qualified("cf-rule-subcategory", "libinjection-sqli");
-                        tags.insert_qualified("cf-rule-risk", "libinjection");
-                    }
+    for (value, (idx, name)) in hca_keys.iter() {
+        let omit_tags = omit.exclusions.get(*idx).get(name);
+        let rtest_xss = test_xss
+            && !omit_tags
+                .map(|tgs| LIBINJECTION_XSS_TAGS.intersection(tgs).next().is_some())
+                .unwrap_or(false);
+        let rtest_sqli = test_sqli
+            && !omit_tags
+                .map(|tgs| LIBINJECTION_SQLI_TAGS.intersection(tgs).next().is_some())
+                .unwrap_or(false);
+        if rtest_sqli {
+            if let Some((b, _)) = sqli(value) {
+                if b {
+                    tags.insert_qualified("cf-rule-id", "libinjection-sqli");
+                    tags.insert_qualified("cf-rule-category", "libinjection");
+                    tags.insert_qualified("cf-rule-subcategory", "libinjection-sqli");
+                    tags.insert_qualified("cf-rule-risk", "libinjection");
                 }
             }
-            if rtest_xss {
-                if let Some(b) = xss(value) {
-                    if b {
-                        tags.insert_qualified("cf-rule-id", "libinjection-xss");
-                        tags.insert_qualified("cf-rule-category", "libinjection");
-                        tags.insert_qualified("cf-rule-subcategory", "libinjection-xss");
-                        tags.insert_qualified("cf-rule-risk", "libinjection");
-                    }
+        }
+        if rtest_xss {
+            if let Some(b) = xss(value) {
+                if b {
+                    tags.insert_qualified("cf-rule-id", "libinjection-xss");
+                    tags.insert_qualified("cf-rule-category", "libinjection");
+                    tags.insert_qualified("cf-rule-subcategory", "libinjection-xss");
+                    tags.insert_qualified("cf-rule-risk", "libinjection");
                 }
             }
-
-            hca_keys.insert(value.to_string(), (idx, name.to_string()));
         }
     }
 }
@@ -349,15 +349,11 @@ fn hyperscan(
     tags: &mut Tags,
     specific_tags: &mut Tags,
     hca_keys: HashMap<String, (SectionIdx, String)>,
-    hsdb: std::sync::RwLockReadGuard<Option<ContentFilterRules>>,
+    sigs: &ContentFilterRules,
     global_kept: &HashSet<String>,
     global_ignore: &HashSet<String>,
     exclusions: &Section<HashMap<String, HashSet<String>>>,
 ) -> anyhow::Result<()> {
-    let sigs = match &*hsdb {
-        None => return Err(anyhow::anyhow!("Hyperscan database not loaded")),
-        Some(x) => x,
-    };
     let scratch = sigs.db.alloc_scratch()?;
     // TODO: use `intersperse` when this stabilizes
     let to_scan = hca_keys.keys().cloned().collect::<Vec<_>>().join("\n");
@@ -366,7 +362,7 @@ fn hyperscan(
         found = true;
         Matching::Continue
     })?;
-    logs.debug(format!("matching content filter signatures: {}", found));
+    logs.debug(|| format!("matching content filter signatures: {}", found));
 
     if !found {
         return Ok(());
@@ -375,25 +371,14 @@ fn hyperscan(
     // something matched! but what?
     for (k, (sid, name)) in hca_keys {
         sigs.db.scan(&[k.as_bytes()], &scratch, |id, _, _, _| {
-            // TODO this is really ugly, the string hashmap should be converted into a numeric id, or it should be a string in the first place?
             match sigs.ids.get(id as usize) {
-                None => logs.error(format!("INVALID INDEX ??? {}", id)),
+                None => logs.error(|| format!("Should not happen, invalid hyperscan index {}", id)),
                 Some(sig) => {
-                    logs.debug(format!("signature matched {:?}", sig));
+                    logs.debug(|| format!("signature matched {:?}", sig));
 
                     // new specific tags are singleton hashsets, but we use the Tags structure to make sure
                     // they are properly converted
-                    let mut new_specific_tags = Tags::default();
-                    new_specific_tags.insert_qualified("cf-rule-id", &sig.id);
-
-                    let mut new_tags = Tags::default();
-                    new_tags.insert_qualified("cf-rule-risk", &format!("{}", sig.risk));
-                    new_tags.insert_qualified("cf-rule-category", &sig.category);
-                    new_tags.insert_qualified("cf-rule-subcategory", &sig.subcategory);
-                    for t in &sig.tags {
-                        new_tags.insert(t);
-                    }
-
+                    let (new_specific_tags, new_tags) = rule_tags(sig);
                     if (new_tags.has_intersection(global_kept) || new_specific_tags.has_intersection(global_kept))
                         && exclusions
                             .get(sid)

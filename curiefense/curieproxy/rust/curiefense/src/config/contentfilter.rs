@@ -3,6 +3,7 @@ use crate::config::raw::{
     RawContentFilterProperties,
 };
 use crate::config::utils::Matching;
+use crate::interface::Tags;
 use crate::logs::Logs;
 
 use hyperscan::prelude::{pattern, Builder, CompileFlags, Pattern, Patterns, VectoredDatabase};
@@ -20,7 +21,6 @@ pub struct Section<A> {
     pub path: A,
 }
 
-// TODO: undefined data structures
 #[derive(Debug, Clone)]
 pub struct ContentFilterProfile {
     pub id: String,
@@ -248,7 +248,7 @@ impl ContentFilterProfile {
                 Ok((k, v)) => {
                     out.insert(k, v);
                 }
-                Err(rr) => logs.error(format!("content filter id {}: {:?}", id, rr)),
+                Err(rr) => logs.error(|| format!("content filter id {}: {:?}", id, rr)),
             }
         }
         out
@@ -262,13 +262,26 @@ fn convert_rule(entry: &ContentFilterRule) -> anyhow::Result<Pattern> {
     )
 }
 
+pub fn rule_tags(sig: &ContentFilterRule) -> (Tags, Tags) {
+    let mut new_specific_tags = Tags::default();
+    new_specific_tags.insert_qualified("cf-rule-id", &sig.id);
+
+    let mut new_tags = Tags::default();
+    new_tags.insert_qualified("cf-rule-risk", &format!("{}", sig.risk));
+    new_tags.insert_qualified("cf-rule-category", &sig.category);
+    new_tags.insert_qualified("cf-rule-subcategory", &sig.subcategory);
+    for t in &sig.tags {
+        new_tags.insert(t);
+    }
+    (new_specific_tags, new_tags)
+}
+
 pub fn resolve_rules(
+    logs: &mut Logs,
+    profiles: &HashMap<String, ContentFilterProfile>,
     raws: Vec<ContentFilterRule>,
     groups: Vec<ContentFilterGroup>,
-) -> anyhow::Result<ContentFilterRules> {
-    let patterns: anyhow::Result<Vec<Pattern>> = raws.iter().map(convert_rule).collect();
-    let ptrns: Patterns = Patterns::from_iter(patterns?);
-
+) -> HashMap<String, ContentFilterRules> {
     let mut groupmap: HashMap<String, HashSet<String>> = HashMap::new();
     for group in groups {
         for sig in group.signatures {
@@ -278,7 +291,7 @@ pub fn resolve_rules(
     }
 
     // extend the rule tags with the group tags
-    let ids = raws
+    let all_rules: Vec<ContentFilterRule> = raws
         .into_iter()
         .map(|mut r| {
             if let Some(tgs) = groupmap.get(&r.id) {
@@ -288,8 +301,53 @@ pub fn resolve_rules(
         })
         .collect();
 
-    Ok(ContentFilterRules {
-        db: ptrns.build::<Vectored>()?,
-        ids,
-    })
+    // should a given rule be kept for a given profile
+    let rule_kept = |r: &ContentFilterRule, prof: &ContentFilterProfile| -> bool {
+        let (spec_tags, all_tags) = rule_tags(r);
+        // not pretty :)
+        if !spec_tags.intersect(&prof.ignore).is_empty() {
+            return false;
+        }
+        if !all_tags.intersect(&prof.ignore).is_empty() {
+            return false;
+        }
+        if !spec_tags.intersect(&prof.active).is_empty() {
+            return true;
+        }
+        if !all_tags.intersect(&prof.active).is_empty() {
+            return true;
+        }
+        if !spec_tags.intersect(&prof.report).is_empty() {
+            return true;
+        }
+        if !all_tags.intersect(&prof.report).is_empty() {
+            return true;
+        }
+        false
+    };
+
+    let build_from_profile = |prof: &ContentFilterProfile| -> anyhow::Result<ContentFilterRules> {
+        let ids: Vec<ContentFilterRule> = all_rules.iter().filter(|r| rule_kept(r, prof)).cloned().collect();
+        if ids.is_empty() {
+            return Err(anyhow::anyhow!("no rules were selected, empty profile"));
+        }
+        let patterns: anyhow::Result<Vec<Pattern>> = ids.iter().map(convert_rule).collect();
+        patterns
+            .and_then(|ptrns| Patterns::from_iter(ptrns).build::<Vectored>())
+            .map(|db| ContentFilterRules { db, ids })
+    };
+
+    let mut out: HashMap<String, ContentFilterRules> = HashMap::new();
+
+    for v in profiles.values() {
+        match build_from_profile(v) {
+            Ok(p) => {
+                logs.debug(|| format!("Loaded profile {} with {} rules", v.id, p.ids.len()));
+                out.insert(v.id.to_string(), p);
+            }
+            Err(rr) => logs.error(|| format!("When building profile {}, error: {}", v.id, rr)),
+        }
+    }
+
+    out
 }

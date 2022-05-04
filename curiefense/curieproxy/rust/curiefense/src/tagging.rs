@@ -1,8 +1,7 @@
 use crate::config::globalfilter::{
-    GlobalFilterEntry, GlobalFilterEntryE, GlobalFilterSSection, PairEntry, SingleEntry,
+    GlobalFilterEntry, GlobalFilterEntryE, GlobalFilterSSection, GlobalFilterSection, PairEntry, SingleEntry,
 };
 use crate::config::raw::Relation;
-use crate::config::Config;
 use crate::interface::{SimpleActionT, SimpleDecision, Tags};
 use crate::requestfields::RequestField;
 use crate::utils::RequestInfo;
@@ -85,7 +84,11 @@ fn check_subsection(rinfo: &RequestInfo, sub: &GlobalFilterSSection) -> bool {
     check_relation(rinfo, sub.relation, &sub.entries, check_entry)
 }
 
-pub fn tag_request(is_human: bool, cfg: &Config, rinfo: &RequestInfo) -> (Tags, SimpleDecision) {
+pub fn tag_request(
+    is_human: bool,
+    globalfilters: &[GlobalFilterSection],
+    rinfo: &RequestInfo,
+) -> (Tags, SimpleDecision) {
     let mut tags = Tags::default();
     if is_human {
         tags.insert("human");
@@ -117,10 +120,7 @@ pub fn tag_request(is_human: bool, cfg: &Config, rinfo: &RequestInfo) -> (Tags, 
             tags.insert_qualified("geo-asn", &sasn);
         }
     }
-    if let Some(container_name) = &cfg.container_name {
-        tags.insert_qualified("container", container_name);
-    }
-    for psection in &cfg.globalfilters {
+    for psection in globalfilters {
         if check_relation(rinfo, psection.relation, &psection.sections, check_subsection) {
             tags.extend(psection.tags.clone());
             if let Some(a) = &psection.action {

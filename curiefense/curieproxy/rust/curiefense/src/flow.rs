@@ -41,15 +41,15 @@ enum FlowResult {
     LastBlock,
 }
 
-fn check_flow(
-    cnx: &mut redis::Connection,
+async fn check_flow<CNX: redis::aio::ConnectionLike>(
+    cnx: &mut CNX,
     redis_key: &str,
     step: u32,
     timeframe: u64,
     is_last: bool,
 ) -> anyhow::Result<FlowResult> {
     // first, read from REDIS how many steps already passed
-    let mlistlen: Option<usize> = redis::cmd("LLEN").arg(redis_key).query(cnx)?;
+    let mlistlen: Option<usize> = redis::cmd("LLEN").arg(redis_key).query_async(cnx).await?;
     let listlen = mlistlen.unwrap_or(0);
 
     if is_last {
@@ -66,10 +66,15 @@ fn check_flow(
                 .arg("foo")
                 .cmd("TTL")
                 .arg(redis_key)
-                .query(cnx)?;
+                .query_async(cnx)
+                .await?;
             let expire = mexpire.unwrap_or(-1);
             if expire < 0 {
-                let _: () = redis::cmd("EXPIRE").arg(redis_key).arg(timeframe).query(cnx)?;
+                let _: () = redis::cmd("EXPIRE")
+                    .arg(redis_key)
+                    .arg(timeframe)
+                    .query_async(cnx)
+                    .await?;
             }
         }
         // never block if not the last step!
@@ -77,7 +82,50 @@ fn check_flow(
     }
 }
 
-pub fn flow_check(
+async fn ban_react<CNX: redis::aio::ConnectionLike>(
+    logs: &mut Logs,
+    cnx: &mut CNX,
+    elem: &FlowElement,
+    redis_key: &str,
+    blocked: bool,
+    bad: SimpleDecision,
+) -> SimpleDecision {
+    let ban_key = get_ban_key(redis_key);
+    let banned = is_banned(cnx, &ban_key).await;
+    if banned {
+        logs.debug(|| format!("Key {} is banned!", ban_key));
+    }
+    if banned || blocked {
+        let action = extract_bannable_action(
+            cnx,
+            logs,
+            &elem.action,
+            redis_key,
+            &ban_key,
+            if banned {
+                BanStatus::AlreadyBanned
+            } else {
+                BanStatus::NewBan
+            },
+        )
+        .await;
+
+        stronger_decision(
+            bad,
+            SimpleDecision::Action(
+                action,
+                serde_json::json!({
+                    "initiator": "flow_check",
+                    "name": elem.name,
+                }),
+            ),
+        )
+    } else {
+        bad
+    }
+}
+
+pub async fn flow_check(
     logs: &mut Logs,
     flows: &HashMap<SequenceKey, Vec<FlowElement>>,
     reqinfo: &RequestInfo,
@@ -89,61 +137,27 @@ pub fn flow_check(
         Some(elems) => {
             let mut bad = SimpleDecision::Pass;
             // do not establish the connection if unneeded
-            let mut cnx = crate::redis::redis_conn()?;
+            let mut cnx = crate::redis::redis_async_conn().await?;
             for elem in elems.iter() {
                 if !flow_match(reqinfo, tags, elem) {
                     continue;
                 }
-                logs.debug(format!("Testing flow control {} (step {})", elem.name, elem.step));
-                let mut ban_react = |cnx: &mut redis::Connection, redis_key: &str, blocked: bool, bad| {
-                    let ban_key = get_ban_key(redis_key);
-                    let banned = is_banned(cnx, &ban_key);
-                    if banned {
-                        logs.debug(format!("Key {} is banned!", ban_key));
-                    }
-                    if banned || blocked {
-                        let action = extract_bannable_action(
-                            cnx,
-                            logs,
-                            &elem.action,
-                            redis_key,
-                            &ban_key,
-                            if banned {
-                                BanStatus::AlreadyBanned
-                            } else {
-                                BanStatus::NewBan
-                            },
-                        );
-
-                        stronger_decision(
-                            bad,
-                            SimpleDecision::Action(
-                                action,
-                                serde_json::json!({
-                                    "initiator": "flow_check",
-                                    "name": elem.name,
-                                }),
-                            ),
-                        )
-                    } else {
-                        bad
-                    }
-                };
+                logs.debug(|| format!("Testing flow control {} (step {})", elem.name, elem.step));
                 match build_redis_key(reqinfo, tags, &elem.key, &elem.id, &elem.name) {
                     Some(redis_key) => {
-                        match check_flow(&mut cnx, &redis_key, elem.step, elem.timeframe, elem.is_last)? {
+                        match check_flow(&mut cnx, &redis_key, elem.step, elem.timeframe, elem.is_last).await? {
                             FlowResult::LastOk => {
                                 tags.insert(&elem.name);
-                                bad = ban_react(&mut cnx, &redis_key, false, bad);
+                                bad = ban_react(logs, &mut cnx, elem, &redis_key, false, bad).await;
                             }
                             FlowResult::LastBlock => {
                                 tags.insert(&elem.name);
-                                bad = ban_react(&mut cnx, &redis_key, true, bad);
+                                bad = ban_react(logs, &mut cnx, elem, &redis_key, true, bad).await;
                             }
                             FlowResult::NonLast => {}
                         }
                     }
-                    None => logs.warning(format!("Could not fetch key in flow control {}", elem.name)),
+                    None => logs.warning(|| format!("Could not fetch key in flow control {}", elem.name)),
                 }
             }
             Ok(bad)

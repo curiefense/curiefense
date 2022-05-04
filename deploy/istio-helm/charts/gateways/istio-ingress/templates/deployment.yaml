@@ -105,6 +105,14 @@ spec:
           env:
             - name: CURIE_BUCKET_LINK
               value: "{{ $.Values.global.proxy.curieconf_manifest_url }}"
+{{- if eq $.Values.global.proxy.curiefense_bucket_type "minio" }}
+            - name: CURIE_MINIO_HOST
+              value: "{{ $.Values.global.proxy.curiefense_minio_host }}"
+{{- if $.Values.global.proxy.curiefense_minio_insecure }}
+            - name: CURIE_MINIO_SECURE
+              value: "FALSE"
+{{- end }}
+{{- end }}
             - name: CURIESYNC_QUIET
               value: "true"
             - name: RUN_MODE
@@ -134,7 +142,11 @@ spec:
           - mountPath: /bucket
             name: local-bucket
 {{- end }}
-          - mountPath: /config
+{{- if eq $.Values.global.proxy.curiefense_bucket_type "minio" }}
+          - mountPath: /run/secrets/miniocfg
+            name: miniocfg
+{{- end }}
+          - mountPath: /cf-config
             name: curiefense-config
 {{- end }}
       containers:
@@ -148,6 +160,14 @@ spec:
           env:
             - name: CURIE_BUCKET_LINK
               value: {{ $.Values.global.proxy.curieconf_manifest_url }}
+{{- if eq $.Values.global.proxy.curiefense_bucket_type "minio" }}
+            - name: CURIE_MINIO_HOST
+              value: "{{ $.Values.global.proxy.curiefense_minio_host }}"
+{{- if $.Values.global.proxy.curiefense_minio_insecure }}
+            - name: CURIE_MINIO_SECURE
+              value: "FALSE"
+{{- end }}
+{{- end }}
             - name: CURIESYNC_QUIET
               value: "true"
             - name: RUN_MODE
@@ -173,7 +193,11 @@ spec:
           - mountPath: /bucket
             name: local-bucket
 {{- end }}
-          - mountPath: /config
+{{- if eq $.Values.global.proxy.curiefense_bucket_type "minio" }}
+          - mountPath: /run/secrets/miniocfg
+            name: miniocfg
+{{- end }}
+          - mountPath: /cf-config
             name: curiefense-config
 {{- end }}
         - name: istio-proxy
@@ -347,7 +371,7 @@ spec:
           volumeMounts:
           {{- if $gateway.waf.enabled }}
           - name: curiefense-config
-            mountPath: /config
+            mountPath: /cf-config
           {{- end }}
           - name: istio-envoy
             mountPath: /etc/istio/proxy
@@ -410,6 +434,14 @@ spec:
         hostPath:
           path: /bucket
           type: DirectoryOrCreate
+{{- end }}
+{{- if eq $.Values.global.proxy.curiefense_bucket_type "minio" }}
+      - name: miniocfg
+        secret:
+          items:
+          - key: miniocfg
+            path: miniocfg
+          secretName: miniocfg
 {{- end }}
       - name: curiefense-config
         emptyDir: {}

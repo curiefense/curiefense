@@ -1,0 +1,12 @@
+[package]
+name = "curiefense-ffi"
+version = "0.1.0"
+authors = ["simon <simon@banquise.net>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+bench = false
+
+[dependencies]
+curiefense = { path = "../curiefense" }

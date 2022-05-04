@@ -2055,5 +2055,17 @@
     "subcategory": "xxe",
     "description": "",
     "tags": []
+  },
+    {
+    "id": "920015",
+    "name": "920015",
+    "category": "shell",
+    "msg": "Spring for shell",
+    "operand": "((\\.?class|java)\\.(\\w+)|^(class|java))\\..+",
+    "risk": 4,
+    "subcategory": "java",
+    "description": "CVE-2022-22963",
+    "tags": ["cve-2022-22963"]
   }
+
 ]

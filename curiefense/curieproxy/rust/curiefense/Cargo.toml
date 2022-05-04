@@ -9,31 +9,36 @@ crate-type = ["lib"]
 bench = false
 
 [dependencies]
-log = "0.4"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0"
 lazy_static = "*"
 itertools = "0.10"
-maxminddb = "0.13"
+maxminddb = "0.17"
 http = "0.2"
 regex = "1"
-ipnet = "2.3.0"
-iprange = "0.6.3"
+ipnet = "2.4"
+iprange = "0.6"
 anyhow = "1.0"
-redis = "0.20"
-r2d2_redis = "0.14.0"
 md5 = "0.7"
 libinjection = "0.2"
-multipart = "0.17.1"
-xmlparser = "0.13.3"
-nom = "6.2.1"
-rand = "0.8.4"
+multipart = "0.18"
+xmlparser = "0.13"
+nom = "7.1"
+rand = "0.8"
 sha2 = "0.10"
+async-std = "1.11"
+futures = "0.3"
+futures-util = "0.3"
+async-graphql-parser = "3.0.38"
 
 [dependencies.hyperscan]
 version = "0.2"
 default-features = false
 features = ["full"]
+
+[dependencies.redis]
+version = "0.21"
+features = ["async-std-comp", "connection-manager"]
 
 [dev-dependencies]
 criterion = "0.3"
