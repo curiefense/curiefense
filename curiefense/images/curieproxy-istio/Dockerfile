@@ -5,10 +5,8 @@ FROM docker.io/istio/proxyv2:1.13.2
 
 RUN apt-get update && \
     apt-get -yq --no-install-recommends install jq luarocks libpcre2-dev \
-    libgeoip-dev python dumb-init gcc g++ make unzip libhyperscan5 libhyperscan-dev && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN luarocks install lrexlib-pcre2 && \
+    libgeoip-dev python dumb-init gcc g++ make unzip libhyperscan[45] libhyperscan-dev && \
+    luarocks install lrexlib-pcre2 && \
     luarocks install lua-cjson && \
     luarocks install lua-resty-string && \
     luarocks install luafilesystem && \
@@ -17,18 +15,19 @@ RUN luarocks install lrexlib-pcre2 && \
     luarocks install compat53 && \
     luarocks install mmdblua && \
     luarocks install luaipc && \
-    luarocks install lua-resty-injection
+    luarocks install lua-resty-injection && \
+    apt-get remove -y jq luarocks libpcre2-dev libgeoip-dev python \
+    gcc g++ make unzip libhyperscan-dev && apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
 
 # Overwrite stripped envoy with full symbol
 COPY --from=envoy-istio-cf /envoy /usr/local/bin/envoy
 
 COPY init/start_curiefense_pilot.sh /start_curiefense_pilot.sh
 COPY curieproxy/lua /lua
-COPY curieproxy/lua/shared-objects/*.so /usr/local/lib/lua/5.1/
+RUN ln -s /lua/shared-objects/*.so /usr/local/lib/lua/5.1/ && mkdir /cf-config && chmod a+rwxt /cf-config
 COPY --from=rustbin /root/curiefense.so /usr/local/lib/lua/5.1/
 COPY curieproxy/cf-config /bootstrap-config/config
-
-RUN mkdir /cf-config && chmod a+rwxt /cf-config
 
 ENTRYPOINT ["/usr/bin/dumb-init", "/start_curiefense_pilot.sh"]
 
