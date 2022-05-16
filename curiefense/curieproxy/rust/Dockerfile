@@ -19,3 +19,4 @@ USER builder
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/home/builder/.cargo/bin:${PATH}"
 RUN mkdir /home/builder/rust && mkdir /home/builder/lua && mkdir /home/builder/.cargo/registry
+COPY static/libgrasshopper.so /usr/lib/

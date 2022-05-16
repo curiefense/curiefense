@@ -31,7 +31,7 @@ target/release/libcuriefense_lua.so: Cargo.toml curiefense/Cargo.toml curiefense
 .PHONY: all container test test-nodeps
 
 container:
-	tar c Dockerfile  |  docker build -t curiefense/rustbuild -f Dockerfile -
+	tar c Dockerfile static |  docker build -t curiefense/rustbuild -f Dockerfile -
 
 test: ctarget/target/debug/libcuriefense_lua.so test-nodeps
 	echo DONE

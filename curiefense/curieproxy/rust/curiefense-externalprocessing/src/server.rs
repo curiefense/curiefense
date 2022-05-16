@@ -4,7 +4,7 @@ use curiefense::{
         globalfilter::GlobalFilterSection,
         with_config,
     },
-    grasshopper::DummyGrasshopper,
+    grasshopper::DynGrasshopper,
     incremental::{add_body, add_header, finalize, inspect_init, IData},
     interface::{jsonlog, Decision, Tags},
     logs::{LogLevel, Logs},
@@ -207,7 +207,7 @@ impl MyEP {
             }
         }
 
-        let (dec, logs) = finalize(idata, Some(DummyGrasshopper {}), &globalfilters, &flows, None).await;
+        let (dec, logs) = finalize(idata, Some(DynGrasshopper {}), &globalfilters, &flows, None).await;
         self.send_action(
             if headers_only {
                 ProcessingStage::Headers

@@ -1,7 +1,4 @@
-mod lua;
-
-use crate::lua::Luagrasshopper;
-
+use curiefense::grasshopper::DynGrasshopper;
 use curiefense::grasshopper::Grasshopper;
 use curiefense::utils::RequestMeta;
 use mlua::prelude::*;
@@ -110,18 +107,17 @@ fn lua_inspect_request(
         HashMap<String, String>, // headers
         Option<LuaString>,       // maybe body
         String,                  // ip
-        Option<LuaTable>,        // grasshopper
     ),
 ) -> LuaResult<(String, Option<String>)> {
-    let (meta, headers, lua_body, str_ip, lua_grasshopper) = args;
-    let grasshopper = lua_grasshopper.map(Luagrasshopper);
+    let (meta, headers, lua_body, str_ip) = args;
+    let grasshopper = DynGrasshopper {};
     let res = inspect_request(
         "/cf-config/current/config",
         meta,
         headers,
         lua_body.as_ref().map(|b| b.as_bytes()),
         str_ip,
-        grasshopper,
+        Some(grasshopper),
     );
 
     Ok(match res {

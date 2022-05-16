@@ -5,7 +5,6 @@ local cjson = require "cjson"
 local json_safe = require "cjson.safe"
 local json_decode = json_safe.decode
 
-local grasshopper = require "grasshopper"
 local nativeutils = require "nativeutils"
 local startswith = nativeutils.startswith
 
@@ -113,7 +112,7 @@ local function run_inspect_request(raw_request_map)
     if human ~= nil then
       response, merr = curiefense.test_inspect_request(meta, headers, raw_request_map.body, ip, human)
     else
-      response, merr = curiefense.inspect_request(meta, headers, raw_request_map.body, ip, grasshopper)
+      response, merr = curiefense.inspect_request(meta, headers, raw_request_map.body, ip)
     end
     if merr then
       error(merr)

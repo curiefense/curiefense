@@ -1,7 +1,6 @@
 local session_rust_nginx = {}
 local cjson       = require "cjson"
 local curiefense  = require "curiefense"
-local grasshopper = require "grasshopper"
 local utils       = require "lua.nativeutils"
 local sfmt = string.format
 local custom_response = utils.nginx_custom_response
@@ -37,7 +36,7 @@ function session_rust_nginx.inspect(handle)
     --   * authority : optionally, the HTTP2 authority field
     local response
     response, err = curiefense.inspect_request(
-        meta, headers, body_content, ip_str, grasshopper
+        meta, headers, body_content, ip_str
     )
 
     if err then

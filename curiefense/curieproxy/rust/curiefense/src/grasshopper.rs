@@ -2,6 +2,7 @@ use crate::requestfields::RequestField;
 use crate::{Action, ActionType, Decision};
 use serde_json::json;
 use std::collections::HashMap;
+use std::ffi::{CStr, CString};
 
 pub trait Grasshopper {
     fn js_app(&self) -> Option<String>;
@@ -9,6 +10,18 @@ pub trait Grasshopper {
     fn parse_rbzid(&self, rbzid: &str, seed: &str) -> Option<bool>;
     fn gen_new_seed(&self, seed: &str) -> Option<String>;
     fn verify_workproof(&self, workproof: &str, seed: &str) -> Option<String>;
+}
+
+mod imported {
+    use std::os::raw::c_char;
+    extern "C" {
+        pub fn verify_workproof(c_zebra: *const c_char, c_ua: *const c_char, success: *mut bool) -> *mut c_char;
+        pub fn gen_new_seed(c_ua: *const c_char) -> *mut c_char;
+        pub fn parse_rbzid(c_rbzid: *const c_char, c_ua: *const c_char) -> i8;
+        pub fn js_app() -> *const i8;
+        pub fn js_bio() -> *const i8;
+        pub fn free_string(s: *mut c_char);
+    }
 }
 
 pub struct DummyGrasshopper {}
@@ -29,6 +42,64 @@ impl Grasshopper for DummyGrasshopper {
     }
     fn verify_workproof(&self, _workproof: &str, _seed: &str) -> Option<String> {
         None
+    }
+}
+
+#[derive(Clone)]
+pub struct DynGrasshopper {}
+
+impl Grasshopper for DynGrasshopper {
+    fn js_app(&self) -> Option<String> {
+        unsafe {
+            let v = imported::js_app();
+            let c_v = CStr::from_ptr(v);
+            let o = c_v.to_string_lossy().to_string();
+
+            Some(o)
+        }
+    }
+    fn js_bio(&self) -> Option<String> {
+        unsafe {
+            let v = imported::js_bio();
+            let c_v = CStr::from_ptr(v);
+            let o = c_v.to_string_lossy().to_string();
+
+            Some(o)
+        }
+    }
+    fn parse_rbzid(&self, rbzid: &str, seed: &str) -> Option<bool> {
+        unsafe {
+            let c_rbzid = CString::new(rbzid).ok()?;
+            let c_seed = CString::new(seed).ok()?;
+            match imported::parse_rbzid(c_rbzid.as_ptr(), c_seed.as_ptr()) {
+                0 => Some(false),
+                1 => Some(true),
+                _ => None,
+            }
+        }
+    }
+    fn gen_new_seed(&self, seed: &str) -> Option<String> {
+        unsafe {
+            let c_seed = CString::new(seed).ok()?;
+            let r = imported::gen_new_seed(c_seed.as_ptr());
+            let cstr = CStr::from_ptr(r);
+            let o = cstr.to_string_lossy().to_string();
+            imported::free_string(r);
+            Some(o)
+        }
+    }
+    fn verify_workproof(&self, workproof: &str, seed: &str) -> Option<String> {
+        unsafe {
+            let c_workproof = CString::new(workproof).ok()?;
+            let c_seed = CString::new(seed).ok()?;
+            let mut success = false;
+            let r = imported::verify_workproof(c_workproof.as_ptr(), c_seed.as_ptr(), &mut success);
+
+            let cstr = CStr::from_ptr(r);
+            let o = cstr.to_string_lossy().to_string();
+            imported::free_string(r);
+            Some(o)
+        }
     }
 }
 

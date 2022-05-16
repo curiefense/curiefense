@@ -1,7 +1,6 @@
 local session_rust_envoy = {}
 local cjson       = require "cjson"
 local curiefense  = require "curiefense"
-local grasshopper = require "grasshopper"
 local accesslog   = require "lua.accesslog"
 local utils       = require "lua.nativeutils"
 local sfmt = string.format
@@ -57,7 +56,7 @@ function session_rust_envoy.inspect(handle)
     --   * method : the HTTP verb
     --   * authority : optionally, the HTTP2 authority field
     local response, err = curiefense.inspect_request(
-        meta, headers, body_content, ip_str, grasshopper
+        meta, headers, body_content, ip_str
     )
 
     if err then
