@@ -8,11 +8,12 @@ RUN apt-get update && \
         gcc pkg-config libssl-dev python2.7 clang-10 libclang1-10 \
         gcc libluajit-5.1-dev make unzip git luajit
 RUN ln -s /usr/bin/python2.7 /usr/bin/python2 && mkdir /build
+COPY curieproxy/rust/static/libgrasshopper.so /usr/lib/
 COPY curieproxy/rust /build/rust
 WORKDIR /build/rust
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y && \
-    cargo test && \
+    cargo test --release && \
     cargo build --release && \
     cp target/release/libcuriefense_lua.so /root/curiefense.so && \
     cp target/release/cf-externalprocessing /root/ && \
@@ -31,7 +32,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /root/curiefense.so /usr/local/lib/lua/5.1/curiefense.so
-COPY curieproxy/lua/shared-objects/grasshopper.so /usr/local/lib/lua/5.1/grasshopper.so
+COPY curieproxy/rust/static/libgrasshopper.so /usr/lib/
 RUN ln -s /usr/local/lib/lua/5.1/curiefense.so /root/curiefense.so && mkdir -p /cf-config/current
 COPY confdb-initial-data/master/config /cf-config/current/config
 COPY curieproxy/rust/luatests/config/json /cf-config/current/config/json

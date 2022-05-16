@@ -27,6 +27,7 @@ COPY init/start_curiefense_pilot.sh /start_curiefense_pilot.sh
 COPY curieproxy/lua /lua
 RUN ln -s /lua/shared-objects/*.so /usr/local/lib/lua/5.1/ && mkdir /cf-config && chmod a+rwxt /cf-config
 COPY --from=rustbin /root/curiefense.so /usr/local/lib/lua/5.1/
+COPY curieproxy/rust/static/libgrasshopper.so /usr/lib/
 COPY curieproxy/cf-config /bootstrap-config/config
 
 ENTRYPOINT ["/usr/bin/dumb-init", "/start_curiefense_pilot.sh"]

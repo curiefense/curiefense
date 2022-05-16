@@ -7,6 +7,7 @@ COPY curieproxy/lua/shared-objects/*.so /usr/local/lib/lua/5.1/
 COPY --from=rustbin /root/curiefense.so /usr/local/lib/lua/5.1/
 
 COPY curieproxy/cf-config /bootstrap-config/config
+COPY curieproxy/rust/static/libgrasshopper.so /usr/lib/
 
 RUN apt-get update && apt-get install -y libhyperscan4 rsyslog
 RUN mkdir /cf-config && chmod a+rwxt /cf-config

@@ -256,17 +256,12 @@ impl RequestInfo {
     }
 
     pub fn into_json_notags(self) -> serde_json::Value {
-        let ipnum: Option<String> = self.rinfo.geoip.ip.as_ref().map(|i| match i {
-            IpAddr::V4(a) => u32::from_be_bytes(a.octets()).to_string(),
-            IpAddr::V6(a) => u128::from_be_bytes(a.octets()).to_string(),
-        });
         let geo = self.rinfo.geoip.to_json();
         let mut attrs: HashMap<String, Option<String>> = [
             ("uri", Some(self.rinfo.qinfo.uri)),
             ("path", Some(self.rinfo.qinfo.qpath)),
             ("query", Some(self.rinfo.qinfo.query)),
             ("ip", Some(self.rinfo.geoip.ipstr)),
-            ("ipnum", ipnum),
             ("authority", Some(self.rinfo.host)),
             ("method", Some(self.rinfo.meta.method)),
         ]

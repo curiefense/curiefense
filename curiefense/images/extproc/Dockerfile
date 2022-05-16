@@ -7,6 +7,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=rustbin /root/cf-externalprocessing /usr/local/bin
+COPY static/libgrasshopper.so /usr/lib/
 
 COPY start_ef.sh /start_ef.sh
 RUN mkdir /cf-config && chmod a+rwxt /cf-config
