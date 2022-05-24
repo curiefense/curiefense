@@ -1473,11 +1473,11 @@ class TestSecurityPolicy:
             "/acl/", headers={"Long-header": "Overlong_header" * 100}
         )
 
-    def test_nondefault_aclfilter_passthroughall(self, target, securitypolicy_config):
-        assert target.is_reachable("/acl-passthroughall/")
-        assert target.is_reachable(
-            "/acl-passthroughall/", headers={"Long-header": "Overlong_header" * 100}
-        )
+    # def test_nondefault_aclfilter_passthroughall(self, target, securitypolicy_config):
+    #     assert target.is_reachable("/acl-passthroughall/")
+    #     assert target.is_reachable(
+    #         "/acl-passthroughall/", headers={"Long-header": "Overlong_header" * 100}
+    #     )
 
     def test_acl_content_filter(self, target, securitypolicy_config):
         assert not target.is_reachable("/acl-content-filter/")
