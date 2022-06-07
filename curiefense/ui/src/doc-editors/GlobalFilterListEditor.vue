@@ -307,7 +307,7 @@ export default Vue.extend({
         let entries: GlobalFilterSectionEntry[]
         const convertedData = data as GlobalFilter
         if (convertedData?.rule?.sections?.length) {
-          this.localDoc.rule = data.rule
+          this.localDoc.rule = convertedData.rule
           this.localDoc.mdate = (new Date).toISOString()
           this.emitDocUpdate()
           return
