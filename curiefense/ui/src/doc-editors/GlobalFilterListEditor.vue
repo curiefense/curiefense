@@ -305,6 +305,13 @@ export default Vue.extend({
       RequestsUtils.sendRequest({methodName: 'GET', url: `tools/fetch?url=${url}`}).then((response: AxiosResponse) => {
         const data = response.data
         let entries: GlobalFilterSectionEntry[]
+        const convertedData = data as GlobalFilter
+        if (convertedData?.rule?.sections?.length) {
+          this.localDoc.rule = data.rule
+          this.localDoc.mdate = (new Date).toISOString()
+          this.emitDocUpdate()
+          return
+        }
         entries = this.tryMatch(data, lineMatchingIP, 'ip')
         if (entries.length === 0) {
           entries = this.tryMatch(data, lineMatchingASN, 'asn')

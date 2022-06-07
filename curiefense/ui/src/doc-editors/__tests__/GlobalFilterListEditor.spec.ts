@@ -819,6 +819,40 @@ describe('GlobalFilterListEditor.vue', () => {
       expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
     })
 
+    test('should update entries relation component with correct data - global filter structure', async () => {
+      const globalFilter: GlobalFilter = {
+        'id': 'xlbp148c',
+        'name': 'API Discovery',
+        'source': 'self-managed',
+        'mdate': '2020-05-23T00:04:41',
+        'description': 'Tag API Requests',
+        'active': true,
+        'tags': ['api', 'okay'],
+        'action': {
+          'type': 'monitor',
+          'params': {},
+        },
+        'rule': {
+          'relation': 'OR',
+          'sections': [
+            {'relation': 'OR', 'entries': [['ip', '1.2.3.4', null]]},
+            {'relation': 'OR', 'entries': [['ip', '5.6.7.8', 'an IP']]},
+            {'relation': 'OR', 'entries': [['asn', 'as612', 'annotation']]},
+            {'relation': 'OR', 'entries': [['asn', 'as34109']]},
+          ],
+        },
+      }
+      const wantedData: GlobalFilter['rule'] = JSON.parse(JSON.stringify(globalFilter.rule))
+      resolveData = {data: globalFilter}
+      const button = wrapper.find('.update-now-button')
+      button.trigger('click')
+      await Vue.nextTick()
+      await wrapper.vm.$forceUpdate()
+      await Vue.nextTick()
+      const entriesRelationListComponent = wrapper.findComponent(EntriesRelationList)
+      expect(entriesRelationListComponent.props('rule')).toEqual(wantedData)
+    })
+
     test('should not update entries relation component when no data found', async () => {
       const wantedData: GlobalFilter['rule'] = docs[0].rule
       resolveData = {
