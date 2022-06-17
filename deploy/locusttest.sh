@@ -16,7 +16,7 @@ for UC in 10 50 100 200 400 500 600; do
 	curl "${LOCUST_URL}/swarm" -X POST -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' --data-raw "user_count=$UC&spawn_rate=1000&host=http%3A%2F%2Fistio-ingressgateway.istio-system%2Fratings&cf_reqsize=$REQSIZEKB&cf_testid=$TESTID"
 	sleep 60
 
-	curl "${JAEGER_URL}traces?limit=1500&lookback=1h&service=istio-ingressgateway.istio-system&tags=%7B%22http.url%22%3A%22http%3A%2F%2Fistio-ingressgateway.istio-system%2Fratings%2Finvalid%2F${TESTID}%22%7D" --output "$OUTDIR/jaeger-$OUTNAME.json"
+	curl "${JAEGER_URL}traces?limit=1500&lookback=1h&service=istio-ingressgateway.istio-system&tags=%7B%22http.url%22%3A%22http%3A%2F%2Fistio-ingressgateway.istio-system%2Fratings%2Finvalid%3F${TESTID}%22%7D" --output "$OUTDIR/jaeger-$OUTNAME.json"
 	kubectl top --namespace istio-system pod |grep ingress | awk '{print "{\"cpu\":\"" $2 "\", \"ram\":\"" $3 "\"}"}' > "$OUTDIR/resources-$OUTNAME.json"
 	curl "${LOCUST_URL}/stats/requests" --output "$OUTDIR/locust-$OUTNAME.json"
 	curl "${LOCUST_URL}/stop"

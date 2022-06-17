@@ -3,7 +3,7 @@
 # Pre-requisites:
 # * images built & pushed to the registry
 # * gcloud access is set up
-# * the curiefense/curiefense-helm repository is checked out in ../curiefense-helm (at the root of the public-curiefense repository)
+# * the curiefense/curiefense-helm repository is checked out in ../curiefense-helm (at the root of the curiefense repository)
 # * This is run on a machine or virtualenv that has pytest & curieconfctl installed
 
 # Some parameters can be overridden, such as:
@@ -131,7 +131,7 @@ locust_perftest () {
 	NODE_IP=$(kubectl get nodes -o json|jq '.items[0].status.addresses[]|select(.type=="ExternalIP").address'|tr -d '"')
 	CONFSERVER_URL="http://$NODE_IP:30000/api/v2/"
 
-	kubectl apply -f ~/reblaze/lua_filter.yaml
+	kubectl apply -f ./lua_filter.yaml
 	../e2e/set_config.py -u "$CONFSERVER_URL" defaultconfig
 	sleep 60
 	for REQSIZE in 0 1 2 4 8 16; do
@@ -148,6 +148,12 @@ locust_perftest () {
 	../e2e/set_config.py -u "$CONFSERVER_URL" contentfilter-and-acl
 	for REQSIZE in 0 1 2 4 8 16; do
 		./locusttest.sh cf-contenfilter-and-acl $REQSIZE
+	done
+
+	sleep 60
+	../e2e/set_config.py -u "$CONFSERVER_URL" flow-and-ratelimit
+	for REQSIZE in 0 1 2 4 8 16; do
+		./locusttest.sh flow-and-ratelimit $REQSIZE
 	done
 
 	sleep 60
@@ -192,6 +198,12 @@ if [ "$locustperftest" = "y" ] || [ "$all" = "y" ]; then
 		echo "Exiting."
 		exit 1
 	fi
+fi
+
+if [ ! -d ../curiefense-helm/.git ]; then
+	echo "The curiefense-helm repo should be checked out at (a symlink also works)"
+	echo "Exiting."
+	exit 1
 fi
 # Run
 
