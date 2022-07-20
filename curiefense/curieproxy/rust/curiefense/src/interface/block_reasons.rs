@@ -212,6 +212,7 @@ impl Initiator {
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum BDecision {
+    Skip,
     Monitor,
     AlterRequest,
     InitiatorInactive,
@@ -221,6 +222,7 @@ pub enum BDecision {
 impl std::fmt::Display for BDecision {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            BDecision::Skip => write!(f, "skip"),
             BDecision::Monitor => write!(f, "monitor"),
             BDecision::AlterRequest => write!(f, "alter_request"),
             BDecision::InitiatorInactive => write!(f, "inactive"),
@@ -243,6 +245,7 @@ impl Serialize for BDecision {
         S: serde::Serializer,
     {
         serializer.serialize_str(match self {
+            BDecision::Skip => "skip",
             BDecision::Monitor => "monitor",
             BDecision::AlterRequest => "alter_request",
             BDecision::InitiatorInactive => "inactive",

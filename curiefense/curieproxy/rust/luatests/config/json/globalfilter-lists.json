@@ -1,6 +1,39 @@
 [
    {
       "action": {
+         "type": "skip"
+      },
+      "active": true,
+      "entries_relation": "OR",
+      "id": "hdrskip",
+      "mdate": "2020-05-23T00:04:41",
+      "name": "header skip=true",
+      "description": "description",
+      "rule": {
+         "relation": "AND",
+         "sections": [
+            {
+               "entries": [
+                  [
+                     "headers",
+                     [
+                        "skip",
+                        "true"
+                     ],
+                     "..."
+                  ]
+               ],
+               "relation": "OR"
+            }
+         ]
+      },
+      "source": "self-managed",
+      "tags": [
+         "skiptrue"
+      ]
+   },
+   {
+      "action": {
          "type": "monitor"
       },
       "active": true,

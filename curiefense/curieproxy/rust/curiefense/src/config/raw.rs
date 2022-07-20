@@ -162,6 +162,7 @@ pub struct RawAction {
 #[derive(Debug, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 pub enum RawActionType {
+    Skip,
     Default,
     Ban,
     Response,

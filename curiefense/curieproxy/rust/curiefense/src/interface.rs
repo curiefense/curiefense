@@ -51,6 +51,17 @@ pub struct Decision {
 }
 
 impl Decision {
+    pub fn skip(initiator: Initiator, location: HashSet<Location>) -> Self {
+        Decision {
+            maction: None,
+            reasons: vec![BlockReason {
+                initiator,
+                location,
+                decision: BDecision::Skip,
+            }],
+        }
+    }
+
     pub fn pass(reasons: Vec<BlockReason>) -> Self {
         Decision { maction: None, reasons }
     }
@@ -70,6 +81,7 @@ impl Decision {
     /// is the action final (no further processing)
     pub fn is_final(&self) -> bool {
         self.maction.as_ref().map(|a| a.atype.is_final()).unwrap_or(false)
+            || self.reasons.iter().any(|r| r.decision == BDecision::Skip)
     }
 
     pub fn response_json(&self) -> String {
@@ -203,6 +215,7 @@ pub struct Action {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SimpleActionT {
+    Skip,
     Monitor,
     RequestHeader(HashMap<String, RequestTemplate>),
     Response {
@@ -229,6 +242,7 @@ impl SimpleActionT {
             } => 3,
             RequestHeader(_) => 2,
             Monitor => 1,
+            Skip => 0,
         }
     }
 
@@ -238,6 +252,7 @@ impl SimpleActionT {
 
     pub fn to_bdecision(&self) -> BDecision {
         match self {
+            SimpleActionT::Skip => BDecision::Skip,
             SimpleActionT::Monitor => BDecision::Monitor,
             SimpleActionT::Ban(sub, _) => sub.atype.to_bdecision(),
             SimpleActionT::RequestHeader(_) => BDecision::AlterRequest,
@@ -269,6 +284,7 @@ impl std::default::Default for SimpleActionT {
 #[derive(Debug, Clone, PartialEq, Eq, Copy, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ActionType {
+    Skip,
     Monitor,
     Block,
     AlterHeaders,
@@ -311,6 +327,7 @@ impl SimpleAction {
 
     pub fn resolve(rawaction: &RawAction) -> anyhow::Result<SimpleAction> {
         let atype = match rawaction.type_ {
+            RawActionType::Skip => SimpleActionT::Skip,
             RawActionType::Default => SimpleActionT::Default,
             RawActionType::Monitor => SimpleActionT::Monitor,
             RawActionType::Ban => SimpleActionT::Ban(
@@ -382,6 +399,7 @@ impl SimpleAction {
         action.status = self.status;
         match &self.atype {
             SimpleActionT::Default => {}
+            SimpleActionT::Skip => action.atype = ActionType::Skip,
             SimpleActionT::Monitor => action.atype = ActionType::Monitor,
             SimpleActionT::Ban(sub, _) => {
                 action = sub.to_action(rinfo, tags, is_human).unwrap_or_default();
@@ -427,6 +445,12 @@ impl SimpleAction {
         tags: &Tags,
         reason: Vec<BlockReason>,
     ) -> Decision {
+        if self.atype == SimpleActionT::Skip {
+            return Decision {
+                maction: None,
+                reasons: reason,
+            };
+        }
         let action = match self.to_action(rinfo, tags, is_human) {
             None => match (mgh, rinfo.headers.get("user-agent")) {
                 (Some(gh), Some(ua)) => return challenge_phase01(gh, ua, reason),
