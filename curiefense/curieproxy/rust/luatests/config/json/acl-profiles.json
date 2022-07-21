@@ -1,22 +1,36 @@
 [
-    {
-        "id": "__default__",
-        "name": "default-acl",
-        "allow": [],
-        "allow_bot": [],
-        "deny_bot": [],
-        "passthrough": [],
-        "force_deny": [],
-        "deny": []
-    },
-    {
-        "id": "FROMTAGS",
-        "name": "from tags",
-        "allow": ["allow"],
-        "allow_bot": ["allowbot"],
-        "deny_bot": ["denybot"],
-        "passthrough": ["passthrough"],
-        "force_deny": ["forcedeny"],
-        "deny": ["deny"]
-    }
+  {
+    "action": "default",
+    "allow": [],
+    "allow_bot": [],
+    "deny": [],
+    "deny_bot": [],
+    "force_deny": [],
+    "id": "__default__",
+    "name": "default-acl",
+    "passthrough": []
+  },
+  {
+    "action": "default",
+    "allow": [
+      "allow"
+    ],
+    "allow_bot": [
+      "allowbot"
+    ],
+    "deny": [
+      "deny"
+    ],
+    "deny_bot": [
+      "denybot"
+    ],
+    "force_deny": [
+      "forcedeny"
+    ],
+    "id": "FROMTAGS",
+    "name": "from tags",
+    "passthrough": [
+      "passthrough"
+    ]
+  }
 ]

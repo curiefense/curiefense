@@ -3,7 +3,7 @@ use crate::config::raw::{
     ContentFilterGroup, ContentFilterRule, ContentType, RawContentFilterEntryMatch, RawContentFilterProfile,
     RawContentFilterProperties,
 };
-use crate::interface::RawTags;
+use crate::interface::{RawTags, SimpleAction};
 use crate::logs::Logs;
 
 use hyperscan::prelude::{pattern, Builder, CompileFlags, Pattern, Patterns, VectoredDatabase};
@@ -36,6 +36,7 @@ pub struct ContentFilterProfile {
     pub max_body_size: usize,
     pub max_body_depth: usize,
     pub referer_as_uri: bool,
+    pub action: SimpleAction,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -87,6 +88,7 @@ impl ContentFilterProfile {
             max_body_size: usize::MAX,
             max_body_depth: usize::MAX,
             referer_as_uri: false,
+            action: SimpleAction::from_reason("default content filter".to_string()),
         }
     }
 }
@@ -228,7 +230,11 @@ fn mk_section(
     })
 }
 
-fn convert_entry(entry: RawContentFilterProfile) -> anyhow::Result<(String, ContentFilterProfile)> {
+fn convert_entry(
+    logs: &mut Logs,
+    actions: &HashMap<String, SimpleAction>,
+    entry: RawContentFilterProfile,
+) -> anyhow::Result<(String, ContentFilterProfile)> {
     let mut decoding = Vec::new();
     // default order
     if entry.decoding.base64 {
@@ -245,10 +251,23 @@ fn convert_entry(entry: RawContentFilterProfile) -> anyhow::Result<(String, Cont
     }
     let max_body_size = nonzero(entry.max_body_size.unwrap_or(usize::MAX));
     let max_body_depth = nonzero(entry.max_body_depth.unwrap_or(usize::MAX));
+    let id = entry.id;
+    let action = match entry.action {
+        None => SimpleAction::default(),
+        Some(aid) => actions.get(&aid).cloned().unwrap_or_else(|| {
+            logs.error(|| {
+                format!(
+                    "Could not resolve action {} when resolving content filter entry {}",
+                    aid, id,
+                )
+            });
+            SimpleAction::default()
+        }),
+    };
     Ok((
-        entry.id.clone(),
+        id.clone(),
         ContentFilterProfile {
-            id: entry.id,
+            id,
             name: entry.name,
             ignore_alphanum: entry.ignore_alphanum,
             sections: Section {
@@ -266,16 +285,21 @@ fn convert_entry(entry: RawContentFilterProfile) -> anyhow::Result<(String, Cont
             max_body_size,
             max_body_depth,
             referer_as_uri: entry.referer_as_uri,
+            action,
         },
     ))
 }
 
 impl ContentFilterProfile {
-    pub fn resolve(logs: &mut Logs, raw: Vec<RawContentFilterProfile>) -> HashMap<String, ContentFilterProfile> {
+    pub fn resolve(
+        logs: &mut Logs,
+        actions: &HashMap<String, SimpleAction>,
+        raw: Vec<RawContentFilterProfile>,
+    ) -> HashMap<String, ContentFilterProfile> {
         let mut out = HashMap::new();
         for rp in raw {
             let id = rp.id.clone();
-            match convert_entry(rp) {
+            match convert_entry(logs, actions, rp) {
                 Ok((k, v)) => {
                     out.insert(k, v);
                 }

@@ -1,4 +1,3 @@
-use anyhow::Context;
 use std::collections::{HashMap, HashSet};
 
 use crate::config::limit::{resolve_selector_map, resolve_selectors};
@@ -55,18 +54,28 @@ pub struct FlowElement {
 }
 
 impl FlowEntry {
-    fn convert(rawentry: RawFlowEntry) -> anyhow::Result<FlowEntry> {
+    fn convert(
+        logs: &mut Logs,
+        actions: &HashMap<String, SimpleAction>,
+        rawentry: RawFlowEntry,
+    ) -> anyhow::Result<FlowEntry> {
         let mkey: anyhow::Result<Vec<RequestSelector>> = rawentry.key.into_iter().map(resolve_selector_map).collect();
         let msequence: anyhow::Result<Vec<FlowStep>> = rawentry.sequence.into_iter().map(FlowStep::convert).collect();
         let sequence = msequence?;
+        let id = rawentry.id;
+        let name = rawentry.name;
+        let action = actions.get(&rawentry.action).cloned().unwrap_or_else(|| {
+            logs.error(|| format!("Could not find action {} in flow entry {}", &id, &name));
+            SimpleAction::default()
+        });
 
         Ok(FlowEntry {
-            id: rawentry.id,
+            id,
             include: rawentry.include.into_iter().collect(),
             exclude: rawentry.exclude.into_iter().collect(),
-            name: rawentry.name,
+            name,
             timeframe: rawentry.timeframe,
-            action: SimpleAction::resolve(&rawentry.action).with_context(|| "when resolving the action entry")?,
+            action,
             key: mkey?,
             sequence,
         })
@@ -100,7 +109,11 @@ impl FlowStep {
     }
 }
 
-pub fn flow_resolve(logs: &mut Logs, rawentries: Vec<RawFlowEntry>) -> HashMap<SequenceKey, Vec<FlowElement>> {
+pub fn flow_resolve(
+    logs: &mut Logs,
+    actions: &HashMap<String, SimpleAction>,
+    rawentries: Vec<RawFlowEntry>,
+) -> HashMap<SequenceKey, Vec<FlowElement>> {
     let mut out: HashMap<SequenceKey, Vec<FlowElement>> = HashMap::new();
 
     // entries are created with steps in order
@@ -108,7 +121,7 @@ pub fn flow_resolve(logs: &mut Logs, rawentries: Vec<RawFlowEntry>) -> HashMap<S
         if !rawentry.active {
             continue;
         }
-        match FlowEntry::convert(rawentry) {
+        match FlowEntry::convert(logs, actions, rawentry) {
             Err(rr) => logs.warning(|| rr.to_string()),
             Ok(entry) => {
                 let nsteps = entry.sequence.len();

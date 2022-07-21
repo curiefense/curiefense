@@ -1,0 +1,81 @@
+{
+  "3lfpo6xe": {
+    "params": {
+      "location": "http://www.google.com",
+      "status": "456"
+    },
+    "type": "redirect"
+  },
+  "5ktcoafw": {
+    "type": "challenge"
+  },
+  "a7ge3v0l": {
+    "params": {
+      "action": {
+        "params": {},
+        "type": "default"
+      }
+    },
+    "type": "default"
+  },
+  "an6yhiyr": {
+    "params": {
+      "content": "{}",
+      "content_type": "application/json",
+      "status": "200"
+    },
+    "type": "response"
+  },
+  "bh3gw11k": {
+    "params": {
+      "location": "http://www.redir.com",
+      "status": "333"
+    },
+    "type": "redirect"
+  },
+  "d5vnu3hs": {
+    "params": {
+      "content": "body"
+    },
+    "type": "response"
+  },
+  "default": {
+    "type": "default"
+  },
+  "dxfyhx4n": {
+    "params": {
+      "content": "lol",
+      "status": "123"
+    },
+    "type": "response"
+  },
+  "fq8faptj": {
+    "params": {
+      "headers": {
+        "h1": "${ip} - ${args.dd} - ${args.ee}"
+      }
+    },
+    "type": "request_header"
+  },
+  "ijcy5mwz": {
+    "params": {
+      "action": {
+        "type": "default"
+      },
+      "duration": "4"
+    },
+    "type": "ban"
+  },
+  "monitor": {
+    "type": "monitor"
+  },
+  "sk9lz9q4": {
+    "params": {
+      "location": "/1234"
+    },
+    "type": "redirect"
+  },
+  "ye8qyg0h": {
+    "type": "skip"
+  }
+}

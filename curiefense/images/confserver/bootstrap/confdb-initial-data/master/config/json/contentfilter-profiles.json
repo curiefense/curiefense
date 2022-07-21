@@ -1,41 +1,47 @@
 [
-    {
-        "id": "__default__",
-        "name": "default contentfilter",
-        "ignore_alphanum": true,
-        "args": {
-            "names": [],
-            "regex": [],
-            "max_count": 512,
-            "max_length": 1024
-        },
-        "headers": {
-            "names": [],
-            "regex": [],
-            "max_count": 42,
-            "max_length": 1024
-        },
-        "cookies": {
-            "names": [],
-            "regex": [],
-            "max_count": 42,
-            "max_length": 1024
-        },
-        "path": {
-            "names": [],
-            "regex": [],
-            "max_count": 42,
-            "max_length": 1024
-        },
-        "masking_seed": "CHANGEME",
-        "active": ["cf-rule-risk:5", "cf-rule-risk:4", "cf-rule-risk:3", "cf-rule-subcategory:libinjection-xss"],
-        "report": [],
-        "ignore": [],
-        "decoding": {
-          "base64": true,
-          "dual": true,
-          "html": false,
-          "unicode": false
-        }
-    }
+  {
+    "action": "default",
+    "active": [
+      "cf-rule-risk:5",
+      "cf-rule-risk:4",
+      "cf-rule-risk:3",
+      "cf-rule-subcategory:libinjection-xss"
+    ],
+    "args": {
+      "max_count": 512,
+      "max_length": 1024,
+      "names": [],
+      "regex": []
+    },
+    "cookies": {
+      "max_count": 42,
+      "max_length": 1024,
+      "names": [],
+      "regex": []
+    },
+    "decoding": {
+      "base64": true,
+      "dual": true,
+      "html": false,
+      "unicode": false
+    },
+    "headers": {
+      "max_count": 42,
+      "max_length": 1024,
+      "names": [],
+      "regex": []
+    },
+    "id": "__default__",
+    "ignore": [],
+    "ignore_alphanum": true,
+    "masking_seed": "CHANGEME",
+    "name": "default contentfilter",
+    "path": {
+      "max_count": 42,
+      "max_length": 1024,
+      "names": [],
+      "regex": []
+    },
+    "report": []
+  }
 ]

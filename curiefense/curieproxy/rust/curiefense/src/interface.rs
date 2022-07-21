@@ -275,7 +275,13 @@ pub struct SimpleAction {
     pub reason: String,
 }
 
-impl std::default::Default for SimpleActionT {
+impl Default for SimpleAction {
+    fn default() -> Self {
+        SimpleAction::from_reason("default action".to_string())
+    }
+}
+
+impl Default for SimpleActionT {
     fn default() -> Self {
         SimpleActionT::Default
     }
@@ -325,7 +331,20 @@ impl SimpleAction {
         }
     }
 
-    pub fn resolve(rawaction: &RawAction) -> anyhow::Result<SimpleAction> {
+    pub fn resolve_actions(logs: &mut Logs, rawactions: HashMap<String, RawAction>) -> HashMap<String, Self> {
+        let mut out = HashMap::new();
+        for (id, raction) in rawactions {
+            match Self::resolve(&raction) {
+                Ok(action) => {
+                    out.insert(id, action);
+                }
+                Err(r) => logs.error(|| format!("Could not resolve action {}: {}", id, r)),
+            }
+        }
+        out
+    }
+
+    fn resolve(rawaction: &RawAction) -> anyhow::Result<SimpleAction> {
         let atype = match rawaction.type_ {
             RawActionType::Skip => SimpleActionT::Skip,
             RawActionType::Default => SimpleActionT::Default,

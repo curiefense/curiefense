@@ -3,6 +3,7 @@ use ipnet::{IpNet, Ipv4Net, Ipv6Net};
 use iprange::IpRange;
 use regex::Regex;
 use serde_json::{from_value, Value};
+use std::collections::HashMap;
 use std::net::IpAddr;
 
 use crate::config::raw::{
@@ -192,7 +193,11 @@ pub fn optimize_ipranges(rel: Relation, unoptimized: Vec<GlobalFilterEntry>) -> 
 
 impl GlobalFilterSection {
     // what an ugly function :(
-    pub fn resolve(logs: &mut Logs, rawglobalfilters: Vec<RawGlobalFilterSection>) -> Vec<GlobalFilterSection> {
+    pub fn resolve(
+        logs: &mut Logs,
+        actions: &HashMap<String, SimpleAction>,
+        rawglobalfilters: Vec<RawGlobalFilterSection>,
+    ) -> Vec<GlobalFilterSection> {
         /// build a global filter entry for "single" conditions
         fn single<F>(conv: F, val: Value) -> anyhow::Result<GlobalFilterEntry>
         where
@@ -325,7 +330,11 @@ impl GlobalFilterSection {
                 entries: optimize_ipranges(ss.relation, rentries?),
             })
         }
-        fn convert_section(logs: &mut Logs, s: RawGlobalFilterSection) -> anyhow::Result<GlobalFilterSection> {
+        fn convert_section(
+            logs: &mut Logs,
+            actions: &HashMap<String, SimpleAction>,
+            s: RawGlobalFilterSection,
+        ) -> anyhow::Result<GlobalFilterSection> {
             let sname = &s.name;
             let sid = &s.id;
             let rsubsections: anyhow::Result<Vec<GlobalFilterSSection>> = s
@@ -340,10 +349,7 @@ impl GlobalFilterSection {
                     sid, sname
                 )
             })?;
-            let action = match &s.action {
-                Some(ma) => Some(SimpleAction::resolve(ma).with_context(|| "when resolving the action entry")?),
-                None => None,
-            };
+            let action = s.action.as_ref().and_then(|r| actions.get(r)).cloned();
             Ok(GlobalFilterSection {
                 id: s.id,
                 tags: s.tags.iter().cloned().collect(),
@@ -357,7 +363,7 @@ impl GlobalFilterSection {
         let mut out = Vec::new();
 
         for rgf in rawglobalfilters.into_iter().filter(|s| s.active) {
-            match convert_section(logs, rgf) {
+            match convert_section(logs, actions, rgf) {
                 Err(rr) => logs.error(|| rr.to_string()),
                 Ok(gfilter) => out.push(gfilter),
             }

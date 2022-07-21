@@ -3,6 +3,9 @@ use serde::de::{self, Deserializer, SeqAccess, Visitor};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
+use crate::interface::SimpleAction;
+use crate::logs::Logs;
+
 /// a mapping of the configuration file for security policy entries
 /// it is called "securitypolicy" in the lua code
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -43,7 +46,7 @@ pub struct RawGlobalFilterSection {
     pub active: bool,
     pub tags: Vec<String>,
     pub rule: RawGlobalFilterRule,
-    pub action: Option<RawAction>,
+    pub action: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -136,7 +139,7 @@ pub struct RawLimit {
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RawLimitThreshold {
     pub limit: String,
-    pub action: RawAction,
+    pub action: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, Default)]
@@ -214,6 +217,19 @@ impl std::default::Default for RawActionParams {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct RawAclProfile {
+    pub id: String,
+    pub name: String,
+    pub allow: HashSet<String>,
+    pub allow_bot: HashSet<String>,
+    pub deny: HashSet<String>,
+    pub deny_bot: HashSet<String>,
+    pub passthrough: HashSet<String>,
+    pub force_deny: HashSet<String>,
+    pub action: Option<String>,
+}
+
+#[derive(Debug, Clone)]
 pub struct AclProfile {
     pub id: String,
     pub name: String,
@@ -223,6 +239,7 @@ pub struct AclProfile {
     pub deny_bot: HashSet<String>,
     pub passthrough: HashSet<String>,
     pub force_deny: HashSet<String>,
+    pub action: SimpleAction,
 }
 
 impl AclProfile {
@@ -236,6 +253,29 @@ impl AclProfile {
             deny_bot: HashSet::new(),
             passthrough: HashSet::new(),
             force_deny: HashSet::new(),
+            action: SimpleAction::default(),
+        }
+    }
+
+    pub fn resolve(logs: &mut Logs, actions: &HashMap<String, SimpleAction>, acl: RawAclProfile) -> Self {
+        let id = acl.id;
+        let action = match acl.action {
+            None => SimpleAction::default(),
+            Some(aid) => actions.get(&aid).cloned().unwrap_or_else(|| {
+                logs.error(|| format!("Could not resolve action {} in acl profile {}", aid, id));
+                SimpleAction::default()
+            }),
+        };
+        AclProfile {
+            id,
+            name: acl.name,
+            allow: acl.allow,
+            allow_bot: acl.allow_bot,
+            deny: acl.deny,
+            deny_bot: acl.deny_bot,
+            passthrough: acl.passthrough,
+            force_deny: acl.force_deny,
+            action,
         }
     }
 }
@@ -287,6 +327,7 @@ pub struct RawContentFilterProfile {
     pub max_body_depth: Option<usize>,
     #[serde(default)]
     pub referer_as_uri: bool,
+    pub action: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -377,7 +418,7 @@ pub struct RawFlowEntry {
     pub key: Vec<HashMap<String, String>>,
     pub active: bool,
     pub timeframe: u64,
-    pub action: RawAction,
+    pub action: String,
     pub sequence: Vec<RawFlowStep>,
 }
 

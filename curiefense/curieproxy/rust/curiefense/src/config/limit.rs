@@ -49,22 +49,32 @@ pub fn resolve_selectors(rawsel: RawLimitSelector) -> anyhow::Result<Vec<Request
 }
 
 impl Limit {
-    fn convert(rawlimit: RawLimit) -> anyhow::Result<(String, Limit)> {
+    fn convert(
+        logs: &mut Logs,
+        actions: &HashMap<String, SimpleAction>,
+        rawlimit: RawLimit,
+    ) -> anyhow::Result<(String, Limit)> {
         let mkey: anyhow::Result<Vec<RequestSelector>> = rawlimit.key.into_iter().map(resolve_selector_map).collect();
         let key = mkey.with_context(|| "when converting the key entry")?;
         let pairwith = resolve_selector_map(rawlimit.pairwith).ok();
         let mut thresholds: Vec<LimitThreshold> = Vec::new();
+        let id = rawlimit.id;
         for thr in rawlimit.thresholds {
+            let action = actions.get(&thr.action).cloned().unwrap_or_else(|| {
+                logs.error(|| format!("Could not resolve action {} in limit {}", thr.action, id));
+                SimpleAction::default()
+            });
+
             thresholds.push(LimitThreshold {
                 limit: thr.limit.parse().with_context(|| "when converting the limit")?,
-                action: SimpleAction::resolve(&thr.action).with_context(|| "when resolving the action entry")?,
+                action,
             })
         }
         thresholds.sort_unstable_by(limit_order);
         Ok((
-            rawlimit.id.clone(),
+            id.clone(),
             Limit {
-                id: rawlimit.id,
+                id,
                 name: rawlimit.name,
                 timeframe: rawlimit
                     .timeframe
@@ -78,11 +88,15 @@ impl Limit {
             },
         ))
     }
-    pub fn resolve(logs: &mut Logs, rawlimits: Vec<RawLimit>) -> HashMap<String, Limit> {
+    pub fn resolve(
+        logs: &mut Logs,
+        actions: &HashMap<String, SimpleAction>,
+        rawlimits: Vec<RawLimit>,
+    ) -> HashMap<String, Limit> {
         let mut out = HashMap::new();
         for rl in rawlimits {
             let curid = rl.id.clone();
-            match Limit::convert(rl) {
+            match Limit::convert(logs, actions, rl) {
                 Ok((nm, lm)) => {
                     out.insert(nm, lm);
                 }

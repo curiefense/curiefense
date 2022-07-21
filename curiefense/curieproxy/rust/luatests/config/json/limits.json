@@ -1,407 +1,349 @@
 [
-    {
-        "id": "limitcountry",
-        "name": "Rate Limit Example Rule 3/3",
-        "description": "3 requests in 3s",
-        "timeframe": "3",
-        "thresholds": [
-            {
-                "limit": "3",
-                "action": {
-                    "type": "default"
-                }
-            }
-        ],
-        "include": [],
-        "exclude": [],
-        "key": [
-            {
-                "attrs": "country"
-            }
-        ],
-        "pairwith": {
-            "self": "self"
-        }
+  {
+    "description": "3 requests in 3s",
+    "exclude": [],
+    "id": "limitcountry",
+    "include": [],
+    "key": [
+      {
+        "attrs": "country"
+      }
+    ],
+    "name": "Rate Limit Example Rule 3/3",
+    "pairwith": {
+      "self": "self"
     },
-    {
-        "id": "limitsimple",
-        "name": "Rate Limit Example Rule 3/3",
-        "description": "3 requests in 3s",
-        "timeframe": "3",
-        "thresholds": [
-            {
-                "limit": "3",
-                "action": {
-                    "type": "default"
-                }
-            }
-        ],
-        "include": [],
-        "exclude": [],
-        "key": [
-            {
-                "attrs": "ip"
-            }
-        ],
-        "pairwith": {
-            "self": "self"
-        }
+    "thresholds": [
+      {
+        "action": "default",
+        "limit": "3"
+      }
+    ],
+    "timeframe": "3"
+  },
+  {
+    "description": "3 requests in 3s",
+    "exclude": [],
+    "id": "limitsimple",
+    "include": [],
+    "key": [
+      {
+        "attrs": "ip"
+      }
+    ],
+    "name": "Rate Limit Example Rule 3/3",
+    "pairwith": {
+      "self": "self"
     },
-    {
-        "id": "limitinclude",
-        "name": "Rate Limit Example Rule 3/3",
-        "description": "3 requests in 3s",
-        "timeframe": "3",
-        "thresholds": [
-            {
-                "limit": "3",
-                "action": {
-                    "type": "default"
-                }
-            }
-        ],
-        "include": [
-            "hdrfoobar"
-        ],
-        "exclude": [],
-        "key": [
-            {
-                "attrs": "ip"
-            }
-        ],
-        "pairwith": {
-            "self": "self"
-        }
+    "thresholds": [
+      {
+        "action": "default",
+        "limit": "3"
+      }
+    ],
+    "timeframe": "3"
+  },
+  {
+    "description": "3 requests in 3s",
+    "exclude": [],
+    "id": "limitinclude",
+    "include": [
+      "hdrfoobar"
+    ],
+    "key": [
+      {
+        "attrs": "ip"
+      }
+    ],
+    "name": "Rate Limit Example Rule 3/3",
+    "pairwith": {
+      "self": "self"
     },
-    {
-        "id": "limitexclude",
-        "name": "Rate Limit Example Rule 3/3",
-        "description": "3 requests in 3s",
-        "timeframe": "3",
-        "thresholds": [
-            {
-                "limit": "3",
-                "action": {
-                    "type": "default"
-                }
-            }
-        ],
-        "include": [],
-        "exclude": [
-            "hdrfoobar"
-        ],
-        "key": [
-            {
-                "attrs": "ip"
-            }
-        ],
-        "pairwith": {
-            "self": "self"
-        }
+    "thresholds": [
+      {
+        "action": "default",
+        "limit": "3"
+      }
+    ],
+    "timeframe": "3"
+  },
+  {
+    "description": "3 requests in 3s",
+    "exclude": [
+      "hdrfoobar"
+    ],
+    "id": "limitexclude",
+    "include": [],
+    "key": [
+      {
+        "attrs": "ip"
+      }
+    ],
+    "name": "Rate Limit Example Rule 3/3",
+    "pairwith": {
+      "self": "self"
     },
-    {
-        "id": "includecompany",
-        "name": "Rate Limit Example with company",
-        "description": "3 requests in 3s",
-        "timeframe": "3",
-        "thresholds": [
-            {
-                "limit": "3",
-                "action": {
-                    "type": "response",
-                    "params": {
-                        "content": "body"
-                    }
-                }
-            }
-        ],
-        "include": [
-            "asn:CLOUDFARE",
-            "authority:foo"
-        ],
-        "exclude": [],
-        "key": [
-            {
-                "attrs": "ip"
-            }
-        ],
-        "pairwith": {
-            "self": "self"
-        }
+    "thresholds": [
+      {
+        "action": "default",
+        "limit": "3"
+      }
+    ],
+    "timeframe": "3"
+  },
+  {
+    "description": "3 requests in 3s",
+    "exclude": [],
+    "id": "includecompany",
+    "include": [
+      "asn:CLOUDFARE",
+      "authority:foo"
+    ],
+    "key": [
+      {
+        "attrs": "ip"
+      }
+    ],
+    "name": "Rate Limit Example with company",
+    "pairwith": {
+      "self": "self"
     },
-    {
-        "id": "redirector",
-        "name": "Rate Limit redirection",
-        "description": "3 requests in 3s",
-        "timeframe": "3",
-        "thresholds": [
-            {
-                "limit": "3",
-                "action": {
-                    "type": "redirect",
-                    "params": {
-                        "location": "/1234"
-                    }
-                }
-            }
-        ],
-        "include": [],
-        "exclude": [],
-        "key": [
-            {
-                "attrs": "ip"
-            }
-        ],
-        "pairwith": {
-            "self": "self"
-        }
+    "thresholds": [
+      {
+        "action": "d5vnu3hs",
+        "limit": "3"
+      }
+    ],
+    "timeframe": "3"
+  },
+  {
+    "description": "3 requests in 3s",
+    "exclude": [],
+    "id": "redirector",
+    "include": [],
+    "key": [
+      {
+        "attrs": "ip"
+      }
+    ],
+    "name": "Rate Limit redirection",
+    "pairwith": {
+      "self": "self"
     },
-    {
-        "id": "e2e1000000007",
-        "name": "Rate Limit Rule 3/10 scope-country-include",
-        "description": "3 requests per 10 seconds",
-        "timeframe": "10",
-        "thresholds": [
-            {
-                "limit": "3",
-                "action": {
-                    "type": "default",
-                    "params": {
-                        "action": {
-                            "type": "default",
-                            "params": {}
-                        }
-                    }
-                }
-            }
-        ],
-        "include": [
-            "geo-country:united-states"
-        ],
-        "exclude": [],
-        "key": [
-            {
-                "attrs": "ip"
-            }
-        ],
-        "pairwith": {
-            "self": "self"
-        }
+    "thresholds": [
+      {
+        "action": "sk9lz9q4",
+        "limit": "3"
+      }
+    ],
+    "timeframe": "3"
+  },
+  {
+    "description": "3 requests per 10 seconds",
+    "exclude": [],
+    "id": "e2e1000000007",
+    "include": [
+      "geo-country:united-states"
+    ],
+    "key": [
+      {
+        "attrs": "ip"
+      }
+    ],
+    "name": "Rate Limit Rule 3/10 scope-country-include",
+    "pairwith": {
+      "self": "self"
     },
-    {
-        "id": "f971e92459e2",
-        "name": "Rate limit ban",
-        "description": "3 requests per 2 seconds",
-        "timeframe": "2",
-        "thresholds": [
-            {
-                "limit": "3",
-                "action": {
-                    "type": "ban",
-                    "params": {
-                        "duration": "4",
-                        "action": {
-                            "type": "default"
-                        }
-                    }
-                }
-            }
-        ],
-        "include": [],
-        "exclude": [],
-        "key": [
-            {
-                "attrs": "ip"
-            }
-        ],
-        "pairwith": {
-            "self": "self"
-        }
+    "thresholds": [
+      {
+        "action": "a7ge3v0l",
+        "limit": "3"
+      }
+    ],
+    "timeframe": "10"
+  },
+  {
+    "description": "3 requests per 2 seconds",
+    "exclude": [],
+    "id": "f971e92459e2",
+    "include": [],
+    "key": [
+      {
+        "attrs": "ip"
+      }
+    ],
+    "name": "Rate limit ban",
+    "pairwith": {
+      "self": "self"
     },
-    {
-        "id": "mlimitA",
-        "name": "Multilimit test A",
-        "description": ":)",
-        "timeframe": "5",
-        "thresholds": [
-            {
-                "limit": "2",
-                "action": {
-                    "type": "default"
-                }
-            }
-        ],
-        "include": [],
-        "exclude": [],
-        "key": [
-            {
-                "headers": "h1"
-            }
-        ],
-        "pairwith": {
-            "self": "self"
-        }
+    "thresholds": [
+      {
+        "action": "ijcy5mwz",
+        "limit": "3"
+      }
+    ],
+    "timeframe": "2"
+  },
+  {
+    "description": ":)",
+    "exclude": [],
+    "id": "mlimitA",
+    "include": [],
+    "key": [
+      {
+        "headers": "h1"
+      }
+    ],
+    "name": "Multilimit test A",
+    "pairwith": {
+      "self": "self"
     },
-    {
-        "id": "mlimitB",
-        "name": "Multilimit test B",
-        "description": ":)",
-        "timeframe": "5",
-        "thresholds": [
-            {
-                "limit": "3",
-                "action": {
-                    "type": "default"
-                }
-            }
-        ],
-        "include": [],
-        "exclude": [],
-        "key": [
-            {
-                "headers": "h2"
-            }
-        ],
-        "pairwith": {
-            "self": "self"
-        }
+    "thresholds": [
+      {
+        "action": "default",
+        "limit": "2"
+      }
+    ],
+    "timeframe": "5"
+  },
+  {
+    "description": ":)",
+    "exclude": [],
+    "id": "mlimitB",
+    "include": [],
+    "key": [
+      {
+        "headers": "h2"
+      }
+    ],
+    "name": "Multilimit test B",
+    "pairwith": {
+      "self": "self"
     },
-    {
-        "id": "4d1d9d405fc9",
-        "name": "Limit per method",
-        "description": ":)",
-        "timeframe": "5",
-        "thresholds": [
-            {
-                "limit": "3",
-                "action": {
-                    "type": "default"
-                }
-            }
-        ],
-        "include": [],
-        "exclude": [],
-        "key": [
-            {
-                "attrs": "ip"
-            }
-        ],
-        "pairwith": {
-            "attrs": "method"
-        }
+    "thresholds": [
+      {
+        "action": "default",
+        "limit": "3"
+      }
+    ],
+    "timeframe": "5"
+  },
+  {
+    "description": ":)",
+    "exclude": [],
+    "id": "4d1d9d405fc9",
+    "include": [],
+    "key": [
+      {
+        "attrs": "ip"
+      }
+    ],
+    "name": "Limit per method",
+    "pairwith": {
+      "attrs": "method"
     },
-    {
-        "id": "4d1d9d405hdr",
-        "name": "Limit per header",
-        "description": ":)",
-        "timeframe": "5",
-        "thresholds": [
-            {
-                "limit": "2",
-                "action": {
-                    "type": "default"
-                }
-            }
-        ],
-        "include": [],
-        "exclude": [],
-        "key": [
-            {
-                "attrs": "ip"
-            }
-        ],
-        "pairwith": {
-            "headers": "limitheader"
-        }
+    "thresholds": [
+      {
+        "action": "default",
+        "limit": "3"
+      }
+    ],
+    "timeframe": "5"
+  },
+  {
+    "description": ":)",
+    "exclude": [],
+    "id": "4d1d9d405hdr",
+    "include": [],
+    "key": [
+      {
+        "attrs": "ip"
+      }
+    ],
+    "name": "Limit per header",
+    "pairwith": {
+      "headers": "limitheader"
     },
-    {
-        "id": "limitmultithreshold",
-        "name": "First tag then ban",
-        "description": "Multiple thresholds. The last threshold to check that ban works even if it doesn't have the highest limit.",
-        "timeframe": "4",
-        "thresholds": [
-            {
-                "limit": "2",
-                "action": {
-                    "type": "monitor"
-                }
-            },
-            {
-                "limit": "4",
-                "action": {
-                    "type": "ban",
-                    "params": {
-                        "duration": "4",
-                        "action": {
-                            "type": "default"
-                        }
-                    }
-                }
-            },
-            {
-                "limit": "6",
-                "action": {
-                    "type": "default"
-                }
-            }
-        ],
-        "include": [],
-        "exclude": [],
-        "key": [
-            {
-                "attrs": "ip"
-            }
-        ],
-        "pairwith": {
-            "self": "self"
-        }
+    "thresholds": [
+      {
+        "action": "default",
+        "limit": "2"
+      }
+    ],
+    "timeframe": "5"
+  },
+  {
+    "description": "Multiple thresholds. The last threshold to check that ban works even if it doesn't have the highest limit.",
+    "exclude": [],
+    "id": "limitmultithreshold",
+    "include": [],
+    "key": [
+      {
+        "attrs": "ip"
+      }
+    ],
+    "name": "First tag then ban",
+    "pairwith": {
+      "self": "self"
     },
-    {
-        "id": "samelocationA",
-        "name": "Same location limit, A",
-        "description": "Test identical limits attached to the same location",
-        "timeframe": "20",
-        "thresholds": [
-            {
-                "limit": "1",
-                "action": {
-                    "type": "monitor"
-                }
-            }
-        ],
-        "include": [],
-        "exclude": [],
-        "key": [
-            {
-                "headers": "org"
-            }
-        ],
-        "pairwith": {
-            "self": "self"
-        }
+    "thresholds": [
+      {
+        "action": "monitor",
+        "limit": "2"
+      },
+      {
+        "action": "ijcy5mwz",
+        "limit": "4"
+      },
+      {
+        "action": "default",
+        "limit": "6"
+      }
+    ],
+    "timeframe": "4"
+  },
+  {
+    "description": "Test identical limits attached to the same location",
+    "exclude": [],
+    "id": "samelocationA",
+    "include": [],
+    "key": [
+      {
+        "headers": "org"
+      }
+    ],
+    "name": "Same location limit, A",
+    "pairwith": {
+      "self": "self"
     },
-    {
-        "id": "samelocationB",
-        "name": "Same location limit, B",
-        "description": "Test identical limits attached to the same location",
-        "timeframe": "20",
-        "thresholds": [
-            {
-                "limit": "1",
-                "action": {
-                    "type": "default"
-                }
-            }
-        ],
-        "include": [],
-        "exclude": [],
-        "key": [
-            {
-                "attrs": "ip"
-            }
-        ],
-        "pairwith": {
-            "self": "self"
-        }
-    }
+    "thresholds": [
+      {
+        "action": "monitor",
+        "limit": "1"
+      }
+    ],
+    "timeframe": "20"
+  },
+  {
+    "description": "Test identical limits attached to the same location",
+    "exclude": [],
+    "id": "samelocationB",
+    "include": [],
+    "key": [
+      {
+        "attrs": "ip"
+      }
+    ],
+    "name": "Same location limit, B",
+    "pairwith": {
+      "self": "self"
+    },
+    "thresholds": [
+      {
+        "action": "default",
+        "limit": "1"
+      }
+    ],
+    "timeframe": "20"
+  }
 ]

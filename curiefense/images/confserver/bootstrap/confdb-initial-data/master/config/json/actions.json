@@ -1,0 +1,10 @@
+{
+  "default": {
+    "name": "default blocking action",
+    "type": "default"
+  },
+  "monitor": {
+    "name": "default monitoring action",
+    "type": "monitor"
+  }
+}

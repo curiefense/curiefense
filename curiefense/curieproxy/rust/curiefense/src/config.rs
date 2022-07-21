@@ -14,6 +14,7 @@ use std::sync::RwLock;
 use std::time::SystemTime;
 
 use crate::config::limit::Limit;
+use crate::interface::SimpleAction;
 use crate::logs::Logs;
 use contentfilter::{resolve_rules, ContentFilterProfile, ContentFilterRules};
 use flow::{flow_resolve, FlowElement, SequenceKey};
@@ -22,6 +23,7 @@ use hostmap::{HostMap, SecurityPolicy};
 use matchers::Matching;
 use raw::{AclProfile, RawFlowEntry, RawGlobalFilterSection, RawHostMap, RawLimit, RawSecurityPolicy};
 
+use self::raw::RawAclProfile;
 use self::raw::RawManifest;
 
 lazy_static! {
@@ -160,10 +162,11 @@ impl Config {
         logs: Logs,
         revision: String,
         last_mod: SystemTime,
+        actions: &HashMap<String, SimpleAction>,
         rawmaps: Vec<RawHostMap>,
         rawlimits: Vec<RawLimit>,
         rawglobalfilters: Vec<RawGlobalFilterSection>,
-        rawacls: Vec<AclProfile>,
+        rawacls: Vec<RawAclProfile>,
         content_filter_profiles: HashMap<String, ContentFilterProfile>,
         container_name: Option<String>,
         rawflows: Vec<RawFlowEntry>,
@@ -172,8 +175,11 @@ impl Config {
         let mut securitypolicies: Vec<Matching<HostMap>> = Vec::new();
         let mut logs = logs;
 
-        let limits = Limit::resolve(&mut logs, rawlimits);
-        let acls = rawacls.into_iter().map(|a| (a.id.clone(), a)).collect();
+        let limits = Limit::resolve(&mut logs, actions, rawlimits);
+        let acls = rawacls
+            .into_iter()
+            .map(|a| (a.id.clone(), AclProfile::resolve(&mut logs, actions, a)))
+            .collect();
 
         // build the entries while looking for the default entry
         for rawmap in rawmaps {
@@ -218,9 +224,9 @@ impl Config {
         // order by decreasing matcher length, so that more specific rules are matched first
         securitypolicies.sort_by_key(|b| std::cmp::Reverse(b.matcher_len()));
 
-        let globalfilters = GlobalFilterSection::resolve(&mut logs, rawglobalfilters);
+        let globalfilters = GlobalFilterSection::resolve(&mut logs, actions, rawglobalfilters);
 
-        let flows = flow_resolve(&mut logs, rawflows);
+        let flows = flow_resolve(&mut logs, actions, rawflows);
 
         Config {
             revision,
@@ -265,6 +271,42 @@ impl Config {
         out
     }
 
+    fn load_config_file_object<A: serde::de::DeserializeOwned>(
+        logs: &mut Logs,
+        base: &Path,
+        fname: &str,
+    ) -> HashMap<String, A> {
+        let mut path = base.to_path_buf();
+        path.push(fname);
+        let fullpath = path.to_str().unwrap_or(fname).to_string();
+        let file = match std::fs::File::open(path) {
+            Ok(f) => f,
+            Err(rr) => {
+                logs.error(|| format!("when loading {}: {}", fullpath, rr));
+                return HashMap::new();
+            }
+        };
+        let values: HashMap<String, serde_json::Value> = match serde_json::from_reader(std::io::BufReader::new(file)) {
+            Ok(vs) => vs,
+            Err(rr) => {
+                // if it is not a json array, abort early and do not resolve anything
+                logs.error(|| format!("when parsing {}: {}", fullpath, rr));
+                return HashMap::new();
+            }
+        };
+        let mut out = HashMap::new();
+        for (key, value) in values {
+            // for each entry, try to resolve it as a raw configuration value, failing otherwise
+            match serde_json::from_value(value) {
+                Err(rr) => logs.error(|| format!("when resolving entry from {}: {}", fullpath, rr)),
+                Ok(v) => {
+                    out.insert(key, v);
+                }
+            }
+        }
+        out
+    }
+
     pub fn load(logs: Logs, basepath: &str, last_mod: SystemTime) -> (Config, HashMap<String, ContentFilterRules>) {
         let mut logs = logs;
         let mut bjson = PathBuf::from(basepath);
@@ -288,6 +330,7 @@ impl Config {
             Ok(manifest) => manifest.meta.version,
         };
 
+        let rawactions = Config::load_config_file_object(&mut logs, &bjson, "actions.json");
         let securitypolicy = Config::load_config_file(&mut logs, &bjson, "securitypolicy.json");
         let globalfilters = Config::load_config_file(&mut logs, &bjson, "globalfilter-lists.json");
         let limits = Config::load_config_file(&mut logs, &bjson, "limits.json");
@@ -301,7 +344,8 @@ impl Config {
             .ok()
             .map(|s| s.trim().to_string());
 
-        let content_filter_profiles = ContentFilterProfile::resolve(&mut logs, rawcontentfilterprofiles);
+        let actions = SimpleAction::resolve_actions(&mut logs, rawactions);
+        let content_filter_profiles = ContentFilterProfile::resolve(&mut logs, &actions, rawcontentfilterprofiles);
 
         let hsdb = resolve_rules(
             &mut logs,
@@ -314,6 +358,7 @@ impl Config {
             logs,
             revision,
             last_mod,
+            &actions,
             securitypolicy,
             limits,
             globalfilters,
