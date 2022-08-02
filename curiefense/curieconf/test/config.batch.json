@@ -143,10 +143,12 @@
             {
                 "id": "100000",
                 "name": "100000",
+                "description": "a rule detecting SQL injection with the BETWEEN operator",
                 "msg": "SQLi Attempt (Conditional Operator Detected)",
                 "operand": "\\s(and|or)\\s+\\d+\\s+.*between\\s.*\\d+\\s+and\\s+\\d+.*",
                 "severity": 5,
                 "certainity": 5,
+                "risk": 5,
                 "category": "sqli",
                 "subcategory": "statement injection"
             }
@@ -162,6 +164,7 @@
                 "max_headers_count": 42,
                 "max_cookies_count": 42,
                 "max_args_count": 512,
+                "masking_seed": "CHANGEME",
                 "args": {
                     "names": [
                         {
@@ -265,6 +268,18 @@
                             "exclusions": {}
                         }
                     ]
+                },
+                "path": {
+                    "names": [],
+                    "regex": [],
+                    "max_count": 42,
+                    "max_length": 1024
+                },
+                "decoding": {
+                    "base64": true,
+                    "dual": true,
+                    "html": false,
+                    "unicode": false
                 }
             },
             {
@@ -277,6 +292,7 @@
                 "max_headers_count": 42,
                 "max_cookies_count": 42,
                 "max_args_count": 512,
+                "masking_seed": "CHANGEME",
                 "args": {
                     "names": [
                         {
@@ -380,6 +396,18 @@
                             "exclusions": {}
                         }
                     ]
+                },
+                "path": {
+                    "names": [],
+                    "regex": [],
+                    "max_count": 42,
+                    "max_length": 1024
+                },
+                "decoding": {
+                    "base64": true,
+                    "dual": true,
+                    "html": false,
+                    "unicode": false
                 }
             }
         ],
@@ -429,6 +457,7 @@
                 "active": true,
                 "action": {"type": "default"},
                 "name": "Spamhaus DROP",
+                "description": "Spamhaus Don't Route Or Peer list",
                 "source": "https://www.spamhaus.org/drop/drop.txt",
                 "mdate": "2020-05-31T05:28:47.410Z",
                 "notes": "; Spamhaus DROP List 2020/05/28 - (c) 2020 The Spamhaus Project\n; https://www.spamhaus.org/drop/drop.txt\n; Last-Modified: Mon, 25 May 2020 19:50:14 GMT\n; Expires: Fri, 29 May 2020 00:24:16 GMT\n",
@@ -464,6 +493,7 @@
                 "active": true,
                 "action": {"type": "default"},
                 "name": "Spamhaus EDROP",
+                "description": "Spamhaus eDrop list",
                 "source": "https://www.spamhaus.org/drop/edrop.txt",
                 "mdate": "2020-05-31T05:28:26.822Z",
                 "notes": "; Spamhaus EDROP List 2020/05/28 - (c) 2020 The Spamhaus Project\n; https://www.spamhaus.org/drop/edrop.txt\n; Last-Modified: Tue, 12 May 2020 10:42:24 GMT\n; Expires: Fri, 29 May 2020 04:31:27 GMT\n",
@@ -499,6 +529,7 @@
                 "active": true,
                 "action": {"type": "default"},
                 "name": "Our offices",
+                "description": "filter configuration for our offices",
                 "source": "self-managed",
                 "mdate": "2020-05-23T00:04:41",
                 "notes": "this is my own list",
@@ -537,6 +568,7 @@
                 "active": true,
                 "action": {"type": "default"},
                 "name": "Spamhaus IPV6 DROP List",
+                "description": "Spamhaus IPV6 DROP List",
                 "source": "https://www.spamhaus.org/drop/dropv6.txt",
                 "mdate": "2020-05-31T05:28:12.715Z",
                 "notes": "; Spamhaus IPv6 DROP List 2020/05/31 - (c) 2020 The Spamhaus Project\n; https://www.spamhaus.org/drop/dropv6.txt\n; Last-Modified: Thu, 30 Jan 2020 05:16:30 GMT\n; Expires: Sun, 31 May 2020 04:35:11 GMT\n",
@@ -581,6 +613,7 @@
                 "active": true,
                 "action": {"type": "default"},
                 "name": "Bad Robots Eisen",
+                "description": "Bad, Bad Robot",
                 "source": "self-managed",
                 "mdate": "2020-06-12T07:21:03.298Z",
                 "notes": "New List Notes and Remarks",
@@ -609,6 +642,7 @@
             {
                 "id": "c03dabe4b9ca",
                 "name": "Flow Control Policy Example",
+                "description": "Example Flow Control Policy requiring a GET request to /login before accepting a POST request",
                 "timeframe": 60,
                 "key": [
                     {

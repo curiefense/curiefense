@@ -1,8 +1,5 @@
 import jsonschema
 
-# monkey patch to force RestPlus to use Draft3 validator to benefit from "any" json type
-jsonschema.Draft4Validator = jsonschema.Draft3Validator
-
 from flask import Blueprint, request, current_app, abort, make_response
 from flask_restx import Resource, Api, fields, marshal, reqparse
 from collections import defaultdict

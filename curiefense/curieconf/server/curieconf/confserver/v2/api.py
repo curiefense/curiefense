@@ -1,8 +1,5 @@
 import jsonschema
 
-# monkey patch to force RestPlus to use Draft3 validator to benefit from "any" json type
-jsonschema.Draft4Validator = jsonschema.Draft3Validator
-
 from flask import Blueprint, request, current_app, abort, make_response
 from flask_restx import Resource, Api, fields, marshal, reqparse
 from curieconf import utils
@@ -30,10 +27,6 @@ ns_tools = api.namespace("tools", description="Tools")
 ### Models for documents
 
 
-class AnyType(fields.Raw):
-    __schema_type__ = "any"
-
-
 # limit
 
 m_threshold = api.model(
@@ -52,9 +45,9 @@ m_limit = api.model(
         "description": fields.String(required=True),
         "timeframe": fields.String(required=True),
         "thresholds": fields.List(fields.Nested(m_threshold)),
-        "include": fields.Raw(required=True),
-        "exclude": fields.Raw(required=True),
-        "key": AnyType(required=True),
+        "include": fields.List(fields.String, required=True),
+        "exclude": fields.List(fields.String, required=True),
+        "key": fields.List(fields.Raw(required=True)),
         "pairwith": fields.Raw(required=True),
     },
 )
@@ -169,7 +162,7 @@ m_globalfilter = api.model(
         "active": fields.Boolean(required=True),
         "action": fields.Raw(required=True),
         "tags": fields.List(fields.String()),
-        "rule": AnyType(),
+        "rule": fields.Raw(required=True),
     },
 )
 
@@ -251,7 +244,7 @@ m_blob_entry = api.model(
     "Blob Entry",
     {
         "format": fields.String(required=True),
-        "blob": AnyType(),
+        "blob": fields.String(required=True),
     },
 )
 

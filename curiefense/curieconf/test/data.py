@@ -39,9 +39,11 @@ vec_contentfilterrule = {
     "id": "100000",
     "name": "100000",
     "msg": "SQLi Attempt (Conditional Operator Detected)",
+    "description": "a rule detecting SQL injection with the BETWEEN operator",
     "operand": "\\s(and|or)\\s+\\d+\\s+.*between\\s.*\\d+\\s+and\\s+\\d+.*",
     "severity": 5,
     "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection",
 }
@@ -57,6 +59,7 @@ vec_contentfilterprofile = {
     "max_headers_count": 42,
     "max_cookies_count": 42,
     "max_args_count": 512,
+    "masking_seed": "CHANGEME",
     "args": {
         "names": [
             {
@@ -111,6 +114,18 @@ vec_contentfilterprofile = {
             },
         ],
     },
+    "path": {
+        "names": [],
+        "regex": [],
+        "max_count": 42,
+        "max_length": 1024
+    },
+    "decoding": {
+        "base64": True,
+        "dual": True,
+        "html": False,
+        "unicode": False
+    }
 }
 
 
@@ -129,7 +144,9 @@ vec_aclprofile = {
 vec_globalfilter = {
     "id": "ed8f6efb",
     "active": True,
+    "action": {"type": "default"},
     "name": "Spamhaus DROP",
+    "description": "Spamhaus Don't Route Or Peer list",
     "source": "https://www.spamhaus.org/drop/drop.txt",
     "mdate": "2020-05-31T05:28:47.410Z",
     "notes": "; notes",
