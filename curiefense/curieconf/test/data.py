@@ -52,21 +52,17 @@ vec_contentfilterrule = {
 vec_contentfilterprofile = {
     "id": "__default__",
     "name": "default contentfilter",
+    "ignore": [],
     "ignore_alphanum": True,
-    "max_header_length": 1024,
-    "max_cookie_length": 1024,
-    "max_arg_length": 1024,
-    "max_headers_count": 42,
-    "max_cookies_count": 42,
-    "max_args_count": 512,
     "masking_seed": "CHANGEME",
+    "active": ["cf-rule-risk:5"],
     "args": {
         "names": [
             {
                 "key": "optnamearg",
                 "reg": "^[A-F]+$",
                 "restrict": False,
-                "exclusions": {},
+                "exclusions": [],
             },
         ],
         "regex": [
@@ -74,9 +70,11 @@ vec_contentfilterprofile = {
                 "key": "optregexarg",
                 "reg": "^[G-J]{3}$",
                 "restrict": False,
-                "exclusions": {},
+                "exclusions": [],
             },
         ],
+        "max_count": 512,
+        "max_length": 1024
     },
     "headers": {
         "names": [
@@ -84,7 +82,7 @@ vec_contentfilterprofile = {
                 "key": "optnamehdr",
                 "reg": "^[A-F]+$",
                 "restrict": False,
-                "exclusions": {},
+                "exclusions": [],
             },
         ],
         "regex": [
@@ -92,9 +90,11 @@ vec_contentfilterprofile = {
                 "key": "optregexhdr",
                 "reg": "^[G-J]{3}$",
                 "restrict": False,
-                "exclusions": {},
+                "exclusions": [],
             },
         ],
+        "max_count": 42,
+        "max_length": 1024
     },
     "cookies": {
         "names": [
@@ -102,7 +102,7 @@ vec_contentfilterprofile = {
                 "key": "optnameck",
                 "reg": "^[A-F]+$",
                 "restrict": False,
-                "exclusions": {},
+                "exclusions": [],
             },
         ],
         "regex": [
@@ -110,9 +110,11 @@ vec_contentfilterprofile = {
                 "key": "optregexck",
                 "reg": "^[G-J]{3}$",
                 "restrict": False,
-                "exclusions": {},
+                "exclusions": [],
             },
         ],
+        "max_count": 42,
+        "max_length": 1024
     },
     "path": {
         "names": [],
@@ -125,7 +127,8 @@ vec_contentfilterprofile = {
         "dual": True,
         "html": False,
         "unicode": False
-    }
+    },
+    "report": []
 }
 
 
@@ -149,7 +152,6 @@ vec_globalfilter = {
     "description": "Spamhaus Don't Route Or Peer list",
     "source": "https://www.spamhaus.org/drop/drop.txt",
     "mdate": "2020-05-31T05:28:47.410Z",
-    "notes": "; notes",
     "tags": ["blacklists", "spamhaus"],
     "rule": {
         "sections": [
