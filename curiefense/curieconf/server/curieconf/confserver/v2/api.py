@@ -25,7 +25,7 @@ ns_tools = api.namespace("tools", description="Tools")
 ##############
 
 
-# Models for documents
+### Models for documents
 
 
 # limit
@@ -186,7 +186,7 @@ m_flowcontrol = api.model(
     },
 )
 
-# mapping from doc name to model
+### mapping from doc name to model
 
 models = {
     "ratelimits": m_limit,
@@ -199,7 +199,7 @@ models = {
     "flowcontrol": m_flowcontrol,
 }
 
-# Other models
+### Other models
 
 m_document_mask = api.model(
     "Mask for document",
@@ -304,7 +304,7 @@ m_edit = api.model(
     },
 )
 
-# Publish
+### Publish
 
 m_bucket = api.model(
     "Bucket",
@@ -314,7 +314,7 @@ m_bucket = api.model(
     },
 )
 
-# Git push & pull
+### Git push & pull
 
 m_giturl = api.model(
     "GitUrl",
@@ -324,11 +324,11 @@ m_giturl = api.model(
 )
 
 
-# Db
+### Db
 
 m_db = api.model("db", {})
 
-# Document Schema validation
+### Document Schema validation
 
 
 def validateJson(json_data, schema_type):
@@ -407,34 +407,34 @@ schema_type_map = {
 ################
 
 
-@ ns_configs.route("/")
+@ns_configs.route("/")
 class Configs(Resource):
-    @ ns_configs.marshal_list_with(m_meta, skip_none=True)
+    @ns_configs.marshal_list_with(m_meta, skip_none=True)
     def get(self):
         "Get the detailed list of existing configurations"
         return current_app.backend.configs_list()
 
-    @ ns_configs.expect(m_config, validate=True)
+    @ns_configs.expect(m_config, validate=True)
     def post(self):
         "Create a new configuration"
         data = request.json
         return current_app.backend.configs_create(data, None, get_gitactor())
 
 
-@ ns_configs.route("/<string:config>/")
+@ns_configs.route("/<string:config>/")
 class Config(Resource):
-    @ ns_configs.marshal_with(m_config, skip_none=True)
+    @ns_configs.marshal_with(m_config, skip_none=True)
     def get(self, config):
         "Retrieve a complete configuration"
         return current_app.backend.configs_get(config)
 
-    @ ns_configs.expect(m_config, validate=True)
+    @ns_configs.expect(m_config, validate=True)
     def post(self, config):
         "Create a new configuration. Configuration name in URL overrides configuration in POST data"
         data = request.json
         return current_app.backend.configs_create(data, config, get_gitactor())
 
-    @ ns_configs.expect(m_config, validate=True)
+    @ns_configs.expect(m_config, validate=True)
     def put(self, config):
         "Update an existing configuration"
         data = request.json
@@ -445,40 +445,40 @@ class Config(Resource):
         return current_app.backend.configs_delete(config)
 
 
-@ ns_configs.route("/<string:config>/clone/")
+@ns_configs.route("/<string:config>/clone/")
 class ConfigClone(Resource):
-    @ ns_configs.expect(m_meta, validate=True)
+    @ns_configs.expect(m_meta, validate=True)
     def post(self, config):
         "Clone a configuration. New name is provided in POST data"
         data = request.json
         return current_app.backend.configs_clone(config, data)
 
 
-@ ns_configs.route("/<string:config>/clone/<string:new_name>/")
+@ns_configs.route("/<string:config>/clone/<string:new_name>/")
 class ConfigCloneName(Resource):
-    @ ns_configs.expect(m_meta, validate=True)
+    @ns_configs.expect(m_meta, validate=True)
     def post(self, config, new_name):
         "Clone a configuration. New name is provided URL"
         data = request.json
         return current_app.backend.configs_clone(config, data, new_name)
 
 
-@ ns_configs.route("/<string:config>/v/")
+@ns_configs.route("/<string:config>/v/")
 class ConfigListVersion(Resource):
-    @ ns_configs.marshal_with(m_version_log, skip_none=True)
+    @ns_configs.marshal_with(m_version_log, skip_none=True)
     def get(self, config):
         "Get all versions of a given configuration"
         return current_app.backend.configs_list_versions(config)
 
 
-@ ns_configs.route("/<string:config>/v/<string:version>/")
+@ns_configs.route("/<string:config>/v/<string:version>/")
 class ConfigVersion(Resource):
     def get(self, config, version):
         "Retrieve a specific version of a configuration"
         return current_app.backend.configs_get(config, version)
 
 
-@ ns_configs.route("/<string:config>/v/<string:version>/revert/")
+@ns_configs.route("/<string:config>/v/<string:version>/revert/")
 class ConfigRevert(Resource):
     def put(self, config, version):
         "Create a new version for a configuration from an old version"
@@ -490,30 +490,30 @@ class ConfigRevert(Resource):
 #############
 
 
-@ ns_configs.route("/<string:config>/b/")
+@ns_configs.route("/<string:config>/b/")
 class BlobsResource(Resource):
-    @ ns_configs.marshal_with(m_blob_list_entry, skip_none=True)
+    @ns_configs.marshal_with(m_blob_list_entry, skip_none=True)
     def get(self, config):
         "Retrieve the list of available blobs"
         res = current_app.backend.blobs_list(config)
         return res
 
 
-@ ns_configs.route("/<string:config>/b/<string:blob>/")
+@ns_configs.route("/<string:config>/b/<string:blob>/")
 class BlobResource(Resource):
-    @ ns_configs.marshal_with(m_blob_entry, skip_none=True)
+    @ns_configs.marshal_with(m_blob_entry, skip_none=True)
     def get(self, config, blob):
         "Retrieve a blob"
         return current_app.backend.blobs_get(config, blob)
 
-    @ ns_configs.expect(m_blob_entry, validate=True)
+    @ns_configs.expect(m_blob_entry, validate=True)
     def post(self, config, blob):
         "Create a new blob"
         return current_app.backend.blobs_create(
             config, blob, request.json, get_gitactor()
         )
 
-    @ ns_configs.expect(m_blob_entry, validate=True)
+    @ns_configs.expect(m_blob_entry, validate=True)
     def put(self, config, blob):
         "Replace a blob with new data"
         return current_app.backend.blobs_update(
@@ -525,24 +525,24 @@ class BlobResource(Resource):
         return current_app.backend.blobs_delete(config, blob, get_gitactor())
 
 
-@ ns_configs.route("/<string:config>/b/<string:blob>/v/")
+@ns_configs.route("/<string:config>/b/<string:blob>/v/")
 class BlobListVersionResource(Resource):
-    @ ns_configs.marshal_list_with(m_version_log, skip_none=True)
+    @ns_configs.marshal_list_with(m_version_log, skip_none=True)
     def get(self, config, blob):
         "Retrieve the list of versions of a given blob"
         res = current_app.backend.blobs_list_versions(config, blob)
         return res
 
 
-@ ns_configs.route("/<string:config>/b/<string:blob>/v/<string:version>/")
+@ns_configs.route("/<string:config>/b/<string:blob>/v/<string:version>/")
 class BlobVersionResource(Resource):
-    @ ns_configs.marshal_list_with(m_version_log, skip_none=True)
+    @ns_configs.marshal_list_with(m_version_log, skip_none=True)
     def get(self, config, blob, version):
         "Retrieve the given version of a blob"
         return current_app.backend.blobs_get(config, blob, version)
 
 
-@ ns_configs.route("/<string:config>/b/<string:blob>/v/<string:version>/revert/")
+@ns_configs.route("/<string:config>/b/<string:blob>/v/<string:version>/revert/")
 class BlobRevertResource(Resource):
     def put(self, config, blob, version):
         "Create a new version for a blob from an old version"
@@ -554,18 +554,18 @@ class BlobRevertResource(Resource):
 #################
 
 
-@ ns_configs.route("/<string:config>/d/")
+@ns_configs.route("/<string:config>/d/")
 class DocumentsResource(Resource):
-    @ ns_configs.marshal_with(m_document_list_entry, skip_none=True)
+    @ns_configs.marshal_with(m_document_list_entry, skip_none=True)
     def get(self, config):
         "Retrieve the list of existing documents in this configuration"
         res = current_app.backend.documents_list(config)
         return res
 
 
-@ ns_configs.route("/<string:config>/d/<string:document>/")
+@ns_configs.route("/<string:config>/d/<string:document>/")
 class DocumentResource(Resource):
-    @ ns_configs.marshal_with(m_document_mask, mask="*", skip_none=True)
+    @ns_configs.marshal_with(m_document_mask, mask="*", skip_none=True)
     def get(self, config, document):
         "Get a complete document"
         if document not in models:
@@ -602,7 +602,7 @@ class DocumentResource(Resource):
         return res
 
 
-@ ns_configs.route("/<string:config>/d/<string:document>/v/")
+@ns_configs.route("/<string:config>/d/<string:document>/v/")
 class DocumentListVersionResource(Resource):
     def get(self, config, document):
         "Retrieve the existing versions of a given document"
@@ -612,7 +612,7 @@ class DocumentListVersionResource(Resource):
         return marshal(res, m_version_log, skip_none=True)
 
 
-@ ns_configs.route("/<string:config>/d/<string:document>/v/<string:version>/")
+@ns_configs.route("/<string:config>/d/<string:document>/v/<string:version>/")
 class DocumentVersionResource(Resource):
     def get(self, config, document, version):
         "Get a given version of a document"
@@ -622,7 +622,7 @@ class DocumentVersionResource(Resource):
         return marshal(res, models[document], skip_none=True)
 
 
-@ ns_configs.route("/<string:config>/d/<string:document>/v/<string:version>/revert/")
+@ns_configs.route("/<string:config>/d/<string:document>/v/<string:version>/revert/")
 class DocumentRevertResource(Resource):
     def put(self, config, document, version):
         "Create a new version for a document from an old version"
@@ -636,7 +636,7 @@ class DocumentRevertResource(Resource):
 ###############
 
 
-@ ns_configs.route("/<string:config>/d/<string:document>/e/")
+@ns_configs.route("/<string:config>/d/<string:document>/e/")
 class EntriesResource(Resource):
     def get(self, config, document):
         "Retrieve the list of entries in a document"
@@ -655,7 +655,7 @@ class EntriesResource(Resource):
         return res
 
 
-@ ns_configs.route("/<string:config>/d/<string:document>/e/<string:entry>/")
+@ns_configs.route("/<string:config>/d/<string:document>/e/<string:entry>/")
 class EntryResource(Resource):
     def get(self, config, document, entry):
         "Retrieve an entry from a document"
@@ -687,7 +687,7 @@ class EntryResource(Resource):
         return res
 
 
-@ ns_configs.route("/<string:config>/d/<string:document>/e/<string:entry>/edit/")
+@ns_configs.route("/<string:config>/d/<string:document>/e/<string:entry>/edit/")
 class EntryEditResource(Resource):
     def put(self, config, document, entry):
         "Update an entry in a document"
@@ -702,7 +702,7 @@ class EntryEditResource(Resource):
         return res
 
 
-@ ns_configs.route("/<string:config>/d/<string:document>/e/<string:entry>/v/")
+@ns_configs.route("/<string:config>/d/<string:document>/e/<string:entry>/v/")
 class EntryListVersionResource(Resource):
     def get(self, config, document, entry):
         "Get the list of existing versions of a given entry in a document"
@@ -713,7 +713,7 @@ class EntryListVersionResource(Resource):
         return marshal(res, m_version_log, skip_none=True)
 
 
-@ ns_configs.route(
+@ns_configs.route(
     "/<string:config>/d/<string:document>/e/<string:entry>/v/<string:version>/"
 )
 class EntryVersionResource(Resource):
@@ -730,21 +730,21 @@ class EntryVersionResource(Resource):
 ################
 
 
-@ ns_db.route("/")
+@ns_db.route("/")
 class DbResource(Resource):
     def get(self):
         "Get the list of existing namespaces"
         return current_app.backend.ns_list()
 
 
-@ ns_db.route("/v/")
+@ns_db.route("/v/")
 class DbQueryResource(Resource):
     def get(self):
         "List all existing versions of namespaces"
         return current_app.backend.ns_list_versions()
 
 
-@ ns_db.route("/<string:nsname>/")
+@ns_db.route("/<string:nsname>/")
 class NSResource(Resource):
     def get(self, nsname):
         "Get a complete namespace"
@@ -753,7 +753,7 @@ class NSResource(Resource):
         except KeyError:
             abort(404, "namespace [%s] does not exist" % nsname)
 
-    @ ns_db.expect(m_db, validate=True)
+    @ns_db.expect(m_db, validate=True)
     def post(self, nsname):
         "Create a non-existing namespace from data"
         try:
@@ -761,7 +761,7 @@ class NSResource(Resource):
         except Exception:
             abort(409, "namespace [%s] already exists" % nsname)
 
-    @ ns_db.expect(m_db, validate=True)
+    @ns_db.expect(m_db, validate=True)
     def put(self, nsname):
         "Merge data into a namespace"
         return current_app.backend.ns_update(nsname, request.json, get_gitactor())
@@ -774,14 +774,14 @@ class NSResource(Resource):
             abort(409, "namespace [%s] does not exist" % nsname)
 
 
-@ ns_db.route("/<string:nsname>/v/<string:version>/")
+@ns_db.route("/<string:nsname>/v/<string:version>/")
 class NSVersionResource(Resource):
     def get(self, nsname, version):
         "Get a given version of a namespace"
         return current_app.backend.ns_get(nsname, version)
 
 
-@ ns_db.route("/<string:nsname>/v/<string:version>/revert/")
+@ns_db.route("/<string:nsname>/v/<string:version>/revert/")
 class NSVersionResource(Resource):
     def put(self, nsname, version):
         "Create a new version for a namespace from an old version"
@@ -792,28 +792,28 @@ class NSVersionResource(Resource):
                 nsname, version))
 
 
-@ ns_db.route("/<string:nsname>/q/")
+@ns_db.route("/<string:nsname>/q/")
 class NSQueryResource(Resource):
     def post(self, nsname):
         "Run a JSON query on the namespace and returns the results"
         return current_app.backend.ns_query(nsname, request.json)
 
 
-@ ns_db.route("/<string:nsname>/k/")
+@ns_db.route("/<string:nsname>/k/")
 class KeysResource(Resource):
     def get(self, nsname):
         "List all keys of a given namespace"
         return current_app.backend.key_list(nsname)
 
 
-@ ns_db.route("/<string:nsname>/k/<string:key>/v/")
+@ns_db.route("/<string:nsname>/k/<string:key>/v/")
 class KeysListVersionsResource(Resource):
     def get(self, nsname, key):
         "Get all versions of a given key in namespace"
         return current_app.backend.key_list_versions(nsname, key)
 
 
-@ ns_db.route("/<string:nsname>/k/<string:key>/")
+@ns_db.route("/<string:nsname>/k/<string:key>/")
 class KeyResource(Resource):
     def get(self, nsname, key):
         "Retrieve a given key's value from a given namespace"
@@ -837,9 +837,9 @@ req_fetch_parser = reqparse.RequestParser()
 req_fetch_parser.add_argument("url", location="args", help="url to retrieve")
 
 
-@ ns_tools.route("/fetch")
+@ns_tools.route("/fetch")
 class FetchResource(Resource):
-    @ ns_tools.expect(req_fetch_parser, validate=True)
+    @ns_tools.expect(req_fetch_parser, validate=True)
     def get(self):
         "Fetch an URL"
         args = req_fetch_parser.parse_args()
@@ -850,10 +850,10 @@ class FetchResource(Resource):
         return make_response(r.content)
 
 
-@ ns_tools.route("/publish/<string:config>/")
-@ ns_tools.route("/publish/<string:config>/v/<string:version>/")
+@ns_tools.route("/publish/<string:config>/")
+@ns_tools.route("/publish/<string:config>/v/<string:version>/")
 class PublishResource(Resource):
-    @ ns_tools.expect([m_bucket], validate=True)
+    @ns_tools.expect([m_bucket], validate=True)
     def put(self, config, version=None):
         "Push configuration to s3 buckets"
         conf = current_app.backend.configs_get(config, version)
@@ -879,9 +879,9 @@ class PublishResource(Resource):
         return make_response({"ok": ok, "status": status})
 
 
-@ ns_tools.route("/gitpush/")
+@ns_tools.route("/gitpush/")
 class GitPushResource(Resource):
-    @ ns_tools.expect([m_giturl], validate=True)
+    @ns_tools.expect([m_giturl], validate=True)
     def put(self):
         "Push git configuration to remote git repositories"
         ok = True
@@ -899,9 +899,9 @@ class GitPushResource(Resource):
         return make_response({"ok": ok, "status": status})
 
 
-@ ns_tools.route("/gitfetch/")
+@ns_tools.route("/gitfetch/")
 class GitFetchResource(Resource):
-    @ ns_tools.expect(m_giturl, validate=True)
+    @ns_tools.expect(m_giturl, validate=True)
     def put(self):
         "Fetch git configuration from specified remote repository"
         ok = True

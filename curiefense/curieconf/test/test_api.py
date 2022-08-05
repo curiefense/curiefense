@@ -483,17 +483,10 @@ def test_documents_list_versions(curieapi, docname):
     assert "Add entry" in v6[0]["message"]
 
 
-<<<<<<< HEAD
 ## ___ _  _ _____ ___ ___ ___ ___
 ## | __| \| |_   _| _ \_ _| __/ __|
 ## | _|| .` | | | |   /| || _|\__ \
 ## |___|_|\_| |_| |_|_\___|___|___/
-=======
-# ___ _  _ _____ ___ ___ ___ ___
-# | __| \| |_   _| _ \_ _| __/ __|
-# | _|| .` | | | |   /| || _|\__ \
-# |___|_|\_| |_| |_|_\___|___|___/
->>>>>>> 6eef4f8d (fix test_configs_update test in confserver)
 
 
 @pytest.mark.parametrize("doc", vec_documents.keys())
