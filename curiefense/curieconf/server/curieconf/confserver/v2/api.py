@@ -11,7 +11,8 @@ import json
 
 
 api_bp = Blueprint("api_v2", __name__)
-api = Api(api_bp, version="2.0", title="Curiefense configuration API server v2.0")
+api = Api(api_bp, version="2.0",
+          title="Curiefense configuration API server v2.0")
 
 
 ns_configs = api.namespace("configs", description="Configurations")
@@ -68,7 +69,8 @@ m_secprofilemap = api.model(
 )
 
 m_map = api.model(
-    "Security Profile Map", {"*": fields.Wildcard(fields.Nested(m_secprofilemap))}
+    "Security Profile Map", {
+        "*": fields.Wildcard(fields.Nested(m_secprofilemap))}
 )
 
 m_securitypolicy = api.model(
@@ -274,6 +276,11 @@ m_config_blobs = api.model(
     {x: fields.Nested(m_blob_entry, default={}) for x in utils.BLOBS_PATH},
 )
 
+m_config_delete_documents = api.model(
+    "Config Delete Documents",
+    {x: fields.Wildcard(fields.Boolean()) for x in models},
+)
+
 m_config_delete_blobs = api.model(
     "Config Delete Blobs", {x: fields.Boolean() for x in utils.BLOBS_PATH}
 )
@@ -284,7 +291,7 @@ m_config = api.model(
         "meta": fields.Nested(m_meta, default={}),
         "documents": fields.Nested(m_config_documents, default={}),
         "blobs": fields.Nested(m_config_blobs, default={}),
-        "delete_documents": fields.Nested(m_config_documents, default={}),
+        "delete_documents": fields.Nested(m_config_delete_documents, default={}),
         "delete_blobs": fields.Nested(m_config_delete_blobs, default={}),
     },
 )
@@ -355,7 +362,8 @@ with open(acl_profile_file_path) as json_file:
 ratelimits_file_path = (base_path / "./json/rate-limits.schema").resolve()
 with open(ratelimits_file_path) as json_file:
     ratelimits_schema = json.load(json_file)
-securitypolicies_file_path = (base_path / "./json/security-policies.schema").resolve()
+securitypolicies_file_path = (
+    base_path / "./json/security-policies.schema").resolve()
 with open(securitypolicies_file_path) as json_file:
     securitypolicies_schema = json.load(json_file)
 content_filter_profile_file_path = (
@@ -363,7 +371,8 @@ content_filter_profile_file_path = (
 ).resolve()
 with open(content_filter_profile_file_path) as json_file:
     content_filter_profile_schema = json.load(json_file)
-globalfilters_file_path = (base_path / "./json/global-filters.schema").resolve()
+globalfilters_file_path = (
+    base_path / "./json/global-filters.schema").resolve()
 with open(globalfilters_file_path) as json_file:
     globalfilters_schema = json.load(json_file)
 flowcontrol_file_path = (base_path / "../json/flow-control.schema").resolve()
@@ -425,7 +434,7 @@ class Config(Resource):
         data = request.json
         return current_app.backend.configs_create(data, config, get_gitactor())
 
-    @ns_configs.expect(m_meta, validate=True)
+    @ns_configs.expect(m_config, validate=True)
     def put(self, config):
         "Update an existing configuration"
         data = request.json
@@ -588,7 +597,8 @@ class DocumentResource(Resource):
         "Delete/empty a document"
         if document not in models:
             abort(404, "document does not exist")
-        res = current_app.backend.documents_delete(config, document, get_gitactor())
+        res = current_app.backend.documents_delete(
+            config, document, get_gitactor())
         return res
 
 
@@ -640,7 +650,8 @@ class EntriesResource(Resource):
         if document not in models:
             abort(404, "document does not exist")
         data = marshal(request.json, models[document], skip_none=True)
-        res = current_app.backend.entries_create(config, document, data, get_gitactor())
+        res = current_app.backend.entries_create(
+            config, document, data, get_gitactor())
         return res
 
 
@@ -661,8 +672,7 @@ class EntryResource(Resource):
         if isValid:
             data = marshal(request.json, models[document], skip_none=True)
             res = current_app.backend.entries_update(
-                config, document, entry, data, get_gitactor()
-            )
+                config, document, entry, data)
             return res
         else:
             abort(500, "schema mismatched")
@@ -698,7 +708,8 @@ class EntryListVersionResource(Resource):
         "Get the list of existing versions of a given entry in a document"
         if document not in models:
             abort(404, "document does not exist")
-        res = current_app.backend.entries_list_versions(config, document, entry)
+        res = current_app.backend.entries_list_versions(
+            config, document, entry)
         return marshal(res, m_version_log, skip_none=True)
 
 
@@ -777,7 +788,8 @@ class NSVersionResource(Resource):
         try:
             return current_app.backend.ns_revert(nsname, version, get_gitactor())
         except KeyError:
-            abort(404, "namespace [%s] version [%s] not found" % (nsname, version))
+            abort(404, "namespace [%s] version [%s] not found" % (
+                nsname, version))
 
 
 @ns_db.route("/<string:nsname>/q/")
@@ -852,7 +864,8 @@ class PublishResource(Resource):
         for bucket in request.json:
             logs = []
             try:
-                cloud.export(conf, bucket["url"], prnt=lambda x: logs.append(x))
+                cloud.export(conf, bucket["url"],
+                             prnt=lambda x: logs.append(x))
             except Exception as e:
                 ok = False
                 s = False

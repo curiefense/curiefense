@@ -8,10 +8,10 @@ from data import *
 import data
 
 
-##   ___ ___  _  _ ___ ___ ___ ___
-##  / __/ _ \| \| | __|_ _/ __/ __|
+## ___ ___  _  _ ___ ___ ___ ___
+## / __/ _ \| \| | __|_ _/ __/ __|
 ## | (_| (_) | .` | _| | | (_ \__ \
-##  \___\___/|_|\_|_| |___\___|___/
+## \___\___/|_|\_|_| |___\___|___/
 
 
 def test_configs_list(curieapi):
@@ -74,7 +74,8 @@ def test_config_create_fail_clean(curieapi_empty):
     }
     curieapi_empty.configs.create_name("pytest1", body=conf)
 
-    conf["blobs"] = {"geolite2asn": {}}  # geolite2asn should have field "format"
+    # geolite2asn should have field "format"
+    conf["blobs"] = {"geolite2asn": {}}
     with pytest.raises(ClientError) as e:
         curieapi_empty.configs.create_name("pytest2", body=conf)
     assert e.value.response.status_code == 400
@@ -92,7 +93,8 @@ def test_configs_get_empty(curieapi_empty):
     res = r.body
     print(res)
     assert res["documents"] == {x: [] for x in DOCUMENTS_PATH}
-    assert res["blobs"] == {k: bytes2jblob(v) for k, v in BLOBS_BOOTSTRAP.items()}
+    assert res["blobs"] == {k: bytes2jblob(
+        v) for k, v in BLOBS_BOOTSTRAP.items()}
 
 
 def test_configs_get(curieapi):
@@ -113,13 +115,13 @@ def test_configs_get(curieapi):
         sent = bootstrap_config_json["blobs"][k]
         assert compare_jblob(sent, retrieved)
 
-@pytest.mark.skip(reason="failing, too much effort to fix, does not appear to be used by the UI")
+
 def test_configs_update(curieapi_small):
     curieapi = curieapi_small
     r = curieapi.configs.get("pytest")
     assert r.status_code == 200
 
-    jblob = {"blob": ["xxx"], "format": "json"}
+    jblob = {"blob": "xxx", "format": "json"}
 
     newlimits = [
         {
@@ -170,6 +172,7 @@ def test_configs_update(curieapi_small):
             "severity": 4,
             "risk": 3,
             "subcategory": "5",
+            "tags": []
         },
     ]
     update = {
@@ -184,13 +187,12 @@ def test_configs_update(curieapi_small):
         },
         "delete_blobs": {"bltor": False, "blvpnip": True, "geolite2asn": True},
         "delete_documents": {
-            "securitypolicies": [
+            "securitypolicies":
                 {
                     "sqdqsd": True,
                     "fezfzf": True,
                     vec_securitypolicy["id"]: False,
-                }
-            ],
+                },
             "contentfilterrules": {vec_contentfilterrule["id"]: True},
         },
     }
@@ -208,7 +210,7 @@ def test_configs_update(curieapi_small):
     assert r.body["documents"]["securitypolicies"] == [vec_securitypolicy]
 
 
-##  ___ _    ___  ___ ___
+## ___ _    ___  ___ ___
 ## | _ ) |  / _ \| _ ) __|
 ## | _ \ |_| (_) | _ \__ \
 ## |___/____\___/|___/___/
@@ -332,7 +334,7 @@ def test_blobs_list_versions(curieapi, blobname):
     assert "Update" in v6[0]["message"]
 
 
-##  ___   ___   ___ _   _ __  __ ___ _  _ _____ ___
+## ___   ___   ___ _   _ __  __ ___ _  _ _____ ___
 ## |   \ / _ \ / __| | | |  \/  | __| \| |_   _/ __|
 ## | |) | (_) | (__| |_| | |\/| | _|| .` | | | \__ \
 ## |___/ \___/ \___|\___/|_|  |_|___|_|\_| |_| |___/
@@ -359,13 +361,15 @@ def test_documents_list_404(curieapi_small):
 
 @pytest.mark.parametrize("doc", vec_documents.keys())
 def test_documents_create(curieapi_empty, doc):
-    r = curieapi_empty.documents.create("master", doc, body=[vec_documents[doc]])
+    r = curieapi_empty.documents.create(
+        "master", doc, body=[vec_documents[doc]])
     assert r.status_code == 200
     r = curieapi_empty.documents.get("master", doc)
     assert r.status_code == 200
     assert r.body == [vec_documents[doc]]
     with pytest.raises(ClientError) as e:
-        r = curieapi_empty.documents.create("master", doc, body=[vec_documents[doc]])
+        r = curieapi_empty.documents.create(
+            "master", doc, body=[vec_documents[doc]])
     assert e.value.response.status_code == 409
 
 
@@ -479,7 +483,7 @@ def test_documents_list_versions(curieapi, docname):
     assert "Add entry" in v6[0]["message"]
 
 
-##  ___ _  _ _____ ___ ___ ___ ___
+## ___ _  _ _____ ___ ___ ___ ___
 ## | __| \| |_   _| _ \_ _| __/ __|
 ## | _|| .` | | | |   /| || _|\__ \
 ## |___|_|\_| |_| |_|_\___|___|___/
