@@ -418,7 +418,7 @@ class Configs(Resource):
     def post(self):
         "Create a new configuration"
         data = request.json
-        return current_app.backend.configs_create(data, get_gitactor())
+        return current_app.backend.configs_create(data, None, get_gitactor())
 
 
 @ns_configs.route("/<string:config>/")
