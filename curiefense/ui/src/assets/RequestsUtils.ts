@@ -53,7 +53,9 @@ const processRequest = (methodName: HttpRequestMethods, apiUrl: string, data: an
     return response
   }).catch((error: Error) => {
     // Toast message
-    if (failureMessage) {
+    if (axios.isAxiosError(error) && error.response && error.response.data.message) {
+      Utils.toast(error.response.data.message, 'is-danger', undoFunction)
+    } else if (failureMessage) {
       Utils.toast(failureMessage, 'is-danger', undoFunction)
     }
     if (typeof onFail === 'function') {

@@ -130,6 +130,9 @@ describe('RequestsUtils.ts', () => {
         const successMessageClass = 'is-success'
         const failureMessage = 'oops, something went wrong'
         const failureMessageClass = 'is-danger'
+        const axiosError = {
+          response: {data: {message: 'error message'}},
+        }
         let toastOutput: Options[] = []
         beforeEach(() => {
           toastOutput = []
@@ -217,6 +220,16 @@ describe('RequestsUtils.ts', () => {
             done()
           }
           requestFunc('DELETE', urlTrail, null, null, successMessage, failureMessage, null, onFail)
+        })
+
+        test('should send failure toast with a custom message when a request is rejected', (done) => {
+          jest.spyOn(axios, 'isAxiosError').mockImplementationOnce(() => true)
+          jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.reject(axiosError))
+          const onFail = () => {
+            expect(toastOutput[0].message).toContain(axiosError.response.data.message)
+            done()
+          }
+          requestFunc(undefined, urlTrail, null, null, successMessage, failureMessage, null, onFail)
         })
       })
     })

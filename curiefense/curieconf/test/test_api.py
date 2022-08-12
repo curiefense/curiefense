@@ -1,12 +1,14 @@
 import pytest
 from utils import compare_jblob
-from simple_rest_client.exceptions import NotFoundError, AuthError, ClientError
+from simple_rest_client.exceptions import NotFoundError, ClientError
 import time
 
 from curieconf.utils import bytes2jblob
 from data import *
 import data
+from copy import deepcopy
 
+from curieconf.confserver.v2.api import globalfilters_schema
 
 ##   ___ ___  _  _ ___ ___ ___ ___
 ##  / __/ _ \| \| | __|_ _/ __/ __|
@@ -435,7 +437,10 @@ def test_documents_list_versions(curieapi, docname):
     assert len(v3) - len(v2) == 1
     assert "New version" in v3[0]["message"]
 
-    r = curieapi.entries.create("pytest", docname, body={"id": "qdsdsq"})
+    doc = vec_documents[docname].copy()
+    doc["id"] = "qdsdsq"
+
+    r = curieapi.entries.create("pytest", docname, body=doc)
     assert r.status_code == 200
     r = curieapi.documents.list_versions("pytest", docname)
     assert r.status_code == 200
@@ -443,7 +448,7 @@ def test_documents_list_versions(curieapi, docname):
     assert len(v4) - len(v3) == 1
     assert "Add entry" in v4[0]["message"]
 
-    r = curieapi.entries.create("master", docname, body={"id": "qdsdsq"})
+    r = curieapi.entries.create("master", docname, body=doc)
     assert r.status_code == 200
     old.append({**old[0], **{"id": "vsdsd", "name": "%i" % time.time()}})
     r = curieapi.documents.update("pytest", docname, body=old)
@@ -577,3 +582,66 @@ def test_entries_list_versions(curieapi, docname):
     assert r.status_code == 200
     v3 = r.body
     assert len(v3) == len(v2)
+
+
+def _globalfilters_with_wrong_conditions():
+
+    globalfilters_with_missing_item_in_matching_condition = deepcopy(
+        vec_globalfilter)
+    globalfilters_with_missing_item_in_matching_condition["rule"]["sections"][0]["entries"] = [
+        ["ip"]]
+
+    globalfilters_with_extra_item_in_matching_condition = deepcopy(
+        vec_globalfilter)
+    globalfilters_with_extra_item_in_matching_condition["rule"]["sections"][0]["entries"] = [
+        ["ip", "127.0.0.1", "note", "Unexpected Field"]]
+
+    globalfilters_without_entries = deepcopy(vec_globalfilter)
+    globalfilters_without_entries["rule"]["sections"][0]["entries"] = []
+
+    schema_sections = globalfilters_schema["properties"]["rule"]["properties"]["sections"]
+    schema_sections_entries = schema_sections["items"]["properties"]["entries"]
+
+    return [
+        (globalfilters_with_missing_item_in_matching_condition,
+         schema_sections_entries["items"]["errors"]["minItems"]),
+        (globalfilters_with_extra_item_in_matching_condition,
+         schema_sections_entries["items"]["errors"]["maxItems"]),
+        (globalfilters_without_entries,
+         schema_sections_entries["errors"]["minItems"]),
+    ]
+
+@ pytest.mark.parametrize("globalfilters,expected_message", _globalfilters_with_wrong_conditions())
+def test_create_globalfilter_with_empty_conditions(curieapi, globalfilters, expected_message):
+
+    globalfilters["id"] = "new-id"
+
+    with pytest.raises(ClientError) as err:
+        r = curieapi.entries.create(
+            "pytest", "globalfilters", body=globalfilters)
+
+    assert err.value.response.status_code == 400
+    assert err.value.response.body["message"] == expected_message
+
+@ pytest.mark.parametrize("globalfilters,expected_message", _globalfilters_with_wrong_conditions())
+def test_update_globalfilter_with_empty_conditions(curieapi, globalfilters, expected_message):
+
+    with pytest.raises(ClientError) as err:
+        r = curieapi.entries.update(
+            "pytest", "globalfilters", globalfilters["id"], body=globalfilters)
+
+    assert err.value.response.status_code == 400
+    assert err.value.response.body["message"] == expected_message
+
+def test_create_globalfilter_with_empty_sections(curieapi):
+    globalfilter_without_sections = deepcopy(vec_globalfilter)
+    globalfilter_without_sections["rule"]["sections"] = []
+    globalfilter_without_sections["id"] = "new-id"
+
+    r = curieapi.entries.create(
+        "pytest", "globalfilters", body=globalfilter_without_sections)
+    assert r.status_code == 200
+    r = curieapi.entries.get("pytest", "globalfilters",
+                             globalfilter_without_sections["id"])
+    assert r.status_code == 200
+    assert r.body == globalfilter_without_sections
