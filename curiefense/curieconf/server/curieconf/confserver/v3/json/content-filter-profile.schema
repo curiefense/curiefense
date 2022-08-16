@@ -1,0 +1,100 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Content Filter Profile",
+    "description": "Content Filter Profile",
+    "definitions": {
+        "content-filter-profile-section": {
+            "type": "object",
+            "properties": {
+                "names": {
+                    "type": "array",
+                    "items": { "$ref": "#/definitions/content-filter-entry-match" }
+                },
+                "regex": {
+                    "type": "array",
+                    "items": { "$ref": "#/definitions/content-filter-entry-match" }
+                },
+                "max_length": {
+                    "type": "number",
+                    "title": "Max Length",
+                    "description": "Max length of characters allowed for each item of the section type in the request"
+                },
+                "max_count": {
+                    "type": "number",
+                    "title": "Max Count",
+                    "description": "Max amount of items of the section type allowed in the request"
+                }
+            },
+            "required": [ "names", "regex", "max_length", "max_count" ]
+        },
+        "tags_array": {
+            "title": "Tags List",
+            "description": "List of tags to apply",
+            "type": "array",
+            "items": { "type": "string" }
+        },
+        "content-filter-entry-match": {
+            "type": "object",
+            "properties": {
+                "key": { "type": ["null", "string"] },
+                "reg": { "type": ["null", "string"] },
+                "restrict": { "type": "boolean" },
+                "mask": { "type": "boolean" },
+                "exclusions": {
+                    "title": "Excluded Tags",
+                    "description": "List of excluded Content Filter tags",
+                    "type": "array",
+                    "items": { "type": "string" }
+                }
+            }
+        }
+    },
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique id"
+        },
+        "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name",
+            "description": "Name of entity shown in UI"
+        },
+        "ignore_alphanum": {
+            "type": "boolean",
+            "title": "Ignore Alphanumeric",
+            "description": "When true, arguments, headers or cookies, which contain only alpha numeric characters, will be ignored"
+        },
+        "args": { "$ref": "#/definitions/content-filter-profile-section" },
+        "headers": { "$ref": "#/definitions/content-filter-profile-section" },
+        "cookies": { "$ref": "#/definitions/content-filter-profile-section" },
+        "path": { "$ref": "#/definitions/content-filter-profile-section" },
+        "decoding": {
+            "type": "object",
+            "title": "Active / Inactive decoding",
+            "properties": {
+                "base64": { "type": "boolean" },
+                "dual": { "type": "boolean" },
+                "html": { "type": "boolean" },
+                "unicode": { "type": "boolean" }
+            }
+        },
+        "masking_seed": {
+            "type": "string",
+            "title": "Masking Seed",
+            "description": "A seed which will be used in the masking process"
+        },
+        "content_type": {
+            "title": "Content Type",
+            "description": "List of content types",
+            "type": "array",
+            "items": { "type": "string" }
+        },
+        "active": { "$ref": "#/definitions/tags_array" },
+        "report": { "$ref": "#/definitions/tags_array" },
+        "ignore": { "$ref": "#/definitions/tags_array" }
+    },
+    "required": [ "id", "name", "ignore_alphanum", "args", "headers", "cookies", "path", "decoding", "masking_seed", "active", "report", "ignore" ]
+}

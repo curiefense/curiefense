@@ -11,6 +11,7 @@ from flask_cors import CORS
 ## Import all versions
 from .v1 import api as api_v1
 from .v2 import api as api_v2
+from .v3 import api as api_v3
 
 app = Flask(__name__)
 
@@ -18,6 +19,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 app.register_blueprint(api_v1.api_bp, url_prefix="/api/v1")
 app.register_blueprint(api_v2.api_bp, url_prefix="/api/v2")
+app.register_blueprint(api_v3.api_bp, url_prefix="/api/v3")
 
 
 def drop_into_pdb(app, exception):
