@@ -34,7 +34,7 @@
                 "type": "object",
                 "properties": {
                     "action": {
-                        "type": "object",
+                        "type": "string",
                         "title": "Limit Reached Action",
                         "description": "Action to take when receiving requests over the threshold"
                     },
@@ -72,6 +72,12 @@
             }
           },
           "description": "Event option, changing the meaning of the Rate Limit"
+        },
+        "tags": {
+            "title": "Tags List",
+            "description": "List of tags to apply",
+            "type": "array",
+            "items": { "type": "string" }
         }
     },
     "additionalProperties": false,

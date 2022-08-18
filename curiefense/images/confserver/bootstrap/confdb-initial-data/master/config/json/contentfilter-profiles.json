@@ -2,6 +2,9 @@
     {
         "id": "__default__",
         "name": "default contentfilter",
+        "tags": ["cf:wordpress", "cf:wordpress-v17"],
+        "action": "default",
+        "ignore_body": false,
         "ignore_alphanum": true,
         "args": {
             "names": [],

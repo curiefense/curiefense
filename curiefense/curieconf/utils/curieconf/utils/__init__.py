@@ -15,6 +15,7 @@ DOCUMENTS_PATH = {
     "aclprofiles": "config/json/acl-profiles.json",
     "globalfilters": "config/json/globalfilter-lists.json",
     "flowcontrol": "config/json/flow-control.json",
+    "actions": "config/json/actions.json",
 }
 
 BLOBS_PATH = {

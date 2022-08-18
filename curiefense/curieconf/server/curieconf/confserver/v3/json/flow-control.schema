@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Flow Control Policy",
+  "description": "Entity describing restricted flow for users",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "Id",
+      "description": "Unique id"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "title": "Name",
+      "description": "Name of entity shown in UI"
+    },
+    "active": {
+      "type": "boolean",
+      "title": "Active flag",
+      "description": ""
+    },
+    "timeframe": {
+      "type": "number",
+      "title": "Time To Limit",
+      "description": "The time in which to limit the requests according to the threshold"
+    },
+    "tags": {
+       "title": "Tags List",
+       "description": "List of tags to apply",
+       "type": "array",
+       "items": { "type": "string" }
+    },
+    "key": {
+      "type": "array",
+      "title": "Count By List",
+      "description": "Item describing how to count requests using attributes, arguments, cookies, or headers"
+    },
+    "exclude": {
+      "type": "array",
+      "title": "Excluded tags",
+      "description": "Tags describing requests to exclude from the flow control rule"
+    },
+    "include": {
+      "type": "array",
+      "title": "Included tags",
+      "description": "Tags describing requests to include in the flow control rule"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description",
+      "description": "Description of entity shown in UI"
+    },
+    "sequence": {
+      "type": "array",
+      "title": "Sequence",
+      "description": "Array of sections describing steps of restricted flow",
+      "items": {
+        "type": "object",
+        "properties": {
+          "method": { "enum": ["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "TRACE", "OPTIONS", "PATCH"] },
+          "uri": { "type": "string" },
+          "cookies": { "type": "object" },
+          "headers": { "type": "object" },
+          "args": { "type": "object" }
+        },
+        "required": ["method", "uri"]
+      },
+      "uniqueItems": true
+    }
+  },
+  "additionalProperties": true,
+  "required": [
+    "name",
+    "id",
+    "active",
+    "timeframe",
+    "key",
+    "include",
+    "exclude",
+    "sequence"
+  ]
+}

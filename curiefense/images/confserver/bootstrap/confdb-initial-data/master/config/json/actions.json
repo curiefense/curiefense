@@ -1,0 +1,47 @@
+[
+  {
+    "id": "weqwe4234",
+    "name": "bar",
+    "description": "BAR",
+    "tags": [
+      "action-id:weqwe4234",
+      "action-name:bar",
+      "action-type:monitor",
+      "resp:pass-info-to-upstream"
+    ],
+    "params": {
+      "headers": {
+        "h1": "${ip} - ${args.dd} - ${args.ee}"
+      }
+    },
+    "type": "monitor"
+  },
+  {
+    "id": "wer3246dff",
+    "name": "foo",
+    "description": "FOO",
+    "tags": [],
+    "params": {
+      "status": 403,
+      "headers": {},
+      "content": "forbidden"
+    },
+    "type": "custom"
+  },
+  {
+    "id": "skip3sde",
+    "name": "skip security",
+    "description": "trusted sources",
+    "tags": [],
+    "type": "skip",
+    "headers": {}
+  },
+  {
+    "id": "chal123sd4",
+    "name": "challenge",
+    "description": "suspected bot",
+    "tags": [],
+    "type": "challenge",
+    "headers": {}
+  }
+]

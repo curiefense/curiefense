@@ -4,12 +4,11 @@
         "name": "Rate Limit Example Rule 5/60",
         "description": "5 requests per minute",
         "timeframe": "60",
+        "tags": [],
         "thresholds": [
             {
                 "limit": "5",
-                "action": {
-                    "type": "default"
-                }
+                "action": "weqwe4234"
             }
         ],
         "include": ["all"],

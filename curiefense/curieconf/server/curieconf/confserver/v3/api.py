@@ -40,7 +40,7 @@ m_threshold = api.model(
     "Rate Limit Threshold",
     {
         "limit": fields.String(required=True),
-        "action": fields.Raw(required=True),
+        "action": fields.String(required=True),
     },
 )
 
@@ -56,6 +56,7 @@ m_limit = api.model(
         "exclude": fields.Raw(required=True),
         "key": AnyType(required=True),
         "pairwith": fields.Raw(required=True),
+        "tags": fields.List(fields.String()),
     },
 )
 
@@ -65,6 +66,7 @@ m_secprofilemap = api.model(
     "Security Profile Map",
     {
         "name": fields.String(required=True),
+        "description": fields.String(),
         "match": fields.String(required=True),
         "acl_profile": fields.String(required=True),
         "acl_active": fields.Boolean(required=True),
@@ -83,6 +85,7 @@ m_securitypolicy = api.model(
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
+        "description": fields.String(),
         "match": fields.String(required=True),
         "map": fields.List(fields.Nested(m_secprofilemap)),
     },
@@ -114,6 +117,7 @@ m_contentfilterprofile = api.model(
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
+        "description": fields.String(),
         "ignore_alphanum": fields.Boolean(required=True),
         "args": fields.Raw(required=True),
         "headers": fields.Raw(required=True),
@@ -125,6 +129,9 @@ m_contentfilterprofile = api.model(
         "active": fields.List(fields.String()),
         "report": fields.List(fields.String()),
         "ignore": fields.List(fields.String()),
+        "tags": fields.List(fields.String()),
+        "action": fields.Raw(required=True),
+        "ignore_body": fields.Boolean(required=True),
     },
 )
 
@@ -135,12 +142,15 @@ m_aclprofile = api.model(
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
+        "description": fields.String(),
         "allow": fields.List(fields.String()),
         "allow_bot": fields.List(fields.String()),
         "deny_bot": fields.List(fields.String()),
         "passthrough": fields.List(fields.String()),
         "deny": fields.List(fields.String()),
         "force_deny": fields.List(fields.String()),
+        "tags": fields.List(fields.String()),
+        "action": fields.String(required=True),
     },
 )
 
@@ -171,11 +181,35 @@ m_flowcontrol = api.model(
         "timeframe": fields.Integer(required=True),
         "key": fields.List(fields.Raw(required=True)),
         "sequence": fields.List(fields.Raw(required=True)),
-        "action": fields.Raw(required=True),
+        "tags": fields.List(fields.String()),
         "include": fields.List(fields.String()),
         "exclude": fields.List(fields.String()),
         "description": fields.String(required=True),
         "active": fields.Boolean(required=True),
+    },
+)
+
+# Action
+
+#todo is this the final model format?
+m_action_param = api.model(
+    "Params",
+    {
+        "status": fields.Integer(), # todo string?
+        "headers": fields.Raw(),
+        "content": fields.String(),
+    },
+)
+
+m_action = api.model(
+    "Action",
+    {
+        "id": fields.String(required=True),
+        "name": fields.String(required=True),
+        "description": fields.String(required=True),
+        "tags": fields.List(fields.String(required=True)),
+        "params": fields.List(fields.Nested(m_action_param)),
+        "type": fields.String(required=True),# todo one of predefined strings
     },
 )
 
@@ -189,6 +223,8 @@ models = {
     "aclprofiles": m_aclprofile,
     "globalfilters": m_globalfilter,
     "flowcontrol": m_flowcontrol,
+    # new
+    "actions": m_action,
 }
 
 ### Other models
@@ -368,7 +404,11 @@ content_filter_rule_file_path = (
 ).resolve()
 with open(content_filter_rule_file_path) as json_file:
     content_filter_rule_schema = json.load(json_file)
-
+action_file_path = (
+    base_path / "./json/action.schema"
+).resolve()
+with open(action_file_path) as json_file:
+    action_schema = json.load(json_file)
 
 
 schema_type_map = {
@@ -379,6 +419,7 @@ schema_type_map = {
     "globalfilters": globalfilters_schema,
     "flowcontrol": flowcontrol_schema,
     "contentfilterrules": content_filter_rule_schema,
+    "actions": action_schema,
 }
 
 

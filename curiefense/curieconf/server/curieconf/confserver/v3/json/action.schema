@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Actions",
+  "description": "Actions",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "Id",
+      "description": "Unique id"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "title": "Name",
+      "description": "Name of entity shown in UI"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description",
+      "description": "Description of entity shown in UI"
+    },
+    "tags": {
+      "type": "array",
+      "title": "Tags List",
+      "description": "Tags associations",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "type": {
+      "type": "string",
+      "title": "Type",
+      "description": "Need to be one of predefined strings"
+    },
+    "params": {
+        "type": "array",
+        "title": "Action param List",
+        "description": "A list containing params for the relevant action"
+    }
+  },
+  "additionalProperties": true,
+  "required": [
+    "id",
+    "name",
+    "tags",
+    "description",
+    "type"
+  ]
+}

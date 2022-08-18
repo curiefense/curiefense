@@ -7,9 +7,7 @@
         "include": ["all"],
         "exclude": [],
         "timeframe": 60,
-        "action": {
-            "type": "default"
-        },
+        "tags": [],
         "key": [
             {
                 "attrs": "ip"

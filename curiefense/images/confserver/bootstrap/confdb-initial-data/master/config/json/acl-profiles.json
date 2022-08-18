@@ -7,6 +7,8 @@
         "deny_bot": [],
         "passthrough": [],
         "force_deny": [],
-        "deny": []
+        "deny": [],
+        "tags": [],
+        "action": "default"
     }
 ]
