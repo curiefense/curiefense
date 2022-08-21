@@ -191,16 +191,6 @@ m_flowcontrol = api.model(
 
 # Action
 
-#todo is this the final model format?
-m_action_param = api.model(
-    "Params",
-    {
-        "status": fields.Integer(), # todo string?
-        "headers": fields.Raw(),
-        "content": fields.String(),
-    },
-)
-
 m_action = api.model(
     "Action",
     {
@@ -208,7 +198,7 @@ m_action = api.model(
         "name": fields.String(required=True),
         "description": fields.String(required=True),
         "tags": fields.List(fields.String(required=True)),
-        "params": fields.List(fields.Nested(m_action_param)),
+        "params": fields.Raw(),
         "type": fields.String(required=True),# todo one of predefined strings
     },
 )

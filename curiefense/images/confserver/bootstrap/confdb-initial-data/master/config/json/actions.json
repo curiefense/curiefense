@@ -33,15 +33,13 @@
     "name": "skip security",
     "description": "trusted sources",
     "tags": [],
-    "type": "skip",
-    "headers": {}
+    "type": "skip"
   },
   {
     "id": "chal123sd4",
     "name": "challenge",
     "description": "suspected bot",
     "tags": [],
-    "type": "challenge",
-    "headers": {}
+    "type": "challenge"
   }
 ]
