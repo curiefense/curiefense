@@ -203,6 +203,21 @@ m_action = api.model(
     },
 )
 
+# Dynamic Rule
+
+m_dynamicrule = api.model(
+    "Dynamic Rule",
+    {
+        "name": fields.String(required=True),
+        "description": fields.String(required=True),
+        "threshold": fields.Integer(required=True),
+        "timeframe": fields.Integer(required=True),
+        "ttl": fields.Integer(required=True),
+        "include": fields.List(fields.String()),
+        "exclude": fields.List(fields.String()),
+    },
+)
+
 ### mapping from doc name to model
 
 models = {
@@ -213,8 +228,8 @@ models = {
     "aclprofiles": m_aclprofile,
     "globalfilters": m_globalfilter,
     "flowcontrol": m_flowcontrol,
-    # new
     "actions": m_action,
+    "dynamicrules": m_dynamicrule,
 }
 
 ### Other models
@@ -399,6 +414,11 @@ action_file_path = (
 ).resolve()
 with open(action_file_path) as json_file:
     action_schema = json.load(json_file)
+dynamicrule_file_path = (
+    base_path / "./json/dynamic-rule.schema"
+).resolve()
+with open(dynamicrule_file_path) as json_file:
+    dynamic_rule_schema = json.load(json_file)
 
 
 schema_type_map = {
@@ -410,6 +430,7 @@ schema_type_map = {
     "flowcontrol": flowcontrol_schema,
     "contentfilterrules": content_filter_rule_schema,
     "actions": action_schema,
+    "dynamicrules": dynamic_rule_schema,
 }
 
 

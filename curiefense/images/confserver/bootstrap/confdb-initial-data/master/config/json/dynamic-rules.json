@@ -1,0 +1,11 @@
+[
+  {
+    "name": "Ratelimit Violators",
+    "description": "Capture violators of Rate limit rules for further banning",
+    "threshold": 18,
+    "timeframe": 180,
+    "ttl": 3600,
+    "include":["rl-ato", "rl-bruterorce"],
+    "exclude": ["geo-country:germany"]
+  }
+]
