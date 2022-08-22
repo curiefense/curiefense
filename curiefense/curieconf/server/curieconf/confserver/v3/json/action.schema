@@ -28,17 +28,32 @@
         "type": "string"
       },
       "uniqueItems": true,
-      "minItems": 1
+      "minItems": 0
     },
     "type": {
-      "type": "string",
-      "title": "Type",
-      "description": "Need to be one of predefined strings"
+      "enum": ["skip", "custom", "challenge", "monitor"]
     },
     "params": {
-        "type": "array",
-        "title": "Action param List",
-        "description": "A list containing params for the relevant action"
+      "type": "object",
+      "title": "Action param List",
+      "properties": {
+            "status": {
+                "type": "integer",
+                "title": "Status",
+                "description": "Http status"
+            },
+            "headers": {
+                "type": "object",
+                "title": "Headers",
+                "description": "An object where keys are header names, and values are header values",
+                "additionalProperties": {"type": "string"}
+            },
+            "content": {
+                "type": "string",
+                "title": "Content"
+            }
+      },
+      "required": []
     }
   },
   "additionalProperties": true,

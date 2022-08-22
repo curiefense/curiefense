@@ -199,7 +199,7 @@ m_action = api.model(
         "description": fields.String(required=True),
         "tags": fields.List(fields.String(required=True)),
         "params": fields.Raw(),
-        "type": fields.String(required=True),# todo one of predefined strings
+        "type": fields.String(required=True),
     },
 )
 
