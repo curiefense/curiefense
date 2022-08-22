@@ -74,7 +74,7 @@ vec_contentfilterprofile = {
             },
         ],
         "max_count": 512,
-        "max_length": 1024
+        "max_length": 1024,
     },
     "headers": {
         "names": [
@@ -94,7 +94,7 @@ vec_contentfilterprofile = {
             },
         ],
         "max_count": 42,
-        "max_length": 1024
+        "max_length": 1024,
     },
     "cookies": {
         "names": [
@@ -114,21 +114,11 @@ vec_contentfilterprofile = {
             },
         ],
         "max_count": 42,
-        "max_length": 1024
+        "max_length": 1024,
     },
-    "path": {
-        "names": [],
-        "regex": [],
-        "max_count": 42,
-        "max_length": 1024
-    },
-    "decoding": {
-        "base64": True,
-        "dual": True,
-        "html": False,
-        "unicode": False
-    },
-    "report": []
+    "path": {"names": [], "regex": [], "max_count": 42, "max_length": 1024},
+    "decoding": {"base64": True, "dual": True, "html": False, "unicode": False},
+    "report": [],
 }
 
 

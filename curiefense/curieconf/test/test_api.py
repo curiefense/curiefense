@@ -93,8 +93,7 @@ def test_configs_get_empty(curieapi_empty):
     res = r.body
     print(res)
     assert res["documents"] == {x: [] for x in DOCUMENTS_PATH}
-    assert res["blobs"] == {k: bytes2jblob(
-        v) for k, v in BLOBS_BOOTSTRAP.items()}
+    assert res["blobs"] == {k: bytes2jblob(v) for k, v in BLOBS_BOOTSTRAP.items()}
 
 
 def test_configs_get(curieapi):
@@ -132,14 +131,8 @@ def test_configs_update(curieapi_small):
             "thresholds": [{"limit": "2", "action": {"type": "default"}}],
             "include": [],
             "exclude": [],
-            "key": [
-                {
-                    "attrs": "remote_addr"
-                }
-            ],
-            "pairwith": {
-                "self": "self"
-            }
+            "key": [{"attrs": "remote_addr"}],
+            "pairwith": {"self": "self"},
         },
         {
             "id": "newid",
@@ -149,14 +142,8 @@ def test_configs_update(curieapi_small):
             "thresholds": [{"limit": "20", "action": {"type": "default"}}],
             "include": [],
             "exclude": [],
-            "key": [
-                {
-                    "attrs": "remote_addr"
-                }
-            ],
-            "pairwith": {
-                "self": "self"
-            }
+            "key": [{"attrs": "remote_addr"}],
+            "pairwith": {"self": "self"},
         },
     ]
     new_content_filter_rules = [
@@ -172,7 +159,7 @@ def test_configs_update(curieapi_small):
             "severity": 4,
             "risk": 3,
             "subcategory": "5",
-            "tags": []
+            "tags": [],
         },
     ]
     update = {
@@ -187,12 +174,11 @@ def test_configs_update(curieapi_small):
         },
         "delete_blobs": {"bltor": False, "blvpnip": True, "geolite2asn": True},
         "delete_documents": {
-            "securitypolicies":
-                {
-                    "sqdqsd": True,
-                    "fezfzf": True,
-                    vec_securitypolicy["id"]: False,
-                },
+            "securitypolicies": {
+                "sqdqsd": True,
+                "fezfzf": True,
+                vec_securitypolicy["id"]: False,
+            },
             "contentfilterrules": {vec_contentfilterrule["id"]: True},
         },
     }
@@ -361,15 +347,13 @@ def test_documents_list_404(curieapi_small):
 
 @pytest.mark.parametrize("doc", vec_documents.keys())
 def test_documents_create(curieapi_empty, doc):
-    r = curieapi_empty.documents.create(
-        "master", doc, body=[vec_documents[doc]])
+    r = curieapi_empty.documents.create("master", doc, body=[vec_documents[doc]])
     assert r.status_code == 200
     r = curieapi_empty.documents.get("master", doc)
     assert r.status_code == 200
     assert r.body == [vec_documents[doc]]
     with pytest.raises(ClientError) as e:
-        r = curieapi_empty.documents.create(
-            "master", doc, body=[vec_documents[doc]])
+        r = curieapi_empty.documents.create("master", doc, body=[vec_documents[doc]])
     assert e.value.response.status_code == 409
 
 
