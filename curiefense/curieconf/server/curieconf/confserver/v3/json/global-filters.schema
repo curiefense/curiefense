@@ -46,7 +46,7 @@
       "minItems": 1
     },
     "action": {
-        "type": "object",
+        "type": "string",
         "title": "Rule Broken Action",
         "description": "Action to take when receiving requests breaking this rule"
     },
@@ -57,7 +57,8 @@
       "description": "List of rules defining the list",
       "properties": {
         "relation": {
-          "relation": "string",
+          "type": "string",
+          "enum": ["AND", "OR"],
           "title": "Sections Relationship",
           "description": "Boolean relation between entries"
         },
@@ -70,7 +71,8 @@
             "description": "Section of the rule containing entries",
             "properties": {
               "relation": {
-                "relation": "string",
+                "type": "string",
+                "enum": ["AND", "OR"],
                 "title": "Entries Relationship",
                 "description": "Boolean relation between entries"
               },

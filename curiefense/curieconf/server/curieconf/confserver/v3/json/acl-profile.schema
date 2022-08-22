@@ -28,7 +28,16 @@
         "deny_bot": { "$ref": "#/definitions/tags_array" },
         "passthrough": { "$ref": "#/definitions/tags_array" },
         "force_deny": { "$ref": "#/definitions/tags_array" },
-        "deny": { "$ref": "#/definitions/tags_array" }
+        "deny": { "$ref": "#/definitions/tags_array" },
+        "action": {
+            "type": "string"
+        },
+        "tags": {
+            "title": "Tags List",
+            "description": "List of tags to apply",
+            "type": "array",
+            "items": { "type": "string" }
+        }
     },
     "required": [ "id", "name", "allow", "allow_bot", "deny_bot", "passthrough", "force_deny", "deny" ]
 }

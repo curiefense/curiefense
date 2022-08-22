@@ -31,7 +31,10 @@
       "minItems": 0
     },
     "type": {
-      "enum": ["skip", "custom", "challenge", "monitor"]
+      "type": "string",
+      "enum": ["skip", "custom", "challenge", "monitor"],
+      "title": "Type",
+      "description": "Need to be one of predefined strings"
     },
     "params": {
       "type": "object",

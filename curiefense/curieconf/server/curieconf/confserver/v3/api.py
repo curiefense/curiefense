@@ -130,7 +130,7 @@ m_contentfilterprofile = api.model(
         "report": fields.List(fields.String()),
         "ignore": fields.List(fields.String()),
         "tags": fields.List(fields.String()),
-        "action": fields.Raw(required=True),
+        "action": fields.String(),
         "ignore_body": fields.Boolean(required=True),
     },
 )
@@ -150,7 +150,7 @@ m_aclprofile = api.model(
         "deny": fields.List(fields.String()),
         "force_deny": fields.List(fields.String()),
         "tags": fields.List(fields.String()),
-        "action": fields.String(required=True),
+        "action": fields.String(),
     },
 )
 

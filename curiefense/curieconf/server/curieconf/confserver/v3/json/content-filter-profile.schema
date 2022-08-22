@@ -46,7 +46,8 @@
                     "type": "array",
                     "items": { "type": "string" }
                 }
-            }
+            },
+            "required": [ "key", "restrict" ]
         }
     },
     "type": "object",
