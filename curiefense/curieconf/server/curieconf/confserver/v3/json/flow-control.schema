@@ -2,6 +2,43 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Flow Control Policy",
   "description": "Entity describing restricted flow for users",
+  "definitions": {
+        "key-array": {
+            "title": "Count By List",
+            "description": "Item describing how to count requests using attributes, arguments, cookies, or headers",
+            "type": "array",
+            "items": { "$ref": "#/definitions/key-entry" }
+        },
+        "key-entry": {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 1,
+            "additionalProperties": false,
+            "properties": {
+                "headers": { "type": "string" },
+                "cookies": { "type": "string" },
+                "args": { "type": "string" },
+                "arguments": { "type": "string" },
+                "attrs": {
+                    "type": "string",
+                     "enum": ["ip", "path", "query", "uri", "country", "method", "asn", "company", "authority", "tags"]
+                 },
+                "attributes":{
+                    "type": "string",
+                     "enum": ["ip", "path", "query", "uri", "country", "method", "asn", "company", "authority", "tags"]
+                 }
+            }
+        },
+        "string-values-obj": {
+            "title": "String Object",
+            "description": "Object containing string values",
+            "type": "object",
+            "patternProperties": {
+                "^.*$": {"type": "string"}
+            },
+            "additionalProperties": false
+        }
+    },
   "type": "object",
   "properties": {
     "id": {
@@ -31,11 +68,7 @@
        "type": "array",
        "items": { "type": "string" }
     },
-    "key": {
-      "type": "array",
-      "title": "Count By List",
-      "description": "Item describing how to count requests using attributes, arguments, cookies, or headers"
-    },
+    "key": { "$ref": "#/definitions/key-array" },
     "exclude": {
       "type": "array",
       "title": "Excluded tags",
@@ -60,9 +93,9 @@
         "properties": {
           "method": { "enum": ["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "TRACE", "OPTIONS", "PATCH"] },
           "uri": { "type": "string" },
-          "cookies": { "type": "object" },
-          "headers": { "type": "object" },
-          "args": { "type": "object" }
+          "cookies": { "$ref": "#/definitions/string-values-obj" },
+          "headers": { "$ref": "#/definitions/string-values-obj" },
+          "args": { "$ref": "#/definitions/string-values-obj" }
         },
         "required": ["method", "uri"]
       },

@@ -39,7 +39,7 @@ class AnyType(fields.Raw):
 m_threshold = api.model(
     "Rate Limit Threshold",
     {
-        "limit": fields.String(required=True),
+        "limit": fields.Integer(required=True),
         "action": fields.String(required=True),
     },
 )
@@ -50,7 +50,7 @@ m_limit = api.model(
         "id": fields.String(required=True),
         "name": fields.String(required=True),
         "description": fields.String(required=True),
-        "timeframe": fields.String(required=True),
+        "timeframe": fields.Integer(required=True),
         "thresholds": fields.List(fields.Nested(m_threshold)),
         "include": fields.Raw(required=True),
         "exclude": fields.Raw(required=True),
@@ -401,7 +401,7 @@ with open(content_filter_profile_file_path) as json_file:
 globalfilters_file_path = (base_path / "./json/global-filters.schema").resolve()
 with open(globalfilters_file_path) as json_file:
     globalfilters_schema = json.load(json_file)
-flowcontrol_file_path = (base_path / "../json/flow-control.schema").resolve()
+flowcontrol_file_path = (base_path / "./json/flow-control.schema").resolve()
 with open(flowcontrol_file_path) as json_file:
     flowcontrol_schema = json.load(json_file)
 content_filter_rule_file_path = (

@@ -2,6 +2,34 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Rate Limit",
     "description": "Rate Limit rules",
+    "definitions": {
+        "key-array": {
+            "title": "Count By List",
+            "description": "Item describing how to count requests using attributes, arguments, cookies, or headers",
+            "type": "array",
+            "items": { "$ref": "#/definitions/key-entry" }
+        },
+        "key-entry": {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 1,
+            "additionalProperties": false,
+            "properties": {
+                "headers": { "type": "string" },
+                "cookies": { "type": "string" },
+                "args": { "type": "string" },
+                "arguments": { "type": "string" },
+                "attrs": {
+                    "type": "string",
+                     "enum": ["ip", "path", "query", "uri", "country", "method", "asn", "company", "authority", "tags"]
+                 },
+                "attributes":{
+                    "type": "string",
+                     "enum": ["ip", "path", "query", "uri", "country", "method", "asn", "company", "authority", "tags"]
+                 }
+            }
+        }
+    },
     "type": "object",
     "properties": {
         "id": {
@@ -21,8 +49,7 @@
             "description": "Description of entity shown in UI"
         },
         "timeframe": {
-            "type": "string",
-            "pattern": "^(0|[1-9][0-9]*)$",
+            "type": "integer",
             "title": "Time To Limit",
             "description": "The time in which to limit the requests according to the threshold"
         },
@@ -39,8 +66,7 @@
                         "description": "Action to take when receiving requests over the threshold"
                     },
                     "limit": {
-                        "type": "string",
-                        "pattern": "^(0|[1-9][0-9]*)$",
+                        "type": "integer",
                         "title": "Threshold",
                         "description": "The threshold of requests allowed"
                     }
@@ -49,11 +75,7 @@
                 "required": [ "action", "limit" ]
             }
         },
-        "key": {
-            "type": "array",
-            "title": "Count By List",
-            "description": "Item describing how to count requests using attributes, arguments, cookies, or headers"
-        },
+        "key": { "$ref": "#/definitions/key-array" },
         "exclude": {
           "type": "array",
           "title": "Excluded tags",
@@ -65,13 +87,26 @@
           "description": "Tags describing requests to include in the rate limit rule"
         },
         "pairwith": {
-          "type": "object",
-          "patternProperties": {
-            "^(self|headers|cookies|args|attrs)$": {
-              "type": "string"
+            "type": "object",
+            "description": "Event option, changing the meaning of the Rate Limit",
+            "minProperties": 1,
+            "maxProperties": 1,
+            "additionalProperties": false,
+            "properties": {
+                "headers": { "type": "string" },
+                "cookies": { "type": "string" },
+                "args": { "type": "string" },
+                "arguments": { "type": "string" },
+                "attrs": {
+                    "type": "string",
+                     "enum": ["ip", "path", "query", "uri", "country", "method", "asn", "company", "authority", "tags"]
+                 },
+                "attributes":{
+                    "type": "string",
+                     "enum": ["ip", "path", "query", "uri", "country", "method", "asn", "company", "authority", "tags"]
+                 },
+                "self": { "enum": ["self"] }
             }
-          },
-          "description": "Event option, changing the meaning of the Rate Limit"
         },
         "tags": {
             "title": "Tags List",
