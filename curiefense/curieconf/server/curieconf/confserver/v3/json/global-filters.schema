@@ -2,6 +2,37 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Profiling List",
   "description": "A list of profiled entities",
+  "definitions": {
+    "relation": {
+        "type": "string",
+        "enum": ["AND", "OR"],
+        "title": "Sections Relationship",
+        "description": "Boolean relation between entries"
+    },
+    "entries_array": {
+        "type": "array",
+        "title": "Entry Description List",
+        "description": "Array must contain exactly 3 items describing the object. Where the first item contains the category, the second item contains the entry, and the last item contains annotation information"
+    },
+    "rule": {
+      "title": "Rule",
+      "description": "List of rules defining the list",
+      "oneOf": [
+        { "$ref": "#/definitions/entries_array" },
+        {
+            "type": "object",
+            "properties": {
+                "relation": { "$ref": "#/definitions/relation"},
+                "entries": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": { "$ref": "#/definitions/rule" }
+                }
+            }
+        }
+      ]
+    }
+  },
   "type": "object",
   "properties": {
     "id": {
@@ -50,42 +81,7 @@
         "title": "Rule Broken Action",
         "description": "Action to take when receiving requests breaking this rule"
     },
-    "rule": {
-      "type": "object",
-      "uniqueItems": true,
-      "title": "Rule",
-      "description": "List of rules defining the list",
-      "properties": {
-        "relation": {
-          "type": "string",
-          "enum": ["AND", "OR"],
-          "title": "Sections Relationship",
-          "description": "Boolean relation between entries"
-        },
-        "sections": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "type": "object",
-            "title": "Rule section",
-            "description": "Section of the rule containing entries",
-            "properties": {
-              "relation": {
-                "type": "string",
-                "enum": ["AND", "OR"],
-                "title": "Entries Relationship",
-                "description": "Boolean relation between entries"
-              },
-              "entries": {
-                "type": "array",
-                "title": "Entry Description List",
-                "description": "Array must contain exactly 3 items describing the object. Where the first item contains the category, the second item contains the entry, and the last item contains annotation information"
-              }
-            }
-          }
-        }
-      }
-    }
+    "rule": { "$ref": "#/definitions/rule" }
   },
   "additionalProperties": true,
   "required": [
