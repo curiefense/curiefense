@@ -620,6 +620,10 @@ class DocumentResource(Resource):
         if document not in models:
             abort(404, "document does not exist")
         data = marshal(request.json, models[document], skip_none=True)
+        for entry in request.json:
+            isValid = validateJson(entry, document)
+            if isValid is False:
+                abort(500, "schema mismatched")
         res = current_app.backend.documents_update(
             config, document, data, get_gitactor()
         )
