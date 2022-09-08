@@ -45,6 +45,27 @@ class Curiefense(HttpUser):
 
     @task(1)
     def curiefense_perf3(self):
+        if self.environment.parsed_options.cf_testid.startswith("flow-and-ratelimit"):
+            self.flow_ratelimit_case()
+        else:
+            self.variablesize_case()
+
+    def flow_ratelimit_case(self):
+        headers = {"Host": "www.example.com"}
+        with self.client.post(
+            f"/invalid?{self.environment.parsed_options.cf_testid}",
+            headers=headers,
+            allow_redirects=False,
+            catch_response=True,
+        ) as response:
+            if response.status_code not in [403, 404, 483]:
+                response.success()
+            else:
+                response.failure(
+                    "Did not get expected code:" + str(response.status_code)
+                )
+
+    def variablesize_case(self):
         reqsize = int(self.environment.parsed_options.cf_reqsize)
         headers = {}
         if reqsize >= 1:
@@ -67,7 +88,7 @@ class Curiefense(HttpUser):
             # len("\n".join([f"{k}: {v}" for k, v in headers.items()])) = 1000
         payload = self.gen_payload(size_kb=reqsize - 1)
         with self.client.post(
-            f"/invalid/{self.environment.parsed_options.cf_testid}",
+            f"/invalid?{self.environment.parsed_options.cf_testid}",
             data=payload,
             headers=headers,
             allow_redirects=False,
