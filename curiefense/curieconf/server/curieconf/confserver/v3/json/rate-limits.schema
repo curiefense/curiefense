@@ -117,7 +117,7 @@
         "global": {
             "type": "boolean",
             "title": "Global limit",
-            "description": "When true, this limit is added to all security profiles",
+            "description": "When true, this limit is added to all security profiles"
         }
     },
     "additionalProperties": false,
