@@ -22,3 +22,13 @@ jobs:
 
             export DOCKER_TAG=${GITHUB_SHA}
             PUSH=1 ./build-docker-images.sh
+
+      - name: Tag Images as "dev"
+        run: |
+            docker login -u "${{ secrets.DOCKER_HUB_USER }}" -p "${{ secrets.DOCKER_HUB_PASSWORD }}"
+            pushd curiefense/images
+            export DOCKER_TAG=dev
+            PUSH=1 ./build-docker-images.sh
+
+            export DOCKER_TAG=dev
+            PUSH=1 ./build-docker-images.sh
