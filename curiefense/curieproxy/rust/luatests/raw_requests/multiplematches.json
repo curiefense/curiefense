@@ -1,0 +1,60 @@
+[
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/sha1/?arg=xp_cmdshell_xp_cmdshell_xp_cmdshell_xp_cmdshell_xp_cmdshell_",
+      "user-agent": "dummy",
+      "x-forwarded-for": "1.3.4.5"
+    },
+    "name": "test multi matching",
+    "response": {
+      "action": "custom_response",
+      "block_mode": false,
+      "status": 403,
+      "content_filter_triggers": [
+        {
+          "active": true,
+          "section": "uri",
+          "value": "xp_cmdshell_xp_cmdshell_xp_cmdshell_xp_cmdshell_xp_cmdshell_",
+          "type": "signature",
+          "name": "arg",
+          "ruleid": "100016",
+          "risk_level": 5
+        }
+      ],
+      "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:2",
+        "args:1",
+        "all",
+        "ip:1-3-4-5",
+        "sante",
+        "securitypolicy-entry:default",
+        "contentfiltername:default-contentfilter",
+        "securitypolicy:default-entry",
+        "aclname:default-acl",
+        "aclid:--default--",
+        "contentfilterid:--default--",
+        "bot",
+        "geo-city:nil",
+        "geo-region:nil",
+        "geo-country:china",
+        "cf-rule-subcategory:built-in-function-invocation",
+        "geo-continent-name:asia",
+        "geo-continent-code:as",
+        "cf-rule-id:100016",
+        "geo-subregion:nil",
+        "sqli",
+        "geo-asn:nil",
+        "geo-org:nil",
+        "cf-rule-category:sqli",
+        "waf",
+        "status:403",
+        "status-class:4xx",
+        "cf-rule-risk:5"
+      ]
+    }
+  }
+]

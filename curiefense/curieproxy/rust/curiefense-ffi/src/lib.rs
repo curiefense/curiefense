@@ -1,13 +1,24 @@
 use core::ffi::c_void;
+use curiefense::config::contentfilter::ContentFilterRules;
+use curiefense::config::Config;
 use curiefense::grasshopper::{DummyGrasshopper, Grasshopper};
+use curiefense::incremental::{add_body, add_header, finalize, inspect_init, IData, IPInfo};
 use curiefense::inspect_generic_request_map_async;
-use curiefense::interface::{Decision, Tags};
+use curiefense::interface::{jsonlog, AnalyzeResult};
 use curiefense::logs::{LogLevel, Logs};
 use curiefense::simple_executor::{new_executor_and_spawner, Executor, Progress, TaskCB};
-use curiefense::utils::{RawRequest, RequestInfo, RequestMeta};
+use curiefense::utils::{RawRequest, RequestMeta};
 use std::collections::HashMap;
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_uchar};
+use std::sync::Arc;
+
+unsafe fn c_free<T>(ptr: *mut T) {
+    if ptr.is_null() {
+        return;
+    }
+    Box::from_raw(ptr);
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Copy)]
 #[repr(C)]
@@ -17,7 +28,7 @@ pub enum CFProgress {
     CFError = 2,
 }
 
-pub struct CHashmap {
+pub struct CFHashmap {
     inner: HashMap<String, String>,
 }
 
@@ -25,17 +36,25 @@ pub struct CHashmap {
 ///
 /// New C hashmap
 #[no_mangle]
-pub unsafe extern "C" fn cf_hashmap_new() -> *mut CHashmap {
-    Box::into_raw(Box::new(CHashmap { inner: HashMap::new() }))
+pub unsafe extern "C" fn cf_hashmap_new() -> *mut CFHashmap {
+    Box::into_raw(Box::new(CFHashmap { inner: HashMap::new() }))
 }
 
 /// # Safety
 ///
 /// Insert into the hashmap. The key and value are not consumed by this API (it copies them).
 #[no_mangle]
-pub unsafe extern "C" fn cf_hashmap_insert(hm: *mut CHashmap, key: *const c_char, value: *const c_char) {
-    let s_key = CStr::from_ptr(key).to_string_lossy().to_string();
-    let s_value = CStr::from_ptr(value).to_string_lossy().to_string();
+pub unsafe extern "C" fn cf_hashmap_insert(
+    hm: *mut CFHashmap,
+    key: *const c_char,
+    key_size: usize,
+    value: *const c_char,
+    value_size: usize,
+) {
+    let sl_key = std::slice::from_raw_parts(key as *const u8, key_size);
+    let s_key = String::from_utf8_lossy(sl_key).to_string();
+    let sl_value = std::slice::from_raw_parts(value as *const u8, value_size);
+    let s_value = String::from_utf8_lossy(sl_value).to_string();
     if let Some(r) = hm.as_mut() {
         r.inner.insert(s_key, s_value);
     }
@@ -45,11 +64,8 @@ pub unsafe extern "C" fn cf_hashmap_insert(hm: *mut CHashmap, key: *const c_char
 ///
 /// Frees a hashmap, and all its content.
 #[no_mangle]
-pub unsafe extern "C" fn cf_hashmap_free(ptr: *mut CHashmap) {
-    if ptr.is_null() {
-        return;
-    }
-    Box::from_raw(ptr);
+pub unsafe extern "C" fn cf_hashmap_free(ptr: *mut CFHashmap) {
+    c_free(ptr);
 }
 
 pub struct CFExec {
@@ -65,10 +81,8 @@ pub enum CFResult {
 
 #[derive(Debug)]
 pub struct CFDecision {
-    decision: Decision,
-    tags: Tags,
+    result: AnalyzeResult,
     logs: Logs,
-    reqinfo: RequestInfo,
 }
 
 /// # Safety
@@ -79,10 +93,7 @@ pub unsafe extern "C" fn curiefense_cfr_is_blocking(ptr: *const CFResult) -> boo
     match ptr.as_ref() {
         None => false,
         Some(CFResult::RR(_)) => false,
-        Some(CFResult::OK(r)) => match r.decision {
-            Decision::Action(_) => true,
-            Decision::Pass => false,
-        },
+        Some(CFResult::OK(r)) => r.result.decision.maction.is_some(),
     }
 }
 
@@ -94,10 +105,7 @@ pub unsafe extern "C" fn curiefense_cfr_block_status(ptr: *const CFResult) -> u3
     match ptr.as_ref() {
         None => 0,
         Some(CFResult::RR(_)) => 0,
-        Some(CFResult::OK(r)) => match &r.decision {
-            Decision::Action(a) => a.status,
-            Decision::Pass => 0,
-        },
+        Some(CFResult::OK(r)) => r.result.decision.maction.as_ref().map(|a| a.status).unwrap_or(0),
     }
 }
 
@@ -109,10 +117,7 @@ pub unsafe extern "C" fn curiefense_cfr_block_contentlength(ptr: *const CFResult
     match ptr.as_ref() {
         None => 0,
         Some(CFResult::RR(_)) => 0,
-        Some(CFResult::OK(r)) => match &r.decision {
-            Decision::Action(a) => a.content.len(),
-            Decision::Pass => 0,
-        },
+        Some(CFResult::OK(r)) => r.result.decision.maction.as_ref().map(|d| d.content.len()).unwrap_or(0),
     }
 }
 
@@ -125,9 +130,9 @@ pub unsafe extern "C" fn curiefense_cfr_block_content(ptr: *const CFResult, tgt:
     match ptr.as_ref() {
         None => (),
         Some(CFResult::RR(_)) => (),
-        Some(CFResult::OK(r)) => match &r.decision {
-            Decision::Action(a) => std::ptr::copy_nonoverlapping(a.content.as_ptr(), tgt, a.content.len()),
-            Decision::Pass => (),
+        Some(CFResult::OK(r)) => match &r.result.decision.maction {
+            Some(a) => std::ptr::copy_nonoverlapping(a.content.as_ptr(), tgt, a.content.len()),
+            None => (),
         },
     }
 }
@@ -143,7 +148,16 @@ pub unsafe extern "C" fn curiefense_cfr_log(ptr: *mut CFResult, ln: *mut usize) 
     }
     let cfr = Box::from_raw(ptr);
     let out: String = match *cfr {
-        CFResult::OK(dec) => dec.decision.to_json(dec.reqinfo, dec.tags, dec.logs),
+        CFResult::OK(dec) => jsonlog(
+            &dec.result.decision,
+            Some(&dec.result.rinfo),
+            None,
+            &dec.result.tags,
+            &dec.result.stats,
+            &dec.logs,
+        )
+        .0
+        .to_string(),
         CFResult::RR(rr) => rr,
     };
     *ln = out.len();
@@ -221,27 +235,42 @@ pub async fn inspect_wrapper<GH: Grasshopper>(
     logs: Logs,
     configpath: String,
     raw: RawRequest<'_>,
-    mgh: Option<GH>,
+    mgh: Option<&GH>,
 ) -> CFDecision {
     let mut mlogs = logs;
-    let (decision, tags, reqinfo) = inspect_generic_request_map_async(&configpath, mgh, raw, &mut mlogs).await;
-    CFDecision {
-        decision,
-        tags,
-        logs: mlogs,
-        reqinfo,
-    }
+    let result = inspect_generic_request_map_async(&configpath, mgh, raw, &mut mlogs).await;
+    CFDecision { result, logs: mlogs }
 }
 
 /// # Safety
 ///
 /// Initializes the inspection, returning an executor in case of success, or a null pointer in case of failure.
+///
+/// Note that the hashmaps raw_meta and raw_headers are consumed and freed by this function.
+///
+/// Arguments
+///
+/// loglevel:
+///     0. debug
+///     1. info
+///     2. warning
+///     3. error
+/// raw_configpath: path to the configuration directory
+/// raw_meta: hashmap containing the meta properties.
+///     * required: method and path
+///     * technically optional, but highly recommended: authority, x-request-id
+/// raw_headers: hashmap containing the request headers
+/// raw_ip: a string representing the source IP for the request
+/// mbody: body as a single buffer, or NULL if no body is present
+/// mbody_len: length of the body. It MUST be 0 if mbody is NULL.
+/// cb: the callback that will be used to signal an asynchronous function finished
+/// data: data for the callback
 #[no_mangle]
 pub unsafe extern "C" fn curiefense_async_init(
     loglevel: u8,
     raw_configpath: *const c_char,
-    raw_meta: *mut CHashmap,
-    raw_headers: *mut CHashmap,
+    raw_meta: *mut CFHashmap,
+    raw_headers: *mut CFHashmap,
     raw_ip: *const c_char,
     mbody: *const c_uchar,
     mbody_len: usize,
@@ -289,7 +318,7 @@ pub unsafe extern "C" fn curiefense_async_init(
     };
     let (executor, spawner) = new_executor_and_spawner::<TaskCB<CFDecision>>();
     spawner.spawn_cb(
-        inspect_wrapper(logs, configpath, raw_request, Some(DummyGrasshopper {})),
+        inspect_wrapper(logs, configpath, raw_request, Some(&DummyGrasshopper {})),
         cb,
         data,
     );
@@ -328,8 +357,275 @@ pub unsafe extern "C" fn curiefense_async_step(ptr: *mut CFExec, out: *mut *mut 
 /// this function to abort early.
 #[no_mangle]
 pub unsafe extern "C" fn curiefense_async_free(ptr: *mut CFExec) {
-    if ptr.is_null() {
-        return;
+    c_free(ptr);
+}
+
+/// An enum that represents the return status of the streaming API
+///
+/// CFSDone means we have a result
+/// CFSMore means we can add headers or body, or run the analysis
+/// CFSError means there is an error, that can be read using curiefense_stream_error
+#[derive(Clone, Debug, PartialEq, Eq, Copy)]
+#[repr(C)]
+pub enum CFStreamStatus {
+    CFSDone = 0,
+    CFSMore = 1,
+    CFSError = 2,
+}
+
+/// Handle for the C streaming API
+pub enum CFStreamHandle {
+    Error(String),
+    InitPhase(Box<IData>),
+    Done(Box<(AnalyzeResult, Logs)>),
+}
+
+/// C streaming API configuration item
+
+pub struct CFStreamConfig {
+    loglevel: LogLevel,
+    config: Arc<Config>,
+    content_filter_rules: Arc<HashMap<String, ContentFilterRules>>,
+}
+
+/// # Safety
+///
+/// Returns a configuration handle for the stream API. Must be called when configuration changes.
+/// Is freed using curiefense_stream_config_free
+#[no_mangle]
+pub unsafe extern "C" fn curiefense_stream_config_init(
+    loglevel: u8,
+    raw_configpath: *const c_char,
+) -> *mut CFStreamConfig {
+    let lloglevel = match loglevel {
+        0 => LogLevel::Debug,
+        1 => LogLevel::Info,
+        2 => LogLevel::Warning,
+        3 => LogLevel::Error,
+        _ => return std::ptr::null_mut(),
+    };
+    let configpath = CStr::from_ptr(raw_configpath).to_string_lossy().to_string();
+    let now = std::time::SystemTime::now();
+    let (config, content_filter_rules) = curiefense::config::Config::load(Logs::new(lloglevel), &configpath, now);
+    Box::into_raw(Box::new(CFStreamConfig {
+        loglevel: lloglevel,
+        config: Arc::new(config),
+        content_filter_rules: Arc::new(content_filter_rules),
+    }))
+}
+
+/// # Safety
+///
+/// frees the CFStreamConfig object
+///
+/// note that it is perfectly safe to free it while other requests are being processed, as the underlying
+/// data is protected by refcounted pointers.
+#[no_mangle]
+pub unsafe extern "C" fn curiefense_stream_config_free(config: *mut CFStreamConfig) {
+    c_free(config);
+}
+
+/// # Safety
+///
+/// Initializes the inspection, returning a stream object.
+/// This never returns a null pointer, even if the function fails.
+/// In case of failure, you can get the error message by calling the
+/// curiefense_stream_error function on the returned object
+///
+/// Note that the hashmap raw_meta is freed by this function.
+///
+/// Arguments
+///
+/// loglevel:
+///     0. debug
+///     1. info
+///     2. warning
+///     3. error
+/// raw_configpath: path to the configuration directory
+/// raw_meta: hashmap containing the meta properties.
+///     * required: method and path
+///     * technically optional, but highly recommended: authority, x-request-id
+/// raw_ip: a string representing the source IP for the request
+/// success: a pointer to a value that will be set to true on success, and false on failure
+#[no_mangle]
+pub unsafe extern "C" fn curiefense_stream_start(
+    config: *const CFStreamConfig,
+    raw_meta: *mut CFHashmap,
+    raw_ip: *const c_char,
+    success: *mut CFStreamStatus,
+) -> *mut CFStreamHandle {
+    *success = CFStreamStatus::CFSError;
+
+    // convert the strings and loglevel
+    let ip = CStr::from_ptr(raw_ip).to_string_lossy().to_string();
+
+    let iconfig = match config.as_ref() {
+        None => return std::ptr::null_mut(),
+        Some(cfg) => cfg,
+    };
+
+    // convert the hashmaps and turn them into the required types
+    let meta = match raw_meta.as_mut() {
+        None => return std::ptr::null_mut(),
+        Some(rf) => match RequestMeta::from_map(Box::from_raw(rf).as_ref().inner.clone()) {
+            Err(rr) => return Box::into_raw(Box::new(CFStreamHandle::Error(rr.to_string()))),
+            Ok(x) => x,
+        },
+    };
+    // create the requestinfo structure
+    let init_result = inspect_init(&iconfig.config, iconfig.loglevel, meta, IPInfo::Ip(ip));
+    Box::into_raw(Box::new(match init_result {
+        Ok(inner) => {
+            *success = CFStreamStatus::CFSMore;
+            CFStreamHandle::InitPhase(Box::new(inner))
+        }
+        Err(rr) => CFStreamHandle::Error(rr),
+    }))
+}
+
+/// # Safety
+///
+/// Frees the stream object.
+///
+/// You should use this function, when aborting:
+///  * the object is in an error state, and you already retrieved the error message from curiefense_stream_error
+///  * you want to abort early
+#[no_mangle]
+pub unsafe extern "C" fn curiefense_stream_free(ptr: *mut CFStreamHandle) {
+    c_free(ptr);
+}
+
+/// # Safety
+///
+/// Returns the streaming error, if available. The returned string can be freed with curiefense_str_free.
+#[no_mangle]
+pub unsafe extern "C" fn curiefense_stream_error(ptr: *const CFStreamHandle) -> *mut c_char {
+    let out: CString = match ptr.as_ref() {
+        None => CString::new("Null pointer").unwrap(),
+        Some(CFStreamHandle::Error(r)) => {
+            CString::new(r.clone()).unwrap_or_else(|_| CString::new("Irrepresentable error").unwrap())
+        }
+        Some(_) => CString::new("No error".to_string()).unwrap(),
+    };
+    out.into_raw()
+}
+
+unsafe fn handle_streaming<F>(handle: CFStreamHandle, out: *mut *mut CFStreamHandle, f: F) -> CFStreamStatus
+where
+    F: FnOnce(IData) -> Result<IData, (Logs, AnalyzeResult)>,
+{
+    let (nh, status) = match handle {
+        CFStreamHandle::InitPhase(idata) => match f(*idata) {
+            Ok(idata) => (CFStreamHandle::InitPhase(Box::new(idata)), CFStreamStatus::CFSMore),
+            Err((logs, res)) => (CFStreamHandle::Done(Box::new((res, logs))), CFStreamStatus::CFSDone),
+        },
+        CFStreamHandle::Error(rr) => (CFStreamHandle::Error(rr), CFStreamStatus::CFSError),
+        CFStreamHandle::Done(rs) => (CFStreamHandle::Done(rs), CFStreamStatus::CFSDone),
+    };
+    *out = Box::into_raw(Box::new(nh));
+    status
+}
+
+/// # Safety
+///
+/// Adds a header to the stream handle object
+#[no_mangle]
+pub unsafe extern "C" fn curiefense_stream_add_header(
+    sh: *mut *mut CFStreamHandle,
+    key: *const c_char,
+    key_size: usize,
+    value: *const c_char,
+    value_size: usize,
+) -> CFStreamStatus {
+    if sh.is_null() {
+        return CFStreamStatus::CFSError;
     }
-    Box::from_raw(ptr);
+    let ptr = *sh;
+    if ptr.is_null() {
+        return CFStreamStatus::CFSError;
+    }
+    let sl_key = std::slice::from_raw_parts(key as *const u8, key_size);
+    let s_key = String::from_utf8_lossy(sl_key).to_string();
+    let sl_value = std::slice::from_raw_parts(value as *const u8, value_size);
+    let s_value = String::from_utf8_lossy(sl_value).to_string();
+    let boxedhandle = Box::from_raw(ptr);
+    handle_streaming(*boxedhandle, sh, |idata| add_header(idata, s_key, s_value))
+}
+
+/// # Safety
+///
+/// Adds a body part to the stream handle object
+#[no_mangle]
+pub unsafe extern "C" fn curiefense_stream_add_body(
+    sh: *mut *mut CFStreamHandle,
+    body: *const u8,
+    body_size: usize,
+) -> CFStreamStatus {
+    if sh.is_null() {
+        return CFStreamStatus::CFSError;
+    }
+    let ptr = *sh;
+    if ptr.is_null() {
+        return CFStreamStatus::CFSError;
+    }
+    let body = std::slice::from_raw_parts(body, body_size);
+    let boxedhandle = Box::from_raw(ptr);
+    handle_streaming(*boxedhandle, sh, |idata| add_body(idata, body))
+}
+
+/// Simple wrapper to return the reqinfo data
+pub async fn stream_wrapper<GH: Grasshopper>(
+    config: &CFStreamConfig,
+    data: Result<Box<IData>, Box<(AnalyzeResult, Logs)>>,
+    mgh: Option<&GH>,
+) -> CFDecision {
+    let (result, logs) = match data {
+        Ok(idata) => {
+            finalize(
+                *idata,
+                mgh,
+                &config.config.globalfilters,
+                &config.config.flows,
+                Some(&config.content_filter_rules),
+            )
+            .await
+        }
+        Err(rl) => *rl,
+    };
+    CFDecision { result, logs }
+}
+
+/// # Safety
+///
+/// Runs the analysis on the stream handle object. If the stream handle object is in an error state,
+/// this will return a null pointer.
+///
+/// Note that the CFStreamHandle object is freed by this function, even when it represents an error.
+///
+/// cb: the callback that will be used to signal an asynchronous function finished
+/// data: data for the callback
+#[no_mangle]
+pub unsafe extern "C" fn curiefense_stream_exec(
+    config: *const CFStreamConfig,
+    sh: *mut CFStreamHandle,
+    cb: extern "C" fn(u64),
+    data: u64,
+) -> *mut CFExec {
+    if sh.is_null() {
+        return std::ptr::null_mut();
+    }
+    let iconfig = match config.as_ref() {
+        None => return std::ptr::null_mut(),
+        Some(cfg) => cfg,
+    };
+    let handle = Box::from_raw(sh);
+    let dt = match *handle {
+        CFStreamHandle::Error(_) => return std::ptr::null_mut(),
+        CFStreamHandle::InitPhase(i) => Ok(i),
+        CFStreamHandle::Done(rl) => Err(rl),
+    };
+    let (executor, spawner) = new_executor_and_spawner::<TaskCB<CFDecision>>();
+    spawner.spawn_cb(stream_wrapper(iconfig, dt, Some(&DummyGrasshopper {})), cb, data);
+    drop(spawner);
+    Box::into_raw(Box::new(CFExec { inner: executor }))
 }

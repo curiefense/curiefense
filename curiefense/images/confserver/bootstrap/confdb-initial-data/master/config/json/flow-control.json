@@ -1,39 +1,40 @@
 [
-    {
-        "id": "c03dabe4b9ca",
-        "name": "Flow Control Policy Example",
-        "description": "New Flow Control Notes and Remarks",
-        "active": true,
-        "include": ["all"],
-        "exclude": [],
-        "timeframe": 60,
-        "action": {
-            "type": "default"
+  {
+    "action": "default",
+    "active": true,
+    "description": "New Flow Control Notes and Remarks",
+    "exclude": [],
+    "id": "c03dabe4b9ca",
+    "include": [
+      "all"
+    ],
+    "key": [
+      {
+        "attrs": "ip"
+      }
+    ],
+    "name": "Flow Control Policy Example",
+    "sequence": [
+      {
+        "args": {},
+        "cookies": {},
+        "headers": {
+          "host": "www.example.com"
         },
-        "key": [
-            {
-                "attrs": "ip"
-            }
-        ],
-        "sequence": [
-            {
-                "method": "GET",
-                "uri": "/login",
-                "cookies": {},
-                "headers": {
-                    "host": "www.example.com"
-                },
-                "args": {}
-            },
-            {
-                "method": "POST",
-                "uri": "/login",
-                "cookies": {},
-                "headers": {
-                    "host": "www.example.com"
-                },
-                "args": {}
-            }
-        ]
-    }
+        "method": "GET",
+        "uri": "/login"
+      },
+      {
+        "args": {},
+        "cookies": {},
+        "headers": {
+          "host": "www.example.com"
+        },
+        "method": "POST",
+        "uri": "/login"
+      }
+    ],
+    "timeframe": 60,
+    "tags": ["flowc"]
+  }
 ]

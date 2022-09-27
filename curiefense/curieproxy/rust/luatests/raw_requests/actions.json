@@ -13,11 +13,16 @@
       "block_mode": true,
       "status": 503,
       "tags": [
+        "cookies:0",
+        "headers:2",
+        "args:0",
+        "host:localhost:30081",
         "geo-city:buford",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:georgia",
         "geo-subregion:nil",
+        "geo-org:att-internet4",
         "all",
         "geo-country:united-states",
         "ip:12-13-14-15",
@@ -30,6 +35,8 @@
         "geo-asn:7018",
         "tagbyip",
         "contentfilterid:--default--",
+        "status:503",
+        "status-class:5xx",
         "bot"
       ]
     }

@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Dynamic Rules",
+  "description": "Dynamic Rules",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "Id",
+      "description": "Unique id"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "title": "Name",
+      "description": "Name of entity shown in UI"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description",
+      "description": "Description of entity shown in UI"
+    },
+    "threshold": {
+      "type": "integer",
+      "minimum": 0,
+      "title": "Threshold",
+      "description": "The number of violations (events) counted during the timeframe"
+    },
+    "timeframe": {
+      "type": "integer",
+      "minimum": 0,
+      "title": "Timeframe",
+      "description": "Counting violations events within this timeframe"
+    },
+    "ttl": {
+      "type": "integer",
+      "minimum": 0,
+      "title": "TTL",
+      "description": "The number if seconds this source will remain in quarantine"
+    },
+    "active": {
+      "type": "boolean",
+      "minLength": 1,
+      "title": "Name",
+      "description": "Active state of the dynamic rule"
+    },
+    "target": {
+      "type": "string",
+      "minLength": 1,
+      "title": "Name",
+      "description": "Target entity to block"
+    },
+    "include": {
+      "type": "array",
+      "title": "Included tags",
+      "description": "Tags describing requests to include in the dynamic rule"
+    },
+    "exclude": {
+      "type": "array",
+      "title": "Exclude tags",
+      "description": "Tags describing requests to exclude from the dynamic rule"
+    }
+  },
+  "additionalProperties": true,
+  "required": [
+    "id",
+    "name",
+    "threshold",
+    "timeframe",
+    "ttl",
+    "active",
+    "target"
+  ]
+}

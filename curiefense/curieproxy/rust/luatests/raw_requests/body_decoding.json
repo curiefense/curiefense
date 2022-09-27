@@ -14,7 +14,23 @@
       "action": "custom_response",
       "block_mode": true,
       "status": 403,
+      "acl_triggers": [
+        {
+          "active": true,
+          "section": "uri",
+          "value": "deny",
+          "tags": [
+            "deny"
+          ],
+          "name": "deny",
+          "type": "deny"
+        }
+      ],
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:3",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
@@ -23,6 +39,7 @@
         "all",
         "geo-asn:nil",
         "geo-country:united-states",
+        "geo-org:nil",
         "ip:3-4-5-5",
         "sante",
         "securitypolicy-entry:expectjson",
@@ -32,6 +49,8 @@
         "aclid:fromtags",
         "contentfilterid:expectjson",
         "deny",
+        "status:403",
+        "status-class:4xx",
         "bot"
       ]
     }
@@ -50,7 +69,18 @@
       "action": "custom_response",
       "block_mode": true,
       "status": 403,
+      "content_filter_triggers": [
+        {
+          "active": true,
+          "section": "body",
+          "type": "body_malformed"
+        }
+      ],
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:2",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
@@ -59,6 +89,7 @@
         "all",
         "geo-asn:nil",
         "geo-country:united-states",
+        "geo-org:nil",
         "ip:3-4-5-5",
         "sante",
         "securitypolicy-entry:expectjson",
@@ -67,6 +98,9 @@
         "aclname:from-tags",
         "aclid:fromtags",
         "contentfilterid:expectjson",
+        "jsonmatched",
+        "status:403",
+        "status-class:4xx",
         "bot"
       ]
     }
@@ -86,7 +120,18 @@
       "action": "custom_response",
       "block_mode": true,
       "status": 403,
+      "content_filter_triggers": [
+        {
+          "active": true,
+          "section": "body",
+          "type": "body_malformed"
+        }
+      ],
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:3",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
@@ -95,6 +140,7 @@
         "all",
         "geo-asn:nil",
         "geo-country:united-states",
+        "geo-org:nil",
         "ip:3-4-5-5",
         "sante",
         "securitypolicy-entry:expectjson",
@@ -103,6 +149,9 @@
         "aclname:from-tags",
         "aclid:fromtags",
         "contentfilterid:expectjson",
+        "jsonmatched",
+        "status:403",
+        "status-class:4xx",
         "bot"
       ]
     }
@@ -122,7 +171,23 @@
       "action": "custom_response",
       "block_mode": true,
       "status": 403,
+      "acl_triggers": [
+        {
+          "active": true,
+          "section": "uri",
+          "value": "deny",
+          "tags": [
+            "deny"
+          ],
+          "name": "deny1",
+          "type": "deny"
+        }
+      ],
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:3",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
@@ -131,6 +196,7 @@
         "all",
         "geo-asn:nil",
         "geo-country:united-states",
+        "geo-org:nil",
         "ip:3-4-5-5",
         "sante",
         "securitypolicy-entry:expectxml",
@@ -140,6 +206,8 @@
         "aclid:fromtags",
         "contentfilterid:expectxml",
         "deny",
+        "status:403",
+        "status-class:4xx",
         "bot"
       ]
     }
@@ -159,7 +227,18 @@
       "action": "custom_response",
       "block_mode": true,
       "status": 403,
+      "content_filter_triggers": [
+        {
+          "active": true,
+          "section": "body",
+          "type": "body_malformed"
+        }
+      ],
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:3",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
@@ -168,6 +247,7 @@
         "all",
         "geo-asn:nil",
         "geo-country:united-states",
+        "geo-org:nil",
         "ip:3-4-5-5",
         "sante",
         "securitypolicy-entry:expectxml",
@@ -176,6 +256,8 @@
         "aclname:from-tags",
         "aclid:fromtags",
         "contentfilterid:expectxml",
+        "status:403",
+        "status-class:4xx",
         "bot"
       ]
     }
@@ -194,7 +276,18 @@
       "action": "custom_response",
       "block_mode": true,
       "status": 403,
+      "content_filter_triggers": [
+        {
+          "active": true,
+          "section": "body",
+          "type": "body_malformed"
+        }
+      ],
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:2",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
@@ -203,6 +296,7 @@
         "all",
         "geo-asn:nil",
         "geo-country:united-states",
+        "geo-org:nil",
         "ip:3-4-5-5",
         "sante",
         "securitypolicy-entry:expectxml",
@@ -211,6 +305,8 @@
         "aclname:from-tags",
         "aclid:fromtags",
         "contentfilterid:expectxml",
+        "status:403",
+        "status-class:4xx",
         "bot"
       ]
     }
@@ -230,7 +326,18 @@
       "action": "custom_response",
       "block_mode": true,
       "status": 403,
+      "content_filter_triggers": [
+        {
+          "active": true,
+          "section": "body",
+          "type": "body_malformed"
+        }
+      ],
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:3",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
@@ -239,6 +346,7 @@
         "all",
         "geo-asn:nil",
         "geo-country:united-states",
+        "geo-org:nil",
         "ip:3-4-5-5",
         "sante",
         "securitypolicy-entry:expectxml",
@@ -247,6 +355,8 @@
         "aclname:from-tags",
         "aclid:fromtags",
         "contentfilterid:expectxml",
+        "status:403",
+        "status-class:4xx",
         "bot"
       ]
     }
@@ -266,7 +376,18 @@
       "action": "custom_response",
       "block_mode": true,
       "status": 403,
+      "content_filter_triggers": [
+        {
+          "active": true,
+          "section": "body",
+          "type": "body_malformed"
+        }
+      ],
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:3",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
@@ -275,6 +396,7 @@
         "all",
         "geo-asn:nil",
         "geo-country:united-states",
+        "geo-org:nil",
         "ip:3-4-5-5",
         "sante",
         "securitypolicy-entry:expectall",
@@ -283,6 +405,8 @@
         "aclname:from-tags",
         "aclid:fromtags",
         "contentfilterid:expectall",
+        "status:403",
+        "status-class:4xx",
         "bot"
       ]
     }
@@ -302,7 +426,23 @@
       "action": "custom_response",
       "block_mode": true,
       "status": 403,
+      "acl_triggers": [
+        {
+          "active": true,
+          "section": "uri",
+          "value": "deny",
+          "tags": [
+            "deny"
+          ],
+          "name": "deny",
+          "type": "deny"
+        }
+      ],
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:3",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
@@ -311,6 +451,7 @@
         "all",
         "geo-asn:nil",
         "geo-country:united-states",
+        "geo-org:nil",
         "ip:3-4-5-5",
         "sante",
         "securitypolicy-entry:expectall",
@@ -320,6 +461,8 @@
         "aclid:fromtags",
         "contentfilterid:expectall",
         "bot",
+        "status:403",
+        "status-class:4xx",
         "deny"
       ]
     }
@@ -339,7 +482,23 @@
       "action": "custom_response",
       "block_mode": true,
       "status": 403,
+      "acl_triggers": [
+        {
+          "active": true,
+          "section": "uri",
+          "value": "deny",
+          "tags": [
+            "deny"
+          ],
+          "name": "deny1",
+          "type": "deny"
+        }
+      ],
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:3",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
@@ -348,6 +507,7 @@
         "all",
         "geo-asn:nil",
         "geo-country:united-states",
+        "geo-org:nil",
         "ip:3-4-5-5",
         "sante",
         "securitypolicy-entry:expectall",
@@ -357,6 +517,8 @@
         "aclid:fromtags",
         "contentfilterid:expectall",
         "bot",
+        "status:403",
+        "status-class:4xx",
         "deny"
       ]
     }
@@ -375,7 +537,18 @@
       "action": "custom_response",
       "block_mode": true,
       "status": 403,
+      "content_filter_triggers": [
+        {
+          "active": true,
+          "section": "body",
+          "type": "body_missing"
+        }
+      ],
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:3",
+        "args:0",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
@@ -384,6 +557,7 @@
         "all",
         "geo-asn:nil",
         "geo-country:united-states",
+        "geo-org:nil",
         "ip:3-4-5-5",
         "sante",
         "securitypolicy-entry:expectall",
@@ -392,6 +566,8 @@
         "aclname:from-tags",
         "aclid:fromtags",
         "contentfilterid:expectall",
+        "status:403",
+        "status-class:4xx",
         "bot"
       ]
     }

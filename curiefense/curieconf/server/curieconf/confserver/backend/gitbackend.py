@@ -30,8 +30,8 @@ def is_internal(branchname):
     return branchname.startswith(INTERNAL_PREFIX)
 
 
-def commit(index, msg):
-    index.commit(msg, author=CURIE_AUTHOR, committer=CURIE_AUTHOR)
+def commit(index, msg, actor=CURIE_AUTHOR):
+    index.commit(msg, author=actor, committer=actor)
 
 
 def add_file(repo, fname, content):
@@ -55,13 +55,13 @@ def get_repo(pth):
             )
     except git.exc.InvalidGitRepositoryError:
         repo = git.Repo.init(pth, bare=True)
-        commit(repo.index, "Initial empty content")
+        commit(repo.index, "Initial empty content", actor=CURIE_AUTHOR)
         repo.create_head(BRANCH_DB)
         for f, pth in utils.DOCUMENTS_PATH.items():
             add_file(repo, pth, b"[]")
         for f, pth in utils.BLOBS_PATH.items():
             add_file(repo, pth, utils.BLOBS_BOOTSTRAP[f])
-        commit(repo.index, "Initial empty config")
+        commit(repo.index, "Initial empty config", actor=CURIE_AUTHOR)
         repo.create_head(BRANCH_BASE)
     return repo
 
@@ -207,8 +207,8 @@ class GitBackend(CurieBackend):
             return False
         return self.exists(utils.BLOBS_PATH[blobname])
 
-    def commit(self, msg):
-        commit(self.repo.index, msg)
+    def commit(self, msg, actor=CURIE_AUTHOR):
+        commit(self.repo.index, msg, actor)
 
     def get_logs(self, head=None, doc=None, blob=None):
         if head is None:
@@ -272,6 +272,14 @@ class GitBackend(CurieBackend):
             remote.fetch()
             git.Remote.remove(self.repo, remotename)
 
+    @staticmethod
+    def prepare_actor(username, email):
+        if not username:
+            username = CURIE_AUTHOR.name
+        if not email:
+            email = CURIE_AUTHOR.email
+        return git.Actor(username, email)
+
     ### CONFIGS
 
     def configs_list(self):
@@ -322,7 +330,7 @@ class GitBackend(CurieBackend):
                     continue
         return cfg
 
-    def configs_create(self, data, name=None):
+    def configs_create(self, data, name=None, actor=CURIE_AUTHOR):
         if name is None:
             name = data["meta"]["id"]
         with self.repo.lock:
@@ -339,10 +347,10 @@ class GitBackend(CurieBackend):
                 self.add_document(docname, content)
             for blobname, jblob in data.get("blobs", {}).items():
                 self.add_blob(blobname, jblob)
-            self.commit("Create config [%s]" % name)
+            self.commit("Create config [%s]" % name, actor=actor)
         return {"ok": True}
 
-    def configs_update(self, config, data):
+    def configs_update(self, config, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
             branch = self.prepare_branch(config)
             new_id = data.get("meta", {}).get("id")
@@ -373,7 +381,7 @@ class GitBackend(CurieBackend):
                         }
                         doc = [entry for entry in doc if entry["id"] not in deleid]
                     self.add_document(docname, doc)
-            self.commit("Update config [%s]%s" % (config, renamed))
+            self.commit("Update config [%s]%s" % (config, renamed), actor=actor)
         return {"ok": True}
 
     def configs_delete(self, name):
@@ -398,12 +406,12 @@ class GitBackend(CurieBackend):
             self.repo.create_head(new_name)
         return {"ok": True}
 
-    def configs_revert(self, config, version):
+    def configs_revert(self, config, version, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_branch(config)
             c = self.repo.commit(version)
             idx = git.index.base.IndexFile.from_tree(self.repo, c.tree)
-            commit(idx, "Revert to version [%s]" % version)
+            commit(idx, "Revert to version [%s]" % version, actor=actor)
         return {"ok": True}
 
     ### BLOBS
@@ -427,39 +435,41 @@ class GitBackend(CurieBackend):
             self.prepare_branch(config)
             return self.get_blob(blob, version)
 
-    def blobs_create(self, config, blob, data):
+    def blobs_create(self, config, blob, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_branch(config)
             if self.blob_exists(blob):
                 abort(409, "blob [%s] already exists" % blob)
             self.add_blob(blob, data)
-            self.commit("Create blob [%s]" % blob)
+            self.commit("Create blob [%s]" % blob, actor=actor)
         return {"ok": True}
 
-    def blobs_update(self, config, blob, data):
+    def blobs_update(self, config, blob, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_branch(config)
             if not self.blob_exists(blob):
                 abort(404, "blob [%s] does not exist" % blob)
             self.add_blob(blob, data)
-            self.commit("Update blob [%s]" % blob)
+            self.commit("Update blob [%s]" % blob, actor=actor)
         return {"ok": True}
 
-    def blobs_delete(self, config, blob):
+    def blobs_delete(self, config, blob, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_branch(config)
             if not self.blob_exists(blob):
                 abort(404, "blob [%s] does not exist" % blob)
             self.del_blob(blob)
-            self.commit("Delete blob [%s]" % blob)
+            self.commit("Delete blob [%s]" % blob, actor=actor)
         return {"ok": True}
 
-    def blobs_revert(self, config, blob, version):
+    def blobs_revert(self, config, blob, version, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_branch(config)
             b = self.get_blob(blob, version)
             self.add_blob(blob, b)
-            self.commit("Revert blob [%s] to version [%s]" % (blob, version))
+            self.commit(
+                "Revert blob [%s] to version [%s]" % (blob, version), actor=actor
+            )
         return {"ok": True}
 
     ### DOCUMENTS
@@ -534,7 +544,7 @@ class GitBackend(CurieBackend):
             self.prepare_branch(config)
             return self.get_document(document, version)
 
-    def documents_create(self, config, document, data):
+    def documents_create(self, config, document, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_branch(config)
             if self.doc_exists(document):
@@ -546,10 +556,10 @@ class GitBackend(CurieBackend):
             if errors:
                 return {"ok": False, "errors": errors}
             self.add_document(document, data)
-            self.commit("New version of document [%s]" % document)
+            self.commit("New version of document [%s]" % document, actor=actor)
         return {"ok": True}
 
-    def documents_update(self, config, document, data):
+    def documents_update(self, config, document, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_branch(config)
             doc = self.get_document(document)
@@ -560,10 +570,10 @@ class GitBackend(CurieBackend):
             if errors:
                 return {"ok": False, "errors": errors}
             self.add_document(document, updated_doc)
-            self.commit("Update document [%s]" % document)
+            self.commit("Update document [%s]" % document, actor=actor)
         return {"ok": True}
 
-    def documents_delete(self, config, document):
+    def documents_delete(self, config, document, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_branch(config)
             if not self.doc_exists(document):
@@ -574,10 +584,10 @@ class GitBackend(CurieBackend):
             if errors:
                 return {"ok": False, "errors": errors}
             self.add_document(document, [])
-            self.commit("Delete document [%s]" % document)
+            self.commit("Delete document [%s]" % document, actor=actor)
         return {"ok": True}
 
-    def documents_revert(self, config, document, version):
+    def documents_revert(self, config, document, version, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_branch(config)
             d = self.get_document(document, version)
@@ -587,7 +597,10 @@ class GitBackend(CurieBackend):
             if errors:
                 return {"ok": False, "errors": errors}
             self.add_document(document, d)
-            self.commit("Revert document [%s] to version [%s]" % (document, version))
+            self.commit(
+                "Revert document [%s] to version [%s]" % (document, version),
+                actor=actor,
+            )
         return {"ok": True}
 
     ### ENTRIES
@@ -640,7 +653,7 @@ class GitBackend(CurieBackend):
             else:
                 abort(404, "Entry [%s] does not exist" % entry)
 
-    def entries_create(self, config, document, data):
+    def entries_create(self, config, document, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_branch(config)
             doc = self.get_document(document)
@@ -650,10 +663,12 @@ class GitBackend(CurieBackend):
             else:
                 doc.append(data)
             self.add_document(document, doc)
-            self.commit("Add entry [%s] to document [%s]" % (data["id"], document))
+            self.commit(
+                "Add entry [%s] to document [%s]" % (data["id"], document), actor=actor
+            )
         return {"ok": True}
 
-    def entries_update(self, config, document, entry, data):
+    def entries_update(self, config, document, entry, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_branch(config)
             doc = self.get_document(document)
@@ -674,10 +689,10 @@ class GitBackend(CurieBackend):
                     data["id"],
                     document,
                 )
-            self.commit(msg)
+            self.commit(msg, actor=actor)
         return {"ok": True}
 
-    def entries_edit(self, config, document, entry, data):
+    def entries_edit(self, config, document, entry, data, actor=CURIE_AUTHOR):
         if len(data) == 0:
             return {"ok": False, "message": "empty edit request"}
         with self.repo.lock:
@@ -706,10 +721,10 @@ class GitBackend(CurieBackend):
                     data["id"],
                     document,
                 )
-            self.commit(msg)
+            self.commit(msg, actor=actor)
         return {"ok": True}
 
-    def entries_delete(self, config, document, entry):
+    def entries_delete(self, config, document, entry, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_branch(config)
             doc = self.get_document(document)
@@ -720,7 +735,9 @@ class GitBackend(CurieBackend):
                 abort(404, "entry [%s] does not exist" % entry)
             del doc[i]
             self.add_document(document, doc)
-            self.commit("Delete entry [%s] of document [%s]" % (entry, document))
+            self.commit(
+                "Delete entry [%s] of document [%s]" % (entry, document), actor=actor
+            )
         return {"ok": True}
 
     ### DATABASE NAMESPACES
@@ -741,16 +758,16 @@ class GitBackend(CurieBackend):
             self.prepare_internal_branch(BRANCH_DB)
             return self.get_ns(nsname, version)
 
-    def ns_create(self, nsname, data):
+    def ns_create(self, nsname, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
             if self.exists(nsname):
                 raise Exception("[%s] already exists" % nsname)
             self.add_json_file(nsname, data)
-            self.commit("Added namespace [%s]" % nsname)
+            self.commit("Added namespace [%s]" % nsname, actor=actor)
         return {"ok": True}
 
-    def ns_update(self, nsname, data):
+    def ns_update(self, nsname, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
             try:
@@ -761,25 +778,28 @@ class GitBackend(CurieBackend):
                 ns = json.load(nsobj.data_stream)
             ns.update(data)
             self.add_json_file(nsname, ns)
-            self.commit("Updated namespace [%s]" % nsname)
+            self.commit("Updated namespace [%s]" % nsname, actor=actor)
         return {"ok": True}
 
-    def ns_delete(self, nsname):
+    def ns_delete(self, nsname, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
             if self.exists(nsname):
                 self.del_file(nsname)
-                self.commit("Deleted namespace [%s]" % nsname)
+                self.commit("Deleted namespace [%s]" % nsname, actor=actor)
             else:
                 raise KeyError("[%s] does not exist" % nsname)
         return {"ok": True}
 
-    def ns_revert(self, nsname, version):
+    def ns_revert(self, nsname, version, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
             nsobj = self.get_tree(version) / nsname
             self.add_file(nsname, nsobj.data_stream.read())
-            self.commit("Reverting namespace [%s] to version [%s]" % (nsname, version))
+            self.commit(
+                "Reverting namespace [%s] to version [%s]" % (nsname, version),
+                actor=actor,
+            )
         return {"ok": True}
 
     def ns_query(self, nsname, query):
@@ -838,16 +858,18 @@ class GitBackend(CurieBackend):
             except KeyError:
                 abort(404, "Key [%s] not found in namespace [%s]" % (key, nsname))
 
-    def key_set(self, nsname, key, value):
+    def key_set(self, nsname, key, value, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
             ns = self.get_ns(nsname)
             ns[key] = value
             self.add_json_file(nsname, ns)
-            self.commit("Setting key [%s] in namespace [%s]" % (key, nsname))
+            self.commit(
+                "Setting key [%s] in namespace [%s]" % (key, nsname), actor=actor
+            )
         return {"ok": True}
 
-    def key_delete(self, nsname, key):
+    def key_delete(self, nsname, key, actor=CURIE_AUTHOR):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
             ns = self.get_ns(nsname)
@@ -856,5 +878,7 @@ class GitBackend(CurieBackend):
             except KeyError:
                 abort(404, "Key [%s] not found in namespace [%s]" % (key, nsname))
             self.add_json_file(nsname, ns)
-            self.commit("Deleting key [%s] in  namespace [%s]" % (key, nsname))
+            self.commit(
+                "Deleting key [%s] in  namespace [%s]" % (key, nsname), actor=actor
+            )
         return {"ok": True}

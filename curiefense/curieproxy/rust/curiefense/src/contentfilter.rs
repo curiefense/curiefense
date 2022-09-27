@@ -1,18 +1,16 @@
 use hyperscan::Matching;
 use lazy_static::lazy_static;
 use libinjection::{sqli, xss};
-use serde_json::json;
 use std::collections::{HashMap, HashSet};
 
 use crate::config::contentfilter::{
     rule_tags, ContentFilterEntryMatch, ContentFilterProfile, ContentFilterRules, ContentFilterSection, Section,
     SectionIdx,
 };
-use crate::config::raw::ContentFilterRule;
-use crate::config::utils::XDataSource;
-use crate::interface::{Action, ActionType, Tags};
+use crate::interface::stats::{BStageAcl, BStageContentFilter, StatsCollect};
+use crate::interface::{BDecision, BlockReason, Initiator, Location, Tags};
 use crate::requestfields::RequestField;
-use crate::utils::RequestInfo;
+use crate::utils::{masker, RequestInfo};
 use crate::Logs;
 
 lazy_static! {
@@ -36,81 +34,6 @@ lazy_static! {
     .collect();
 }
 
-#[derive(Debug, Clone)]
-pub struct ContentFilterMatched {
-    pub section: SectionIdx,
-    pub name: String,
-    pub value: String,
-}
-
-impl ContentFilterMatched {
-    fn new(section: SectionIdx, name: String, value: String) -> Self {
-        ContentFilterMatched { section, name, value }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct ContentFilterMatch {
-    pub matched: ContentFilterMatched,
-    pub ids: Vec<ContentFilterRule>,
-}
-
-#[derive(Debug, Clone)]
-pub enum ContentFilterBlock {
-    TooManyEntries(SectionIdx),
-    EntryTooLarge(SectionIdx, String),
-    Mismatch(ContentFilterMatched),
-    Block(HashSet<String>),
-    Monitor(HashSet<String>),
-}
-
-impl ContentFilterBlock {
-    pub fn to_action(&self) -> Action {
-        let reason = match self {
-            ContentFilterBlock::Block(ids) => json!({
-                "initiator": "content_filter",
-                "tags": ids,
-                "name": "block"
-            }),
-            ContentFilterBlock::Monitor(ids) => json!({
-                "initiator": "content_filter",
-                "tags": ids,
-                "name": "monitor"
-            }),
-            ContentFilterBlock::TooManyEntries(idx) => json!({
-                "section": idx,
-                "initiator": "content_filter",
-                "value": "Too many entries"
-            }),
-            ContentFilterBlock::EntryTooLarge(idx, nm) => json!({
-                "section": idx,
-                "name": nm,
-                "initiator": "content_filter",
-                "value": "Entry too large"
-            }),
-            ContentFilterBlock::Mismatch(wmatch) => json!({
-                "section": wmatch.section,
-                "name": wmatch.name,
-                "initiator": "content_filter",
-                "value": wmatch.value,
-                "msg": "Mismatch"
-            }),
-        };
-        let block_mode = !matches!(self, ContentFilterBlock::Monitor(_));
-
-        Action {
-            atype: ActionType::Block,
-            block_mode,
-            ban: false,
-            status: 403,
-            headers: None,
-            reason,
-            content: "Access denied".to_string(),
-            extra_tags: None,
-        }
-    }
-}
-
 #[derive(Default)]
 struct Omitted {
     entries: Section<HashSet<String>>,
@@ -127,26 +50,37 @@ fn get_section(idx: SectionIdx, rinfo: &RequestInfo) -> &RequestField {
     }
 }
 
+fn is_blocking(reasons: &[BlockReason]) -> bool {
+    reasons.iter().any(|r| r.decision >= BDecision::Blocking)
+}
+
+pub struct CfBlock {
+    pub blocking: bool,
+    pub reasons: Vec<BlockReason>,
+}
+
 /// Runs the Content Filter part of curiefense
+/// in case of matches, returns a pair (is_blocking, reasons)
 pub fn content_filter_check(
     logs: &mut Logs,
+    stats: StatsCollect<BStageAcl>,
     tags: &mut Tags,
     rinfo: &RequestInfo,
     profile: &ContentFilterProfile,
     mhsdb: Option<&ContentFilterRules>,
-) -> Result<(), ContentFilterBlock> {
+) -> (Result<(), CfBlock>, StatsCollect<BStageContentFilter>) {
     use SectionIdx::*;
     let mut omit = Default::default();
 
     // directly exit if omitted profile
     if tags.has_intersection(&profile.ignore) {
         logs.debug("content filter bypass because of global ignore");
-        return Ok(());
+        return (Ok(()), stats.no_content_filter());
     }
 
     // check section profiles
     for idx in &[Path, Headers, Cookies, Args] {
-        section_check(
+        if let Err(reason) = section_check(
             logs,
             tags,
             *idx,
@@ -154,7 +88,15 @@ pub fn content_filter_check(
             get_section(*idx, rinfo),
             profile.ignore_alphanum,
             &mut omit,
-        )?;
+        ) {
+            return (
+                Err(CfBlock {
+                    blocking: true,
+                    reasons: vec![reason],
+                }),
+                stats.no_content_filter(),
+            );
+        }
     }
 
     let kept = profile.active.union(&profile.report).cloned().collect::<HashSet<_>>();
@@ -174,53 +116,65 @@ pub fn content_filter_check(
         hca_keys.extend(section_content);
     }
 
-    injection_check(tags, &hca_keys, &omit, test_xss, test_sqli);
+    let iblock = if cfg!(fuzzing) {
+        Vec::new()
+    } else {
+        injection_check(tags, &hca_keys, &omit, test_xss, test_sqli)
+    };
+    if is_blocking(&iblock) {
+        return (
+            Err(CfBlock {
+                blocking: true,
+                reasons: iblock,
+            }),
+            stats.no_content_filter(),
+        );
+    }
 
     let mut specific_tags = Tags::default();
 
     // finally, hyperscan check
     match mhsdb {
         Some(hsdb) => {
-            if let Err(rr) = hyperscan(
+            let (scanresult, stats) = hyperscan(
                 logs,
+                stats,
                 tags,
                 &mut specific_tags,
                 hca_keys,
                 hsdb,
                 &kept,
+                &profile.active,
+                &profile.report,
                 &profile.ignore,
                 &omit.exclusions,
-            ) {
-                logs.error(|| rr.to_string())
+            );
+            match scanresult {
+                Err(rr) => {
+                    logs.error(|| rr.to_string());
+                    (Ok(()), stats)
+                }
+                Ok(reasons) => {
+                    tags.extend(specific_tags);
+                    if reasons.is_empty() {
+                        (Ok(()), stats)
+                    } else {
+                        (
+                            Err(CfBlock {
+                                blocking: is_blocking(&reasons),
+                                reasons,
+                            }),
+                            stats,
+                        )
+                    }
+                }
             }
         }
         None => {
             logs.warning(||format!("no hsdb found for profile {}, it probably means that no rules were matched by the active/report/ignore", profile.id));
+            (Ok(()), stats.no_content_filter())
         }
     }
-
-    let sactive = specific_tags.intersect(&profile.active);
-    let sreport = specific_tags.intersect(&profile.report);
-    tags.extend(specific_tags);
-
-    if !sactive.is_empty() {
-        return Err(ContentFilterBlock::Block(sactive));
-    }
-    if !sreport.is_empty() {
-        return Err(ContentFilterBlock::Monitor(sreport));
-    }
-
-    let active = tags.intersect(&profile.active);
-    if !active.is_empty() {
-        return Err(ContentFilterBlock::Block(active));
-    }
-
-    let report = tags.intersect(&profile.report);
-    if !report.is_empty() {
-        return Err(ContentFilterBlock::Monitor(report));
-    }
-
-    Ok(())
 }
 
 /// checks a section (headers, args, cookies) against the policy
@@ -232,10 +186,10 @@ fn section_check(
     params: &RequestField,
     ignore_alphanum: bool,
     omit: &mut Omitted,
-) -> Result<(), ContentFilterBlock> {
+) -> Result<(), BlockReason> {
     if idx != SectionIdx::Path && params.len() > section.max_count {
         if section.max_count > 0 {
-            return Err(ContentFilterBlock::TooManyEntries(idx));
+            return Err(BlockReason::too_many_entries(idx, params.len(), section.max_count));
         } else {
             logs.warning(|| format!("In section {:?}, param_count = 0", idx));
         }
@@ -245,7 +199,7 @@ fn section_check(
         // skip decoded parameters for length checks
         if !name.ends_with(":decoded") && value.len() > section.max_length {
             if section.max_length > 0 {
-                return Err(ContentFilterBlock::EntryTooLarge(idx, name.to_string()));
+                return Err(BlockReason::entry_too_large(idx, name, value.len(), section.max_length));
             } else {
                 logs.warning(|| format!("In section {:?}, max_length = 0", idx));
             }
@@ -267,11 +221,7 @@ fn section_check(
             if matched {
                 omit.entries.at(idx).insert(name.to_string());
             } else if name_entry.restrict {
-                return Err(ContentFilterBlock::Mismatch(ContentFilterMatched::new(
-                    idx,
-                    name.to_string(),
-                    value.to_string(),
-                )));
+                return Err(BlockReason::restricted(Location::from_value(idx, name, value)));
             } else if tags.has_intersection(&name_entry.exclusions) {
                 omit.entries.at(idx).insert(name.to_string());
             } else if !name_entry.exclusions.is_empty() {
@@ -309,7 +259,8 @@ fn injection_check(
     omit: &Omitted,
     test_xss: bool,
     test_sqli: bool,
-) {
+) -> Vec<BlockReason> {
+    let mut out = Vec::new();
     for (value, (idx, name)) in hca_keys.iter() {
         let omit_tags = omit.exclusions.get(*idx).get(name);
         let rtest_xss = test_xss
@@ -321,60 +272,78 @@ fn injection_check(
                 .map(|tgs| LIBINJECTION_SQLI_TAGS.intersection(tgs).next().is_some())
                 .unwrap_or(false);
         if rtest_sqli {
-            if let Some((b, _)) = sqli(value) {
+            if let Some((b, fp)) = sqli(value) {
                 if b {
-                    tags.insert_qualified("cf-rule-id", "libinjection-sqli");
-                    tags.insert_qualified("cf-rule-category", "libinjection");
-                    tags.insert_qualified("cf-rule-subcategory", "libinjection-sqli");
-                    tags.insert_qualified("cf-rule-risk", "libinjection");
+                    let locs = Location::from_value(*idx, name, value);
+                    tags.insert_qualified("cf-rule-id", "libinjection-sqli", locs.clone());
+                    tags.insert_qualified("cf-rule-category", "libinjection", locs.clone());
+                    tags.insert_qualified("cf-rule-subcategory", "libinjection-sqli", locs.clone());
+                    tags.insert_qualified("cf-rule-risk", "libinjection", locs.clone());
+                    out.push(BlockReason::sqli(locs, fp));
                 }
             }
         }
         if rtest_xss {
             if let Some(b) = xss(value) {
                 if b {
-                    tags.insert_qualified("cf-rule-id", "libinjection-xss");
-                    tags.insert_qualified("cf-rule-category", "libinjection");
-                    tags.insert_qualified("cf-rule-subcategory", "libinjection-xss");
-                    tags.insert_qualified("cf-rule-risk", "libinjection");
+                    let locs = Location::from_value(*idx, name, value);
+                    tags.insert_qualified("cf-rule-id", "libinjection-xss", locs.clone());
+                    tags.insert_qualified("cf-rule-category", "libinjection", locs.clone());
+                    tags.insert_qualified("cf-rule-subcategory", "libinjection-xss", locs.clone());
+                    tags.insert_qualified("cf-rule-risk", "libinjection", locs.clone());
+                    out.push(BlockReason::xss(locs));
                 }
             }
         }
     }
+    out
 }
 
 #[allow(clippy::too_many_arguments)]
 fn hyperscan(
     logs: &mut Logs,
+    stats: StatsCollect<BStageAcl>,
     tags: &mut Tags,
     specific_tags: &mut Tags,
     hca_keys: HashMap<String, (SectionIdx, String)>,
     sigs: &ContentFilterRules,
     global_kept: &HashSet<String>,
+    active: &HashSet<String>,
+    report: &HashSet<String>,
     global_ignore: &HashSet<String>,
     exclusions: &Section<HashMap<String, HashSet<String>>>,
-) -> anyhow::Result<()> {
-    let scratch = sigs.db.alloc_scratch()?;
+) -> (anyhow::Result<Vec<BlockReason>>, StatsCollect<BStageContentFilter>) {
+    let scratch = match sigs.db.alloc_scratch() {
+        Err(rr) => return (Err(rr), stats.no_content_filter()),
+        Ok(s) => s,
+    };
     // TODO: use `intersperse` when this stabilizes
     let to_scan = hca_keys.keys().cloned().collect::<Vec<_>>().join("\n");
     let mut found = false;
-    sigs.db.scan(&[to_scan], &scratch, |_, _, _, _| {
+    if let Err(rr) = sigs.db.scan(&[to_scan], &scratch, |_, _, _, _| {
         found = true;
         Matching::Continue
-    })?;
+    }) {
+        return (Err(rr), stats.no_content_filter());
+    }
     logs.debug(|| format!("matching content filter signatures: {}", found));
 
     if !found {
-        return Ok(());
+        return (Ok(Vec::new()), stats.cf_no_match(sigs.ids.len()));
     }
 
+    let mut founds: HashSet<(&str, Location, BDecision, u8)> = HashSet::new();
+
+    let mut matches = 0;
+    let mut nactive = 0;
     // something matched! but what?
     for (k, (sid, name)) in hca_keys {
-        sigs.db.scan(&[k.as_bytes()], &scratch, |id, _, _, _| {
+        // for some reason, from is always set to 0 in my tests, so we can't accurately capture substrings
+        let scanr = sigs.db.scan(&[k.as_bytes()], &scratch, |id, from, to, _flags| {
             match sigs.ids.get(id as usize) {
                 None => logs.error(|| format!("Should not happen, invalid hyperscan index {}", id)),
                 Some(sig) => {
-                    logs.debug(|| format!("signature matched {:?}", sig));
+                    logs.debug(|| format!("signature matched [{}..{}] {:?}", from, to, sig));
 
                     // new specific tags are singleton hashsets, but we use the Tags structure to make sure
                     // they are properly converted
@@ -388,18 +357,48 @@ fn hyperscan(
                         && !new_tags.has_intersection(global_ignore)
                         && !new_specific_tags.has_intersection(global_ignore)
                     {
-                        tags.extend(new_tags);
-                        specific_tags.extend(new_specific_tags);
+                        matches += 1;
+                        let location = Location::from_value(sid, &name, &k);
+                        tags.merge(new_tags.with_loc(&location));
+                        specific_tags.merge(new_specific_tags.with_loc(&location));
+                        let decision = if specific_tags.has_intersection(active) {
+                            nactive += 1;
+                            BDecision::Blocking
+                        } else if specific_tags.has_intersection(report) {
+                            BDecision::Monitor
+                        } else if tags.has_intersection(active) {
+                            nactive += 1;
+                            BDecision::Blocking
+                        } else {
+                            BDecision::Monitor
+                        };
+                        founds.insert((&sig.id, location, decision, sig.risk));
                     }
                 }
             }
             Matching::Continue
-        })?;
+        });
+        if let Err(rr) = scanr {
+            return (Err(rr), stats.cf_matches(sigs.ids.len(), matches, nactive));
+        }
     }
-    Ok(())
+    (
+        Ok(founds
+            .into_iter()
+            .map(|(sigid, location, decision, risk_level)| BlockReason {
+                initiator: Initiator::ContentFilter {
+                    ruleid: sigid.to_string(),
+                    risk_level,
+                },
+                location: std::iter::once(location).collect(),
+                decision,
+            })
+            .collect()),
+        stats.cf_matches(sigs.ids.len(), matches, nactive),
+    )
 }
 
-fn mask_section(masking_seed: &[u8], sec: &mut RequestField, section: &ContentFilterSection) -> HashSet<XDataSource> {
+fn mask_section(masking_seed: &[u8], sec: &mut RequestField, section: &ContentFilterSection) -> HashSet<Location> {
     let to_mask: Vec<String> = sec
         .iter()
         .filter(|&(name, _)| {
@@ -438,22 +437,36 @@ pub fn masking(masking_seed: &[u8], req: RequestInfo, profile: &ContentFilterPro
         &mut ri.headers,
         profile.sections.get(SectionIdx::Headers),
     ));
-    for x in to_mask {
-        match x {
-            // for now, do not mask the Uri
-            XDataSource::Uri => (),
-            XDataSource::CookieHeader => {
-                ri.headers.mask(masking_seed, "cookie");
+
+    for extra_mask in to_mask {
+        use Location::*;
+        match extra_mask {
+            UriArgumentValue(_, v) => {
+                let target = masker(masking_seed, &v);
+                let npath = ri.rinfo.meta.path.replace(&v, &target);
+                ri.rinfo.meta.path = npath;
+                let nquery = ri.rinfo.qinfo.query.replace(&v, &target);
+                ri.rinfo.qinfo.query = nquery;
             }
+            RefererArgumentValue(_, v) => {
+                let target = masker(masking_seed, &v);
+                ri.headers.alter("referer", |r| r.replace(&v, &target));
+            }
+            Body => {
+                ri.rinfo.qinfo.args.mask(masking_seed, "RAW_BODY");
+            }
+            _ => (),
         }
     }
+
     ri
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::config::utils::DataSource;
+    use crate::interface::stats::Stats;
+    use crate::interface::{jsonlog, Decision};
     use crate::utils::{map_request, RequestMeta};
     use crate::{Logs, RawRequest};
 
@@ -461,8 +474,9 @@ mod test {
         let meta = RequestMeta {
             authority: Some("myhost".to_string()),
             method: "GET".to_string(),
-            path: "/foo?arg1=avalue1&arg2=avalue2".to_string(),
+            path: "/foo?arg1=avalue1&arg2=a%20value2".to_string(),
             extra: HashMap::default(),
+            requestid: None,
         };
         let mut logs = Logs::default();
         let headers = [("h1", "value1"), ("h2", "value2")]
@@ -475,7 +489,19 @@ mod test {
             headers,
             meta,
         };
-        map_request(&mut logs, &[], &[], &raw_request)
+        map_request(
+            &mut logs,
+            "a",
+            "b",
+            &[],
+            b"CHANGEME",
+            &[],
+            &[],
+            false,
+            500,
+            false,
+            &raw_request,
+        )
     }
 
     #[test]
@@ -497,6 +523,15 @@ mod test {
         }
     }
 
+    fn masksecret() -> ContentFilterEntryMatch {
+        ContentFilterEntryMatch {
+            restrict: false,
+            mask: true,
+            exclusions: HashSet::default(),
+            reg: Some(crate::config::matchers::Matching::from_str("SECRET", "SECRET".to_string()).unwrap()),
+        }
+    }
+
     #[test]
     fn masking_all_args_re() {
         let rinfo = test_request_info();
@@ -510,12 +545,37 @@ mod test {
             RequestField::raw_create(
                 &[],
                 &[
-                    ("arg1", &DataSource::X(XDataSource::Uri), "MASKED{fac00299}"),
-                    ("arg2", &DataSource::X(XDataSource::Uri), "MASKED{7ce2d8de}")
+                    (
+                        "arg1",
+                        &Location::UriArgumentValue("arg1".to_string(), "avalue1".to_string()),
+                        "MASKED{e8efcceb}"
+                    ),
+                    (
+                        "arg2",
+                        &Location::UriArgumentValue("arg2".to_string(), "a%20value2".to_string()),
+                        "MASKED{42541ec7}"
+                    )
                 ]
             ),
             masked.rinfo.qinfo.args
         );
+        assert_eq!(
+            "/foo?arg1=MASKED{e8efcceb}&arg2=MASKED{c96a6118}",
+            masked.rinfo.meta.path
+        );
+        assert_eq!("arg1=MASKED{e8efcceb}&arg2=MASKED{c96a6118}", masked.rinfo.qinfo.query);
+        let (logged, _) = jsonlog(
+            &Decision::pass(Vec::new()),
+            Some(&masked),
+            None,
+            &Tags::default(),
+            &Stats::default(),
+            &Logs::default(),
+        );
+        let log_string = logged.to_string();
+        if log_string.contains("avalue1") || log_string.contains("a value2") || log_string.contains("a%20value2") {
+            panic!("log lacks masking: {}", log_string)
+        }
     }
 
     #[test]
@@ -531,8 +591,16 @@ mod test {
             RequestField::raw_create(
                 &[],
                 &[
-                    ("arg1", &DataSource::X(XDataSource::Uri), "MASKED{fac00299}"),
-                    ("arg2", &DataSource::X(XDataSource::Uri), "avalue2")
+                    (
+                        "arg1",
+                        &Location::UriArgumentValue("arg1".to_string(), "avalue1".to_string()),
+                        "MASKED{e8efcceb}"
+                    ),
+                    (
+                        "arg2",
+                        &Location::UriArgumentValue("arg2".to_string(), "a%20value2".to_string()),
+                        "a value2"
+                    )
                 ]
             ),
             masked.rinfo.qinfo.args
@@ -552,8 +620,16 @@ mod test {
             RequestField::raw_create(
                 &[],
                 &[
-                    ("arg1", &DataSource::X(XDataSource::Uri), "MASKED{fac00299}"),
-                    ("arg2", &DataSource::X(XDataSource::Uri), "avalue2")
+                    (
+                        "arg1",
+                        &Location::UriArgumentValue("arg1".to_string(), "avalue1".to_string()),
+                        "MASKED{e8efcceb}"
+                    ),
+                    (
+                        "arg2",
+                        &Location::UriArgumentValue("arg2".to_string(), "a%20value2".to_string()),
+                        "a value2"
+                    )
                 ]
             ),
             masked.rinfo.qinfo.args
@@ -573,11 +649,86 @@ mod test {
             RequestField::raw_create(
                 &[],
                 &[
-                    ("arg1", &DataSource::X(XDataSource::Uri), "MASKED{fac00299}"),
-                    ("arg2", &DataSource::X(XDataSource::Uri), "MASKED{7ce2d8de}")
+                    (
+                        "arg1",
+                        &Location::UriArgumentValue("arg1".to_string(), "avalue1".to_string()),
+                        "MASKED{e8efcceb}"
+                    ),
+                    (
+                        "arg2",
+                        &Location::UriArgumentValue("arg2".to_string(), "a%20value2".to_string()),
+                        "MASKED{42541ec7}"
+                    )
                 ]
             ),
             masked.rinfo.qinfo.args
         );
+    }
+
+    #[test]
+    fn complex_parent_masking() {
+        let meta = RequestMeta {
+            authority: Some("myhost".to_string()),
+            method: "GET".to_string(),
+            path: "/foo/pth/ddd?arg1=SECRETa1&arg2=U0VDUkVUYTI%3D".to_string(),
+            extra: HashMap::default(),
+            requestid: None,
+        };
+        let mut logs = Logs::default();
+        let headers = [
+            ("h1", "SECRETh1"),
+            ("h2", "U0VDUkVUaDI="),
+            ("content-type", "application/json"),
+            ("cookie", "COOK=U0VDUkVUCg=="),
+            ("referer", "https://another.site.com/with?a1=SECRETr1&a2=U0VDUkVUcjI="),
+        ]
+        .iter()
+        .map(|(k, v)| (k.to_string(), v.to_string()))
+        .collect();
+        let raw_request = RawRequest {
+            ipstr: "1.2.3.4".into(),
+            mbody: Some(b"{\"arg1\": [\"SECRETb\"], \"arg2\": [\"U0VDUkVUYjI=\"]}"),
+            headers,
+            meta,
+        };
+        let rinfo = map_request(
+            &mut logs,
+            "a",
+            "b",
+            &[],
+            b"CHANGEME",
+            &[crate::config::contentfilter::Transformation::Base64Decode],
+            &[crate::config::raw::ContentType::Json],
+            true,
+            50,
+            false,
+            &raw_request,
+        );
+
+        let mut profile = ContentFilterProfile::default_from_seed("test");
+        let asection = profile.sections.at(SectionIdx::Args);
+        asection.regex = vec![(regex::Regex::new(".*").unwrap(), masksecret())];
+        let hsection = profile.sections.at(SectionIdx::Headers);
+        hsection.regex = vec![(regex::Regex::new("^h.*").unwrap(), masksecret())];
+        let csection = profile.sections.at(SectionIdx::Cookies);
+        csection.regex = vec![(regex::Regex::new(".*").unwrap(), masksecret())];
+
+        let masked = masking(b"test", rinfo, &profile);
+
+        let (logged, _) = jsonlog(
+            &Decision::pass(Vec::new()),
+            Some(&masked),
+            None,
+            &Tags::default(),
+            &Stats::default(),
+            &Logs::default(),
+        );
+        let log_string = logged.to_string();
+        if log_string.contains("SECRET") {
+            panic!("SECRET found in {}", log_string);
+        }
+        if log_string.contains("U0VDU") {
+            panic!("U0VDU found in {}", log_string);
+        }
     }
 }

@@ -1,0 +1,117 @@
+static_resources:
+  listeners:
+  - name: main
+    address:
+      socket_address:
+        address: 0.0.0.0
+        port_value: 80
+    filter_chains:
+    - filters:
+      - name: envoy.filters.network.http_connection_manager
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          stat_prefix: ingress_http
+          codec_type: auto
+          use_remote_address: true
+          skip_xff_append: false
+          access_log:
+            name: "envoy.access_loggers.tcp_grpc"
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.access_loggers.grpc.v3.HttpGrpcAccessLogConfig
+              common_config:
+                log_name: "test_GRPC_log"
+                transport_api_version: "v3"
+                grpc_service:
+                  envoy_grpc:
+                    cluster_name: grpc_log_cluster
+          route_config:
+            name: local_route
+            virtual_hosts:
+            - name: target_site_a
+              domains: ["*"]
+              routes:
+              - match:
+                  prefix: "/"
+                route:
+                  cluster: target_site_a
+          http_filters:
+          - name: envoy.filters.http.ext_proc
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_proc.v3.ExternalProcessor
+              failure_mode_allow: false
+              async_mode: false
+              message_timeout: 25s
+              request_attributes:
+              - user
+              response_attributes:
+              - server
+              processing_mode:
+                request_header_mode: "SEND"
+                response_header_mode: "SEND"
+                request_body_mode: "STREAMED"
+                response_body_mode: "NONE"
+                request_trailer_mode: "SKIP"
+                response_trailer_mode: "SKIP"
+              grpc_service:
+                envoy_grpc:
+                  cluster_name: ext_proc_cluster
+          - name: envoy.filters.http.router
+            typed_config: {}
+
+  - name: secondary
+    address:
+      socket_address:
+        address: 0.0.0.0
+        port_value: 81
+    filter_chains:
+    - filters:
+      - name: envoy.filters.network.http_connection_manager
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          stat_prefix: ingress_http
+          codec_type: auto
+          use_remote_address: true
+          skip_xff_append: false
+          access_log:
+            name: "envoy.access_loggers.tcp_grpc"
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.access_loggers.grpc.v3.HttpGrpcAccessLogConfig
+              common_config:
+                log_name: "test_GRPC_log"
+                transport_api_version: "v3"
+                grpc_service:
+                  envoy_grpc:
+                    cluster_name: grpc_log_cluster
+          route_config:
+            name: local_route
+            virtual_hosts:
+            - name: target_site_b
+              domains: ["*"]
+              routes:
+              - match:
+                  prefix: "/"
+                route:
+                  cluster: target_site_b
+          http_filters:
+          - name: envoy.filters.http.ext_proc
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_proc.v3.ExternalProcessor
+              failure_mode_allow: true
+              message_timeout: 25s
+              async_mode: false              
+              request_attributes:
+              - user
+              response_attributes:
+              - server
+              processing_mode:
+                request_header_mode: "SEND"
+                response_header_mode: "SEND"
+                request_body_mode: "STREAMED"
+                response_body_mode: "NONE"
+                request_trailer_mode: "SKIP"
+                response_trailer_mode: "SKIP"
+              grpc_service:
+                envoy_grpc:                  
+                  cluster_name: ext_proc_cluster
+          - name: envoy.filters.http.router
+            typed_config: {}

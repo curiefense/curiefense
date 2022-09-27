@@ -1,13 +1,8 @@
 local session_rust_envoy = {}
 local cjson       = require "cjson"
 local curiefense  = require "curiefense"
-local grasshopper = require "grasshopper"
-local accesslog   = require "lua.accesslog"
 local utils       = require "lua.nativeutils"
 local sfmt = string.format
-local log_request = accesslog.envoy_log_request
-local custom_response = utils.envoy_custom_response
-
 
 local function detectip(xff, hops)
     local len_xff = #xff
@@ -17,7 +12,6 @@ local function detectip(xff, hops)
         return xff[1]
     end
 end
-
 
 local function extract_ip(headers, metadata)
     local client_addr = "1.1.1.1"
@@ -32,6 +26,61 @@ local function extract_ip(headers, metadata)
     return client_addr
 end
 
+-- dynamic metadata filter name
+local DMFN = "com.reblaze.curiefense"
+local LOG_KEY = "request.info"
+
+local function log_request(handle, request_map)
+  handle:logDebug(request_map)
+  handle:streamInfo():dynamicMetadata():set(DMFN, LOG_KEY, request_map)
+end
+
+local function custom_response(handle, action_params)
+    if not action_params then action_params = {} end
+    local block_mode = action_params.block_mode
+    -- if not block_mode then block_mode = true end
+
+    if not block_mode then
+        handle:logDebug("altering the request")
+        local headers = handle:headers()
+        if type(action_params.headers) == "table" then
+            for k, v in pairs(action_params.headers) do
+                headers:replace(k, v)
+            end
+        end
+        return
+    end
+
+    local response = {
+        [ "status" ] = "503",
+        [ "headers"] = { [":status"] = "503" },
+        [ "reason" ] = { initiator = "undefined", reason = "undefined"},
+        [ "content"] = "request denied"
+    }
+
+    -- override defaults
+    if action_params["status"] then response["status"] = action_params["status"] end
+    if action_params["headers"] and action_params["headers"] ~= cjson.null then
+        response["headers"] = action_params["headers"]
+    end
+    if action_params["reason" ] then response["reason" ] = action_params["reason" ] end
+    if action_params["content"] then response["content"] = action_params["content"] end
+
+    response["headers"][":status"] = response["status"]
+
+    if block_mode then
+        handle:logDebug(cjson.encode(response))
+        handle:respond( response["headers"], response["content"])
+    end
+end
+
+function session_rust_envoy.on_response(handle)
+    local metadata = handle:streamInfo():dynamicMetadata()
+    local content = metadata:get(DMFN)[LOG_KEY]
+    local status = handle:headers():get(":status")
+    handle:logDebug("Status: " .. status)
+    handle:streamInfo():dynamicMetadata():set(DMFN, LOG_KEY, curiefense.set_status_string(content, status))
+end
 
 function session_rust_envoy.inspect(handle)
     local ip_str = extract_ip(handle:headers(), handle:metadata())
@@ -42,7 +91,11 @@ function session_rust_envoy.inspect(handle)
         if utils.startswith(k, ":") then
             meta[k:sub(2):lower()] = v
         else
-            headers[k] = v
+            if headers[k] then
+                headers[k] = headers[k] .. " " .. v
+            else
+                headers[k] = v
+            end
         end
     end
 
@@ -56,28 +109,27 @@ function session_rust_envoy.inspect(handle)
     --   * path : the full request uri
     --   * method : the HTTP verb
     --   * authority : optionally, the HTTP2 authority field
-    local response, err = curiefense.inspect_request(
-        meta, headers, body_content, ip_str, grasshopper
+    local res = curiefense.inspect_request(
+        meta, headers, body_content, ip_str
     )
 
-    if err then
-        handle:logErr(sfmt("curiefense.inspect_request_map error %s", err))
+    log_request(handle, res.request_map)
+
+    if res.error then
+        handle:logErr(sfmt("curiefense.inspect_request_map error %s", res.error))
     end
 
-    local request_map = nil
+    local response = res.response
     if response then
         local response_table = cjson.decode(response)
         handle:logDebug("decision " .. response)
-        utils.log_envoy_messages(handle, response_table["logs"])
-        request_map = response_table["request_map"]
-        request_map.handle = handle
+        for _, log in ipairs(res.logs) do
+            handle:logDebug(log)
+        end
         if response_table["action"] == "custom_response" then
-            custom_response(request_map, response_table["response"])
+            custom_response(handle, response_table["response"])
         end
     end
-
-    log_request(request_map)
-
 end
 
 return session_rust_envoy

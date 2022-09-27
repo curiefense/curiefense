@@ -2,12 +2,17 @@
   {
     "response": {
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:2",
+        "args:2",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:nil",
         "geo-subregion:nil",
         "geo-asn:396507",
+        "geo-org:emerald-onion",
         "sante",
         "ip:23-129-64-253",
         "contentfilterid:maskall",
@@ -23,6 +28,8 @@
         "cf-rule-subcategory:libinjection-xss",
         "cf-rule-risk:libinjection",
         "cf-rule-id:libinjection-xss",
+        "status:403",
+        "status-class:4xx",
         "aclname:default-acl"
       ],
       "action": "custom_response",

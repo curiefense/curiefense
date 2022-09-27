@@ -5,7 +5,6 @@ local cjson = require "cjson"
 local json_safe = require "cjson.safe"
 local json_decode = json_safe.decode
 
-local grasshopper = require "grasshopper"
 local nativeutils = require "nativeutils"
 local startswith = nativeutils.startswith
 
@@ -85,7 +84,7 @@ local function compare_tag_list(name, actual, expected)
   return good
 end
 
-local function run_inspect_request(raw_request_map)
+local function run_inspect_request_gen(raw_request_map, mode)
     local meta = {}
     local headers = {}
     for k, v in pairs(raw_request_map.headers) do
@@ -109,34 +108,126 @@ local function run_inspect_request(raw_request_map)
         headers["Cookie"] = "rbzid=OK;"
       end
     end
-    local response, merr
+    local res
     if human ~= nil then
-      response, merr = curiefense.test_inspect_request(meta, headers, raw_request_map.body, ip, human)
+      res = curiefense.test_inspect_request(meta, headers, raw_request_map.body, ip, human)
     else
-      response, merr = curiefense.inspect_request(meta, headers, raw_request_map.body, ip, grasshopper)
+      if mode ~= "lua_async" then
+        res = curiefense.inspect_request(meta, headers, raw_request_map.body, ip)
+      else
+        local r1 = curiefense.inspect_request_init(meta, headers, raw_request_map.body, ip)
+        if r1.error then
+          error(r1.error)
+        end
+        if r1.decided then
+          return r1
+        end
+        local flows = r1.flows
+        local conn = redis.connect(redishost, redisport)
+
+        -- very naive and simple implementation of flow / limit checks
+        local rflows = {}
+        for _, flow in pairs(flows) do
+          local key = flow.key
+          local len = conn:llen(key)
+          local step = flow.step
+          local flowtype = "nonlast"
+          if flow.is_last then
+            if step == len then
+              flowtype = "lastok"
+            else
+              flowtype = "lastblock"
+            end
+          else
+            if step == len then
+              conn:lpush(key, "foo")
+              local ttl = conn:ttl(key)
+              if ttl == nil or ttl < 0 then
+                conn:expire(key, flow.timeframe)
+              end
+            end
+          end
+          table.insert(rflows, flow:result(flowtype))
+        end
+
+        local limits = r1.limits
+        local rlimits = {}
+        for _, limit in pairs(limits) do
+          local key = limit.key
+          local curcount = 1
+          if not limit.zero_limits then
+            local pw = limit.pairwith
+            local expire
+            if pw then
+              conn:sadd(key, pw)
+              curcount = conn:scard(key)
+              expire = conn:ttl(key)
+            else
+              curcount = conn:incr(key)
+              expire = conn:ttl(key)
+            end
+            if curcount == nil then
+              curcount = 0
+            end
+            if expire == nil or expire < 0 then
+              conn:expire(key, limit.timeframe)
+            end
+          end
+          table.insert(rlimits, limit:result(curcount))
+        end
+
+        res = curiefense.inspect_request_process(r1, rflows, rlimits)
+      end
     end
-    if merr then
-      error(merr)
+    if res.error then
+      error(res.error)
     end
-    return response
+    return res
+end
+
+local function run_inspect_request(raw_request_map)
+  return run_inspect_request_gen(raw_request_map, "lua_async")
 end
 
 local function show_logs(logs)
   for _, log in ipairs(logs) do
-      print(log["elapsed_micros"] .. "µs " .. log["message"])
+      print(log)
   end
 end
 
+local function equals(o1, o2)
+  if o1 == o2 then return true end
+  local o1Type = type(o1)
+  local o2Type = type(o2)
+  if o1Type ~= o2Type then return false end
+  if o1Type ~= 'table' then return false end
+  local keySet = {}
+
+    for key1, value1 in pairs(o1) do
+        local value2 = o2[key1]
+        if value2 == nil or equals(value1, value2) == false then
+            return false
+        end
+        keySet[key1] = true
+    end
+
+    for key2, _ in pairs(o2) do
+        if not keySet[key2] then return false end
+    end
+    return true
+  end
 
 -- testing from envoy metadata
 local function test_raw_request(request_path)
   print("Testing " .. request_path)
   local raw_request_maps = load_json_file(request_path)
   for _, raw_request_map in pairs(raw_request_maps) do
-    local response = run_inspect_request(raw_request_map)
-    local r = cjson.decode(response)
+    local res = run_inspect_request(raw_request_map)
 
-    local good = compare_tag_list(raw_request_map.name, r.request_map.tags, raw_request_map.response.tags)
+    local r = cjson.decode(res.response)
+    local request_map = cjson.decode(res.request_map)
+
+    local good = compare_tag_list(raw_request_map.name, request_map.tags, raw_request_map.response.tags)
     if r.action ~= raw_request_map.response.action then
       print("Expected action " .. cjson.encode(raw_request_map.response.action) ..
         ", but got " .. cjson.encode(r.action))
@@ -153,19 +244,47 @@ local function test_raw_request(request_path)
           ", but got " .. cjson.encode(r.response.block_mode))
         good = false
       end
-      if raw_request_map.response.reason then
-        local actual = cjson.encode(r.response.reason)
-        local expected = cjson.encode(raw_request_map.response.reason)
-        if actual ~= expected then
-          print("Expected reason " .. expected ..  ", but got " .. actual)
-          good = false
+      if raw_request_map.response.headers then
+        local hgood = true
+        for h, v in pairs(raw_request_map.response.headers) do
+          if r.response.headers[h] ~= v then
+            print("Header " .. h .. ", expected " .. cjson.encode(v) .. " but got " ..
+              cjson.encode(r.response.headers[h]))
+            good = false
+            hgood = false
+          end
+        end
+        if not hgood then
+          print("Returned headers are " .. cjson.encode(r.response.headers))
+        end
+      end
+      for _, trigger_name in pairs({
+         "acl_triggers",
+         "rate_limit_triggers",
+         "global_filter_triggers",
+         "content_filter_triggers"
+      }) do
+        local expected = raw_request_map.response[trigger_name]
+        if expected then
+          local actual = request_map[trigger_name]
+
+          if equals(actual, expected) == false then
+            local jactual = cjson.encode(actual)
+            local jexpected = cjson.encode(expected)
+            print("Expected " .. trigger_name .. ":")
+            print("  " ..  jexpected)
+            print("but got:")
+            print("  " .. jactual)
+            good = false
+          end
         end
       end
     end
 
     if not good then
-      show_logs(r.logs)
-      print(response)
+      show_logs(request_map.logs)
+      print(res.response)
+      print(res.request_map)
       error("mismatch in " .. raw_request_map.name)
     end
   end
@@ -186,10 +305,11 @@ local function test_raw_request_stats(request_path, pverbose)
       verbose = raw_request_map["verbose"]
     end
 
-    local response = run_inspect_request(raw_request_map)
-    local r = cjson.decode(response)
+    local res = run_inspect_request(raw_request_map)
+    local r = cjson.decode(res.response)
+    local request_map = cjson.decode(res.request_map)
 
-    local good = compare_tag_list(raw_request_map.name, r.request_map.tags, raw_request_map.response.tags)
+    local good = compare_tag_list(raw_request_map.name, request_map.tags, raw_request_map.response.tags)
     if r.action ~= raw_request_map.response.action then
       if verbose then
         print("Expected action " .. cjson.encode(raw_request_map.response.action) ..
@@ -216,10 +336,11 @@ local function test_raw_request_stats(request_path, pverbose)
 
     if not good then
       if verbose then
-        for _, log in ipairs(r.logs) do
+        for _, log in ipairs(request_map.logs) do
             print(log["elapsed_micros"] .. "µs " .. log["message"])
         end
-        print(response)
+        print(res.response)
+        print(res.request_map)
       end
       print("mismatch in " .. raw_request_map.name)
     else
@@ -235,10 +356,10 @@ local function test_masking(request_path)
   local raw_request_maps = load_json_file(request_path)
   for _, raw_request_map in pairs(raw_request_maps) do
     local secret = raw_request_map["secret"]
-    local response = run_inspect_request(raw_request_map)
-    local r = cjson.decode(response)
-    for _, section in pairs({"args", "headers", "cookies", "path"}) do
-      for k, value in pairs(r.request_map[section]) do
+    local res = run_inspect_request(raw_request_map)
+    local request_map = cjson.decode(res.request_map)
+    for _, section in pairs({"arguments", "headers", "cookies"}) do
+      for k, value in pairs(request_map[section]) do
         local p = string.find(value, secret)
         if p ~= nil then
           error("Could find secret in " .. section .. "/" .. k)
@@ -264,24 +385,26 @@ local function test_ratelimit(request_path)
   local raw_request_maps = load_json_file(request_path)
   for n, raw_request_map in pairs(raw_request_maps) do
     print(" -> step " .. n)
-    local jres = run_inspect_request(raw_request_map)
-    local res = cjson.decode(jres)
+    local r = run_inspect_request(raw_request_map)
+    local res = cjson.decode(r.response)
+    local request_map = cjson.decode(r.request_map)
 
-    if raw_request_map.tag and not contains(res.request_map.tags, raw_request_map.tag) then
-      show_logs(res.logs)
+    if raw_request_map.tag and not contains(request_map.tags, raw_request_map.tag) then
+      show_logs(request_map.logs)
       error("curiefense.session_limit_check should have returned tag '" .. raw_request_map.tag ..
-            "', but returned: " .. jres)
+            "', but returned: " .. r.response)
     end
 
     if raw_request_map.pass then
       if res["action"] ~= "pass" then
-        show_logs(res.logs)
-        error("curiefense.session_limit_check should have returned pass, but returned: " .. jres)
+        show_logs(request_map.logs)
+        error("curiefense.session_limit_check should have returned pass, but returned: " .. r.response)
       end
     else
       if res["action"] == "pass" then
-        show_logs(res.logs)
-        error("curiefense.session_limit_check should have blocked, but returned: " .. jres)
+        show_logs(request_map.logs)
+        print("response: " .. r.request_map)
+        error("curiefense.session_limit_check should have blocked, but returned: " .. r.response)
       end
     end
 
@@ -299,26 +422,39 @@ local function test_flow(request_path)
   local raw_request_maps = load_json_file(request_path)
   for n, raw_request_map in pairs(raw_request_maps) do
     print(" -> step " .. n)
-    local jres = run_inspect_request(raw_request_map)
-    local res = cjson.decode(jres)
+    local r = run_inspect_request(raw_request_map)
+    local request_map = cjson.decode(r.request_map)
+    local expected_tag = raw_request_map["tag"]
+
+    local tag_found = false
+    for _, tag in pairs(request_map["tags"]) do
+      if tag == expected_tag then
+        tag_found = true
+        break
+      end
+    end
 
     if raw_request_map.pass then
-      if res["action"] ~= "pass" then
-        print("curiefense.session_flow_check should have returned pass, but returned: " .. res["action"])
+      if tag_found then
+        print("we found the tag " .. expected_tag .. " in the request info, but it should have been absent")
         good = false
       end
     else
-      if res["action"] == "pass" then
-        print("curiefense.session_flow_check should have blocked, but returned: " .. res["action"])
+      if not tag_found then
+        print("we did not find the tag " .. expected_tag .. " in the request info. All tags:")
+        for _, tag in pairs(request_map["tags"]) do
+          print(" * " .. tag)
+        end
         good = false
       end
     end
 
     if not good then
-        for _, log in ipairs(res.logs) do
-            print(log["elapsed_micros"] .. "µs " .. log["message"])
+        for _, log in ipairs(request_map.logs) do
+            print(log)
         end
-        print(jres)
+        print(r.response)
+        print(r.request_map)
         error("mismatch in flow control")
     end
 
@@ -326,32 +462,6 @@ local function test_flow(request_path)
       socket.sleep(raw_request_map.delay)
     end
   end
-end
-
--- running content filter only filter
-local function run_inspect_content_filter(raw_request_map)
-    local meta = {}
-    local headers = {}
-    for k, v in pairs(raw_request_map.headers) do
-      if startswith(k, ":") then
-          meta[k:sub(2):lower()] = v
-      else
-          headers[k] = v
-      end
-    end
-    local ip = "1.2.3.4"
-    if raw_request_map.ip then
-      ip = raw_request_map.ip
-    elseif headers["x-forwarded-for"] then
-      ip = headers["x-forwarded-for"]
-    end
-
-    local response, merr = curiefense.inspect_content_filter(meta, headers, raw_request_map.body, ip,
-      raw_request_map.content_filter_id)
-    if merr then
-      error(merr)
-    end
-    return response
 end
 
 local test_request = '{ "headers": { ":authority": "localhost:30081", ":method": "GET", ":path": "/dqsqsdqsdcqsd"' ..
@@ -362,50 +472,10 @@ local test_request = '{ "headers": { ":authority": "localhost:30081", ":method":
   '-", "bot" ] } }'
 
 print("***  first request logs, check for configuration problems here ***")
-local tresponse = run_inspect_request(json_decode(test_request))
-show_logs(cjson.decode(tresponse)["logs"])
+local tres = run_inspect_request(json_decode(test_request))
+show_logs(tres.logs)
 print("*** done ***")
 print("")
-
--- testing content filter only filtering
-local function test_content_filter(request_path)
-  print("Testing " .. request_path)
-  local raw_request_maps = load_json_file(request_path)
-  for _, raw_request_map in pairs(raw_request_maps) do
-    local response = run_inspect_content_filter(raw_request_map)
-    local r = cjson.decode(response)
-
-    local good = true
-
-    for _, log in ipairs(r.logs) do
-        if log["message"] == "Content Filter profile not found" then
-          print("content filter profile '" .. raw_request_map.content_filter_id .. "' not found")
-          good = false
-        end
-    end
-
-    if r.action ~= raw_request_map.response.action then
-      print("Expected action " .. cjson.encode(raw_request_map.response.action) ..
-        ", but got " .. cjson.encode(r.action))
-      good = false
-    end
-    if r.response ~= cjson.null then
-      if r.response.status ~= raw_request_map.response.status then
-        print("Expected status " .. cjson.encode(raw_request_map.response.status) ..
-          ", but got " .. cjson.encode(r.response.status))
-        good = false
-      end
-    end
-
-    if not good then
-      for _, log in ipairs(r.logs) do
-          print(log["elapsed_micros"] .. "µs " .. log["message"])
-      end
-      print(response)
-      error("mismatch in " .. raw_request_map.name .. " profile: " .. raw_request_map.content_filter_id)
-    end
-  end
-end
 
 local prefix = nil
 
@@ -429,12 +499,6 @@ end
 for file in lfs.dir[[luatests/masking]] do
   if startswith(file, prefix) and ends_with(file, ".json") then
     test_masking("luatests/masking/" .. file)
-  end
-end
-
-for file in lfs.dir[[luatests/contentfilter_only]] do
-  if startswith(file, prefix) and ends_with(file, ".json") then
-    test_content_filter("luatests/contentfilter_only/" .. file)
   end
 end
 

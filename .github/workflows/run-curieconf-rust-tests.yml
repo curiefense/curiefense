@@ -26,6 +26,10 @@ jobs:
           override: true
           components: rustfmt
 
+      - name: copy grasshopper
+        working-directory: ./curiefense/curieproxy/rust
+        run: 'sudo cp static/libgrasshopper.so /usr/lib && sudo ldconfig'
+
       - name: Run cargo fmt
         working-directory: ./curiefense/curieproxy/rust
         run: 'cargo fmt --all -- --check'

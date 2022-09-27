@@ -3,6 +3,60 @@ use serde::de::{self, Deserializer, SeqAccess, Visitor};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
+use crate::interface::SimpleAction;
+use crate::logs::Logs;
+
+/// a datatype used to represent u64 that are sometimes represented as strings
+#[derive(Debug, Clone, Copy)]
+pub struct Repru64 {
+    pub inner: u64,
+}
+
+impl<'de> Deserialize<'de> for Repru64 {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct ParseVisitor;
+
+        impl<'de> Visitor<'de> for ParseVisitor {
+            type Value = u64;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                write!(formatter, "expecting an unsigned integer")
+            }
+
+            fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                s.parse()
+                    .map_err(|_| de::Error::invalid_value(serde::de::Unexpected::Str(s), &self))
+            }
+
+            fn visit_u64<E>(self, i: u64) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                Ok(i)
+            }
+        }
+
+        deserializer
+            .deserialize_any(ParseVisitor)
+            .map(|inner| Repru64 { inner })
+    }
+}
+
+impl Serialize for Repru64 {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.inner.serialize(serializer)
+    }
+}
+
 /// a mapping of the configuration file for security policy entries
 /// it is called "securitypolicy" in the lua code
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -20,6 +74,9 @@ pub struct RawHostMap {
 pub struct RawSecurityPolicy {
     #[serde(rename = "match")]
     pub match_: String,
+    #[serde(default)]
+    pub session: Vec<HashMap<String, String>>,
+    pub id: Option<String>, // set to name if absent
     pub name: String,
     pub acl_profile: String,
     pub content_filter_profile: String,
@@ -43,13 +100,20 @@ pub struct RawGlobalFilterSection {
     pub active: bool,
     pub tags: Vec<String>,
     pub rule: RawGlobalFilterRule,
-    pub action: Option<RawAction>,
+    pub action: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RawGlobalFilterRule {
+#[serde(untagged)]
+pub enum RawGlobalFilterRule {
+    Rel(RawGlobalFilterRelation),
+    Entry(RawGlobalFilterEntry),
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct RawGlobalFilterRelation {
     pub relation: Relation,
-    pub sections: Vec<RawGlobalFilterSSection>,
+    pub entries: Vec<RawGlobalFilterRule>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, Copy)]
@@ -69,17 +133,20 @@ pub enum GlobalFilterEntryType {
     Ip,
     Company,
     Authority,
+    Tag,
+    SecurityPolicyId,
+    SecurityPolicyEntryId,
 }
 
 /// a special datatype for deserializing tuples with 2 elements, and optional extra elements
 #[derive(Debug, Serialize, Clone)]
-pub struct RawGlobalFilterSSectionEntry {
+pub struct RawGlobalFilterEntry {
     pub tp: GlobalFilterEntryType,
     pub vl: serde_json::Value,
     pub comment: Option<String>,
 }
 
-impl<'de> Deserialize<'de> for RawGlobalFilterSSectionEntry {
+impl<'de> Deserialize<'de> for RawGlobalFilterEntry {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -87,7 +154,7 @@ impl<'de> Deserialize<'de> for RawGlobalFilterSSectionEntry {
         struct MyTupleVisitor;
 
         impl<'de> Visitor<'de> for MyTupleVisitor {
-            type Value = RawGlobalFilterSSectionEntry;
+            type Value = RawGlobalFilterEntry;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
                 formatter.write_str("a global filter section entry")
@@ -102,7 +169,7 @@ impl<'de> Deserialize<'de> for RawGlobalFilterSSectionEntry {
                 // comment might not be present
                 let comment = seq.next_element().ok().flatten();
 
-                Ok(RawGlobalFilterSSectionEntry { tp, vl, comment })
+                Ok(RawGlobalFilterEntry { tp, vl, comment })
             }
         }
 
@@ -111,16 +178,10 @@ impl<'de> Deserialize<'de> for RawGlobalFilterSSectionEntry {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RawGlobalFilterSSection {
-    pub relation: Relation,
-    pub entries: Vec<RawGlobalFilterSSectionEntry>,
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RawLimit {
     pub id: String,
     pub name: String,
-    pub timeframe: String,
+    pub timeframe: Repru64,
     #[serde(default)]
     pub key: Vec<HashMap<String, String>>,
     #[serde(default)]
@@ -130,12 +191,14 @@ pub struct RawLimit {
     #[serde(default)]
     pub exclude: Vec<String>,
     pub pairwith: HashMap<String, String>,
+    #[serde(default)]
+    pub global: bool, // global flag, if true this rule applies to all profiles
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RawLimitThreshold {
-    pub limit: String,
-    pub action: RawAction,
+    pub limit: Repru64,
+    pub action: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, Default)]
@@ -152,8 +215,11 @@ pub struct RawLimitSelector {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RawAction {
+    pub id: String,
     #[serde(rename = "type", default)]
     pub type_: RawActionType,
+    #[serde(default)]
+    pub tags: Vec<String>,
     #[serde(default)]
     pub params: RawActionParams,
 }
@@ -161,55 +227,42 @@ pub struct RawAction {
 #[derive(Debug, Deserialize, Serialize, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 pub enum RawActionType {
-    Default,
-    Ban,
-    Response,
-    Challenge,
-    Redirect,
+    Skip,
     Monitor,
-    RequestHeader,
+    Custom,
+    Challenge,
 }
 
 impl std::default::Default for RawActionType {
     fn default() -> Self {
-        RawActionType::Default
+        RawActionType::Custom
     }
 }
 
-fn get_false() -> bool {
-    false
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, Default)]
 pub struct RawActionParams {
-    pub status: Option<String>,
-    #[serde(default = "get_false")]
-    pub block_mode: bool,
-    pub action: Option<Box<RawAction>>,
+    pub status: Option<u32>,
     #[serde(default)]
     pub headers: Option<HashMap<String, String>>,
-    pub reason: Option<String>,
     pub content: Option<String>,
-    pub location: Option<String>,
-    pub duration: Option<String>,
-}
-
-impl std::default::Default for RawActionParams {
-    fn default() -> Self {
-        RawActionParams {
-            status: None,
-            block_mode: true,
-            action: None,
-            headers: None,
-            reason: None,
-            content: None,
-            location: None,
-            duration: None,
-        }
-    }
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct RawAclProfile {
+    pub id: String,
+    pub name: String,
+    pub allow: HashSet<String>,
+    pub allow_bot: HashSet<String>,
+    pub deny: HashSet<String>,
+    pub deny_bot: HashSet<String>,
+    pub passthrough: HashSet<String>,
+    pub force_deny: HashSet<String>,
+    pub action: Option<String>,
+    #[serde(default)]
+    pub tags: Vec<String>,
+}
+
+#[derive(Debug, Clone)]
 pub struct AclProfile {
     pub id: String,
     pub name: String,
@@ -219,6 +272,8 @@ pub struct AclProfile {
     pub deny_bot: HashSet<String>,
     pub passthrough: HashSet<String>,
     pub force_deny: HashSet<String>,
+    pub action: SimpleAction,
+    pub tags: HashSet<String>,
 }
 
 impl AclProfile {
@@ -232,6 +287,34 @@ impl AclProfile {
             deny_bot: HashSet::new(),
             passthrough: HashSet::new(),
             force_deny: HashSet::new(),
+            action: SimpleAction::default(),
+            tags: HashSet::new(),
+        }
+    }
+
+    pub fn resolve(logs: &mut Logs, actions: &HashMap<String, SimpleAction>, acl: RawAclProfile) -> Self {
+        let id = acl.id;
+        let action = match acl.action {
+            None => {
+                logs.warning(|| format!("Could not find the action in acl profile {}, using default action", id));
+                SimpleAction::default()
+            }
+            Some(aid) => actions.get(&aid).cloned().unwrap_or_else(|| {
+                logs.error(|| format!("Could not resolve action {} in acl profile {}", aid, id));
+                SimpleAction::default()
+            }),
+        };
+        AclProfile {
+            id,
+            name: acl.name,
+            allow: acl.allow,
+            allow_bot: acl.allow_bot,
+            deny: acl.deny,
+            deny_bot: acl.deny_bot,
+            passthrough: acl.passthrough,
+            force_deny: acl.force_deny,
+            action,
+            tags: acl.tags.into_iter().collect(),
         }
     }
 }
@@ -267,6 +350,8 @@ pub struct RawContentFilterProfile {
     #[serde(default)]
     pub path: RawContentFilterProperties,
     #[serde(default)]
+    pub allsections: RawContentFilterProperties,
+    #[serde(default)]
     pub decoding: ContentFilterDecoding,
     #[serde(default)]
     pub active: Vec<String>,
@@ -277,6 +362,15 @@ pub struct RawContentFilterProfile {
     pub masking_seed: String,
     #[serde(default)]
     pub content_type: Vec<ContentType>,
+    #[serde(default)]
+    pub ignore_body: bool,
+    pub max_body_size: Option<usize>,
+    pub max_body_depth: Option<usize>,
+    #[serde(default)]
+    pub referer_as_uri: bool,
+    pub action: Option<String>,
+    #[serde(default)]
+    pub tags: Vec<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -352,12 +446,6 @@ pub struct ContentFilterRule {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct ContentFilterGroup {
-    pub tags: Vec<String>,
-    pub signatures: Vec<String>,
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RawFlowEntry {
     pub id: String,
     pub include: Vec<String>,
@@ -367,7 +455,7 @@ pub struct RawFlowEntry {
     pub key: Vec<HashMap<String, String>>,
     pub active: bool,
     pub timeframe: u64,
-    pub action: RawAction,
+    pub tags: Vec<String>,
     pub sequence: Vec<RawFlowStep>,
 }
 
@@ -381,4 +469,15 @@ pub struct RawFlowStep {
     pub headers: HashMap<String, String>,
     #[serde(default)]
     pub args: HashMap<String, String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct RawManifest {
+    pub meta: RawMetaManifest,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct RawMetaManifest {
+    pub id: String,
+    pub version: String,
 }

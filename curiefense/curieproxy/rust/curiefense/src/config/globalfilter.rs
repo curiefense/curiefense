@@ -3,26 +3,32 @@ use ipnet::{IpNet, Ipv4Net, Ipv6Net};
 use iprange::IpRange;
 use regex::Regex;
 use serde_json::{from_value, Value};
+use std::collections::HashMap;
 use std::net::IpAddr;
 
-use crate::config::raw::{
-    GlobalFilterEntryType, RawGlobalFilterSSection, RawGlobalFilterSSectionEntry, RawGlobalFilterSection, Relation,
-};
-use crate::interface::{SimpleAction, Tags};
+use crate::config::raw::{GlobalFilterEntryType, RawGlobalFilterRule, RawGlobalFilterSection, Relation};
+use crate::interface::{RawTags, SimpleAction};
 use crate::logs::Logs;
 
 #[derive(Debug, Clone)]
 pub struct GlobalFilterSection {
-    pub tags: Tags,
-    pub relation: Relation,
-    pub sections: Vec<GlobalFilterSSection>,
+    pub id: String,
+    pub name: String,
+    pub tags: RawTags,
+    pub rule: GlobalFilterRule,
     pub action: Option<SimpleAction>,
 }
 
 #[derive(Debug, Clone)]
-pub struct GlobalFilterSSection {
+pub enum GlobalFilterRule {
+    Rel(GlobalFilterRelation),
+    Entry(GlobalFilterEntry),
+}
+
+#[derive(Debug, Clone)]
+pub struct GlobalFilterRelation {
     pub relation: Relation,
-    pub entries: Vec<GlobalFilterEntry>,
+    pub entries: Vec<GlobalFilterRule>,
 }
 
 #[derive(Debug, Clone)]
@@ -46,6 +52,9 @@ pub struct PairEntry {
 
 #[derive(Debug, Clone)]
 pub enum GlobalFilterEntryE {
+    // internal usage for the optimizer
+    Always(bool),
+
     // pairs
     Args(PairEntry),
     Cookies(PairEntry),
@@ -68,52 +77,58 @@ pub enum GlobalFilterEntryE {
     Asn(u32),
     Company(SingleEntry),
     Authority(SingleEntry),
+    Tag(SingleEntry),
+    SecurityPolicyId(String),
+    SecurityPolicyEntryId(String),
 }
 
 /// tries to aggregate ip ranges
-pub fn optimize_ipranges(rel: Relation, unoptimized: Vec<GlobalFilterEntry>) -> Vec<GlobalFilterEntry> {
+pub fn optimize_ipranges(rel: Relation, unoptimized: Vec<GlobalFilterRule>) -> Vec<GlobalFilterRule> {
     let mut p4: Vec<Ipv4Net> = Vec::new();
     let mut n4: Vec<Ipv4Net> = Vec::new();
     let mut p6: Vec<Ipv6Net> = Vec::new();
     let mut n6: Vec<Ipv6Net> = Vec::new();
-    let mut other: Vec<GlobalFilterEntry> = Vec::new();
+    let mut other: Vec<GlobalFilterRule> = Vec::new();
 
     // separate ip entries into postive/negative stacks
     // there is a way to do it in a much more optimal way by traversing the vector once
     // hopefuly this will be simpler to understand
-    for e in unoptimized {
-        match e.entry {
-            GlobalFilterEntryE::Network(IpNet::V4(r4)) => {
-                if e.negated {
-                    n4.push(r4)
-                } else {
-                    p4.push(r4)
+    for r in unoptimized {
+        match r {
+            GlobalFilterRule::Entry(e) => match e.entry {
+                GlobalFilterEntryE::Network(IpNet::V4(r4)) => {
+                    if e.negated {
+                        n4.push(r4)
+                    } else {
+                        p4.push(r4)
+                    }
                 }
-            }
-            GlobalFilterEntryE::Network(IpNet::V6(r6)) => {
-                if e.negated {
-                    n6.push(r6)
-                } else {
-                    p6.push(r6)
+                GlobalFilterEntryE::Network(IpNet::V6(r6)) => {
+                    if e.negated {
+                        n6.push(r6)
+                    } else {
+                        p6.push(r6)
+                    }
                 }
-            }
-            GlobalFilterEntryE::Ip(IpAddr::V4(i4)) => {
-                let r4 = Ipv4Net::from(i4);
-                if e.negated {
-                    n4.push(r4)
-                } else {
-                    p4.push(r4)
+                GlobalFilterEntryE::Ip(IpAddr::V4(i4)) => {
+                    let r4 = Ipv4Net::from(i4);
+                    if e.negated {
+                        n4.push(r4)
+                    } else {
+                        p4.push(r4)
+                    }
                 }
-            }
-            GlobalFilterEntryE::Ip(IpAddr::V6(i6)) => {
-                let r6 = Ipv6Net::from(i6);
-                if e.negated {
-                    n6.push(r6)
-                } else {
-                    p6.push(r6)
+                GlobalFilterEntryE::Ip(IpAddr::V6(i6)) => {
+                    let r6 = Ipv6Net::from(i6);
+                    if e.negated {
+                        n6.push(r6)
+                    } else {
+                        p6.push(r6)
+                    }
                 }
-            }
-            _ => other.push(e),
+                _ => other.push(GlobalFilterRule::Entry(e)),
+            },
+            _ => other.push(r),
         }
     }
 
@@ -148,40 +163,40 @@ pub fn optimize_ipranges(rel: Relation, unoptimized: Vec<GlobalFilterEntry>) -> 
     }
 
     if !p4.is_empty() {
-        other.push(GlobalFilterEntry {
+        other.push(GlobalFilterRule::Entry(GlobalFilterEntry {
             negated: false,
             entry: GlobalFilterEntryE::Range4(match rel {
                 Relation::And => intersection(p4),
                 Relation::Or => union(p4),
             }),
-        });
+        }));
     }
     if !n4.is_empty() {
-        other.push(GlobalFilterEntry {
+        other.push(GlobalFilterRule::Entry(GlobalFilterEntry {
             negated: true,
             entry: GlobalFilterEntryE::Range4(match rel {
                 Relation::And => union(n4),
                 Relation::Or => intersection(n4),
             }),
-        });
+        }));
     }
     if !p6.is_empty() {
-        other.push(GlobalFilterEntry {
+        other.push(GlobalFilterRule::Entry(GlobalFilterEntry {
             negated: false,
             entry: GlobalFilterEntryE::Range6(match rel {
                 Relation::And => intersection(p6),
                 Relation::Or => union(p6),
             }),
-        });
+        }));
     }
     if !n6.is_empty() {
-        other.push(GlobalFilterEntry {
+        other.push(GlobalFilterRule::Entry(GlobalFilterEntry {
             negated: true,
             entry: GlobalFilterEntryE::Range6(match rel {
                 Relation::And => union(n6),
                 Relation::Or => intersection(n6),
             }),
-        });
+        }));
     }
 
     other
@@ -189,7 +204,11 @@ pub fn optimize_ipranges(rel: Relation, unoptimized: Vec<GlobalFilterEntry>) -> 
 
 impl GlobalFilterSection {
     // what an ugly function :(
-    pub fn resolve(logs: &mut Logs, rawglobalfilters: Vec<RawGlobalFilterSection>) -> Vec<GlobalFilterSection> {
+    pub fn resolve(
+        logs: &mut Logs,
+        actions: &HashMap<String, SimpleAction>,
+        rawglobalfilters: Vec<RawGlobalFilterSection>,
+    ) -> Vec<GlobalFilterSection> {
         /// build a global filter entry for "single" conditions
         fn single<F>(conv: F, val: Value) -> anyhow::Result<GlobalFilterEntry>
         where
@@ -297,53 +316,60 @@ impl GlobalFilterSection {
                 GlobalFilterEntryType::Asn => single(|rawasn| Ok(GlobalFilterEntryE::Asn(rawasn.parse()?)), val),
                 GlobalFilterEntryType::Company => single_re(logs, GlobalFilterEntryE::Company, val),
                 GlobalFilterEntryType::Authority => single_re(logs, GlobalFilterEntryE::Authority, val),
+                GlobalFilterEntryType::Tag => single(
+                    |s| {
+                        Ok(GlobalFilterEntryE::Tag(SingleEntry {
+                            exact: s.to_string(),
+                            re: None,
+                        }))
+                    },
+                    val,
+                ),
+                GlobalFilterEntryType::SecurityPolicyId => {
+                    single(|id| Ok(GlobalFilterEntryE::SecurityPolicyId(id.to_string())), val)
+                }
+                GlobalFilterEntryType::SecurityPolicyEntryId => {
+                    single(|id| Ok(GlobalFilterEntryE::SecurityPolicyEntryId(id.to_string())), val)
+                }
             }
         }
-        fn convert_subsection(logs: &mut Logs, ss: RawGlobalFilterSSection) -> anyhow::Result<GlobalFilterSSection> {
-            // convert all entries individually
-            let rentries: anyhow::Result<Vec<GlobalFilterEntry>> = ss
-                .entries
-                .into_iter()
-                .map(|RawGlobalFilterSSectionEntry { tp, vl, comment }| {
-                    convert_entry(logs, tp, vl).with_context(|| format!("Entry type={:?} comment={:?}", tp, comment))
-                })
-                .collect();
-            Ok(GlobalFilterSSection {
-                relation: ss.relation,
-                entries: optimize_ipranges(ss.relation, rentries?),
-            })
+
+        fn convert_rule(logs: &mut Logs, rule: RawGlobalFilterRule) -> anyhow::Result<GlobalFilterRule> {
+            match rule {
+                RawGlobalFilterRule::Rel(rl) => Ok(GlobalFilterRule::Rel(GlobalFilterRelation {
+                    relation: rl.relation,
+                    entries: rl
+                        .entries
+                        .into_iter()
+                        .map(|e| convert_rule(logs, e))
+                        .collect::<Result<Vec<_>, _>>()?,
+                })),
+                RawGlobalFilterRule::Entry(e) => convert_entry(logs, e.tp, e.vl).map(GlobalFilterRule::Entry),
+            }
         }
-        fn convert_section(logs: &mut Logs, s: RawGlobalFilterSection) -> anyhow::Result<GlobalFilterSection> {
+
+        fn convert_section(
+            logs: &mut Logs,
+            actions: &HashMap<String, SimpleAction>,
+            s: RawGlobalFilterSection,
+        ) -> anyhow::Result<GlobalFilterSection> {
             let sname = &s.name;
             let sid = &s.id;
-            let rsubsections: anyhow::Result<Vec<GlobalFilterSSection>> = s
-                .rule
-                .sections
-                .into_iter()
-                .map(|ss| convert_subsection(logs, ss))
-                .collect();
-            let subsections: Vec<GlobalFilterSSection> = rsubsections.with_context(|| {
-                format!(
-                    "global filter configuration error in section id={}, name={}",
-                    sid, sname
-                )
-            })?;
-            let action = match &s.action {
-                Some(ma) => Some(SimpleAction::resolve(ma).with_context(|| "when resolving the action entry")?),
-                None => None,
-            };
+            let rule = convert_rule(logs, s.rule).with_context(|| format!("in section {}, sid={}", sname, sid))?;
+            let action = s.action.as_ref().and_then(|r| actions.get(r)).cloned();
             Ok(GlobalFilterSection {
-                tags: Tags::from_slice(&s.tags),
-                relation: s.rule.relation,
-                sections: subsections,
+                id: s.id,
+                tags: s.tags.iter().cloned().collect(),
+                rule,
                 action,
+                name: s.name,
             })
         }
 
         let mut out = Vec::new();
 
         for rgf in rawglobalfilters.into_iter().filter(|s| s.active) {
-            match convert_section(logs, rgf) {
+            match convert_section(logs, actions, rgf) {
                 Err(rr) => logs.error(|| rr.to_string()),
                 Ok(gfilter) => out.push(gfilter),
             }

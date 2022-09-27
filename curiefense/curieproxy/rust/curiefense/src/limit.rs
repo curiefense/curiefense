@@ -1,82 +1,34 @@
+use crate::interface::stats::{BStageFlow, BStageLimit, StatsCollect};
 use crate::logs::Logs;
-use crate::redis::{extract_bannable_action, get_ban_key, is_banned};
-use redis::RedisResult;
+use redis::aio::ConnectionManager;
 
 use crate::config::limit::Limit;
 use crate::config::limit::LimitThreshold;
-use crate::interface::{stronger_decision, SimpleActionT, SimpleDecision, Tags};
-use crate::redis::{redis_async_conn, BanStatus};
+use crate::interface::{stronger_decision, BlockReason, Location, SimpleDecision, Tags};
 use crate::utils::{select_string, RequestInfo};
 
-fn build_key(security_policy_name: &str, reqinfo: &RequestInfo, tags: &Tags, limit: &Limit) -> Option<String> {
-    let mut key = security_policy_name.to_string() + &limit.id;
-    for kpart in limit.key.iter().map(|r| select_string(reqinfo, r, tags)) {
+fn build_key(reqinfo: &RequestInfo, tags: &Tags, limit: &Limit) -> Option<String> {
+    let mut key = limit.id.clone();
+    for kpart in limit.key.iter().map(|r| select_string(reqinfo, r, Some(tags))) {
         key += &kpart?;
     }
     Some(format!("{:X}", md5::compute(key)))
 }
 
 #[allow(clippy::too_many_arguments)]
-async fn limit_react<CNX: redis::aio::ConnectionLike>(
-    logs: &mut Logs,
-    tags: &mut Tags,
-    cnx: &mut CNX,
-    limit: &Limit,
-    threshold: &LimitThreshold,
-    key: &str,
-    ban_key: &str,
-    ban_status: BanStatus,
-) -> SimpleDecision {
-    tags.insert(&limit.name);
-    let action = extract_bannable_action(cnx, logs, &threshold.action, key, ban_key, ban_status).await;
+fn limit_pure_react(tags: &mut Tags, limit: &Limit, threshold: &LimitThreshold) -> SimpleDecision {
+    tags.insert(&limit.name, Location::Request);
+    let action = threshold.action.clone();
+    let decision = action.atype.to_bdecision();
     SimpleDecision::Action(
         action,
-        serde_json::json!({
-            "initiator": "limit",
-            "limitname": limit.name,
-            "key": key
-        }),
+        vec![BlockReason::limit(
+            limit.id.clone(),
+            limit.name.clone(),
+            threshold.limit,
+            decision,
+        )],
     )
-}
-
-async fn redis_get_limit<CNX: redis::aio::ConnectionLike>(
-    cnx: &mut CNX,
-    key: &str,
-    timeframe: u64,
-    pairvalue: Option<String>,
-) -> RedisResult<i64> {
-    let (mcurrent, mexpire): (Option<i64>, Option<i64>) = match &pairvalue {
-        None => {
-            redis::pipe()
-                .cmd("INCR")
-                .arg(key)
-                .cmd("TTL")
-                .arg(key)
-                .query_async(cnx)
-                .await?
-        }
-        Some(pv) => {
-            redis::pipe()
-                .cmd("SADD")
-                .arg(key)
-                .arg(pv)
-                .ignore()
-                .cmd("SCARD")
-                .arg(key)
-                .cmd("TTL")
-                .arg(key)
-                .query_async(cnx)
-                .await?
-        }
-    };
-    let current = mcurrent.unwrap_or(0);
-    let expire = mexpire.unwrap_or(-1);
-
-    if expire < 0 {
-        let _: () = redis::cmd("EXPIRE").arg(key).arg(timeframe).query_async(cnx).await?;
-    }
-
-    Ok(current)
 }
 
 fn limit_match(tags: &Tags, elem: &Limit) -> bool {
@@ -89,103 +41,128 @@ fn limit_match(tags: &Tags, elem: &Limit) -> bool {
     true
 }
 
-pub async fn limit_check(
-    logs: &mut Logs,
-    security_policy_name: &str,
-    reqinfo: &RequestInfo,
-    limits: &[Limit],
-    tags: &mut Tags,
-) -> SimpleDecision {
-    // early return to avoid redis connection
-    if limits.is_empty() {
-        logs.debug("no limits to check");
-        return SimpleDecision::Pass;
+/// an item that needs to be checked in redis
+#[derive(Clone)]
+pub struct LimitCheck {
+    pub key: String,
+    pub pairwith: Option<String>,
+    pub limit: Limit,
+}
+
+impl LimitCheck {
+    pub fn zero_limits(&self) -> bool {
+        self.limit.thresholds.iter().all(|t| t.limit == 0)
     }
+}
 
-    // we connect once for all limit tests
-    let mut redis = match redis_async_conn().await {
-        Ok(c) => c,
-        Err(rr) => {
-            logs.error(|| format!("Could not connect to the redis server {}", rr));
-            return SimpleDecision::Pass;
-        }
-    };
-
-    let mut out = SimpleDecision::Pass;
-
+/// generate information that needs to be checked in redis for limit checks
+pub fn limit_info(logs: &mut Logs, reqinfo: &RequestInfo, limits: &[Limit], tags: &Tags) -> Vec<LimitCheck> {
+    let mut out = Vec::new();
     for limit in limits {
         if !limit_match(tags, limit) {
-            logs.debug(|| format!("limit {} excluded", limit.name));
             continue;
         }
-
-        let key = match build_key(security_policy_name, reqinfo, tags, limit) {
+        let key = match build_key(reqinfo, tags, limit) {
             // if we can't build the key, it usually means that a header is missing.
             // If that is the case, we continue to the next limit.
             None => continue,
             Some(k) => k,
         };
-        let ban_key = get_ban_key(&key);
-        logs.debug(|| format!("limit={:?} key={}", limit, key));
-
-        if is_banned(&mut redis, &ban_key).await {
-            logs.debug("is banned!");
-            tags.insert(&limit.name);
-            let ban_threshold: &LimitThreshold = limit
-                .thresholds
-                .iter()
-                .find(|t| matches!(t.action.atype, SimpleActionT::Ban(_, _)))
-                .unwrap_or(&limit.thresholds[0]);
-            out = stronger_decision(
-                out,
-                limit_react(
-                    logs,
-                    tags,
-                    &mut redis,
-                    limit,
-                    ban_threshold,
-                    &key,
-                    &ban_key,
-                    BanStatus::AlreadyBanned,
-                )
-                .await,
-            );
-        }
-
-        // if the pairvalue is set, but could not be retrieved, do not count this request
-        let pairvalue = match &limit.pairwith {
+        let pairwith = match &limit.pairwith {
             None => None,
-            Some(sel) => match select_string(reqinfo, sel, tags) {
+            Some(sel) => match select_string(reqinfo, sel, Some(tags)) {
                 None => continue,
                 Some(x) => Some(x),
             },
         };
+        logs.debug(|| format!("checking limit[{}/{:?}] {:?}", key, pairwith, limit));
+        out.push(LimitCheck {
+            key,
+            pairwith,
+            limit: limit.clone(),
+        })
+    }
+    out
+}
 
-        match redis_get_limit(&mut redis, &key, limit.timeframe, pairvalue).await {
-            Err(rr) => logs.error(|| rr.to_string()),
-            Ok(current_count) => {
-                for threshold in &limit.thresholds {
-                    // Only one action with highest limit larger than current
-                    // counter will be applied, all the rest will be skipped.
-                    if current_count > threshold.limit as i64 {
-                        out = stronger_decision(
-                            out,
-                            limit_react(
-                                logs,
-                                tags,
-                                &mut redis,
-                                limit,
-                                threshold,
-                                &key,
-                                &ban_key,
-                                BanStatus::NewBan,
-                            )
-                            .await,
-                        );
-                    }
+#[derive(Clone)]
+pub struct LimitResult {
+    pub limit: Limit,
+    pub curcount: i64,
+}
+
+pub fn limit_build_query(pipe: &mut redis::Pipeline, checks: &[LimitCheck]) {
+    for check in checks {
+        let key = &check.key;
+        if !check.zero_limits() {
+            match &check.pairwith {
+                None => {
+                    pipe.cmd("INCR").arg(key).cmd("TTL").arg(key);
+                }
+                Some(pv) => {
+                    pipe.cmd("SADD")
+                        .arg(key)
+                        .arg(pv)
+                        .ignore()
+                        .cmd("SCARD")
+                        .arg(key)
+                        .cmd("TTL")
+                        .arg(key);
+                }
+            };
+        }
+    }
+}
+
+pub async fn limit_resolve_query<I: Iterator<Item = Option<i64>>>(
+    redis: &mut ConnectionManager,
+    iter: &mut I,
+    checks: Vec<LimitCheck>,
+) -> anyhow::Result<Vec<LimitResult>> {
+    let mut out = Vec::new();
+    for check in checks {
+        let curcount = match iter.next() {
+            None => anyhow::bail!("Empty iterator when getting curcount for {:?}", check.limit),
+            Some(r) => r.unwrap_or(0),
+        };
+        let expire = match iter.next() {
+            None => anyhow::bail!("Empty iterator when getting expire for {:?}", check.limit),
+            Some(r) => r.unwrap_or(-1),
+        };
+        if expire < 0 {
+            redis::cmd("EXPIRE")
+                .arg(&check.key)
+                .arg(&check.limit.timeframe)
+                .query_async(redis)
+                .await?;
+        }
+        out.push(LimitResult {
+            limit: check.limit,
+            curcount,
+        })
+    }
+    Ok(out)
+}
+
+/// performs the redis requests and compute the proper reactions based on
+pub fn limit_process(
+    stats: StatsCollect<BStageFlow>,
+    nlimits: usize,
+    results: &[LimitResult],
+    tags: &mut Tags,
+) -> (SimpleDecision, StatsCollect<BStageLimit>) {
+    let mut out = SimpleDecision::Pass;
+    for result in results {
+        if result.curcount > 0 {
+            for threshold in &result.limit.thresholds {
+                // Only one action with highest limit larger than current
+                // counter will be applied, all the rest will be skipped.
+                if result.curcount > threshold.limit as i64 {
+                    out = stronger_decision(out, limit_pure_react(tags, &result.limit, threshold));
                 }
             }
         }
     }
-    out
+
+    (out, stats.limit(nlimits, results.len()))
 }

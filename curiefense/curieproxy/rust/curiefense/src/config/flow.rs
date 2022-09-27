@@ -1,10 +1,8 @@
-use anyhow::Context;
 use std::collections::{HashMap, HashSet};
 
-use crate::config::limit::{resolve_selector_map, resolve_selectors};
+use crate::config::limit::resolve_selectors;
+use crate::config::matchers::{RequestSelector, RequestSelectorCondition};
 use crate::config::raw::{RawFlowEntry, RawFlowStep, RawLimitSelector};
-use crate::config::utils::{RequestSelector, RequestSelectorCondition};
-use crate::interface::SimpleAction;
 use crate::logs::Logs;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -18,7 +16,7 @@ struct FlowEntry {
     name: String,
     key: Vec<RequestSelector>,
     timeframe: u64,
-    action: SimpleAction,
+    tags: Vec<String>,
     sequence: Vec<FlowStep>,
 }
 
@@ -46,8 +44,8 @@ pub struct FlowElement {
     pub step: u32,
     /// the entry timeframe
     pub timeframe: u64,
-    /// the entry action
-    pub action: SimpleAction,
+    /// the entry tag
+    pub tags: Vec<String>,
     /// the step selector
     pub select: Vec<RequestSelectorCondition>,
     /// marker for the last step
@@ -56,17 +54,22 @@ pub struct FlowElement {
 
 impl FlowEntry {
     fn convert(rawentry: RawFlowEntry) -> anyhow::Result<FlowEntry> {
-        let mkey: anyhow::Result<Vec<RequestSelector>> = rawentry.key.into_iter().map(resolve_selector_map).collect();
+        let mkey: anyhow::Result<Vec<RequestSelector>> = rawentry
+            .key
+            .into_iter()
+            .map(RequestSelector::resolve_selector_map)
+            .collect();
         let msequence: anyhow::Result<Vec<FlowStep>> = rawentry.sequence.into_iter().map(FlowStep::convert).collect();
         let sequence = msequence?;
-
+        let id = rawentry.id;
+        let name = rawentry.name;
         Ok(FlowEntry {
-            id: rawentry.id,
+            id,
             include: rawentry.include.into_iter().collect(),
             exclude: rawentry.exclude.into_iter().collect(),
-            name: rawentry.name,
+            name,
             timeframe: rawentry.timeframe,
-            action: SimpleAction::resolve(&rawentry.action).with_context(|| "when resolving the action entry")?,
+            tags: rawentry.tags,
             key: mkey?,
             sequence,
         })
@@ -100,8 +103,10 @@ impl FlowStep {
     }
 }
 
-pub fn flow_resolve(logs: &mut Logs, rawentries: Vec<RawFlowEntry>) -> HashMap<SequenceKey, Vec<FlowElement>> {
-    let mut out: HashMap<SequenceKey, Vec<FlowElement>> = HashMap::new();
+pub type FlowMap = HashMap<SequenceKey, Vec<FlowElement>>;
+
+pub fn flow_resolve(logs: &mut Logs, rawentries: Vec<RawFlowEntry>) -> FlowMap {
+    let mut out: FlowMap = HashMap::new();
 
     // entries are created with steps in order
     for rawentry in rawentries {
@@ -116,7 +121,7 @@ pub fn flow_resolve(logs: &mut Logs, rawentries: Vec<RawFlowEntry>) -> HashMap<S
                     let vc: &mut Vec<FlowElement> = out.entry(step.sequence_key).or_insert_with(Vec::new);
                     vc.push(FlowElement {
                         id: entry.id.clone(),
-                        action: entry.action.clone(),
+                        tags: entry.tags.clone(),
                         include: entry.include.clone(),
                         exclude: entry.exclude.clone(),
                         key: entry.key.clone(),

@@ -1,22 +1,29 @@
-FROM tiangolo/uwsgi-nginx-flask:python3.8-2021-09-08
+FROM python:3.8-slim-buster
 
-RUN ln -sf /bootstrap/initial-bucket-export.conf /etc/supervisor/conf.d/initial-bucket-export.conf
-RUN ln -sf /init/nginx.conf /etc/nginx/conf.d/nginx.conf
-RUN ln -sf /init/uwsgi.conf /etc/uwsgi/uwsgi.ini
-RUN ln -sf /run/secrets/s3cfg/s3cfg /root/.s3cfg
-RUN ln -sf /init/prestart.sh /app/prestart.sh
-RUN ln -sf /curieconf-server/app/main.py /app/main.py
-RUN mkdir /uwsgi
-RUN chown nginx /uwsgi
+COPY init/requirements.txt /root/requirements.txt
 
-RUN /usr/bin/apt-get update && \
-    /usr/bin/apt-get upgrade -yq --no-install-recommends && \
-    /usr/bin/apt-get install -yq --no-install-recommends dumb-init && \
+RUN apt-get update && apt-get install --no-install-recommends --no-install-suggests -y \
+    gnupg1 ca-certificates libpcre3 git curl libmagic1 dumb-init  \
+    build-essential gcc python-dev libpcre3-dev &&  \
+    rm -rf /var/lib/apt/lists/* && \
+    pip install --no-cache-dir -r /root/requirements.txt && \
+    apt-get -y purge build-essential gcc python-dev libpcre3-dev  && apt-get autoremove --purge -y && \
     rm -rf /var/lib/apt/lists/*
 
 COPY bootstrap /bootstrap
 COPY init /init
 COPY curieconf-utils /curieconf-utils
-RUN cd /curieconf-utils ; pip3 install --no-cache-dir .
 COPY curieconf-server /curieconf-server
-RUN cd /curieconf-server ; pip3 install --no-cache-dir .
+
+RUN mkdir /uwsgi /etc/uwsgi /app && ln -sf /init/uwsgi.conf /etc/uwsgi/uwsgi.ini && \
+    ln -sf /run/secrets/s3cfg/s3cfg /root/.s3cfg && \
+    ln -sf /init/entrypoint.sh /entrypoint.sh && \
+    ln -sf /curieconf-server/app/main.py /app/main.py &&  \
+    cd /curieconf-utils && pip3 install --no-cache-dir . && \
+    cd /curieconf-server && pip3 install --no-cache-dir .
+
+WORKDIR /app
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "/entrypoint.sh"]
+
+CMD ["/usr/local/bin/uwsgi", "--ini", "/etc/uwsgi/uwsgi.ini", "--callable", "app", "--module", "main"]

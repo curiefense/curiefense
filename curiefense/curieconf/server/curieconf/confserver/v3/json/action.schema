@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Actions",
+  "description": "Actions",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "Id",
+      "description": "Unique id"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "title": "Name",
+      "description": "Name of entity shown in UI"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description",
+      "description": "Description of entity shown in UI"
+    },
+    "tags": {
+      "type": "array",
+      "title": "Tags List",
+      "description": "Tags associations",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true,
+      "minItems": 0
+    },
+    "type": {
+      "type": "string",
+      "enum": ["skip", "custom", "challenge", "monitor"],
+      "title": "Type",
+      "description": "Need to be one of predefined strings"
+    },
+    "params": {
+      "type": "object",
+      "title": "Action param List",
+      "properties": {
+            "status": {
+                "type": "integer",
+                "title": "Status",
+                "description": "Http status"
+            },
+            "headers": {
+                "type": "object",
+                "title": "Headers",
+                "description": "An object where keys are header names, and values are header values",
+                "additionalProperties": {"type": "string"}
+            },
+            "content": {
+                "type": "string",
+                "title": "Content"
+            }
+      },
+      "required": []
+    }
+  },
+  "additionalProperties": true,
+  "required": [
+    "id",
+    "name",
+    "tags",
+    "type"
+  ]
+}

@@ -1,4 +1,4 @@
-use crate::config::utils::{DataSource, XDataSource};
+use crate::interface::Location;
 use crate::requestfields::RequestField;
 
 use itertools::Itertools;
@@ -183,13 +183,17 @@ fn urldecode_str_def(input: &str) -> String {
 }
 
 /// parses query parameters, that look like a=b&c=d
-pub fn parse_urlencoded_params(args: &mut RequestField, query: &str) {
+pub fn parse_urlencoded_params<F>(args: &mut RequestField, query: &str, prefix: &str, locf: F)
+where
+    F: Fn(String, String) -> Location,
+{
     for kv in query.split('&') {
-        let (k, v) = match kv.splitn(2, '=').collect_tuple() {
-            Some((k, v)) => (urldecode_str_def(k), urldecode_str_def(v)),
-            None => (urldecode_str_def(kv), String::new()),
+        let (k, v, rawvalue) = match kv.splitn(2, '=').collect_tuple() {
+            Some((k, v)) => (urldecode_str_def(k), urldecode_str_def(v), v),
+            None => (urldecode_str_def(kv), String::new(), ""),
         };
-        args.add(k, DataSource::X(XDataSource::Uri), v);
+        let loc = locf(k.clone(), rawvalue.to_string());
+        args.add(format!("{}{}", prefix, k), loc, v);
     }
 }
 
@@ -201,13 +205,17 @@ fn urldecode_bytes_str(input: &[u8]) -> String {
 }
 
 /// parses query parameters, that look like a=b&c=d
-pub fn parse_urlencoded_params_bytes(args: &mut RequestField, query: &[u8]) {
+pub fn parse_urlencoded_params_bytes<F>(args: &mut RequestField, query: &[u8], locf: F)
+where
+    F: Fn(String, String) -> Location,
+{
     for kv in query.split(|x| *x == b'&') {
         let (k, v) = match kv.splitn(2, |x| *x == b'=').collect_tuple() {
             Some((k, v)) => (urldecode_bytes_str(k), urldecode_bytes_str(v)),
             None => (urldecode_bytes_str(kv), String::new()),
         };
-        args.add(k, DataSource::X(XDataSource::Uri), v);
+        let loc = locf(k.clone(), v.clone());
+        args.add(k, loc, v);
     }
 }
 

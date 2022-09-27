@@ -1,0 +1,19 @@
+[
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/anything?ee=12",
+      "user-agent": "yay",
+      "x-forwarded-for": "82.13.8.87"
+    },
+    "name": "test headers custom response",
+    "response": {
+      "action": "pass",
+      "block_mode": false,
+      "headers": {
+        "h1": "82.13.8.87 - nil - 12"
+      }
+    }
+  }
+]

@@ -1,26 +1,27 @@
 [
-    {
-        "id": "f971e92459e2",
-        "name": "Rate Limit Example Rule 5/60",
-        "description": "5 requests per minute",
-        "timeframe": "60",
-        "thresholds": [
-            {
-                "limit": "5",
-                "action": {
-                    "type": "default"
-                }
-            }
-        ],
-        "include": ["all"],
-        "exclude": [],
-        "key": [
-            {
-                "attrs": "ip"
-            }
-        ],
-        "pairwith": {
-            "self": "self"
-        }
-    }
+  {
+    "description": "5 requests per minute",
+    "exclude": [],
+    "id": "f971e92459e2",
+    "include": [
+      "all"
+    ],
+    "key": [
+      {
+        "attrs": "ip"
+      }
+    ],
+    "name": "Rate Limit Example Rule 5/60",
+    "pairwith": {
+      "self": "self"
+    },
+    "thresholds": [
+      {
+        "action": "default",
+        "limit": 5
+      }
+    ],
+    "timeframe": 60,
+    "global": true
+  }
 ]

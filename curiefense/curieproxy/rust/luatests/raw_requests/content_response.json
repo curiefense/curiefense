@@ -1,0 +1,20 @@
+[
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/anything",
+      "user-agent": "yay",
+      "x-forwarded-for": "82.13.8.88"
+    },
+    "name": "test content type",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 200,
+      "headers": {
+        "content-type": "application/json"
+      }
+    }
+  }
+]

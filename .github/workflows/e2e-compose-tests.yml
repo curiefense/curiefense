@@ -32,7 +32,7 @@ jobs:
 
             python3 -m venv "$BASEDIR/venv"
             source "$BASEDIR/venv/bin/activate"
-            pip install -U requests pytest pytest-html wheel
+            pip install --no-cache-dir -r "$BASEDIR/e2e/requirements.txt"
 
             pushd "curiefense/curieconf/utils"
             pip install -e .
@@ -45,7 +45,25 @@ jobs:
             echo "-- Run e2e tests --"
             pushd e2e
             IP=127.0.0.1
-            pytest --log-level INFO --base-protected-url http://$IP:30081 --base-conf-url http://$IP:30000/api/v2/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --junit-xml pytest.xml .
+            pytest --log-level INFO --base-protected-url http://$IP:30081 --base-conf-url http://$IP:30000/api/v3/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --junit-xml pytest.xml .
+            popd
+
+            echo "-- Run bitflip tests tests --"
+            # Here we are not interested in the e2e tests results, almost all
+            # of which are expected to fail. We just want to ensure envoy does
+            # not crash with malformed requests.
+            # A subset of tests is selected to exercise most code paths; not
+            # all tests are run to avoid spending more than 5 minutes on this
+            # in CI
+            pushd e2e
+            ENVOY_PID_BEFORE=$(pgrep envoy)
+            IP=127.0.0.1
+            pytest --log-level INFO --base-protected-url http://$IP:30081 --base-conf-url http://$IP:30000/api/v3/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --flip-requests . -k 'test_geo or test_ratelimit_scope_include[headers] or test_cookies[active] or test_headers[active] or test_method[active] or test_path[active] or test_query[active] or test_uri[active] or test_nondefault_content_filter_profile_short_headers or test_length_short[cookies] or test_non_allowlisted_value_restrict[ignore_alphanum-headers-regex] or test_content_filter_rule[ignore_alphanum-params-content_filter_rules1] or test_allowlisted_value[no_ignore_alphanum-params-name-norestrict]' || true
+            ENVOY_PID_AFTER=$(pgrep envoy)
+            if [ "$ENVOY_PID_BEFORE" != "$ENVOY_PID_AFTER" ]; then
+              echo "Error: probable envoy crash during bitflip smoke testing"
+              exit 1
+            fi
             popd
 
 

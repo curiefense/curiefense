@@ -1,0 +1,48 @@
+[
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/allsections",
+      "user-agent": "dummy",
+      "x-forwarded-for": "1.3.4.5"
+    },
+    "name": "specific arg not used",
+    "response": {
+      "action": "pass",
+      "block_mode": false,
+      "status": 200
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/allsections?a1=%3D",
+      "user-agent": "dummy",
+      "x-forwarded-for": "1.3.4.5",
+      "special": "123"
+    },
+    "name": "specific arg blocked in headers",
+    "response": {
+      "action": "custom_response",
+      "block_mode": true,
+      "status": 403
+    }
+  },
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/allsections?special=123",
+      "user-agent": "dummy",
+      "x-forwarded-for": "1.3.4.5"
+    },
+    "name": "specific arg ok in query",
+    "response": {
+      "action": "pass",
+      "block_mode": false,
+      "status": 200
+    }
+  }
+]

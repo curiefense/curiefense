@@ -1,0 +1,66 @@
+  clusters:
+  - name: grpc_log_cluster
+    connect_timeout: 0.25s
+    type: STRICT_DNS
+    lb_policy: ROUND_ROBIN
+    dns_lookup_family: V4_ONLY
+    http2_protocol_options: {}
+    upstream_connection_options:
+      # configure a TCP keep-alive to detect and reconnect to the admin
+      # server in the event of a TCP socket half open connection
+      tcp_keepalive: {}
+    load_assignment:
+      cluster_name: xds_cluster
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: curielogger
+                port_value: 9001
+
+  - name: target_site_a
+    connect_timeout: 25s
+    type: strict_dns # static
+    lb_policy: round_robin
+    load_assignment:
+      cluster_name: target_site_a
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: TARGET_ADDRESS_A
+                port_value: TARGET_PORT_A
+  - name: target_site_b
+    connect_timeout: 25s
+    type: strict_dns # static
+    lb_policy: round_robin
+    load_assignment:
+      cluster_name: target_site_b
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: TARGET_ADDRESS_B
+                port_value: TARGET_PORT_B
+  - name: ext_proc_cluster
+    type: strict_dns
+    connect_timeout: 25s
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: ext_proc_cluster
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: extproc
+                port_value: 50051 
+admin:
+  access_log_path: "/dev/null"
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: 8001

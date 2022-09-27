@@ -6,7 +6,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "-u", "--base-url", help="Base url for API", default="http://localhost:5000/api/v2/"
+    "-u", "--base-url", help="Base url for API", default="http://localhost:5000/api/v3/"
 )
 parser.add_argument(
     "CONFIGNAME", choices=["denyall", "defaultconfig", "contentfilter-and-acl"]

@@ -1,0 +1,59 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Content Filter Rule",
+    "description": "Content Filter Rule",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique id"
+        },
+        "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name",
+            "description": "Name of entity shown in UI"
+        },
+        "operand": {
+            "type": "string",
+            "minLength": 0,
+            "title": "Operand",
+            "description": "Matching domain(s) regex"
+        },
+        "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Description of entity shown in UI"
+        },
+        "risk": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "title": "Risk Level",
+            "description": "Risk level of this rule, between 1 (lowest risk) and 5 (highest risk)"
+        },
+        "tags": {
+            "title": "Tags List",
+            "description": "List of tags to apply",
+            "type": "array",
+            "items": { "type": "string" }
+        },
+        "msg": {
+            "type": "string",
+            "title": "Message",
+            "description": "Log message for this rule"
+        },
+        "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "Category of the rule"
+        },
+        "subcategory": {
+            "type": "string",
+            "title": "Subcategory",
+            "description": "Subcategory of the rule"
+        }
+    },
+    "required": [ "id", "name", "operand", "risk", "msg", "category", "subcategory" ]
+}

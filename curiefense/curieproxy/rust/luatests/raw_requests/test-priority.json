@@ -2,12 +2,17 @@
   {
     "response": {
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:2",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:nil",
         "geo-subregion:nil",
         "geo-asn:396507",
+        "geo-org:emerald-onion",
         "sante",
         "ip:23-129-64-253",
         "contentfilterid:reportpriority",
@@ -35,12 +40,17 @@
   {
     "response": {
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:2",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:nil",
         "geo-subregion:nil",
         "geo-asn:396507",
+        "geo-org:emerald-onion",
         "sante",
         "ip:23-129-64-253",
         "contentfilterid:reportpriority",
@@ -68,12 +78,17 @@
   {
     "response": {
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:2",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:nil",
         "geo-subregion:nil",
         "geo-asn:396507",
+        "geo-org:emerald-onion",
         "sante",
         "ip:23-129-64-253",
         "contentfilterid:reportpriority",
@@ -91,6 +106,8 @@
         "cf-rule-subcategory:built-in-function-invocation",
         "cf-rule-category:sqli",
         "cf-rule-risk:5",
+        "status:403",
+        "status-class:4xx",
         "waf"
       ],
       "action": "custom_response",
@@ -109,12 +126,17 @@
   {
     "response": {
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:2",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:nil",
         "geo-subregion:nil",
         "geo-asn:396507",
+        "geo-org:emerald-onion",
         "sante",
         "ip:23-129-64-253",
         "contentfilterid:reportpriority",
@@ -134,9 +156,7 @@
         "cf-rule-risk:3",
         "waf"
       ],
-      "action": "custom_response",
-      "block_mode": false,
-      "status": 403
+      "action": "pass"
     },
     "name": "priority report attack",
     "headers": {
@@ -150,12 +170,17 @@
   {
     "response": {
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:2",
+        "args:2",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:nil",
         "geo-subregion:nil",
         "geo-asn:396507",
+        "geo-org:emerald-onion",
         "sante",
         "ip:23-129-64-253",
         "contentfilterid:reportpriority",
@@ -173,6 +198,8 @@
         "cf-rule-subcategory:built-in-function-invocation",
         "cf-rule-category:sqli",
         "cf-rule-risk:5",
+        "status:403",
+        "status-class:4xx",
         "waf"
       ],
       "action": "custom_response",
@@ -191,12 +218,17 @@
   {
     "response": {
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:2",
+        "args:2",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:nil",
         "geo-subregion:nil",
         "geo-asn:396507",
+        "geo-org:emerald-onion",
         "sante",
         "ip:23-129-64-253",
         "contentfilterid:reportpriority",
@@ -216,9 +248,7 @@
         "cf-rule-risk:3",
         "waf"
       ],
-      "action": "custom_response",
-      "block_mode": false,
-      "status": 403
+      "action": "pass"
     },
     "name": "priority report + ignore attack",
     "headers": {
@@ -232,12 +262,17 @@
   {
     "response": {
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:2",
+        "args:2",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:nil",
         "geo-subregion:nil",
         "geo-asn:396507",
+        "geo-org:emerald-onion",
         "sante",
         "ip:23-129-64-253",
         "contentfilterid:reportpriority",
@@ -257,6 +292,8 @@
         "cf-rule-category:sqli",
         "cf-rule-risk:3",
         "cf-rule-risk:5",
+        "status:403",
+        "status-class:4xx",
         "waf"
       ],
       "action": "custom_response",

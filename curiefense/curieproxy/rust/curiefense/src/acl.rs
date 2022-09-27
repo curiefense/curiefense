@@ -1,36 +1,33 @@
 use crate::config::raw::AclProfile;
-use crate::interface::Tags;
+use crate::interface::{AclStage, Tags};
 
-use serde::Serialize;
 use std::collections::HashSet;
 
-#[derive(Debug, Serialize)]
-pub struct AclDecision {
-    pub allowed: bool,
-    pub tags: Vec<String>,
+#[derive(Debug, Clone)]
+pub struct AclDecisionDetails {
+    pub stage: AclStage,
+    pub tags: Tags,
+    pub challenge: bool,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub enum AclResult {
     /// passthrough found
-    Passthrough(AclDecision),
+    Passthrough((bool, Tags)),
     /// bots, human results
-    Match(BotHuman),
-}
-
-#[derive(Debug, Serialize)]
-pub struct BotHuman {
-    pub bot: Option<AclDecision>,
-    pub human: Option<AclDecision>,
+    Match {
+        bot: Option<(bool, Tags)>,
+        human: Option<(bool, Tags)>,
+    },
 }
 
 pub fn check_acl(tags: &Tags, acl: &AclProfile) -> AclResult {
     let subcheck = |checks: &HashSet<String>, allowed: bool| {
-        let tags: Vec<String> = checks.intersection(tags.as_hash_ref()).cloned().collect();
+        let tags = tags.intersect_tags(checks);
         if tags.is_empty() {
             None
         } else {
-            Some(AclDecision { allowed, tags })
+            Some((allowed, tags))
         }
     };
     subcheck(&acl.force_deny, false)
@@ -40,9 +37,74 @@ pub fn check_acl(tags: &Tags, acl: &AclProfile) -> AclResult {
             let botresult = subcheck(&acl.allow_bot, true).or_else(|| subcheck(&acl.deny_bot, false));
             let humanresult = subcheck(&acl.allow, true).or_else(|| subcheck(&acl.deny, false));
 
-            AclResult::Match(BotHuman {
+            AclResult::Match {
                 bot: botresult,
                 human: humanresult,
-            })
+            }
         })
+}
+
+impl AclResult {
+    pub fn has_matched(&self) -> bool {
+        match self {
+            AclResult::Passthrough(_) => true,
+            AclResult::Match { bot, human } => bot.is_some() || human.is_some(),
+        }
+    }
+
+    pub fn decision(self, is_human: bool) -> Option<AclDecisionDetails> {
+        match self {
+            AclResult::Passthrough((allowed, tags)) => Some(AclDecisionDetails {
+                stage: if allowed {
+                    AclStage::Bypass
+                } else {
+                    AclStage::EnforceDeny
+                },
+                tags,
+                challenge: false,
+            }),
+            AclResult::Match { bot: None, human: None } => None,
+            AclResult::Match {
+                bot: Some((true, _)),
+                human: Some((false, tags)),
+            } => Some(AclDecisionDetails {
+                stage: AclStage::Deny,
+                tags,
+                challenge: false,
+            }),
+            AclResult::Match {
+                bot: Some((true, tags)),
+                human: _,
+            } => Some(AclDecisionDetails {
+                stage: AclStage::AllowBot,
+                tags,
+                challenge: false,
+            }),
+            AclResult::Match {
+                bot: Some((false, tags)),
+                human: Some((false, _)),
+            } if !is_human => Some(AclDecisionDetails {
+                stage: AclStage::DenyBot,
+                tags,
+                challenge: false,
+            }),
+            AclResult::Match {
+                bot: Some((false, tags)),
+                human: _,
+            } if !is_human => Some(AclDecisionDetails {
+                stage: AclStage::DenyBot,
+                tags,
+                challenge: true,
+            }),
+            AclResult::Match {
+                bot: _,
+                human: Some((allowed, tags)),
+            } => Some(AclDecisionDetails {
+                stage: if allowed { AclStage::Allow } else { AclStage::Deny },
+                tags,
+                challenge: false,
+            }),
+            _ => None,
+        }
+    }
 }

@@ -438,7 +438,7 @@
                 ],
                 "rule": {
                     "relation": "OR",
-                    "sections": [
+                    "entries": [
                         {
                             "relation": "OR",
                             "entries": [
@@ -473,7 +473,7 @@
                 ],
                 "rule": {
                     "relation": "OR",
-                    "sections": [
+                    "entries": [
                         {
                             "relation": "OR",
                             "entries": [
@@ -508,7 +508,7 @@
                 ],
                 "rule": {
                     "relation": "OR",
-                    "sections": [
+                    "entries": [
                         {
                             "relation": "OR",
                             "entries": [
@@ -546,7 +546,7 @@
                 ],
                 "rule": {
                     "relation": "OR",
-                    "sections": [
+                    "entries": [
                         {
                             "relation": "OR",
                             "entries": [
@@ -587,7 +587,7 @@
                 "tags": [],
                 "rule": {
                     "relation": "OR",
-                    "sections": [
+                    "entries": [
                         {
                             "relation": "OR",
                             "entries": [

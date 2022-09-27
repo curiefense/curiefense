@@ -16,6 +16,18 @@ ctarget/target: ctarget
 ctarget/target/release/libcuriefense_lua.so: container ctarget/registry ctarget/target $(RSOURCES)
 	docker run --rm -v `pwd`:/home/builder/rust -v `pwd`/ctarget/registry:/home/builder/.cargo/registry  -w /home/builder/rust  -t curiefense/rustbuild:latest /home/builder/.cargo/bin/cargo build --release --target-dir ctarget/target
 
+fuzz: fuzzcontainer
+	docker run --rm -v `pwd`:/home/builder/rust -v `pwd`/ctarget/registry:/home/builder/.cargo/registry \
+			-v `pwd`/../../images/confserver/bootstrap/confdb-initial-data/master/config:/cf-config/current/config \
+			-v `pwd`/luatests/config/json:/cf-config/current/config/json \
+			-w /home/builder/rust/curiefense -it curiefense/rustfuzz:latest /home/builder/.cargo/bin/cargo +nightly fuzz run -j 8 fuzz_target_1 -- -dict=fuzz/dict.txt
+
+fuzzshell: fuzzcontainer
+	docker run --rm -v `pwd`:/home/builder/rust -v `pwd`/ctarget/registry:/home/builder/.cargo/registry \
+			-v `pwd`/../../images/confserver/bootstrap/confdb-initial-data/master/config:/cf-config/current/config \
+			-v `pwd`/luatests/config/json:/cf-config/current/config/json \
+			-w /home/builder/rust/curiefense -it curiefense/rustfuzz:latest /bin/bash
+
 ctarget/target/debug/libcuriefense_lua.so: container ctarget/registry ctarget/target $(RSOURCES)
 	docker run --rm -v `pwd`:/home/builder/rust -v `pwd`/ctarget/registry:/home/builder/.cargo/registry  -w /home/builder/rust  -t curiefense/rustbuild:latest /home/builder/.cargo/bin/cargo build --target-dir ctarget/target
 
@@ -31,7 +43,10 @@ target/release/libcuriefense_lua.so: Cargo.toml curiefense/Cargo.toml curiefense
 .PHONY: all container test test-nodeps
 
 container:
-	tar c Dockerfile  |  docker build -t curiefense/rustbuild -f Dockerfile -
+	tar c Dockerfile static |  docker build -t curiefense/rustbuild -f Dockerfile -
+
+fuzzcontainer:
+	tar c Dockerfile.fuzz static |  docker build -t curiefense/rustfuzz -f Dockerfile.fuzz -
 
 test: ctarget/target/debug/libcuriefense_lua.so test-nodeps
 	echo DONE

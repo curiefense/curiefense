@@ -1,0 +1,86 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Security Policy",
+    "description": "Security Policy by URL path map",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique id"
+        },
+        "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name",
+            "description": "Name of entity shown in UI"
+        },
+        "match": {
+            "type": "string",
+            "title": "Match",
+            "description": "Regex to match host headers (domain names)"
+        },
+        "map": {
+            "type": "array",
+            "title": "Security Policy Entries List",
+            "description": "A list containing entries for specific URLs",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id",
+                        "description": "Unique id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name",
+                        "description": "Name of Security Policy entry shown in UI"
+                    },
+                    "description": {
+                        "type": "string",
+                        "title": "Description",
+                        "description": "Entry for specific URLs"
+                    },
+                    "match": {
+                        "type": "string",
+                        "title": "Match",
+                        "description": "Regex to match host headers (domain names) for this Security Policy entry"
+                    },
+                    "content_filter_profile": {
+                        "type": "string",
+                        "title": "Content Filter Profile",
+                        "description": "Content Filter profile to be used by this Security Policy entry"
+                    },
+                    "content_filter_active": {
+                        "type": "boolean",
+                        "title": "Content Filter Active",
+                        "description": "When true, Security Policy entry will use the given Content Filter profile"
+                    },
+                    "acl_profile": {
+                        "type": "string",
+                        "title": "ACL Profile",
+                        "description": "ACL profile to be used by this Security Policy entry"
+                    },
+                    "acl_active": {
+                        "type": "boolean",
+                        "title": "ACL Active",
+                        "description": "When true, Security Policy entry will use the given ACL profile"
+                    },
+                    "limit_ids": {
+                        "type": "array",
+                        "title": "Rate Limits IDs List",
+                        "description": "A list containing IDs of rate limits to be used by this Security Policy entry",
+                        "items": {
+                            "title": "Rate Limits IDs List Entry",
+                            "description": "A single rate limit ID",
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [ "id", "name", "match", "acl_profile", "acl_active", "content_filter_profile", "content_filter_active" ]
+            }
+        }
+    },
+    "required": [ "id", "match", "map", "name" ]
+}

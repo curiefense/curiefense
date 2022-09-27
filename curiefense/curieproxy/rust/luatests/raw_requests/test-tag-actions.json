@@ -2,11 +2,16 @@
   {
     "response": {
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:1",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:nil",
         "geo-subregion:nil",
+        "geo-org:emerald-onion",
         "securitypolicy-entry:default",
         "contentfilterid:--default--",
         "geo-asn:396507",
@@ -19,6 +24,8 @@
         "geo-country:united-states",
         "contentfiltername:default-contentfilter",
         "bot",
+        "status:503",
+        "status-class:5xx",
         "ip:23-129-64-253"
       ],
       "action": "custom_response",
@@ -36,11 +43,16 @@
   {
     "response": {
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:1",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:nil",
         "geo-subregion:nil",
+        "geo-org:emerald-onion",
         "securitypolicy-entry:default",
         "contentfilterid:--default--",
         "geo-asn:396507",
@@ -53,6 +65,8 @@
         "geo-country:united-states",
         "contentfiltername:default-contentfilter",
         "bot",
+        "status:123",
+        "status-class:1xx",
         "ip:23-129-64-253"
       ],
       "action": "custom_response",
@@ -70,11 +84,16 @@
   {
     "response": {
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:1",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:nil",
         "geo-subregion:nil",
+        "geo-org:emerald-onion",
         "securitypolicy-entry:default",
         "contentfilterid:--default--",
         "contentfiltername:default-contentfilter",
@@ -87,6 +106,8 @@
         "securitypolicy:default-entry",
         "geo-country:united-states",
         "bot",
+        "status:503",
+        "status-class:5xx",
         "ip:23-129-64-253"
       ],
       "action": "custom_response",
@@ -104,11 +125,16 @@
   {
     "response": {
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:1",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:nil",
         "geo-subregion:nil",
+        "geo-org:emerald-onion",
         "securitypolicy-entry:default",
         "contentfilterid:--default--",
         "contentfiltername:default-contentfilter",
@@ -121,6 +147,8 @@
         "securitypolicy:default-entry",
         "geo-country:united-states",
         "bot",
+        "status:456",
+        "status-class:4xx",
         "ip:23-129-64-253"
       ],
       "action": "custom_response",
@@ -138,11 +166,16 @@
   {
     "response": {
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:1",
+        "args:1",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:nil",
         "geo-subregion:nil",
+        "geo-org:emerald-onion",
         "securitypolicy-entry:default",
         "contentfilterid:--default--",
         "contentfiltername:default-contentfilter",
@@ -155,6 +188,8 @@
         "securitypolicy:default-entry",
         "geo-country:united-states",
         "bot",
+        "status:503",
+        "status-class:5xx",
         "ip:23-129-64-253"
       ],
       "action": "custom_response",

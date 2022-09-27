@@ -1,26 +1,85 @@
 local session_rust_nginx = {}
 local cjson       = require "cjson"
 local curiefense  = require "curiefense"
-local grasshopper = require "grasshopper"
-local utils       = require "lua.nativeutils"
 local sfmt = string.format
-local custom_response = utils.nginx_custom_response
+local redis = require "resty.redis"
+
+local HOPS = os.getenv("XFF_TRUSTED_HOPS") or 1
+
+local function custom_response(handle, action_params)
+    if not action_params then action_params = {} end
+    local block_mode = action_params.block_mode
+    -- if not block_mode then block_mode = true end
+
+    if not block_mode then
+        handle.log(handle.DEBUG, "altering: " .. cjson.encode(action_params))
+        if action_params["headers"] and action_params["headers"] ~= cjson.null then
+            for k, v in pairs(action_params.headers) do
+                handle.req.set_header(k, v)
+            end
+        end
+        return
+    end
+
+    if action_params["headers"] and action_params["headers"] ~= cjson.null then
+        for k, v in pairs(action_params["headers"]) do
+            handle.header[k] = v
+        end
+    end
+
+    if action_params["status"] then
+        local raw_status = action_params["status"]
+        local status = tonumber(raw_status) or raw_status
+        handle.status = status
+    end
+
+    handle.log(handle.ERR, cjson.encode(action_params))
+
+    if block_mode then
+        if action_params["content"] then handle.say(action_params["content"]) end
+        handle.exit(handle.HTTP_OK)
+    end
+
+end
+
+local function make_safe_headers(rheaders)
+    local headers = {}
+
+    for k, v in pairs(rheaders) do
+        if type(v) == "table" then
+            local new_v = v[1]
+            for i = 2, #v do
+                new_v = new_v .. "; " .. v[i]
+            end
+            headers[k] = new_v
+        else
+            headers[k] = v
+        end
+    end
+    return headers
+end
+
+local function redis_connect(handle)
+    local redishost = os.getenv("REDIS_HOST") or "redis"
+    local redisport = os.getenv("REDIS_PORT") or 6379
+    local red = redis:new()
+    red:set_timeout(100) -- 100ms
+    local _, err = red:connect(redishost, redisport)
+    if err then
+        handle.log(handle.ERR, err)
+    end
+    return red
+end
 
 function session_rust_nginx.inspect(handle)
     local ip_str = handle.var.remote_addr
-
-    local headers = {}
 
     local rheaders, err = handle.req.get_headers()
     if err == "truncated" then
         handle.log(handle.ERR, "truncated headers: " .. err)
     end
 
-    for k, v in pairs(rheaders) do
-        headers[k] = v
-    end
-
-    handle.log(handle.INFO, cjson.encode(headers))
+    local headers = make_safe_headers(rheaders)
 
     handle.req.read_body()
     local body_content = handle.req.get_body_data()
@@ -29,183 +88,135 @@ function session_rust_nginx.inspect(handle)
     else
         handle.ctx.body_len = 0
     end
-    local meta = { path=handle.var.request_uri, method=handle.req.get_method(), authority=nil }
-
     -- the meta table contains the following elements:
     --   * path : the full request uri
     --   * method : the HTTP verb
     --   * authority : optionally, the HTTP2 authority field
-    local response
-    response, err = curiefense.inspect_request(
-        meta, headers, body_content, ip_str, grasshopper
+    local meta = { path=handle.var.request_uri, method=handle.req.get_method(), authority=nil }
+
+    local res = curiefense.inspect_request_init_hops(
+        meta, headers, body_content, ip_str, HOPS
     )
 
-    if err then
-        handle.log(handle.ERR, sfmt("curiefense.inspect_request_map error %s", err))
+    if res.error then
+        handle.log(handle.ERR, sfmt("curiefense.inspect_request_init error %s", res.error))
     end
 
-    if response then
-        local response_table = cjson.decode(response)
-        handle.ctx.response = response_table
-        handle.log(handle.DEBUG, "decision: " .. response)
-        utils.log_nginx_messages(handle, response_table["logs"])
-        local request_map = response_table["request_map"]
-        request_map.handle = handle
-        if response_table["action"] == "custom_response" then
-            custom_response(request_map, response_table["response"])
+    if not res.decided then
+        -- handle flow / limit
+        local flows = res.flows
+        local limits = res.limits
+        local rflows = {}
+        local rlimits = {}
+
+        -- TODO: avoid connecting to redis when there are no flows and all limits are zero limits
+        if not rawequal(next(flows), nil) or not rawequal(next(limits), nil) then
+            -- Redis required
+            -- TODO: write a pipelined implementation that will run through all the flow and limits at once!
+            local red = redis_connect(handle)
+            red:init_pipeline()
+
+            for _, flow in pairs(flows) do
+                red:llen(flow.key)
+            end
+            for _, limit in pairs(limits) do
+                local key = limit.key
+                if not limit.zero_limits then
+                    local pw = limit.pairwith
+                    if pw then
+                        red:sadd(key, pw)
+                        red:scard(key)
+                        red:ttl(key)
+                    else
+                        red:incr(key)
+                        red:ttl(key)
+                    end
+                end
+            end
+            local results, redis_err = red:commit_pipeline()
+            if not results then
+                handle.log(handle.ERR, "failed to run redis calls " .. redis_err)
+            end
+
+            local result_idx = 1
+
+            for _, flow in pairs(flows) do
+                local len = results[result_idx]
+                result_idx = result_idx + 1
+                local step = flow.step
+                local flowtype = "nonlast"
+                if flow.is_last then
+                    if step == len then
+                        flowtype = "lastok"
+                    else
+                        flowtype = "lastblock"
+                    end
+                else
+                    if step == len then
+                        local key = flow.key
+                        red:lpush(key, "foo")
+                        local ttl = red:ttl(key)
+                        if ttl == nil or ttl < 0 then
+                            red:expire(key, flow.timeframe)
+                        end
+                    end
+                end
+                table.insert(rflows, flow:result(flowtype))
+            end
+
+            for _, limit in pairs(limits) do
+                local key = limit.key
+                local curcount = 1
+                if not limit.zero_limits then
+                    local pw = limit.pairwith
+                    if pw then
+                        result_idx = result_idx + 1
+                    end
+                    curcount = results[result_idx]
+                    result_idx = result_idx + 1
+                    local expire = results[result_idx]
+                    result_idx = result_idx + 1
+                    if curcount == nil then
+                        curcount = 0
+                    end
+                    if expire == nil or expire < 0 then
+                        red:expire(key, limit.timeframe)
+                    end
+                end
+                table.insert(rlimits, limit:result(curcount))
+            end
+        end
+
+        res = curiefense.inspect_request_process(res, rflows, rlimits)
+        if res.error then
+            handle.log(handle.ERR, sfmt("curiefense.inspect_request_process error %s", res.error))
         end
     end
-end
 
-local function parse_ip_port(ipport)
-    if ipport == nil then
-        return nil, nil
+    handle.ctx.request_map = res.request_map
+
+    if res.error then
+        handle.log(handle.ERR, sfmt("curiefense.inspect_request_map error %s", res.error))
     end
-    local s, _ = string.find(ipport, ":")
-    if s == nil then
-      return ipport, nil
-    else
-      local port_part = string.sub(ipport,s+1)
-      local host_part = string.sub(ipport, 1, s-1)
-      return host_part, tonumber(port_part) or port_part
+
+    local response = res.response
+    if response then
+        local response_table = cjson.decode(response)
+        handle.log(handle.DEBUG, "decision: " .. response)
+        for _, log in ipairs(res.logs) do
+            handle.log(handle.DEBUG, log)
+        end
+        if response_table["action"] == "custom_response" then
+            custom_response(handle, response_table["response"])
+        end
     end
 end
 
 -- log block stage processing
 function session_rust_nginx.log(handle)
-    local response = handle.ctx.response
-    handle.ctx.response = nil
-    local request_map = response.request_map
-
-    local body_len = handle.ctx.body_len
-    local req_len = handle.var.request_length
-
-    local raw_status = handle.var.status
-    local status = tonumber(raw_status) or raw_status
-    local req = {
-        tags=request_map["tags"],
-        path=handle.var.uri,
-        host=handle.var.host,
-        -- TODO: authority
-        -- authority= "34.66.199.37:30081",
-        requestid=handle.var.request_id,
-        method=handle.var.request_method,
-        response={
-          code=status,
-          headers=handle.resp.get_headers(),
-          codedetails="unknown",
-          nxgrequestlength=handle.var.request_length
-        },
-        scheme=handle.var.scheme,
-        metadata={},
-        port=0,
-    }
-
-    if response.response ~= cjson.null then
-        req.block_reason=response.response.reason
-        req.blocked=response.response.block_mode
-    else
-        req.block_reason=nil
-        req.blocked=false
-    end
-
-    local raw_server_port = handle.var.server_port
-    local raw_remote_port = handle.var.remote_port
-    local server_port = tonumber(raw_server_port) or raw_server_port
-    local remote_port = tonumber(raw_remote_port) or raw_remote_port
-
-    req.upstream = {}
-    req.upstream.cluster = handle.var.proxy_host
-
-    req.downstream = {
-      localaddressport=server_port,
-      remoteaddress=handle.var.remote_addr,
-      localaddress=handle.var.server_addr,
-      remoteaddressport=remote_port,
-      directlocaladdress=handle.var.server_addr,
-      directremoteaddressport=remote_port,
-      directremoteaddress=handle.var.remote_addr,
-    }
-
-    -- handle upstream_addr with ports
-    local u_host, u_port = parse_ip_port(handle.var.upstream_addr)
-    if u_port == nil then
-        u_port = tonumber(handle.var.proxy_port) or handle.var.proxy_port
-    end
-    req.upstream.remoteaddress = u_host
-    req.upstream.remoteaddressport = u_port
-
-    -- TLS: TODO, need to see the corresponding envoy input
-    req.tls = {
-          version=handle.var.ssl_protocol,
-          snihostname=handle.var.ssl_server_name,
-          fullciphersuite=handle.var.ssl_cipher,
-          peercertificate={
-            dn=handle.var.ssl_client_s_dn,
-            properties=handle.var.ssl_client_s_dn,
-            propertiesaltnames=nil
-          },
-          localcertificate=nil, -- no info from nginx :(
-          sessionid=handle.var.ssl_session_id,
-    }
-
-    req.request = {
-        originalpath="",
-        geo=request_map["geo"],
-        arguments=request_map["args"],
-        headers=request_map["headers"],
-        cookies=request_map["cookies"],
-        -- TODO: are we currently including the length of the first line of the HTTP request?
-        headersbytes=req_len - body_len,
-        bodybytes=body_len
-    }
-
-    -- nginx variables:
-    -- downstream is the client
-    -- upstream is the proxied service
-
-    -- !!! most of these variables are unset in the default configuration !!!
-    -- connection_time: connection time in seconds with a milliseconds resolution (1.19.10)
-    -- request_time: request processing time in seconds with a milliseconds resolution (1.3.9, 1.2.6);
-   --     time elapsed since the first bytes were read from the client
-    -- session_time: session duration in seconds with a milliseconds resolution
-    -- upstream_header_time: keeps time spent on receiving the response header from the upstream server
-    -- upstream_queue_time: keeps time the request spent in the upstream queue
-    -- upstream_response_time: keeps time spent on receiving the response from the upstream server
-    -- upstream_session_time: session duration in seconds with millisecond resolution
-    -- upstream_first_byte_time: time to receive the first byte of data
-    -- upstream_connect_time: keeps time spent on establishing a connection with the upstream server
-
-    req.rx_timers = {
-        -- Interval between the first downstream byte received and the last downstream byte received
-        -- (i.e. time it takes to receive a request).
-        lastbyte=nil,
-        -- Interval between the first downstream byte received and the first upstream byte received
-        -- (i.e. time it takes to start receiving a response).
-        firstupstreambyte=nil,
-        -- Interval between the first downstream byte received and the last upstream byte received
-        -- (i.e. time it takes to receive a complete response).
-        lastupstreambyte=nil,
-    }
-    req.tx_timers = {
-        -- Interval between the first downstream byte received and the first upstream byte sent.
-        firstupstreambyte=handle.var.upstream_first_byte_time,
-        -- Interval between the first downstream byte received and the last upstream byte sent.
-        lastupstreambyte=handle.var.request_time,
-        -- Interval between the first downstream byte received and the first downstream byte sent.
-        firstdownstreambyte=nil, -- TODO
-        -- Interval between the first downstream byte received and the last downstream byte sent.
-        lastdownstreambyte=nil
-    }
-
-    -- building the formatted timestamp (should it be added by logstash?)
-    local tm = handle.utctime() -- format "yyyy-mm-dd hh:mm:ss"
-    local fracpart = tostring(handle.now()%1):sub(2,10)
-    local timestamp = tm:gsub(' ', 'T') .. fracpart .. 'Z'
-    req.timestamp = timestamp
-
-    req.request.attributes=request_map.attrs
-    handle.var.request_map = cjson.encode(req)
+    local request_map = handle.ctx.request_map
+    handle.ctx.request_map = nil
+    handle.var.request_map = request_map
 end
 
 return session_rust_nginx

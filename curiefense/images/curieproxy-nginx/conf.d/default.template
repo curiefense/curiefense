@@ -2,18 +2,22 @@
 lua_package_path '/lua/?.lua;;';
 log_format curiefenselog escape=none '$request_map';
 
-upstream backend {
-    server ${TARGET_ADDRESS}:${TARGET_PORT};
+upstream backend_a {
+    server ${TARGET_ADDRESS_A}:${TARGET_PORT_A};
+}
+
+upstream backend_b {
+    server ${TARGET_ADDRESS_B}:${TARGET_PORT_B};
 }
 
 server {
+    resolver local=on;
     set $request_map '{}';
-    access_log logs/access.log curiefenselog;
-    access_log syslog:server=unix:/dev/log curiefenselog;
+    access_log /dev/stdout curiefenselog;
     error_log  logs/error.log  debug;
 
-    listen 30082 default_server;
-    listen 30083 default_server ssl http2;
+    listen 31081 default_server;
+    listen 31083 default_server ssl http2;
     ssl_certificate /etc/ssl/certificate.crt;
     ssl_certificate_key /etc/ssl/certificate.key;
 
@@ -27,6 +31,32 @@ server {
             local session = require "lua.session_nginx"
             session.log(ngx)
         }
-        proxy_pass http://backend;
+        proxy_pass http://backend_a;
+    }
+}
+
+server {
+    resolver local=on;
+    set $request_map '{}';
+    access_log logs/access.log curiefenselog;
+    access_log syslog:server=unix:/dev/log curiefenselog;
+    error_log  logs/error.log  debug;
+
+    listen 31082 default_server;
+    listen 31084 default_server ssl http2;
+    ssl_certificate /etc/ssl/certificate.crt;
+    ssl_certificate_key /etc/ssl/certificate.key;
+
+    server_name _;
+    location / {
+        access_by_lua_block {
+            local session = require "lua.session_nginx"
+            session.inspect(ngx)
+        }
+        log_by_lua_block {
+            local session = require "lua.session_nginx"
+            session.log(ngx)
+        }
+        proxy_pass http://backend_b;
     }
 }

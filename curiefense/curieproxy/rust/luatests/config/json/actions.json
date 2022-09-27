@@ -1,0 +1,110 @@
+[
+  {
+    "params": {
+      "headers": {
+        "location": "http://www.google.com"
+      },
+      "status": 456
+    },
+    "type": "custom",
+    "id": "3lfpo6xe"
+  },
+  {
+    "type": "challenge",
+    "id": "5ktcoafw"
+  },
+  {
+    "type": "custom",
+    "id": "a7ge3v0l"
+  },
+  {
+    "params": {
+      "content": "{}",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "status": 200
+    },
+    "type": "custom",
+    "id": "an6yhiyr"
+  },
+  {
+    "params": {
+      "headers": {
+        "location": "http://www.redir.com"
+      },
+      "status": 333
+    },
+    "type": "custom",
+    "id": "bh3gw11k"
+  },
+  {
+    "params": {
+      "content": "body"
+    },
+    "type": "custom",
+    "id": "d5vnu3hs"
+  },
+  {
+    "type": "custom",
+    "id": "default"
+  },
+  {
+    "params": {
+      "content": "lol",
+      "status": 123
+    },
+    "type": "custom",
+    "id": "dxfyhx4n"
+  },
+  {
+    "params": {
+      "headers": {
+        "h1": "${ip} - ${args.dd} - ${args.ee}"
+      }
+    },
+    "type": "monitor",
+    "id": "fq8faptj"
+  },
+  {
+    "type": "monitor",
+    "id": "monitor"
+  },
+  {
+    "params": {
+      "headers": {
+        "location": "/1234"
+      }
+    },
+    "type": "custom",
+    "id": "sk9lz9q4"
+  },
+  {
+    "type": "skip",
+    "id": "ye8qyg0h"
+  },
+  {
+    "tags": [
+      "myextratag"
+    ],
+    "type": "custom",
+    "params": {
+      "status": 403,
+      "headers": {
+        "h1": "${ip}"
+      }
+    },
+    "id": "blockheaders"
+  },
+  {
+    "type": "custom",
+    "params": {
+      "status": 403
+    },
+    "id": "b403"
+  },
+  {
+    "id": "ijcy5mwz",
+    "type": "custom"
+  }
+]

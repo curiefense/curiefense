@@ -2,6 +2,10 @@
   {
     "response": {
       "tags": [
+        "host:dummydomain-com",
+        "cookies:0",
+        "headers:2",
+        "args:2",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
@@ -18,11 +22,14 @@
         "securitypolicy-entry:default",
         "aclid:--default--",
         "geo-country:united-states",
+        "geo-org:emerald-onion",
         "bot",
         "cf-rule-category:libinjection",
         "cf-rule-subcategory:libinjection-xss",
         "cf-rule-risk:libinjection",
         "cf-rule-id:libinjection-xss",
+        "status:403",
+        "status-class:4xx",
         "aclname:default-acl"
       ],
       "action": "custom_response",
@@ -41,11 +48,16 @@
   {
     "response": {
       "tags": [
+        "host:specific-dummydomain-com",
+        "cookies:0",
+        "headers:3",
+        "args:0",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:nil",
         "geo-subregion:nil",
+        "geo-org:emerald-onion",
         "securitypolicy:more-specific-dummy-domain-policy",
         "securitypolicy-entry:default",
         "ip:23-129-64-253",
@@ -64,6 +76,8 @@
         "aclname:default-acl",
         "cf-rule-risk:5",
         "cf-rule-category:sqli",
+        "status:403",
+        "status-class:4xx",
         "cf-rule-subcategory:built-in-function-invocation"
       ],
       "action": "custom_response",

@@ -7,7 +7,6 @@ global:
       kibana: "1m"
       uiserver: "1m"
       confserver-init: "1m"
-      confserver-nginx: "1m"
       confserver-uwsgi: "1m"
       prometheus: "1m"
       grafana: "1m"

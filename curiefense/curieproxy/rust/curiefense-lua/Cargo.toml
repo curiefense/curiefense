@@ -14,7 +14,7 @@ curiefense = { path = "../curiefense" }
 anyhow = "1.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0"
-mlua = { version = "0.5", features = ["luajit", "module", "serialize", "async"] }
+mlua = { version = "0.7", features = ["luajit", "module"] }
 maxminddb = "0.13"
 regex = "1"
 rand = "0.8.3"

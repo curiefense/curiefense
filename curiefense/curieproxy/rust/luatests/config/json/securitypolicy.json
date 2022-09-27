@@ -1,5 +1,131 @@
 [
     {
+        "match": "limitt1.com",
+        "id": "limitt1",
+        "name": "limit test1",
+        "map": [
+            {
+                "match": "/h2",
+                "name": "h2",
+                "acl_profile": "__default__",
+                "acl_active": false,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": [
+                    "limithostname"
+                ]
+            },
+            {
+                "match": "/h1",
+                "name": "h1",
+                "acl_profile": "__default__",
+                "acl_active": false,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": [
+                    "limithostname"
+                ]
+            },
+            {
+                "match": "/u2",
+                "name": "u2",
+                "acl_profile": "__default__",
+                "acl_active": false,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": [
+                    "limiturl"
+                ]
+            },
+            {
+                "match": "/u1",
+                "name": "u1",
+                "acl_profile": "__default__",
+                "acl_active": false,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": [
+                    "limiturl"
+                ]
+            },
+            {
+                "match": "/",
+                "name": "default",
+                "acl_profile": "__default__",
+                "acl_active": false,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": [
+                    "limithostname",
+                    "limiturl"
+                ]
+            }
+        ]
+    },
+    {
+        "match": "limitt2.com",
+        "id": "limitt2",
+        "name": "limit test2",
+        "map": [
+            {
+                "match": "/h2",
+                "name": "h2b",
+                "acl_profile": "__default__",
+                "acl_active": false,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": [
+                    "limithostname"
+                ]
+            },
+            {
+                "match": "/h1",
+                "name": "h1b",
+                "acl_profile": "__default__",
+                "acl_active": false,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": [
+                    "limithostname"
+                ]
+            },
+            {
+                "match": "/u2",
+                "name": "u2b",
+                "acl_profile": "__default__",
+                "acl_active": false,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": [
+                    "limiturl"
+                ]
+            },
+            {
+                "match": "/u1",
+                "name": "u1b",
+                "acl_profile": "__default__",
+                "acl_active": false,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": [
+                    "limiturl"
+                ]
+            },
+            {
+                "match": "/",
+                "name": "default",
+                "acl_profile": "__default__",
+                "acl_active": false,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": [
+                    "limithostname",
+                    "limiturl"
+                ]
+            }
+        ]
+    },
+    {
         "match": "dummydomain.com",
         "id": "dummydomain",
         "name": "dummy domain policy",
@@ -42,6 +168,15 @@
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "rl45report3",
+                "content_filter_active": true,
+                "limit_ids": []
+            },
+            {
+                "match": "^/content-filter/rl45ignorebody",
+                "name": "rl45ignorebody",
+                "acl_profile": "__default__",
+                "acl_active": false,
+                "content_filter_profile": "rl45ignorebody",
                 "content_filter_active": true,
                 "limit_ids": []
             },
@@ -383,6 +518,15 @@
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "invertedre",
+                "content_filter_active": true,
+                "limit_ids": []
+            },
+            {
+                "match": "/allsections",
+                "name": "allsections",
+                "acl_profile": "__default__",
+                "acl_active": false,
+                "content_filter_profile": "allsections",
                 "content_filter_active": true,
                 "limit_ids": []
             },

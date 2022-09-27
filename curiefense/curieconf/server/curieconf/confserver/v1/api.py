@@ -347,6 +347,20 @@ def validateJson(json_data, schema_type):
     return True
 
 
+### Set git actor according to config & defined HTTP headers
+
+
+def get_gitactor():
+    email, username = "", ""
+    email_header = current_app.options.get("trusted_email_header", None)
+    if email_header:
+        email = request.headers.get(email_header, "")
+    username_header = current_app.options.get("trusted_username_header", None)
+    if username_header:
+        username = request.headers.get(username_header, "")
+    return current_app.backend.prepare_actor(username, email)
+
+
 base_path = Path(__file__).parent
 # base_path = "/etc/curiefense/json/"
 acl_policy_file_path = (base_path / "./json/acl-policy.schema").resolve()
@@ -407,7 +421,7 @@ class Configs(Resource):
     def post(self):
         "Create a new configuration"
         data = request.json
-        return current_app.backend.configs_create(data)
+        return current_app.backend.configs_create(data, get_gitactor())
 
 
 @ns_configs.route("/<string:config>/")
@@ -421,13 +435,13 @@ class Config(Resource):
     def post(self, config):
         "Create a new configuration. Configuration name in URL overrides configuration in POST data"
         data = request.json
-        return current_app.backend.configs_create(data, name=config)
+        return current_app.backend.configs_create(data, config, get_gitactor())
 
     @ns_configs.expect(m_meta, validate=True)
     def put(self, config):
         "Update an existing configuration"
         data = request.json
-        return current_app.backend.configs_update(config, data)
+        return current_app.backend.configs_update(config, data, get_gitactor())
 
     def delete(self, config):
         "Delete a configuration"
@@ -471,7 +485,7 @@ class ConfigVersion(Resource):
 class ConfigRevert(Resource):
     def put(self, config, version):
         "Create a new version for a configuration from an old version"
-        return current_app.backend.configs_revert(config, version)
+        return current_app.backend.configs_revert(config, version, get_gitactor())
 
 
 #############
@@ -498,16 +512,20 @@ class BlobResource(Resource):
     @ns_configs.expect(m_blob_entry, validate=True)
     def post(self, config, blob):
         "Create a new blob"
-        return current_app.backend.blobs_create(config, blob, request.json)
+        return current_app.backend.blobs_create(
+            config, blob, request.json, get_gitactor()
+        )
 
     @ns_configs.expect(m_blob_entry, validate=True)
     def put(self, config, blob):
         "Replace a blob with new data"
-        return current_app.backend.blobs_update(config, blob, request.json)
+        return current_app.backend.blobs_update(
+            config, blob, request.json, get_gitactor()
+        )
 
     def delete(self, config, blob):
         "Delete a blob"
-        return current_app.backend.blobs_delete(config, blob)
+        return current_app.backend.blobs_delete(config, blob, get_gitactor())
 
 
 @ns_configs.route("/<string:config>/b/<string:blob>/v/")
@@ -531,7 +549,7 @@ class BlobVersionResource(Resource):
 class BlobRevertResource(Resource):
     def put(self, config, blob, version):
         "Create a new version for a blob from an old version"
-        return current_app.backend.blobs_revert(config, blob, version)
+        return current_app.backend.blobs_revert(config, blob, version, get_gitactor())
 
 
 #################
@@ -573,7 +591,7 @@ class DocumentResource(Resource):
         )
         data = utils.vconfigconvert(document, data, "v1", "backend")
         res = current_app.backend.documents_create(
-            config, utils.vconvert(document, "v1"), data
+            config, utils.vconvert(document, "v1"), data, get_gitactor()
         )
         return res
 
@@ -586,7 +604,7 @@ class DocumentResource(Resource):
         )
         data = utils.vconfigconvert(document, data, "v1", "backend")
         res = current_app.backend.documents_update(
-            config, utils.vconvert(document, "v1"), data
+            config, utils.vconvert(document, "v1"), data, get_gitactor()
         )
         return res
 
@@ -595,7 +613,7 @@ class DocumentResource(Resource):
         if document not in models:
             abort(404, "document does not exist")
         res = current_app.backend.documents_delete(
-            config, utils.vconvert(document, "v1")
+            config, utils.vconvert(document, "v1"), get_gitactor()
         )
         return res
 
@@ -631,7 +649,7 @@ class DocumentRevertResource(Resource):
     def put(self, config, document, version):
         "Create a new version for a document from an old version"
         res = current_app.backend.documents_revert(
-            config, utils.vconvert(document, "v1"), version
+            config, utils.vconvert(document, "v1"), version, get_gitactor()
         )
         return res
 
@@ -658,7 +676,7 @@ class EntriesResource(Resource):
             request.json, utils.model_invert_names(models[document]), skip_none=True
         )
         res = current_app.backend.entries_create(
-            config, utils.vconvert(document, "v1"), data
+            config, utils.vconvert(document, "v1"), data, get_gitactor()
         )
         return res
 
@@ -686,7 +704,7 @@ class EntryResource(Resource):
             )
             data = utils.vconfigconvert(document, data, "v1", "backend")
             res = current_app.backend.entries_update(
-                config, utils.vconvert(document, "v1"), entry, data
+                config, utils.vconvert(document, "v1"), entry, data, get_gitactor()
             )
             return res
         else:
@@ -697,7 +715,7 @@ class EntryResource(Resource):
         if document not in models:
             abort(404, "document does not exist")
         res = current_app.backend.entries_delete(
-            config, utils.vconvert(document, "v1"), entry
+            config, utils.vconvert(document, "v1"), entry, get_gitactor()
         )
         return res
 
@@ -724,7 +742,11 @@ class EntryEditResource(Resource):
                 marshaled_map, starting_path_list=converted_names_data
             )
         res = current_app.backend.entries_edit(
-            config, utils.vconvert(document, "v1"), entry, converted_names_data
+            config,
+            utils.vconvert(document, "v1"),
+            entry,
+            converted_names_data,
+            get_gitactor(),
         )
         return res
 
@@ -736,7 +758,7 @@ class EntryListVersionResource(Resource):
         if document not in models:
             abort(404, "document does not exist")
         res = current_app.backend.entries_list_versions(
-            config, utils.vconvert(document, "v1"), entry
+            config, utils.vconvert(document, "v1"), entry, get_gitactor()
         )
         return marshal(res, m_version_log, skip_none=True)
 
@@ -750,7 +772,7 @@ class EntryVersionResource(Resource):
         if document not in models:
             abort(404, "document does not exist")
         res = current_app.backend.entries_get(
-            config, utils.vconvert(document, "v1"), entry, version
+            config, utils.vconvert(document, "v1"), entry, version, get_gitactor()
         )
         return marshal(res, models[document], skip_none=True)
 
@@ -787,19 +809,19 @@ class DbResource(Resource):
     def post(self, dbname):
         "Create a non-existing database from data"
         try:
-            return current_app.backend.ns_create(dbname, request.json)
+            return current_app.backend.ns_create(dbname, request.json, get_gitactor())
         except Exception:
             abort(409, "database [%s] already exists" % dbname)
 
     @ns_db.expect(m_db, validate=True)
     def put(self, dbname):
         "Merge data into a database"
-        return current_app.backend.ns_update(dbname, request.json)
+        return current_app.backend.ns_update(dbname, request.json, get_gitactor())
 
     def delete(self, dbname):
         "Delete an existing database"
         try:
-            return current_app.backend.ns_delete(dbname)
+            return current_app.backend.ns_delete(dbname, get_gitactor())
         except KeyError:
             abort(409, "database [%s] does not exist" % dbname)
 
@@ -816,7 +838,7 @@ class DbVersionResource(Resource):
     def put(self, dbname, version):
         "Create a new version for a database from an old version"
         try:
-            return current_app.backend.ns_revert(dbname, version)
+            return current_app.backend.ns_revert(dbname, version, get_gitactor())
         except KeyError:
             abort(404, "database [%s] version [%s] not found" % (dbname, version))
 
@@ -825,7 +847,7 @@ class DbVersionResource(Resource):
 class DbQueryResource(Resource):
     def post(self, dbname):
         "Run a JSON query on the database and returns the results"
-        return current_app.backend.ns_query(dbname, request.json)
+        return current_app.backend.ns_query(dbname, request.json, get_gitactor())
 
 
 @ns_db.route("/<string:dbname>/k/")
@@ -850,11 +872,11 @@ class KeyResource(Resource):
 
     def put(self, dbname, key):
         "Create or update the value of a key"
-        return current_app.backend.key_set(dbname, key, request.json)
+        return current_app.backend.key_set(dbname, key, request.json, get_gitactor())
 
     def delete(self, dbname, key):
         "Delete a key"
-        return current_app.backend.key_delete(dbname, key)
+        return current_app.backend.key_delete(dbname, key, get_gitactor())
 
 
 #############

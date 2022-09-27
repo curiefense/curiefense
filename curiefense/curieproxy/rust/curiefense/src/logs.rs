@@ -37,6 +37,20 @@ impl LogLevel {
     }
 }
 
+impl std::str::FromStr for LogLevel {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "debug" => Ok(LogLevel::Debug),
+            "info" => Ok(LogLevel::Info),
+            "warning" => Ok(LogLevel::Warning),
+            "error" => Ok(LogLevel::Error),
+            _ => Err(format!("unknown loglevel {}", s)),
+        }
+    }
+}
+
 impl std::fmt::Display for Log {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{} {}µs {}", self.level.short(), self.elapsed_micros, self.message)
@@ -67,7 +81,7 @@ impl CheapString for &str {
 
 impl<F> CheapString for F
 where
-    F: Fn() -> String,
+    F: FnOnce() -> String,
 {
     fn c_to_string(self) -> String {
         self()
@@ -114,5 +128,9 @@ impl Logs {
 
     pub fn extend(&mut self, other: Logs) {
         self.logs.extend(other.logs);
+    }
+
+    pub fn to_json(&self) -> serde_json::Value {
+        serde_json::to_value(&self.logs).unwrap_or_else(|rr| serde_json::Value::String(rr.to_string()))
     }
 }

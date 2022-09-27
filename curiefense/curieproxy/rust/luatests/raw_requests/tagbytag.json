@@ -1,0 +1,44 @@
+[
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/dqsqsdqsdcqsd",
+      "user-agent": "dummy",
+      "x-forwarded-for": "82.13.14.15"
+    },
+    "name": "test tag by tag",
+    "response": {
+      "action": "custom_response",
+      "status": 503,
+      "block_mode": true,
+      "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:2",
+        "args:0",
+        "all",
+        "ip:82-13-14-15",
+        "sante",
+        "securitypolicy-entry:default",
+        "contentfiltername:default-contentfilter",
+        "securitypolicy:default-entry",
+        "aclname:default-acl",
+        "aclid:--default--",
+        "tagbyiptag",
+        "contentfilterid:--default--",
+        "bot",
+        "geo-continent-code:eu",
+        "geo-city:hendon",
+        "geo-country:united-kingdom",
+        "geo-asn:5089",
+        "geo-subregion:bne",
+        "geo-region:eng",
+        "geo-continent-name:europe",
+        "status:503",
+        "status-class:5xx",
+        "geo-org:virgin-media-limited"
+      ]
+    }
+  }
+]

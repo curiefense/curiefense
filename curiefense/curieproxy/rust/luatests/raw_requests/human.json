@@ -5,26 +5,37 @@
       ":method": "GET",
       ":path": "/direct?deny=deny&denybot=denybot",
       "user-agent": "dummy",
-      "x-forwarded-for": "23.129.64.253"
+      "x-forwarded-for": "23.129.64.253",
+      "include": "true"
     },
     "name": "deny (bot)",
     "response": {
       "action": "custom_response",
       "status": 403,
       "block_mode": true,
-      "reason": {
-        "initiator": "acl",
-        "action": 5,
-        "reason": [
-          "denybot"
-        ]
-      },
+      "acl_triggers": [
+        {
+          "active": true,
+          "section": "uri",
+          "value": "denybot",
+          "tags": [
+            "denybot"
+          ],
+          "name": "denybot",
+          "type": "deny_bot"
+        }
+      ],
       "tags": [
+        "host:localhost:30081",
+        "cookies:0",
+        "headers:3",
+        "args:2",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:nil",
         "geo-subregion:nil",
+        "geo-org:emerald-onion",
         "all",
         "geo-country:united-states",
         "ip:23-129-64-253",
@@ -38,7 +49,10 @@
         "bot",
         "sante",
         "deny",
-        "denybot"
+        "denybot",
+        "status:403",
+        "status-class:4xx",
+        "incl000000001"
       ]
     }
   },
@@ -56,19 +70,29 @@
       "action": "custom_response",
       "status": 403,
       "block_mode": true,
-      "reason": {
-        "initiator": "acl",
-        "action": 5,
-        "reason": [
-          "deny"
-        ]
-      },
+      "acl_triggers": [
+        {
+          "active": true,
+          "section": "uri",
+          "value": "deny",
+          "tags": [
+            "deny"
+          ],
+          "name": "deny",
+          "type": "deny"
+        }
+      ],
       "tags": [
+        "host:localhost:30081",
+        "cookies:1",
+        "headers:2",
+        "args:2",
         "geo-city:nil",
         "geo-continent-name:north-america",
         "geo-continent-code:na",
         "geo-region:nil",
         "geo-subregion:nil",
+        "geo-org:emerald-onion",
         "all",
         "geo-country:united-states",
         "ip:23-129-64-253",
@@ -82,6 +106,8 @@
         "human",
         "sante",
         "deny",
+        "status:403",
+        "status-class:4xx",
         "denybot"
       ]
     }

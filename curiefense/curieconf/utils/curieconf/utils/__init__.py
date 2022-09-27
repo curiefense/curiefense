@@ -7,14 +7,16 @@ import pydash
 from flask_restx import fields
 
 DOCUMENTS_PATH = {
+    "actions": "config/json/actions.json",
     "ratelimits": "config/json/limits.json",
     "securitypolicies": "config/json/securitypolicy.json",
     "contentfilterrules": "config/json/contentfilter-rules.json",
-    "contentfiltergroups": "config/json/contentfilter-groups.json",
     "contentfilterprofiles": "config/json/contentfilter-profiles.json",
     "aclprofiles": "config/json/acl-profiles.json",
     "globalfilters": "config/json/globalfilter-lists.json",
     "flowcontrol": "config/json/flow-control.json",
+    "actions": "config/json/actions.json",
+    "dynamicrules": "config/json/dynamic-rules.json",
 }
 
 BLOBS_PATH = {
@@ -46,7 +48,6 @@ def vconvert(conf_type_name, vfrom):
         "v1": {
             "urlmaps": "securitypolicies",
             "wafrules": "contentfilterrules",
-            "wafgroups": "contentfiltergroups",
             "wafpolicies": "contentfilterprofiles",
             "aclpolicies": "aclprofiles",
             "tagrules": "globalfilters",

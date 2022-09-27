@@ -7,7 +7,8 @@
     "risk": 5,
     "category": "sqli",
     "tags": [
-      "waf"
+      "waf",
+      "sqli"
     ],
     "subcategory": "built-in function invocation"
   },
@@ -19,7 +20,8 @@
     "risk": 3,
     "category": "sqli",
     "tags": [
-      "waf"
+      "waf",
+      "sqli"
     ],
     "subcategory": "built-in function invocation"
   },

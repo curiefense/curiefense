@@ -26,11 +26,16 @@ def make_request(st: Set[str], b64: bool = False) -> Tuple[Any, str]:
         },
         "response": {
             "tags": [
+                "host:localhost:30081",
+                "cookies:0",
+                "headers:2",
+                "args:%d" % (len(st) * (2 if b64 else 1)),
                 "geo-city:nil",
                 "geo-continent-name:north-america",
                 "geo-continent-code:na",
                 "geo-region:nil",
                 "geo-subregion:nil",
+                "geo-org:emerald-onion",
                 "all",
                 "geo-country:united-states",
                 "ip:23-129-64-253",
@@ -66,6 +71,12 @@ def make_request(st: Set[str], b64: bool = False) -> Tuple[Any, str]:
         r["response"]["block_mode"] = True
         r["response"]["status"] = 247
         r["response"]["tags"].append("challenge-phase01")
+    if "status" in r["response"]:
+        r["response"]["tags"].append("status:%d" % r["response"]["status"])
+        r["response"]["tags"].append(
+            "status-class:%dxx" % (r["response"]["status"] / 100)
+        )
+
     return (r, name)
 
 

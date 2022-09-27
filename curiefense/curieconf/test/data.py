@@ -4,13 +4,18 @@ from curieconf.utils import DOCUMENTS_PATH, BLOBS_PATH, BLOBS_BOOTSTRAP
 
 bootstrap_config_json = json.load(open("config.batch.json"))
 
+vec_action = {
+        "id": "default",
+        "type": "custom"
+}
+
 vec_limit = {
     "id": "f971e92459e2",
     "name": "New Rate Limit Rule rrt",
     "description": "New Rate Limit Rule",
     "timeframe": "180",
     "key": [{"attrs": "remote_addr"}],
-    "thresholds": [{"limit": "3", "action": {"type": "default"}}],
+    "thresholds": [{"limit": "3", "action": "default"}],
     "include": ["blacklist"],
     "exclude": ["whitelist"],
     "pairwith": {"self": "self"},
@@ -135,7 +140,7 @@ vec_globalfilter = {
     "notes": "; notes",
     "tags": ["blacklists", "spamhaus"],
     "rule": {
-        "sections": [
+        "entries": [
             {
                 "relation": "OR",
                 "entries": [
@@ -153,6 +158,7 @@ vec_geolite2country = {"format": "base64", "blob": "AAAABBBB"}
 
 
 vec_documents = {
+    "actions": vec_action,
     "ratelimits": vec_limit,
     "securitypolicies": vec_securitypolicy,
     "contentfilterrules": vec_contentfilterrule,

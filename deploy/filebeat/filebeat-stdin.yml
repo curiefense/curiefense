@@ -1,0 +1,38 @@
+filebeat.inputs:
+- type: stdin
+  json.keys_under_root: true
+  json.overwrite_keys: false
+
+output.elasticsearch:
+  hosts: "${ELASTICSEARCH_URL}"
+
+logging.to_stderr: true
+logging.level: "${FILEBEAT_LOG_LEVEL:info}"
+logging.metrics.enabled: false
+
+setup.dashboards:
+  enabled: false
+  directory: "curiefense"
+  index: "curieaccesslog-*"
+  retry:
+    enabled: false
+
+setup.kibana:
+  host: "${KIBANA_URL}"
+
+setup.ilm:
+  enabled: true
+  rollover_alias: "curieaccesslog"
+  pattern: "{now/d}-000001"
+  overwrite: true
+  policy_name: "curieaccesslog"
+  policy_file: /usr/share/filebeat/ilm.json
+
+setup.template:
+  enabled: true
+  overwrite: true
+  type: "index"
+  json.enabled: true
+  json.path: "/usr/share/filebeat/template.json"
+  json.name: "curieaccesslog"
+  json.ignore_decoding_error: true

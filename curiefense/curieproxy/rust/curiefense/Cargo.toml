@@ -3,6 +3,7 @@ name = "curiefense"
 version = "0.1.0"
 authors = ["simon <simon@banquise.net>"]
 edition = "2018"
+links = "grasshopper"
 
 [lib]
 crate-type = ["lib"]
@@ -30,6 +31,8 @@ async-std = "1.11"
 futures = "0.3"
 futures-util = "0.3"
 async-graphql-parser = "3.0.38"
+chrono = { version = "0.4", features = ["serde", "clock"] }
+arbitrary = { version = "1", features = ["derive"] }
 
 [dependencies.hyperscan]
 version = "0.2"

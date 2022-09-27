@@ -129,7 +129,7 @@ locust_perftest () {
 	RESULTS_DIR=${RESULTS_DIR:-$BASEDIR/../e2e/latency/locust-results/$DATE}
 	export RESULTS_DIR
 	NODE_IP=$(kubectl get nodes -o json|jq '.items[0].status.addresses[]|select(.type=="ExternalIP").address'|tr -d '"')
-	CONFSERVER_URL="http://$NODE_IP:30000/api/v2/"
+	CONFSERVER_URL="http://$NODE_IP:30000/api/v3/"
 
 	kubectl apply -f ~/reblaze/lua_filter.yaml
 	../e2e/set_config.py -u "$CONFSERVER_URL" defaultconfig

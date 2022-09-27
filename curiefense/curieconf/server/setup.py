@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name="curieconf_server",
-    version="1.1",
+    version="1.2",
     description="Curiefense configuration server",
     author="Reblaze",
     author_email="phil@reblaze.com",
@@ -13,28 +13,30 @@ setup(
         "curieconf.confserver.backend",
         "curieconf.confserver.v1",
         "curieconf.confserver.v2",
+        "curieconf.confserver.v3",
     ],
     package_data={
         "curieconf.confserver": [
             "json/*.schema",
             "v1/json/*.schema",
             "v2/json/*.schema",
+            "v3/json/*.schema",
         ]
     },
     scripts=["bin/curieconf_server"],
     install_requires=[
         "wheel",
-        "flask",
-        "flask_cors",
-        "flask_pymongo",
-        "flask-restx",
+        "flask==2.1.2",
+        "flask_cors==3.0.10",
+        "flask_pymongo==2.3.0",
+        "flask-restx==0.5.1",
         "markupsafe==2.0.1",
-        "werkzeug==0.16.1",
-        "gitpython",
+        "werkzeug==2.1.2",
+        "gitpython==3.1.27",
         "colorama",
         "jmespath",
         "fasteners",
-        "jsonpath-ng",
+        "jsonpath-ng==1.5.3",
         "pydash==5.0.2",
     ],
     classifiers=[

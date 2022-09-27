@@ -1,5 +1,7 @@
 {
-  "index_patterns": ["curieaccesslog-*"],
+  "index_patterns": [
+    "curieaccesslog-*"
+  ],
   "version": 1,
   "priority": 200,
   "composed_of": [],
@@ -18,256 +20,133 @@
     "mappings": {
       "dynamic_templates": [],
       "properties": {
+        "timestamp": {
+          "type": "date_nanos"
+        },
+        "acl_triggers": {
+          "type": "nested"
+        },
+        "arguments": {
+          "type": "flattened"
+        },
         "authority": {
           "type": "keyword"
         },
-        "block_reason": {
-          "type": "object"
+        "content_filter_triggers": {
+          "type": "nested"
         },
-        "blocked": {
+        "cookies": {
+          "type": "flattened"
+        },
+        "custom_response": {
           "type": "boolean"
         },
-        "downstream": {
-          "properties": {
-            "connectiontermination": {
-              "type": "boolean"
-            },
-            "directremoteaddress": {
-              "type": "ip"
-            },
-            "directremoteaddressport": {
-              "type": "integer"
-            },
-            "localaddress": {
-              "type": "ip"
-            },
-            "localaddressport": {
-              "type": "integer"
-            },
-            "protocolerror": {
-              "type": "boolean"
-            },
-            "remoteaddress": {
-              "type": "ip"
-            },
-            "remoteaddressport": {
-              "type": "integer"
-            }
-          }
+        "flow_control_triggers": {
+          "type": "nested"
         },
-        "metadata": {
-          "properties": {
-            "delayinjected": {
-              "type": "boolean"
-            },
-            "failedlocalhealthcheck": {
-              "type": "boolean"
-            },
-            "faultinjected": {
-              "type": "boolean"
-            },
-            "invalidenvoyrequestheaders": {
-              "type": "boolean"
-            },
-            "localreset": {
-              "type": "boolean"
-            },
-            "nohealthyupstream": {
-              "type": "boolean"
-            },
-            "noroutefound": {
-              "type": "boolean"
-            },
-            "ratelimited": {
-              "type": "boolean"
-            },
-            "ratelimitserviceerror": {
-              "type": "boolean"
-            },
-            "routename": {
-              "type": "keyword"
-            },
-            "samplerate": {
-              "type": "float"
-            },
-            "streamidletimeout": {
-              "type": "boolean"
-            },
-            "unauthorizeddetails": {
-              "type": "keyword"
-            }
-          }
+        "global_filters_triggers": {
+          "type": "nested"
         },
-        "request": {
-          "properties": {
-            "requestid": {
-              "type": "keyword"
-            },
-            "scheme": {
-              "type": "keyword"
-            },
-            "geo": {
-              "type": "object",
-              "properties": {
-                "location": {
-                  "type": "geo_point",
-                  "ignore_malformed": true,
-                  "ignore_z_value": true
-                }
-              }
-            },
-            "arguments": {
-              "type": "flattened"
-            },
-            "attributes": {
-              "type": "object",
-              "properties": {
-                "ip": {
-                  "type": "ip"
-                },
-                "ipnum": {
-                  "type": "integer"
-                },
-                "query": {
-                  "type": "text"
-                },
-                "uri": {
-                  "type": "keyword"
-                },
-                "path": {
-                  "type": "keyword"
-                }
-              }
-            },
-            "bodybytes": {
-              "type": "integer"
-            },
-            "cookies": {
-              "type": "flattened"
-            },
-            "headers": {
-              "type": "flattened"
-            },
-            "headersbytes": {
-              "type": "integer"
-            },
-            "originalpath": {
-              "type": "keyword"
-            }
-          }
+        "headers": {
+          "type": "flattened"
         },
-        "response": {
-          "properties": {
-            "bodybytes": {
-              "type": "integer"
-            },
-            "code": {
-              "type": "integer"
-            },
-            "codedetails": {
-              "type": "keyword"
-            },
-            "headers": {
-              "type": "flattened"
-            },
-            "headersbytes": {
-              "type": "integer"
-            },
-            "trailers": {
-              "type": "keyword"
-            }
-          }
+        "ip": {
+          "type": "ip"
         },
-        "rxtimers": {
-          "properties": {
-            "firstupstreambyte": {
-              "type": "float"
-            },
-            "lastbyte": {
-              "type": "float"
-            },
-            "lastupstreambyte": {
-              "type": "float"
-            }
-          }
+        "logs": {
+          "type": "text"
         },
-        "tags": {
+        "method": {
           "type": "keyword"
         },
-        "@timestamp": {
-          "type": "date_nanos"
+        "path_parts": {
+          "type": "flattened"
         },
-        "tls": {
+        "profiling": {
+          "type": "nested"
+        },
+        "proxy": {
+          "type": "object",
           "properties": {
-            "ciphersuite": {
-              "type": "keyword"
-            },
-            "sessionid": {
-              "type": "keyword"
-            },
-            "snihostname": {
-              "type": "keyword"
-            },
-            "version": {
-              "type": "keyword"
+            "location": {
+              "type": "geo_point",
+              "ignore_malformed": true,
+              "ignore_z_value": true
             }
           }
         },
-        "txtimers": {
-          "properties": {
-            "firstdownstreambyte": {
-              "type": "float"
-            },
-            "firstupstreambyte": {
-              "type": "float"
-            },
-            "lastdownstreambyte": {
-              "type": "float"
-            },
-            "lastupstreambyte": {
-              "type": "float"
-            }
-          }
+        "rate_limit_triggers": {
+          "type": "nested"
         },
-        "upstream": {
+        "requestid": {
+          "type": "keyword"
+        },
+        "security_config": {
+          "type": "object",
           "properties": {
-            "cluster": {
-              "type": "keyword"
-            },
-            "connectionfailure": {
-              "type": "boolean"
-            },
-            "connectiontermination": {
-              "type": "boolean"
-            },
-            "localaddress": {
-              "type": "ip"
-            },
-            "localaddressport": {
+            "global_filters_active": {
               "type": "integer"
             },
-            "overflow": {
-              "type": "boolean"
-            },
-            "remoteaddress": {
-              "type": "ip"
-            },
-            "remoteaddressport": {
+            "rate_limit_rules": {
               "type": "integer"
             },
-            "remotereset": {
-              "type": "boolean"
-            },
-            "requesttimeout": {
-              "type": "boolean"
-            },
-            "retrylimitexceeded": {
-              "type": "boolean"
-            },
-            "transportfailurereason": {
+            "revision": {
               "type": "keyword"
+            },
+            "acl_active": {
+              "type": "boolean"
+            },
+            "cf_active": {
+              "type": "boolean"
+            },
+            "cf_rules": {
+              "type": "integer"
             }
           }
+        },
+        "response_code": {
+          "type": "integer"
+        },
+        "tags": {
+          "type": "text"
+        },
+        "trigger_counters": {
+          "type": "object",
+          "properties": {
+            "acl": {
+              "type": "integer"
+            },
+            "acl_active": {
+              "type": "integer"
+            },
+            "content_filters": {
+              "type": "integer"
+            },
+            "content_filters_active": {
+              "type": "integer"
+            },
+            "flow_control": {
+              "type": "integer"
+            },
+            "flow_control_active": {
+              "type": "integer"
+            },
+            "global_filters": {
+              "type": "integer"
+            },
+            "global_filters_active": {
+              "type": "integer"
+            },
+            "rate_limit": {
+              "type": "integer"
+            },
+            "rate_limit_active": {
+              "type": "integer"
+            }
+          }
+        },
+        "uri": {
+          "type": "text"
         }
       }
     },

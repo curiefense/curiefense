@@ -1,13 +1,15 @@
 use curiefense::config::contentfilter::ContentFilterProfile;
 use curiefense::config::hostmap::*;
+use curiefense::config::matchers::Matching;
 use curiefense::config::raw::AclProfile;
-use curiefense::config::utils::Matching;
 use curiefense::config::Config;
+use curiefense::interface::SimpleAction;
 use curiefense::logs::Logs;
 use curiefense::securitypolicy::match_securitypolicy;
 
 use criterion::*;
 use std::collections::HashSet;
+use std::sync::Arc;
 
 fn gen_bogus_config(sz: usize) -> Config {
     let mut def = Config::empty();
@@ -16,7 +18,6 @@ fn gen_bogus_config(sz: usize) -> Config {
             Matching::from_str(
                 &format!("^dummyhost_{}$", i),
                 HostMap {
-                    id: format!("abcd{}", i),
                     name: format!("Dummy hostmap {}", i),
                     entries: Vec::new(),
                     default: None,
@@ -35,37 +36,54 @@ fn gen_bogus_config(sz: usize) -> Config {
         deny_bot: HashSet::new(),
         passthrough: HashSet::new(),
         force_deny: HashSet::new(),
+        action: SimpleAction::default(),
+        tags: HashSet::new(),
     };
 
-    let dummy_entries: Vec<Matching<SecurityPolicy>> = (0..sz)
+    let dummy_entries: Vec<Matching<Arc<SecurityPolicy>>> = (0..sz)
         .map(|i| {
             Matching::from_str(
                 &format!("/dummy/url/{}", i),
-                SecurityPolicy {
-                    name: format!("Dummy securitypolicy {}", i),
+                Arc::new(SecurityPolicy {
+                    policy: PolicyId {
+                        id: "__default__".to_string(),
+                        name: "__default__".to_string(),
+                    },
+                    entry: PolicyId {
+                        id: format!("id{}", i),
+                        name: format!("Dummy securitypolicy {}", i),
+                    },
                     acl_active: false,
                     acl_profile: acl_profile.clone(),
                     content_filter_active: false,
                     content_filter_profile: ContentFilterProfile::default_from_seed("seed"),
+                    session: Vec::new(),
                     limits: Vec::new(),
-                },
+                }),
             )
             .unwrap()
         })
         .collect();
 
     def.default = Some(HostMap {
-        id: "__default__".into(),
         name: "__default__".into(),
         entries: dummy_entries,
-        default: Some(SecurityPolicy {
-            name: "selected".into(),
+        default: Some(Arc::new(SecurityPolicy {
+            policy: PolicyId {
+                id: "__default__".into(),
+                name: "__default__".into(),
+            },
+            entry: PolicyId {
+                id: "default".into(),
+                name: "selected".into(),
+            },
             acl_active: false,
             acl_profile,
             content_filter_active: false,
             content_filter_profile: ContentFilterProfile::default_from_seed("seed"),
+            session: Vec::new(),
             limits: Vec::new(),
-        }),
+        })),
     });
 
     def
@@ -78,9 +96,9 @@ fn forms_string_map(c: &mut Criterion) {
             let cfg = gen_bogus_config(size);
             b.iter(|| {
                 let mut logs = Logs::default();
-                let (_, umap) =
+                let umap =
                     match_securitypolicy("my.host.name", "/non/matching/path", black_box(&cfg), &mut logs).unwrap();
-                assert_eq!(umap.name, "selected");
+                assert_eq!(umap.entry.name, "selected");
             })
         });
     }

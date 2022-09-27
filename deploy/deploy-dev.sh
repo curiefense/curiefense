@@ -66,14 +66,9 @@ echo "-- Install curieconfctl --"
 rm -rf "$BASEDIR/venv"
 python3 -m venv "$BASEDIR/venv"
 source "$BASEDIR/venv/bin/activate"
-pip install requests pytest pytest-html wheel
+pip install --no-cache-dir -r "$BASEDIR/curiefense/e2e/requirements.txt"
 
-cd "$BASEDIR/curiefense/curiefense/curieconf/utils" || exit 1
-pip install -e .
-
-cd "$BASEDIR/curiefense/curiefense/curieconf/client" || exit 1
-pip install -e .
-
+pip install --no-cache-dir -r "$BASEDIR/curiefense/curiefense/images/confserver/init/requirements.txt"
 
 echo "-- Run e2e tests --"
 cd "$BASEDIR/curiefense/e2e/" || exit 1

@@ -1,0 +1,43 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "ACL Profile",
+    "description": "ACL Profile",
+    "definitions": {
+        "tags_array": {
+            "title": "Tags List",
+            "description": "List of tags for which to apply the rule",
+            "type": "array",
+            "items": { "type": "string" }
+        }
+    },
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique id"
+        },
+        "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name",
+            "description": "Name of entity shown in UI"
+        },
+        "allow": { "$ref": "#/definitions/tags_array" },
+        "allow_bot": { "$ref": "#/definitions/tags_array" },
+        "deny_bot": { "$ref": "#/definitions/tags_array" },
+        "passthrough": { "$ref": "#/definitions/tags_array" },
+        "force_deny": { "$ref": "#/definitions/tags_array" },
+        "deny": { "$ref": "#/definitions/tags_array" },
+        "action": {
+            "type": "string"
+        },
+        "tags": {
+            "title": "Tags List",
+            "description": "List of tags to apply",
+            "type": "array",
+            "items": { "type": "string" }
+        }
+    },
+    "required": [ "id", "name", "allow", "allow_bot", "deny_bot", "passthrough", "force_deny", "deny" ]
+}

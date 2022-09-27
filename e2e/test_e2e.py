@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
-# Python requirements: pytest requests
+# Python requirements: pytest requests requests_toolbelt
 # install curieconfctl:
 # (cd ../curiefense/curieconf/utils ; pip3 install .)
 # (cd ../curiefense/curieconf/client ; pip3 install .)
 #
 # To run this with minikube (does not support IPv6):
 #
-# pytest --base-protected-url http://$(minikube ip):30081 --base-conf-url http://$(minikube ip):30000/api/v2/ --base-ui-url http://$(minikube ip):30080 --elasticsearch-url http://$IP:30200 .      # pylint: disable=line-too-long
+# pytest --base-protected-url http://$(minikube ip):30081 --base-conf-url http://$(minikube ip):30000/api/v3/ --base-ui-url http://$(minikube ip):30080 --elasticsearch-url http://$IP:30200 .      # pylint: disable=line-too-long
 #
 # To run this with docker-compose:
-# pytest --base-protected-url http://localhost:30081/ --base-conf-url http://localhost:30000/api/v2/ --base-ui-url http://localhost:30080 --elasticsearch-url http://localhost:9200 .      # pylint: disable=line-too-long
+# pytest --base-protected-url http://localhost:30081/ --base-conf-url http://localhost:30000/api/v3/ --base-ui-url http://localhost:30080 --elasticsearch-url http://localhost:9200 .      # pylint: disable=line-too-long
 
 # pylint: disable=too-many-lines,too-many-public-methods
 # pylint: disable=too-many-arguments,too-few-public-methods,too-many-statements
@@ -29,8 +29,9 @@
 # pylint: disable=no-self-use
 
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
+import reqflip
 import json
 import logging
 import random
@@ -120,20 +121,21 @@ def cli(request):
 
 
 class TargetHelper:
-    def __init__(self, base_url):
+    def __init__(self, base_url, flip):
         self._base_url = base_url
+        self._flip = flip
 
-    def query(
-        self, path="/", suffix="", method="GET", headers=None, srcip=None, **kwargs
-    ):
+    def query(self, path="/", suffix="", method="GET", headers=None, srcip=None, **kwargs):
         # specifying a path helps spot tests easily in the access log
         if headers is None:
             headers = {}
         if srcip is not None:
             headers["X-Forwarded-For"] = srcip
-        res = requests.request(
-            method=method, url=self._base_url + path + suffix, headers=headers, **kwargs
-        )
+        res = requests.request(method=method, url=self._base_url + path + suffix, headers=headers, **kwargs)
+        if self._flip:
+            # Also send copies of the request, flipping bits one by one
+            # This is a "light fuzzing" approach
+            reqflip.bitflip_send(res)
         return res
 
     def is_reachable(self, *args, **kwargs):
@@ -147,7 +149,8 @@ class TargetHelper:
 @pytest.fixture(scope="session")
 def target(request):
     url = request.config.getoption("--base-protected-url").rstrip("/")
-    return TargetHelper(url)
+    flip = request.config.getoption("--flip-requests")
+    return TargetHelper(url, flip)
 
 
 # geo=US, company=SPRINTLINK, asn=1239
@@ -172,9 +175,7 @@ class LogHelper:
         self._es_url = es_url + "/_search"
 
     def check_log_pattern(self, pattern):
-        data = {
-            "query": {"bool": {"must": {"match": {"request.attributes.uri": pattern}}}}
-        }
+        data = {"query": {"bool": {"must": {"match": {"uri": pattern}}}}}
         res = requests.get(self._es_url, json=data)
         nbhits = res.json()["hits"]["total"]["value"]
         if nbhits == 1:
@@ -201,9 +202,7 @@ class ACLHelper:
         # update acl
         for key, value in updates.items():
             acl[0][key].append(value)
-        self._cli.call(
-            f"doc update {TEST_CONFIG_NAME} aclprofiles /dev/stdin", inputjson=acl
-        )
+        self._cli.call(f"doc update {TEST_CONFIG_NAME} aclprofiles /dev/stdin", inputjson=acl)
 
     def reset_and_set_acl(self, updates: dict):
         self._cli.revert_and_enable()
@@ -232,9 +231,7 @@ def section(request):
 
 class TestLogs:
     def test_logs(self, default_config, cli, target, log_fixture):
-        test_pattern = "/test" + "".join(
-            [random.choice(string.ascii_lowercase) for i in range(20)]
-        )
+        test_pattern = "/test" + "".join([random.choice(string.ascii_lowercase) for i in range(20)])
         assert target.is_reachable(test_pattern)
         result = False
         for _ in range(10):
@@ -256,9 +253,7 @@ class TestACL:
 
     def test_allow_bot_all(self, acl, target):
         acl.reset_and_set_acl({"allow_bot": "all"})
-        assert not target.is_reachable(
-            "/allow_bot-all", headers={"Long-Header": "not_alphanum" * 1500}
-        )
+        assert not target.is_reachable("/allow_bot-all", headers={"Long-Header": "not_alphanum" * 1500})
         assert target.is_reachable()
 
     def test_deny_bot_all(self, acl, target):
@@ -269,9 +264,7 @@ class TestACL:
 
     def test_allow_all(self, acl, target):
         acl.reset_and_set_acl({"allow": "all", "deny": "all"})
-        assert not target.is_reachable(
-            "/allow-deny-all", headers={"Long-Header": "not_alphanum" * 1500}
-        )
+        assert not target.is_reachable("/allow-deny-all", headers={"Long-Header": "not_alphanum" * 1500})
         assert target.is_reachable()
 
     def test_deny_all(self, acl, target):
@@ -335,7 +328,7 @@ def gen_rl_rules(authority):
                     "tags": [id],
                     "rule": {
                         "relation": "OR",
-                        "sections": [
+                        "entries": [
                             {
                                 "relation": "OR",
                                 "entries": [entry],
@@ -348,18 +341,22 @@ def gen_rl_rules(authority):
         return []
 
     def add_rl_rule(
-        path, action_ext=None, subaction_ext=None, param_ext=None, **kwargs
+        path: str,
+        action: str = "default",
+        key: Optional[List[Dict[str, str]]] = None,
+        pairwith: Optional[Dict[str, str]] = None,
+        **kwargs,
     ):
+        assert isinstance(action, str), action
         rule_id = f"e2e1{len(rl_rules):0>9}"
         incl_id = f"incl{len(rl_rules):0>9}"
         excl_id = f"excl{len(rl_rules):0>9}"
 
-        if subaction_ext is None:
-            subaction_ext = {}
-        if action_ext is None:
-            action_ext = {}
-        if param_ext is None:
-            param_ext = {}
+        if key is None:
+            key = [{"attrs": "ip"}]
+        if pairwith is None:
+            pairwith = {"self": "self"}
+
         map_path[path] = rule_id
         incl = build_profiling_rule(incl_id, incl_id, "incl", **kwargs)
         excl = build_profiling_rule(excl_id, excl_id, "excl", **kwargs)
@@ -368,28 +365,17 @@ def gen_rl_rules(authority):
                 "id": rule_id,
                 "name": "Rate Limit Rule 3/10 " + path,
                 "description": "3 requests per 10 seconds",
-                "timeframe": "10",
+                "timeframe": 10,
                 "thresholds": [
                     {
-                        "limit": "3",
-                        "action": {
-                            "type": kwargs.get("action", "default"),
-                            "params": {
-                                "action": {
-                                    "type": kwargs.get("subaction", "default"),
-                                    "params": kwargs.get("subaction_params", {}),
-                                    **subaction_ext,
-                                },
-                                **param_ext,
-                            },
-                            **action_ext,
-                        },
+                        "limit": 3,
+                        "action": action,
                     }
                 ],
                 "include": incl,
                 "exclude": excl,
-                "key": kwargs.get("key", [{"attrs": "ip"}]),
-                "pairwith": kwargs.get("pairwith", {"self": "self"}),
+                "key": key,
+                "pairwith": pairwith,
             }
         )
 
@@ -404,9 +390,7 @@ def gen_rl_rules(authority):
         incl_headers={"include": "true"},
         excl_headers={"exclude": "true"},
     )
-    add_rl_rule(
-        "scope-params", incl_args={"include": "true"}, excl_args={"exclude": "true"}
-    )
+    add_rl_rule("scope-params", incl_args={"include": "true"}, excl_args={"exclude": "true"})
     add_rl_rule(
         "scope-path",
         incl_attrs={"path": "/scope-path/include/"},
@@ -431,12 +415,8 @@ def gen_rl_rules(authority):
     add_rl_rule("scope-query-exclude", excl_attrs={"query": "QUERY"})
     add_rl_rule("scope-authority-include", incl_attrs={"authority": authority})
     add_rl_rule("scope-authority-exclude", excl_attrs={"authority": authority})
-    add_rl_rule(
-        "scope-other-authority-include", incl_attrs={"authority": "doesnotmatch"}
-    )
-    add_rl_rule(
-        "scope-other-authority-exclude", excl_attrs={"authority": "doesnotmatch"}
-    )
+    add_rl_rule("scope-other-authority-include", incl_attrs={"authority": "doesnotmatch"})
+    add_rl_rule("scope-other-authority-exclude", excl_attrs={"authority": "doesnotmatch"})
 
     # RL count by 1 value
     add_rl_rule("countby-cookies", key=[{"cookies": "countby"}])
@@ -454,23 +434,13 @@ def gen_rl_rules(authority):
     add_rl_rule("countby-country", key=[{"attrs": "country"}])
     add_rl_rule("countby-authority", key=[{"attrs": "authority"}])
     # RL count by 2 value (same type)
-    add_rl_rule(
-        "countby2-cookies", key=[{"cookies": "countby1"}, {"cookies": "countby2"}]
-    )
-    add_rl_rule(
-        "countby2-headers", key=[{"headers": "countby1"}, {"headers": "countby2"}]
-    )
+    add_rl_rule("countby2-cookies", key=[{"cookies": "countby1"}, {"cookies": "countby2"}])
+    add_rl_rule("countby2-headers", key=[{"headers": "countby1"}, {"headers": "countby2"}])
     add_rl_rule("countby2-params", key=[{"args": "countby1"}, {"args": "countby2"}])
     # RL count by 2 value (different type)
-    add_rl_rule(
-        "countby-cookies-headers", key=[{"cookies": "countby"}, {"headers": "countby"}]
-    )
-    add_rl_rule(
-        "countby-headers-params", key=[{"headers": "countby"}, {"args": "countby"}]
-    )
-    add_rl_rule(
-        "countby-params-cookies", key=[{"args": "countby"}, {"cookies": "countby"}]
-    )
+    add_rl_rule("countby-cookies-headers", key=[{"cookies": "countby"}, {"headers": "countby"}])
+    add_rl_rule("countby-headers-params", key=[{"headers": "countby"}, {"args": "countby"}])
+    add_rl_rule("countby-params-cookies", key=[{"args": "countby"}, {"cookies": "countby"}])
     # RL Event condition
     add_rl_rule("event-cookies", pairwith={"cookies": "event"})
     add_rl_rule("event-headers", pairwith={"headers": "event"})
@@ -489,80 +459,16 @@ def gen_rl_rules(authority):
     # action
     add_rl_rule("action-challenge", action="challenge")
     add_rl_rule("action-monitor", action="monitor")
-    add_rl_rule(
-        "action-response",
-        action="response",
-        param_ext={"status": "123", "content": "Response body"},
-    )
-    add_rl_rule(
-        "action-redirect",
-        action="redirect",
-        param_ext={"status": "124", "location": "/redirect/"},
-    )
-    add_rl_rule(
-        "action-ban-503",
-        action="ban",
-        subaction="default",
-        param_ext={"duration": "10"},
-        excl_attrs={"tags": "allowlist"},
-        incl_attrs={"tags": "blocklist"},
-    )
-    add_rl_rule(
-        "action-ban-challenge",
-        action="ban",
-        subaction="challenge",
-        param_ext={"duration": "10"},
-        subaction_params={"action": {"type": "default", "params": {}}},
-    )
-    add_rl_rule(
-        "action-ban-tagonly",
-        action="ban",
-        subaction="monitor",
-        param_ext={"duration": "10"},
-        subaction_params={"action": {"type": "default", "params": {}}},
-    )
-    add_rl_rule(
-        "action-ban-response",
-        action="ban",
-        subaction="response",
-        param_ext={"status": "123", "duration": "10", "content": "Content"},
-        subaction_params={"content": "Response body", "status": "123"},
-    )
-    add_rl_rule(
-        "action-ban-redirect",
-        action="ban",
-        subaction="redirect",
-        param_ext={"duration": "10"},
-        subaction_ext={"status": "124", "duration": "10", "location": "/redirect/"},
-        subaction_params={
-            "location": "/redirect",
-            "status": "301",
-            "action": {"type": "default", "params": {}},
-        },
-    )
-    add_rl_rule(
-        "action-ban-header",
-        action="ban",
-        subaction="request_header",
-        param_ext={"duration": "10"},
-        subaction_ext={"headers": "Header-Name"},
-        subaction_params={
-            "headers": {"foo": "bar"},
-            "action": {"type": "default", "params": {}},
-        },
-    )
-    add_rl_rule(
-        "action-header",
-        action="request_header",
-        action_ext={"headers": "Header-Name"},
-        param_ext={"headers": {"foo": "bar"}},
-    )
+    add_rl_rule("action-response", action="response123")
+    add_rl_rule("action-redirect")
+    add_rl_rule("action-header", action="request_header")
 
     rl_securitypolicy = [
         {
             "id": "__default__",
             "name": "default entry",
             "match": "__default__",
+            "tags": [],
             "map": [
                 {
                     "name": "default",
@@ -592,13 +498,17 @@ def gen_rl_rules(authority):
 
 
 @pytest.fixture(scope="class")
-def ratelimit_config(cli, target):
+def ratelimit_config(cli: CliHelper, target):
     cli.revert_and_enable()
     # Add new RL rules
     rl_rules = cli.call(f"doc get {TEST_CONFIG_NAME} ratelimits")
     (new_rules, new_securitypolicy, new_profiling) = gen_rl_rules(target.authority())
     rl_rules.extend(new_rules)
     # Apply new profiling
+    cli.call(
+        f"doc update {TEST_CONFIG_NAME} actions /dev/stdin",
+        inputjson=TEST_ACTIONS,
+    )
     cli.call(
         f"doc update {TEST_CONFIG_NAME} globalfilters /dev/stdin",
         inputjson=new_profiling,
@@ -648,44 +558,30 @@ class TestRateLimit:
     def test_ratelimit_scope_path_include(self, target, ratelimit_config):
         # rate limit: max 3 requests within 10 seconds
         for i in range(1, 4):
-            assert target.is_reachable(
-                f"/scope-path/include/{i}"
-            ), f"Request #{i} for path should be allowed"
+            assert target.is_reachable(f"/scope-path/include/{i}"), f"Request #{i} for path should be allowed"
         assert not target.is_reachable(
             "/scope-path/include/4"
         ), "Request #4 for path should be blocked by the rate limit"
         time.sleep(10)
-        assert target.is_reachable(
-            "/scope-path/include/5"
-        ), "Request #5 for path should be allowed"
+        assert target.is_reachable("/scope-path/include/5"), "Request #5 for path should be allowed"
 
     def test_ratelimit_scope_path_include_exclude(self, target, ratelimit_config):
         # rate limit: max 3 requests within 10 seconds
         for i in range(1, 5):
-            assert target.is_reachable(
-                f"/scope-path/include/exclude/{i}"
-            ), f"Request #{i} for path should be allowed"
+            assert target.is_reachable(f"/scope-path/include/exclude/{i}"), f"Request #{i} for path should be allowed"
 
     def test_ratelimit_scope_uri_include(self, target, ratelimit_config):
         # rate limit: max 3 requests within 10 seconds
         for i in range(1, 4):
-            assert target.is_reachable(
-                f"/scope-uri/include/{i}"
-            ), f"Request #{i} for uri should be allowed"
-        assert not target.is_reachable(
-            "/scope-uri/include/4"
-        ), "Request #4 for uri should be blocked by the rate limit"
+            assert target.is_reachable(f"/scope-uri/include/{i}"), f"Request #{i} for uri should be allowed"
+        assert not target.is_reachable("/scope-uri/include/4"), "Request #4 for uri should be blocked by the rate limit"
         time.sleep(10)
-        assert target.is_reachable(
-            "/scope-uri/include/5"
-        ), "Request #5 for uri should be allowed"
+        assert target.is_reachable("/scope-uri/include/5"), "Request #5 for uri should be allowed"
 
     def test_ratelimit_scope_uri_include_exclude(self, target, ratelimit_config):
         # rate limit: max 3 requests within 10 seconds
         for i in range(1, 5):
-            assert target.is_reachable(
-                f"/scope-uri/include/exclude/{i}"
-            ), f"Request #{i} for uri should be allowed"
+            assert target.is_reachable(f"/scope-uri/include/exclude/{i}"), f"Request #{i} for uri should be allowed"
 
     def test_ratelimit_scope_ipv4_include(self, target, ratelimit_config):
         for i in range(1, 4):
@@ -1000,9 +896,7 @@ class TestRateLimit:
 
     def test_ratelimit_countby_2sections(self, target, ratelimit_config, section):
         # condition: have countby set for 2 sections
-        othersection = {"headers": "params", "cookies": "headers", "params": "cookies"}[
-            section
-        ]
+        othersection = {"headers": "params", "cookies": "headers", "params": "cookies"}[section]
         param1 = {section: {"countby": "1"}}
         param2 = {othersection: {"countby": "1"}}
         param12 = {section: {"countby": "1"}, othersection: {"countby": "1"}}
@@ -1064,9 +958,7 @@ class TestRateLimit:
         self.ratelimit_event_param_helper(target, "ipv4", params)
 
     def test_ratelimit_event_ipv6(self, target, ratelimit_config):
-        params = [
-            {"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(1, 5)
-        ]
+        params = [{"srcip": f"0000:0000:0000:0000:0000:0000:0000:000{i}"} for i in range(1, 5)]
         self.ratelimit_event_param_helper(target, "ipv6", params)
 
     def test_ratelimit_event_provider(self, target, ratelimit_config):
@@ -1111,6 +1003,37 @@ class TestRateLimit:
 
 # --- Tag rules tests (formerly profiling lists) ---
 
+TEST_ACTIONS: Dict[str, Any] = [
+    {"id": "default", "name": "d", "description": "default action", "type": "custom", "tags": []},
+    {"id": "challenge", "name": "c", "description": "challenge", "type": "challenge", "tags": []},
+    {"id": "monitor", "name": "m", "description": "monitor", "type": "monitor", "tags": []},
+    {
+        "id": "response123",
+        "name": "r123",
+        "description": "response with custom status and body",
+        "type": "custom",
+        "params": {"status": 123, "content": "Response body"},
+        "tags": [],
+    },
+    {
+        "id": "redirect124",
+        "name": "rd",
+        "description": "redirection",
+        "type": "custom",
+        "params": {"status": 124, "headers": {"location": "/redirect/"}},
+        "tags": [],
+    },
+    {
+        "id": "request_header",
+        "name": "rh",
+        "description": "request headers",
+        "type": "monitor",
+        "params": {"headers": {"foo": "bar"}},
+        "tags": [],
+    },
+]
+
+
 TEST_GLOBALFILTERS = {
     "id": "e2e000000000",
     "name": "e2e test tag rules",
@@ -1122,7 +1045,7 @@ TEST_GLOBALFILTERS = {
     "tags": ["e2e-test"],
     "rule": {
         "relation": "OR",
-        "sections": [
+        "entries": [
             {
                 "relation": "OR",
                 "entries": [
@@ -1160,13 +1083,17 @@ def active(request):
 
 
 @pytest.fixture(scope="class")
-def globalfilters_config(cli, acl, active):
+def globalfilters_config(cli: CliHelper, acl, active):
     cli.revert_and_enable()
     acl.set_acl({"force_deny": "e2e-test", "passthrough": "all"})
     # Apply TEST_GLOBALFILTERS
     TEST_GLOBALFILTERS["active"] = active
     # 'updating' contentfilterprofiles with a list containing a single entry adds this
     # entry, without removing pre-existing ones.
+    cli.call(
+        f"doc update {TEST_CONFIG_NAME} actions /dev/stdin",
+        inputjson=TEST_ACTIONS,
+    )
     cli.call(
         f"doc update {TEST_CONFIG_NAME} globalfilters /dev/stdin",
         inputjson=[TEST_GLOBALFILTERS],
@@ -1176,55 +1103,25 @@ def globalfilters_config(cli, acl, active):
 
 class TestGlobalFilters:
     def test_cookies(self, target, globalfilters_config, active):
-        assert (
-            target.is_reachable("/e2e-globalfilters-cookies", cookies={"e2e": "value"})
-            is not active
-        )
-        assert (
-            target.is_reachable(
-                "/e2e-globalfilters-cookies", cookies={"e2e": "allowed"}
-            )
-            is True
-        )
+        assert target.is_reachable("/e2e-globalfilters-cookies", cookies={"e2e": "value"}) is not active
+        assert target.is_reachable("/e2e-globalfilters-cookies", cookies={"e2e": "allowed"}) is True
 
     def test_headers(self, target, globalfilters_config, active):
-        assert (
-            target.is_reachable("/e2e-globalfilters-headers", headers={"e2e": "value"})
-            is not active
-        )
-        assert (
-            target.is_reachable(
-                "/e2e-globalfilters-headers", headers={"e2e": "allowed"}
-            )
-            is True
-        )
+        assert target.is_reachable("/e2e-globalfilters-headers", headers={"e2e": "value"}) is not active
+        assert target.is_reachable("/e2e-globalfilters-headers", headers={"e2e": "allowed"}) is True
 
     def test_method(self, target, globalfilters_config, active):
-        assert (
-            target.is_reachable("/e2e-globalfilters-method-GET", method="GET") is True
-        )
-        assert (
-            target.is_reachable("/e2e-globalfilters-method-POST", method="POST")
-            is not active
-        )
-        assert (
-            target.is_reachable("/e2e-globalfilters-method-PUT", method="PUT")
-            is not active
-        )
+        assert target.is_reachable("/e2e-globalfilters-method-GET", method="GET") is True
+        assert target.is_reachable("/e2e-globalfilters-method-POST", method="POST") is not active
+        assert target.is_reachable("/e2e-globalfilters-method-PUT", method="PUT") is not active
 
     def test_path(self, target, globalfilters_config, active):
         assert target.is_reachable("/e2e-globalfilters-path/") is not active
         assert target.is_reachable("/e2e-globalfilters-valid-path/") is True
 
     def test_query(self, target, globalfilters_config, active):
-        assert (
-            target.is_reachable("/e2e-globalfilters-query", params={"e2e": "value"})
-            is not active
-        )
-        assert (
-            target.is_reachable("/e2e-globalfilters-query", params={"e2e": "allowed"})
-            is True
-        )
+        assert target.is_reachable("/e2e-globalfilters-query", params={"e2e": "value"}) is not active
+        assert target.is_reachable("/e2e-globalfilters-query", params={"e2e": "allowed"}) is True
 
     def test_uri(self, target, globalfilters_config, active):
         assert target.is_reachable("/e2e-globalfilters-uri") is not active
@@ -1247,15 +1144,9 @@ class TestGlobalFilters:
         assert target.is_reachable("/tag-asn", srcip=IP4_CLOUDFLARE) is not active
 
     def test_and(self, target, globalfilters_config, active):
-        assert (
-            target.is_reachable("/e2e-and/", cookies={"e2e-and": "value"}) is not active
-        )
-        assert (
-            target.is_reachable("/not-e2e-and/", cookies={"e2e-and": "value"}) is True
-        )
-        assert (
-            target.is_reachable("/e2e-and/", cookies={"not-e2e-and": "value"}) is True
-        )
+        assert target.is_reachable("/e2e-and/", cookies={"e2e-and": "value"}) is not active
+        assert target.is_reachable("/not-e2e-and/", cookies={"e2e-and": "value"}) is True
+        assert target.is_reachable("/e2e-and/", cookies={"not-e2e-and": "value"}) is True
 
 
 # --- Security Policies tests ---
@@ -1276,11 +1167,15 @@ CONTENT_FILTER_SHORT_HEADERS = {
     "id": "e2e000000002",
     "name": "e2e content filter short headers",
     "masking_seed": "CHANGEME",
+    "decoding": {},
     "ignore_alphanum": True,
-    "args": {"names": [], "regex": []},
+    "args": {"max_length": 1024, "max_count": 42, "names": [], "regex": []},
+    "path": {"max_length": 1024, "max_count": 42, "names": [], "regex": []},
     "headers": {"max_length": 50, "max_count": 42, "names": [], "regex": []},
-    "cookies": {"names": [], "regex": []},
+    "cookies": {"max_length": 50, "max_count": 42, "names": [], "regex": []},
     "active": ["cf-rule-risk:5"],
+    "ignore": [],
+    "report": []
 }
 
 CONTENT_FILTER_MISC_HEADERS = {
@@ -1288,6 +1183,7 @@ CONTENT_FILTER_MISC_HEADERS = {
     "name": "e2e waf misc headers",
     "masking_seed": "CHANGEME",
     "ignore_alphanum": False,
+    "decoding": {},
     "args": {
         "max_count": 5,
         "max_length": 1024,
@@ -1327,7 +1223,7 @@ CONTENT_FILTER_MISC_HEADERS = {
     "headers": {
         "names": [],
         "regex": [],
-        "max_length": 50,
+        "max_length": 1024,
         "max_count": 42,
         "min_risk": 3,
     },
@@ -1346,6 +1242,8 @@ CONTENT_FILTER_MISC_HEADERS = {
         "min_risk": 5,
     },
     "active": ["cf-rule-risk:5"],
+    "ignore": [],
+    "report": []
 }
 
 SECURITYPOLICY = [
@@ -1429,19 +1327,21 @@ SECURITYPOLICY = [
 
 
 @pytest.fixture(scope="class")
-def securitypolicy_config(cli, acl):
+def securitypolicy_config(cli: CliHelper, acl):
     cli.revert_and_enable()
     # Add ACL entry
     default_acl = cli.empty_acl()
     default_acl[0]["force_deny"].append("all")
     default_acl.append(ACL_BYPASSALL)
-    cli.call(
-        f"doc update {TEST_CONFIG_NAME} aclprofiles /dev/stdin", inputjson=default_acl
-    )
+    cli.call(f"doc update {TEST_CONFIG_NAME} aclprofiles /dev/stdin", inputjson=default_acl)
     # Add content filter profile entry
     contentfilterprofile = cli.call(f"doc get {TEST_CONFIG_NAME} contentfilterprofiles")
     contentfilterprofile.append(CONTENT_FILTER_SHORT_HEADERS)
     contentfilterprofile.append(CONTENT_FILTER_MISC_HEADERS)
+    cli.call(
+        f"doc update {TEST_CONFIG_NAME} actions /dev/stdin",
+        inputjson=TEST_ACTIONS,
+    )
     cli.call(
         f"doc update {TEST_CONFIG_NAME} contentfilterprofiles /dev/stdin",
         inputjson=contentfilterprofile,
@@ -1457,40 +1357,28 @@ def securitypolicy_config(cli, acl):
 class TestSecurityPolicy:
     def test_nofilter(self, target, securitypolicy_config):
         assert target.is_reachable("/nofilter/")
-        assert target.is_reachable(
-            "/nofilter/", headers={"Long-header": "Overlong_header" * 100}
-        )
+        assert target.is_reachable("/nofilter/", headers={"Long-header": "Overlong_header" * 100})
 
     def test_content_filter(self, target, securitypolicy_config):
         assert target.is_reachable("/content-filter/")
-        assert not target.is_reachable(
-            "/content-filter/", headers={"Long-header": "Overlong_header" * 100}
-        )
+        assert not target.is_reachable("/content-filter/", headers={"Long-header": "Overlong_header" * 100})
 
     def test_aclfilter(self, target, securitypolicy_config):
         assert not target.is_reachable("/acl/")
-        assert not target.is_reachable(
-            "/acl/", headers={"Long-header": "Overlong_header" * 100}
-        )
+        assert not target.is_reachable("/acl/", headers={"Long-header": "Overlong_header" * 100})
 
-    def test_nondefault_aclfilter_passthroughall(self, target, securitypolicy_config):
-        assert target.is_reachable("/acl-passthroughall/")
-        assert target.is_reachable(
-            "/acl-passthroughall/", headers={"Long-header": "Overlong_header" * 100}
-        )
+    # def test_nondefault_aclfilter_passthroughall(self, target, securitypolicy_config):
+    #     assert target.is_reachable("/acl-passthroughall/")
+    #     assert target.is_reachable(
+    #         "/acl-passthroughall/", headers={"Long-header": "Overlong_header" * 100}
+    #     )
 
     def test_acl_content_filter(self, target, securitypolicy_config):
         assert not target.is_reachable("/acl-content-filter/")
-        assert not target.is_reachable(
-            "/acl/", headers={"Long-header": "Overlong_header" * 100}
-        )
+        assert not target.is_reachable("/acl/", headers={"Long-header": "Overlong_header" * 100})
 
-    def test_nondefault_content_filter_profile_short_headers(
-        self, target, securitypolicy_config
-    ):
-        assert target.is_reachable(
-            "/content-filter-short-headers/", headers={"Short-header": "0123456789" * 5}
-        )
+    def test_nondefault_content_filter_profile_short_headers(self, target, securitypolicy_config):
+        assert target.is_reachable("/content-filter-short-headers/", headers={"Short-header": "0123456789" * 5})
         assert not target.is_reachable(
             "/content-filter-short-headers/",
             headers={"Long-header": "0123456789" * 5 + "A"},
@@ -1530,9 +1418,7 @@ class TestContentFilterLengthCount:
         values = {}
         for i in range(10):
             values[f"{section}-{i}"] = "not_alphanum"
-        assert target.is_reachable(
-            f"/few-{section}", **{section: values}
-        ), f"Not reachable despite few {section}"
+        assert target.is_reachable(f"/few-{section}", **{section: values}), f"Not reachable despite few {section}"
 
     def test_count_toomany(self, default_config, target, section):
         values = {}
@@ -1544,6 +1430,8 @@ class TestContentFilterLengthCount:
 
 
 CONTENT_FILTER_PARAM_CONSTRAINTS = {
+    "max_length": 1024,
+    "max_count": 42,
     "names": [
         {
             "key": "name-norestrict",
@@ -1575,9 +1463,7 @@ CONTENT_FILTER_PARAM_CONSTRAINTS = {
 }
 
 
-@pytest.fixture(
-    scope="session", params=[True, False], ids=["ignore_alphanum", "no_ignore_alphanum"]
-)
+@pytest.fixture(scope="session", params=[True, False], ids=["ignore_alphanum", "no_ignore_alphanum"])
 def ignore_alphanum(request):
     return request.param
 
@@ -1590,6 +1476,10 @@ def content_filter_param_config(cli, request, ignore_alphanum):
     for k in ("args", "headers", "cookies", "path"):
         contentfilterprofile[0][k] = CONTENT_FILTER_PARAM_CONSTRAINTS
     contentfilterprofile[0]["ignore_alphanum"] = ignore_alphanum
+    cli.call(
+        f"doc update {TEST_CONFIG_NAME} actions /dev/stdin",
+        inputjson=TEST_ACTIONS,
+    )
     cli.call(
         f"doc update {TEST_CONFIG_NAME} contentfilterprofiles /dev/stdin",
         inputjson=contentfilterprofile,
@@ -1609,9 +1499,7 @@ def restrict(request):
 
 
 class TestContentFilterParamsConstraints:
-    def test_allowlisted_value(
-        self, content_filter_param_config, section, name_regex, restrict, target
-    ):
+    def test_allowlisted_value(self, content_filter_param_config, section, name_regex, restrict, target):
         paramname = name_regex + "-" + restrict
         assert target.is_reachable(
             f"/allowlisted-value-{paramname}", **{section: {paramname: "value"}}
@@ -1662,9 +1550,7 @@ class TestContentFilterParamsConstraints:
 # --- Content Filter Rules tests ---
 
 
-@pytest.fixture(
-    scope="function", params=[(100140, "htaccess"), (100112, "../../../../../")]
-)
+@pytest.fixture(scope="function", params=[(100140, "htaccess"), (100112, "../../../../../")])
 def content_filter_rules(request):
     return request.param
 

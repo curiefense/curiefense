@@ -1,12 +1,13 @@
 [
-    {
-        "id": "__default__",
-        "name": "default-acl",
-        "allow": [],
-        "allow_bot": [],
-        "deny_bot": [],
-        "passthrough": [],
-        "force_deny": [],
-        "deny": []
-    }
+  {
+    "action": "default",
+    "allow": [],
+    "allow_bot": [],
+    "deny": [],
+    "deny_bot": [],
+    "force_deny": [],
+    "id": "__default__",
+    "name": "default-acl",
+    "passthrough": []
+  }
 ]

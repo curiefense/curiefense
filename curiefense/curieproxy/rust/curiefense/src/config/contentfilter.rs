@@ -1,9 +1,8 @@
+use crate::config::matchers::Matching;
 use crate::config::raw::{
-    ContentFilterGroup, ContentFilterRule, ContentType, RawContentFilterEntryMatch, RawContentFilterProfile,
-    RawContentFilterProperties,
+    ContentFilterRule, ContentType, RawContentFilterEntryMatch, RawContentFilterProfile, RawContentFilterProperties,
 };
-use crate::config::utils::Matching;
-use crate::interface::Tags;
+use crate::interface::{RawTags, SimpleAction};
 use crate::logs::Logs;
 
 use hyperscan::prelude::{pattern, Builder, CompileFlags, Pattern, Patterns, VectoredDatabase};
@@ -33,6 +32,12 @@ pub struct ContentFilterProfile {
     pub decoding: Vec<Transformation>,
     pub masking_seed: Vec<u8>,
     pub content_type: Vec<ContentType>,
+    pub ignore_body: bool,
+    pub max_body_size: usize,
+    pub max_body_depth: usize,
+    pub referer_as_uri: bool,
+    pub action: SimpleAction,
+    pub tags: HashSet<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -81,6 +86,12 @@ impl ContentFilterProfile {
             ignore: HashSet::default(),
             report: HashSet::default(),
             content_type: Vec::new(),
+            ignore_body: false,
+            max_body_size: usize::MAX,
+            max_body_depth: usize::MAX,
+            referer_as_uri: false,
+            action: SimpleAction::default(),
+            tags: HashSet::new(),
         }
     }
 }
@@ -159,6 +170,14 @@ impl ContentFilterRules {
     }
 }
 
+const fn nonzero(value: usize) -> usize {
+    if value == 0 {
+        usize::MAX
+    } else {
+        value
+    }
+}
+
 fn mk_entry_match(em: RawContentFilterEntryMatch) -> anyhow::Result<(String, ContentFilterEntryMatch)> {
     let reg = match em.reg {
         None => None,
@@ -182,12 +201,24 @@ fn mk_entry_match(em: RawContentFilterEntryMatch) -> anyhow::Result<(String, Con
     ))
 }
 
-fn mk_section(props: RawContentFilterProperties) -> anyhow::Result<ContentFilterSection> {
-    let mnames: anyhow::Result<HashMap<String, ContentFilterEntryMatch>> =
-        props.names.into_iter().map(mk_entry_match).collect();
-    let mregex: anyhow::Result<Vec<(Regex, ContentFilterEntryMatch)>> = props
+fn mk_section(
+    allsections: &RawContentFilterProperties,
+    props: RawContentFilterProperties,
+) -> anyhow::Result<ContentFilterSection> {
+    // allsections entries are iterated first, so that they are replaced by entries in prop in case of colision
+    // however, max_count and max_length in allsections are ignored
+    let mnames: anyhow::Result<HashMap<String, ContentFilterEntryMatch>> = allsections
+        .names
+        .iter()
+        .cloned()
+        .chain(props.names.into_iter())
+        .map(mk_entry_match)
+        .collect();
+    let mregex: anyhow::Result<Vec<(Regex, ContentFilterEntryMatch)>> = allsections
         .regex
-        .into_iter()
+        .iter()
+        .cloned()
+        .chain(props.regex.into_iter())
         .map(|e| {
             let (s, v) = mk_entry_match(e)?;
             let re = Regex::new(&s)?;
@@ -195,14 +226,18 @@ fn mk_section(props: RawContentFilterProperties) -> anyhow::Result<ContentFilter
         })
         .collect();
     Ok(ContentFilterSection {
-        max_count: props.max_count.0,
-        max_length: props.max_length.0,
+        max_count: nonzero(props.max_count.0),
+        max_length: nonzero(props.max_length.0),
         names: mnames?,
         regex: mregex?,
     })
 }
 
-fn convert_entry(entry: RawContentFilterProfile) -> anyhow::Result<(String, ContentFilterProfile)> {
+fn convert_entry(
+    logs: &mut Logs,
+    actions: &HashMap<String, SimpleAction>,
+    entry: RawContentFilterProfile,
+) -> anyhow::Result<(String, ContentFilterProfile)> {
     let mut decoding = Vec::new();
     // default order
     if entry.decoding.base64 {
@@ -217,17 +252,32 @@ fn convert_entry(entry: RawContentFilterProfile) -> anyhow::Result<(String, Cont
     if entry.decoding.unicode {
         decoding.push(Transformation::UnicodeDecode)
     }
+    let max_body_size = nonzero(entry.max_body_size.unwrap_or(usize::MAX));
+    let max_body_depth = nonzero(entry.max_body_depth.unwrap_or(usize::MAX));
+    let id = entry.id;
+    let action = match entry.action {
+        None => SimpleAction::default(),
+        Some(aid) => actions.get(&aid).cloned().unwrap_or_else(|| {
+            logs.error(|| {
+                format!(
+                    "Could not resolve action {} when resolving content filter entry {}",
+                    aid, id,
+                )
+            });
+            SimpleAction::default()
+        }),
+    };
     Ok((
-        entry.id.clone(),
+        id.clone(),
         ContentFilterProfile {
-            id: entry.id,
+            id,
             name: entry.name,
             ignore_alphanum: entry.ignore_alphanum,
             sections: Section {
-                headers: mk_section(entry.headers)?,
-                cookies: mk_section(entry.cookies)?,
-                args: mk_section(entry.args)?,
-                path: mk_section(entry.path)?,
+                headers: mk_section(&entry.allsections, entry.headers)?,
+                cookies: mk_section(&entry.allsections, entry.cookies)?,
+                args: mk_section(&entry.allsections, entry.args)?,
+                path: mk_section(&entry.allsections, entry.path)?,
             },
             decoding,
             masking_seed: entry.masking_seed.as_bytes().to_vec(),
@@ -235,16 +285,26 @@ fn convert_entry(entry: RawContentFilterProfile) -> anyhow::Result<(String, Cont
             ignore: entry.ignore.into_iter().collect(),
             report: entry.report.into_iter().collect(),
             content_type: entry.content_type,
+            ignore_body: entry.ignore_body,
+            max_body_size,
+            max_body_depth,
+            referer_as_uri: entry.referer_as_uri,
+            action,
+            tags: entry.tags.into_iter().collect(),
         },
     ))
 }
 
 impl ContentFilterProfile {
-    pub fn resolve(logs: &mut Logs, raw: Vec<RawContentFilterProfile>) -> HashMap<String, ContentFilterProfile> {
+    pub fn resolve(
+        logs: &mut Logs,
+        actions: &HashMap<String, SimpleAction>,
+        raw: Vec<RawContentFilterProfile>,
+    ) -> HashMap<String, ContentFilterProfile> {
         let mut out = HashMap::new();
         for rp in raw {
             let id = rp.id.clone();
-            match convert_entry(rp) {
+            match convert_entry(logs, actions, rp) {
                 Ok((k, v)) => {
                     out.insert(k, v);
                 }
@@ -262,11 +322,11 @@ fn convert_rule(entry: &ContentFilterRule) -> anyhow::Result<Pattern> {
     )
 }
 
-pub fn rule_tags(sig: &ContentFilterRule) -> (Tags, Tags) {
-    let mut new_specific_tags = Tags::default();
+pub fn rule_tags(sig: &ContentFilterRule) -> (RawTags, RawTags) {
+    let mut new_specific_tags = RawTags::default();
     new_specific_tags.insert_qualified("cf-rule-id", &sig.id);
 
-    let mut new_tags = Tags::default();
+    let mut new_tags = RawTags::default();
     new_tags.insert_qualified("cf-rule-risk", &format!("{}", sig.risk));
     new_tags.insert_qualified("cf-rule-category", &sig.category);
     new_tags.insert_qualified("cf-rule-subcategory", &sig.subcategory);
@@ -280,54 +340,35 @@ pub fn resolve_rules(
     logs: &mut Logs,
     profiles: &HashMap<String, ContentFilterProfile>,
     raws: Vec<ContentFilterRule>,
-    groups: Vec<ContentFilterGroup>,
 ) -> HashMap<String, ContentFilterRules> {
-    let mut groupmap: HashMap<String, HashSet<String>> = HashMap::new();
-    for group in groups {
-        for sig in group.signatures {
-            let entry = groupmap.entry(sig).or_default();
-            entry.extend(group.tags.iter().cloned());
-        }
-    }
-
     // extend the rule tags with the group tags
-    let all_rules: Vec<ContentFilterRule> = raws
-        .into_iter()
-        .map(|mut r| {
-            if let Some(tgs) = groupmap.get(&r.id) {
-                r.tags.extend(tgs.iter().cloned())
-            }
-            r
-        })
-        .collect();
-
     // should a given rule be kept for a given profile
     let rule_kept = |r: &ContentFilterRule, prof: &ContentFilterProfile| -> bool {
         let (spec_tags, all_tags) = rule_tags(r);
         // not pretty :)
-        if !spec_tags.intersect(&prof.ignore).is_empty() {
+        if spec_tags.has_intersection(&prof.ignore) {
             return false;
         }
-        if !all_tags.intersect(&prof.ignore).is_empty() {
+        if all_tags.has_intersection(&prof.ignore) {
             return false;
         }
-        if !spec_tags.intersect(&prof.active).is_empty() {
+        if spec_tags.has_intersection(&prof.active) {
             return true;
         }
-        if !all_tags.intersect(&prof.active).is_empty() {
+        if all_tags.has_intersection(&prof.active) {
             return true;
         }
-        if !spec_tags.intersect(&prof.report).is_empty() {
+        if spec_tags.has_intersection(&prof.report) {
             return true;
         }
-        if !all_tags.intersect(&prof.report).is_empty() {
+        if all_tags.has_intersection(&prof.report) {
             return true;
         }
         false
     };
 
     let build_from_profile = |prof: &ContentFilterProfile| -> anyhow::Result<ContentFilterRules> {
-        let ids: Vec<ContentFilterRule> = all_rules.iter().filter(|r| rule_kept(r, prof)).cloned().collect();
+        let ids: Vec<ContentFilterRule> = raws.iter().filter(|r| rule_kept(r, prof)).cloned().collect();
         if ids.is_empty() {
             return Err(anyhow::anyhow!("no rules were selected, empty profile"));
         }
@@ -345,7 +386,7 @@ pub fn resolve_rules(
                 logs.debug(|| format!("Loaded profile {} with {} rules", v.id, p.ids.len()));
                 out.insert(v.id.to_string(), p);
             }
-            Err(rr) => logs.error(|| format!("When building profile {}, error: {}", v.id, rr)),
+            Err(rr) => logs.warning(|| format!("When building profile {}, error: {}", v.id, rr)),
         }
     }
 

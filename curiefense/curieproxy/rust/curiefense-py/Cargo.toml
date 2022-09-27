@@ -1,0 +1,22 @@
+[package]
+name = "curiefense-py"
+version = "0.1.0"
+edition = "2021"
+authors = ["simon <simon@banquise.net>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "curiefense"
+crate-type = ["cdylib"]
+bench = false
+
+[dependencies]
+curiefense = { path = "../curiefense" }
+pyo3 = { version = "0.16.4", features = ["extension-module"] }
+regex = "1"
+
+[dependencies.hyperscan]
+version = "0.2"
+default-features = false
+features = ["full"]

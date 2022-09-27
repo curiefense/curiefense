@@ -25,7 +25,6 @@ setup.ilm:
   policy_name: "curieaccesslog"
   policy_file: /usr/share/filebeat/ilm.json
 
-
 setup.template:
   enabled: true
   overwrite: true

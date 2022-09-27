@@ -1,6 +1,6 @@
 use criterion::*;
 use curiefense::config::contentfilter::Transformation;
-use curiefense::config::utils::DataSource;
+use curiefense::interface::Location;
 use curiefense::requestfields::RequestField;
 
 static ENTITIES: [&str; 7] = ["&quot;", "&amp;", "&lt;", "&gt;", "&nbsp;", "&apos;", "&#128512;"];
@@ -13,7 +13,7 @@ static UNICODE: [&str; 5] = [
 ];
 
 fn rf_test(decoding: &[Transformation], str: &str) {
-    let rf = RequestField::singleton(decoding, "key".to_string(), DataSource::Root, str.to_string());
+    let rf = RequestField::singleton(decoding, "key".to_string(), Location::Request, str.to_string());
     assert!(!rf.fields.is_empty())
 }
 

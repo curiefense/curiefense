@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::config::hostmap::{HostMap, SecurityPolicy};
 use crate::config::Config;
 use crate::logs::Logs;
@@ -7,13 +9,13 @@ use crate::logs::Logs;
 ///
 /// note that the url is matched using the url-decoded path!
 ///
-/// returns the matching security policy, along with the id of the selected host map
+/// returns the matching security policy, along with the name and id of the selected host map
 pub fn match_securitypolicy<'a>(
     host: &str,
     path: &str,
     cfg: &'a Config,
     logs: &mut Logs,
-) -> Option<(String, &'a SecurityPolicy)> {
+) -> Option<Arc<SecurityPolicy>> {
     // find the first matching hostmap, or use the default, if it exists
     let hostmap: &HostMap = cfg
         .securitypolicies
@@ -23,7 +25,7 @@ pub fn match_securitypolicy<'a>(
         .or(cfg.default.as_ref())?;
     logs.debug(|| format!("Selected hostmap {}", hostmap.name));
     // find the first matching securitypolicy, or use the default, if it exists
-    let securitypolicy: &SecurityPolicy = match hostmap
+    let securitypolicy: Arc<SecurityPolicy> = match hostmap
         .entries
         .iter()
         .find(|e| e.matches(path))
@@ -34,8 +36,8 @@ pub fn match_securitypolicy<'a>(
             logs.debug("This hostname has no default entry!");
             return None;
         }
-        Some(x) => x,
+        Some(x) => x.clone(),
     };
-    logs.debug(|| format!("Selected hostmap entry {}", securitypolicy.name));
-    Some((hostmap.name.clone(), securitypolicy))
+    logs.debug(|| format!("Selected hostmap entry {}", securitypolicy.entry.id));
+    Some(securitypolicy)
 }

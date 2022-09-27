@@ -1,5 +1,6 @@
 version: "3.7"
 services:
+
   curieproxy:
     container_name: curieproxy
     hostname: curieproxy
@@ -7,23 +8,103 @@ services:
     restart: always
     volumes:
       - curieproxy_config:/cf-config
+      - ./filebeat/ilm.json:/usr/share/filebeat/ilm.json
+      - ./filebeat/template.json:/usr/share/filebeat/template.json
     environment:
       - ENVOY_UID
-      - TARGET_ADDRESS=echo
-      - TARGET_PORT=8080
+      - TARGET_ADDRESS_A=echo
+      - TARGET_PORT_A=8080
+      - TARGET_ADDRESS_B=juiceshop
+      - TARGET_PORT_B=3000
       - XFF_TRUSTED_HOPS
       - ENVOY_LOG_LEVEL
+      - FILEBEAT
+      - FILEBEAT_LOG_LEVEL
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - KIBANA_URL=http://kibana:5601
     networks:
       curiemesh:
         aliases:
           - curieproxy
     ports:
       - "30081:80"
+      - "30082:81"
       - "30444:443"
+      - "30445:444"
       - "8001:8001"
     secrets:
       - curieproxysslcrt
       - curieproxysslkey
+
+  # curieproxy-extproc:
+  #   container_name: curieproxyextproc
+  #   hostname: curieproxyextproc
+  #   image: "curiefense/curieproxy-extproc:${DOCKER_TAG}"
+  #   restart: always
+  #   volumes:
+  #     - curieproxy_config:/cf-config
+  #   environment:
+  #     - ENVOY_UID
+  #     - TARGET_ADDRESS_A=echo
+  #     - TARGET_PORT_A=8080
+  #     - TARGET_ADDRESS_B=juiceshop
+  #     - TARGET_PORT_B=3000
+  #     - XFF_TRUSTED_HOPS
+  #     - ENVOY_LOG_LEVEL
+  #   networks:
+  #     curiemesh:
+  #       aliases:
+  #         - curieproxyextproc
+  #   ports:
+  #     - "32081:80"
+  #   secrets:
+  #     - curieproxysslcrt
+  #     - curieproxysslkey
+
+  curieproxyngx:
+    container_name: curieproxyngx
+    hostname: curieproxyngx
+    image: "curiefense/curieproxy-nginx:${DOCKER_TAG}"
+    restart: always
+    volumes:
+      - curieproxy_config:/cf-config
+    environment:
+      - ENVOY_UID
+      - XFF_TRUSTED_HOPS
+      - TARGET_ADDRESS_A=echo
+      - TARGET_PORT_A=8080
+      - TARGET_ADDRESS_B=juiceshop
+      - TARGET_PORT_B=3000
+    networks:
+      curiemesh:
+        aliases:
+          - curieproxy
+    ports:
+      - "31081:31081"
+      - "31082:31082"
+      - "31444:31083"
+      - "31445:31084"
+    secrets:
+      - curieproxysslcrt
+      - curieproxysslkey
+
+  # extproc:
+  #   container_name: extproc
+  #   hostname: extproc
+  #   image: "curiefense/extproc:${DOCKER_TAG}"
+  #   restart: always
+  #   volumes:
+  #     - curieproxy_config:/cf-config
+  #   environment:
+  #     - XFF_TRUSTED_HOPS
+  #     - EXTPROC_LOG_LEVEL
+  #     - ELASTICSEARCH
+  #   networks:
+  #     curiemesh:
+  #       aliases:
+  #         - extproc
+  #   ports:
+  #     - "50051:50051"
 
   confserver:
     container_name: confserver
@@ -47,6 +128,19 @@ services:
       - s3cfg
   #      - gc
   #      - azr
+
+  juiceshop:
+    container_name: juiceshop
+    hostname: juiceshop
+    image: "bkimminich/juice-shop"
+    restart: always
+    tty: true
+    networks:
+      curiemesh:
+        aliases:
+          - curieproxy
+    ports:
+      - "3000:3000"
 
   curiesync:
     container_name: curiesync
@@ -90,26 +184,8 @@ services:
       curiemesh:
         aliases:
           - echo
-
-  curielogger:
-    container_name: curielogger
-    hostname: curielogger
-    image: "curiefense/curielogger:${DOCKER_TAG}"
-    restart: always
-    labels:
-        co.elastic.logs/enabled: true
-        co.elastic.logs/json.keys_under_root: true
-        co.elastic.logs/json.add_error_key: true
-        co.elastic.logs/ignore_decoding_error: true
-    environment:
-      - CURIELOGGER_LOG_LEVEL=info
-      - CURIELOGGER_OUTPUTS_STDOUT_ENABLED=true
-      - CURIELOGGER_METRICS_PROMETHEUS_ENABLED=true
-    networks:
-      - curiemesh
     ports:
-      - "9001:9001"
-      - "2112:2112"
+      - "8080:8080"
 
   uiserver:
     container_name: uiserver
@@ -187,30 +263,6 @@ services:
       - curiemesh
     ports:
       - 5601:5601
-
-  filebeat:
-    container_name: filebeat
-    image: docker.elastic.co/beats/filebeat:7.13.3
-    command: >
-        bash -c "
-        for i in {1..40}; do
-            filebeat setup --strict.perms=false -v -e && break || sleep 10
-         done
-
-         filebeat --strict.perms=false -v -e"
-    user: root
-    environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - KIBANA_URL=http://kibana:5601
-    volumes:
-      - ./elk/7_x/dashboards.json:/usr/share/filebeat/curiefense/7/dashboard/dashboards.json
-      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - ./filebeat/ilm.json:/usr/share/filebeat/ilm.json
-      - ./filebeat/template.json:/usr/share/filebeat/template.json
-      - /var/lib/docker/containers:/var/lib/docker/containers
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - curiemesh
 
 networks:
   curiemesh:

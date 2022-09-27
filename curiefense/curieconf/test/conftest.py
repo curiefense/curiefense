@@ -6,7 +6,7 @@ import time
 from data import bootstrap_config_json, bootstrap_small_config_json
 
 API_ADDRESS = ("127.0.0.1", 5000)
-API_BASE = "http://%s:%i/api/v2/" % API_ADDRESS
+API_BASE = "http://%s:%i/api/v3/" % API_ADDRESS
 
 
 @pytest.fixture(scope="function", params=["git://"])  # "mongodb://172.17.0.4/pytest"])

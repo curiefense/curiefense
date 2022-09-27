@@ -5,6 +5,8 @@
         "name": "default entry",
         "map": [
             {
+                "id": "__default__",
+                "description": "description",
                 "match": "/",
                 "name": "default",
                 "acl_profile": "__default__",
