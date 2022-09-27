@@ -10,7 +10,6 @@ use curiefense::{
 use elasticsearch::{http::transport::Transport, Elasticsearch};
 use lazy_static::lazy_static;
 use log::{debug, error, info, warn, LevelFilter};
-use serde_json::Value;
 use std::{collections::HashMap, sync::RwLock};
 use structopt::StructOpt;
 use syslog::{Facility, Formatter3164, LoggerBackend};
@@ -37,7 +36,7 @@ lazy_static! {
 pub struct MyEP {
     handle_replies: bool,
     reqchannel: Sender<CfgRequest>,
-    logsender: Option<Sender<(Value, DateTime<Utc>)>>,
+    logsender: Option<Sender<(Vec<u8>, DateTime<Utc>)>>,
 }
 
 type CfgRequest = (
@@ -62,7 +61,7 @@ async fn configloop(rx: Receiver<CfgRequest>, configpath: &str, loglevel: LogLev
 
         let mut logs = Logs::new(loglevel);
         let midata = with_config(configpath, &mut logs, |_, cfg| {
-            inspect_init(cfg, loglevel, meta, IPInfo::Hops(trustedhops as usize)).map(|o| {
+            inspect_init(cfg, loglevel, meta, IPInfo::Hops(trustedhops as usize), None).map(|o| {
                 // we have to clone all this data here :(
                 // that would not be necessary if we could avoid the autoreloading feature, but had a system for reloading the server when the configuration changes
                 let gf = cfg.globalfilters.clone();
@@ -81,7 +80,7 @@ async fn configloop(rx: Receiver<CfgRequest>, configpath: &str, loglevel: LogLev
     }
 }
 
-async fn logloop(rx: Receiver<(Value, DateTime<Utc>)>, client: Elasticsearch) {
+async fn logloop(rx: Receiver<(Vec<u8>, DateTime<Utc>)>, client: Elasticsearch) {
     let mut mrx = rx;
     loop {
         match mrx.recv().await {
@@ -89,11 +88,7 @@ async fn logloop(rx: Receiver<(Value, DateTime<Utc>)>, client: Elasticsearch) {
                 error!("should not happen, logging channel closed?");
                 break;
             }
-            Some((mut v, now)) => {
-                if let Some(hm) = v.as_object_mut() {
-                    // might be slow!
-                    hm.insert("@timestamp".to_string(), serde_json::to_value(&now).unwrap());
-                }
+            Some((v, now)) => {
                 let idx = now.format("curieaccesslog-%Y.%m.%d-000001").to_string();
                 match client
                     .index(elasticsearch::IndexParts::Index(&idx))
@@ -119,7 +114,7 @@ impl MyEP {
     fn new(
         reqchannel: Sender<CfgRequest>,
         handle_replies: bool,
-        logsender: Option<Sender<(Value, DateTime<Utc>)>>,
+        logsender: Option<Sender<(Vec<u8>, DateTime<Utc>)>>,
     ) -> Self {
         MyEP {
             handle_replies,
@@ -311,11 +306,13 @@ impl MyEP {
                 &result.tags,
                 &result.stats,
                 logs,
-            );
+                HashMap::new(),
+            )
+            .await;
             for l in logs.to_stringvec() {
                 debug!("{}", l);
             }
-            info!("CFLOG {}", v);
+            info!("CFLOG {}", String::from_utf8_lossy(&v));
             if let Some(tx) = &self.logsender {
                 if let Err(rr) = tx.send((v, now)).await {
                     error!("Could not log: {}", rr);
@@ -478,7 +475,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let _ = spawn(async move { configloop(crx, &opt.configpath, loglevel, opt.trustedhops).await });
 
-    let mut logsender: Option<Sender<(Value, DateTime<Utc>)>> = None;
+    let mut logsender: Option<Sender<(Vec<u8>, DateTime<Utc>)>> = None;
 
     if let Some(esurl) = opt.elasticsearch {
         let (logtx, logrx) = mpsc::channel(500);

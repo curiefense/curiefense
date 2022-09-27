@@ -115,11 +115,14 @@ pub fn limit_build_query(pipe: &mut redis::Pipeline, checks: &[LimitCheck]) {
 }
 
 pub async fn limit_resolve_query<I: Iterator<Item = Option<i64>>>(
+    logs: &mut Logs,
     redis: &mut ConnectionManager,
     iter: &mut I,
     checks: Vec<LimitCheck>,
 ) -> anyhow::Result<Vec<LimitResult>> {
     let mut out = Vec::new();
+    let mut pipe = redis::pipe();
+
     for check in checks {
         let curcount = match iter.next() {
             None => anyhow::bail!("Empty iterator when getting curcount for {:?}", check.limit),
@@ -129,13 +132,11 @@ pub async fn limit_resolve_query<I: Iterator<Item = Option<i64>>>(
             None => anyhow::bail!("Empty iterator when getting expire for {:?}", check.limit),
             Some(r) => r.unwrap_or(-1),
         };
+        logs.debug(|| format!("limit {} curcount={} expire={}", check.limit.id, curcount, expire));
         if expire < 0 {
-            redis::cmd("EXPIRE")
-                .arg(&check.key)
-                .arg(&check.limit.timeframe)
-                .query_async(redis)
-                .await?;
+            pipe.cmd("EXPIRE").arg(&check.key).arg(&check.limit.timeframe);
         }
+        pipe.query_async(redis).await?;
         out.push(LimitResult {
             limit: check.limit,
             curcount,

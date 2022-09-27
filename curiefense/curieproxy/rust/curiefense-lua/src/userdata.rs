@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use curiefense::analyze::APhase1;
 use curiefense::flow::{FlowCheck, FlowResult, FlowResultType};
 use curiefense::interface::Tags;
@@ -48,7 +50,20 @@ impl mlua::UserData for LuaInspectionResult {
         });
         fields.add_field_method_get("logs", |_, this| this.get_with(|r| r.logs.to_stringvec()));
         fields.add_field_method_get("response", |_, this| this.get_with(|r| r.decision.response_json()));
-        fields.add_field_method_get("request_map", |_, this| this.get_with(|r| r.log_json()));
+    }
+
+    fn add_methods<'lua, M: mlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_method("request_map", |lua, this, proxy: LuaValue| {
+            let emr = match FromLua::from_lua(proxy, lua) {
+                Err(_) | Ok(None) => this.get_with(|r| r.log_json_block(HashMap::new())),
+                Ok(Some(proxy)) => this.get_with(|r| r.log_json_block(proxy)),
+            };
+            match emr {
+                Err(rr) => Err(rr),
+                Ok(None) => Ok(None),
+                Ok(Some(v)) => Ok(Some(lua.create_string(&v)?)),
+            }
+        });
     }
 }
 
@@ -105,7 +120,6 @@ impl mlua::UserData for LInitResult {
         });
         fields.add_field_method_get("logs", |_, this| this.get_with(|r| r.logs.to_stringvec()));
         fields.add_field_method_get("response", |_, this| this.get_with(|r| r.decision.response_json()));
-        fields.add_field_method_get("request_map", |_, this| this.get_with(|r| r.log_json()));
 
         fields.add_field_method_get("flows", |_, this| {
             Ok(match this {
@@ -128,6 +142,20 @@ impl mlua::UserData for LInitResult {
                 P0Error(_) => "error".to_string(),
                 P1(_, _) => "p1".to_string(),
             })
+        });
+    }
+
+    fn add_methods<'lua, M: mlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_method("request_map", |lua, this, proxy: LuaValue| {
+            let emr = match FromLua::from_lua(proxy, lua) {
+                Err(_) | Ok(None) => this.get_with(|r| r.log_json_block(HashMap::new())),
+                Ok(Some(proxy)) => this.get_with(|r| r.log_json_block(proxy)),
+            };
+            match emr {
+                Err(rr) => Err(rr),
+                Ok(None) => Ok(None),
+                Ok(Some(v)) => Ok(Some(lua.create_string(&v)?)),
+            }
         });
     }
 }

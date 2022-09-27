@@ -145,6 +145,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
             });
         }
         // if the decision was not adopted, get the reason vector back
+        // (this is because we passed it to action.to_decision)
         brs = decision.reasons;
     }
 
@@ -205,7 +206,8 @@ pub async fn analyze_query<'t>(logs: &mut Logs, p1: APhase1) -> APhase2 {
     let flow_results = eat_errors(logs, flow_resolve_query(&mut redis, &mut lst, p1.flows).await);
     logs.debug("flow checks done");
 
-    let limit_results = eat_errors(logs, limit_resolve_query(&mut redis, &mut lst, p1.limits).await);
+    let limit_results_err = limit_resolve_query(logs, &mut redis, &mut lst, p1.limits).await;
+    let limit_results = eat_errors(logs, limit_results_err);
     logs.debug("limit checks done");
 
     AnalysisPhase {
@@ -245,6 +247,7 @@ pub fn analyze_finish<GH: Grasshopper>(
             };
         }
         // if the decision was not adopted, get the reason vector back
+        // (this is because we passed it to action.to_decision)
         brs = decision.reasons;
     }
     logs.debug("limit checks done");

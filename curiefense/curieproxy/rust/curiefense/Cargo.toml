@@ -33,6 +33,7 @@ futures-util = "0.3"
 async-graphql-parser = "3.0.38"
 chrono = { version = "0.4", features = ["serde", "clock"] }
 arbitrary = { version = "1", features = ["derive"] }
+pdatastructs = "0.7"
 
 [dependencies.hyperscan]
 version = "0.2"
@@ -64,4 +65,9 @@ harness = false
 [[bench]]
 name = "requestfields"
 path = "benches/requestfields.rs"
+harness = false
+
+[[bench]]
+name = "logging"
+path = "benches/logging.rs"
 harness = false

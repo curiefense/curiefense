@@ -263,13 +263,18 @@ fn tagify(tag: &str) -> String {
     tag.to_lowercase().chars().map(filter_char).collect()
 }
 
+impl Serialize for Tags {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.collect_seq(self.0.keys())
+    }
+}
+
 impl Tags {
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
-    }
-
-    pub fn to_json(&self) -> serde_json::Value {
-        serde_json::json!(self.0.keys().collect::<Vec<_>>())
     }
 
     pub fn insert(&mut self, value: &str, loc: Location) {

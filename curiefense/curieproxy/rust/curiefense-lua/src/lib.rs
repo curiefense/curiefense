@@ -9,6 +9,8 @@ use curiefense::grasshopper::DynGrasshopper;
 use curiefense::grasshopper::Grasshopper;
 use curiefense::inspect_generic_request_map;
 use curiefense::inspect_generic_request_map_init;
+use curiefense::interface::aggregator::aggregated_values_block;
+use curiefense::logs::LogLevel;
 use curiefense::logs::Logs;
 use curiefense::utils::RequestMeta;
 use curiefense::utils::{InspectionResult, RawRequest};
@@ -21,27 +23,6 @@ use userdata::LuaLimitResult;
 
 use userdata::LuaInspectionResult;
 
-/// Utility to add the return status to the log string
-fn lua_set_status_string(_lua: &Lua, args: (String, String)) -> LuaResult<String> {
-    let (data, code) = args;
-    match code.parse::<u32>() {
-        Err(_) => Ok(data),
-        Ok(cde) => match serde_json::from_str::<serde_json::Value>(&data) {
-            Err(_) => Ok(data),
-            Ok(mut value) => match value.as_object_mut() {
-                None => Ok(data),
-                Some(mp) => {
-                    mp.insert(
-                        "response_code".to_string(),
-                        serde_json::Value::Number(serde_json::Number::from(cde)),
-                    );
-                    Ok(serde_json::to_string(mp).unwrap_or(data))
-                }
-            },
-        },
-    }
-}
-
 // ******************************************
 // FULL CHECKS
 // ******************************************
@@ -51,18 +32,30 @@ struct LuaArgs<'l> {
     headers: HashMap<String, String>,
     lua_body: Option<LuaString<'l>>,
     str_ip: String,
+    loglevel: LogLevel,
 }
 
 fn lua_convert_args<'l>(
     lua: &'l Lua,
     args: (
+        LuaValue,     // loglevel
         LuaValue,     // meta
         LuaValue,     // headers
         LuaValue<'l>, // optional body
         LuaValue,     // ip
     ),
 ) -> Result<LuaArgs<'l>, String> {
-    let (vmeta, vheaders, vlua_body, vstr_ip) = args;
+    let (vloglevel, vmeta, vheaders, vlua_body, vstr_ip) = args;
+    let loglevel = match String::from_lua(vloglevel, lua) {
+        Err(rr) => return Err(format!("Could not convert the loglevel argument: {}", rr)),
+        Ok(m) => match m.as_str() {
+            "debug" => LogLevel::Debug,
+            "info" => LogLevel::Info,
+            "warn" | "warning" => LogLevel::Warning,
+            "err" | "error" => LogLevel::Error,
+            _ => return Err(format!("Invalid log level {}", m)),
+        },
+    };
     let meta = match FromLua::from_lua(vmeta, lua) {
         Err(rr) => return Err(format!("Could not convert the meta argument: {}", rr)),
         Ok(m) => m,
@@ -84,6 +77,7 @@ fn lua_convert_args<'l>(
         headers,
         lua_body,
         str_ip,
+        loglevel,
     })
 }
 
@@ -97,6 +91,7 @@ fn lua_convert_args<'l>(
 fn lua_inspect_request(
     lua: &Lua,
     args: (
+        LuaValue, // log level
         LuaValue, // meta
         LuaValue, // headers
         LuaValue, // optional body
@@ -128,6 +123,7 @@ fn lua_inspect_request(
 fn lua_inspect_init_hops(
     lua: &Lua,
     args: (
+        LuaValue, // log level
         LuaValue, // meta
         LuaValue, // headers
         LuaValue, // optional body
@@ -135,13 +131,14 @@ fn lua_inspect_init_hops(
         LuaValue, // hops
     ),
 ) -> LuaResult<LInitResult> {
-    let (meta, headers, body, ip, lhops) = args;
+    let (loglevel, meta, headers, body, ip, lhops) = args;
     let hops = FromLua::from_lua(lhops, lua)?;
-    match lua_convert_args(lua, (meta, headers, body, ip)) {
+    match lua_convert_args(lua, (loglevel, meta, headers, body, ip)) {
         Ok(lua_args) => {
             let grasshopper = &DynGrasshopper {};
             let ip = curiefense::incremental::extract_ip(hops, &lua_args.headers).unwrap_or(lua_args.str_ip);
             let res = inspect_init(
+                lua_args.loglevel,
                 "/cf-config/current/config",
                 lua_args.meta,
                 lua_args.headers,
@@ -164,6 +161,7 @@ fn lua_inspect_init_hops(
 fn lua_inspect_init(
     lua: &Lua,
     args: (
+        LuaValue, // log level
         LuaValue, // meta
         LuaValue, // headers
         LuaValue, // optional body
@@ -174,6 +172,7 @@ fn lua_inspect_init(
         Ok(lua_args) => {
             let grasshopper = &DynGrasshopper {};
             let res = inspect_init(
+                lua_args.loglevel,
                 "/cf-config/current/config",
                 lua_args.meta,
                 lua_args.headers,
@@ -312,6 +311,7 @@ fn inspect_request<GH: Grasshopper>(
 }
 /// Rust-native functions for the dialog system
 fn inspect_init<GH: Grasshopper>(
+    loglevel: LogLevel,
     configpath: &str,
     meta: HashMap<String, String>,
     headers: HashMap<String, String>,
@@ -319,7 +319,7 @@ fn inspect_init<GH: Grasshopper>(
     ip: String,
     grasshopper: Option<&GH>,
 ) -> Result<(InitResult, Logs), String> {
-    let mut logs = Logs::default();
+    let mut logs = Logs::new(loglevel);
     logs.debug("Inspection init");
     let rmeta: RequestMeta = RequestMeta::from_map(meta)?;
 
@@ -352,8 +352,10 @@ fn curiefense(lua: &Lua) -> LuaResult<LuaTable> {
     exports.set("inspect_request_process", lua.create_function(lua_inspect_process)?)?;
     // end-to-end inspection (test)
     exports.set("test_inspect_request", lua.create_function(lua_test_inspect_request)?)?;
-    // setting the HTTP status code
-    exports.set("set_status_string", lua.create_function(lua_set_status_string)?)?;
+    exports.set(
+        "aggregated_values",
+        lua.create_function(|_, ()| Ok(aggregated_values_block()))?,
+    )?;
 
     Ok(exports)
 }
@@ -369,14 +371,14 @@ mod tests {
         let cfg = with_config("../../cf-config", &mut logs, |_, c| c.clone());
         if cfg.is_some() {
             match logs.logs.len() {
-                4 => {
+                5 => {
                     assert!(logs.logs[0].message.to_string().contains("CFGLOAD logs start"));
-                    assert!(logs.logs[1].message.to_string().contains("manifest.json"));
-                    assert!(logs.logs[2].message.to_string().contains("Loaded profile"));
-                    assert!(logs.logs[3].message.to_string().contains("CFGLOAD logs end"));
+                    assert!(logs.logs[2].message.to_string().contains("manifest.json"));
+                    assert!(logs.logs[3].message.to_string().contains("Loaded profile"));
+                    assert!(logs.logs[4].message.to_string().contains("CFGLOAD logs end"));
                 }
-                12 => {
-                    assert!(logs.logs[1]
+                13 => {
+                    assert!(logs.logs[2]
                         .message
                         .to_string()
                         .contains("../../cf-config: No such file or directory"))

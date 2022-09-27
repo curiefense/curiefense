@@ -24,7 +24,6 @@ pub enum Initiator {
     Acl { tags: Vec<String>, stage: AclStage },
     ContentFilter { ruleid: String, risk_level: u8 },
     Limit { id: String, name: String, threshold: u64 },
-    Flow { id: String, name: String, key: String },
     BodyTooDeep { actual: usize, expected: usize },
     BodyMissing,
     BodyMalformed(String),
@@ -45,7 +44,6 @@ impl std::fmt::Display for Initiator {
             Acl { tags, stage } => write!(f, "acl {:?} {:?}", stage, tags),
             ContentFilter { ruleid, risk_level } => write!(f, "content filter {}[lvl{}]", ruleid, risk_level),
             Limit { id, name, threshold } => write!(f, "rate limit {}[{}] threshold={}", name, id, threshold),
-            Flow { id, name, key: _ } => write!(f, "flow control {}[{}]", name, id),
             BodyTooDeep { actual: _, expected } => write!(f, "body too deep threshhold={}", expected),
             BodyMissing => write!(f, "body is missing"),
             BodyMalformed(r) => write!(f, "body is malformed: {}", r),
@@ -67,7 +65,6 @@ impl std::fmt::Display for Initiator {
 pub enum InitiatorKind {
     Acl,
     RateLimit,
-    FlowControl,
     GlobalFilter,
     ContentFilter,
 }
@@ -87,7 +84,6 @@ impl Initiator {
                 name: _,
                 threshold: _,
             } => RateLimit,
-            Initiator::Flow { id: _, name: _, key: _ } => FlowControl,
             Initiator::BodyTooDeep { actual: _, expected: _ } => ContentFilter,
             Initiator::BodyMissing => ContentFilter,
             Initiator::BodyMalformed(_) => ContentFilter,
@@ -118,10 +114,6 @@ impl Initiator {
                 map.serialize_entry("type", "signature")?;
                 map.serialize_entry("ruleid", ruleid)?;
                 map.serialize_entry("risk_level", risk_level)?;
-            }
-            Initiator::Flow { id, name, key: _ } => {
-                map.serialize_entry("id", id)?;
-                map.serialize_entry("name", name)?;
             }
             Initiator::Limit { id, name, threshold } => {
                 map.serialize_entry("id", id)?;
@@ -263,10 +255,6 @@ impl BlockReason {
 
     pub fn limit(id: String, name: String, threshold: u64, decision: BDecision) -> Self {
         BlockReason::nodetails(Initiator::Limit { id, name, threshold }, decision)
-    }
-
-    pub fn flow(id: String, name: String, key: String, decision: BDecision) -> Self {
-        BlockReason::nodetails(Initiator::Flow { id, name, key }, decision)
     }
 
     pub fn phase01_unknown(reason: &str) -> Self {

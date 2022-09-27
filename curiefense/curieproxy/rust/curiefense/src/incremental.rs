@@ -8,6 +8,8 @@
 
 use std::{collections::HashMap, sync::Arc};
 
+use chrono::{DateTime, Utc};
+
 use crate::{
     analyze::{analyze, APhase0, CfRulesArg},
     body::body_too_large,
@@ -33,6 +35,7 @@ pub enum IPInfo {
 }
 
 pub struct IData {
+    start: DateTime<Utc>,
     pub logs: Logs,
     meta: RequestMeta,
     headers: HashMap<String, String>,
@@ -65,7 +68,13 @@ pub fn extract_ip(trusted_hops: usize, headers: &HashMap<String, String>) -> Opt
     headers.get("x-forwarded-for").map(|s| detect_ip(s.as_str()))
 }
 
-pub fn inspect_init(config: &Config, loglevel: LogLevel, meta: RequestMeta, ipinfo: IPInfo) -> Result<IData, String> {
+pub fn inspect_init(
+    config: &Config,
+    loglevel: LogLevel,
+    meta: RequestMeta,
+    ipinfo: IPInfo,
+    start: Option<DateTime<Utc>>,
+) -> Result<IData, String> {
     let mut logs = Logs::new(loglevel);
     let mr = match_securitypolicy(
         meta.authority.as_deref().unwrap_or("localhost"),
@@ -76,6 +85,7 @@ pub fn inspect_init(config: &Config, loglevel: LogLevel, meta: RequestMeta, ipin
     match mr {
         None => Err("could not find a matching security policy".to_string()),
         Some(secpol) => Ok(IData {
+            start: start.unwrap_or_else(Utc::now),
             logs,
             meta,
             headers: HashMap::new(),
@@ -112,6 +122,7 @@ fn early_block(idata: IData, action: Action, br: BlockReason) -> (Logs, AnalyzeR
         0,
         secpolicy.content_filter_profile.ignore_body,
         &rawrequest,
+        Some(idata.start),
     );
     (
         logs,
@@ -226,6 +237,7 @@ pub async fn finalize<GH: Grasshopper>(
         secpolicy.content_filter_profile.max_body_depth,
         secpolicy.content_filter_profile.ignore_body,
         &rawrequest,
+        Some(idata.start),
     );
 
     // without grasshopper, default to being human
@@ -319,6 +331,7 @@ mod test {
                 requestid: None,
             },
             IPInfo::Ip("1.2.3.4".to_string()),
+            None,
         )
         .unwrap()
     }

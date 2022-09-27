@@ -101,9 +101,8 @@ impl Logs {
         if level < self.level {
             return;
         }
-        let now = Instant::now();
         self.logs.push(Log {
-            elapsed_micros: now.duration_since(self.start).as_micros() as u64,
+            elapsed_micros: self.start.elapsed().as_micros() as u64,
             message: message.c_to_string(),
             level,
         })
@@ -132,5 +131,14 @@ impl Logs {
 
     pub fn to_json(&self) -> serde_json::Value {
         serde_json::to_value(&self.logs).unwrap_or_else(|rr| serde_json::Value::String(rr.to_string()))
+    }
+}
+
+impl Serialize for Logs {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.collect_seq(self.logs.iter().map(|l| l.to_string()))
     }
 }

@@ -35,4 +35,6 @@ def inspect_content_filter(
   ip: str,
   content_filter_id: str
 ) -> (str, str): ...
+
+def aggregated_data() -> str: ...
 ```

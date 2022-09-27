@@ -1,6 +1,7 @@
 # should be in nginx.conf, but will do for now
 lua_package_path '/lua/?.lua;;';
 log_format curiefenselog escape=none '$request_map';
+log_format aggregationlog escape=none '$aggregated';
 
 upstream backend_a {
     server ${TARGET_ADDRESS_A}:${TARGET_PORT_A};
@@ -12,9 +13,27 @@ upstream backend_b {
 
 server {
     resolver local=on;
+    access_log ${AGGREGATED_STATS_LOGFILE} aggregationlog;
+    error_log  ${ERROR_LOG}  debug;
+
+    listen 127.0.0.1:8999;
+
+    set $aggregated '{}';
+
+    server_name _;
+    location / {
+        log_by_lua_block {
+            local curiefense  = require "curiefense"
+            ngx.var.aggregated = curiefense.aggregated_values()
+        }
+    }
+}
+
+server {
+    resolver local=on;
     set $request_map '{}';
-    access_log /dev/stdout curiefenselog;
-    error_log  logs/error.log  debug;
+    access_log ${ACCESS_LOG} curiefenselog;
+    error_log  ${ERROR_LOG}  debug;
 
     listen 31081 default_server;
     listen 31083 default_server ssl http2;
@@ -25,7 +44,7 @@ server {
     location / {
         access_by_lua_block {
             local session = require "lua.session_nginx"
-            session.inspect(ngx)
+            session.inspect(ngx, "${CF_LOG_LEVEL}")
         }
         log_by_lua_block {
             local session = require "lua.session_nginx"
@@ -38,9 +57,8 @@ server {
 server {
     resolver local=on;
     set $request_map '{}';
-    access_log logs/access.log curiefenselog;
-    access_log syslog:server=unix:/dev/log curiefenselog;
-    error_log  logs/error.log  debug;
+    access_log ${ACCESS_LOG} curiefenselog;
+    error_log  ${ERROR_LOG}  debug;
 
     listen 31082 default_server;
     listen 31084 default_server ssl http2;
@@ -51,11 +69,11 @@ server {
     location / {
         access_by_lua_block {
             local session = require "lua.session_nginx"
-            session.inspect(ngx)
+            session.inspect(ngx, "${CF_LOG_LEVEL}")
         }
         log_by_lua_block {
             local session = require "lua.session_nginx"
-            session.log(ngx)
+            session.log(ngx, {["test"]="value"})
         }
         proxy_pass http://backend_b;
     }

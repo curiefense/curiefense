@@ -17,21 +17,17 @@ pub mod simple_executor;
 pub mod tagging;
 pub mod utils;
 
-use analyze::CfRulesArg;
+use analyze::{APhase0, CfRulesArg};
 use body::body_too_large;
 use config::with_config;
 use grasshopper::Grasshopper;
-use interface::{Action, ActionType, Decision};
-use interface::{AnalyzeResult, Tags};
+use interface::stats::{SecpolStats, Stats, StatsCollect};
+use interface::{Action, ActionType, AnalyzeResult, BlockReason, Decision, Location, Tags};
 use logs::Logs;
 use securitypolicy::match_securitypolicy;
 use simple_executor::{Executor, Progress, Task};
 use tagging::tag_request;
 use utils::{map_request, RawRequest, RequestInfo};
-
-use crate::analyze::APhase0;
-use crate::interface::stats::{SecpolStats, Stats, StatsCollect};
-use crate::interface::{BlockReason, Location};
 
 fn challenge_verified<GH: Grasshopper>(gh: &GH, reqinfo: &RequestInfo, logs: &mut Logs) -> bool {
     if let Some(rbzid) = reqinfo.cookies.get("rbzid") {
@@ -87,6 +83,7 @@ pub fn inspect_generic_request_map_init<GH: Grasshopper>(
     raw: RawRequest,
     logs: &mut Logs,
 ) -> Result<APhase0, AnalyzeResult> {
+    let start = chrono::Utc::now();
     let mut tags = Tags::default();
 
     // insert the all tag here, to make sure it is always present, even in the presence of early errors
@@ -146,6 +143,7 @@ pub fn inspect_generic_request_map_init<GH: Grasshopper>(
                         max_depth,
                         secpolicy.content_filter_profile.ignore_body,
                         &raw,
+                        Some(start),
                     );
 
                     if let Some(action) = body_too_large {
@@ -181,7 +179,20 @@ pub fn inspect_generic_request_map_init<GH: Grasshopper>(
             }
             Some(RequestMappingResult::NoSecurityPolicy) => {
                 logs.debug("No security policy found");
-                let rinfo = map_request(logs, "unk", "unk", &[], b"CHANGEME", &[], &[], false, 0, true, &raw);
+                let rinfo = map_request(
+                    logs,
+                    "unk",
+                    "unk",
+                    &[],
+                    b"CHANGEME",
+                    &[],
+                    &[],
+                    false,
+                    0,
+                    true,
+                    &raw,
+                    Some(start),
+                );
                 return Err(AnalyzeResult {
                     decision: Decision::pass(Vec::new()),
                     tags,
@@ -191,7 +202,20 @@ pub fn inspect_generic_request_map_init<GH: Grasshopper>(
             }
             None => {
                 logs.debug("Something went wrong during security policy searching");
-                let rinfo = map_request(logs, "unk", "unk", &[], b"CHANGEME", &[], &[], false, 0, true, &raw);
+                let rinfo = map_request(
+                    logs,
+                    "unk",
+                    "unk",
+                    &[],
+                    b"CHANGEME",
+                    &[],
+                    &[],
+                    false,
+                    0,
+                    true,
+                    &raw,
+                    Some(start),
+                );
                 return Err(AnalyzeResult {
                     decision: Decision::pass(Vec::new()),
                     tags,

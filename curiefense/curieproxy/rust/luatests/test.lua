@@ -113,9 +113,9 @@ local function run_inspect_request_gen(raw_request_map, mode)
       res = curiefense.test_inspect_request(meta, headers, raw_request_map.body, ip, human)
     else
       if mode ~= "lua_async" then
-        res = curiefense.inspect_request(meta, headers, raw_request_map.body, ip)
+        res = curiefense.inspect_request("debug", meta, headers, raw_request_map.body, ip)
       else
-        local r1 = curiefense.inspect_request_init(meta, headers, raw_request_map.body, ip)
+        local r1 = curiefense.inspect_request_init("debug", meta, headers, raw_request_map.body, ip)
         if r1.error then
           error(r1.error)
         end
@@ -225,7 +225,7 @@ local function test_raw_request(request_path)
     local res = run_inspect_request(raw_request_map)
 
     local r = cjson.decode(res.response)
-    local request_map = cjson.decode(res.request_map)
+    local request_map = cjson.decode(res:request_map(nil))
 
     local good = compare_tag_list(raw_request_map.name, request_map.tags, raw_request_map.response.tags)
     if r.action ~= raw_request_map.response.action then
@@ -307,7 +307,7 @@ local function test_raw_request_stats(request_path, pverbose)
 
     local res = run_inspect_request(raw_request_map)
     local r = cjson.decode(res.response)
-    local request_map = cjson.decode(res.request_map)
+    local request_map = cjson.decode(res:request_map(nil))
 
     local good = compare_tag_list(raw_request_map.name, request_map.tags, raw_request_map.response.tags)
     if r.action ~= raw_request_map.response.action then
@@ -357,12 +357,16 @@ local function test_masking(request_path)
   for _, raw_request_map in pairs(raw_request_maps) do
     local secret = raw_request_map["secret"]
     local res = run_inspect_request(raw_request_map)
-    local request_map = cjson.decode(res.request_map)
+    local request_map = cjson.decode(res:request_map(nil))
     for _, section in pairs({"arguments", "headers", "cookies"}) do
-      for k, value in pairs(request_map[section]) do
-        local p = string.find(value, secret)
+      for _, value in pairs(request_map[section]) do
+        local p = string.find(value["name"], secret)
         if p ~= nil then
-          error("Could find secret in " .. section .. "/" .. k)
+          error("Could find secret in " .. section .. "/" .. value["name"])
+        end
+        p = string.find(value["value"], secret)
+        if p ~= nil then
+          error("Could find secret in " .. section .. "/" .. value["name"])
         end
       end
     end
@@ -387,7 +391,7 @@ local function test_ratelimit(request_path)
     print(" -> step " .. n)
     local r = run_inspect_request(raw_request_map)
     local res = cjson.decode(r.response)
-    local request_map = cjson.decode(r.request_map)
+    local request_map = cjson.decode(r:request_map(nil))
 
     if raw_request_map.tag and not contains(request_map.tags, raw_request_map.tag) then
       show_logs(request_map.logs)
@@ -423,7 +427,7 @@ local function test_flow(request_path)
   for n, raw_request_map in pairs(raw_request_maps) do
     print(" -> step " .. n)
     local r = run_inspect_request(raw_request_map)
-    local request_map = cjson.decode(r.request_map)
+    local request_map = cjson.decode(r:request_map(nil))
     local expected_tag = raw_request_map["tag"]
 
     local tag_found = false

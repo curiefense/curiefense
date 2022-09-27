@@ -172,7 +172,10 @@ impl Config {
                 content_filter_profile,
                 limits: olimits,
             };
-            if rawmap.match_ == "__default__" || (rawmap.match_ == "/" && securitypolicy.entry.id == "default") {
+            if rawmap.match_ == "__default__"
+                || (rawmap.match_ == "/"
+                    && (securitypolicy.entry.id == "default" || securitypolicy.entry.id == "__default__"))
+            {
                 if default.is_some() {
                     logs.warning("Multiple __default__ maps");
                 }
@@ -303,6 +306,8 @@ impl Config {
         let mut logs = logs;
         let mut bjson = PathBuf::from(basepath);
         bjson.push("json");
+
+        logs.debug(|| format!("Loading configuration from {}", basepath));
 
         let mmanifest: Result<RawManifest, String> = PathBuf::from(basepath)
             .parent()

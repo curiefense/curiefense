@@ -501,6 +501,7 @@ mod test {
             500,
             false,
             &raw_request,
+            None,
         )
     }
 
@@ -564,15 +565,16 @@ mod test {
             masked.rinfo.meta.path
         );
         assert_eq!("arg1=MASKED{e8efcceb}&arg2=MASKED{c96a6118}", masked.rinfo.qinfo.query);
-        let (logged, _) = jsonlog(
+        let (logged, _) = async_std::task::block_on(jsonlog(
             &Decision::pass(Vec::new()),
             Some(&masked),
             None,
             &Tags::default(),
             &Stats::default(),
             &Logs::default(),
-        );
-        let log_string = logged.to_string();
+            HashMap::new(),
+        ));
+        let log_string = String::from_utf8(logged).unwrap();
         if log_string.contains("avalue1") || log_string.contains("a value2") || log_string.contains("a%20value2") {
             panic!("log lacks masking: {}", log_string)
         }
@@ -703,6 +705,7 @@ mod test {
             50,
             false,
             &raw_request,
+            None,
         );
 
         let mut profile = ContentFilterProfile::default_from_seed("test");
@@ -715,15 +718,16 @@ mod test {
 
         let masked = masking(b"test", rinfo, &profile);
 
-        let (logged, _) = jsonlog(
+        let (logged, _) = async_std::task::block_on(jsonlog(
             &Decision::pass(Vec::new()),
             Some(&masked),
             None,
             &Tags::default(),
             &Stats::default(),
             &Logs::default(),
-        );
-        let log_string = logged.to_string();
+            HashMap::new(),
+        ));
+        let log_string = String::from_utf8(logged).unwrap();
         if log_string.contains("SECRET") {
             panic!("SECRET found in {}", log_string);
         }

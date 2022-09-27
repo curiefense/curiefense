@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use maxminddb::geoip2::model;
 use serde_json::json;
@@ -6,6 +7,7 @@ use std::collections::HashMap;
 use std::net::IpAddr;
 
 pub mod decoders;
+pub mod json;
 pub mod templating;
 pub mod url;
 
@@ -298,6 +300,7 @@ pub struct RInfo {
 
 #[derive(Debug, Clone)]
 pub struct RequestInfo {
+    pub timestamp: DateTime<Utc>,
     pub cookies: RequestField,
     pub headers: RequestField,
     pub rinfo: RInfo,
@@ -308,7 +311,10 @@ impl RequestInfo {
     pub fn into_json(self, tags: Tags) -> serde_json::Value {
         let mut v = self.into_json_notags();
         if let Some(m) = v.as_object_mut() {
-            m.insert("tags".to_string(), tags.to_json());
+            m.insert(
+                "tags".to_string(),
+                serde_json::to_value(tags).unwrap_or(serde_json::Value::Null),
+            );
         }
         v
     }
@@ -328,10 +334,10 @@ impl RequestInfo {
         .collect();
         attrs.extend(self.rinfo.meta.extra.into_iter().map(|(k, v)| (k, Some(v))));
         serde_json::json!({
-            "headers": self.headers.to_json(),
-            "cookies": self.cookies.to_json(),
-            "args": self.rinfo.qinfo.args.to_json(),
-            "path": self.rinfo.qinfo.path_as_map.to_json(),
+            "headers": self.headers,
+            "cookies": self.cookies,
+            "args": self.rinfo.qinfo.args,
+            "path": self.rinfo.qinfo.path_as_map,
             "attributes": attrs,
             "geo": geo
         })
@@ -349,7 +355,7 @@ pub struct InspectionResult {
 }
 
 impl InspectionResult {
-    pub fn log_json(&self) -> String {
+    pub async fn log_json(&self, proxy: HashMap<String, String>) -> Vec<u8> {
         let dtags = Tags::default();
         let tags: &Tags = match &self.tags {
             Some(t) => t,
@@ -357,9 +363,18 @@ impl InspectionResult {
         };
 
         match &self.rinfo {
-            None => "{}".to_string(),
-            Some(rinfo) => self.decision.log_json(rinfo, tags, &self.logs, &self.stats),
+            None => b"{}".to_vec(),
+            Some(rinfo) => {
+                self.decision
+                    .log_json(rinfo, tags, &self.stats, &self.logs, proxy)
+                    .await
+            }
         }
+    }
+
+    // blocking version of log_json
+    pub fn log_json_block(&self, proxy: HashMap<String, String>) -> Vec<u8> {
+        async_std::task::block_on(self.log_json(proxy))
     }
 
     pub fn from_analyze(logs: Logs, dec: AnalyzeResult) -> Self {
@@ -485,6 +500,7 @@ pub fn map_request(
     max_depth: usize, // if set to 0, the body will not be parsed
     ignore_body: bool,
     raw: &RawRequest,
+    ts: Option<DateTime<Utc>>,
 ) -> RequestInfo {
     let host = raw.get_host();
 
@@ -524,6 +540,7 @@ pub fn map_request(
     };
 
     let dummy_reqinfo = RequestInfo {
+        timestamp: ts.unwrap_or_else(Utc::now),
         cookies,
         headers,
         rinfo,
@@ -547,6 +564,7 @@ pub fn map_request(
     let session = format!("{:x}", bytes);
 
     RequestInfo {
+        timestamp: dummy_reqinfo.timestamp,
         cookies: dummy_reqinfo.cookies,
         headers: dummy_reqinfo.headers,
         rinfo: dummy_reqinfo.rinfo,
@@ -719,7 +737,20 @@ mod tests {
             mbody: None,
         };
         let mut logs = Logs::new(crate::logs::LogLevel::Debug);
-        let ri = map_request(&mut logs, "a", "b", &[], b"CHANGEME", &[], &[], true, 100, false, &raw);
+        let ri = map_request(
+            &mut logs,
+            "a",
+            "b",
+            &[],
+            b"CHANGEME",
+            &[],
+            &[],
+            true,
+            100,
+            false,
+            &raw,
+            None,
+        );
         let actual_args = ri.rinfo.qinfo.args;
         let actual_path = ri.rinfo.qinfo.path_as_map;
         let mut expected_args = RequestField::new(&[]);

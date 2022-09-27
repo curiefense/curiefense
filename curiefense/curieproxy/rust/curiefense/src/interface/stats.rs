@@ -35,28 +35,27 @@ impl SecpolStats {
 pub struct Stats {
     pub revision: String,
     pub processing_stage: usize,
-
     pub secpol: SecpolStats,
 
     // stage mapped
-    pub globalfilters_active: usize,
-    pub globalfilters_total: usize,
+    globalfilters_active: usize,
+    globalfilters_total: usize,
 
     // stage flow
-    pub flow_active: usize,
-    pub flow_total: usize,
+    flow_active: usize,
+    flow_total: usize,
 
     // stage limit
-    pub limit_active: usize,
-    pub limit_total: usize,
+    limit_active: usize,
+    limit_total: usize,
 
     // stage acl
-    pub acl_active: usize,
+    acl_active: usize,
 
     // stage content filter
     pub content_filter_total: usize,
-    pub content_filter_triggered: usize,
-    pub content_filter_active: usize,
+    content_filter_triggered: usize,
+    content_filter_active: usize,
 }
 
 // the builder uses a phantom data structure to make sure we did not forget to update the stats from a previous stage
