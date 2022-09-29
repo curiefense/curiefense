@@ -22,6 +22,6 @@
       }
     ],
     "timeframe": 60,
-    "global": true
+    "global": false
   }
 ]
