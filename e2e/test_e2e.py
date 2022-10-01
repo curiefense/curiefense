@@ -363,6 +363,7 @@ def gen_rl_rules(authority):
         rl_rules.append(
             {
                 "id": rule_id,
+                "global": False,
                 "name": "Rate Limit Rule 3/10 " + path,
                 "description": "3 requests per 10 seconds",
                 "timeframe": 10,
