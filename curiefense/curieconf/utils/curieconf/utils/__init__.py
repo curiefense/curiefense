@@ -23,12 +23,14 @@ BLOBS_PATH = {
     "geolite2asn": "config/maxmind/GeoLite2-ASN.mmdb",
     "geolite2country": "config/maxmind/GeoLite2-Country.mmdb",
     "geolite2city": "config/maxmind/GeoLite2-City.mmdb",
+    "customconfig": "config/reblaze/customconf.tar.gz",
 }
 
 BLOBS_BOOTSTRAP = {
     "geolite2asn": b"",
     "geolite2country": b"",
     "geolite2city": b"",
+    "customconfig": b"",
 }
 
 
