@@ -112,5 +112,5 @@
             }
         }
     },
-    "required": [ "id", "match", "map", "name", "curiesession", "curiesession_ids" ]
+    "required": [ "id", "match", "map", "name"]
 }

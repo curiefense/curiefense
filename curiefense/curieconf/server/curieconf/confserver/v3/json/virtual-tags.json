@@ -1,0 +1,45 @@
+[
+  {
+    "id": "vtags_r1",
+    "name": "Flows",
+    "description": "Flows vtag",
+    "match": [
+      {
+        "vtag": "flow",
+        "tags": ["flow1", "flow2", "flow3"]
+      },
+      {
+        "vtag": "flowc",
+        "tags": ["flowc1", "flowc2", "flowc3"]
+      },
+      {
+        "vtag": "flowother",
+        "tags": ["flowheader", "flowquery"]
+      },
+      {
+        "vtag": "flowall",
+        "tags": [
+          "flow1",
+          "flow2",
+          "flow3",
+          "flowc1",
+          "flowc2",
+          "flowc3",
+          "flowheader",
+          "flowquery"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "vtags_r2",
+    "name": "Test Virtual Tags",
+    "description": "Global filter vtag",
+    "match": [
+      {
+        "vtag": "vtag-tagbyip",
+        "tags": ["tagbyip"]
+      }
+    ]
+  }
+]

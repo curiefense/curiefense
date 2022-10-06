@@ -16,6 +16,7 @@ DOCUMENTS_PATH = {
     "globalfilters": "config/json/globalfilter-lists.json",
     "flowcontrol": "config/json/flow-control.json",
     "dynamicrules": "config/json/dynamic-rules.json",
+    "virtualtags": "config/json/virtual-tags.json",
     "custom": "config/json/custom.json",
 }
 
