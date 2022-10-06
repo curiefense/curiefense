@@ -1,0 +1,29 @@
+{
+    "actions": {
+        "field_name": "action",
+        "documents_containing": [
+            {"document":"contentfilterprofiles"},
+            {"document":"aclprofiles"},
+            {"document":"globalfilters"},
+            {"document":"ratelimits", "field":"thresholds"}
+        ]
+    },
+    "aclprofiles": {
+        "field_name": "acl_profile",
+        "documents_containing": [
+            {"document":"securitypolicies", "field": "map"}
+        ]
+    },
+    "contentfilterprofiles": {
+        "field_name": "content_filter_profile",
+        "documents_containing": [
+            {"document":"securitypolicies", "field": "map"}
+        ]
+    },
+    "ratelimits": {
+        "field_name": "limit_ids",
+        "documents_containing": [
+            {"document":"securitypolicies", "field": "map", "sub_field_arr":  "limit_ids"}
+        ]
+    }
+}
