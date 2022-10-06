@@ -11,6 +11,7 @@ import requests
 from jsonschema import validate
 from pathlib import Path
 import json
+import jmespath
 
 
 api_bp = Blueprint("api_v3", __name__)
@@ -413,28 +414,22 @@ def checkEntryDependencies(config, document, entry):
     # check if the entry is used in another document
     if schema_dependencies.get(document):
         doc_dependency = schema_dependencies.get(document)
-        field_name = doc_dependency.get("field_name")
-        documents_containing = doc_dependency.get("documents_containing")
-        for doc in documents_containing:
+        for doc in doc_dependency:
             doc_name = doc.get("document")
-            res_doc = current_app.backend.documents_get(config, doc_name)
+            entry_path = doc.get("path")
 
+            res_doc = current_app.backend.documents_get(config, doc_name)
             for doc_entry in res_doc:
-                field = doc.get("field")  # either null or string
-                if not field:  # regular field
-                    if entry == doc_entry.get(field_name):
+                field_value = jmespath.search(entry_path, doc_entry)
+
+                if type(field_value) == str:
+                    if entry == field_value:
                         abort(500, "Dependency found in " + doc_name)
-                else:  # nested field
-                    sub_field = doc.get("sub_field_arr")
-                    if not sub_field:
-                        for item in doc_entry.get(field):
-                            if entry == item.get(field_name):
+                else:
+                    if type(field_value) == list:
+                        for item in field_value:
+                            if entry == item:
                                 abort(500, "Dependency found in " + doc_name)
-                    else:  # array in a nested field
-                        for item in doc_entry.get(field):
-                            for i in item.get(sub_field):
-                                if entry == i:
-                                    abort(500, "Dependency found in " + doc_name)
 
 
 ### Set git actor according to config & defined HTTP headers
