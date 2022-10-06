@@ -3,6 +3,16 @@
         "match": "__default__",
         "id": "__default__",
         "name": "default entry",
+        "curiesession": [
+            {
+                "attrs": "ip"
+            }
+        ],
+        "curiesession_ids": [
+            {
+                "attrs": "ip"
+            }
+        ],
         "map": [
             {
                 "id": "__default__",

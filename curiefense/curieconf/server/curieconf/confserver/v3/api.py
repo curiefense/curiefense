@@ -89,6 +89,8 @@ m_securitypolicy = api.model(
         "name": fields.String(required=True),
         "description": fields.String(),
         "match": fields.String(required=True),
+        "curiesession": AnyType(required=True),
+        "curiesession_ids": AnyType(required=True),
         "map": fields.List(fields.Nested(m_secprofilemap)),
     },
 )
@@ -125,6 +127,7 @@ m_contentfilterprofile = api.model(
         "headers": fields.Raw(required=True),
         "cookies": fields.Raw(required=True),
         "path": fields.Raw(required=True),
+        "allsections": fields.Raw(),
         "decoding": fields.Raw(required=True),
         "masking_seed": fields.String(required=True),
         "content_type": fields.List(fields.String()),

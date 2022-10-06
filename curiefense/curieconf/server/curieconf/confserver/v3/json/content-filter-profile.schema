@@ -72,6 +72,7 @@
         "headers": { "$ref": "#/definitions/content-filter-profile-section" },
         "cookies": { "$ref": "#/definitions/content-filter-profile-section" },
         "path": { "$ref": "#/definitions/content-filter-profile-section" },
+        "allsections": { "$ref": "#/definitions/content-filter-profile-section" },
         "decoding": {
             "type": "object",
             "title": "Active / Inactive decoding",

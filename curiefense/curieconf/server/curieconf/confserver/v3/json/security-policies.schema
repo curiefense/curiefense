@@ -3,6 +3,34 @@
     "title": "Security Policy",
     "description": "Security Policy by URL path map",
     "type": "object",
+    "definitions": {
+        "key-array": {
+            "title": "Count By List",
+            "description": "Item describing how to count requests using attributes, arguments, cookies, or headers",
+            "type": "array",
+            "items": { "$ref": "#/definitions/key-entry" }
+        },
+        "key-entry": {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 1,
+            "additionalProperties": false,
+            "properties": {
+                "headers": { "type": "string" },
+                "cookies": { "type": "string" },
+                "args": { "type": "string" },
+                "arguments": { "type": "string" },
+                "attrs": {
+                    "type": "string",
+                     "enum": ["ip", "path", "query", "uri", "country", "method", "asn", "company", "authority", "tags", "securitypolicyid", "securitypolicyentryid", "region", "subregion"]
+                 },
+                "attributes":{
+                    "type": "string",
+                     "enum": ["ip", "path", "query", "uri", "country", "method", "asn", "company", "authority", "tags", "securitypolicyid", "securitypolicyentryid", "region", "subregion"]
+                 }
+            }
+        }
+    },
     "properties": {
         "id": {
             "type": "string",
@@ -20,6 +48,8 @@
             "title": "Match",
             "description": "Regex to match host headers (domain names)"
         },
+        "curiesession": { "$ref": "#/definitions/key-array" },
+        "curiesession_ids": { "$ref": "#/definitions/key-array" },
         "map": {
             "type": "array",
             "title": "Security Policy Entries List",
@@ -82,5 +112,5 @@
             }
         }
     },
-    "required": [ "id", "match", "map", "name" ]
+    "required": [ "id", "match", "map", "name", "curiesession", "curiesession_ids" ]
 }
