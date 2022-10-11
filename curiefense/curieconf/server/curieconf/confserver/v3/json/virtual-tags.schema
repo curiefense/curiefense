@@ -1,0 +1,45 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Virtual Tag",
+    "description": "Virtual Tag",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique id"
+        },
+        "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name",
+            "description": "Name of entity shown in UI"
+        },
+        "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Description of entity shown in UI"
+        },
+        "match": {
+            "type": "array",
+            "title": "Tags Array",
+            "description": "Tags Array",
+            "items": {
+                "type": "object",
+                "minProperties": 2,
+                "maxProperties": 2,
+                "additionalProperties": false,
+                "properties": {
+                    "vtag": { "type": "string" },
+                    "tags": {
+                        "title": "Tags List",
+                        "description": "List of tags for which to apply the rule",
+                        "type": "array",
+                        "items": { "type": "string" }
+                    }
+                }
+            }
+        }
+    },
+    "required": [ "id", "name", "match" ]
+}

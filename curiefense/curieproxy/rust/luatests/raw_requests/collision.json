@@ -3,7 +3,7 @@
     "headers": {
       ":authority": "www.collision.com",
       ":method": "GET",
-      ":path": "/step2",
+      ":path": "/flow-test/step2",
       "user-agent": "dummy",
       "host": "www.collision.com",
       "x-forwarded-for": "2.3.4.5"
@@ -27,9 +27,9 @@
         "sante",
         "securitypolicy-entry:default",
         "contentfiltername:default-contentfilter",
-        "securitypolicy:default-entry",
-        "aclname:default-acl",
-        "aclid:--default--",
+        "securitypolicy:flow-control-collision-tests",
+        "aclname:flowcontrol",
+        "aclid:flowcontrol",
         "contentfilterid:--default--",
         "bot",
         "geo-country:france",

@@ -304,6 +304,7 @@ mod tests {
         map_request(
             &mut logs,
             Arc::new(secpol),
+            None,
             &RawRequest {
                 ipstr: "52.78.12.56".to_string(),
                 headers,

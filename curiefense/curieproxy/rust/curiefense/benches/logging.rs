@@ -46,7 +46,7 @@ fn logging_empty(c: &mut Criterion) {
     });
     let mut logs = Logs::new(LogLevel::Debug);
     let stats = StatsCollect::new("QSDQSDQSD".into()).secpol(SecpolStats::build(&secpolicy, 0));
-    let reqinfo = map_request(&mut logs, secpolicy, &raw, None);
+    let reqinfo = map_request(&mut logs, secpolicy, None, &raw, None);
     let (itags, _, stats) = tag_request(stats, false, &[], &reqinfo, &VirtualTags::default());
     let p0 = APhase0 {
         flows: HashMap::new(),

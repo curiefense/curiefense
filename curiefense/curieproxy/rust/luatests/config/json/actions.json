@@ -7,15 +7,21 @@
       "status": 456
     },
     "type": "custom",
-    "id": "3lfpo6xe"
+    "id": "3lfpo6xe",
+    "tags": [],
+    "name": "3lfpo6xe"
   },
   {
     "type": "challenge",
-    "id": "5ktcoafw"
+    "id": "5ktcoafw",
+    "tags": [],
+    "name": "5ktcoafw"
   },
   {
     "type": "custom",
-    "id": "a7ge3v0l"
+    "id": "a7ge3v0l",
+    "tags": [],
+    "name": "a7ge3v0l"
   },
   {
     "params": {
@@ -26,7 +32,9 @@
       "status": 200
     },
     "type": "custom",
-    "id": "an6yhiyr"
+    "id": "an6yhiyr",
+    "tags": [],
+    "name": "an6yhiyr"
   },
   {
     "params": {
@@ -36,26 +44,34 @@
       "status": 333
     },
     "type": "custom",
-    "id": "bh3gw11k"
+    "id": "bh3gw11k",
+    "tags": [],
+    "name": "bh3gw11k"
   },
   {
     "params": {
       "content": "body"
     },
     "type": "custom",
-    "id": "d5vnu3hs"
+    "id": "d5vnu3hs",
+    "tags": [],
+    "name": "d5vnu3hs"
   },
   {
     "type": "custom",
-    "id": "default"
+    "id": "default",
+    "tags": [],
+    "name": "default"
   },
   {
     "params": {
       "content": "lol",
-      "status": 123
+      "status": 323
     },
     "type": "custom",
-    "id": "dxfyhx4n"
+    "id": "dxfyhx4n",
+    "tags": [],
+    "name": "dxfyhx4n"
   },
   {
     "params": {
@@ -64,11 +80,15 @@
       }
     },
     "type": "monitor",
-    "id": "fq8faptj"
+    "id": "fq8faptj",
+    "tags": [],
+    "name": "fq8faptj"
   },
   {
     "type": "monitor",
-    "id": "monitor"
+    "id": "monitor",
+    "tags": [],
+    "name": "monitor"
   },
   {
     "params": {
@@ -77,11 +97,15 @@
       }
     },
     "type": "custom",
-    "id": "sk9lz9q4"
+    "id": "sk9lz9q4",
+    "tags": [],
+    "name": "sk9lz9q4"
   },
   {
     "type": "skip",
-    "id": "ye8qyg0h"
+    "id": "ye8qyg0h",
+    "tags": [],
+    "name": "ye8qyg0h"
   },
   {
     "tags": [
@@ -94,17 +118,22 @@
         "h1": "${ip}"
       }
     },
-    "id": "blockheaders"
+    "id": "blockheaders",
+    "name": "blockheaders"
   },
   {
     "type": "custom",
     "params": {
       "status": 403
     },
-    "id": "b403"
+    "id": "b403",
+    "tags": [],
+    "name": "b403"
   },
   {
     "id": "ijcy5mwz",
+    "name": "ijcy5mwz",
+    "tags": [],
     "type": "custom"
   }
 ]

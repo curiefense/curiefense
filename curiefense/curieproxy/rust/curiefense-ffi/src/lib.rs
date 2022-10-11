@@ -17,7 +17,7 @@ unsafe fn c_free<T>(ptr: *mut T) {
     if ptr.is_null() {
         return;
     }
-    Box::from_raw(ptr);
+    let _x = Box::from_raw(ptr);
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Copy)]

@@ -169,6 +169,7 @@ pub fn jsonlog_rinfo(
     let mut ser = serde_json::Serializer::new(&mut outbuffer);
     let mut map_ser = ser.serialize_map(None)?;
     map_ser.serialize_entry("timestamp", now)?;
+    map_ser.serialize_entry("@timestamp", now)?;
     map_ser.serialize_entry("curiesession", &rinfo.session)?;
     map_ser.serialize_entry("curiesession_ids", &NameValue::new(&rinfo.session_ids))?;
     map_ser.serialize_entry("request_id", &rinfo.rinfo.meta.requestid)?;
@@ -227,6 +228,7 @@ pub fn jsonlog_rinfo(
     struct LogProxy<'t> {
         p: &'t HashMap<String, String>,
         l: &'t Option<(f64, f64)>,
+        n: &'t Option<String>,
     }
     impl<'t> Serialize for LogProxy<'t> {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -245,6 +247,10 @@ pub fn jsonlog_rinfo(
                 name: "geo_lat",
                 value: self.l.as_ref().map(|x| x.1),
             })?;
+            sq.serialize_element(&crate::utils::json::BigTableKV {
+                name: "container",
+                value: self.n,
+            })?;
             sq.end()
         }
     }
@@ -253,6 +259,7 @@ pub fn jsonlog_rinfo(
         &LogProxy {
             p: &proxy,
             l: &rinfo.rinfo.geoip.location,
+            n: &rinfo.rinfo.container_name,
         },
     )?;
 

@@ -284,7 +284,7 @@ local function test_raw_request(request_path)
     if not good then
       show_logs(request_map.logs)
       print(res.response)
-      print(res.request_map)
+      print(res:request_map(nil))
       error("mismatch in " .. raw_request_map.name)
     end
   end

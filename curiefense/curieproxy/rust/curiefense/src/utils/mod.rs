@@ -298,6 +298,7 @@ pub struct RInfo {
     pub qinfo: QueryInfo,
     pub host: String,
     pub secpolicy: Arc<SecurityPolicy>,
+    pub container_name: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -493,6 +494,7 @@ impl<'a> RawRequest<'a> {
 pub fn map_request(
     logs: &mut Logs,
     secpolicy: Arc<SecurityPolicy>,
+    container_name: Option<String>,
     raw: &RawRequest,
     ts: Option<DateTime<Utc>>,
 ) -> RequestInfo {
@@ -534,6 +536,7 @@ pub fn map_request(
         qinfo,
         host,
         secpolicy: secpolicy.clone(),
+        container_name,
     };
 
     let dummy_reqinfo = RequestInfo {
@@ -747,7 +750,7 @@ mod tests {
         let mut logs = Logs::new(crate::logs::LogLevel::Debug);
         let mut secpol = SecurityPolicy::empty();
         secpol.content_filter_profile.referer_as_uri = true;
-        let ri = map_request(&mut logs, Arc::new(secpol), &raw, None);
+        let ri = map_request(&mut logs, Arc::new(secpol), None, &raw, None);
         let actual_args = ri.rinfo.qinfo.args;
         let actual_path = ri.rinfo.qinfo.path_as_map;
         let mut expected_args = RequestField::new(&[]);

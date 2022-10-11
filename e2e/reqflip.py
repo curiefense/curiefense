@@ -17,7 +17,7 @@ def raw_send(hostname, port, contents):
         pass
 
 
-def bitflip_send(resp):
+def bitflip_send(resp: requests.Response):
     data = dump.dump_response(resp, request_prefix=b"<<<")
     req = (
         b"\n".join([line[3:] for line in data.splitlines() if line.startswith(b"<<<")])

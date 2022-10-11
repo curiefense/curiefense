@@ -1,7 +1,26 @@
 [
   {
     "action": "b403",
-    "tags": ["aclmatched"],
+    "tags": [],
+    "allow": [],
+    "allow_bot": [],
+    "deny": [],
+    "deny_bot": [],
+    "force_deny": [
+      "flowquery",
+      "flow2",
+      "flowheader",
+      "flow1"
+    ],
+    "id": "flowcontrol",
+    "name": "flowcontrol",
+    "passthrough": []
+  },
+  {
+    "action": "b403",
+    "tags": [
+      "aclmatched"
+    ],
     "allow": [],
     "allow_bot": [],
     "deny": [],

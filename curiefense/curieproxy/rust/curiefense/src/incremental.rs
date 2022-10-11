@@ -43,6 +43,7 @@ pub struct IData {
     body: Option<Vec<u8>>,
     ipinfo: IPInfo,
     stats: StatsCollect<BStageSecpol>,
+    container_name: Option<String>,
 }
 
 impl IData {
@@ -96,6 +97,7 @@ pub fn inspect_init(
                 body: None,
                 ipinfo,
                 stats,
+                container_name: config.container_name.clone(),
             })
         }
     }
@@ -113,7 +115,13 @@ fn early_block(idata: IData, action: Action, br: BlockReason) -> (Logs, AnalyzeR
         meta: idata.meta,
         mbody: idata.body.as_deref(),
     };
-    let reqinfo = map_request(&mut logs, secpolicy, &rawrequest, Some(idata.start));
+    let reqinfo = map_request(
+        &mut logs,
+        secpolicy,
+        idata.container_name,
+        &rawrequest,
+        Some(idata.start),
+    );
     (
         logs,
         AnalyzeResult {
@@ -219,7 +227,13 @@ pub async fn finalize<GH: Grasshopper>(
     let cfrules = mcfrules
         .map(|cfrules| CfRulesArg::Get(cfrules.get(&secpolicy.content_filter_profile.id)))
         .unwrap_or(CfRulesArg::Global);
-    let reqinfo = map_request(&mut logs, secpolicy, &rawrequest, Some(idata.start));
+    let reqinfo = map_request(
+        &mut logs,
+        secpolicy,
+        idata.container_name,
+        &rawrequest,
+        Some(idata.start),
+    );
 
     // without grasshopper, default to being human
     let is_human = if let Some(gh) = mgh {

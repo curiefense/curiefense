@@ -42,6 +42,12 @@ fn config_logs(cur: &mut Logs, cfg: &Config) {
     cur.debug("CFGLOAD logs end");
 }
 
+fn container_name() -> Option<String> {
+    std::fs::read_to_string("/etc/hostname")
+        .ok()
+        .map(|s| s.trim().to_string())
+}
+
 pub fn with_config<R, F>(basepath: &str, logs: &mut Logs, f: F) -> Option<R>
 where
     F: FnOnce(&mut Logs, &Config) -> R,
@@ -358,9 +364,7 @@ impl Config {
         let flows = Config::load_config_file(&mut logs, &bjson, "flow-control.json");
         let virtualtags = Config::load_config_file(&mut logs, &bjson, "virtual-tags.json");
 
-        let container_name = std::fs::read_to_string("/etc/hostname")
-            .ok()
-            .map(|s| s.trim().to_string());
+        let container_name = container_name();
 
         let actions = SimpleAction::resolve_actions(&mut logs, rawactions);
         let content_filter_profiles = ContentFilterProfile::resolve(&mut logs, &actions, rawcontentfilterprofiles);
@@ -407,7 +411,7 @@ impl Config {
             globalfilters: Vec::new(),
             last_mod: SystemTime::UNIX_EPOCH,
             default: None,
-            container_name: None,
+            container_name: container_name(),
             flows: HashMap::new(),
             content_filter_profiles: HashMap::new(),
             logs: Logs::default(),

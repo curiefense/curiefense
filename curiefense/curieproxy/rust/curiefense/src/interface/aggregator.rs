@@ -10,8 +10,8 @@ use crate::utils::RequestInfo;
 use super::{BDecision, Decision, Location, Tags};
 
 lazy_static! {
-    static ref AGGREGATED: Mutex<BTreeMap<i64, HashMap<AggregationKey, AggregatedCounters>>> =
-        Mutex::new(BTreeMap::new());
+    static ref AGGREGATED: Mutex<HashMap<AggregationKey, BTreeMap<i64, AggregatedCounters>>> =
+        Mutex::new(HashMap::new());
     static ref SECONDS_KEPT: i64 = std::env::var("AGGREGATED_SECONDS")
         .ok()
         .and_then(|s| s.parse().ok())
@@ -24,6 +24,7 @@ lazy_static! {
         .ok()
         .and_then(|s| s.parse().ok())
         .unwrap_or(8);
+    static ref EMPTY_AGGREGATED_DATA: AggregatedCounters = AggregatedCounters::default();
 }
 
 #[derive(Debug, PartialEq, Eq, Hash)]
@@ -176,23 +177,23 @@ impl<T: Ord + std::hash::Hash + Clone> Metric<T> {
 impl<T: Eq + Clone + std::hash::Hash + std::fmt::Display> Metric<T> {
     fn serialize_map(&self, tp: &str, mp: &mut serde_json::Map<String, Value>) {
         mp.insert(
-            format!("unique-{}", tp),
+            format!("unique_{}", tp),
             Value::Number(serde_json::Number::from(self.unique.count())),
         );
         mp.insert(
-            format!("unique-blocked-{}", tp),
+            format!("unique_blocked_{}", tp),
             Value::Number(serde_json::Number::from(self.unique_blocked.count())),
         );
         mp.insert(
-            format!("unique-passed-{}", tp),
+            format!("unique_passed_{}", tp),
             Value::Number(serde_json::Number::from(self.unique_passed.count())),
         );
         mp.insert(
-            format!("top-blocked-{}", tp),
+            format!("top_blocked_{}", tp),
             serde_json::to_value(&self.top_blocked).unwrap_or(Value::Null),
         );
         mp.insert(
-            format!("top-passed-{}", tp),
+            format!("top_passed_{}", tp),
             serde_json::to_value(&self.top_passed).unwrap_or(Value::Null),
         );
     }
@@ -598,10 +599,10 @@ fn serialize_counters(e: &AggregatedCounters) -> Value {
         "top_tags".into(),
         serde_json::to_value(&e.top_tags).unwrap_or(Value::Null),
     );
-    content.insert("top_request_per_cookies".into(), e.headers_amount.serialize_top());
+    content.insert("top_request_per_cookies".into(), e.cookies_amount.serialize_top());
     content.insert("top_request_per_args".into(), e.args_amount.serialize_top());
     content.insert("top_request_per_headers".into(), e.headers_amount.serialize_top());
-    content.insert("top_max_cookies_per_request".into(), e.headers_amount.serialize_max());
+    content.insert("top_max_cookies_per_request".into(), e.cookies_amount.serialize_max());
     content.insert("top_max_args_per_request".into(), e.args_amount.serialize_max());
     content.insert("top_max_headers_per_request".into(), e.headers_amount.serialize_max());
 
@@ -634,18 +635,24 @@ fn serialize_entry(secs: i64, hdr: &AggregationKey, counters: &AggregatedCounter
         "timestamp".into(),
         serde_json::to_value(&timestamp).unwrap_or_else(|_| Value::String("??".into())),
     );
-    content.insert("proxy".into(), Value::Null);
+    content.insert(
+        "proxy".into(),
+        hdr.proxy
+            .as_ref()
+            .map(|s| Value::String(s.clone()))
+            .unwrap_or(Value::Null),
+    );
     content.insert("secpolid".into(), Value::String(hdr.secpolid.clone()));
     content.insert("secpolentryid".into(), Value::String(hdr.secpolentryid.clone()));
     content.insert("counters".into(), serialize_counters(counters));
     Value::Object(content)
 }
 
-fn prune_old_values<A>(mp: &mut BTreeMap<i64, A>) {
-    let keys: Vec<i64> = mp.keys().copied().collect();
-    if let Some(last_entry) = keys.last() {
+fn prune_old_values<A>(amp: &mut HashMap<AggregationKey, BTreeMap<i64, A>>, curtime: i64) {
+    for (_, mp) in amp.iter_mut() {
+        let keys: Vec<i64> = mp.keys().copied().collect();
         for k in keys.iter() {
-            if *k < *last_entry - *SECONDS_KEPT {
+            if *k <= curtime - *SECONDS_KEPT {
                 mp.remove(k);
             }
         }
@@ -655,16 +662,40 @@ fn prune_old_values<A>(mp: &mut BTreeMap<i64, A>) {
 /// displays the Nth last seconds of aggregated data
 pub async fn aggregated_values() -> String {
     let mut guard = AGGREGATED.lock().await;
+    let timestamp = chrono::Utc::now().timestamp();
     // first, prune excess data
-    prune_old_values(&mut guard);
+    prune_old_values(&mut guard, timestamp);
 
     let entries: Vec<Value> = guard
         .iter()
-        .flat_map(|(secs, v)| {
-            v.iter()
-                .map(move |(hdr, counters)| serialize_entry(*secs, hdr, counters))
+        .flat_map(|(hdr, v)| {
+            let range = if !v.is_empty() {
+                (1 + timestamp - *SECONDS_KEPT..=timestamp).collect()
+            } else {
+                Vec::new()
+            };
+            range
+                .into_iter()
+                .map(move |secs| serialize_entry(secs, hdr, v.get(&secs).unwrap_or(&EMPTY_AGGREGATED_DATA)))
         })
         .collect();
+    let entries = if entries.is_empty() {
+        let proxy = crate::config::CONFIG
+            .read()
+            .ok()
+            .and_then(|cfg| cfg.container_name.clone());
+        vec![serialize_entry(
+            timestamp,
+            &AggregationKey {
+                proxy,
+                secpolid: "__default__".to_string(),
+                secpolentryid: "__default__".to_string(),
+            },
+            &AggregatedCounters::default(),
+        )]
+    } else {
+        entries
+    };
 
     serde_json::to_string(&entries).unwrap_or_else(|_| "[]".into())
 }
@@ -678,13 +709,13 @@ pub fn aggregated_values_block() -> String {
 pub async fn aggregate(dec: &Decision, rcode: Option<u32>, rinfo: &RequestInfo, tags: &Tags) {
     let seconds = rinfo.timestamp.timestamp();
     let key = AggregationKey {
-        proxy: None,
+        proxy: rinfo.rinfo.container_name.clone(),
         secpolid: rinfo.rinfo.secpolicy.policy.id.to_string(),
         secpolentryid: rinfo.rinfo.secpolicy.entry.id.to_string(),
     };
     let mut guard = AGGREGATED.lock().await;
-    prune_old_values(&mut guard);
-    let entry_secs = guard.entry(seconds).or_default();
-    let entry = entry_secs.entry(key).or_default();
+    prune_old_values(&mut guard, seconds);
+    let entry_hdrs = guard.entry(key).or_default();
+    let entry = entry_hdrs.entry(seconds).or_default();
     entry.increment(dec, rcode, rinfo, tags);
 }

@@ -3,7 +3,7 @@
     "headers": {
       "x-forwarded-for": "23.129.64.253",
       ":method": "GET",
-      ":path": "/flowheader?step=2",
+      ":path": "/flow-test/flowheader?step=2",
       ":authority": "www.example.com"
     },
     "delay": 0,
@@ -14,7 +14,7 @@
     "headers": {
       "x-forwarded-for": "23.129.64.253",
       ":method": "GET",
-      ":path": "/flowheader?step=2",
+      ":path": "/flow-test/flowheader?step=2",
       ":authority": "www.example.com",
       "test": "value"
     },
@@ -26,7 +26,7 @@
     "headers": {
       "x-forwarded-for": "23.129.64.253",
       ":method": "GET",
-      ":path": "/flowheader?step=1",
+      ":path": "/flow-test/flowheader?step=1",
       ":authority": "www.example.com",
       "test": "value2"
     },
@@ -38,7 +38,7 @@
     "headers": {
       "x-forwarded-for": "23.129.64.253",
       ":method": "GET",
-      ":path": "/flowheader?step=2",
+      ":path": "/flow-test/flowheader?step=2",
       ":authority": "www.example.com",
       "test": "value2"
     },

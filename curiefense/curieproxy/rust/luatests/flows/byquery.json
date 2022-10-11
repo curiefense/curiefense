@@ -3,7 +3,7 @@
     "headers": {
       "x-forwarded-for": "23.129.64.253",
       ":method": "GET",
-      ":path": "/fc/by-query-step2",
+      ":path": "/flow-test/fc/by-query-step2",
       ":authority": "www.byquery.com"
     },
     "delay": 0,
@@ -14,7 +14,7 @@
     "headers": {
       "x-forwarded-for": "23.129.64.253",
       ":method": "GET",
-      ":path": "/fc/by-query-step2?x=1",
+      ":path": "/flow-test/fc/by-query-step2?x=1",
       ":authority": "www.byquery.com"
     },
     "delay": 0,
@@ -25,7 +25,7 @@
     "headers": {
       "x-forwarded-for": "23.129.64.253",
       ":method": "GET",
-      ":path": "/fc/by-query-step1?x=1",
+      ":path": "/flow-test/fc/by-query-step1?x=1",
       ":authority": "www.byquery.com"
     },
     "delay": 0,
@@ -36,7 +36,7 @@
     "headers": {
       "x-forwarded-for": "23.129.64.253",
       ":method": "GET",
-      ":path": "/fc/by-query-step2?x=1",
+      ":path": "/flow-test/fc/by-query-step2?x=1",
       ":authority": "www.byquery.com"
     },
     "delay": 0,

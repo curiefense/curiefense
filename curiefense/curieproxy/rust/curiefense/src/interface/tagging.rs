@@ -320,11 +320,11 @@ impl Tags {
     pub fn insert_locs(&mut self, value: &str, locs: HashSet<Location>) {
         let tag = tagify(value);
         if let Some(vtags) = self.vtags.get(&tag) {
-            for vtag in vtags.into_iter() {
+            for vtag in vtags {
                 self.tags.insert(vtag.clone(), locs.clone());
             }
         }
-        self.tags.insert(tagify(value.clone()), locs.clone());
+        self.tags.insert(tagify(value), locs);
     }
 
     pub fn insert_qualified(&mut self, id: &str, value: &str, loc: Location) {

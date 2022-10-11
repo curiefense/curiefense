@@ -24,7 +24,7 @@
           "host": "www.example.com"
         },
         "method": "GET",
-        "uri": "/action"
+        "uri": "/flow-test/action"
       },
       {
         "args": {
@@ -35,7 +35,7 @@
           "host": "www.example.com"
         },
         "method": "GET",
-        "uri": "/action"
+        "uri": "/flow-test/action"
       },
       {
         "args": {
@@ -46,7 +46,7 @@
           "host": "www.example.com"
         },
         "method": "GET",
-        "uri": "/action"
+        "uri": "/flow-test/action"
       }
     ],
     "timeframe": 4
@@ -76,7 +76,7 @@
           "host": "www.example.com"
         },
         "method": "GET",
-        "uri": "/step1"
+        "uri": "/flow-test/step1"
       },
       {
         "args": {},
@@ -85,7 +85,7 @@
           "host": "www.example.com"
         },
         "method": "GET",
-        "uri": "/step2"
+        "uri": "/flow-test/step2"
       },
       {
         "args": {},
@@ -94,7 +94,7 @@
           "host": "www.example.com"
         },
         "method": "GET",
-        "uri": "/step3"
+        "uri": "/flow-test/step3"
       }
     ],
     "timeframe": 4
@@ -122,7 +122,7 @@
           "host": "www.example.com"
         },
         "method": "GET",
-        "uri": "/fcban1"
+        "uri": "/flow-test/fcban1"
       },
       {
         "args": {},
@@ -131,7 +131,7 @@
           "host": "www.example.com"
         },
         "method": "GET",
-        "uri": "/fcban2"
+        "uri": "/flow-test/fcban2"
       }
     ],
     "timeframe": 2
@@ -161,7 +161,7 @@
           "host": "www.example.com"
         },
         "method": "GET",
-        "uri": "/flowheader"
+        "uri": "/flow-test/flowheader"
       },
       {
         "args": {
@@ -172,7 +172,7 @@
           "host": "www.example.com"
         },
         "method": "GET",
-        "uri": "/flowheader"
+        "uri": "/flow-test/flowheader"
       }
     ],
     "timeframe": 4
@@ -200,7 +200,7 @@
           "host": "www.collision.com"
         },
         "method": "GET",
-        "uri": "/step1"
+        "uri": "/flow-test/step1"
       },
       {
         "args": {},
@@ -209,7 +209,7 @@
           "host": "www.collision.com"
         },
         "method": "GET",
-        "uri": "/step2"
+        "uri": "/flow-test/step2"
       }
     ],
     "timeframe": 4
@@ -237,7 +237,7 @@
           "host": "www.collision.com"
         },
         "method": "GET",
-        "uri": "/step1"
+        "uri": "/flow-test/step1"
       },
       {
         "args": {},
@@ -246,7 +246,7 @@
           "host": "www.collision.com"
         },
         "method": "GET",
-        "uri": "/step2"
+        "uri": "/flow-test/step2"
       }
     ],
     "timeframe": 4
@@ -274,7 +274,7 @@
           "host": "www.collision.com"
         },
         "method": "GET",
-        "uri": "/step1"
+        "uri": "/flow-test/step1"
       },
       {
         "args": {},
@@ -283,7 +283,7 @@
           "host": "www.collision.com"
         },
         "method": "GET",
-        "uri": "/step2"
+        "uri": "/flow-test/step2"
       }
     ],
     "timeframe": 4
@@ -311,7 +311,7 @@
           "host": "www.byquery.com"
         },
         "method": "GET",
-        "uri": "/fc/by-query-step1"
+        "uri": "/flow-test/fc/by-query-step1"
       },
       {
         "args": {},
@@ -320,7 +320,7 @@
           "host": "www.byquery.com"
         },
         "method": "GET",
-        "uri": "/fc/by-query-step2"
+        "uri": "/flow-test/fc/by-query-step2"
       }
     ],
     "timeframe": 4

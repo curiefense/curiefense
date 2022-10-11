@@ -90,6 +90,8 @@ m_securitypolicy = api.model(
         "name": fields.String(required=True),
         "description": fields.String(),
         "match": fields.String(required=True),
+        "curiesession": AnyType(),
+        "curiesession_ids": AnyType(),
         "map": fields.List(fields.Nested(m_secprofilemap)),
     },
 )
@@ -126,6 +128,7 @@ m_contentfilterprofile = api.model(
         "headers": fields.Raw(required=True),
         "cookies": fields.Raw(required=True),
         "path": fields.Raw(required=True),
+        "allsections": fields.Raw(),
         "decoding": fields.Raw(required=True),
         "masking_seed": fields.String(required=True),
         "content_type": fields.List(fields.String()),
@@ -206,21 +209,15 @@ m_action = api.model(
     },
 )
 
-# Dynamic Rule
+# Virtual Tag
 
-m_dynamicrule = api.model(
-    "Dynamic Rule",
+m_virtualtag = api.model(
+    "Virtual Tag",
     {
         "id": fields.String(required=True),
         "name": fields.String(required=True),
         "description": fields.String(),
-        "threshold": fields.Integer(required=True),
-        "timeframe": fields.Integer(required=True),
-        "ttl": fields.Integer(required=True),
-        "active": fields.Boolean(required=True),
-        "target": fields.String(required=True),
-        "include": fields.List(fields.String(required=True)),
-        "exclude": fields.List(fields.String(required=True)),
+        "match": fields.List(fields.Raw(required=True)),
     },
 )
 
@@ -246,7 +243,7 @@ models = {
     "globalfilters": m_globalfilter,
     "flowcontrol": m_flowcontrol,
     "actions": m_action,
-    "dynamicrules": m_dynamicrule,
+    "virtualtags": m_virtualtag,
     "custom": m_custom,
 }
 
@@ -476,9 +473,9 @@ with open(content_filter_rule_file_path) as json_file:
 action_file_path = (base_path / "./json/action.schema").resolve()
 with open(action_file_path) as json_file:
     action_schema = json.load(json_file)
-dynamicrule_file_path = (base_path / "./json/dynamic-rule.schema").resolve()
-with open(dynamicrule_file_path) as json_file:
-    dynamic_rule_schema = json.load(json_file)
+virtualtag_file_path = (base_path / "./json/virtual-tags.schema").resolve()
+with open(virtualtag_file_path) as json_file:
+    virtual_tags_schema = json.load(json_file)
 custom_file_path = (base_path / "./json/custom.schema").resolve()
 with open(custom_file_path) as json_file:
     custom_schema = json.load(json_file)
@@ -497,7 +494,7 @@ schema_type_map = {
     "flowcontrol": flowcontrol_schema,
     "contentfilterrules": content_filter_rule_schema,
     "actions": action_schema,
-    "dynamicrules": dynamic_rule_schema,
+    "virtualtags": virtual_tags_schema,
     "custom": custom_schema,
 }
 

@@ -30,9 +30,8 @@ end
 local DMFN = "com.reblaze.curiefense"
 local LOG_KEY = "request.info"
 
-local function log_request(handle, request_map)
-  handle:logDebug(request_map)
-  handle:streamInfo():dynamicMetadata():set(DMFN, LOG_KEY, request_map)
+local function log_request(handle, inspection_result)
+  handle:streamInfo():dynamicMetadata():set(DMFN, LOG_KEY, inspection_result:request_map(nil))
 end
 
 local function custom_response(handle, action_params)
@@ -75,11 +74,7 @@ local function custom_response(handle, action_params)
 end
 
 function session_rust_envoy.on_response(handle)
-    local metadata = handle:streamInfo():dynamicMetadata()
-    local content = metadata:get(DMFN)[LOG_KEY]
-    local status = handle:headers():get(":status")
-    handle:logDebug("Status: " .. status)
-    handle:streamInfo():dynamicMetadata():set(DMFN, LOG_KEY, curiefense.set_status_string(content, status))
+    handle:logDebug("todo, capture return code")
 end
 
 function session_rust_envoy.inspect(handle)
@@ -113,8 +108,7 @@ function session_rust_envoy.inspect(handle)
         "info", meta, headers, body_content, ip_str
     )
 
-    -- optionally add a Map<String, String> that will be logged
-    log_request(handle, res:request_map(nil))
+    log_request(handle, res)
 
     if res.error then
         handle:logErr(sfmt("curiefense.inspect_request_map error %s", res.error))

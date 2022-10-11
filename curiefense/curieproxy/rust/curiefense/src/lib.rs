@@ -69,7 +69,7 @@ pub unsafe fn inspect_async_free(ptr: *mut Executor<(Decision, Tags, Logs)>) {
     if ptr.is_null() {
         return;
     }
-    Box::from_raw(ptr);
+    let _x = Box::from_raw(ptr);
 }
 
 pub fn inspect_generic_request_map<GH: Grasshopper>(
@@ -133,7 +133,7 @@ pub fn inspect_generic_request_map_init<GH: Grasshopper>(
                     let stats = StatsCollect::new(cfg.revision.clone())
                         .secpol(SecpolStats::build(&secpolicy, cfg.globalfilters.len()));
                     // if the max depth is equal to 0, the body will not be parsed
-                    let reqinfo = map_request(slogs, secpolicy, &raw, Some(start));
+                    let reqinfo = map_request(slogs, secpolicy, cfg.container_name.clone(), &raw, Some(start));
 
                     if let Some(action) = body_too_large {
                         return RequestMappingResult::BodyTooLarge(action, reqinfo);
@@ -167,7 +167,7 @@ pub fn inspect_generic_request_map_init<GH: Grasshopper>(
                 logs.debug("No security policy found");
                 let mut secpol = SecurityPolicy::default();
                 secpol.content_filter_profile.ignore_body = true;
-                let rinfo = map_request(logs, Arc::new(secpol), &raw, Some(start));
+                let rinfo = map_request(logs, Arc::new(secpol), None, &raw, Some(start));
                 return Err(AnalyzeResult {
                     decision: Decision::pass(Vec::new()),
                     tags,
@@ -179,7 +179,7 @@ pub fn inspect_generic_request_map_init<GH: Grasshopper>(
                 logs.debug("Something went wrong during security policy searching");
                 let mut secpol = SecurityPolicy::default();
                 secpol.content_filter_profile.ignore_body = true;
-                let rinfo = map_request(logs, Arc::new(secpol), &raw, Some(start));
+                let rinfo = map_request(logs, Arc::new(secpol), None, &raw, Some(start));
                 return Err(AnalyzeResult {
                     decision: Decision::pass(Vec::new()),
                     tags,

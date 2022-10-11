@@ -1,5 +1,22 @@
 [
     {
+        "match": "www.collision.com",
+        "id": "flowcollisiontests",
+        "name": "flow control collision tests",
+        "map": [
+            {
+                "match": "/",
+                "name": "default",
+                "id": "default",
+                "acl_profile": "flowcontrol",
+                "acl_active": true,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": []
+            }
+        ]
+    },
+    {
         "match": "limitt1.com",
         "id": "limitt1",
         "name": "limit test1",
@@ -7,6 +24,7 @@
             {
                 "match": "/h2",
                 "name": "h2",
+                "id": "h2",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "__default__",
@@ -18,6 +36,7 @@
             {
                 "match": "/h1",
                 "name": "h1",
+                "id": "h1",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "__default__",
@@ -29,6 +48,7 @@
             {
                 "match": "/u2",
                 "name": "u2",
+                "id": "u2",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "__default__",
@@ -40,6 +60,7 @@
             {
                 "match": "/u1",
                 "name": "u1",
+                "id": "u1",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "__default__",
@@ -51,6 +72,7 @@
             {
                 "match": "/",
                 "name": "default",
+                "id": "default",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "__default__",
@@ -70,6 +92,7 @@
             {
                 "match": "/h2",
                 "name": "h2b",
+                "id": "h2b",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "__default__",
@@ -81,6 +104,7 @@
             {
                 "match": "/h1",
                 "name": "h1b",
+                "id": "h1b",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "__default__",
@@ -92,6 +116,7 @@
             {
                 "match": "/u2",
                 "name": "u2b",
+                "id": "u2b",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "__default__",
@@ -103,6 +128,7 @@
             {
                 "match": "/u1",
                 "name": "u1b",
+                "id": "u1b",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "__default__",
@@ -114,6 +140,7 @@
             {
                 "match": "/",
                 "name": "default",
+                "id": "default",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "__default__",
@@ -133,6 +160,7 @@
             {
                 "match": "/",
                 "name": "default",
+                "id": "default",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "__default__",
@@ -149,6 +177,7 @@
             {
                 "match": "/",
                 "name": "default",
+                "id": "default",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "__default__",
@@ -163,8 +192,19 @@
         "name": "default entry",
         "map": [
             {
+                "match": "/flow-test",
+                "name": "flowtest",
+                "id": "flowtest",
+                "acl_profile": "flowcontrol",
+                "acl_active": true,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": []
+            },
+            {
                 "match": "^/content-filter/rl45report3",
                 "name": "rl45report3",
+                "id": "rl45report3",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "rl45report3",
@@ -174,6 +214,7 @@
             {
                 "match": "^/content-filter/rl45ignorebody",
                 "name": "rl45ignorebody",
+                "id": "rl45ignorebody",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "rl45ignorebody",
@@ -183,6 +224,7 @@
             {
                 "match": "^/content-filter/reportpriority",
                 "name": "reportpriority",
+                "id": "reportpriority",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "reportpriority",
@@ -192,6 +234,7 @@
             {
                 "match": "^/content-filter/individualvscategory",
                 "name": "individualvscategory",
+                "id": "individualvscategory",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "individualvscategory",
@@ -201,6 +244,7 @@
             {
                 "match": "^/direct",
                 "name": "direct association",
+                "id": "direct association",
                 "acl_profile": "FROMTAGS",
                 "content_filter_profile": "__default__",
                 "acl_active": true,
@@ -210,6 +254,7 @@
             {
                 "match": "^/content-filter/noinjection",
                 "name": "content filter noinjection tests",
+                "id": "content filter noinjection tests",
                 "acl_profile": "__default__",
                 "content_filter_profile": "noinject",
                 "acl_active": true,
@@ -219,6 +264,7 @@
             {
                 "match": "^/content-filter/lvl2",
                 "name": "content-filter level2",
+                "id": "content-filter level2",
                 "acl_profile": "__default__",
                 "content_filter_profile": "lvl2",
                 "acl_active": true,
@@ -228,6 +274,7 @@
             {
                 "match": "^/content-filter/lvl3",
                 "name": "content filter level3",
+                "id": "content filter level3",
                 "acl_profile": "__default__",
                 "content_filter_profile": "lvl3",
                 "acl_active": true,
@@ -237,6 +284,7 @@
             {
                 "match": "^/content-filter/lvl4",
                 "name": "content filter level4",
+                "id": "content filter level4",
                 "acl_profile": "__default__",
                 "content_filter_profile": "lvl4",
                 "acl_active": true,
@@ -246,6 +294,7 @@
             {
                 "match": "^/content-filter/lvl5",
                 "name": "content filter level5",
+                "id": "content filter level5",
                 "acl_profile": "__default__",
                 "content_filter_profile": "lvl5",
                 "acl_active": true,
@@ -255,6 +304,7 @@
             {
                 "match": "^/content-filter/lvlX135",
                 "name": "content filter level 1.3.5",
+                "id": "content filter level 1.3.5",
                 "acl_profile": "__default__",
                 "content_filter_profile": "lvl135",
                 "acl_active": true,
@@ -264,6 +314,7 @@
             {
                 "match": "^/content-filter/omitted",
                 "name": "content filter omit tests",
+                "id": "content filter omit tests",
                 "acl_profile": "__default__",
                 "content_filter_profile": "omitted",
                 "acl_active": true,
@@ -273,6 +324,7 @@
             {
                 "match": "^/content-filter/args",
                 "name": "content filter args tests",
+                "id": "content filter args tests",
                 "acl_profile": "__default__",
                 "content_filter_profile": "argschecks",
                 "acl_active": true,
@@ -282,6 +334,7 @@
             {
                 "match": "^/waf/maskall",
                 "name": "mask all tests",
+                "id": "mask all tests",
                 "acl_profile": "__default__",
                 "content_filter_profile": "maskall",
                 "acl_active": true,
@@ -291,6 +344,7 @@
             {
                 "match": "^/limits/simple",
                 "name": "limits simple",
+                "id": "limits simple",
                 "acl_profile": "__default__",
                 "content_filter_profile": "__default__",
                 "acl_active": true,
@@ -302,6 +356,7 @@
             {
                 "match": "^/limits/country",
                 "name": "limits country",
+                "id": "limits country",
                 "acl_profile": "__default__",
                 "content_filter_profile": "__default__",
                 "acl_active": true,
@@ -313,6 +368,7 @@
             {
                 "match": "^/limits/include",
                 "name": "limits simple",
+                "id": "limits simple",
                 "acl_profile": "__default__",
                 "content_filter_profile": "__default__",
                 "acl_active": true,
@@ -324,6 +380,7 @@
             {
                 "match": "^/limits/header",
                 "name": "limits header",
+                "id": "limits header",
                 "acl_profile": "__default__",
                 "content_filter_profile": "__default__",
                 "acl_active": true,
@@ -335,6 +392,7 @@
             {
                 "match": "^/limits/method",
                 "name": "limits simple",
+                "id": "limits simple",
                 "acl_profile": "__default__",
                 "content_filter_profile": "__default__",
                 "acl_active": true,
@@ -346,6 +404,7 @@
             {
                 "match": "^/limits/exclude",
                 "name": "limits simple",
+                "id": "limits simple",
                 "acl_profile": "__default__",
                 "content_filter_profile": "__default__",
                 "acl_active": true,
@@ -357,6 +416,7 @@
             {
                 "match": "^/limits/multithreshold",
                 "name": "limits multiple thresholds",
+                "id": "limits multiple thresholds",
                 "acl_profile": "__default__",
                 "acl_active": true,
                 "content_filter_profile": "__default__",
@@ -368,6 +428,7 @@
             {
                 "match": "^/limits/multilimits",
                 "name": "multiple limits same location",
+                "id": "multiple limits same location",
                 "acl_profile": "__default__",
                 "waf_profile": "__default__",
                 "acl_active": true,
@@ -382,6 +443,7 @@
             {
                 "match": "^/rr/",
                 "name": "content filter restrict tests",
+                "id": "content filter restrict tests",
                 "acl_profile": "__default__",
                 "content_filter_profile": "rr",
                 "acl_active": false,
@@ -391,6 +453,7 @@
             {
                 "match": "^/rre/",
                 "name": "content filter restrict exclude tests",
+                "id": "content filter restrict exclude tests",
                 "acl_profile": "__default__",
                 "content_filter_profile": "rre",
                 "acl_active": false,
@@ -399,6 +462,7 @@
             },
             {
                 "name": "content-filter-short-headers",
+                "id": "content-filter-short-headers",
                 "match": "^/content-filter-short-headers/",
                 "acl_profile": "__default__",
                 "acl_active": false,
@@ -408,6 +472,7 @@
             },
             {
                 "name": "scope-country-include",
+                "id": "scope-country-include",
                 "match": "/scope-country-include/",
                 "acl_profile": "__default__",
                 "acl_active": true,
@@ -419,6 +484,7 @@
             },
             {
                 "name": "ban-test",
+                "id": "ban-test",
                 "match": "/limits/ban-test",
                 "acl_profile": "__default__",
                 "acl_active": true,
@@ -430,6 +496,7 @@
             },
             {
                 "name": "multilimit",
+                "id": "multilimit",
                 "match": "/limits/multi",
                 "acl_profile": "__default__",
                 "acl_active": true,
@@ -443,6 +510,7 @@
             {
                 "match": "/content-filter/mixedmatch",
                 "name": "mixed matcher",
+                "id": "mixed matcher",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "mixedmatch",
@@ -452,6 +520,7 @@
             {
                 "match": "/masking",
                 "name": "masking",
+                "id": "masking",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "masking",
@@ -461,6 +530,7 @@
             {
                 "match": "^/content-filter/ignoresqli",
                 "name": "content filter ignore sqli",
+                "id": "content filter ignore sqli",
                 "acl_profile": "__default__",
                 "content_filter_profile": "ignoresqli",
                 "acl_active": true,
@@ -470,6 +540,7 @@
             {
                 "match": "^/content-filter/ignorerl5",
                 "name": "content filter ignore risk level 5",
+                "id": "content filter ignore risk level 5",
                 "acl_profile": "__default__",
                 "content_filter_profile": "ignorerl5",
                 "acl_active": true,
@@ -479,6 +550,7 @@
             {
                 "match": "/content-filter/expect/json",
                 "name": "expectjson",
+                "id": "expectjson",
                 "acl_profile": "FROMTAGS",
                 "acl_active": true,
                 "content_filter_profile": "expectjson",
@@ -488,6 +560,7 @@
             {
                 "match": "/content-filter/expect/xml",
                 "name": "expectxml",
+                "id": "expectxml",
                 "acl_profile": "FROMTAGS",
                 "acl_active": true,
                 "content_filter_profile": "expectxml",
@@ -497,6 +570,7 @@
             {
                 "match": "/content-filter/expect/xmljson",
                 "name": "expectxmljson",
+                "id": "expectxmljson",
                 "acl_profile": "FROMTAGS",
                 "acl_active": true,
                 "content_filter_profile": "expectxmljson",
@@ -506,6 +580,7 @@
             {
                 "match": "/content-filter/expect/all",
                 "name": "expectall",
+                "id": "expectall",
                 "acl_profile": "FROMTAGS",
                 "acl_active": true,
                 "content_filter_profile": "expectall",
@@ -515,6 +590,7 @@
             {
                 "match": "/invertedre",
                 "name": "invertedre",
+                "id": "invertedre",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "invertedre",
@@ -524,6 +600,7 @@
             {
                 "match": "/allsections",
                 "name": "allsections",
+                "id": "allsections",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "allsections",
@@ -533,6 +610,7 @@
             {
                 "match": "/",
                 "name": "default",
+                "id": "default",
                 "acl_profile": "__default__",
                 "acl_active": false,
                 "content_filter_profile": "__default__",
