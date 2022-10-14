@@ -9,8 +9,10 @@ from curieconf import utils
 from curieconf.utils import cloud
 import requests
 from jsonschema import validate
+from jsonschema.exceptions import ValidationError, SchemaError
 from pathlib import Path
 import json
+from functools import wraps
 
 
 api_bp = Blueprint("api_v2", __name__)
@@ -341,14 +343,26 @@ m_db = api.model("db", {})
 
 ### Document Schema validation
 
+def validate_request(f):
+    def error_message(err):
+        try:
+            return str(err.schema["errors"][err.validator])
+        except KeyError:
+            return err.message
 
-def validateJson(json_data, schema_type):
-    try:
-        validate(instance=json_data, schema=schema_type_map[schema_type])
-    except jsonschema.exceptions.ValidationError as err:
-        print(str(err))
-        return False
-    return True
+    @wraps(f)
+    def decorated_validate_request(*args, **kwargs):
+        if kwargs["document"] not in models:
+            abort(404, "document does not exist")
+        try:
+            validate(instance=request.json,
+                     schema=schema_type_map[kwargs["document"]])
+        except ValidationError as err:
+            abort(400, error_message(err))
+        except SchemaError as err:
+            abort(500, err.message)
+        return f(*args, **kwargs)
+    return decorated_validate_request
 
 
 ### Set git actor according to config & defined HTTP headers
@@ -653,10 +667,9 @@ class EntriesResource(Resource):
         res = current_app.backend.entries_list(config, document)
         return res  # XXX: marshal
 
+    @validate_request
     def post(self, config, document):
         "Create an entry in a document"
-        if document not in models:
-            abort(404, "document does not exist")
         data = marshal(request.json, models[document], skip_none=True)
         res = current_app.backend.entries_create(config, document, data, get_gitactor())
         return res
@@ -671,19 +684,14 @@ class EntryResource(Resource):
         res = current_app.backend.entries_get(config, document, entry)
         return marshal(res, models[document], skip_none=True)
 
+    @validate_request
     def put(self, config, document, entry):
         "Update an entry in a document"
-        if document not in models:
-            abort(404, "document does not exist")
-        isValid = validateJson(request.json, document)
-        if isValid:
-            data = marshal(request.json, models[document], skip_none=True)
-            res = current_app.backend.entries_update(
-                config, document, entry, data, get_gitactor()
-            )
-            return res
-        else:
-            abort(500, "schema mismatched")
+        data = marshal(request.json, models[document], skip_none=True)
+        res = current_app.backend.entries_update(
+            config, document, entry, data, get_gitactor()
+        )
+        return res
 
     def delete(self, config, document, entry):
         "Delete an entry from a document"

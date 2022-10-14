@@ -64,6 +64,8 @@
         "sections": {
           "type": "array",
           "uniqueItems": true,
+          "title": "Section list",
+          "description": "A list of sections containing matching rules",
           "items": {
             "type": "object",
             "title": "Rule section",
@@ -72,12 +74,27 @@
               "relation": {
                 "relation": "string",
                 "title": "Entries Relationship",
-                "description": "Boolean relation between entries"
+                "description": "For lists with multiple sections, this is the logical relation to use when evaluating the Match Conditions in the sections."
               },
               "entries": {
                 "type": "array",
-                "title": "Entry Description List",
-                "description": "Array must contain exactly 3 items describing the object. Where the first item contains the category, the second item contains the entry, and the last item contains annotation information"
+                "title": "Match conditions List",
+                "minItems": 1,
+                "description": "Definitions of possible characteristics that a request can match (e.g., a list of IP addresses that it might originate from), plus one or more logical operators to use when evaluating the match.",
+                "errors": {
+                  "minItems": "At least one match condition is required"
+                },
+                "items": {
+                  "title": "Match condition",
+                  "description": "A match condition contain the following elements, the first item contains the category, the second item contains the entry, and, optionally, the last item contains extra information",
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 3,
+                  "errors": {
+                    "minItems": "A match condition must contain at least two elements, the first item contains the category and the second item contains the entry",
+                    "maxItems": "A match condition must contain maximum three elements, the first item contains the category, the second item contains the entry and the third item contains extra information"
+                  }
+                }
               }
             }
           }
