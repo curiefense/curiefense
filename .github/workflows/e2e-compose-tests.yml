@@ -1,0 +1,103 @@
+name: Run e2e tests on docker-compose
+
+on:
+  pull_request:
+    paths:
+      - "deploy/**"
+      - "curiefense/**"
+      - "e2e/**"
+      - ".github/workflows/e2e-compose-tests.yml"
+
+
+jobs:
+  e2e-docker-compose:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: [3.8]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Run tests
+        run: |
+            export BASEDIR=$(git rev-parse --show-toplevel)
+            export VERSION=$(git rev-parse --short=12 HEAD)
+
+            # Deploy all services: istio, curiefense, and echoserver (test app)
+            deploy/deploy-ci-compose.sh
+
+            echo "-- Install curieconfctl --"
+
+            python3 -m venv "$BASEDIR/venv"
+            source "$BASEDIR/venv/bin/activate"
+            pip install --no-cache-dir -r "$BASEDIR/e2e/requirements.txt"
+
+            pushd "curiefense/curieconf/utils"
+            pip install -e .
+            popd
+
+            pushd "curiefense/curieconf/client"
+            pip install -e .
+            popd
+
+            echo "-- Run e2e tests --"
+            pushd e2e
+            IP=127.0.0.1
+            pytest --log-level INFO --base-protected-url http://$IP:30081 --base-conf-url http://$IP:30000/api/v3/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --junit-xml pytest.xml --luatests-path ../curiefense/curieproxy/rust/luatests .
+            popd
+
+            echo "-- Run bitflip tests tests --"
+            echo "TODO"
+            # Here we are not interested in the e2e tests results, almost all
+            # of which are expected to fail. We just want to ensure envoy does
+            # not crash with malformed requests.
+            # A subset of tests is selected to exercise most code paths; not
+            # all tests are run to avoid spending more than 5 minutes on this
+            # in CI
+            pushd e2e
+            echo "bit flip tests"
+            ENVOY_PID_BEFORE=$(pgrep envoy)
+            IP=127.0.0.1
+            pytest --log-level INFO --base-protected-url http://$IP:30081 --base-conf-url http://$IP:30000/api/v3/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --flip-requests --luatests-path ../curiefense/curieproxy/rust/luatests . || true
+            ENVOY_PID_AFTER=$(pgrep envoy)
+            if [ "$ENVOY_PID_BEFORE" != "$ENVOY_PID_AFTER" ]; then
+              echo "Error: probable envoy crash during bitflip smoke testing"
+              exit 1
+            fi
+            popd
+
+
+      - name: Dump compose logs
+        if: ${{ failure() }}
+        run: |
+            # Print logs from all services for debug
+            # purposes.
+            pushd deploy/compose
+            docker-compose logs
+
+      - name: Publish Unit Test Results
+        # TODO implement https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories
+        uses: EnricoMi/publish-unit-test-result-action@ea8720de4a2e723f8204d44fc0178744cf401c1a
+        with:
+          files: e2e/pytest.xml
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          check_name: E2E Test Results on docker-compose
+          comment_title: E2E Test Statistics
+          hide_comments: all but latest
+          comment_on_pr: true
+          report_individual_runs: true
+          deduplicate_classes_by_file_name: false
+        if: >
+          always() &&
+          github.event.sender.login != 'dependabot[bot]' &&
+          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: Unit Test Results
+          path: |
+            e2e/pytest.xml
