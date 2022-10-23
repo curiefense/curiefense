@@ -1,1 +1,1 @@
-[{"id":"__flow_sample__","name":"Flow Control Policy Example","description":"GET to /login page *before* POSTing credentials","active":false,"include":["all"],"exclude":["internal:devops-ci-cd"],"timeframe":60,"tags":["rtc:ato","legit-flow-ui-login"],"key":[{"attrs":"ip"}],"sequence":[{"args":{},"cookies":{},"headers":{"host":"www.example.com"},"method":"GET","uri":"/login"},{"args":{},"cookies":{},"headers":{"host":"www.example.com"},"method":"POST","uri":"/login"}]}]
+../../curiefense/images/confserver/bootstrap/confdb-initial-data/prod/config/json/flow-control.json

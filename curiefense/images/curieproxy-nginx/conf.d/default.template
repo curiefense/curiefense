@@ -16,7 +16,7 @@ server {
     access_log ${AGGREGATED_STATS_LOG_FILE} aggregationlog;
     error_log  ${ERROR_LOG}  ${NGINX_LOG_LEVEL};
 
-    listen 127.0.0.1:8999;
+    listen 8999;
 
     set $aggregated '{}';
 

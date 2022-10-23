@@ -28,6 +28,110 @@ lazy_static! {
     static ref EMPTY_AGGREGATED_DATA: AggregatedCounters = AggregatedCounters::default();
 }
 
+#[derive(Debug, Default)]
+struct Arp<T> {
+    active: T,
+    report: T,
+    pass: T,
+}
+
+#[derive(Clone, Copy)]
+enum ArpCursor {
+    Active,
+    Report,
+    Pass,
+}
+
+impl<T> Arp<T> {
+    fn get(&self, cursor: ArpCursor) -> &T {
+        match cursor {
+            ArpCursor::Active => &self.active,
+            ArpCursor::Report => &self.report,
+            ArpCursor::Pass => &self.pass,
+        }
+    }
+
+    fn get_mut(&mut self, cursor: ArpCursor) -> &mut T {
+        match cursor {
+            ArpCursor::Active => &mut self.active,
+            ArpCursor::Report => &mut self.report,
+            ArpCursor::Pass => &mut self.pass,
+        }
+    }
+}
+
+impl<T: Serialize> Arp<T> {
+    fn serialize(&self, mp: &mut serde_json::Map<String, Value>, prefix: &str) {
+        mp.insert(
+            format!("{}active", prefix),
+            serde_json::to_value(self.get(ArpCursor::Active)).unwrap_or(Value::Null),
+        );
+        mp.insert(
+            format!("{}reported", prefix),
+            serde_json::to_value(self.get(ArpCursor::Report)).unwrap_or(Value::Null),
+        );
+        mp.insert(
+            format!("{}passed", prefix),
+            serde_json::to_value(self.get(ArpCursor::Pass)).unwrap_or(Value::Null),
+        );
+    }
+}
+
+#[derive(Debug, Default)]
+struct AggregatedCounters {
+    status: Bag<u32>,
+    status_classes: Bag<u8>,
+    methods: Bag<String>,
+    bytes_sent: IntegerMetric,
+
+    // by decision
+    hits: usize,
+    requests: Arp<usize>,
+    requests_triggered_globalfilter_active: usize,
+    requests_triggered_globalfilter_report: usize,
+    requests_triggered_cf_active: usize,
+    requests_triggered_cf_report: usize,
+    requests_triggered_acl_active: usize,
+    requests_triggered_acl_report: usize,
+    requests_triggered_ratelimit_active: usize,
+    requests_triggered_ratelimit_report: usize,
+
+    aclid: Arp<TopN<String>>,
+    secpolid: Arp<TopN<String>>,
+    secpolentryid: Arp<TopN<String>>,
+    cfid: Arp<TopN<String>>,
+
+    location: Arp<AggSection>,
+    ruleid: Arp<TopN<String>>,
+    risk_level: Arp<Bag<u8>>,
+    top_tags: Arp<TopN<String>>,
+    top_country_human: TopN<String>,
+    top_country_bot: TopN<String>,
+
+    bot: usize,
+    human: usize,
+    challenge: usize,
+
+    // per request
+    /// Processing time in microseconds
+    processing_time: IntegerMetric,
+    ip: Metric<String>,
+    session: Metric<String>,
+    uri: Metric<String>,
+    user_agent: Metric<String>,
+    country: Metric<String>,
+    asn: Metric<u32>,
+    headers_amount: Bag<usize>,
+    cookies_amount: Bag<usize>,
+    args_amount: Bag<usize>,
+
+    // x by y
+    ip_per_uri: UniqueTopNBy<String, String>,
+    uri_per_ip: UniqueTopNBy<String, String>,
+    session_per_uri: UniqueTopNBy<String, String>,
+    uri_per_session: UniqueTopNBy<String, String>,
+}
+
 #[derive(Debug, PartialEq, Eq, Hash)]
 struct AggregationKey {
     proxy: Option<String>,
@@ -156,34 +260,29 @@ impl<N: Serialize + Eq + std::hash::Hash> Serialize for Bag<N> {
 #[derive(Debug)]
 struct Metric<T: Eq + Clone + std::hash::Hash> {
     unique: HyperLogLog<T>,
-    unique_blocked: HyperLogLog<T>,
-    unique_passed: HyperLogLog<T>,
-    top_blocked: TopN<T>,
-    top_passed: TopN<T>,
+    unique_b: Arp<HyperLogLog<T>>,
+    top: Arp<TopN<T>>,
 }
 
 impl<T: Ord + Clone + std::hash::Hash> Default for Metric<T> {
     fn default() -> Self {
         Self {
             unique: HyperLogLog::new(*HYPERLOGLOG_SIZE),
-            unique_blocked: HyperLogLog::new(*HYPERLOGLOG_SIZE),
-            unique_passed: HyperLogLog::new(*HYPERLOGLOG_SIZE),
-            top_blocked: Default::default(),
-            top_passed: Default::default(),
+            unique_b: Arp {
+                pass: HyperLogLog::new(*HYPERLOGLOG_SIZE),
+                active: HyperLogLog::new(*HYPERLOGLOG_SIZE),
+                report: HyperLogLog::new(*HYPERLOGLOG_SIZE),
+            },
+            top: Default::default(),
         }
     }
 }
 
 impl<T: Ord + std::hash::Hash + Clone> Metric<T> {
-    fn inc(&mut self, n: &T, blocked: bool) {
+    fn inc(&mut self, n: &T, cursor: ArpCursor) {
         self.unique.add(n);
-        if blocked {
-            self.unique_blocked.add(n);
-            self.top_blocked.inc(n.clone());
-        } else {
-            self.unique_passed.add(n);
-            self.top_passed.inc(n.clone());
-        }
+        self.unique_b.get_mut(cursor).add(n);
+        self.top.get_mut(cursor).inc(n.clone());
     }
 }
 
@@ -194,20 +293,28 @@ impl<T: Eq + Clone + std::hash::Hash + Serialize> Metric<T> {
             Value::Number(serde_json::Number::from(self.unique.count())),
         );
         mp.insert(
-            format!("unique_blocked_{}", tp),
-            Value::Number(serde_json::Number::from(self.unique_blocked.count())),
+            format!("unique_active_{}", tp),
+            Value::Number(serde_json::Number::from(self.unique_b.get(ArpCursor::Active).count())),
+        );
+        mp.insert(
+            format!("unique_reported_{}", tp),
+            Value::Number(serde_json::Number::from(self.unique_b.get(ArpCursor::Report).count())),
         );
         mp.insert(
             format!("unique_passed_{}", tp),
-            Value::Number(serde_json::Number::from(self.unique_passed.count())),
+            Value::Number(serde_json::Number::from(self.unique_b.get(ArpCursor::Pass).count())),
         );
         mp.insert(
-            format!("top_blocked_{}", tp),
-            serde_json::to_value(&self.top_blocked).unwrap_or(Value::Null),
+            format!("top_active_{}", tp),
+            serde_json::to_value(&self.top.get(ArpCursor::Active)).unwrap_or(Value::Null),
+        );
+        mp.insert(
+            format!("top_reported_{}", tp),
+            serde_json::to_value(&self.top.get(ArpCursor::Report)).unwrap_or(Value::Null),
         );
         mp.insert(
             format!("top_passed_{}", tp),
-            serde_json::to_value(&self.top_passed).unwrap_or(Value::Null),
+            serde_json::to_value(&self.top.get(ArpCursor::Pass)).unwrap_or(Value::Null),
         );
     }
 }
@@ -301,70 +408,15 @@ pub struct AggSection {
     attrs: usize,
 }
 
-#[derive(Debug, Default)]
-struct AggregatedCounters {
-    status: Bag<u32>,
-    status_classes: Bag<u8>,
-    methods: Bag<String>,
-    _dbytes: usize,
-    _ubytes: usize,
-
-    // by decision
-    hits: usize,
-    blocks: usize,
-    report: usize,
-    requests_triggered_globalfilter_active: usize,
-    requests_triggered_globalfilter_report: usize,
-    requests_triggered_cf_active: usize,
-    requests_triggered_cf_report: usize,
-    requests_triggered_acl_active: usize,
-    requests_triggered_acl_report: usize,
-    requests_triggered_ratelimit_active: usize,
-    requests_triggered_ratelimit_report: usize,
-
-    aclid_active: TopN<String>,
-    aclid_report: TopN<String>,
-    secpolid_active: TopN<String>,
-    secpolid_report: TopN<String>,
-    secpolentryid_active: TopN<String>,
-    secpolentryid_report: TopN<String>,
-    cfid_active: TopN<String>,
-    cfid_report: TopN<String>,
-
-    location_active: AggSection,
-    location_report: AggSection,
-    ruleid_active: TopN<String>,
-    ruleid_report: TopN<String>,
-    risk_level_active: Bag<u8>,
-    risk_level_report: Bag<u8>,
-
-    bot: usize,
-    human: usize,
-    challenge: usize,
-
-    // per request
-    /// Processing time in microseconds
-    processing_time: IntegerMetric,
-    ip: Metric<String>,
-    session: Metric<String>,
-    uri: Metric<String>,
-    user_agent: Metric<String>,
-    country: Metric<String>,
-    asn: Metric<u32>,
-    top_tags: TopN<String>,
-    headers_amount: Bag<usize>,
-    cookies_amount: Bag<usize>,
-    args_amount: Bag<usize>,
-
-    // x by y
-    ip_per_uri: UniqueTopNBy<String, String>,
-    uri_per_ip: UniqueTopNBy<String, String>,
-    session_per_uri: UniqueTopNBy<String, String>,
-    uri_per_session: UniqueTopNBy<String, String>,
-}
-
 impl AggregatedCounters {
-    fn increment(&mut self, dec: &Decision, rcode: Option<u32>, rinfo: &RequestInfo, tags: &Tags) {
+    fn increment(
+        &mut self,
+        dec: &Decision,
+        rcode: Option<u32>,
+        rinfo: &RequestInfo,
+        tags: &Tags,
+        bytes_sent: Option<usize>,
+    ) {
         self.hits += 1;
 
         let mut blocked = false;
@@ -427,17 +479,17 @@ impl AggregatedCounters {
                 }
 
                 ContentFilter { ruleid, risk_level } => {
-                    if this_blocked {
+                    let cursor = if this_blocked {
                         cf_blocked = true;
                         self.requests_triggered_cf_active += 1;
-                        self.ruleid_active.inc(ruleid.clone());
-                        self.risk_level_active.inc(*risk_level);
+                        ArpCursor::Active
                     } else {
                         cf_report = true;
                         self.requests_triggered_cf_report += 1;
-                        self.ruleid_report.inc(ruleid.clone());
-                        self.risk_level_report.inc(*risk_level);
-                    }
+                        ArpCursor::Report
+                    };
+                    self.ruleid.get_mut(cursor).inc(ruleid.clone());
+                    self.risk_level.get_mut(cursor).inc(*risk_level);
                 }
                 BodyTooDeep { actual: _, expected: _ }
                 | BodyMissing
@@ -456,19 +508,30 @@ impl AggregatedCounters {
             }
             for loc in &r.location {
                 let aggloc = if this_blocked {
-                    &mut self.location_active
+                    self.location.get_mut(ArpCursor::Active)
                 } else {
-                    &mut self.location_report
+                    self.location.get_mut(ArpCursor::Report)
                 };
                 match loc {
                     Location::Body => aggloc.body += 1,
                     Location::Attributes => aggloc.attrs += 1,
                     Location::Uri => aggloc.uri += 1,
                     Location::Headers => aggloc.headers += 1,
-                    Location::BodyArgument(_) | Location::RefererArgument(_) | Location::UriArgument(_) => {
-                        aggloc.args += 1
-                    }
-                    _ => (),
+                    Location::UriArgumentValue(_, _)
+                    | Location::RefererArgumentValue(_, _)
+                    | Location::BodyArgumentValue(_, _)
+                    | Location::BodyArgument(_)
+                    | Location::RefererArgument(_)
+                    | Location::UriArgument(_) => aggloc.args += 1,
+                    Location::Request => (),
+                    Location::Ip => aggloc.attrs += 1,
+                    Location::Path | Location::Pathpart(_) | Location::PathpartValue(_, _) => aggloc.uri += 1,
+                    Location::Header(_)
+                    | Location::HeaderValue(_, _)
+                    | Location::RefererPath
+                    | Location::RefererPathpart(_)
+                    | Location::RefererPathpartValue(_, _) => aggloc.headers += 1,
+                    Location::Cookies | Location::Cookie(_) | Location::CookieValue(_, _) => aggloc.headers += 1,
                 }
             }
         }
@@ -478,35 +541,67 @@ impl AggregatedCounters {
         cf_report |= cf_blocked & !skipped;
         cf_blocked &= !skipped;
 
-        if acl_blocked {
-            self.aclid_active.inc(rinfo.rinfo.secpolicy.acl_profile.id.to_string());
-        }
-        if acl_report {
-            self.aclid_report.inc(rinfo.rinfo.secpolicy.acl_profile.id.to_string());
-        }
-        if cf_blocked {
-            self.cfid_active
-                .inc(rinfo.rinfo.secpolicy.content_filter_profile.id.to_string());
-        }
-        if cf_report {
-            self.cfid_report
-                .inc(rinfo.rinfo.secpolicy.content_filter_profile.id.to_string());
-        }
-        if blocked {
-            self.secpolid_active.inc(rinfo.rinfo.secpolicy.policy.id.to_string());
-            self.secpolentryid_active
-                .inc(rinfo.rinfo.secpolicy.entry.id.to_string());
-            self.blocks += 1;
+        let acl_cursor = if acl_blocked {
+            ArpCursor::Active
+        } else if acl_report {
+            ArpCursor::Report
         } else {
-            self.secpolid_report.inc(rinfo.rinfo.secpolicy.policy.id.to_string());
-            self.secpolentryid_report
-                .inc(rinfo.rinfo.secpolicy.entry.id.to_string());
-            self.report += 1;
+            ArpCursor::Pass
+        };
+        let cf_cursor = if cf_blocked {
+            ArpCursor::Active
+        } else if cf_report {
+            ArpCursor::Report
+        } else {
+            ArpCursor::Pass
+        };
+
+        let cursor = if blocked {
+            ArpCursor::Active
+        } else if dec.reasons.is_empty() || skipped {
+            ArpCursor::Pass
+        } else {
+            ArpCursor::Report
+        };
+
+        self.aclid
+            .get_mut(acl_cursor)
+            .inc(rinfo.rinfo.secpolicy.acl_profile.id.to_string());
+        self.cfid
+            .get_mut(cf_cursor)
+            .inc(rinfo.rinfo.secpolicy.content_filter_profile.id.to_string());
+        *self.requests.get_mut(cursor) += 1;
+        self.secpolid
+            .get_mut(cursor)
+            .inc(rinfo.rinfo.secpolicy.policy.id.to_string());
+        self.secpolentryid
+            .get_mut(cursor)
+            .inc(rinfo.rinfo.secpolicy.entry.id.to_string());
+        let top_tags = self.top_tags.get_mut(cursor);
+
+        let mut human = false;
+        for tag in tags.tags.keys() {
+            match tag.as_str() {
+                "all" => (),
+                "bot" => self.bot += 1,
+                "human" => {
+                    human = true;
+                    self.human += 1
+                }
+                tg => {
+                    if !tg.contains(':') {
+                        top_tags.inc(tg.to_string())
+                    }
+                }
+            }
         }
 
         if let Some(code) = rcode {
             self.status.inc(code);
             self.status_classes.inc((code / 100) as u8);
+        }
+        if let Some(bytes_sent) = bytes_sent {
+            self.bytes_sent.increment(bytes_sent as i64);
         }
 
         self.methods.inc(rinfo.rinfo.meta.method.clone());
@@ -515,30 +610,22 @@ impl AggregatedCounters {
             self.processing_time.increment(processing_time)
         }
 
-        self.ip.inc(&rinfo.rinfo.geoip.ipstr, blocked);
-        self.session.inc(&rinfo.session, blocked);
-        self.uri.inc(&rinfo.rinfo.qinfo.uri, blocked);
+        self.ip.inc(&rinfo.rinfo.geoip.ipstr, cursor);
+        self.session.inc(&rinfo.session, cursor);
+        self.uri.inc(&rinfo.rinfo.qinfo.uri, cursor);
         if let Some(user_agent) = &rinfo.headers.get("user-agent") {
-            self.user_agent.inc(user_agent, blocked);
+            self.user_agent.inc(user_agent, cursor);
         }
         if let Some(country) = &rinfo.rinfo.geoip.country_iso {
-            self.country.inc(country, blocked);
+            self.country.inc(country, cursor);
+            if human {
+                self.top_country_human.inc(country.to_string());
+            } else {
+                self.top_country_bot.inc(country.to_string());
+            }
         }
         if let Some(asn) = &rinfo.rinfo.geoip.asn {
-            self.asn.inc(asn, blocked);
-        }
-
-        for tag in tags.tags.keys() {
-            match tag.as_str() {
-                "all" => (),
-                "bot" => self.bot += 1,
-                "human" => self.human += 1,
-                tg => {
-                    if !tg.contains(':') {
-                        self.top_tags.inc(tg.to_string())
-                    }
-                }
-            }
+            self.asn.inc(asn, cursor);
         }
 
         self.args_amount.inc(rinfo.rinfo.qinfo.args.len());
@@ -554,71 +641,38 @@ impl AggregatedCounters {
     }
 }
 
-/* missing:
-
-  * d_bytes
-  * u_bytes
-  * processing time
-  *
-*/
-
 fn serialize_counters(e: &AggregatedCounters) -> Value {
     let mut content = serde_json::Map::new();
 
     content.insert("hits".into(), Value::Number(serde_json::Number::from(e.hits)));
-    content.insert("blocks".into(), Value::Number(serde_json::Number::from(e.blocks)));
-    content.insert("report".into(), Value::Number(serde_json::Number::from(e.report)));
+    content.insert(
+        "active".into(),
+        Value::Number(serde_json::Number::from(*e.requests.get(ArpCursor::Active))),
+    );
+    content.insert(
+        "reported".into(),
+        Value::Number(serde_json::Number::from(*e.requests.get(ArpCursor::Report))),
+    );
+    content.insert(
+        "passed".into(),
+        Value::Number(serde_json::Number::from(*e.requests.get(ArpCursor::Pass))),
+    );
     content.insert("bot".into(), Value::Number(serde_json::Number::from(e.bot)));
     content.insert("human".into(), Value::Number(serde_json::Number::from(e.human)));
     content.insert("challenge".into(), Value::Number(serde_json::Number::from(e.challenge)));
 
+    e.location.serialize(&mut content, "section_");
+    e.ruleid.serialize(&mut content, "top_ruleid_");
+    e.aclid.serialize(&mut content, "top_aclid_");
+    e.secpolid.serialize(&mut content, "top_secpolid_");
+    e.secpolentryid.serialize(&mut content, "top_secpolentryid_");
     content.insert(
-        "cf_section_active".into(),
-        serde_json::to_value(&e.location_active).unwrap_or(Value::Null),
+        "risk_level_active".into(),
+        serde_json::to_value(e.risk_level.get(ArpCursor::Active)).unwrap_or(Value::Null),
     );
     content.insert(
-        "cf_section_report".into(),
-        serde_json::to_value(&e.location_report).unwrap_or(Value::Null),
-    );
-    content.insert(
-        "cf_top_ruleid_active".into(),
-        serde_json::to_value(&e.ruleid_active).unwrap_or(Value::Null),
-    );
-    content.insert(
-        "cf_top_ruleid_report".into(),
-        serde_json::to_value(&e.ruleid_report).unwrap_or(Value::Null),
-    );
-    content.insert(
-        "cf_top_aclid_active".into(),
-        serde_json::to_value(&e.aclid_active).unwrap_or(Value::Null),
-    );
-    content.insert(
-        "cf_top_aclid_report".into(),
-        serde_json::to_value(&e.aclid_report).unwrap_or(Value::Null),
-    );
-    content.insert(
-        "cf_top_secpolid_active".into(),
-        serde_json::to_value(&e.secpolid_active).unwrap_or(Value::Null),
-    );
-    content.insert(
-        "cf_top_secpolid_report".into(),
-        serde_json::to_value(&e.secpolid_report).unwrap_or(Value::Null),
-    );
-    content.insert(
-        "cf_top_secpolentryid_active".into(),
-        serde_json::to_value(&e.secpolentryid_active).unwrap_or(Value::Null),
-    );
-    content.insert(
-        "cf_top_secpolentryid_report".into(),
-        serde_json::to_value(&e.secpolentryid_report).unwrap_or(Value::Null),
-    );
-    content.insert(
-        "cf_risk_level_active".into(),
-        serde_json::to_value(&e.risk_level_active).unwrap_or(Value::Null),
-    );
-    content.insert(
-        "cf_risk_level_report".into(),
-        serde_json::to_value(&e.risk_level_report).unwrap_or(Value::Null),
+        "risk_level_report".into(),
+        serde_json::to_value(e.risk_level.get(ArpCursor::Report)).unwrap_or(Value::Null),
     );
     content.insert(
         "requests_triggered_globalfilter_active".into(),
@@ -654,6 +708,7 @@ fn serialize_counters(e: &AggregatedCounters) -> Value {
     );
 
     content.insert("processing_time".into(), e.processing_time.to_json());
+    content.insert("bytes_sent".into(), e.bytes_sent.to_json());
     e.ip.serialize_map("ip", &mut content);
     e.session.serialize_map("session", &mut content);
     e.uri.serialize_map("uri", &mut content);
@@ -665,10 +720,7 @@ fn serialize_counters(e: &AggregatedCounters) -> Value {
     content.insert("status_classes".into(), e.status_classes.serialize_top());
     content.insert("methods".into(), e.methods.serialize_top());
 
-    content.insert(
-        "top_tags".into(),
-        serde_json::to_value(&e.top_tags).unwrap_or(Value::Null),
-    );
+    e.top_tags.serialize(&mut content, "top_tags_");
     content.insert("top_request_per_cookies".into(), e.cookies_amount.serialize_top());
     content.insert("top_request_per_args".into(), e.args_amount.serialize_top());
     content.insert("top_request_per_headers".into(), e.headers_amount.serialize_top());
@@ -782,7 +834,13 @@ pub fn aggregated_values_block() -> String {
 }
 
 /// adds new data to the aggregator
-pub async fn aggregate(dec: &Decision, rcode: Option<u32>, rinfo: &RequestInfo, tags: &Tags) {
+pub async fn aggregate(
+    dec: &Decision,
+    rcode: Option<u32>,
+    rinfo: &RequestInfo,
+    tags: &Tags,
+    bytes_sent: Option<usize>,
+) {
     let seconds = rinfo.timestamp.timestamp();
     let key = AggregationKey {
         proxy: rinfo.rinfo.container_name.clone(),
@@ -793,5 +851,5 @@ pub async fn aggregate(dec: &Decision, rcode: Option<u32>, rinfo: &RequestInfo, 
     prune_old_values(&mut guard, seconds);
     let entry_hdrs = guard.entry(key).or_default();
     let entry = entry_hdrs.entry(seconds).or_default();
-    entry.increment(dec, rcode, rinfo, tags);
+    entry.increment(dec, rcode, rinfo, tags, bytes_sent);
 }

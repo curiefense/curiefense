@@ -267,6 +267,7 @@ m_document_mask = api.model(
         "thresholds": fields.List(fields.Nested(m_threshold)),
         "pairwith": fields.Raw(),
         "content_type": fields.List(fields.String()),
+        "params": fields.Raw(),
         "decoding": fields.Raw(),
         "category": fields.String(),
         "subcategory": fields.String(),

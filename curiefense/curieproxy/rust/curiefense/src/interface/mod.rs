@@ -136,9 +136,10 @@ pub async fn jsonlog(
 ) -> (Vec<u8>, chrono::DateTime<chrono::Utc>) {
     let now = mrinfo.map(|i| i.timestamp).unwrap_or_else(chrono::Utc::now);
     let status_code = rcode.or_else(|| proxy.get("status").and_then(|stt_str| stt_str.parse().ok()));
+    let bytes_sent = proxy.get("bytes_sent").and_then(|s| s.parse().ok());
     match mrinfo {
         Some(rinfo) => {
-            aggregator::aggregate(dec, status_code, rinfo, tags).await;
+            aggregator::aggregate(dec, status_code, rinfo, tags, bytes_sent).await;
             match jsonlog_rinfo(dec, rinfo, status_code, tags, stats, logs, proxy, &now) {
                 Err(rr) => {
                     println!("JSON creation error: {}", rr);
@@ -173,7 +174,8 @@ pub fn jsonlog_rinfo(
     map_ser.serialize_entry("@timestamp", now)?;
     map_ser.serialize_entry("curiesession", &rinfo.session)?;
     map_ser.serialize_entry("curiesession_ids", &NameValue::new(&rinfo.session_ids))?;
-    map_ser.serialize_entry("request_id", &rinfo.rinfo.meta.requestid)?;
+    let request_id = proxy.get("request_id").or(rinfo.rinfo.meta.requestid.as_ref());
+    map_ser.serialize_entry("request_id", &request_id)?;
     map_ser.serialize_entry("arguments", &rinfo.rinfo.qinfo.args)?;
     map_ser.serialize_entry("path", &rinfo.rinfo.qinfo.qpath)?;
     map_ser.serialize_entry("path_parts", &rinfo.rinfo.qinfo.path_as_map)?;
@@ -323,9 +325,6 @@ pub fn jsonlog_rinfo(
             mp.end()
         }
     }
-    map_ser.serialize_entry("profiling", &EmptyMap)?;
-    map_ser.serialize_entry("biometric", &EmptyMap)?;
-
     SerializeMap::end(map_ser)?;
     Ok(outbuffer)
 }

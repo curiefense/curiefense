@@ -7,7 +7,7 @@
     ],
     "branch_buckets": [
         {
-            "name": "master",
+            "name": "prod",
             "buckets": [
                 "prod"
             ]

@@ -9,16 +9,18 @@
         "title": "Sections Relationship",
         "description": "Boolean relation between entries"
     },
-    "entries_array": {
+    "entry": {
         "type": "array",
         "title": "Entry Description List",
-        "description": "Array must contain exactly 3 items describing the object. Where the first item contains the category, the second item contains the entry, and the last item contains annotation information"
+        "description": "Array must contain exactly 3 items describing the object. Where the first item contains the category, the second item contains the entry, and the last item contains annotation information",
+        "minItems": 3,
+        "maxItems": 3
     },
     "rule": {
       "title": "Rule",
       "description": "List of rules defining the list",
       "oneOf": [
-        { "$ref": "#/definitions/entries_array" },
+        { "$ref": "#/definitions/entry" },
         {
             "type": "object",
             "properties": {

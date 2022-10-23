@@ -3,7 +3,7 @@
 CURL="curl --silent --write-out %{http_code}\n -H Content-Type:application/json --output /dev/null"
 
 configure_links () {
-	URL="http://confserver/api/v2/db/system/k/links/"
+	URL="http://confserver/api/v3/db/system/k/links/"
 	DATA="{\"kibana_url\":\"$KIBANA_UI_URL\",\"grafana_url\":\"$GRAFANA_UI_URL\"}"
 	if $CURL "$URL" -X PUT -H 'Accept: application/json' --data-raw "$DATA"| grep -qv 200; then
 		sleep 5

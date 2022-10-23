@@ -68,8 +68,8 @@ services:
     restart: always
     volumes:
       - curieproxy_config:/cf-config
-      # - ./filebeat/ilm.json:/usr/share/filebeat/ilm.json
-      # - ./filebeat/template.json:/usr/share/filebeat/template.json
+      - ./filebeat/ilm.json:/usr/share/filebeat/ilm.json
+      - ./filebeat/template.json:/usr/share/filebeat/template.json
     environment:
       # - ENVOY_UID
       - XFF_TRUSTED_HOPS
@@ -84,8 +84,8 @@ services:
       - NGINX_ERROR_LOG
       - CF_LOG_LEVEL
       - NGINX_LOG_LEVEL
-      # - ELASTICSEARCH_URL=http://elasticsearch:9200
-      # - KIBANA_URL=http://kibana:5601
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - KIBANA_URL=http://kibana:5601
     networks:
       curiemesh:
         aliases:
@@ -95,27 +95,10 @@ services:
       - "31082:31082"
       - "31444:31083"
       - "31445:31084"
+      - "8999:8999"
     secrets:
       - curieproxysslcrt
       - curieproxysslkey
-
-  # extproc:
-  #   container_name: extproc
-  #   hostname: extproc
-  #   image: "curiefense/extproc:${DOCKER_TAG}"
-  #   restart: always
-  #   volumes:
-  #     - curieproxy_config:/cf-config
-  #   environment:
-  #     - XFF_TRUSTED_HOPS
-  #     - EXTPROC_LOG_LEVEL
-  #     - ELASTICSEARCH
-  #   networks:
-  #     curiemesh:
-  #       aliases:
-  #         - extproc
-  #   ports:
-  #     - "50051:50051"
 
   confserver:
     container_name: confserver
@@ -149,7 +132,7 @@ services:
     networks:
       curiemesh:
         aliases:
-          - curieproxy
+          - juiceshop
     ports:
       - "3000:3000"
 
@@ -171,6 +154,22 @@ services:
       - s3cfg
 #      - gc
 #      - azr
+
+  trafficmetricsexporter:
+    container_name: trafficmetricsexporter
+    hostname: trafficmetricsexporter
+    image: "curiefense/traffic-metrics-exporter:${DOCKER_TAG}"
+    restart: always
+    depends_on:
+      - mongodb
+    environment:
+      - PROMETHEUS_DISABLE_CREATED_SERIES=true
+      - MONGODB_URI=mongodb://mongodb:27017/
+      - MONGODB_METRICS_DB=curiemetrics
+      - MONGODB_METRICS_COLLECTION=metrics1s
+      - METRICS_URI=http://curieproxyngx:8999/
+    networks:
+      - curiemesh
 
   redis:
     container_name: redis
@@ -238,42 +237,54 @@ services:
     ports:
       - 30300:3000
 
-  # elasticsearch:
-  #   container_name: elasticsearch
-  #   hostname: elasticsearch
-  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.13.3
-  #   restart: always
-  #   volumes:
-  #     - persistent_elasticsearch:/usr/share/elasticsearch/data
-  #   environment:
-  #     - node.name=es
-  #     - cluster.name=curiefense-es-cluster
-  #     - discovery.type=single-node
-  #     - bootstrap.memory_lock=true
-  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-  #   networks:
-  #     - curiemesh
-  #   ports:
-  #     - 9200:9200
-  #   ulimits:
-  #     memlock:
-  #       soft: -1
-  #       hard: -1
+  elasticsearch:
+    container_name: elasticsearch
+    hostname: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.6
+    restart: always
+    volumes:
+      - persistent_elasticsearch:/usr/share/elasticsearch/data
+    environment:
+      - node.name=es
+      - cluster.name=curiefense-es-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    networks:
+      - curiemesh
+    ports:
+      - 9200:9200
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
 
-  # kibana:
-  #   container_name: kibana
-  #   hostname: kibana
-  #   image: docker.elastic.co/kibana/kibana:7.13.3
-  #   restart: always
-  #   environment:
-  #     - ELASTICSEARCH_URL=http://elasticsearch:9200
-  #     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-  #     - TELEMETRY_ENABLED=false
-  #     - TELEMETRY_OPTIN=false
-  #   networks:
-  #     - curiemesh
-  #   ports:
-  #     - 5601:5601
+  kibana:
+    container_name: kibana
+    hostname: kibana
+    image: docker.elastic.co/kibana/kibana:7.17.6
+    restart: always
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - TELEMETRY_ENABLED=false
+      - TELEMETRY_OPTIN=false
+    networks:
+      - curiemesh
+    ports:
+      - 5601:5601
+
+  mongodb:
+    container_name: mongodb
+    hostname: mongodb
+    image: docker.io/bitnami/mongodb:6.0
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - 'mongodb_data:/bitnami/mongodb'
+    networks:
+      - curiemesh
 
 networks:
   curiemesh:
@@ -295,6 +306,8 @@ volumes:
   local_bucket:
   # shared between curiesync and curieproxy
   curieproxy_config:
+  mongodb_data:
+    driver: local
 
 secrets:
   s3cfg:

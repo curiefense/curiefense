@@ -589,11 +589,12 @@ pub fn map_request(
     };
 
     let session = session_string(&raw_session);
-    let session_ids = secpolicy
-        .session_ids
-        .iter()
-        .filter_map(|s| select_string(&dummy_reqinfo, s, None).map(|str| (s.to_string(), session_string(&str))))
-        .collect();
+    let session_ids =
+        std::iter::once(("sessionid".into(), session.clone()))
+            .chain(secpolicy.session_ids.iter().filter_map(|s| {
+                select_string(&dummy_reqinfo, s, None).map(|str| (s.to_string(), session_string(&str)))
+            }))
+            .collect();
 
     RequestInfo {
         timestamp: dummy_reqinfo.timestamp,

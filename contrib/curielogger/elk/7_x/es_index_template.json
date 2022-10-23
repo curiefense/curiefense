@@ -2,26 +2,33 @@
   "index_patterns": [
     "curieaccesslog-*"
   ],
-  "version": 1,
-  "priority": 200,
-  "composed_of": [],
-  "_meta": {
-    "description": "Curiefense's index template "
-  },
   "template": {
-    "settings": {
-      "index": {
-        "lifecycle": {
-          "name": "curieaccesslog",
-          "rollover_alias": "curieaccesslog"
-        }
-      }
-    },
+    "settings": {},
     "mappings": {
-      "dynamic_templates": [],
       "properties": {
         "timestamp": {
           "type": "date_nanos"
+        },
+        "processing_stage": {
+          "type": "integer"
+        },
+        "uri": {
+          "type": "keyword"
+        },
+        "reason": {
+          "type": "text"
+        },
+        "curiesession": {
+          "type": "keyword"
+        },
+        "curiesession_ids": {
+          "type": "flattened"
+        },
+        "request_id": {
+          "type": "keyword"
+        },
+        "path": {
+          "type": "keyword"
         },
         "acl_triggers": {
           "type": "nested"
@@ -32,17 +39,14 @@
         "authority": {
           "type": "keyword"
         },
+        "global_filter_triggers": {
+          "type": "nested"
+        },
         "content_filter_triggers": {
           "type": "nested"
         },
         "cookies": {
           "type": "flattened"
-        },
-        "custom_response": {
-          "type": "boolean"
-        },
-        "flow_control_triggers": {
-          "type": "nested"
         },
         "global_filters_triggers": {
           "type": "nested"
@@ -62,18 +66,8 @@
         "path_parts": {
           "type": "flattened"
         },
-        "profiling": {
-          "type": "nested"
-        },
         "proxy": {
-          "type": "object",
-          "properties": {
-            "location": {
-              "type": "geo_point",
-              "ignore_malformed": true,
-              "ignore_z_value": true
-            }
-          }
+          "type": "flattened"
         },
         "rate_limit_triggers": {
           "type": "nested"
@@ -125,12 +119,6 @@
             "content_filters_active": {
               "type": "integer"
             },
-            "flow_control": {
-              "type": "integer"
-            },
-            "flow_control_active": {
-              "type": "integer"
-            },
             "global_filters": {
               "type": "integer"
             },
@@ -144,12 +132,8 @@
               "type": "integer"
             }
           }
-        },
-        "uri": {
-          "type": "text"
         }
       }
-    },
-    "aliases": {}
+    }
   }
 }

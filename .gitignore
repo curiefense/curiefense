@@ -1,3 +1,4 @@
+sandbox/bootstrap/apiclient.py
 *.ssl
 # Mac OS X files
 .DS_Store

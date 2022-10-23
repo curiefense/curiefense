@@ -29,7 +29,7 @@ fi
 
 
 ESCAPED_REPL_BUCKET="${REPL_BUCKET//\//\\\/}"
-URL="http://localhost/api/v2/db/system/k/publishinfo/"
+URL="http://localhost/api/v3/db/system/k/publishinfo/"
 
 # First, configure a single bucket to match $BUCKET
 STATUS=1
@@ -51,7 +51,7 @@ else
 	echo "Configuration of bucket $BUCKET successful"
 fi
 
-URL="http://localhost/api/v2/tools/publish/master/"
+URL="http://localhost/api/v3/tools/publish/prod/"
 
 # Export configuration to $BUCKET
 STATUS=1
@@ -59,7 +59,7 @@ until [ "$RETRIES" -ge 10 ]
 do
 	echo "Trying to request export to bucket $BUCKET..."
 	sleep 5
-	if curl --silent --show-error --fail -X PUT "$URL" -H  "accept: application/json" -H  "Content-Type: application/json" -d "[{\"name\": \"local\", \"url\": \"$BUCKET\"}]"; then
+	if curl --silent --show-error --fail -X PUT "$URL" -H  "accept: application/json" -H  "Content-Type: application/json" -d "[{\"name\": \"prod\", \"url\": \"$BUCKET\"}]"; then
 		STATUS=0
 		break
 	fi
