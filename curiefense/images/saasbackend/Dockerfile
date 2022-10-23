@@ -4,7 +4,7 @@ EXPOSE 8911
 
 WORKDIR /
 
-RUN git clone https://oauth2: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@github.com/reblaze/main-repo.git
+RUN git clone https://oauth2:{REBLAZE_GIT_TOKEN}@github.com/reblaze/main-repo.git
 
 RUN ln -sf /init/uwsgi.ini /app/uwsgi.ini
 

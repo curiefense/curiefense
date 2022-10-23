@@ -200,8 +200,7 @@ services:
   uiserver:
     container_name: uiserver
     hostname: uiserver
-    build:
-      context: ../../curiefense/images/uiserver
+    image: "curiefense/uiserver:${DOCKER_TAG}"
     restart: always
     networks:
       - confnet
