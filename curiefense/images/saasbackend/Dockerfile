@@ -4,8 +4,6 @@ EXPOSE 8911
 
 WORKDIR /
 
-RUN git clone https://oauth2:{REBLAZE_GIT_TOKEN}@github.com/reblaze/main-repo.git
-
 RUN ln -sf /init/uwsgi.ini /app/uwsgi.ini
 
 # copy src files
