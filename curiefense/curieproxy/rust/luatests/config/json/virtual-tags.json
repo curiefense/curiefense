@@ -3,7 +3,7 @@
     "id": "vtags_r1",
     "name": "Flows",
     "description": "Flows vtag",
-    "match": [
+    "vmatch": [
       {
         "vtag": "flow",
         "tags": ["flow1", "flow2", "flow3"]
@@ -35,7 +35,7 @@
     "id": "vtags_r2",
     "name": "Test Virtual Tags",
     "description": "Global filter vtag",
-    "match": [
+    "vmatch": [
       {
         "vtag": "vtag-tagbyip",
         "tags": ["tagbyip"]

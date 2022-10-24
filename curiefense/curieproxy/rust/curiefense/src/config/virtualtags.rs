@@ -11,7 +11,7 @@ pub fn vtags_resolve(_logs: &mut Logs, rawentries: Vec<RawVirtualTag>) -> Virtua
     let mut out: HashMap<String, Vec<String>> = HashMap::new();
 
     for rawentry in rawentries {
-        for matchentry in rawentry.match_.into_iter() {
+        for matchentry in rawentry.vmatch.into_iter() {
             let vtag = tagify(matchentry.vtag.as_str());
             for rawtag in matchentry.tags.into_iter() {
                 let tag = tagify(rawtag.as_str());

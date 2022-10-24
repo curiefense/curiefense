@@ -480,8 +480,7 @@ pub struct RawVirtualTag {
     pub id: String,
     pub name: String,
     pub description: String,
-    #[serde(rename = "match")]
-    pub match_: Vec<RawVirtualTagMatch>,
+    pub vmatch: Vec<RawVirtualTagMatch>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

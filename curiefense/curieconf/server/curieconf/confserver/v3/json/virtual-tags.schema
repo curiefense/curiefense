@@ -20,7 +20,7 @@
             "title": "Description",
             "description": "Description of entity shown in UI"
         },
-        "match": {
+        "vmatch": {
             "type": "array",
             "title": "Tags Array",
             "description": "Tags Array",
