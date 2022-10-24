@@ -15,6 +15,7 @@ COPY curieconf-utils /curieconf-utils
 RUN cd /curieconf-utils ; pip3 install --no-cache-dir .
 COPY curieconf-client /curieconf-client
 RUN cd /curieconf-client ; pip3 install --no-cache-dir .
+RUN pip3 install --upgrade pip
 RUN pip3 install -t /usr/local/lib/python3.7/dist-packages --no-cache-dir pyrsistent
 COPY init /init
 

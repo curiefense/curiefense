@@ -17,6 +17,8 @@ RUN openssl req -new -newkey rsa:4096 -days 3650 -nodes -x509 -subj "/C=fr/O=cur
 RUN mkfifo /nginx-accesslogs
 
 COPY start.sh /usr/bin/
+COPY nginx-conf-reload.sh /usr/bin/
+COPY nginx-conf-watch.sh /usr/bin/
 
 RUN curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.17.6-amd64.deb && dpkg -i filebeat-7.17.6-amd64.deb && rm filebeat-7.17.6-amd64.deb
 COPY filebeat/filebeat-nginx.yml /etc/filebeat.yml
