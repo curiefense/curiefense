@@ -211,6 +211,20 @@ services:
       - uisslcrt
       - uisslkey
 
+  saasbackend:
+    container_name: saaasbackend
+    hostname: saaasbackend
+    build:
+      context: ../../curiefense/images/saasbackend
+    restart: always
+    tty: true
+    environment:
+      - CONFSERVER_URL=http://confserver/api/v3/
+    networks:
+      - confnet
+    ports:
+      - "30001:8911"
+
   prometheus:
     container_name: prometheus
     hostname: prometheus
