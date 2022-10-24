@@ -214,6 +214,7 @@ services:
   saasbackend:
     container_name: saaasbackend
     hostname: saaasbackend
+    image: "gcr.io/rbz-dev-002/saasbackend:${DOCKER_TAG}"
     build:
       context: ../../curiefense/images/saasbackend
     restart: always

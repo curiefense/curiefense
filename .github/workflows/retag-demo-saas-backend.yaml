@@ -1,9 +1,13 @@
-name: Manual Build SaaS Backend Image
+name: Manual Retag SaaS Backend Image
 on:
   workflow_dispatch:
     inputs:
       BASE_IMAGE_TAG:
         description: 'Tag of base SaaS Backend image:'
+        required: true
+        default: 'main'
+      NEW_IMAGE_TAG:
+        description: 'New tag for SaaS Backend image:'
         required: true
         default: 'main'
 jobs:
@@ -47,26 +51,26 @@ jobs:
           BASE_IMAGE_TAG: "${{ github.event.inputs.BASE_IMAGE_TAG }}"
         run: |
           docker pull $REGISTRY/$REPOSITORY:$BASE_IMAGE_TAG
-      - name: Docker Build/tag 'main'
-        id: docker_build_latest
-        uses: docker/build-push-action@v2
-        with:
-          context: ./curiefense/images/saasbackend/
-          tags: gcr.io/${{ secrets.GCP_PROJECT_ID }}/saasbackend:main
-          push: true
-      - name: Docker Build Unique ID
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          context: ./curiefense/images/saasbackend/
-          tags: gcr.io/${{ secrets.GCP_PROJECT_ID }}/saasbackend:${{ steps.get-date.outputs.DATE }}-${{ github.sha }}
-          push: true
-      - name: Validate build
+      - name: Retag base SaaS Backend Image
         working-directory: ./curiefense/images/saasbackend/
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: "saasbackend"
+          BASE_IMAGE_TAG: "${{ github.event.inputs.BASE_IMAGE_TAG }}"
+        run: |
+          docker tag $REGISTRY/$REPOSITORY:$BASE_IMAGE_TAG gcr.io/${{ secrets.GCP_PROJECT_ID }}/saasbackend:${{ github.event.inputs.NEW_IMAGE_TAG }}
+          docker tag $REGISTRY/$REPOSITORY:$BASE_IMAGE_TAG gcr.io/${{ secrets.GCP_PROJECT_ID }}/saasbackend:${{ steps.get-date.outputs.DATE }}-${{ github.sha }}
+      - name: Docker push saasbackend to gcr
+        working-directory: ./
+        run: |
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/saasbackend:${{ steps.get-date.outputs.DATE }}-${{ github.sha }}
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/saasbackend:${{ github.event.inputs.NEW_IMAGE_TAG }}
+      - name: Validate retag
+        working-directory: ./
         run: |
           docker image list
       - name: Validate push
-        working-directory: ./curiefense/images/saasbackend/
+        working-directory: ./
         run: |
           gcloud container images list --repository=gcr.io/${{ secrets.GCP_PROJECT_ID }} | grep saasbackend
       - name: Clean Up Images
