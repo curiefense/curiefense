@@ -38,6 +38,7 @@ setup(
         "fasteners",
         "jsonpath-ng==1.5.3",
         "pydash==5.0.2",
+        "prometheus-flask-exporter"=="0.20.3",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
