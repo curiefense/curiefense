@@ -44,7 +44,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
       - name: Pull base SaaS Backend Image
-        working-directory: ./curiefense/images/saasbackend/
+        working-directory: ./
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: "saasbackend"
@@ -52,7 +52,7 @@ jobs:
         run: |
           docker pull $REGISTRY/$REPOSITORY:$BASE_IMAGE_TAG
       - name: Retag base SaaS Backend Image
-        working-directory: ./curiefense/images/saasbackend/
+        working-directory: ./
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: "saasbackend"
@@ -75,7 +75,7 @@ jobs:
           gcloud container images list --repository=gcr.io/${{ secrets.GCP_PROJECT_ID }} | grep saasbackend
       - name: Clean Up Images
         if: always()
-        working-directory: ./curiefense/images/saasbackend/
+        working-directory: ./
         run: |
           docker system prune --all --force
           docker image list
