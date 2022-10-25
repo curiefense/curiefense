@@ -324,7 +324,8 @@ local function test_raw_request_stats(request_path, pverbose)
 
     local res = run_inspect_request(raw_request_map)
     local r = cjson.decode(res.response)
-    local request_map = cjson.decode(res:request_map(nil))
+    local request_map_json = res:request_map(nil)
+    local request_map = cjson.decode(request_map_json)
 
     local good = compare_tag_list(raw_request_map.name, request_map.tags, raw_request_map.response.tags)
     if r.action ~= raw_request_map.response.action then
@@ -335,11 +336,20 @@ local function test_raw_request_stats(request_path, pverbose)
       good = false
     end
     if r.response ~= cjson.null then
-      if r.response.status ~= raw_request_map.response.status then
-        if verbose then
-          print("Expected status " .. cjson.encode(raw_request_map.response.status) ..
-            ", but got " .. cjson.encode(r.response.status))
+      if raw_request_map.response.status then
+        local response_class = math.floor(r.response.status / 100)
+        local rawrm_class = math.floor(raw_request_map.response.status / 100)
+        if response_class ~= rawrm_class then
+          if verbose then
+            print("Expected status class " .. rawrm_class .. "xx (" ..
+              cjson.encode(raw_request_map.response.status) ..
+              "), but got " .. response_class .. "xx (" ..
+              cjson.encode(r.response.status) .. ")")
+          end
+          good = false
         end
+      elseif not r.response.status then
+        print("response status mismatch")
         good = false
       end
       if r.response.block_mode ~= raw_request_map.response.block_mode then
@@ -353,11 +363,9 @@ local function test_raw_request_stats(request_path, pverbose)
 
     if not good then
       if verbose then
-        for _, log in ipairs(request_map.logs) do
-            print(log["elapsed_micros"] .. "µs " .. log["message"])
-        end
+        show_logs(request_map.logs)
         print(res.response)
-        print(res.request_map)
+        print(request_map_json)
       end
       print("mismatch in " .. raw_request_map.name)
     else

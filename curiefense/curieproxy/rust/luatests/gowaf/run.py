@@ -7,12 +7,14 @@ import requests
 
 host = environ.get("XTARGET_HOST", None)
 if not host:
-    print (f'''
+    print(
+        f'''
 XTARGET_HOST is mandatory.
 XTARGET_PORT may also be provided, in case it is other than 80.
 
 e.g.
-    XTARGET_HOST=1.2.3.4 XTARGET_PORT=":31081"''')
+    XTARGET_HOST=1.2.3.4 XTARGET_PORT=":31081"'''
+    )
     exit()
 
 port = environ.get("XTARGET_PORT", "")
@@ -36,7 +38,6 @@ gen_reqs = (
         req.get("body", None),
         req["headers"],
     )
-
     for req in gotestwaf
 )
 
@@ -50,8 +51,10 @@ for (method, path, body, allheaders) in gen_reqs:
         if not body:
             code = requests.__dict__[method](f"{url}", headers=headers).status_code
         else:
-            code = requests.__dict__[method](f"{url}", headers=headers, data=body.encode('utf-8')).status_code
+            code = requests.__dict__[method](
+                f"{url}", headers=headers, data=body.encode("utf-8")
+            ).status_code
 
-        print (f"got:{code}  -  {url}")
+        print(f"got:{code}  -  {url}")
     except:
         pass
