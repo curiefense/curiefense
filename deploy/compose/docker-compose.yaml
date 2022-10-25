@@ -247,7 +247,7 @@ services:
       - MONGODB_METRICS_DB=curiemetrics
       - MONGODB_METRICS_COLLECTION=metrics
     networks:
-      - confnet
+      - curiemesh
     ports:
       - "8911:8911"
 
