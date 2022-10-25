@@ -27,7 +27,9 @@ if [ -n "$TESTIMG" ]; then
     DOCKER_TAG="test"
     echo "Building only image $TESTIMG"
 else
-    IMAGES=(curieproxy-nginx uiserver)
+    IMAGES=(confserver curieproxy-istio curieproxy-envoy \
+        curieproxy-nginx curiesync grafana prometheus extproc \
+        redis uiserver traffic-metrics-exporter)
 fi
 
 if [ "$BUILD_RUST" = "yes" ]
@@ -43,7 +45,7 @@ then
             IMG=${REPO}/${image}
             echo "=================== $IMG:$DOCKER_TAG ====================="
             if tar -C curiefense-rustbuild -ch --exclude='.*/target' --exclude='.*/ctarget' . \
-                    | docker build --no-cache --build-arg UBUNTU_VERSION="${distro}" -t "$IMG:$DOCKER_TAG" -; then
+                    | docker build --build-arg UBUNTU_VERSION="${distro}" -t "$IMG:$DOCKER_TAG" -; then
                 STB="ok"
                 if [ -n "$PUSH" ]; then
                     if docker push "$IMG:$DOCKER_TAG"; then
