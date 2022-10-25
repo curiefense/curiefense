@@ -73,7 +73,10 @@ def get_config(key):
             "db": os.getenv("MONGODB_METRICS_DB", "curiemetrics"),
             "collection": os.getenv("MONGODB_METRICS_COLLECTION", "metrics1s"),
         },
-        "t2_source": {"url": os.getenv("METRICS_URI", "http://curieproxyngx:8999/")},
+        "t2_source": {
+            "url": os.getenv("METRICS_URI", "http://curieproxyngx:8999/"),
+            "headers": {"Host": os.getenv("METRICS_HOST", "metrics.curiefense.io")},
+        },
     }
     return config[key]
 
@@ -208,7 +211,9 @@ def get_t2():
         start_time = time.time()
         time.time() - start_time
         try:
-            five_sec_t2 = requests.get(config["url"]).content.decode()
+            five_sec_t2 = requests.get(
+                config["url"], headers=config["headers"]
+            ).content.decode()
             q.put(five_sec_t2)
         except Exception as e:
             logger.exception(e)
