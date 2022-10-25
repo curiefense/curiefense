@@ -243,7 +243,7 @@ services:
       - BIGQUERY_PROJECT
       - GOOGLE_APPLICATION_CREDENTIALS
       - LOGS_DB_PROVIDER=bigquery
-      - METRICS_DB=curiemetrics
+      - MONGODB_DB=curiemetrics
       - MONGODB_URI=mongodb://mongodb:27017/
       - MONGODB_METRICS_COLLECTION=metrics
     networks:
