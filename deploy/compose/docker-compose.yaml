@@ -162,6 +162,7 @@ services:
     restart: always
     depends_on:
       - mongodb
+      - curieproxyngx
     environment:
       - PROMETHEUS_DISABLE_CREATED_SERIES=true
       - MONGODB_URI=mongodb://mongodb:27017/
@@ -211,10 +212,12 @@ services:
     secrets:
       - uisslcrt
       - uisslkey
+    depends_on:
+      - datalayer
 
   saasbackend:
-    container_name: saaasbackend
-    hostname: saaasbackend
+    container_name: saasbackend
+    hostname: saasbackend
     image: "gcr.io/rbz-dev-002/saasbackend:${DOCKER_TAG}"
     restart: always
     tty: true
@@ -225,6 +228,8 @@ services:
       - confnet
     ports:
       - "30001:8911"
+    depends_on:
+      - confserver
 
   datalayer:
     container_name: datalayer
