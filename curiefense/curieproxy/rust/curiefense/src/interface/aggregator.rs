@@ -13,7 +13,11 @@ use super::{BDecision, Decision, Location, Tags};
 lazy_static! {
     static ref AGGREGATED: Mutex<HashMap<AggregationKey, BTreeMap<i64, AggregatedCounters>>> =
         Mutex::new(HashMap::new());
-    static ref SECONDS_KEPT: i64 = std::env::var("AGGREGATED_SECONDS")
+    static ref SAMPLES_KEPT: i64 = std::env::var("AGGREGATED_SAMPLES")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(2);
+    static ref SAMPLE_DURATION: i64 = std::env::var("SAMPLE_DURATION")
         .ok()
         .and_then(|s| s.parse().ok())
         .unwrap_or(5);
@@ -748,8 +752,8 @@ fn serialize_counters(e: &AggregatedCounters) -> Value {
     Value::Object(content)
 }
 
-fn serialize_entry(secs: i64, hdr: &AggregationKey, counters: &AggregatedCounters) -> Value {
-    let naive_dt = chrono::NaiveDateTime::from_timestamp(secs, 0);
+fn serialize_entry(sample: i64, hdr: &AggregationKey, counters: &AggregatedCounters) -> Value {
+    let naive_dt = chrono::NaiveDateTime::from_timestamp(sample * *SAMPLE_DURATION, 0);
     let timestamp: chrono::DateTime<chrono::Utc> = chrono::DateTime::from_utc(naive_dt, chrono::Utc);
     let mut content = serde_json::Map::new();
 
@@ -770,24 +774,26 @@ fn serialize_entry(secs: i64, hdr: &AggregationKey, counters: &AggregatedCounter
     Value::Object(content)
 }
 
-fn prune_old_values<A>(amp: &mut HashMap<AggregationKey, BTreeMap<i64, A>>, curtime: i64) {
+fn prune_old_values<A>(amp: &mut HashMap<AggregationKey, BTreeMap<i64, A>>, cursample: i64) {
     for (_, mp) in amp.iter_mut() {
+        #[allow(clippy::needless_collect)]
         let keys: Vec<i64> = mp.keys().copied().collect();
-        for k in keys.iter() {
-            if *k <= curtime - *SECONDS_KEPT {
-                mp.remove(k);
+        for k in keys.into_iter() {
+            if k <= cursample - *SAMPLES_KEPT {
+                mp.remove(&k);
             }
         }
     }
 }
 
-/// displays the Nth last seconds of aggregated data
+/// displays the Nth samples of aggregated data
 pub async fn aggregated_values() -> String {
     let mut guard = AGGREGATED.lock().await;
     let timestamp = chrono::Utc::now().timestamp();
+    let cursample = timestamp / *SAMPLE_DURATION;
     // first, prune excess data
-    prune_old_values(&mut guard, timestamp);
-    let timerange = || 1 + timestamp - *SECONDS_KEPT..=timestamp;
+    prune_old_values(&mut guard, cursample);
+    let timerange = || 1 + cursample - *SAMPLES_KEPT..=cursample;
 
     let entries: Vec<Value> = guard
         .iter()
@@ -842,14 +848,15 @@ pub async fn aggregate(
     bytes_sent: Option<usize>,
 ) {
     let seconds = rinfo.timestamp.timestamp();
+    let sample = seconds / *SAMPLE_DURATION;
     let key = AggregationKey {
         proxy: rinfo.rinfo.container_name.clone(),
         secpolid: rinfo.rinfo.secpolicy.policy.id.to_string(),
         secpolentryid: rinfo.rinfo.secpolicy.entry.id.to_string(),
     };
     let mut guard = AGGREGATED.lock().await;
-    prune_old_values(&mut guard, seconds);
+    prune_old_values(&mut guard, sample);
     let entry_hdrs = guard.entry(key).or_default();
-    let entry = entry_hdrs.entry(seconds).or_default();
+    let entry = entry_hdrs.entry(sample).or_default();
     entry.increment(dec, rcode, rinfo, tags, bytes_sent);
 }

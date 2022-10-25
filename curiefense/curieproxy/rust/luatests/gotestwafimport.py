@@ -19,7 +19,7 @@ def default_query(name: str) -> Any:
     return {
         "response": {
             "action": "custom_response",
-            "block_mode": False,
+            "block_mode": True,
             "status": 403,
         },
         "name": name,
