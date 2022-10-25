@@ -218,7 +218,7 @@ services:
     restart: always
     tty: true
     environment:
-      - CONFSERVER_URL=http://confserver/api/v3/
+      - CONFSERVER_URL=http://confserver/api/v3
       - RBZ_PLANET=rbzdemov5
     networks:
       - confnet
