@@ -212,8 +212,8 @@ services:
       - uisslkey
 
   saasbackend:
-    container_name: saaasbackend
-    hostname: saaasbackend
+    container_name: saasbackend
+    hostname: saasbackend
     image: "gcr.io/rbz-dev-002/saasbackend:${DOCKER_TAG}"
     restart: always
     tty: true
