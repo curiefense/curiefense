@@ -225,6 +225,32 @@ services:
     ports:
       - "30001:8911"
 
+  datalayer:
+    container_name: datalayer
+    hostname: datalayer
+    image: "gcr.io/rbz-dev-002/datalayer:${DOCKER_TAG}"
+    restart: always
+    tty: true
+    environment:
+      - CONFSERVER_URL=http://confserver/api/v3/
+      - RBZ_PLANET=rbzdemov5
+      - METRICS_DB_PROVIDER=mongodb
+      - BIGQUERY_DATASET
+      - BIGQUERY_DATASET_USER_ROLE
+      - BIGQUERY_LOCATION
+      - BIGQUERY_LOGS_TABLE_NAME
+      - BIGQUERY_PARTITIONING_PERIOD
+      - BIGQUERY_PROJECT
+      - GOOGLE_APPLICATION_CREDENTIALS
+      - LOGS_DB_PROVIDER=bigquery
+      - MONGODB_URI=mongodb://mongodb:27017/
+      - MONGODB_METRICS_DB=curiemetrics
+      - MONGODB_METRICS_COLLECTION=metrics
+    networks:
+      - confnet
+    ports:
+      - "8911:8911"
+
   prometheus:
     container_name: prometheus
     hostname: prometheus
