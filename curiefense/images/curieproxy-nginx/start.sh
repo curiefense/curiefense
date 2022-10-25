@@ -11,7 +11,7 @@ mkdir -p /tmp/ngx-temp-body
 mkdir -p /tmp/ngx-cache-tmp
 /usr/local/bin/nginx-conf-watch.sh&
 
-envsubst '${TARGET_ADDRESS_A},${TARGET_PORT_A},${TARGET_ADDRESS_B},${TARGET_PORT_B},${AGGREGATED_STATS_LOG_FILE},${ACCESS_LOG},${ERROR_LOG},${CF_LOG_LEVEL},${NGINX_LOG_LEVEL}' < /etc/nginx/conf.d/default.template > /etc/nginx/conf.d/default.conf
+#envsubst '${TARGET_ADDRESS_A},${TARGET_PORT_A},${TARGET_ADDRESS_B},${TARGET_PORT_B},${AGGREGATED_STATS_LOG_FILE},${ACCESS_LOG},${ERROR_LOG},${CF_LOG_LEVEL},${NGINX_LOG_LEVEL}' < /etc/nginx/conf.d/default.template > /etc/nginx/conf.d/default.conf
 if [ "$FILEBEAT" = "yes" ]
 then
   /usr/local/openresty/bin/openresty -g "daemon off;" | grep -v '^.$' | /usr/bin/filebeat --path.config /etc
