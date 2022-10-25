@@ -10,6 +10,7 @@ import requests
 import logging
 from copy import deepcopy
 from statistics import mean
+from dateutil.parser import isoparse
 from prometheus_client import start_http_server, Counter, REGISTRY, Gauge
 
 from utils.prometheus_counters_dict import (
@@ -189,6 +190,8 @@ def update_t3_counters(t2_dict, acc_avg):
 def export_t2(t2: dict):
     client = get_mongodb()
     try:
+        for item in t2:
+            item["timestamp"] = isoparse(item["timestamp"])
         client.insert_many(t2)
     except Exception as e:
         logger.exception(e)
