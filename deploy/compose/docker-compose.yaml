@@ -169,7 +169,6 @@ services:
       - MONGODB_METRICS_DB=curiemetrics
       - MONGODB_METRICS_COLLECTION=metrics1s
       - METRICS_URI=http://curieproxyngx:8999/
-      - METRICS_HOST=metrics.curiefense.io
     networks:
       - curiemesh
 
@@ -249,12 +248,11 @@ services:
       - BIGQUERY_PROJECT
       - GOOGLE_APPLICATION_CREDENTIALS
       - LOGS_DB_PROVIDER=bigquery
-      - MONGODB_DB=curiemetrics
       - MONGODB_URI=mongodb://mongodb:27017/
+      - MONGODB_METRICS_DB=curiemetrics
       - MONGODB_METRICS_COLLECTION=metrics
     networks:
       - curiemesh
-      - confnet
     ports:
       - "8911:8911"
 
