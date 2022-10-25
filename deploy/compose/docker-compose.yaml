@@ -219,7 +219,7 @@ services:
     tty: true
     environment:
       - CONFSERVER_URL=http://confserver/api/v3/
-      - RBZ_PLANET rbzdemov5
+      - RBZ_PLANET=rbzdemov5
     networks:
       - confnet
     ports:
