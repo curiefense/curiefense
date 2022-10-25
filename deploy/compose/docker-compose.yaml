@@ -168,6 +168,7 @@ services:
       - MONGODB_METRICS_DB=curiemetrics
       - MONGODB_METRICS_COLLECTION=metrics1s
       - METRICS_URI=http://curieproxyngx:8999/
+      - METRICS_HOST=metrics.curiefense.io
     networks:
       - curiemesh
 
