@@ -162,6 +162,7 @@ services:
     restart: always
     depends_on:
       - mongodb
+      - curieproxyngx
     environment:
       - PROMETHEUS_DISABLE_CREATED_SERIES=true
       - MONGODB_URI=mongodb://mongodb:27017/
@@ -210,20 +211,24 @@ services:
     secrets:
       - uisslcrt
       - uisslkey
+    depends_on:
+      - datalayer
 
   saasbackend:
-    container_name: saaasbackend
-    hostname: saaasbackend
+    container_name: saasbackend
+    hostname: saasbackend
     image: "gcr.io/rbz-dev-002/saasbackend:${DOCKER_TAG}"
     restart: always
     tty: true
     environment:
-      - CONFSERVER_URL=http://confserver/api/v3/
+      - CONFSERVER_URL=http://confserver/api/v3
       - RBZ_PLANET=rbzdemov5
     networks:
       - confnet
     ports:
       - "30001:8911"
+    depends_on:
+      - confserver
 
   datalayer:
     container_name: datalayer
@@ -243,8 +248,8 @@ services:
       - BIGQUERY_PROJECT
       - GOOGLE_APPLICATION_CREDENTIALS
       - LOGS_DB_PROVIDER=bigquery
-      - MONGODB_DB=curiemetrics
       - MONGODB_URI=mongodb://mongodb:27017/
+      - MONGODB_DB=curiemetrics
       - MONGODB_METRICS_COLLECTION=metrics
     networks:
       - curiemesh
