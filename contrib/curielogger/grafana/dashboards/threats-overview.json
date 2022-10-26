@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 6,
+  "id": 7,
   "links": [],
   "panels": [
     {
@@ -1065,26 +1065,17 @@
             "showPoints": "never",
             "spanNulls": true
           },
-          "mappings": [
-            {
-              "from": "",
-              "id": 1,
-              "text": "",
-              "to": "",
-              "type": 1,
-              "value": ""
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "semi-dark-red",
+                "color": "yellow",
                 "value": null
               },
               {
-                "color": "light-purple",
-                "value": 80.0001
+                "color": "green",
+                "value": 80
               }
             ]
           },
@@ -1098,7 +1089,7 @@
         "x": 0,
         "y": 31
       },
-      "id": 36,
+      "id": 51,
       "options": {
         "graph": {},
         "legend": {
@@ -1114,7 +1105,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "(round(sum by (tag) (irate(top_tags_reported_total{tag=~\"rtc\"}[10s]))))",
+          "expr": "round(sum by (tag) (irate(top_tags_reported_total{tag=~\"rtc.*\"}[10s]))) ",
           "hide": false,
           "interval": "",
           "legendFormat": "report: {{tag}}",
@@ -1122,7 +1113,7 @@
         },
         {
           "exemplar": true,
-          "expr": "round(sum by (tag) (irate(top_tags_active_total{tag=~\"rtc\"}[10s]))) ",
+          "expr": "round(sum by (tag) (irate(top_tags_active_total{tag=~\"rtc.*\"}[10s]))) ",
           "hide": false,
           "interval": "",
           "legendFormat": "active:{{tag}}",
@@ -1132,57 +1123,7 @@
       "timeFrom": null,
       "timeShift": null,
       "title": "Reblaze Threat Categories",
-      "transformations": [
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "rtc:ato",
-            "renamePattern": "RTC:ATO"
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "rtc:scrapers",
-            "renamePattern": "DDoS"
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "rtc:scraper",
-            "renamePattern": "SCRAPER"
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "rtc:injection",
-            "renamePattern": "INJECTION"
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "rtc:api-bola",
-            "renamePattern": "API_BOLA"
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "rtc:maleware",
-            "renamePattern": "MALEWARE"
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "api",
-            "renamePattern": "API"
-          }
-        }
-      ],
+      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -1922,8 +1863,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 8,
+        "h": 6,
+        "w": 12,
         "x": 0,
         "y": 57
       },
@@ -2000,9 +1941,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
+        "h": 6,
+        "w": 12,
+        "x": 12,
         "y": 57
       },
       "id": 49,
@@ -2023,89 +1964,12 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "(round(sum by (level) (irate(risk_level_active_total[10s])) ))",
+          "expr": "(round(sum by (level) (irate(risk_level_report_total[10s])) ))",
           "format": "time_series",
           "instant": false,
           "interval": "",
           "legendFormat": "Risk Level Report : {{level}}",
           "refId": "class x"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Risk Level ",
-      "transformations": [
-        {
-          "id": "reduce",
-          "options": {
-            "includeTimeField": false,
-            "mode": "reduceFields",
-            "reducers": [
-              "sum"
-            ]
-          }
-        }
-      ],
-      "type": "gauge"
-    },
-    {
-      "datasource": null,
-      "description": "number of requests grouped by risk level ",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "dark-green",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 1000
-              },
-              {
-                "color": "semi-dark-red",
-                "value": 5000
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 57
-      },
-      "id": 50,
-      "options": {
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "max"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
-      },
-      "pluginVersion": "7.5.17",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "(round(sum by (level) (irate(risk_level_active_total[10s])) ))",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "Risk Level Blocked : {{level}}",
-          "refId": "B"
         }
       ],
       "timeFrom": null,
@@ -2166,7 +2030,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 65
+        "y": 63
       },
       "id": 47,
       "options": {
@@ -2268,7 +2132,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 65
+        "y": 63
       },
       "id": 46,
       "options": {
@@ -2383,7 +2247,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 73
+        "y": 71
       },
       "id": 14,
       "options": {
@@ -2509,7 +2373,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 80
+        "y": 78
       },
       "id": 26,
       "options": {
@@ -2594,7 +2458,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 87
+        "y": 85
       },
       "id": 33,
       "options": {
@@ -2695,7 +2559,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 94
+        "y": 92
       },
       "id": 34,
       "options": {
@@ -2796,7 +2660,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 101
+        "y": 99
       },
       "id": 39,
       "options": {
@@ -2908,7 +2772,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 108
+        "y": 106
       },
       "id": 40,
       "options": {
@@ -2973,5 +2837,5 @@
   "timezone": "",
   "title": "Reblaze threats overview (demo)",
   "uid": "8KP9HSH4z",
-  "version": 55
+  "version": 10
 }
