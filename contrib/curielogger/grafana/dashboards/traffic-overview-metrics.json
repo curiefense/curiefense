@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 5,
+  "id": 6,
   "links": [],
   "panels": [
     {
@@ -1651,5 +1651,5 @@
   "timezone": "",
   "title": "Traffic overview (demo)",
   "uid": "tUZcMWHVz",
-  "version": 52
+  "version": 1
 }

@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 6,
+  "id": 7,
   "links": [],
   "panels": [
     {
@@ -1065,26 +1065,17 @@
             "showPoints": "never",
             "spanNulls": true
           },
-          "mappings": [
-            {
-              "from": "",
-              "id": 1,
-              "text": "",
-              "to": "",
-              "type": 1,
-              "value": ""
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "semi-dark-red",
+                "color": "yellow",
                 "value": null
               },
               {
-                "color": "light-purple",
-                "value": 80.0001
+                "color": "green",
+                "value": 80
               }
             ]
           },
@@ -1098,7 +1089,7 @@
         "x": 0,
         "y": 31
       },
-      "id": 36,
+      "id": 51,
       "options": {
         "graph": {},
         "legend": {
@@ -1114,7 +1105,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "(round(sum by (tag) (irate(top_tags_reported_total{tag=~\"rtc\"}[10s]))))",
+          "expr": "round(sum by (tag) (irate(top_tags_reported_total{tag=~\"rtc.*\"}[10s]))) ",
           "hide": false,
           "interval": "",
           "legendFormat": "report: {{tag}}",
@@ -1122,7 +1113,7 @@
         },
         {
           "exemplar": true,
-          "expr": "round(sum by (tag) (irate(top_tags_active_total{tag=~\"rtc\"}[10s]))) ",
+          "expr": "round(sum by (tag) (irate(top_tags_active_total{tag=~\"rtc.*\"}[10s]))) ",
           "hide": false,
           "interval": "",
           "legendFormat": "active:{{tag}}",
@@ -1132,57 +1123,7 @@
       "timeFrom": null,
       "timeShift": null,
       "title": "Reblaze Threat Categories",
-      "transformations": [
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "rtc:ato",
-            "renamePattern": "RTC:ATO"
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "rtc:scrapers",
-            "renamePattern": "DDoS"
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "rtc:scraper",
-            "renamePattern": "SCRAPER"
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "rtc:injection",
-            "renamePattern": "INJECTION"
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "rtc:api-bola",
-            "renamePattern": "API_BOLA"
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "rtc:maleware",
-            "renamePattern": "MALEWARE"
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "api",
-            "renamePattern": "API"
-          }
-        }
-      ],
+      "transformations": [],
       "type": "timeseries"
     },
     {
@@ -2973,5 +2914,5 @@
   "timezone": "",
   "title": "Reblaze threats overview (demo)",
   "uid": "8KP9HSH4z",
-  "version": 55
+  "version": 7
 }
