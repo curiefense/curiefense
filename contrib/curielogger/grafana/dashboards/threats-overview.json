@@ -1863,8 +1863,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 12,
+        "h": 8,
+        "w": 8,
         "x": 0,
         "y": 57
       },
@@ -1941,9 +1941,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
+        "h": 8,
+        "w": 8,
+        "x": 8,
         "y": 57
       },
       "id": 49,
@@ -1964,12 +1964,89 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "(round(sum by (level) (irate(risk_level_report_total[10s])) ))",
+          "expr": "(round(sum by (level) (irate(risk_level_active_total[10s])) ))",
           "format": "time_series",
           "instant": false,
           "interval": "",
           "legendFormat": "Risk Level Report : {{level}}",
           "refId": "class x"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Risk Level ",
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "includeTimeField": false,
+            "mode": "reduceFields",
+            "reducers": [
+              "sum"
+            ]
+          }
+        }
+      ],
+      "type": "gauge"
+    },
+    {
+      "datasource": null,
+      "description": "number of requests grouped by risk level ",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1000
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 5000
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 57
+      },
+      "id": 50,
+      "options": {
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "max"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "text": {}
+      },
+      "pluginVersion": "7.5.17",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "(round(sum by (level) (irate(risk_level_active_total[10s])) ))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Risk Level Blocked : {{level}}",
+          "refId": "B"
         }
       ],
       "timeFrom": null,
@@ -2030,7 +2107,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 63
+        "y": 65
       },
       "id": 47,
       "options": {
@@ -2132,7 +2209,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 63
+        "y": 65
       },
       "id": 46,
       "options": {
@@ -2247,7 +2324,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 71
+        "y": 73
       },
       "id": 14,
       "options": {
@@ -2373,7 +2450,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 78
+        "y": 80
       },
       "id": 26,
       "options": {
@@ -2458,7 +2535,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 85
+        "y": 87
       },
       "id": 33,
       "options": {
@@ -2559,7 +2636,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 92
+        "y": 94
       },
       "id": 34,
       "options": {
@@ -2660,7 +2737,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 99
+        "y": 101
       },
       "id": 39,
       "options": {
@@ -2772,7 +2849,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 106
+        "y": 108
       },
       "id": 40,
       "options": {
@@ -2837,5 +2914,5 @@
   "timezone": "",
   "title": "Reblaze threats overview (demo)",
   "uid": "8KP9HSH4z",
-  "version": 10
+  "version": 7
 }
