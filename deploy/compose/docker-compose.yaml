@@ -70,6 +70,7 @@ services:
       - curieproxy_config:/cf-config
       - ./filebeat/ilm.json:/usr/share/filebeat/ilm.json
       - ./filebeat/template.json:/usr/share/filebeat/template.json
+      - persistent_nginx:/var/log
     environment:
       # - ENVOY_UID
       - XFF_TRUSTED_HOPS
@@ -332,6 +333,55 @@ services:
     networks:
       - curiemesh
 
+  tailnginx:
+    container_name: tailnginx
+    hostname: tailnginx
+    image: alpine
+    command: >
+      /bin/sh -c "touch /nginxlogs/nginx.access.json.log
+      && tail -f /nginxlogs/nginx.access.json.log | tee /logs/nginx.access.json.log"
+    restart: always
+    environment:
+      - LOGS_PATH_PATTERN=/logs/nginx.access.*
+    volumes:
+      - persistent_nginx:/nginxlogs
+      - persistent_nginxrotatedlogs:/logs
+    networks:
+      - curiemesh
+
+  nginxlogrotate:
+    container_name: nginxlogrotate
+    hostname: nginxlogrotate
+    image:  linkyard/logrotate
+    restart: always
+    environment:
+      - "LOGROTATE_FILE_PATTERN=nginx.access*"
+      - "LOGROTATE_CRON=* * * * *"
+      - LOGROTATE_SIZE=10
+    volumes:
+      - persistent_nginxrotatedlogs:/logs
+    networks:
+      - curiemesh
+
+  infuserbq:
+    container_name: infuserbq
+    hostname: infuserbq
+    image: "curiefense/infuser_bq:${DOCKER_TAG}"
+    restart: always
+    environment:
+      - INFUSER_BQ_SA_PATH=/sa.json
+      - INFUSER_BQ_PROJECT=charliemegira
+      - INFUSER_BQ_DS=demo5
+      - INFUSER_BQ_TABLE_ID=accesslogs
+      - INFUSER_BQ_LOCATION=EU
+      - INFUSER_BQ_RAW_FILES_PATH_PATTERN=/logs/nginx.access.json.log.*
+      - INFUSER_BQ_GCS_BUCKET_PATH=gs://demo5logs/rawlogs
+    volumes:
+      - persistent_nginxrotatedlogs:/logs
+      - ./curiesecrets/sa.json:/sa.json
+    networks:
+      - curiemesh
+
 networks:
   curiemesh:
     name: curiemesh
@@ -343,6 +393,8 @@ networks:
 volumes:
   # persistent volumes
   persistent_confdb:
+  persistent_nginx:
+  persistent_nginxrotatedlogs:
   persistent_elasticsearch:
   persistent_grafana:
   persistent_redis:
