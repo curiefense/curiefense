@@ -47,7 +47,7 @@ jobs:
         working-directory: ./
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: "infuser_bq"
+          REPOSITORY: "taskscheduler-infuser-bq"
           BASE_IMAGE_TAG: "${{ github.event.inputs.BASE_IMAGE_TAG }}"
         run: |
           docker pull $REGISTRY/$REPOSITORY:$BASE_IMAGE_TAG
@@ -55,16 +55,16 @@ jobs:
         working-directory: ./
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: "infuser_bq"
+          REPOSITORY: "taskscheduler-infuser-bq"
           BASE_IMAGE_TAG: "${{ github.event.inputs.BASE_IMAGE_TAG }}"
         run: |
-          docker tag $REGISTRY/$REPOSITORY:$BASE_IMAGE_TAG gcr.io/${{ secrets.GCP_PROJECT_ID }}/infuser_bq:${{ github.event.inputs.NEW_IMAGE_TAG }}
-          docker tag $REGISTRY/$REPOSITORY:$BASE_IMAGE_TAG gcr.io/${{ secrets.GCP_PROJECT_ID }}/infuser_bq:${{ steps.get-date.outputs.DATE }}-${{ github.sha }}
-      - name: Docker push infuser_bq to gcr
+          docker tag $REGISTRY/$REPOSITORY:$BASE_IMAGE_TAG gcr.io/${{ secrets.GCP_PROJECT_ID }}/taskscheduler-infuser-bq:${{ github.event.inputs.NEW_IMAGE_TAG }}
+          docker tag $REGISTRY/$REPOSITORY:$BASE_IMAGE_TAG gcr.io/${{ secrets.GCP_PROJECT_ID }}/taskscheduler-infuser-bq:${{ steps.get-date.outputs.DATE }}-${{ github.sha }}
+      - name: Docker push taskscheduler-infuser-bq to gcr
         working-directory: ./
         run: |
-          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/infuser_bq:${{ steps.get-date.outputs.DATE }}-${{ github.sha }}
-          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/infuser_bq:${{ github.event.inputs.NEW_IMAGE_TAG }}
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/taskscheduler-infuser-bq:${{ steps.get-date.outputs.DATE }}-${{ github.sha }}
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/taskscheduler-infuser-bq:${{ github.event.inputs.NEW_IMAGE_TAG }}
       - name: Validate retag
         working-directory: ./
         run: |
@@ -72,7 +72,7 @@ jobs:
       - name: Validate push
         working-directory: ./
         run: |
-          gcloud container images list --repository=gcr.io/${{ secrets.GCP_PROJECT_ID }} | grep infuser_bq
+          gcloud container images list --repository=gcr.io/${{ secrets.GCP_PROJECT_ID }} | grep taskscheduler-infuser-bq
       - name: Clean Up Images
         if: always()
         working-directory: ./

@@ -366,7 +366,7 @@ services:
   infuserbq:
     container_name: infuserbq
     hostname: infuserbq
-    image: "gcr.io/rbz-dev-002/infuser_bq:${DOCKER_TAG}"
+    image: "gcr.io/rbz-dev-002/taskscheduler-infuser-bq:${DOCKER_TAG}"
     restart: always
     environment:
       - INFUSER_BQ_SA_PATH=/sa.json
