@@ -7,12 +7,16 @@ echo "Calling reload script"
 echo "Start watching $source_file"
 while true
 do
-    file_age=$(($(date +%s) - $(date +%s -r "$filename")))
-    echo "File age in sec: $file_age"
-    if (( file_age < 20 ));
-    then
-        echo "The file $source_file updated try nginx reload with the new config"
-        /usr/local/bin/nginx-conf-reload.sh &
+    if [ -f "$filename" ]; then
+        file_age=$(($(date +%s) - $(date +%s -r "$filename")))
+        echo "File age in sec: $file_age"
+        if (( file_age < 20 ));
+        then
+            echo "The file $source_file updated try nginx reload with the new config"
+            /usr/local/bin/nginx-conf-reload.sh &
+        fi
+    else
+	      echo "custom.tar.gz missing"
     fi
     sleep 20;
 done
