@@ -11,7 +11,7 @@ import requests
 from jsonschema import validate
 from pathlib import Path
 import json
-
+import jmespath
 
 api_bp = Blueprint("api_v3", __name__)
 api = Api(api_bp, version="3.0", title="Curiefense configuration API server v3.0")
@@ -418,6 +418,30 @@ def validateDbJson(json_data, schema):
     return True
 
 
+### Entry Dependency Check
+
+
+def checkEntryDependencies(config, document, entry):
+    # check if the entry is used in another document
+    if schema_dependencies.get(document):
+        doc_dependency = schema_dependencies.get(document)
+        for doc in doc_dependency:
+            doc_name = doc.get("document")
+            entry_path = doc.get("path")
+
+            res_doc = current_app.backend.documents_get(config, doc_name)
+            for doc_entry in res_doc:
+                field_value = jmespath.search(entry_path, doc_entry)
+
+                if type(field_value) == str:
+                    if entry == field_value:
+                        abort(500, "Dependency found in " + doc_name)
+                else:
+                    if type(field_value) == list:
+                        for item in field_value:
+                            if entry == item:
+                                abort(500, "Dependency found in " + doc_name)
+                                
 ### Set git actor according to config & defined HTTP headers
 
 
@@ -437,39 +461,51 @@ base_path = Path(__file__).parent
 acl_profile_file_path = (base_path / "./json/acl-profile.schema").resolve()
 with open(acl_profile_file_path) as json_file:
     acl_profile_schema = json.load(json_file)
+
 ratelimits_file_path = (base_path / "./json/rate-limits.schema").resolve()
 with open(ratelimits_file_path) as json_file:
     ratelimits_schema = json.load(json_file)
+
 securitypolicies_file_path = (base_path / "./json/security-policies.schema").resolve()
 with open(securitypolicies_file_path) as json_file:
     securitypolicies_schema = json.load(json_file)
+
 content_filter_profile_file_path = (
     base_path / "./json/content-filter-profile.schema"
 ).resolve()
 with open(content_filter_profile_file_path) as json_file:
     content_filter_profile_schema = json.load(json_file)
+
 globalfilters_file_path = (base_path / "./json/global-filters.schema").resolve()
 with open(globalfilters_file_path) as json_file:
     globalfilters_schema = json.load(json_file)
+
 flowcontrol_file_path = (base_path / "./json/flow-control.schema").resolve()
 with open(flowcontrol_file_path) as json_file:
     flowcontrol_schema = json.load(json_file)
+
 content_filter_rule_file_path = (
     base_path / "./json/content-filter-rule.schema"
 ).resolve()
 with open(content_filter_rule_file_path) as json_file:
     content_filter_rule_schema = json.load(json_file)
+
 action_file_path = (base_path / "./json/action.schema").resolve()
 with open(action_file_path) as json_file:
     action_schema = json.load(json_file)
+
 virtualtag_file_path = (base_path / "./json/virtual-tags.schema").resolve()
 with open(virtualtag_file_path) as json_file:
     virtual_tags_schema = json.load(json_file)
+
 custom_file_path = (base_path / "./json/custom.schema").resolve()
 with open(custom_file_path) as json_file:
     custom_schema = json.load(json_file)
 
-
+schema_dependencies_path = (base_path / "./json/schema-dependencies.json").resolve()
+with open(schema_dependencies_path) as json_file:
+    schema_dependencies = json.load(json_file)
+    
 schema_type_map = {
     "ratelimits": ratelimits_schema,
     "securitypolicies": securitypolicies_schema,
@@ -699,6 +735,7 @@ class DocumentListVersionResource(Resource):
         "Retrieve the existing versions of a given document"
         if document not in models:
             abort(404, "document does not exist")
+        checkEntryDependencies(config, document, entry)
         res = current_app.backend.documents_list_versions(config, document)
         return marshal(res, m_version_log, skip_none=True)
 
