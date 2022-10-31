@@ -1,0 +1,17 @@
+{
+    "actions": [
+        {"document": "contentfilterprofiles", "path": "action"},
+        {"document": "aclprofiles", "path": "action"},
+        {"document": "ratelimits", "path": "thresholds[].action"},
+        {"document": "globalfilters", "path": "action"}
+    ],
+    "aclprofiles": [
+        {"document": "securitypolicies", "path": "map[].acl_profile"}
+    ],
+    "contentfilterprofiles": [
+        {"document": "securitypolicies", "path": "map[].content_filter_profile"}
+    ],
+    "ratelimits": [
+        {"document": "securitypolicies", "path": "map[].limit_ids[]"}
+    ]
+}

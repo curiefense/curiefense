@@ -11,6 +11,7 @@ import requests
 from jsonschema import validate
 from pathlib import Path
 import json
+import jmespath
 
 
 api_bp = Blueprint("api_v3", __name__)
@@ -418,6 +419,31 @@ def validateDbJson(json_data, schema):
     return True
 
 
+### Entry Dependency Check
+
+
+def checkEntryDependencies(config, document, entry):
+    # check if the entry is used in another document
+    if schema_dependencies.get(document):
+        doc_dependency = schema_dependencies.get(document)
+        for doc in doc_dependency:
+            doc_name = doc.get("document")
+            entry_path = doc.get("path")
+
+            res_doc = current_app.backend.documents_get(config, doc_name)
+            for doc_entry in res_doc:
+                field_value = jmespath.search(entry_path, doc_entry)
+
+                if type(field_value) == str:
+                    if entry == field_value:
+                        abort(500, "Dependency found in " + doc_name)
+                else:
+                    if type(field_value) == list:
+                        for item in field_value:
+                            if entry == item:
+                                abort(500, "Dependency found in " + doc_name)
+
+
 ### Set git actor according to config & defined HTTP headers
 
 
@@ -468,6 +494,10 @@ with open(virtualtag_file_path) as json_file:
 custom_file_path = (base_path / "./json/custom.schema").resolve()
 with open(custom_file_path) as json_file:
     custom_schema = json.load(json_file)
+
+schema_dependencies_path = (base_path / "./json/schema-dependencies.json").resolve()
+with open(schema_dependencies_path) as json_file:
+    schema_dependencies = json.load(json_file)
 
 
 schema_type_map = {
@@ -780,6 +810,7 @@ class EntryResource(Resource):
         "Delete an entry from a document"
         if document not in models:
             abort(404, "document does not exist")
+        checkEntryDependencies(config, document, entry)
         res = current_app.backend.entries_delete(
             config, document, entry, get_gitactor()
         )
