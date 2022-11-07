@@ -462,11 +462,9 @@
       "user-agent": "dummy",
       "x-forwarded-for": "3.4.5.5"
     },
-    "name": "no body, expect all (block)",
+    "name": "no body, expect all (pass)",
     "response": {
-      "action": "custom_response",
-      "block_mode": true,
-      "status": 403,
+      "action": "pass",
       "content_filter_triggers": [
         {
           "active": true,
@@ -489,8 +487,6 @@
         "aclname:from-tags",
         "aclid:fromtags",
         "contentfilterid:expectall",
-        "status:403",
-        "status-class:4xx",
         "bot"
       ]
     }

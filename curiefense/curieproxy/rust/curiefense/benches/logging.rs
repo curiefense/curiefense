@@ -36,6 +36,7 @@ fn logging_empty(c: &mut Criterion) {
             id: "__default__".into(),
             name: "__default__".into(),
         },
+        tags: Vec::new(),
         acl_active: true,
         acl_profile: AclProfile::default(),
         content_filter_active: true,

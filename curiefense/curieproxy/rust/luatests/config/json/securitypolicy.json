@@ -3,6 +3,7 @@
         "match": "www.collision.com",
         "id": "flowcollisiontests",
         "name": "flow control collision tests",
+        "tags": [],
         "map": [
             {
                 "match": "/",
@@ -20,6 +21,7 @@
         "match": "limitt1.com",
         "id": "limitt1",
         "name": "limit test1",
+        "tags": [],
         "map": [
             {
                 "match": "/h2",
@@ -93,6 +95,7 @@
         "match": "limitt2.com",
         "id": "limitt2",
         "name": "limit test2",
+        "tags": [],
         "map": [
             {
                 "match": "/h2",
@@ -162,6 +165,7 @@
         "match": "dummydomain.com",
         "id": "dummydomain",
         "name": "dummy domain policy",
+        "tags": [],
         "map": [
             {
                 "match": "/",
@@ -179,6 +183,25 @@
         "match": "specific.dummydomain.com",
         "id": "specdummydomain",
         "name": "more specific dummy domain policy",
+        "tags": [],
+        "map": [
+            {
+                "match": "/",
+                "name": "default",
+                "id": "default",
+                "acl_profile": "__default__",
+                "acl_active": false,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": []
+            }
+        ]
+    },
+    {
+        "match": "secpoltags.com",
+        "id": "secpoltags",
+        "name": "test tagging for security policy",
+        "tags": ["secpoltag1", "secpoltag2"],
         "map": [
             {
                 "match": "/",
@@ -196,7 +219,18 @@
         "match": "__default__",
         "id": "__default__",
         "name": "default entry",
+        "tags": [],
         "map": [
+            {
+                "match": "/acl/deny-all-inactive",
+                "name": "denyallinactive",
+                "id": "denyallinactive",
+                "acl_profile": "ba-acl",
+                "acl_active": false,
+                "content_filter_profile": "__default__",
+                "content_filter_active": false,
+                "limit_ids": []
+            },
             {
                 "match": "/flow-test",
                 "name": "flowtest",

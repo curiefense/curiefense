@@ -117,6 +117,7 @@ impl Config {
         policyid: &str,
         policyname: &str,
         rawmaps: Vec<RawSecurityPolicy>,
+        tags: Vec<String>,
         limits: &HashMap<String, Limit>,
         global_limits: &[Limit],
         inactive_limits: &HashSet<String>,
@@ -169,6 +170,7 @@ impl Config {
                     id: rawmap.id.unwrap_or_else(|| mapname.clone()),
                     name: rawmap.name,
                 },
+                tags: tags.clone(),
                 session: session.clone(),
                 session_ids: session_ids.clone(),
                 acl_active: rawmap.acl_active,
@@ -178,8 +180,11 @@ impl Config {
                 limits: olimits,
             };
             if rawmap.match_ == "__default__"
+                || securitypolicy.entry.id == "__default__"
                 || (rawmap.match_ == "/"
-                    && (securitypolicy.entry.id == "default" || securitypolicy.entry.id == "__default__"))
+                    && (securitypolicy.entry.id == "default"
+                        || securitypolicy.entry.name == "default"
+                        || securitypolicy.entry.name == "__default__"))
             {
                 if default.is_some() {
                     logs.warning("Multiple __default__ maps");
@@ -254,6 +259,7 @@ impl Config {
                 &rawmap.id,
                 &rawmap.name,
                 rawmap.map,
+                rawmap.tags,
                 &limits,
                 &global_limits,
                 &inactive_limits,

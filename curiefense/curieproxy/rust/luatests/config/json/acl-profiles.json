@@ -52,5 +52,21 @@
     "passthrough": [
       "passthrough"
     ]
+  },
+  {
+    "action": "b403",
+    "tags": [
+      "block-all-acl"
+    ],
+    "allow": [],
+    "allow_bot": [],
+    "deny": [
+      "all"
+    ],
+    "deny_bot": [],
+    "force_deny": [],
+    "id": "ba-acl",
+    "name": "ba-acl",
+    "passthrough": []
   }
 ]

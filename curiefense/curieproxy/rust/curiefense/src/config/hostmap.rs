@@ -26,6 +26,7 @@ pub struct PolicyId {
 pub struct SecurityPolicy {
     pub policy: PolicyId,
     pub entry: PolicyId,
+    pub tags: Vec<String>,
     pub acl_active: bool,
     pub acl_profile: AclProfile,
     pub content_filter_active: bool,
@@ -46,6 +47,7 @@ impl Default for SecurityPolicy {
                 id: "entryid".to_string(),
                 name: "entry name".to_string(),
             },
+            tags: Vec::new(),
             acl_active: false,
             acl_profile: AclProfile::default(),
             content_filter_active: false,
@@ -68,6 +70,7 @@ impl SecurityPolicy {
                 id: "entryid".to_string(),
                 name: "entry name".to_string(),
             },
+            tags: Vec::new(),
             acl_active: false,
             acl_profile: AclProfile::default(),
             content_filter_active: false,

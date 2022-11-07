@@ -293,6 +293,7 @@ mod test {
                         id: "default".to_string(),
                         name: "default".to_string(),
                     },
+                    tags: Vec::new(),
                     acl_active: false,
                     acl_profile: AclProfile::default(),
                     content_filter_active: true,

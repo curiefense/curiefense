@@ -249,6 +249,10 @@ pub fn tag_request(
         }
     }
 
+    for tag in rinfo.rinfo.secpolicy.tags.iter() {
+        tags.insert(tag, Location::Request)
+    }
+
     let mut matched = 0;
     let mut decision = SimpleDecision::Pass;
     for psection in globalfilters {

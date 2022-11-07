@@ -202,8 +202,12 @@ local function run_inspect_request_gen(raw_request_map, mode)
     return res
 end
 
-local function run_inspect_request(raw_request_map)
-  return run_inspect_request_gen(raw_request_map, "lua_async")
+local function run_inspect_request(raw_request_map, mode)
+  local real_mode = "lua_async"
+  if mode then
+    real_mode = mode
+  end
+  return run_inspect_request_gen(raw_request_map, real_mode)
 end
 
 local function show_logs(logs)
@@ -235,11 +239,11 @@ local function equals(o1, o2)
   end
 
 -- testing from envoy metadata
-local function test_raw_request(request_path)
-  print("Testing " .. request_path)
+local function test_raw_request(request_path, mode)
+  print("Testing " .. request_path .. " mode=" .. mode)
   local raw_request_maps = load_json_file(request_path)
   for _, raw_request_map in pairs(raw_request_maps) do
-    local res = run_inspect_request(raw_request_map)
+    local res = run_inspect_request(raw_request_map, mode)
 
     local r = cjson.decode(res.response)
     local request_map = cjson.decode(res:request_map(nil))
@@ -408,13 +412,13 @@ local function clean_redis()
 end
 
 -- testing for rate limiting
-local function test_ratelimit(request_path)
-  print("Rate limit " .. request_path)
+local function test_ratelimit(request_path, mode)
+  print("Rate limit " .. request_path .. " mode=" .. mode)
   clean_redis()
   local raw_request_maps = load_json_file(request_path)
   for n, raw_request_map in pairs(raw_request_maps) do
     print(" -> step " .. n)
-    local r = run_inspect_request(raw_request_map)
+    local r = run_inspect_request(raw_request_map, mode)
     local res = cjson.decode(r.response)
     local request_map = cjson.decode(r:request_map(nil))
 
@@ -448,14 +452,14 @@ local function test_ratelimit(request_path)
 end
 
 -- testing for control flow
-local function test_flow(request_path)
-  print("Flow control " .. request_path)
+local function test_flow(request_path, mode)
+  print("Flow control " .. request_path .. " mode=" .. mode)
   clean_redis()
   local good = true
   local raw_request_maps = load_json_file(request_path)
   for n, raw_request_map in pairs(raw_request_maps) do
     print(" -> step " .. n)
-    local r = run_inspect_request(raw_request_map)
+    local r = run_inspect_request(raw_request_map, mode)
     local request_map = cjson.decode(r:request_map(nil))
     local expected_tag = raw_request_map["tag"]
 
@@ -525,7 +529,8 @@ end
 
 for file in lfs.dir[[luatests/raw_requests]] do
   if startswith(file, prefix) and ends_with(file, ".json") then
-    test_raw_request("luatests/raw_requests/" .. file)
+    test_raw_request("luatests/raw_requests/" .. file, "lua_async")
+    test_raw_request("luatests/raw_requests/" .. file, "standard")
   end
 end
 
@@ -537,12 +542,14 @@ end
 
 for file in lfs.dir[[luatests/ratelimit]] do
   if startswith(file, prefix) and ends_with(file, ".json") then
-    test_ratelimit("luatests/ratelimit/" .. file)
+    test_ratelimit("luatests/ratelimit/" .. file, "lua_async")
+    test_ratelimit("luatests/ratelimit/" .. file, "standard")
   end
 end
 
 for file in lfs.dir[[luatests/flows]] do
   if startswith(file, prefix) and ends_with(file, ".json") then
-    test_flow("luatests/flows/" .. file)
+    test_flow("luatests/flows/" .. file, "lua_async")
+    test_flow("luatests/flows/" .. file, "standard")
   end
 end

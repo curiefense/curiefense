@@ -1,0 +1,32 @@
+[
+  {
+    "headers": {
+      ":authority": "localhost:30081",
+      ":method": "GET",
+      ":path": "/acl/deny-all-inactive",
+      "user-agent": "dummy",
+      "x-forwarded-for": "1.1.1.1"
+    },
+    "name": "test acl block inactive",
+    "response": {
+      "action": "pass",
+      "tags": [
+        "cookies:0",
+        "headers:2",
+        "args:0",
+        "host:localhost:30081",
+        "all",
+        "ip:1-1-1-1",
+        "block-all-acl",
+        "sante",
+        "securitypolicy-entry:denyallinactive",
+        "contentfiltername:default-contentfilter",
+        "securitypolicy:default-entry",
+        "aclname:ba-acl",
+        "aclid:ba-acl",
+        "contentfilterid:--default--",
+        "bot"
+      ]
+    }
+  }
+]

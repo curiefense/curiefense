@@ -59,8 +59,8 @@
             "type": "array",
             "items": { "type": "string" }
         },
-        "session": { "$ref": "#/definitions/key-entry" },
-        "session_ids": { "$ref": "#/definitions/key-array" },
+        "curiesession": { "$ref": "#/definitions/key-array" },
+        "curiesession_ids": { "$ref": "#/definitions/key-array" },
         "map": {
             "type": "array",
             "title": "Security Policy Entries List",

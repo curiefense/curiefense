@@ -1,0 +1,43 @@
+[
+  {
+    "name": "test region tagging",
+    "headers": {
+      ":authority": "secpoltags.com",
+      ":method": "GET",
+      ":path": "/",
+      "user-agent": "dummy",
+      "host": "secpoltags.com",
+      "x-forwarded-for": "2.3.4.5"
+    },
+    "response": {
+      "tags": [
+        "args:0",
+        "host:secpoltags-com",
+        "headers:3",
+        "geo-continent-name:europe",
+        "geo-continent-code:eu",
+        "ip:2-3-4-5",
+        "bot",
+        "geo-subregion:15",
+        "network:2-3-4-0-23",
+        "geo-city:neussargues",
+        "secpoltag1",
+        "secpoltag2",
+        "sante",
+        "all",
+        "securitypolicy-entry:default",
+        "geo-country:france",
+        "aclname:default-acl",
+        "geo-org:orange",
+        "geo-region:ara",
+        "contentfiltername:default-contentfilter",
+        "geo-asn:3215",
+        "securitypolicy:test-tagging-for-security-policy",
+        "cookies:0",
+        "aclid:--default--",
+        "contentfilterid:--default--"
+      ],
+      "action": "pass"
+    }
+  }
+]

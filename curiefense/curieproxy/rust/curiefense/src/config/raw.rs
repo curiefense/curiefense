@@ -65,6 +65,7 @@ pub struct RawHostMap {
     pub match_: String,
     pub id: String,
     pub name: String,
+    pub tags: Vec<String>,
     pub map: Vec<RawSecurityPolicy>,
     #[serde(default)]
     pub session: Vec<HashMap<String, String>>,
