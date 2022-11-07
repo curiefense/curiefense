@@ -21,6 +21,7 @@ setup(
             "v1/json/*.schema",
             "v2/json/*.schema",
             "v3/json/*.schema",
+            "v3/json/*.json",
         ]
     },
     scripts=["bin/curieconf_server"],
