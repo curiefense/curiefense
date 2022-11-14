@@ -30,7 +30,7 @@ LOGLEVEL = os.getenv("LOGLEVEL", "INFO").upper()
 logging.basicConfig(level=LOGLEVEL)
 logger = logging.getLogger("traffic-metrics-exporter")
 
-METRICS_PULL_INTERVAL = 5
+METRICS_PULL_INTERVAL = 60
 
 http_methods = [
     "GET",
