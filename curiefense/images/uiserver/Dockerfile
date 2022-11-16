@@ -9,7 +9,7 @@ RUN npm install
 RUN npm run build
 
 
-FROM nginx:1.23.1
+FROM nginx:1.23.2
 
 USER root
 RUN ln -sf /init/nginx.conf /etc/nginx/nginx.conf
