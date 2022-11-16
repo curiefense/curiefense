@@ -1,8 +1,5 @@
 import jsonschema
 
-# monkey patch to force RestPlus to use Draft3 validator to benefit from "any" json type
-jsonschema.Draft4Validator = jsonschema.Draft3Validator
-
 from flask import Blueprint, request, current_app, abort, make_response
 from flask_restx import Resource, Api, fields, marshal, reqparse
 from curieconf import utils
@@ -30,10 +27,6 @@ ns_tools = api.namespace("tools", description="Tools")
 ### Models for documents
 
 
-class AnyType(fields.Raw):
-    __schema_type__ = "any"
-
-
 # limit
 
 m_threshold = api.model(
@@ -52,9 +45,9 @@ m_limit = api.model(
         "description": fields.String(required=True),
         "timeframe": fields.String(required=True),
         "thresholds": fields.List(fields.Nested(m_threshold)),
-        "include": fields.Raw(required=True),
-        "exclude": fields.Raw(required=True),
-        "key": AnyType(required=True),
+        "include": fields.List(fields.String, required=True),
+        "exclude": fields.List(fields.String, required=True),
+        "key": fields.List(fields.Raw(required=True)),
         "pairwith": fields.Raw(required=True),
     },
 )
@@ -169,7 +162,7 @@ m_globalfilter = api.model(
         "active": fields.Boolean(required=True),
         "action": fields.Raw(required=True),
         "tags": fields.List(fields.String()),
-        "rule": AnyType(),
+        "rule": fields.Raw(required=True),
     },
 )
 
@@ -262,7 +255,7 @@ m_blob_entry = api.model(
     "Blob Entry",
     {
         "format": fields.String(required=True),
-        "blob": AnyType(),
+        "blob": fields.String(required=True),
     },
 )
 
@@ -292,6 +285,11 @@ m_config_blobs = api.model(
     {x: fields.Nested(m_blob_entry, default={}) for x in utils.BLOBS_PATH},
 )
 
+m_config_delete_documents = api.model(
+    "Config Delete Documents",
+    {x: fields.Wildcard(fields.Boolean()) for x in models},
+)
+
 m_config_delete_blobs = api.model(
     "Config Delete Blobs", {x: fields.Boolean() for x in utils.BLOBS_PATH}
 )
@@ -302,7 +300,7 @@ m_config = api.model(
         "meta": fields.Nested(m_meta, default={}),
         "documents": fields.Nested(m_config_documents, default={}),
         "blobs": fields.Nested(m_config_blobs, default={}),
-        "delete_documents": fields.Nested(m_config_documents, default={}),
+        "delete_documents": fields.Nested(m_config_delete_documents, default={}),
         "delete_blobs": fields.Nested(m_config_delete_blobs, default={}),
     },
 )
@@ -427,7 +425,7 @@ class Configs(Resource):
     def post(self):
         "Create a new configuration"
         data = request.json
-        return current_app.backend.configs_create(data, get_gitactor())
+        return current_app.backend.configs_create(data, None, get_gitactor())
 
 
 @ns_configs.route("/<string:config>/")
@@ -443,7 +441,7 @@ class Config(Resource):
         data = request.json
         return current_app.backend.configs_create(data, config, get_gitactor())
 
-    @ns_configs.expect(m_meta, validate=True)
+    @ns_configs.expect(m_config, validate=True)
     def put(self, config):
         "Update an existing configuration"
         data = request.json
@@ -678,9 +676,7 @@ class EntryResource(Resource):
         isValid = validateJson(request.json, document)
         if isValid:
             data = marshal(request.json, models[document], skip_none=True)
-            res = current_app.backend.entries_update(
-                config, document, entry, data, get_gitactor()
-            )
+            res = current_app.backend.entries_update(config, document, entry, data)
             return res
         else:
             abort(500, "schema mismatched")

@@ -8,10 +8,10 @@ from data import *
 import data
 
 
-##   ___ ___  _  _ ___ ___ ___ ___
-##  / __/ _ \| \| | __|_ _/ __/ __|
+## ___ ___  _  _ ___ ___ ___ ___
+## / __/ _ \| \| | __|_ _/ __/ __|
 ## | (_| (_) | .` | _| | | (_ \__ \
-##  \___\___/|_|\_|_| |___\___|___/
+## \___\___/|_|\_|_| |___\___|___/
 
 
 def test_configs_list(curieapi):
@@ -74,7 +74,8 @@ def test_config_create_fail_clean(curieapi_empty):
     }
     curieapi_empty.configs.create_name("pytest1", body=conf)
 
-    conf["blobs"] = {"geolite2asn": {}}  # geolite2asn should have field "format"
+    # geolite2asn should have field "format"
+    conf["blobs"] = {"geolite2asn": {}}
     with pytest.raises(ClientError) as e:
         curieapi_empty.configs.create_name("pytest2", body=conf)
     assert e.value.response.status_code == 400
@@ -119,47 +120,53 @@ def test_configs_update(curieapi_small):
     r = curieapi.configs.get("pytest")
     assert r.status_code == 200
 
-    jblob = {"blob": ["xxx"], "format": "json"}
+    jblob = {"blob": "xxx", "format": "json"}
 
     newlimits = [
         {
             "id": vec_limit["id"],
             "name": "foobar",
-            "description": None,
+            "description": "baz",
             "timeframe": "3",
-            "thresholds": [{"limit": "2", "action": None}],
-            "include": None,
-            "exclude": None,
-            "key": "1",
-            "pairwith": None,
+            "thresholds": [{"limit": "2", "action": {"type": "default"}}],
+            "include": [],
+            "exclude": [],
+            "key": [{"attrs": "remote_addr"}],
+            "pairwith": {"self": "self"},
         },
         {
             "id": "newid",
             "name": "barfoo",
-            "description": None,
+            "description": "zab",
             "timeframe": "30",
-            "thresholds": [{"limit": "20", "action": None}],
-            "include": None,
-            "exclude": None,
-            "key": "10",
-            "pairwith": None,
+            "thresholds": [{"limit": "20", "action": {"type": "default"}}],
+            "include": [],
+            "exclude": [],
+            "key": [{"attrs": "remote_addr"}],
+            "pairwith": {"self": "self"},
         },
     ]
     new_content_filter_rules = [
-        {"id": vec_contentfilterrule["id"], "msg": "XXXX"},
+        vec_contentfilterrule,
         {
             "id": "newid",
-            "name": None,
+            "name": "dummy contentfiler rule",
+            "description": "dummy new content filter rule",
             "msg": "hola",
             "category": "1",
             "certainity": 2,
             "operand": "3",
             "severity": 4,
+            "risk": 3,
             "subcategory": "5",
+            "tags": [],
         },
     ]
     update = {
-        "meta": {"id": "renamed_pytest"},
+        "meta": {
+            "id": "renamed_pytest",
+            "description": "a renamed version of the pytest configuration",
+        },
         "blobs": {"geolite2country": jblob},
         "documents": {
             "ratelimits": newlimits,
@@ -189,7 +196,7 @@ def test_configs_update(curieapi_small):
     assert r.body["documents"]["securitypolicies"] == [vec_securitypolicy]
 
 
-##  ___ _    ___  ___ ___
+## ___ _    ___  ___ ___
 ## | _ ) |  / _ \| _ ) __|
 ## | _ \ |_| (_) | _ \__ \
 ## |___/____\___/|___/___/
@@ -313,7 +320,7 @@ def test_blobs_list_versions(curieapi, blobname):
     assert "Update" in v6[0]["message"]
 
 
-##  ___   ___   ___ _   _ __  __ ___ _  _ _____ ___
+## ___   ___   ___ _   _ __  __ ___ _  _ _____ ___
 ## |   \ / _ \ / __| | | |  \/  | __| \| |_   _/ __|
 ## | |) | (_) | (__| |_| | |\/| | _|| .` | | | \__ \
 ## |___/ \___/ \___|\___/|_|  |_|___|_|\_| |_| |___/
@@ -460,7 +467,7 @@ def test_documents_list_versions(curieapi, docname):
     assert "Add entry" in v6[0]["message"]
 
 
-##  ___ _  _ _____ ___ ___ ___ ___
+## ___ _  _ _____ ___ ___ ___ ___
 ## | __| \| |_   _| _ \_ _| __/ __|
 ## | _|| .` | | | |   /| || _|\__ \
 ## |___|_|\_| |_| |_|_\___|___|___/

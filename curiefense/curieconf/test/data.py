@@ -41,9 +41,11 @@ vec_contentfilterrule = {
     "id": "100000",
     "name": "100000",
     "msg": "SQLi Attempt (Conditional Operator Detected)",
+    "description": "a rule detecting SQL injection with the BETWEEN operator",
     "operand": "\\s(and|or)\\s+\\d+\\s+.*between\\s.*\\d+\\s+and\\s+\\d+.*",
     "severity": 5,
     "certainity": 5,
+    "risk": 5,
     "category": "sqli",
     "subcategory": "statement injection",
 }
@@ -52,20 +54,17 @@ vec_contentfilterrule = {
 vec_contentfilterprofile = {
     "id": "__default__",
     "name": "default contentfilter",
+    "ignore": [],
     "ignore_alphanum": True,
-    "max_header_length": 1024,
-    "max_cookie_length": 1024,
-    "max_arg_length": 1024,
-    "max_headers_count": 42,
-    "max_cookies_count": 42,
-    "max_args_count": 512,
+    "masking_seed": "CHANGEME",
+    "active": ["cf-rule-risk:5"],
     "args": {
         "names": [
             {
                 "key": "optnamearg",
                 "reg": "^[A-F]+$",
                 "restrict": False,
-                "exclusions": {},
+                "exclusions": [],
             },
         ],
         "regex": [
@@ -73,9 +72,11 @@ vec_contentfilterprofile = {
                 "key": "optregexarg",
                 "reg": "^[G-J]{3}$",
                 "restrict": False,
-                "exclusions": {},
+                "exclusions": [],
             },
         ],
+        "max_count": 512,
+        "max_length": 1024,
     },
     "headers": {
         "names": [
@@ -83,7 +84,7 @@ vec_contentfilterprofile = {
                 "key": "optnamehdr",
                 "reg": "^[A-F]+$",
                 "restrict": False,
-                "exclusions": {},
+                "exclusions": [],
             },
         ],
         "regex": [
@@ -91,9 +92,11 @@ vec_contentfilterprofile = {
                 "key": "optregexhdr",
                 "reg": "^[G-J]{3}$",
                 "restrict": False,
-                "exclusions": {},
+                "exclusions": [],
             },
         ],
+        "max_count": 42,
+        "max_length": 1024,
     },
     "cookies": {
         "names": [
@@ -101,7 +104,7 @@ vec_contentfilterprofile = {
                 "key": "optnameck",
                 "reg": "^[A-F]+$",
                 "restrict": False,
-                "exclusions": {},
+                "exclusions": [],
             },
         ],
         "regex": [
@@ -109,10 +112,15 @@ vec_contentfilterprofile = {
                 "key": "optregexck",
                 "reg": "^[G-J]{3}$",
                 "restrict": False,
-                "exclusions": {},
+                "exclusions": [],
             },
         ],
+        "max_count": 42,
+        "max_length": 1024,
     },
+    "path": {"names": [], "regex": [], "max_count": 42, "max_length": 1024},
+    "decoding": {"base64": True, "dual": True, "html": False, "unicode": False},
+    "report": [],
 }
 
 
@@ -131,10 +139,11 @@ vec_aclprofile = {
 vec_globalfilter = {
     "id": "ed8f6efb",
     "active": True,
+    "action": {"type": "default"},
     "name": "Spamhaus DROP",
+    "description": "Spamhaus Don't Route Or Peer list",
     "source": "https://www.spamhaus.org/drop/drop.txt",
     "mdate": "2020-05-31T05:28:47.410Z",
-    "notes": "; notes",
     "tags": ["blacklists", "spamhaus"],
     "rule": {
         "entries": [
