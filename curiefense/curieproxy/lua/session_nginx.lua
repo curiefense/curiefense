@@ -4,7 +4,7 @@ local curiefense  = require "curiefense"
 local sfmt = string.format
 local redis = require "resty.redis"
 
-local HOPS = os.getenv("XFF_TRUSTED_HOPS") or 1
+local HOPS = tonumber(os.getenv("XFF_TRUSTED_HOPS") or "0")
 local redishost = os.getenv("REDIS_HOST") or "redis"
 local redisport = os.getenv("REDIS_PORT") or 6379
 

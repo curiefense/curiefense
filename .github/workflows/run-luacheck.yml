@@ -15,4 +15,4 @@ jobs:
         run: sudo apt-get -y --no-install-recommends install lua-check
       - name: run luacheck
         # only run checks on files that run in production, not on all random lua files
-        run: shopt -s globstar; luacheck --only 1 curiefense/curieproxy/lua/**/*.lua curiefense/curieproxy/rust/luatests/test.lua
+        run: shopt -s globstar; luacheck curiefense/curieproxy/lua/**/*.lua curiefense/curieproxy/rust/luatests/test.lua

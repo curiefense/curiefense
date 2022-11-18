@@ -16,7 +16,7 @@ end
 local function extract_ip(headers, metadata)
     local client_addr = "1.1.1.1"
     local xff = headers:get("x-forwarded-for")
-    local hops = metadata:get("xff_trusted_hops") or "1"
+    local hops = metadata:get("xff_trusted_hops") or "0"
 
     hops = tonumber(hops)
     local addrs = utils.map_fn(utils.split(xff, ","), utils.trim)
