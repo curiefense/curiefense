@@ -12,16 +12,16 @@ services:
       - ./filebeat/template.json:/usr/share/filebeat/template.json
     environment:
       - ENVOY_UID
-      - TARGET_ADDRESS_A=echo
-      - TARGET_PORT_A=8080
-      - TARGET_ADDRESS_B=juiceshop
-      - TARGET_PORT_B=3000
+      - TARGET_ADDRESS_A=${TARGET_ADDRESS_A:-echo}
+      - TARGET_PORT_A=${TARGET_PORT_A:-8080}
+      - TARGET_ADDRESS_B=${TARGET_ADDRESS_B:-juiceshop}
+      - TARGET_PORT_B=${TARGET_PORT_B:-3000}
       - XFF_TRUSTED_HOPS
       - ENVOY_LOG_LEVEL
       - FILEBEAT
       - FILEBEAT_LOG_LEVEL
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - KIBANA_URL=http://kibana:5601
+      - ELASTICSEARCH_URL=${ELASTICSEARCH_URL:-http://elasticsearch:9200}
+      - KIBANA_URL=${KIBANA_URL:-http://kibana:5601}
     networks:
       curiemesh:
         aliases:
@@ -46,20 +46,20 @@ services:
       - ./filebeat/ilm.json:/usr/share/filebeat/ilm.json
       - ./filebeat/template.json:/usr/share/filebeat/template.json
     environment:
-      - XFF_TRUSTED_HOPS=1
-      - TARGET_ADDRESS_A=echo
-      - TARGET_PORT_A=8080
-      - TARGET_ADDRESS_B=juiceshop
-      - TARGET_PORT_B=3000
-      - FILEBEAT=yes
+      - XFF_TRUSTED_HOPS=${XFF_TRUSTED_HOPS:-1}
+      - TARGET_ADDRESS_A=${TARGET_ADDRESS_A:-echo}
+      - TARGET_PORT_A=${TARGET_PORT_A:-8080}
+      - TARGET_ADDRESS_B=${TARGET_ADDRESS_B:-juiceshop}
+      - TARGET_PORT_B=${TARGET_PORT_B:-3000}
+      - FILEBEAT=${FILEBEAT:-yes}
       - FILEBEAT_LOG_LEVEL
-      - AGGREGATED_LOG_FILE=/var/log/nginx.metrics.json.log
-      - NGINX_ACCESS_LOG=/var/log/nginx.access.json.log
-      - NGINX_ERROR_LOG=/var/log/nginx.error.log
-      - CF_LOG_LEVEL=error
-      - NGINX_LOG_LEVEL=error
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - KIBANA_URL=http://kibana:5601
+      - AGGREGATED_LOG_FILE=${AGGREGATED_LOG_FILE:-/var/log/nginx.metrics.json.log}
+      - NGINX_ACCESS_LOG=${NGINX_ACCESS_LOG:-/var/log/nginx.access.json.log}
+      - NGINX_ERROR_LOG=${NGINX_ERROR_LOG:-/var/log/nginx.error.log}
+      - CF_LOG_LEVEL=${CF_LOG_LEVEL:-error}
+      - NGINX_LOG_LEVEL=${NGINX_LOG_LEVEL:-error}
+      - ELASTICSEARCH_URL=${ELASTICSEARCH_URL:-http://elasticsearch:9200}
+      - KIBANA_URL=${KIBANA_URL:-http://kibana:5601}
     networks:
       curiemesh:
         aliases:
@@ -85,9 +85,9 @@ services:
     tty: true
     environment:
       - CURIE_BUCKET_LINK
-      - INIT_GIT_ON_STARTUP=yes
-      - BOOTSTRAP_BUCKET_ON_STARTUP=yes
-      - IF_NO_CONFIG_INIT_FROM=/bootstrap/confdb-initial-data/
+      - INIT_GIT_ON_STARTUP=${INIT_GIT_ON_STARTUP:-yes}
+      - BOOTSTRAP_BUCKET_ON_STARTUP=${BOOTSTRAP_BUCKET_ON_STARTUP:-yes}
+      - IF_NO_CONFIG_INIT_FROM=${IF_NO_CONFIG_INIT_FROM:-/bootstrap/confdb-initial-data/}
     networks:
       - confnet
     ports:
@@ -121,7 +121,7 @@ services:
     tty: true
     environment:
       - CURIE_BUCKET_LINK
-      - RUN_MODE=PERIODIC_SYNC
+      - RUN_MODE=${RUN_MODE:-PERIODIC_SYNC}
     networks:
       - curiemesh
     secrets:
@@ -137,11 +137,11 @@ services:
     depends_on:
       - mongodb
     environment:
-      - PROMETHEUS_DISABLE_CREATED_SERIES=true
-      - MONGODB_URI=mongodb://mongodb:27017/
-      - MONGODB_METRICS_DB=curiemetrics
-      - MONGODB_METRICS_COLLECTION=metrics1s
-      - METRICS_URI=http://curieproxyngx:8999/
+      - PROMETHEUS_DISABLE_CREATED_SERIES=${PROMETHEUS_DISABLE_CREATED_SERIES:-true}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017/}
+      - MONGODB_METRICS_DB=${MONGODB_METRICS_DB:-curiemetrics}
+      - MONGODB_METRICS_COLLECTION=${MONGODB_METRICS_COLLECTION:-metrics1s}
+      - METRICS_URI=${METRICS_URI:-http://curieproxyngx:8999/}
     networks:
       - curiemesh
 
@@ -239,10 +239,10 @@ services:
     image: docker.elastic.co/kibana/kibana:7.17.6
     restart: always
     environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - TELEMETRY_ENABLED=false
-      - TELEMETRY_OPTIN=false
+      - ELASTICSEARCH_URL=${ELASTICSEARCH_URL:-http://elasticsearch:9200}
+      - ELASTICSEARCH_HOSTS=${ELASTICSEARCH_HOSTS:-http://elasticsearch:9200}
+      - TELEMETRY_ENABLED=${TELEMETRY_ENABLED:-false}
+      - TELEMETRY_OPTIN=${TELEMETRY_OPTIN:-false}
     networks:
       - curiemesh
     ports:
