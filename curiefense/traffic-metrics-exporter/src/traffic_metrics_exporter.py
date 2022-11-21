@@ -221,7 +221,7 @@ def get_t2():
         try:
             logger.info ("url: %s" % config["url"])
             logger.info ("headers: %s" %config["headers"])
-            
+
             t2_data = requests.get(
                 config["url"], headers=config["headers"]
             )
