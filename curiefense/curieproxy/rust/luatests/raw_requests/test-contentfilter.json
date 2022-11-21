@@ -21,19 +21,24 @@
         "cf-rule-subcategory:libinjection-xss",
         "cf-rule-risk:libinjection",
         "cf-rule-id:libinjection-xss",
-        "status:403",
-        "status-class:4xx",
         "aclname:default-acl"
       ],
-      "action": "custom_response",
-      "block_mode": false,
-      "status": 403
+      "action": "pass",
+      "content_filter_triggers": [
+        {
+          "active": true,
+          "value": "<script>document.body.innerHTML=",
+          "type": "xss",
+          "name": "b",
+          "request_element": "uri"
+        }
+      ]
     },
     "name": "libinjection xss",
     "headers": {
       "x-request-id": "e6acdce3-e076-4f0d-9a22-9d82fe01ba60",
       "x-forwarded-for": "23.129.64.253",
-      ":path": "\/test\/?a=1&b=%3Cscript%3Edocument.body.innerHTML=",
+      ":path": "/test/?a=1&b=%3Cscript%3Edocument.body.innerHTML=",
       ":method": "GET",
       ":authority": "localhost:30081"
     }
@@ -62,13 +67,9 @@
         "cf-rule-risk:5",
         "cf-rule-category:sqli",
         "cf-rule-subcategory:built-in-function-invocation",
-        "status:403",
-        "status-class:4xx",
         "cf-rule-id:100016"
       ],
-      "action": "custom_response",
-      "block_mode": false,
-      "status": 403,
+      "action": "pass",
       "content_filter_triggers": [
         {
           "risk_level": 5,
@@ -114,13 +115,9 @@
         "cf-rule-category:sqli",
         "cf-rule-subcategory:built-in-function-invocation",
         "cf-rule-id:100016",
-        "status:403",
-        "status-class:4xx",
         "sante"
       ],
-      "action": "custom_response",
-      "block_mode": false,
-      "status": 403
+      "action": "pass"
     },
     "name": "sqli (args)",
     "headers": {
@@ -155,13 +152,20 @@
         "cf-rule-risk:5",
         "cf-rule-category:sqli",
         "cf-rule-subcategory:built-in-function-invocation",
-        "status:403",
-        "status-class:4xx",
         "sante"
       ],
-      "action": "custom_response",
-      "block_mode": false,
-      "status": 403
+      "action": "pass",
+      "content_filter_triggers": [
+        {
+          "ruleid": "100016",
+          "section": "cookies",
+          "value": "xp_cmdshell",
+          "type": "signature",
+          "active": true,
+          "name": "COOK",
+          "risk_level": 5
+        }
+      ]
     },
     "name": "sqli (cookies)",
     "headers": {
@@ -270,13 +274,20 @@
         "cf-rule-id:100017",
         "cf-rule-risk:3",
         "cf-rule-category:sqli",
-        "cf-rule-subcategory:built-in-function-invocation",
-        "status:403",
-        "status-class:4xx"
+        "cf-rule-subcategory:built-in-function-invocation"
       ],
-      "action": "custom_response",
-      "block_mode": false,
-      "status": 403
+      "action": "pass",
+      "content_filter_triggers": [
+        {
+          "ruleid": "100017",
+          "active": true,
+          "value": "information_schema(",
+          "type": "signature",
+          "request_element": "uri",
+          "name": "v",
+          "risk_level": 3
+        }
+      ]
     },
     "name": "other sqli",
     "headers": {
@@ -354,13 +365,29 @@
         "cf-rule-risk:3",
         "cf-rule-risk:5",
         "cf-rule-category:sqli",
-        "cf-rule-subcategory:built-in-function-invocation",
-        "status:403",
-        "status-class:4xx"
+        "cf-rule-subcategory:built-in-function-invocation"
       ],
-      "action": "custom_response",
-      "block_mode": false,
-      "status": 403
+      "action": "pass",
+      "content_filter_triggers": [
+        {
+          "ruleid": "100016",
+          "active": true,
+          "value": "information_schema( xp_cmdshell",
+          "type": "signature",
+          "request_element": "uri",
+          "name": "v",
+          "risk_level": 5
+        },
+        {
+          "ruleid": "100017",
+          "active": true,
+          "value": "information_schema( xp_cmdshell",
+          "type": "signature",
+          "request_element": "uri",
+          "name": "v",
+          "risk_level": 3
+        }
+      ]
     },
     "name": "two sqli, same parameter",
     "headers": {
@@ -397,13 +424,29 @@
         "cf-rule-risk:3",
         "cf-rule-risk:5",
         "cf-rule-category:sqli",
-        "cf-rule-subcategory:built-in-function-invocation",
-        "status:403",
-        "status-class:4xx"
+        "cf-rule-subcategory:built-in-function-invocation"
       ],
-      "action": "custom_response",
-      "block_mode": false,
-      "status": 403
+      "action": "pass",
+      "content_filter_triggers": [
+        {
+          "ruleid": "100016",
+          "active": true,
+          "value": "xp_cmdshell",
+          "type": "signature",
+          "request_element": "uri",
+          "name": "x",
+          "risk_level": 5
+        },
+        {
+          "ruleid": "100017",
+          "active": true,
+          "value": "information_schema(",
+          "type": "signature",
+          "request_element": "uri",
+          "name": "v",
+          "risk_level": 3
+        }
+      ]
     },
     "name": "two sqli",
     "headers": {
@@ -1008,13 +1051,19 @@
         "contentfiltername:default-contentfilter",
         "all",
         "bot",
-        "status:403",
-        "status-class:4xx",
         "container:1e219d8ed6b4"
       ],
-      "action": "custom_response",
-      "block_mode": false,
-      "status": 403
+      "action": "pass",
+      "content_filter_triggers": [
+        {
+          "active": true,
+          "section": "headers",
+          "type": "entry_too_large",
+          "actual": 1500,
+          "expected": 1024,
+          "name": "long-header"
+        }
+      ]
     },
     "name": "overlong header",
     "headers": {

@@ -3,7 +3,7 @@ use curiefense::{
     config::{flow::FlowMap, globalfilter::GlobalFilterSection, virtualtags::VirtualTags, with_config},
     grasshopper::DynGrasshopper,
     incremental::{add_body, add_headers, finalize, inspect_init, IData, IPInfo},
-    interface::{jsonlog, AnalyzeResult},
+    interface::{jsonlog, ActionType, AnalyzeResult},
     logs::{LogLevel, Logs},
     utils::RequestMeta,
 };
@@ -283,15 +283,19 @@ impl MyEP {
                 stage_pass(stage, tx).await;
                 false
             }
-            Some(a) => {
-                if a.block_mode {
+            Some(a) => match &a.atype {
+                ActionType::Block {
+                    status,
+                    headers,
+                    content,
+                } => {
                     tx.send(Ok(ProcessingResponse {
                         response: Some(ext_proc::processing_response::Response::ImmediateResponse(
                             ImmediateResponse {
-                                status: Some(HttpStatus { code: a.status as i32 }),
+                                status: Some(HttpStatus { code: *status as i32 }),
                                 details: serde_json::to_string(&result.decision.reasons).unwrap(),
-                                body: a.content.clone(),
-                                headers: a.headers.clone().map(mutate_headers),
+                                body: content.clone(),
+                                headers: headers.clone().map(mutate_headers),
                                 grpc_status: None,
                             },
                         )),
@@ -300,15 +304,24 @@ impl MyEP {
                     .await
                     .unwrap();
                     true
-                } else {
+                }
+                ActionType::Monitor { .. } | ActionType::Skip => {
                     stage_pass(stage, tx).await;
                     false
                 }
-            }
+            },
         };
 
         if blocked || rcode.is_some() {
-            let block_code = rcode.or_else(|| result.decision.maction.as_ref().map(|a| a.status));
+            let block_code = rcode.or_else(|| {
+                result.decision.maction.as_ref().and_then(|a| {
+                    if let ActionType::Block { status, .. } = a.atype {
+                        Some(status)
+                    } else {
+                        None
+                    }
+                })
+            });
             let (v, now) = jsonlog(
                 &result.decision,
                 Some(&result.rinfo),

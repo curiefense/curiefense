@@ -148,10 +148,10 @@ mod tests {
                 limit: v,
                 action: SimpleAction {
                     atype: SimpleActionT::Custom {
+                        headers: None,
+                        status: v as u32,
                         content: "test".to_string(),
                     },
-                    headers: None,
-                    status: v as u32,
                     extra_tags: None,
                 },
             }

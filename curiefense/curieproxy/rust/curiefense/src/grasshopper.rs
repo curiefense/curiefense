@@ -106,11 +106,11 @@ impl Grasshopper for DynGrasshopper {
 pub fn gh_fail_decision(reason: &str) -> Decision {
     Decision::action(
         Action {
-            atype: ActionType::Block,
-            block_mode: true,
-            headers: None,
-            status: 500,
-            content: "internal_error".to_string(),
+            atype: ActionType::Block {
+                headers: None,
+                status: 500,
+                content: "internal_error".to_string(),
+            },
             extra_tags: None,
         },
         vec![BlockReason::phase01_unknown(reason)],
@@ -151,11 +151,11 @@ pub fn challenge_phase01<GH: Grasshopper>(gh: &GH, ua: &str, reasons: Vec<BlockR
     // (this would have been caught by the previous guard)
     Decision::action(
         Action {
-            atype: ActionType::Block,
-            block_mode: true,
-            headers: Some(hdrs),
-            status: 247,
-            content,
+            atype: ActionType::Block {
+                headers: Some(hdrs),
+                status: 247,
+                content,
+            },
             extra_tags: Some(["challenge_phase01"].iter().map(|s| s.to_string()).collect()),
         },
         reasons,
@@ -187,11 +187,11 @@ pub fn challenge_phase02<GH: Grasshopper>(gh: &GH, uri: &str, headers: &RequestF
 
     Some(Decision::action(
         Action {
-            atype: ActionType::Block,
-            block_mode: true,
-            headers: Some(nheaders),
-            status: 248,
-            content: "{}".to_string(),
+            atype: ActionType::Block {
+                headers: Some(nheaders),
+                status: 248,
+                content: "{}".to_string(),
+            },
             extra_tags: Some(["challenge_phase02"].iter().map(|s| s.to_string()).collect()),
         },
         vec![BlockReason::phase02()],

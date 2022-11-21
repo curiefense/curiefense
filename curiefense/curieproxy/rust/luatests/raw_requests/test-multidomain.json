@@ -21,13 +21,18 @@
         "cf-rule-subcategory:libinjection-xss",
         "cf-rule-risk:libinjection",
         "cf-rule-id:libinjection-xss",
-        "status:403",
-        "status-class:4xx",
         "aclname:default-acl"
       ],
-      "action": "custom_response",
-      "block_mode": false,
-      "status": 403
+      "content_filter_triggers": [
+        {
+          "active": true,
+          "value": "<script>document.body.innerHTML=",
+          "type": "xss",
+          "name": "b",
+          "request_element": "uri"
+        }
+      ],
+      "action": "pass"
     },
     "name": "md libinjection xss",
     "headers": {
@@ -62,13 +67,20 @@
         "aclname:default-acl",
         "cf-rule-risk:5",
         "cf-rule-category:sqli",
-        "status:403",
-        "status-class:4xx",
         "cf-rule-subcategory:built-in-function-invocation"
       ],
-      "action": "custom_response",
-      "block_mode": false,
-      "status": 403
+      "action": "pass",
+      "content_filter_triggers": [
+        {
+          "ruleid": "100016",
+          "section": "headers",
+          "value": "xp_cmdshell",
+          "type": "signature",
+          "active": true,
+          "name": "malicious",
+          "risk_level": 5
+        }
+      ]
     },
     "name": "md sqli (header)",
     "headers": {

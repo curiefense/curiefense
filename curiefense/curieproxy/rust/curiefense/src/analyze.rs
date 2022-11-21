@@ -457,15 +457,11 @@ pub fn analyze_finish<GH: Grasshopper>(
                     reason
                 })
                 .collect();
-            if cfblock.blocking {
-                let mut dec = secpol
+            if cfblock.blocking && secpol.content_filter_active {
+                secpol
                     .content_filter_profile
                     .action
-                    .to_decision(is_human, mgh, &reqinfo, &mut tags, br);
-                if let Some(mut action) = dec.maction.as_mut() {
-                    action.block_mode &= secpol.content_filter_active;
-                }
-                dec
+                    .to_decision(is_human, mgh, &reqinfo, &mut tags, br)
             } else {
                 Decision::pass(br)
             }
