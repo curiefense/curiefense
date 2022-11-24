@@ -104,7 +104,7 @@ impl Initiator {
         match self {
             Initiator::GlobalFilter { id, name } => {
                 map.serialize_entry("id", id)?;
-                map.serialize_entry("name", name)?;
+                map.serialize_entry("gf-name", name)?;
             }
             Initiator::Acl { tags, stage } => {
                 map.serialize_entry("tags", tags)?;
@@ -117,7 +117,7 @@ impl Initiator {
             }
             Initiator::Limit { id, name, threshold } => {
                 map.serialize_entry("id", id)?;
-                map.serialize_entry("name", name)?;
+                map.serialize_entry("lm-name", name)?;
                 map.serialize_entry("threshold", threshold)?;
                 map.serialize_entry("counter", &(threshold + 1))?;
             }
