@@ -29,7 +29,7 @@
           "value": "<script>document.body.innerHTML=",
           "type": "xss",
           "name": "b",
-          "request_element": "uri"
+          "section": "uri"
         }
       ],
       "action": "pass"

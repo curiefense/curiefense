@@ -30,7 +30,7 @@
           "value": "<script>document.body.innerHTML=",
           "type": "xss",
           "name": "b",
-          "request_element": "uri"
+          "section": "uri"
         }
       ]
     },
@@ -283,7 +283,7 @@
           "active": true,
           "value": "information_schema(",
           "type": "signature",
-          "request_element": "uri",
+          "section": "uri",
           "name": "v",
           "risk_level": 3
         }
@@ -374,7 +374,7 @@
           "active": true,
           "value": "information_schema( xp_cmdshell",
           "type": "signature",
-          "request_element": "uri",
+          "section": "uri",
           "name": "v",
           "risk_level": 5
         },
@@ -383,7 +383,7 @@
           "active": true,
           "value": "information_schema( xp_cmdshell",
           "type": "signature",
-          "request_element": "uri",
+          "section": "uri",
           "name": "v",
           "risk_level": 3
         }
@@ -433,7 +433,7 @@
           "active": true,
           "value": "xp_cmdshell",
           "type": "signature",
-          "request_element": "uri",
+          "section": "uri",
           "name": "x",
           "risk_level": 5
         },
@@ -442,7 +442,7 @@
           "active": true,
           "value": "information_schema(",
           "type": "signature",
-          "request_element": "uri",
+          "section": "uri",
           "name": "v",
           "risk_level": 3
         }
@@ -1059,8 +1059,6 @@
           "active": true,
           "section": "headers",
           "type": "entry_too_large",
-          "actual": 1500,
-          "expected": 1024,
           "name": "long-header"
         }
       ]
