@@ -15,10 +15,6 @@ configparser==5.2.0
 decorator==5.1.1
 fasteners==0.17.3
 filelock==3.6.0
-Flask==1.1.4
-Flask-Cors==3.0.10
-Flask-PyMongo==2.3.0
-flask-restx==0.5.1
 gitdb==4.0.9
 GitPython==3.1.27
 google-api-core==2.7.2
@@ -61,4 +57,7 @@ uWSGI==2.0.20
 Werkzeug==0.16.1
 xattr==0.9.9
 zipp==3.8.0
-prometheus-flask-exporter==0.20.3
+fastapi==0.87.0
+prometheus-fastapi-instrumentator==5.9.1
+pydantic==1.10.2
+uvicorn==0.19.0
