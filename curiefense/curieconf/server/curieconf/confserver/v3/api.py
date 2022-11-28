@@ -893,9 +893,9 @@ def filter_x_fields(res, x_fields):
     x_fields = x_fields.replace(" ", "")
     fields = x_fields.split(",")
     if isinstance(res, list):
-        return [{field: r[field] for field in fields if r.get(field, False)} for r in res]
+        return [{field: r[field] for field in fields if field in r} for r in res]
     else:
-        return {field: res[field] for field in fields}
+        return {field: res[field] for field in fields if field in res}
 
 
 @router.get("/configs/{config}/v/", tags=[Tags.congifs], response_model=List[VersionLog],
@@ -1105,7 +1105,7 @@ async def document_resource_get(config: str, document: str, request: Request):
         print(f"fields are {fields}")
         print(f"res is {res}")
 
-        return [{field: r[field] for field in fields if r.get(field, False)} for r in res]
+        return [{field: r[field] for field in fields if field in r} for r in res]
 
     """Get a complete document"""
 
@@ -1119,11 +1119,12 @@ async def document_resource_get(config: str, document: str, request: Request):
 
 
 async def _filter(data, keys):
-    filtered = {}
-    for key in keys:
-        if data.get(key, False):
-            filtered[key] = data[key]
-    return filtered
+    # filtered = {}
+    # for key in keys:
+    #     if data.get(key, False):
+    #         filtered[key] = data[key]
+    # return filtered
+    return {key: data[key] for key in keys if key in data}
 
 
 @router.post("/configs/{config}/d/{document}/", tags=[Tags.congifs])
@@ -1248,7 +1249,7 @@ async def document_version_resource_get(config: str, document: str, version: str
     if document not in models:
         raise HTTPException(404, "document does not exist")
     res = request.app.backend.documents_get(config, document, version)
-    return [{key: r[key] for key in list(models[document].__fields__.keys()) if r.get(key, False)} for r in res]
+    return [{key: r[key] for key in list(models[document].__fields__.keys()) if key in r} for r in res]
 
 
 # @ns_configs.route("/<string:config>/d/<string:document>/v/<string:version>/")
@@ -1299,7 +1300,8 @@ async def entries_resource_post(config: str, document: str, basic_entry: BasicEn
         raise HTTPException(404, "document does not exist")
     isValid, err = validateJson(data_json, document)
     if isValid:
-        data = {key: data_json[key] for key in list(models[document].__fields__.keys())}
+        keys = list(models[document].__fields__.keys())
+        data = {key: data_json[key] for key in keys if key in data_json}
         res = request.app.backend.entries_create(
             config, document, data, get_gitactor(request)
         )
@@ -1344,18 +1346,19 @@ async def entry_resource_get(config: str, document: str, entry: str, request: Re
         raise HTTPException(404, "document does not exist")
     res = request.app.backend.entries_get(config, document, entry)
     keys = switch_alias(list(models[document].__fields__.keys()))
-    return {key: res[key] for key in keys if res.get(key, False)}
+    return {key: res[key] for key in keys if key in res}
 
 
 @router.put("/configs/{config}/d/{document}/e/{entry}/", tags=[Tags.congifs])
 async def entry_resource_put(config: str, document: str, entry: str, basic_entry: BasicEntry, request: Request):
     """Update an entry in a document"""
     data_json = await request.json()
+    print(f"-------------------------- active: {data_json.get('active', 'blaaaaaaa')} ------------------------------")
     if document not in models:
         raise HTTPException(404, "document does not exist")
     isValid, err = validateJson(data_json, document)
     if isValid:
-        data = {key: data_json[key] for key in switch_alias(list(models[document].__fields__.keys()))}
+        data = {key: data_json[key] for key in switch_alias(list(models[document].__fields__.keys())) if key in data_json}
 
         res = request.app.backend.entries_update(
             config, document, entry, data, get_gitactor(request)
@@ -1439,7 +1442,8 @@ async def entry_version_resource_get(config: str, document: str, entry: str, ver
     if document not in models:
         raise HTTPException(404, "document does not exist")
     res = request.app.backend.entries_get(config, document, entry, version)
-    return {key: res[key] for key in list(models[document].__fields__.keys())}
+    keys = list(models[document].__fields__.keys())
+    return {key: res[key] for key in keys if key in res}
 
 
 # @ns_configs.route(
@@ -1738,7 +1742,7 @@ async def publish_resource_put(config: str, request: Request, buckets: List[Buck
             s = True
             msg = "ok"
         status.append(
-            {"name": buck["name"], "ok": s, "logs": logs, "message": msg}
+            {"name": bucket["name"], "ok": s, "logs": logs, "message": msg}
         )
     return {"ok": ok, "status": status}
 

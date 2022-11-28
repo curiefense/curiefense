@@ -13,7 +13,7 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.encoders import jsonable_encoder
 from prometheus_fastapi_instrumentator import Instrumentator
 
-app = FastAPI()
+app = FastAPI(docs_url="/api/v3/")
 app.include_router(api.router)
 
 

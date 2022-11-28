@@ -26,4 +26,4 @@ WORKDIR /app
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/entrypoint.sh"]
 
-CMD ["/usr/local/bin/uwsgi", "--ini", "/etc/uwsgi/uwsgi.ini", "--callable", "app", "--module", "main"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
