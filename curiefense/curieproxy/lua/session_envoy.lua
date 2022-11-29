@@ -73,6 +73,17 @@ local function custom_response(handle, action_params)
     end
 end
 
+local function pass(handle, action_params)
+    handle:logDebug("altering the request")
+    if type(action_params) == "table" then
+        if type(action_params.headers) == "table" then
+            for k, v in pairs(action_params.headers) do
+                handle:headers():replace(k, v)
+            end
+        end
+    end
+end
+
 function session_rust_envoy.on_response(handle)
     handle:logDebug("todo, capture return code")
 end
@@ -125,17 +136,7 @@ function session_rust_envoy.inspect(handle)
             custom_response(handle, response_table["response"])
         end
         if response_table["action"] == "pass" then
-            local analyser_response = response_table["response"]
-
-            handle:logDebug("altering the request")
-            local headers_handle = handle:headers()
-            if type(analyser_response) == "table" then
-                if type(analyser_response.headers) == "table" then
-                    for k, v in pairs(analyser_response.headers) do
-                        headers_handle:replace(k, v)
-                    end
-                end
-            end
+            pass(handle, response_table["response"])
         end
     end
 end
