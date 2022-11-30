@@ -15,27 +15,21 @@ BUILD_RUST=${BUILD_RUST:-yes}
 declare -A status
 
 GLOBALSTATUS=0
-
-if [ -z "$DOCKER_TAG" ]
-then
-    GITTAG="$(git describe --tag --long --dirty)"
-    DOCKER_DIR_HASH="$(git rev-parse --short=12 HEAD:curiefense)"
-    DOCKER_TAG="${DOCKER_TAG:-$GITTAG-$DOCKER_DIR_HASH}"
-fi
-
+GITTAG="$(git describe --tag --long --dirty)"
+DOCKER_DIR_HASH="$(git rev-parse --short=12 HEAD:curiefense)"
+DOCKER_TAG="${DOCKER_TAG:-$GITTAG-$DOCKER_DIR_HASH}"
 STOP_ON_FAIL=${STOP_ON_FAIL:-yes}
-
 IFS=' ' read -ra RUST_DISTROS <<< "${RUST_DISTROS:-bionic focal}"
 
 if [ -n "$TESTIMG" ]; then
     IMAGES=("$TESTIMG")
     OTHER_IMAGES_DOCKER_TAG="$DOCKER_TAG"
-    DOCKER_TAG="test"
+    DOCKER_TAG="main"
     echo "Building only image $TESTIMG"
 else
     IMAGES=(confserver curieproxy-istio curieproxy-envoy \
         curieproxy-nginx curiesync grafana prometheus extproc \
-        redis traffic-metrics-exporter)
+        redis uiserver traffic-metrics-exporter)
 fi
 
 if [ "$BUILD_RUST" = "yes" ]

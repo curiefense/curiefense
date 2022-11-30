@@ -4,17 +4,22 @@ from setuptools import setup
 
 setup(
     name="curieconf_server",
-    version="3.0",
+    version="1.2",
     description="Curiefense configuration server",
     author="Reblaze",
     author_email="phil@reblaze.com",
     packages=[
         "curieconf.confserver",
         "curieconf.confserver.backend",
+        "curieconf.confserver.v1",
+        "curieconf.confserver.v2",
         "curieconf.confserver.v3",
     ],
     package_data={
         "curieconf.confserver": [
+            "json/*.schema",
+            "v1/json/*.schema",
+            "v2/json/*.schema",
             "v3/json/*.schema",
         ]
     },
@@ -33,6 +38,10 @@ setup(
         "fasteners",
         "jsonpath-ng==1.5.3",
         "pydash==5.0.2",
+        "fastapi==0.87.0",
+        "prometheus-fastapi-instrumentator==5.9.1",
+        "pydantic==1.10.2",
+        "uvicorn==0.19.0"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

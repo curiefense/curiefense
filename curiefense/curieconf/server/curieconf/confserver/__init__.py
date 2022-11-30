@@ -1,22 +1,48 @@
 #! /usr/bin/env python3
-
+import json
 import os
-import flask
-from flask import Flask, current_app
+
 from .backend import Backends
+import uvicorn
+import logging
+from curieconf.confserver.v3 import api
 
-from flask_cors import CORS
-from prometheus_flask_exporter import PrometheusMetrics
+from fastapi import FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.encoders import jsonable_encoder
+from prometheus_fastapi_instrumentator import Instrumentator
+
+app = FastAPI(docs_url="/api/v3/")
+app.include_router(api.router)
 
 
-## Import all versions
-from .v3 import api as api_v3
+@app.on_event("startup")
+async def startup():
+    Instrumentator().instrument(app).expose(app)
 
-app = Flask(__name__)
 
-CORS(app, resources={r"/*": {"origins": "*"}})
+logging.basicConfig(
+    handlers=[
+        logging.FileHandler("fastapi.log"),
+        logging.StreamHandler()
+    ],
+    level=logging.INFO,
+    format='[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s',
+    datefmt='%H:%M:%S'
+)
+logger = logging.getLogger("filters-maxmind")
 
-app.register_blueprint(api_v3.api_bp, url_prefix="/api/v3")
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    # exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')
+    # # or logger.error(f'{exc}')
+    # logger.error(exc_str)
+    # content = {'status_code': 10422, 'message': exc_str, 'data': None}
+    #
+    # return JSONResponse
+    return PlainTextResponse(str(exc), status_code=400)
 
 
 def drop_into_pdb(app, exception):
@@ -56,19 +82,20 @@ def main(args=None):
 
     options = parser.parse_args(args)
 
-    if options.pdb:
-        flask.got_request_exception.connect(drop_into_pdb)
-
-    metrics = PrometheusMetrics(app)
+    # TODO - find replacements for got_request_exception and prometheus_flask_exporter
+    # if options.pdb:
+    #     flask.got_request_exception.connect(drop_into_pdb)
+    # metrics = PrometheusMetrics(app)
 
     try:
-        with app.app_context():
-            current_app.backend = Backends.get_backend(app, options.dbpath)
-            current_app.options = options.__dict__
-            app.run(debug=options.debug, host=options.host, port=options.port)
+        app.backend = Backends.get_backend(app, options.dbpath)
+        app.options = options.__dict__
+        uvicorn.run(app, host=options.host, port=options.port)
+
+    #        app.run(debug=options.debug, host=options.host, port=options.port)
     finally:
         pass
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
