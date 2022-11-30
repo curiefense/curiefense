@@ -777,7 +777,7 @@ class Tags(Enum):
 ### CONFIGS ###
 ################
 
-@router.get("/configs/", tags=[Tags.congifs], response_model=List[Meta])
+@router.get("/configs/", tags=[Tags.congifs], response_model=List[Meta], response_model_exclude_unset=True)
 async def configs_get(request: Request):
     """Get the detailed list of existing configurations"""
     res = request.app.backend.configs_list()
@@ -1221,9 +1221,8 @@ async def document_resource_delete(config: str, document: str, request: Request)
 #     #     return res
 
 
-@router.get("/configs/{config}/d/{document}/v/", tags=[Tags.congifs])
-async def document_list_version_resource_get(config: str, document: str, request: Request,
-                                             response_model=List[VersionLog]):
+@router.get("/configs/{config}/d/{document}/v/", tags=[Tags.congifs], response_model=List[VersionLog])
+async def document_list_version_resource_get(config: str, document: str, request: Request):
     """Retrieve the existing versions of a given document"""
     if document not in models:
         raise HTTPException(404, "document does not exist")
