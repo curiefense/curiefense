@@ -955,12 +955,19 @@ class PublishResource(Resource):
         conf = current_app.backend.configs_get(config, version)
         ok = True
         status = []
-        if type(request.json) is not list:
+        if type(curiefense code .json) is not list:
             abort(400, "body must be a list")
-        for bucket in request.json:
+        history = current_app.backend.key_get('system', 'publishhistory')
+        buckets = request.json
+        for bucket in buckets:
             logs = []
             try:
                 cloud.export(conf, bucket["url"], prnt=lambda x: logs.append(x))
+                from datetime import date
+                today = date.today()
+                timestamp = today.strftime("%d/%m/%Y - %H:%M:%S")
+                history.append({'source_branch': config, 'commit_hash_id': version, 'target_bucket': bucket["url"], 'date': timestamp, 'author': get_gitactor()})
+                current_app.backend.key_set('system', 'publishhistory', history, get_gitactor())
             except Exception as e:
                 ok = False
                 s = False
