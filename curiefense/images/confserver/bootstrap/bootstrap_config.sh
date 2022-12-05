@@ -4,7 +4,7 @@ set -e
 
 # to be run in an initContainer
 # Will deploy specified configuration as a bootstrap config, if there is no config in /cf-persistent-config/confdb
-TARGETDIR="/cf-persistent-config/confdb"
+TARGETDIR="/tmp/cf-persistent-config/confdb"
 
 if [ -e "$TARGETDIR" ]; then
 	echo "Config already present in $TARGETDIR, exiting"

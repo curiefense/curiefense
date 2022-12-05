@@ -1,0 +1,580 @@
+@font-face {
+  src: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/86186/gothamrnd-medium.ttf);
+  font-family: "Gotham Rounded Book";
+}
+
+.main__hexcode,
+.main__share-input {
+  text-transform: uppercase;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #555459;
+  padding: 0 0.5rem;
+  font-family: "Consolas", monaco, courier, monospace;
+}
+
+:root {
+  --column-bg: #ae0001;
+  --menu-bg-hover: #680001;
+  --active-item: #D3A625;
+  --active-item-text: #680001;
+  --hover-item: #BE0002;
+  --text-color: #FFFFFF;
+  --active-presence: #00FFBA;
+  --mention-badge: #DE4C0D;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  font-size: 16px;
+  font-family: "Lato", Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #555459;
+  overflow: hidden;
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: #2C2D30;
+}
+
+strong {
+  font-weight: 700;
+}
+
+button {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font-size: inherit;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+button:focus,
+button:hover,
+button:active {
+  outline: none;
+}
+
+.slack {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+@supports (display: grid) {
+  .slack {
+    display: grid;
+    grid-template-columns: 75px 250px 1fr;
+    grid-template-rows: 1fr;
+  }
+}
+
+.teams {
+  width: 75px;
+  position: relative;
+  height: 100%;
+  background: var(--column-bg, #ae0001);
+}
+
+.teams__list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  margin: 0;
+  padding: 0;
+}
+
+.teams__item {
+  counter-increment: team-counter;
+  font-size: 0.8rem;
+  color: #fff;
+  text-align: center;
+  position: relative;
+  list-style: none;
+}
+
+.teams__button {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1.4rem 0 0.5rem;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+  border-radius: 5px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.teams__button--active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.teams__button--active:before {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 0;
+  width: 7px;
+  height: 100%;
+  background: #fff;
+  opacity: 0.7;
+  border-radius: 3px;
+}
+
+.teams__button:hover {
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+.team-menu {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+}
+
+.team-menu:hover {
+  background: var(--menu-bg-hover, #680001);
+}
+
+.team-menu__name {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--text-color, #fff);
+}
+
+.team-menu__status {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--text-color, #fff);
+}
+
+.team-menu__status:before {
+  content: "";
+  display: inline-block;
+  margin-right: 0.2rem;
+  width: 9px;
+  height: 9px;
+  background: var(--active-presence, #00FFBA);
+  border-radius: 50%;
+}
+
+.team-menu__username {
+  opacity: 0.6;
+}
+
+.team-menu__alarm {
+  display: flex;
+  font-size: 25px;
+  color: var(--text-color, #fff);
+}
+
+.sidebar {
+  position: relative;
+  z-index: 1;
+  width: 250px;
+  background: var(--column-bg, #ae0001);
+  color: var(--text-color, #fff);
+  overflow: auto;
+}
+
+.sidebar-inner {
+  overflow: auto;
+  width: 100%;
+  height: calc(100% - 44px);
+}
+
+.threads {
+  margin: 0.6rem 0;
+  padding: 0 18px;
+  opacity: 0.7;
+}
+
+.threads__icon {
+  margin-right: 3px;
+}
+
+.channels,
+.dm {
+  margin: 0.5rem 0 1.5rem;
+  padding-right: 18px;
+}
+
+.channels__list,
+.dm__list {
+  margin: 0;
+  padding: 0;
+}
+
+.channels__item,
+.dm__item {
+  list-style: none;
+}
+
+.channels__button,
+.channels__heading,
+.dm__button,
+.dm__heading {
+  padding: 0 0 0 18px;
+  width: 100%;
+  color: var(--text-color, #fff);
+}
+
+.channels__number,
+.dm__number {
+  display: inline-block;
+  position: relative;
+  top: -1px;
+  margin-left: 2px;
+  font-size: 13px;
+  opacity: 0.5;
+}
+
+.channels__add,
+.dm__add {
+  font-size: 20px;
+  color: var(--text-color, #fff);
+}
+
+.channels__heading,
+.dm__heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 2.1;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.channels__button,
+.dm__button {
+  padding: 4px 0 4px 18px;
+  display: flex;
+  align-items: center;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.channels__button span,
+.dm__button span {
+  opacity: 0.7;
+}
+
+.channels__button:before,
+.dm__button:before {
+  padding: 0 0.3rem;
+}
+
+.channels__button:hover,
+.dm__button:hover {
+  background: var(--hover-item, #BE0002);
+}
+
+.channels__button--active,
+.channels__button--active:hover,
+.dm__button--active,
+.dm__button--active:hover {
+  background: var(--active-item, #D3A625);
+  color: var(--active-item-text, #680001);
+}
+
+.channels__button:before {
+  content: "#";
+  opacity: 0.5;
+}
+
+.dm__button:before {
+  content: "\f401";
+  margin-right: 3px;
+  font-family: "Ionicons";
+  font-size: 0.6rem;
+}
+
+.dm__button--online:before {
+  content: "\f21b";
+  color: var(--active-presence, #00FFBA);
+}
+
+.dm__button--slackbot:before {
+  content: "\f141";
+  color: var(--active-presence, #00FFBA);
+  font-size: 0.75rem;
+}
+
+.dm__button--active.dm__button--online:before,
+.dm__button--active.dm__button--slackbot:before {
+  color: var(--active-item-text, #680001);
+}
+
+.main {
+  position: relative;
+  height: 100%;
+  flex: 1;
+}
+
+.main__header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 18px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  background: #fff;
+}
+
+.main__h1 {
+  flex: 1;
+  font-size: 1.4rem;
+  font-weight: 900;
+  text-align: center;
+  margin: 0;
+}
+
+.main__h2 {
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+.main__h3 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.main__content {
+  position: relative;
+  top: 60px;
+  height: calc(100vh - 60px);
+}
+
+.main__container {
+  padding: 2rem;
+  margin: 0 auto;
+  width: 55%;
+  max-width: 860px;
+  min-width: 800px;
+}
+
+.main__section {
+  padding: 2rem 0 0;
+  border-bottom: 1px solid #DDD;
+}
+
+.main__section:last-of-type {
+  border-bottom: 0;
+}
+
+.main__field {
+  position: relative;
+  margin-top: 1rem;
+  width: 25%;
+  max-width: 25%;
+  min-width: 25%;
+  padding-right: 18px;
+}
+
+.main__field--full {
+  max-width: initial;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.main__label {
+  font-weight: 700;
+  display: block;
+  font-size: 1.05rem;
+  line-height: 1.5rem;
+}
+
+.main__color-pickers {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  width: 98%;
+}
+
+.main__color-field {
+  width: 100%;
+  display: flex;
+  margin-top: 0.25rem;
+  border: 1px solid #C5C5C5;
+  border-radius: .25rem;
+  padding: 0.25rem;
+}
+
+.main__themes {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.main__colorpicker {
+  visibility: hidden;
+}
+
+.main__hexcode {
+  flex: 1;
+  border: none;
+  min-width: 0;
+}
+
+.main__hexcode:focus {
+  outline: none;
+}
+
+.main__share-input {
+  display: block;
+  width: 100%;
+  padding: 0 .75rem;
+  margin: 0.25rem 0 5rem;
+  border: 1px solid #C5C5C5;
+  border-radius: .25rem;
+  height: 40px;
+  line-height: 40px;
+}
+
+.main__share-input:hover,
+.main__share-input:focus,
+.main__share-input:active {
+  border-color: #2780F8;
+  outline: none;
+}
+
+.main__share-input:focus {
+  box-shadow: 0 0 7px rgba(39, 128, 248, 0.15);
+}
+
+.main__input-wrapper {
+  width: 1.9rem;
+  height: 1.9rem;
+  display: inline-block;
+  padding: 0;
+  cursor: pointer;
+  border: 1px solid #C5C5C5;
+  border-radius: .25rem;
+}
+
+.main__input-wrapper--column-bg {
+  background: var(--column-bg, #ae0001);
+}
+
+.main__input-wrapper--menu-bg-hover {
+  background: var(--menu-bg-hover, #680001);
+}
+
+.main__input-wrapper--active-item {
+  background: var(--active-item, #D3A625);
+}
+
+.main__input-wrapper--active-item-text {
+  background: var(--active-item-text, #680001);
+}
+
+.main__input-wrapper--hover-item {
+  background: var(--hover-item, #BE0002);
+}
+
+.main__input-wrapper--text-color {
+  background: var(--text-color, #fff);
+}
+
+.main__input-wrapper--active-presence {
+  background: var(--active-presence, #00FFBA);
+}
+
+.main__input-wrapper--mention-badge {
+  background: var(--mention-badge, #DE4C0D);
+}
+
+.radio {
+  margin: 0.5rem 4rem 2rem 0;
+  width: 130px;
+  cursor: pointer;
+  text-transform: capitalize;
+}
+
+.radio__input {
+  min-width: 15px;
+  margin: 0 0.75rem 0 0;
+  min-height: 1.5rem;
+  line-height: 1.5;
+}
+
+.radio__wrapper {
+  display: flex;
+  line-height: 1.5;
+}
+
+.radio__img {
+  position: relative;
+  border-radius: 6px;
+  margin: 0 0 0.5rem;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.radio__img:after {
+  content: "";
+  display: block;
+  padding-top: 54.54545%;
+  height: 0;
+}
+
+.radio__img--solanum {
+  background-image: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/60485/solanum.png");
+}
+
+.radio__img--chocolate {
+  background-image: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/60485/chocolate.png");
+}
+
+.radio__img--aubergine {
+  background-image: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/60485/aubergine.png");
+}
+
+.radio__img--ochin {
+  background-image: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/60485/ochin.png");
+}
+
+.radio__img--brinjal {
+  background-image: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/60485/brinjal.png");
+}
+
+.radio__img--hoth {
+  background-image: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/60485/hoth.png");
+}
+
+.radio__img--workhard {
+  background-image: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/60485/workhard.png");
+}
+
+.radio__img--monument {
+  background-image: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/60485/monument.png");
+}

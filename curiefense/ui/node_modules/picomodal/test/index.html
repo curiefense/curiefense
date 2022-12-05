@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>PicoModal Test Page</title>
+        <script src="picoModal.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <style type="text/css">
+            .customModal {
+                padding: 20px;
+                background: #fff;
+                border-radius: 10px;
+                color: #333;
+                box-shadow: 0 0 8px 0 #000;
+                overflow: visible;
+            }
+            .customShadow {
+                background-color: #000;
+                opacity: 0.8;
+            }
+            .customClose {
+                position: absolute;
+                top: -10px;
+                right: -10px;
+                background: black;
+                padding: 2px 6px;
+                cursor: pointer;
+                border: 3px solid white;
+                color: white;
+                border-radius: 50px;
+                box-shadow: 0 0 8px 0 #000;
+            }
+
+            #altParent {
+                position: absolute;
+                width: 50%;
+                height: 50%;
+                top: 10px;
+                left: 30%;
+            }
+
+            input:focus {
+                background: blue;
+            }
+
+            .footer {
+                position: absolute;
+                bottom: 0;
+                background: #efefef;
+                width: 100%;
+                left: 0;
+                padding: 10px;
+                box-sizing: border-box;
+                margin: 0;
+                text-align: right;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="altParent"></div>
+
+        <p><a href="?createFromString">Simple Create</a></p>
+        <p><a href="?specificWidth">Specific Width</a></p>
+        <p><a href="?tall">Really Tall</a></p>
+        <p><a href="?withoutClose">Without a close button</a></p>
+        <p><a href="?customStyles">Custom Styles</a></p>
+        <p><a href="?customClasses">Custom Classes</a></p>
+        <p><a href="?animate">With Animation</a></p>
+        <p><a href="?keyboard">Keyboard Navigation</a></p>
+        <p><a href="?dialog">Dialog</a></p>
+
+        <div style="display: none">
+            <div id="contentFromNode">
+                This content was pulled from a dom node
+            </div>
+        </div>
+
+        <script>
+            window.global_load_urls = [];
+
+            var urlQuery = window.location.href.split("?")[1];
+            function buildModal(id, options) {
+                window.global_load_urls.push("/?" + id);
+
+                var modal;
+                var showModal = function () {
+                    if ( !modal ) {
+                        modal = typeof options === "function" ?
+                            options() :
+                            picoModal(options);
+                    }
+                    modal.show();
+                    modal.afterShow(function () {
+                        window.global_test_results = {};
+                    });
+                };
+
+                document.querySelector("[href='?" + id + "']")
+                    .addEventListener("click", function(e) {
+                        e.preventDefault();
+                        showModal();
+                    });
+
+                if ( urlQuery === id ) {
+                    setTimeout(showModal, 10);
+                }
+                else {
+                    window.global_test_results = {};
+                }
+            }
+
+            buildModal("createFromString",
+                "Ah, the pitter patter of tiny feet in huge combat boots.");
+
+            buildModal("specificWidth", {
+                content: "Ah, the pitter patter of tiny feet in huge combat boots.",
+                width: 100
+            });
+
+            buildModal("tall", {
+                content: "<div style='height: 20000px'>" +
+                    "Ah, the pitter patter of tiny feet in huge combat boots."
+                    + "</div>",
+            });
+
+            buildModal("withoutClose", {
+                content: "Ah, the pitter patter of tiny feet in huge combat boots.",
+                closeButton: false
+            });
+
+            buildModal("customStyles", {
+                content: "Ah, the pitter patter of tiny feet in huge combat boots.",
+                overlayStyles: { backgroundColor: "#169", opacity: 0.6 },
+                modalStyles: {
+                    padding: "30px",
+                    background: "#fff",
+                    border: "3px solid #169"
+                },
+                closeHtml: "<span>Close</span>",
+                closeStyles: {
+                    position: "absolute", top: "-3px", right: "-3px",
+                    background: "#fff", padding: "4px 8px", cursor: "pointer",
+                    border: "3px solid #169", fontSize: "10pt"
+                }
+            });
+
+            buildModal("customClasses", {
+                content: "Ah, the pitter patter of tiny feet in huge combat boots.",
+                overlayStyles: {}, modalStyles: {}, closeStyles: {},
+                overlayClass: "customShadow",
+                modalClass: "customModal",
+                closeClass: "customClose"
+            });
+
+            buildModal("animate", function() {
+                return picoModal({
+                    content: "Ah, the pitter patter of tiny feet in huge combat boots.",
+                    overlayStyles: function ( styles ) {
+                        styles.opacity = 0;
+                    },
+                    modalStyles: function ( styles ) {
+                        styles.opacity = 0;
+                    }
+                }).afterShow(function(modal){
+                    $(modal.overlayElem()).animate({opacity: .5});
+                    $(modal.modalElem()).animate({opacity: 1});
+                }).beforeClose(function(modal, event) {
+                    event.preventDefault();
+                    $(modal.overlayElem())
+                        .add(modal.modalElem())
+                        .animate(
+                            { opacity: 0 },
+                            { complete: modal.forceClose }
+                        );
+                });
+            });
+
+            buildModal("keyboard", function() {
+                return picoModal({
+                    content:
+                        "Ah, the pitter patter of tiny feet in huge combat boots."
+                        + "<p><input type='text'></p>"
+                        + "<p><input type='text'></p>"
+                        + "<p><a href='javascript:void 0'>link</a></p>"
+                        + "<p><input type='text'></p>"
+                });
+            });
+
+            buildModal("dialog", function() {
+                return picoModal({
+                    content:
+                        "<p>Ah, the pitter patter of tiny feet in huge combat boots.</p>" +
+                        "<p class='footer'>" +
+                        "<button class='cancel'>Cancel</button> <button class='ok'>Ok</button>" +
+                        "</p>",
+                    modalStyles: function (styles) {
+                        styles.paddingBottom = "50px";
+                        return styles;
+                    }
+                }).afterCreate(modal => {
+                    modal.modalElem().addEventListener("click", evt => {
+                        if (evt.target && evt.target.matches(".ok")) {
+                            modal.close(true);
+                        } else if (evt.target && evt.target.matches(".cancel")) {
+                            modal.close();
+                        }
+                    });
+                })
+                .afterClose((modal, evt) => {
+                    console.log(evt.detail ? "Ok!" : "Cancelled");
+                });
+            });
+
+        </script>
+    </body>
+</html>

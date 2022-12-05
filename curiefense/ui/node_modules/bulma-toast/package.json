@@ -1,0 +1,58 @@
+{
+  "name": "bulma-toast",
+  "version": "2.4.1",
+  "description": "Bulma's pure JavaScript extension to display toasts",
+  "main": "dist/bulma-toast.cjs.js",
+  "module": "dist/bulma-toast.esm.js",
+  "browser": "dist/bulma-toast.min.js",
+  "scripts": {
+    "build": "rollup -c",
+    "prepare": "npm run build",
+    "start": "rollup -c -w",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rfoel/bulma-toast.git"
+  },
+  "keywords": [
+    "bulma",
+    "bulma",
+    "extensions",
+    "bulma.io"
+  ],
+  "author": "@rfoel <rafaelfr@outlook.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rfoel/bulma-toast/issues"
+  },
+  "homepage": "https://rfoel.com/bulma-toast",
+  "devDependencies": {
+    "@babel/preset-env": "^7.15.0",
+    "@semantic-release/changelog": "^5.0.1",
+    "@semantic-release/commit-analyzer": "^8.0.1",
+    "@semantic-release/git": "^9.0.0",
+    "@semantic-release/github": "^7.2.3",
+    "@semantic-release/npm": "^7.1.3",
+    "@semantic-release/release-notes-generator": "^9.0.3",
+    "jest": "^27.0.6",
+    "jest-environment-jsdom-sixteen": "^2.0.0",
+    "rollup": "^2.56.3",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-babel-minify": "^10.0.0",
+    "semantic-release": "^17.4.6"
+  },
+  "files": [
+    "dist",
+    "index.d.ts"
+  ],
+  "types": "index.d.ts",
+  "jest": {
+    "collectCoverageFrom": [
+      "src/index.js",
+      "!**/node_modules/**",
+      "!**/dist/**"
+    ],
+    "testEnvironment": "jest-environment-jsdom-sixteen"
+  }
+}

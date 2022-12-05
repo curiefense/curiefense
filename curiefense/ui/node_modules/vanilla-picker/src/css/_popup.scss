@@ -1,0 +1,89 @@
+//The arrow is only used in popup mode
+.picker_arrow {
+    position: absolute;
+
+    //Don't cover the individual picker child elements.
+    //We also need to add a z-index to the main .picker_wrapper below, so the arrow stays above/inside the wrapper:
+    //https://stackoverflow.com/questions/1806421/how-to-get-a-parent-element-to-appear-above-child
+    z-index: -1;
+}
+
+.picker_wrapper.popup {
+    position: absolute;
+    z-index: 2; //On top of non-popup pickers' selectors
+    margin: 1.5em;
+
+    &, .picker_arrow::before, .picker_arrow::after {
+        background: $color-bg;
+        box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.4);
+    }
+
+    .picker_arrow {
+        width:  3em;
+        height: 3em;
+        margin: 0;
+    
+        &::before, &::after {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -99;
+        }
+        &::before {
+            width:  100%;
+            height: 100%;
+            transform: skew(45deg);
+            transform-origin: 0 100%;
+        }
+        &::after {
+            width:  150%;
+            height: 150%;
+            box-shadow: none;
+        }
+    }
+}
+
+.popup.popup_top {
+    bottom: 100%;
+    left:   0;
+    
+    .picker_arrow {
+        bottom: 0;
+        left:   0;
+        transform: rotate(-90deg);
+    }
+}
+
+.popup.popup_bottom {
+    top:  100%;
+    left: 0;
+    
+    .picker_arrow {
+        top:  0;
+        left: 0;
+        transform: rotate(90deg) scale(1, -1);
+    }
+}
+
+.popup.popup_left {
+    top:   0;
+    right: 100%;
+    
+    .picker_arrow {
+        top:   0;
+        right: 0;
+        transform: scale(-1, 1);
+    }
+}
+
+.popup.popup_right {
+    top:  0;
+    left: 100%;
+
+    .picker_arrow {
+        top:  0;
+        left: 0;
+    }
+}

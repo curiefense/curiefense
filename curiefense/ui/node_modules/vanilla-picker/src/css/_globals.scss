@@ -1,0 +1,7 @@
+$color-bg: #f2f2f2;
+
+@mixin border-deco() {
+    //Firefox bug: https://github.com/Sphinxxxx/vanilla-picker/issues/1
+    //  outline: 1px solid silver;
+    box-shadow: 0 0 0 1px silver;
+}

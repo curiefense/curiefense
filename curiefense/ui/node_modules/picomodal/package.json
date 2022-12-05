@@ -1,0 +1,30 @@
+{
+  "name": "picomodal",
+  "version": "3.0.0",
+  "author": "James Frasca <james@roundeights.com>",
+  "description": "A small, self-contained JavaScript modal library",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nycto/PicoModal.git"
+  },
+  "main": "src/picoModal.js",
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "express": "^4.13.4",
+    "grunt": "~0.4.5",
+    "grunt-bower-verify": "^2.0.1",
+    "grunt-continue": "^0.1.0",
+    "grunt-contrib-connect": "^0.11.2",
+    "grunt-contrib-jshint": "^0.12.0",
+    "grunt-contrib-uglify": "^0.11.0",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-dom-test": "github:nycto/grunt-dom-test#release",
+    "grunt-sauce-load": "github:nycto/grunt-sauce-load#release",
+    "grunt-string-replace": "^1.2.1"
+  },
+  "scripts": {
+    "test": "grunt travis"
+  },
+  "readmeFilename": "README.md"
+}

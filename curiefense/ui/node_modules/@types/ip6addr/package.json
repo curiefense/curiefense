@@ -1,0 +1,25 @@
+{
+    "name": "@types/ip6addr",
+    "version": "0.2.3",
+    "description": "TypeScript definitions for ip6addr",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/ip6addr",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Vít Stanislav",
+            "url": "https://github.com/slaweet",
+            "githubUsername": "slaweet"
+        }
+    ],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/ip6addr"
+    },
+    "scripts": {},
+    "dependencies": {},
+    "typesPublisherContentHash": "e22ab4dfac93a6e4976a121cdc0dc1a60fb6469ea8e0f01dd0d9babd61c86f2b",
+    "typeScriptVersion": "3.6"
+}

@@ -1,0 +1,28 @@
+{
+    "name": "picoModal",
+    "version": "3.0.0",
+    "homepage": "https://github.com/Nycto/PicoModal",
+    "authors": [
+        "James Frasca <James@RoundEights.com>"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/Nycto/PicoModal.git"
+    },
+    "dependencies": {},
+    "description": "A self-contained modal library",
+    "main": "src/picoModal.js",
+    "keywords": [ "modal", "popup", "vanilla" ],
+    "license": "MIT",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests",
+        "*.md",
+        "Gruntfile.js",
+        "bower.json",
+        "build"
+    ]
+}

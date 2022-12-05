@@ -1,0 +1,117 @@
+<p><a href="https://html5boilerplate.com">HTML5 Boilerplate homepage</a> | <a href="TOC.md">Documentation
+table of contents</a></p>
+<h1 id="the-html">The HTML</h1>
+<p>By default, HTML5 Boilerplate provides two <code>html</code> pages:</p>
+<ul>
+  <li><a href="#indexhtml"><code>index.html</code></a> - a default HTML skeleton that should form the basis of all pages on your website</li>
+  <li><a href="#404html"><code>404.html</code></a> - a placeholder 404 error page</li>
+</ul>
+<h2 id="-index-html-"><code>index.html</code></h2>
+<h3 id="the-no-js-class">The <code>no-js</code> class</h3>
+<p>The <code>no-js</code> class is provided in order to allow you to more easily and explicitly add custom styles based on whether JavaScript is disabled (
+  <code>.no-js</code>) or enabled (<code>.js</code>). Using this technique also helps <a href="https://www.paulirish.com/2009/avoiding-the-fouc-v3/">avoid the
+FOUC</a>.</p>
+<h2 id="language-attribute">Language attribute</h2>
+<p>Please consider specifying the language of your content by adding the <code>lang</code> attribute to <code>&lt;html&gt;</code> as in this example:</p>
+<pre><code class="lang-html">&lt;html class=&quot;no-js&quot; lang=&quot;en&quot;&gt;
+</code></pre>
+<h3 id="the-order-of-the-title-and-meta-tags">The order of the <code>&lt;title&gt;</code> and <code>&lt;meta&gt;</code> tags</h3>
+<p>The order in which the <code>&lt;title&gt;</code> and the <code>&lt;meta&gt;</code> tags are specified is important because:</p>
+<p>1) the charset declaration (<code>&lt;meta charset=&quot;utf-8&quot;&gt;</code>):</p>
+<ul>
+  <li>
+    <p>must be included completely within the <a href="https://www.whatwg.org/specs/web-apps/current-work/multipage/semantics.html#charset">first 1024 bytes of the
+document</a></p>
+  </li>
+  <li>
+    <p>should be specified as early as possible (before any content that could be controlled by an attacker, such as a <code>&lt;title&gt;</code> element) in order to avoid a potential <a href="https://code.google.com/p/doctype-mirror/wiki/ArticleUtf7">encoding-related security
+issue</a> in Internet Explorer</p>
+  </li>
+</ul>
+<p>2) the meta tag for compatibility mode (
+  <code>&lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;</code>):</p>
+<ul>
+  <li><a href="https://msdn.microsoft.com/en-us/library/cc288325.aspx">needs to be included before all other tags except for the <code>&lt;title&gt;</code> and
+the other <code>&lt;meta&gt;</code>
+tags</a></li>
+</ul>
+<h3 id="-x-ua-compatible-"><code>x-ua-compatible</code></h3>
+<p>Internet Explorer 8/9/10 support <a href="https://msdn.microsoft.com/en-us/library/cc288325.aspx">document compatibility
+modes</a> that affect the way webpages are interpreted and displayed. Because of this, even if your site&#39;s visitor is using, let&#39;s say, Internet Explorer 9, it&#39;s possible that IE will not use the latest rendering engine, and instead, decide
+  to render your page using the Internet Explorer 5.5 rendering engine.</p>
+<p>Specifying the <code>x-ua-compatible</code> meta tag:</p>
+<pre><code class="lang-html">&lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
+</code></pre>
+<p>or sending the page with the following HTTP response header</p>
+<pre><code>X-UA-Compatible: IE=edge
+</code></pre>
+<p>will force Internet Explorer 8/9/10 to render the webpage in the highest available mode in <a href="https://hsivonen.fi/doctype/#ie8">the various cases when it may
+not</a>, and therefore, ensure that anyone browsing your site is treated to the best possible user experience that browser can offer.</p>
+<p>If possible, we recommend that you remove the <code>meta</code> tag and send only the HTTP response header as the <code>meta</code> tag will not always work if your site is served on a non-standard port, as Internet Explorer&#39;s preference option
+  <code>Display intranet sites in Compatibility View</code> is checked by default.</p>
+<p>If you are using Apache as your webserver, including the
+  <a href="https://github.com/h5bp/server-configs-apache"><code>.htaccess</code></a> file takes care of the HTTP header. If you are using a different server, check out our <a href="https://github.com/h5bp/server-configs">other
+server config</a>.</p>
+<p>Starting with Internet Explorer 11, <a href="https://msdn.microsoft.com/en-us/library/ie/bg182625.aspx#docmode">document modes are
+deprecated</a>. If your business still relies on older web apps and services that were designed for older versions of Internet Explorer, you might want to consider enabling <a href="http://blogs.msdn.com/b/ie/archive/2014/04/02/stay-up-to-date-with-enterprise-mode-for-internet-explorer-11.aspx">Enterprise Mode</a>  throughout your company.</p>
+<h2 id="mobile-viewport">Mobile viewport</h2>
+<p>There are a few different options that you can use with the <a href="https://docs.google.com/present/view?id=dkx3qtm_22dxsrgcf4" title="Viewport and
+Media Queries - The Complete Idiot&#39;s Guide"><code>viewport</code> meta
+tag</a>. You can find out more in <a href="https://developer.apple.com/library/safari/documentation/AppleApplications/Reference/SafariWebContent/UsingtheViewport/UsingtheViewport.html">the
+Apple developer docs</a>. HTML5 Boilerplate comes with a simple setup that strikes a good balance for general use cases.</p>
+<pre><code class="lang-html">&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+</code></pre>
+<h2 id="favicons-and-touch-icon">Favicons and Touch Icon</h2>
+<p>The shortcut icons should be put in the root directory of your site. HTML5 Boilerplate comes with a default set of icons (include favicon and one Apple Touch Icon) that you can use as a baseline to create your own.</p>
+<p>Please refer to the more detailed description in the <a href="extend.md">Extend section</a> of these docs.</p>
+<h2 id="modernizr">Modernizr</h2>
+<p>HTML5 Boilerplate uses a custom build of Modernizr.</p>
+<p><a href="http://modernizr.com">Modernizr</a> is a JavaScript library which adds classes to the <code>html</code> element based on the results of feature test and which ensures that all browsers can make use of HTML5 elements (as it includes the HTML5
+  Shiv). This allows you to target parts of your CSS and JavaScript based on the features supported by a browser.</p>
+<p>In general, in order to keep page load times to a minimum, it&#39;s best to call any JavaScript at the end of the page because if a script is slow to load from an external server it may cause the whole page to hang. That said, the Modernizr script <em>needs</em>  to run <em>before</em> the browser begins rendering the page, so that browsers lacking support for some of the new HTML5 elements are able to handle them properly. Therefore the Modernizr script is the only JavaScript file synchronously loaded at the
+  top of the document.</p>
+<h2 id="what-about-polyfills-">What about polyfills?</h2>
+<p>If you need to include <a href="https://remysharp.com/2010/10/08/what-is-a-polyfill">polyfills</a> in your project, you must make sure those load before any other JavaScript. If you&#39;re using some polyfill CDN service, like <a href="https://cdn.polyfill.io/">cdn.polyfill.io</a>,
+  just put it before the other scripts in the bottom of the page:</p>
+<pre><code class="lang-html">    &lt;script src=&quot;https://cdn.polyfill.io/v1/polyfill.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script&gt;window.jQuery || document.write(&#39;&lt;script src=&quot;js/vendor/jquery-1.11.2.min.js&quot;&gt;&lt;\/script&gt;&#39;)&lt;/script&gt;
+    &lt;script src=&quot;js/plugins.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;js/main.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+</code></pre>
+<p>If you like to just include the polyfills yourself, you could include them in
+  <code>js/plugins.js</code>. When you have a bunch of polyfills to load in, you could also create a <code>polyfills.js</code> file in the <code>js/vendor</code> directory. Also using this technique, make sure the polyfills are all loaded before any other
+  Javascript.
+</p>
+<p>There are some misconceptions about Modernizr and polyfills. It&#39;s important to understand that Modernizr just handles feature checking, not polyfilling itself. The only thing Modernizr does regarding polyfills is that the team maintains <a href="https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-Browser-Polyfills">a huge list of cross Browser polyfills</a>.</p>
+<h2 id="the-content-area">The content area</h2>
+<p>The central part of the boilerplate template is pretty much empty. This is intentional, in order to make the boilerplate suitable for both web page and web app development.</p>
+<h3 id="browser-upgrade-prompt">Browser Upgrade Prompt</h3>
+<p>The main content area of the boilerplate includes a prompt to install an up to date browser for users of IE 6/7. If you intended to support IE 6/7, then you should remove the snippet of code.</p>
+<h3 id="jquery-cdn-for-jquery">jQuery CDN for jQuery</h3>
+<p>The jQuery CDN version of the jQuery JavaScript library is referenced towards the bottom of the page. A local fallback of jQuery is included for rare instances when the CDN version might not be available, and to facilitate offline development.
+</p>
+<p>The jQuery CDN version was chosen over other potential candidates (
+  <a href="https://developers.google.com/speed/libraries/">like Google&#39;s Hosted Libraries</a>) because it&#39;s fast (<a href="https://www.cdnperf.com/#jsdelivr,cdnjs,google,yandex,microsoft,jquery,bootstrapcdn/https/90">comparable or faster than Google by some
+measures</a>) and, (unlike Google&#39;s CDN) is available to China&#39;s hundreds of millions of internet users. For many years we <a href="https://github.com/h5bp/html5-boilerplate/issues/1191">chose</a> the Google Hosted version over the jQuery CDN
+  because it was available over HTTPS (the jQuery CDN was not,) and it offered a better chance of hitting the cache lottery owing to the popularity of the Google CDN. The first issue is no longer valid and the second is far outweighed by being able to
+  serve jQuery to Chinese users.</p>
+<p>While the jQuery CDN is a strong default solution your site or application may require a different configuration. Testing your site with services like
+  <a href="https://www.webpagetest.org/">WebPageTest</a> and browser tools like
+  <a href="https://developers.google.com/speed/pagespeed/insights/">PageSpeed Insights</a> or
+  <a href="https://developer.yahoo.com/yslow/">YSlow</a> will help you examine the real world performance of your site and can show where you can optimize your specific site or application.</p>
+<h3 id="google-universal-analytics-tracking-code">Google Universal Analytics Tracking Code</h3>
+<p>Finally, an optimized version of the Google Universal Analytics tracking code is included. Google recommends that this script be placed at the top of the page. Factors to consider: if you place this script at the top of the page, you’ll be able to count
+  users who don’t fully load the page, and you’ll incur the max number of simultaneous connections of the browser.</p>
+<p>Further information:</p>
+<ul>
+  <li><a href="https://mathiasbynens.be/notes/async-analytics-snippet#universal-analytics">Optimizing the Google Universal Analytics
+Snippet</a></li>
+  <li><a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/">Introduction to
+Analytics.js</a></li>
+  <li><a href="https://ga-dev-tools.appspot.com/">Google Analytics Demos &amp; Tools</a></li>
+</ul>
+<p><strong>N.B.</strong> The Google Universal Analytics snippet is included by default mainly because Google Analytics is <a href="https://trends.builtwith.com/analytics/Google-Analytics">currently one of the most popular tracking
+solutions</a> out there. However, its usage isn&#39;t set in stone, and you SHOULD consider exploring the
+  <a href="https://en.wikipedia.org/wiki/List_of_web_analytics_software">alternatives</a> and use whatever suits your needs best!</p>

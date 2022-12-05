@@ -1,0 +1,231 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+        <!-- Place favicon.ico in the root directory -->
+				<link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet"> 
+				<link href="https://fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet"> 
+<!--         <link rel="stylesheet" href="css/normalize.css"> -->
+<!--         <link rel="stylesheet" href="css/reset.css"> -->
+        <link rel="stylesheet" href="css/plugins.processed.css">
+        <link rel="stylesheet" href="css/app.processed.css">
+        <script src="js/vendor/modernizr-2.8.3.min.js"></script>
+    </head>
+    <body style="--column-bg:#4d394b; --menu-bg-hover:#3e313c; --active-item:#4c9689; --active-item-text:#ffffff; --hover-item:#3e313c; --text-color:#ffffff; --active-presence:#38978d; --mention-badge:#eb4d5c;">
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+		<div class="slack">
+			<nav class="teams">
+				<ul class="teams__list">
+					<li class="teams__item tool-tip" data-tooltip-title="Vanilla DataTables" data-tooltip-position="right">
+						<button class="teams__button">
+							DT
+						</button>
+					</li>
+					<li class="teams__item tool-tip" data-tooltip-title="Selectr" data-tooltip-position="right">
+						<button class="teams__button teams__button--active">
+							SR
+						</button>
+					</li>
+					<li class="teams__item">
+						<button class="teams__button">
+							CS
+						</button>
+					</li>
+					<li class="teams__item">
+						<button class="teams__button">
+							PA
+						</button>
+					</li>
+					<li class="teams__item">
+						<button class="teams__button">
+							GF
+						</button>
+					</li>
+					<li class="teams__item">
+						<button class="teams__button">
+							OP
+						</button>
+					</li>
+					<li class="teams__item">
+						<button class="teams__button">
+							HP
+						</button>
+					</li>
+					<li class="teams__item">
+						<button class="teams__button">
+							DH
+						</button>
+					</li>
+				</ul>
+			</nav>
+			<div class="sidebar">
+				<button class="team-menu">
+					<div class="team-menu__info">
+						<h1 class="team-menu__name">Selectr</h1>
+					<!-- <div class="team-menu__status">
+							<span class="team-menu__username"></span>
+						</div> -->
+					</div>
+<!-- 					<span class="team-menu__alarm ion-ios-bell-outline"></span> -->
+				</button>
+				<div class="dm">
+					<h2 class="dm__heading">
+						<span>Options</span>
+						<button class="ion-ios-plus-outline dm__add"></button>
+					</h2>
+					<ul class="dm__list">
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>defaultSelected</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>multiple</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>searchable</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>clearable</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>allowDeselect</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>width</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>placeholder</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>maxSelections</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>taggable</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>tagSeperators</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>tagPlaceholder</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>data</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>renderOption</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>renderSelection</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>pagination</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>nativeDropdown</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>closeOnScroll</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>sortSelected</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>customClass</span></button>
+						</li>
+					</ul>
+				</div>
+				<div class="dm">
+					<h2 class="dm__heading">
+						<span>API</span>
+						<button class="ion-ios-plus-outline dm__add"></button>
+					</h2>
+					<ul class="dm__list">
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>setValue</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>getValue</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>search</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>add</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>remove</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>removeAll</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online dm__button--active"><span>serialize</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>open</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>close</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>toggle</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>clear</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>reset</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>disable</span></button>
+						</li>
+						<li class="dm__item">
+							<button class="dm__button dm__button--online"><span>enable</span></button>
+						</li>
+					</ul>
+				</div>				
+			</div>
+			<div class="main">
+				<header class="main__header">
+					<h1 class="main__h1">Under Construction</h1>
+					<button class="ion-android-close"></button>
+				</header>
+				<div class="main__content">
+					<div class="main__container">
+
+						<h1>Welcome to the Selectr wiki!</h1>
+						<p>Selectr is lightweight dependency-free select box replacement written in vanilla javascript. Just 6KB minified and gzipped. Similar to Select2 and Chosen without the jQuery dependencies.</p>
+						<p>Supports most modern browsers including IE9.</p>
+						<p>Features:</p>
+						<ul>
+							<li>Supports single and multiple select boxes</li>
+							<li>Supports optgroups</li>
+							<li>Searchable options</li>
+							<li>Tagging support</li>
+							<li>Custom events</li>
+							<li>Custom styling</li>
+							<li>Native select for mobile devices</li>
+							<li>Custom datasets</li>
+							<li>Dynamically add options</li>
+							<li>Much more...</li>
+						</ul>
+
+        
+					</div>
+				</div>
+			</div>
+		</div>			
+			
+
+        <script src="js/plugins.js"></script>
+        <script src="js/main.js"></script>
+    </body>
+</html>

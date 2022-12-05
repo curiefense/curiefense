@@ -1,0 +1,7 @@
+{
+  "extends": ["plugin:vue-libs/recommended"],
+  "env": {
+    "mocha": true,
+    "node": true
+  }
+}

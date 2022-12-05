@@ -1,0 +1,37 @@
+{
+  "name": "@sphinxxxx/color-conversion",
+  "version": "2.2.2",
+  "description": "Convert colors between RGBA/HSLA/Hex",
+  "homepage": "https://github.com/Sphinxxxx/color-conversion",
+  "author": "Joudee (https://github.com/Joudee), Andreas Borgen (https://github.com/Sphinxxxx), Michael Jackson (https://github.com/mjackson)",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sphinxxxx/color-conversion.git"
+  },
+  "main": "dist/color-conversion.js",
+  "module": "src/color.js",
+  "files": [
+    "src/",
+    "dist/"
+  ],
+  "scripts": {
+    "prepublish": "bash ./scripts/prepub.sh",
+    "postpublish": "bash ./scripts/postpub.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-register": "^6.26.0",
+    "gulp": "^4.0.0",
+    "gulp-file": "^0.4.0",
+    "gulp-header": "^2.0.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-strip-comments": "^2.5.2",
+    "gulp-uglify": "^3.0.0",
+    "rollup": "^0.56.2",
+    "rollup-plugin-babel": "^3.0.3"
+  }
+}

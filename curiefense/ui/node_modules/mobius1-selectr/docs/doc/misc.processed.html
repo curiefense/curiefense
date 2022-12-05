@@ -1,0 +1,126 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="//codepen.io/CodePenTemplates/pen/GNoNGy.css" />
+  <link rel="stylesheet" href="//codepen.io/CodePenTemplates/pen/XNXpgM.css" />
+</head>
+
+<body>
+  <section class="markdown-body">
+    <p><a href="https://html5boilerplate.com">HTML5 Boilerplate homepage</a> | <a href="TOC.md">Documentation
+table of contents</a></p>
+    <h1 id="miscellaneous">Miscellaneous</h1>
+    <ul>
+      <li><a href="#gitignore">.gitignore</a></li>
+      <li><a href="#editorconfig">.editorconfig</a></li>
+      <li><a href="#server-configuration">Server Configuration</a></li>
+      <li><a href="#crossdomainxml">crossdomain.xml</a></li>
+      <li><a href="#robotstxt">robots.txt</a></li>
+      <li><a href="#browserconfigxml">browserconfig.xml</a></li>
+    </ul>
+    <p>--</p>
+    <h2 id="-gitignore">.gitignore</h2>
+    <p>HTML5 Boilerplate includes a basic project-level <code>.gitignore</code>. This should primarily be used to avoid certain project-level files and directories from being kept under source control. Different development-environments will benefit from
+      different collections of ignores.</p>
+    <p>OS-specific and editor-specific files should be ignored using a &quot;global ignore&quot; that applies to all repositories on your system.</p>
+    <p>For example, add the following to your <code>~/.gitconfig</code>, where the <code>.gitignore</code> in your HOME directory contains the files and directories you&#39;d like to globally ignore:</p>
+    <pre><code class="lang-gitignore"><span class="hljs-string">[core]</span>
+    excludesfile = ~/.gitignore
+</code></pre>
+    <ul>
+      <li>More on global ignores: <a href="https://help.github.com/articles/ignoring-files">https://help.github.com/articles/ignoring-files</a></li>
+      <li>Comprehensive set of ignores on GitHub: <a href="https://github.com/github/gitignore">https://github.com/github/gitignore</a></li>
+    </ul>
+    <h2 id="-editorconfig">.editorconfig</h2>
+    <p>The <code>.editorconfig</code> file is provided in order to encourage and help you and your team define and maintain consistent coding styles between different editors and IDEs.</p>
+    <p>By default, <code>.editorconfig</code> includes some basic
+      <a href="http://editorconfig.org/#supported-properties">properties</a> that reflect the coding styles from the files provided by default, but you can easily change them to better suit your needs.</p>
+    <p>In order for your editor/IDE to apply the
+      <a href="http://editorconfig.org/#supported-properties">properties</a> from the
+      <code>.editorconfig</code> file, you will need to <a href="http://editorconfig.org/#download">install a
+plugin</a>.</p>
+    <p><strong>N.B.</strong> If you aren&#39;t using the server configurations provided by HTML5 Boilerplate, we highly encourage you to configure your server to block access to <code>.editorconfig</code> files, as they can disclose sensitive information!</p>
+    <p>For more details, please refer to the <a href="http://editorconfig.org/">EditorConfig
+project</a>.</p>
+    <h2 id="server-configuration">Server Configuration</h2>
+    <p>H5BP includes a <a href="#htaccess"><code>.htaccess</code></a> file for the <a href="https://httpd.apache.org/docs/">Apache HTTP
+server</a>. If you are not using Apache as your web server, then you are encouraged to download a
+      <a href="https://github.com/h5bp/server-configs">server configuration</a> that corresponds to your web server and environment.</p>
+    <p>A <code>.htaccess</code> (hypertext access) file is a <a href="https://github.com/h5bp/server-configs-apache">Apache HTTP server
+configuration file</a>. The <code>.htaccess</code> file is mostly used for:</p>
+    <ul>
+      <li>Rewriting URLs</li>
+      <li>Controlling cache</li>
+      <li>Authentication</li>
+      <li>Server-side includes</li>
+      <li>Redirects</li>
+      <li>Gzipping</li>
+    </ul>
+    <p>If you have access to the main server configuration file (usually called
+      <code>httpd.conf</code>), you should add the logic from the <code>.htaccess</code> file in, for example, a
+      <Directory> section in the main configuration file. This is usually the recommended way, as using .htaccess files slows down Apache!</p>
+    <p>To enable Apache modules locally, please see:
+      <a href="https://github.com/h5bp/server-configs-apache/wiki/How-to-enable-Apache-modules">https://github.com/h5bp/server-configs-apache/wiki/How-to-enable-Apache-modules</a>.</p>
+    <p>In the repo the <code>.htaccess</code> is used for:</p>
+    <ul>
+      <li>Allowing cross-origin access to web fonts</li>
+      <li>CORS header for images when browsers request it</li>
+      <li>Enable <code>404.html</code> as 404 error document</li>
+      <li>Making the website experience better for IE users better</li>
+      <li>Media UTF-8 as character encoding for <code>text/html</code> and <code>text/plain</code></li>
+      <li>Enabling the rewrite URLs engine</li>
+      <li>Forcing or removing the <code>www.</code> at the begin of a URL</li>
+      <li>It blocks access to directories without a default document</li>
+      <li>It blocks access to files that can expose sensitive information.</li>
+      <li>It reduces MIME type security risks</li>
+      <li>It forces compressing (gzipping)</li>
+      <li>It tells the browser whether they should request a specific file from the server or whether they should grab it from the browser&#39;s cache</li>
+    </ul>
+    <p>When using <code>.htaccess</code> we recommend reading all inline comments (the rules after a <code>#</code>) in the file once. There is a bunch of optional stuff in it.</p>
+    <p>If you want to know more about the <code>.htaccess</code> file check out the
+      <a href="https://httpd.apache.org/docs/">Apache HTTP server docs</a> or more specifically the <a href="https://httpd.apache.org/docs/current/howto/htaccess.html">htaccess
+section</a>.</p>
+    <p>Notice that the original repo for the <code>.htaccess</code> file is <a href="https://github.com/h5bp/server-configs-apache">this
+one</a>.</p>
+    <h2 id="crossdomain-xml">crossdomain.xml</h2>
+    <p>The <em>cross-domain policy file</em> is an XML document that gives a web client — such as Adobe Flash Player, Adobe Reader, etc. — permission to handle data across multiple domains, by:</p>
+    <ul>
+      <li>granting read access to data</li>
+      <li>permitting the client to include custom headers in cross-domain requests</li>
+      <li>granting permissions for socket-based connections</li>
+    </ul>
+    <p><strong>e.g.</strong> If a client hosts content from a particular source domain and that content makes requests directed towards a domain other than its own, the remote domain would need to host a cross-domain policy file in order to grant access
+      to the source domain and allow the client to continue with the transaction.</p>
+    <p>For more in-depth information, please see Adobe&#39;s <a href="https://www.adobe.com/devnet/articles/crossdomain_policy_file_spec.html">cross-domain policy file
+specification</a>.</p>
+    <h2 id="robots-txt">robots.txt</h2>
+    <p>The <code>robots.txt</code> file is used to give instructions to web robots on what can be crawled from the website.</p>
+    <p>By default, the file provided by this project includes the next two lines:</p>
+    <ul>
+      <li><code>User-agent: *</code> - the following rules apply to all web robots</li>
+      <li><code>Disallow:</code> - everything on the website is allowed to be crawled</li>
+    </ul>
+    <p>If you want to disallow certain pages you will need to specify the path in a
+      <code>Disallow</code> directive (e.g.: <code>Disallow: /path</code>) or, if you want to disallow crawling of all content, use <code>Disallow: /</code>.</p>
+    <p>The <code>/robots.txt</code> file is not intended for access control, so don&#39;t try to use it as such. Think of it as a &quot;No Entry&quot; sign, rather than a locked door. URLs disallowed by the <code>robots.txt</code> file might still be indexed
+      without being crawled, and the content from within the <code>robots.txt</code> file can be viewed by anyone, potentially disclosing the location of your private content! So, if you want to block access to private content, use proper authentication
+      instead.</p>
+    <p>For more information about <code>robots.txt</code>, please see:</p>
+    <ul>
+      <li><a href="http://www.robotstxt.org/">robotstxt.org</a></li>
+      <li><a href="https://developers.google.com/webmasters/control-crawl-index/docs/robots_txt">How Google handles the <code>robots.txt</code> file</a></li>
+    </ul>
+    <h2 id="browserconfig-xml">browserconfig.xml</h2>
+    <p>The <code>browserconfig.xml</code> file is used to customize the tile displayed when users pin your site to the Windows 8.1 start screen. In there you can define custom tile colors, custom images or even <a href="https://msdn.microsoft.com/en-us/library/ie/dn455106.aspx#CreatingLiveTiles">live tiles</a>.</p>
+    <p>By default, the file points to 2 placeholder tile images:</p>
+    <ul>
+      <li><code>tile.png</code> (558x558px): used for <code>Small</code>, <code>Medium</code> and <code>Large</code> tiles. This image resizes automatically when necessary.</li>
+      <li><code>tile-wide.png</code> (558x270px): user for <code>Wide</code> tiles.</li>
+    </ul>
+    <p>Notice that IE11 uses the same images when adding a site to the <code>favorites</code>.</p>
+    <p>For more in-depth information about the <code>browserconfig.xml</code> file, please see <a href="https://msdn.microsoft.com/en-us/library/ie/dn320426.aspx">MSDN</a>.</p>
+
+  </section>
+</body>
+
+</html>

@@ -1,0 +1,404 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="//codepen.io/CodePenTemplates/pen/GNoNGy.css" />
+  <link rel="stylesheet" href="//codepen.io/CodePenTemplates/pen/XNXpgM.css" />
+</head>
+
+<body>
+  <section class="markdown-body">
+    <p><a href="https://html5boilerplate.com">HTML5 Boilerplate homepage</a> | <a href="TOC.md">Documentation
+table of contents</a></p>
+    <h1 id="extend-and-customise-html5-boilerplate">Extend and customise HTML5 Boilerplate</h1>
+    <p>Here is some useful advice for how you can make your project with HTML5 Boilerplate even better. We don&#39;t want to include it all by default, as not everything fits with everyone&#39;s needs.</p>
+    <ul>
+      <li><a href="#app-stores">App Stores</a></li>
+      <li><a href="#dns-prefetching">DNS prefetching</a></li>
+      <li><a href="#google-universal-analytics">Google Universal Analytics</a></li>
+      <li><a href="#internet-explorer">Internet Explorer</a></li>
+      <li><a href="#miscellaneous">Miscellaneous</a></li>
+      <li><a href="#news-feeds">News Feeds</a></li>
+      <li><a href="#search">Search</a></li>
+      <li><a href="#social-networks">Social Networks</a></li>
+      <li><a href="#urls">URLs</a></li>
+      <li><a href="#web-apps">Web Apps</a></li>
+    </ul>
+    <h2 id="app-stores">App Stores</h2>
+    <h3 id="install-a-chrome-web-store-app">Install a Chrome Web Store app</h3>
+    <p>Users can install a Chrome app directly from your website, as long as the app and site have been associated via Google&#39;s Webmaster Tools. Read more on <a href="https://developer.chrome.com/webstore/inline_installation">Chrome Web Store&#39;s Inline Installation
+docs</a>.</p>
+    <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"chrome-webstore-item"</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"https://chrome.google.com/webstore/detail/APP_ID"</span>&gt;</span>
+</code></pre>
+    <h3 id="smart-app-banners-in-ios-6-safari">Smart App Banners in iOS 6+ Safari</h3>
+    <p>Stop bothering everyone with gross modals advertising your entry in the App Store. Include the following <a href="https://developer.apple.com/library/IOS/documentation/AppleApplications/Reference/SafariWebContent/PromotingAppswithAppBanners/PromotingAppswithAppBanners.html#//apple_ref/doc/uid/TP40002051-CH6-SW2">meta tag</a>      will unintrusively allow the user the option to download your iOS app, or open it with some data about the user&#39;s current state on the website.</p>
+    <pre><code class="lang-html">&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"apple-itunes-app"</span> content=<span class="hljs-string">"app-id=APP_ID,app-argument=SOME_TEXT"</span>&gt;
+</code></pre>
+    <h2 id="dns-prefetching">DNS prefetching</h2>
+    <p>In short, DNS Prefetching is a method of informing the browser of domain names referenced on a site so that the client can resolve the DNS for those hosts, cache them, and when it comes time to use them, have a faster turn around on the request.</p>
+    <h3 id="implicit-prefetches">Implicit prefetches</h3>
+    <p>There is a lot of prefetching done for you automatically by the browser. When the browser encounters an anchor in your html that does not share the same domain name as the current location the browser requests, from the client OS, the IP address for
+      this new domain. The client first checks its cache and then, lacking a cached copy, makes a request from a DNS server. These requests happen in the background and are not meant to block the rendering of the page.
+    </p>
+    <p>The goal of this is that when the foreign IP address is finally needed it will already be in the client cache and will not block the loading of the foreign content. Fewer requests result in faster page load times. The perception of this is increased
+      on a mobile platform where DNS latency can be greater.</p>
+    <h4 id="disable-implicit-prefetching">Disable implicit prefetching</h4>
+    <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">http-equiv</span>=<span class="hljs-string">"x-dns-prefetch-control"</span> <span class="hljs-attr">content</span>=<span class="hljs-string">"off"</span>&gt;</span>
+</code></pre>
+    <p>Even with X-DNS-Prefetch-Control meta tag (or http header) browsers will still prefetch any explicit dns-prefetch links.</p>
+    <p><strong><em>WARNING:</em></strong> THIS MAY MAKE YOUR SITE SLOWER IF YOU RELY ON RESOURCES FROM FOREIGN DOMAINS.</p>
+    <h3 id="explicit-prefetches">Explicit prefetches</h3>
+    <p>Typically the browser only scans the HTML for foreign domains. If you have resources that are outside of your HTML (a javascript request to a remote server or a CDN that hosts content that may not be present on every page of your site, for example)
+      then you can queue up a domain name to be prefetched.</p>
+    <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"dns-prefetch"</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"//example.com"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"dns-prefetch"</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"https://ajax.googleapis.com"</span>&gt;</span>
+</code></pre>
+    <p>You can use as many of these as you need, but it&#39;s best if they are all immediately after the <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta#attr-charset">Meta
+Charset</a> element (which should go right at the top of the <code>head</code>), so the browser can act on them ASAP.</p>
+    <h4 id="common-prefetch-links">Common Prefetch Links</h4>
+    <p>Amazon S3:</p>
+    <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"dns-prefetch"</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"//s3.amazonaws.com"</span>&gt;</span>
+</code></pre>
+    <p>Google APIs:</p>
+    <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"dns-prefetch"</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"https://ajax.googleapis.com"</span>&gt;</span>
+</code></pre>
+    <p>Microsoft Ajax Content Delivery Network:</p>
+    <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"dns-prefetch"</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"//ajax.microsoft.com"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"dns-prefetch"</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"//ajax.aspnetcdn.com"</span>&gt;</span>
+</code></pre>
+    <h3 id="further-reading-about-dns-prefetching">Further reading about DNS prefetching</h3>
+    <ul>
+      <li><a href="https://developer.mozilla.org/en-US/docs/Controlling_DNS_prefetching">https://developer.mozilla.org/en-US/docs/Controlling_DNS_prefetching</a></li>
+      <li><a href="https://dev.chromium.org/developers/design-documents/dns-prefetching">https://dev.chromium.org/developers/design-documents/dns-prefetching</a></li>
+      <li><a href="http://blogs.msdn.com/b/ie/archive/2011/03/17/internet-explorer-9-network-performance-improvements.aspx">http://blogs.msdn.com/b/ie/archive/2011/03/17/internet-explorer-9-network-performance-improvements.aspx</a></li>
+      <li><a href="http://dayofjs.com/videos/22158462/web-browsers_alex-russel">http://dayofjs.com/videos/22158462/web-browsers_alex-russel</a></li>
+    </ul>
+    <h2 id="google-universal-analytics">Google Universal Analytics</h2>
+    <h3 id="more-tracking-settings">More tracking settings</h3>
+    <p>The <a href="https://mathiasbynens.be/notes/async-analytics-snippet#universal-analytics">optimized Google Universal Analytics
+snippet</a> included with HTML5 Boilerplate includes something like this:</p>
+    <pre><code class="lang-js"><span class="hljs-selector-tag">ga</span>(<span class="hljs-string">'create'</span>, <span class="hljs-string">'UA-XXXXX-X'</span>, <span class="hljs-string">'auto'</span>); <span class="hljs-selector-tag">ga</span>(<span class="hljs-string">'send'</span>, <span class="hljs-string">'pageview'</span>);
+</code></pre>
+    <p>To customize further, see Google&#39;s <a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/advanced">Advanced
+Setup</a>,
+      <a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/pages">Pageview</a>, and <a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/events">Event</a> Docs.</p>
+    <h3 id="anonymize-ip-addresses">Anonymize IP addresses</h3>
+    <p>In some countries, no personal data may be transferred outside jurisdictions that do not have similarly strict laws (i.e. from Germany to outside the EU). Thus a webmaster using the Google Universal Analytics may have to ensure that no personal (trackable)
+      data is transferred to the US. You can do that with
+      <a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/advanced#anonymizeip">the <code>ga(&#39;set&#39;, &#39;anonymizeIp&#39;, true);</code>
+parameter</a> before sending any events/pageviews. In use it looks like this:</p>
+    <pre><code class="lang-js"><span class="hljs-selector-tag">ga</span>(<span class="hljs-string">'create'</span>, <span class="hljs-string">'UA-XXXXX-X'</span>, <span class="hljs-string">'auto'</span>);
+<span class="hljs-selector-tag">ga</span>(<span class="hljs-string">'set'</span>, <span class="hljs-string">'anonymizeIp'</span>, true);
+<span class="hljs-selector-tag">ga</span>(<span class="hljs-string">'send'</span>, <span class="hljs-string">'pageview'</span>);
+</code></pre>
+    <h3 id="track-jquery-ajax-requests-in-google-analytics">Track jQuery AJAX requests in Google Analytics</h3>
+    <p>An article by @JangoSteve explains how to <a href="http://www.alfajango.com/blog/track-jquery-ajax-requests-in-google-analytics/">track jQuery AJAX requests in Google
+Analytics</a>.</p>
+    <p>Add this to <code>plugins.js</code>:</p>
+    <pre><code class="lang-js"><span class="hljs-comment">/*
+ * Log all jQuery AJAX requests to Google Analytics
+ * See: http://www.alfajango.com/blog/track-jquery-ajax-requests-in-google-analytics/
+ */</span>
+<span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> ga !== <span class="hljs-string">"undefined"</span> &amp;&amp; ga !== <span class="hljs-literal">null</span>) {
+    $(<span class="hljs-built_in">document</span>).ajaxSend(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">event, xhr, settings</span>)</span>{
+        ga(<span class="hljs-string">'send'</span>, <span class="hljs-string">'pageview'</span>, settings.url);
+    });
+}
+</code></pre>
+    <h3 id="track-javascript-errors-in-google-analytics">Track JavaScript errors in Google Analytics</h3>
+    <p>Add this function after <code>ga</code> is defined:</p>
+    <pre><code class="lang-js">(<span class="hljs-name">function</span>(<span class="hljs-name">window</span>){
+    var undefined,
+        link = function (<span class="hljs-name">href</span>) {
+            var a = window.document.createElement(<span class="hljs-symbol">'a</span>')<span class="hljs-comment">;</span>
+            a.href = href<span class="hljs-comment">;</span>
+            return a<span class="hljs-comment">;</span>
+        }<span class="hljs-comment">;</span>
+    window.onerror = function (<span class="hljs-name">message</span>, file, line, column) {
+        var host = link(<span class="hljs-name">file</span>).hostname<span class="hljs-comment">;</span>
+        ga(<span class="hljs-symbol">'send</span>', {
+          <span class="hljs-symbol">'hitType</span><span class="hljs-symbol">':</span> <span class="hljs-symbol">'event</span>',
+          <span class="hljs-symbol">'eventCategory</span><span class="hljs-symbol">':</span> (<span class="hljs-name">host</span> == window.location.hostname || host == undefined || host == '' ? '' : <span class="hljs-symbol">'external</span> ') + <span class="hljs-symbol">'error</span>',
+          <span class="hljs-symbol">'eventAction</span><span class="hljs-symbol">':</span> message,
+          <span class="hljs-symbol">'eventLabel</span><span class="hljs-symbol">':</span> (<span class="hljs-name">file</span> + ' LINE: ' + line + (<span class="hljs-name">column</span> ? ' COLUMN: ' + column : '')).trim(),
+          <span class="hljs-symbol">'nonInteraction</span><span class="hljs-symbol">':</span> <span class="hljs-number">1</span>
+        })<span class="hljs-comment">;</span>
+    }<span class="hljs-comment">;</span>
+}(<span class="hljs-name">window</span>))<span class="hljs-comment">;</span>
+</code></pre>
+    <h3 id="track-page-scroll">Track page scroll</h3>
+    <p>Add this function after <code>ga</code> is defined:</p>
+    <pre><code class="lang-js">$(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+    <span class="hljs-keyword">var</span> isDuplicateScrollEvent,
+        scrollTimeStart = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>,
+        $<span class="hljs-built_in">window</span> = $(<span class="hljs-built_in">window</span>),
+        $<span class="hljs-built_in">document</span> = $(<span class="hljs-built_in">document</span>),
+        scrollPercent;
+
+    $<span class="hljs-built_in">window</span>.scroll(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        scrollPercent = <span class="hljs-built_in">Math</span>.round(<span class="hljs-number">100</span> * ($<span class="hljs-built_in">window</span>.height() + $<span class="hljs-built_in">window</span>.scrollTop())/$<span class="hljs-built_in">document</span>.height());
+        <span class="hljs-keyword">if</span> (scrollPercent &gt; <span class="hljs-number">90</span> &amp;&amp; !isDuplicateScrollEvent) { <span class="hljs-comment">//page scrolled to 90%</span>
+            isDuplicateScrollEvent = <span class="hljs-number">1</span>;
+            ga(<span class="hljs-string">'send'</span>, <span class="hljs-string">'event'</span>, <span class="hljs-string">'scroll'</span>,
+                <span class="hljs-string">'Window: '</span> + $<span class="hljs-built_in">window</span>.height() + <span class="hljs-string">'px; Document: '</span> + $<span class="hljs-built_in">document</span>.height() + <span class="hljs-string">'px; Time: '</span> + <span class="hljs-built_in">Math</span>.round((<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span> - scrollTimeStart )/<span class="hljs-number">1000</span>,<span class="hljs-number">1</span>) + <span class="hljs-string">'s'</span>
+            );
+        }
+    });
+});
+</code></pre>
+    <h2 id="internet-explorer">Internet Explorer</h2>
+    <h3 id="prompt-users-to-switch-to-desktop-mode-in-ie10-metro">Prompt users to switch to &quot;Desktop Mode&quot; in IE10 Metro</h3>
+    <p>IE10 does not support plugins, such as Flash, in Metro mode. If your site requires plugins, you can let users know that via the
+      <code>x-ua-compatible</code> meta element, which will prompt them to switch to Desktop Mode.</p>
+    <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">http-equiv</span>=<span class="hljs-string">"x-ua-compatible"</span> <span class="hljs-attr">content</span>=<span class="hljs-string">"requiresActiveX=true"</span>&gt;</span>
+</code></pre>
+    <p>Here&#39;s what it looks like alongside H5BP&#39;s default <code>x-ua-compatible</code> values:
+    </p>
+    <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">http-equiv</span>=<span class="hljs-string">"x-ua-compatible"</span> <span class="hljs-attr">content</span>=<span class="hljs-string">"ie=edge,requiresActiveX=true"</span>&gt;</span>
+</code></pre>
+    <p>You can find more information in <a href="http://blogs.msdn.com/b/ie/archive/2012/01/31/web-sites-and-a-plug-in-free-web.aspx">Microsoft&#39;s IEBlog post about prompting for
+plugin use in IE10 Metro
+Mode</a>.</p>
+    <h3 id="ie-pinned-sites-ie9-">IE Pinned Sites (IE9+)</h3>
+    <p>Enabling your application for pinning will allow IE9 users to add it to their Windows Taskbar and Start Menu. This comes with a range of new tools that you can easily configure with the elements below. See more <a href="https://msdn.microsoft.com/en-us/library/gg131029.aspx">documentation on IE9
+Pinned Sites</a>.</p>
+    <h3 id="name-the-pinned-site-for-windows">Name the Pinned Site for Windows</h3>
+    <p>Without this rule, Windows will use the page title as the name for your application.
+    </p>
+    <pre><code class="lang-html">&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"application-name"</span> content=<span class="hljs-string">"Sample Title"</span>&gt;
+</code></pre>
+    <h3 id="give-your-pinned-site-a-tooltip">Give your Pinned Site a tooltip</h3>
+    <p>You know — a tooltip. A little textbox that appears when the user holds their mouse over your Pinned Site&#39;s icon.</p>
+    <pre><code class="lang-html">&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"msapplication-tooltip"</span> content=<span class="hljs-string">"A description of what this site does."</span>&gt;
+</code></pre>
+    <h3 id="set-a-default-page-for-your-pinned-site">Set a default page for your Pinned Site</h3>
+    <p>If the site should go to a specific URL when it is pinned (such as the homepage), enter it here. One idea is to send it to a special URL so you can track the number of pinned users, like so:
+      <code>http://www.example.com/index.html?pinned=true</code></p>
+    <pre><code class="lang-html">&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"msapplication-starturl"</span> content=<span class="hljs-string">"http://www.example.com/index.html?pinned=true"</span>&gt;
+</code></pre>
+    <h3 id="recolor-ie-s-controls-manually-for-a-pinned-site">Recolor IE&#39;s controls manually for a Pinned Site</h3>
+    <p>IE9+ will automatically use the overall color of your Pinned Site&#39;s favicon to shade its browser buttons. UNLESS you give it another color here. Only use named colors (<code>red</code>) or hex colors (<code>#ff0000</code>).</p>
+    <pre><code class="lang-html">&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"msapplication-navbutton-color"</span> content=<span class="hljs-string">"#ff0000"</span>&gt;
+</code></pre>
+    <h3 id="manually-set-the-window-size-of-a-pinned-site">Manually set the window size of a Pinned Site</h3>
+    <p>If the site should open at a certain window size once pinned, you can specify the dimensions here. It only supports static pixel dimensions. 800x600 minimum.
+    </p>
+    <pre><code class="lang-html">&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"msapplication-window"</span> content=<span class="hljs-string">"width=800;height=600"</span>&gt;
+</code></pre>
+    <h3 id="jump-list-tasks-for-pinned-sites">Jump List &quot;Tasks&quot; for Pinned Sites</h3>
+    <p>Add Jump List Tasks that will appear when the Pinned Site&#39;s icon gets a right-click. Each Task goes to the specified URL, and gets its own mini icon (essentially a favicon, a 16x16 .ICO). You can add as many of these as you need.
+    </p>
+    <pre><code class="lang-html">&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"msapplication-task"</span> content=<span class="hljs-string">"name=Task 1;action-uri=http://host/Page1.html;icon-uri=http://host/icon1.ico"</span>&gt;
+&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"msapplication-task"</span> content=<span class="hljs-string">"name=Task 2;action-uri=http://microsoft.com/Page2.html;icon-uri=http://host/icon2.ico"</span>&gt;
+</code></pre>
+    <h3 id="-windows-8-high-quality-visuals-for-pinned-sites">(Windows 8) High quality visuals for Pinned Sites</h3>
+    <p>Windows 8 adds the ability for you to provide a PNG tile image and specify the tile&#39;s background color. <a href="http://blogs.msdn.com/b/ie/archive/2012/06/08/high-quality-visuals-for-pinned-sites-in-windows-8.aspx">Full details on the IE
+blog</a>.</p>
+    <ul>
+      <li>Create a 144x144 image of your site icon, filling all of the canvas, and using a transparent background.</li>
+      <li>Save this image as a 32-bit PNG and optimize it without reducing colour-depth. It can be named whatever you want (e.g. <code>metro-tile.png</code>).</li>
+      <li>To reference the tile and its color, add the HTML <code>meta</code> elements described in the IE Blog post.</li>
+    </ul>
+    <h3 id="-windows-8-badges-for-pinned-sites">(Windows 8) Badges for Pinned Sites</h3>
+    <p>IE10 will poll an XML document for badge information to display on your app&#39;s tile in the Start screen. The user will be able to receive these badge updates even when your app isn&#39;t actively running. The badge&#39;s value can be a number,
+      or one of a predefined list of glyphs.</p>
+    <ul>
+      <li><a href="http://blogs.msdn.com/b/ie/archive/2012/04/03/pinned-sites-in-windows-8.aspx">Tutorial on IEBlog with link to badge XML schema</a></li>
+      <li><a href="https://msdn.microsoft.com/en-us/library/ie/br212849.aspx">Available badge values</a></li>
+    </ul>
+    <pre><code class="lang-html">&lt;<span class="hljs-built_in">meta</span> name=<span class="hljs-string">"msapplication-badge"</span> <span class="hljs-built_in">value</span>=<span class="hljs-string">"frequency=NUMBER_IN_MINUTES;polling-uri=http://www.example.com/path/to/file.xml"</span>&gt;
+</code></pre>
+    <h3 id="disable-link-highlighting-upon-tap-in-ie10">Disable link highlighting upon tap in IE10</h3>
+    <p>Similar to <a href="http://davidwalsh.name/mobile-highlight-color">-webkit-tap-highlight-color</a> in iOS Safari. Unlike that CSS property, this is an HTML meta element, and its value is boolean rather than a color. It&#39;s all or nothing.</p>
+    <pre><code class="lang-html">&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"msapplication-tap-highlight"</span> content=<span class="hljs-string">"no"</span> /&gt;
+</code></pre>
+    <p>You can read about this useful element and more techniques in
+      <a href="https://blogs.windows.com/buildingapps/2012/11/15/adapting-your-webkit-optimized-site-for-internet-explorer-10/">Microsoft&#39;s documentation on adapting WebKit-oriented apps for IE10</a></p>
+    <h2 id="search">Search</h2>
+    <h3 id="direct-search-spiders-to-your-sitemap">Direct search spiders to your sitemap</h3>
+    <p><a href="http://www.sitemaps.org/protocol.html">Learn how to make a sitemap</a></p>
+    <pre><code class="lang-html">&lt;link <span class="hljs-keyword">rel</span>=<span class="hljs-string">"sitemap"</span> <span class="hljs-keyword">type</span>=<span class="hljs-string">"application/xml"</span> title=<span class="hljs-string">"Sitemap"</span> href=<span class="hljs-string">"/sitemap.xml"</span>&gt;
+</code></pre>
+    <h3 id="hide-pages-from-search-engines">Hide pages from search engines</h3>
+    <p>According to Heather Champ, former community manager at Flickr, you should not allow search engines to index your &quot;Contact Us&quot; or &quot;Complaints&quot; page if you value your sanity. This is an HTML-centric way of achieving that.</p>
+    <pre><code class="lang-html">&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"robots"</span> content=<span class="hljs-string">"noindex"</span>&gt;
+</code></pre>
+    <p><strong><em>WARNING:</em></strong> DO NOT INCLUDE ON PAGES THAT SHOULD APPEAR IN SEARCH ENGINES.</p>
+    <h3 id="firefox-and-ie-search-plugins">Firefox and IE Search Plugins</h3>
+    <p>Sites with in-site search functionality should be strongly considered for a browser search plugin. A &quot;search plugin&quot; is an XML file which defines how your plugin behaves in the browser. <a href="https://www.google.com/search?ie=UTF-8&amp;q=how+to+make+browser+search+plugin">How to make a browser search
+plugin</a>.</p>
+    <pre><code class="lang-html">&lt;link <span class="hljs-keyword">rel</span>=<span class="hljs-string">"search"</span> title=<span class="hljs-string">""</span> <span class="hljs-keyword">type</span>=<span class="hljs-string">"application/opensearchdescription+xml"</span> href=<span class="hljs-string">""</span>&gt;
+</code></pre>
+    <h2 id="miscellaneous">Miscellaneous</h2>
+    <ul>
+      <li>
+        <p>Use <a href="https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills">polyfills</a>.</p>
+      </li>
+      <li>
+        <p>Use <a href="http://microformats.org/wiki/Main_Page">Microformats</a> (via
+          <a href="http://microformats.org/wiki/microdata">microdata</a>) for optimum search results
+          <a href="http://googlewebmastercentral.blogspot.com/2009/05/introducing-rich-snippets.html">visibility</a>.</p>
+      </li>
+      <li>
+        <p>If you&#39;re building a web app you may want <a href="http://www.johanbrook.com/articles/native-style-momentum-scrolling-to-arrive-in-ios-5/">native style momentum scrolling in
+iOS 5+</a> using <code>-webkit-overflow-scrolling: touch</code>.</p>
+      </li>
+      <li>
+        <p>If you want to disable the translation prompt in Chrome or block Google Translate from translating your web page, use <a href="https://support.google.com/translate/?hl=en#2641276"><code>&lt;meta name=&quot;google&quot;
+value=&quot;notranslate&quot;&gt;</code></a>. To disable translation for a particular section of the web page, add
+          <a href="https://support.google.com/translate/?hl=en#2641276"><code>class=&quot;notranslate&quot;</code></a>.</p>
+      </li>
+      <li>
+        <p>If you want to disable the automatic detection and formatting of possible phone numbers in Safari on iOS, use <a href="https://developer.apple.com/library/safari/documentation/AppleApplications/Reference/SafariHTMLRef/Articles/MetaTags.html/#//apple_ref/doc/uid/TP40008193-SW5"><code>&lt;meta name=&quot;format-detection&quot;
+content=&quot;telephone=no&quot;&gt;</code></a>.</p>
+      </li>
+      <li>
+        <p>Avoid development/stage websites &quot;leaking&quot; into SERPs (search engine results page) by <a href="https://github.com/h5bp/html5-boilerplate/issues/804">implementing X-Robots-tag
+headers</a>.</p>
+      </li>
+      <li>
+        <p>Screen readers currently have less-than-stellar support for HTML5 but the JS script <a href="https://github.com/yatil/accessifyhtml5.js">accessifyhtml5.js</a> can help increase accessibility by adding ARIA roles to HTML5 elements.</p>
+      </li>
+    </ul>
+    <h2 id="news-feeds">News Feeds</h2>
+    <h3 id="rss">RSS</h3>
+    <p>Have an RSS feed? Link to it here. Want to <a href="http://www.rssboard.org/rss-specification">learn how to write an RSS feed from
+scratch</a>?</p>
+    <pre><code class="lang-html">&lt;link <span class="hljs-keyword">rel</span>=<span class="hljs-string">"alternate"</span> <span class="hljs-keyword">type</span>=<span class="hljs-string">"application/rss+xml"</span> title=<span class="hljs-string">"RSS"</span> href=<span class="hljs-string">"/rss.xml"</span>&gt;
+</code></pre>
+    <h3 id="atom">Atom</h3>
+    <p>Atom is similar to RSS, and you might prefer to use it instead of or in addition to it. <a href="http://www.atomenabled.org/developers/syndication/">See what Atom&#39;s all
+about</a>.</p>
+    <pre><code class="lang-html">&lt;link <span class="hljs-keyword">rel</span>=<span class="hljs-string">"alternate"</span> <span class="hljs-keyword">type</span>=<span class="hljs-string">"application/atom+xml"</span> title=<span class="hljs-string">"Atom"</span> href=<span class="hljs-string">"/atom.xml"</span>&gt;
+</code></pre>
+    <h3 id="pingbacks">Pingbacks</h3>
+    <p>Your server may be notified when another site links to yours. The href attribute should contain the location of your pingback service.</p>
+    <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"pingback"</span> <span class="hljs-attr">href</span>=<span class="hljs-string">""</span>&gt;</span>
+</code></pre>
+    <ul>
+      <li>High-level explanation: <a href="https://codex.wordpress.org/Introduction_to_Blogging#Pingbacks">https://codex.wordpress.org/Introduction_to_Blogging#Pingbacks</a></li>
+      <li>Step-by-step example case: <a href="http://www.hixie.ch/specs/pingback/pingback-1.0#TOC5">http://www.hixie.ch/specs/pingback/pingback-1.0#TOC5</a></li>
+      <li>PHP pingback service: <a href="https://web.archive.org/web/20131211032834/http://blog.perplexedlabs.com/2009/07/15/xmlrpc-pingbacks-using-php/">https://web.archive.org/web/20131211032834/http://blog.perplexedlabs.com/2009/07/15/xmlrpc-pingbacks-using-php/</a></li>
+    </ul>
+    <h2 id="social-networks">Social Networks</h2>
+    <h3 id="facebook-open-graph-data">Facebook Open Graph data</h3>
+    <p>You can control the information that Facebook and others display when users share your site. Below are just the most basic data points you might need. For specific content types (including &quot;website&quot;), see <a href="https://developers.facebook.com/docs/opengraph/objects/builtin/">Facebook&#39;s built-in Open
+Graph content
+templates</a>. Take full advantage of Facebook&#39;s support for complex data and activity by following the <a href="https://developers.facebook.com/docs/opengraph/tutorial/">Open Graph
+tutorial</a>.</p>
+    <pre><code class="lang-html">&lt;meta <span class="hljs-keyword">property</span>=<span class="hljs-string">"og:title"</span> content=<span class="hljs-string">""</span>&gt;
+&lt;meta <span class="hljs-keyword">property</span>=<span class="hljs-string">"og:description"</span> content=<span class="hljs-string">""</span>&gt;
+&lt;meta <span class="hljs-keyword">property</span>=<span class="hljs-string">"og:image"</span> content=<span class="hljs-string">""</span>&gt;
+</code></pre>
+    <h3 id="twitter-cards">Twitter Cards</h3>
+    <p>Twitter provides a snippet specification that serves a similar purpose to Open Graph. In fact, Twitter will use Open Graph when Cards is not available. Note that, as of this writing, Twitter requires that app developers activate Cards on a per-domain
+      basis. You can read more about the various snippet formats and application process in the <a href="https://dev.twitter.com/docs/cards">official Twitter Cards
+documentation</a>.</p>
+    <pre><code class="lang-html">&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"twitter:card"</span> content=<span class="hljs-string">"summary"</span>&gt;
+&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"twitter:site"</span> content=<span class="hljs-string">"@site_account"</span>&gt;
+&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"twitter:creator"</span> content=<span class="hljs-string">"@individual_account"</span>&gt;
+&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"twitter:url"</span> content=<span class="hljs-string">"http://www.example.com/path/to/page.html"</span>&gt;
+&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"twitter:title"</span> content=<span class="hljs-string">""</span>&gt;
+&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"twitter:description"</span> content=<span class="hljs-string">""</span>&gt;
+&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"twitter:image"</span> content=<span class="hljs-string">"http://www.example.com/path/to/image.jpg"</span>&gt;
+</code></pre>
+    <h2 id="urls">URLs</h2>
+    <h3 id="canonical-url">Canonical URL</h3>
+    <p>Signal to search engines and others &quot;Use this URL for this page!&quot; Useful when parameters after a <code>#</code> or <code>?</code> is used to control the display state of a page.
+      <code>http://www.example.com/cart.html?shopping-cart-open=true</code> can be indexed as the cleaner, more accurate <code>http://www.example.com/cart.html</code>.</p>
+    <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"canonical"</span> <span class="hljs-attr">href</span>=<span class="hljs-string">""</span>&gt;</span>
+</code></pre>
+    <h3 id="official-shortlink">Official shortlink</h3>
+    <p>Signal to the world &quot;This is the shortened URL to use this page!&quot; Poorly supported at this time. Learn more by reading the <a href="http://microformats.org/wiki/rel-shortlink">article about shortlinks on
+the Microformats wiki</a>.</p>
+    <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"shortlink"</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"h5bp.com"</span>&gt;</span>
+</code></pre>
+    <h3 id="separate-mobile-urls">Separate mobile URLs</h3>
+    <p>If you use separate URLs for desktop and mobile users, you should consider helping search engine algorithms better understand the configuration on your web site.</p>
+    <p>This can be done by adding the following annotations in your HTML pages:</p>
+    <ul>
+      <li>
+        <p>on the desktop page, add the <code>link rel=&quot;alternate&quot;</code> tag pointing to the corresponding mobile URL, e.g.:</p>
+        <p><code>&lt;link rel=&quot;alternate&quot; media=&quot;only screen and (max-width: 640px)&quot; href=&quot;http://m.example.com/page.html&quot; &gt;</code></p>
+      </li>
+      <li>
+        <p>on the mobile page, add the <code>link rel=&quot;canonical&quot;</code> tag pointing to the corresponding desktop URL, e.g.:</p>
+        <p><code>&lt;link rel=&quot;canonical&quot; href=&quot;http://www.example.com/page.html&quot;&gt;</code></p>
+      </li>
+    </ul>
+    <p>For more information please see:</p>
+    <ul>
+      <li><a href="https://developers.google.com/webmasters/smartphone-sites/details#separateurls">https://developers.google.com/webmasters/smartphone-sites/details#separateurls</a></li>
+      <li><a href="https://developers.google.com/webmasters/smartphone-sites/feature-phones">https://developers.google.com/webmasters/smartphone-sites/feature-phones</a></li>
+    </ul>
+    <h2 id="web-apps">Web Apps</h2>
+    <p>There are a couple of meta tags that provide information about a web app when added to the Home Screen on iOS:</p>
+    <ul>
+      <li>
+        <p>Adding <code>apple-mobile-web-app-capable</code> will make your web app chrome-less and provide the default iOS app view. You can control the color scheme of the default view by adding <code>apple-mobile-web-app-status-bar-style</code>.</p>
+        <pre><code class="lang-html">&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"apple-mobile-web-app-capable"</span> content=<span class="hljs-string">"yes"</span>&gt;
+&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"apple-mobile-web-app-status-bar-style"</span> content=<span class="hljs-string">"black"</span>&gt;
+</code></pre>
+      </li>
+      <li>
+        <p>You can use <code>apple-mobile-web-app-title</code> to add a specific sites name for the Home Screen icon. This works since iOS 6.</p>
+        <pre><code class="lang-html">&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"apple-mobile-web-app-title"</span> content=<span class="hljs-string">""</span>&gt;
+</code></pre>
+      </li>
+    </ul>
+    <p>For further information please read the <a href="https://developer.apple.com/library/safari/#documentation/AppleApplications/Reference/SafariHTMLRef/Articles/MetaTags.html">official
+documentation</a> on Apple&#39;s site.</p>
+    <h3 id="apple-touch-icons">Apple Touch Icons</h3>
+    <p>The Apple touch icons can be seen as the favicons of iOS devices.</p>
+    <p>The main sizes of the Apple touch icons are:</p>
+    <ul>
+      <li><code>57×57px</code> – iPhone with @1x display and iPod Touch</li>
+      <li><code>72×72px</code> – iPad and iPad mini with @1x display running iOS ≤ 6</li>
+      <li><code>76×76px</code> – iPad and iPad mini with @1x display running iOS ≥ 7</li>
+      <li><code>114×114px</code> – iPhone with @2x display running iOS ≤ 6</li>
+      <li><code>120×120px</code> – iPhone with @2x and @3x display running iOS ≥ 7</li>
+      <li><code>144×144px</code> – iPad and iPad mini with @2x display running iOS ≤ 6</li>
+      <li><code>152×152px</code> – iPad and iPad mini with @2x display running iOS 7</li>
+      <li><code>180×180px</code> – iPad and iPad mini with @2x display running iOS 8</li>
+    </ul>
+    <p>Displays meaning:</p>
+    <ul>
+      <li>@1x - non-Retina</li>
+      <li>@2x - Retina</li>
+      <li>@3x - Retina HD</li>
+    </ul>
+    <p>More information about the displays of iOS devices can be found
+      <a href="https://en.wikipedia.org/wiki/List_of_iOS_devices#Display">here</a>.</p>
+    <p>In most cases, one <code>180×180px</code> touch icon named <code>apple-touch-icon.png</code> and including:</p>
+    <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"apple-touch-icon"</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"apple-touch-icon.png"</span>&gt;</span>
+</code></pre>
+    <p>in the <code>&lt;head&gt;</code> of the page is enough. If you use art-direction and/or want to have different content for each device, you can add more touch icons as written above.</p>
+    <p>For a more comprehensive overview, please refer to Mathias&#39; <a href="https://mathiasbynens.be/notes/touch-icons">article on Touch
+Icons</a>.</p>
+    <h3 id="apple-touch-startup-image">Apple Touch Startup Image</h3>
+    <p>Apart from that it is possible to add start-up screens for web apps on iOS. This basically works by defining <code>apple-touch-startup-image</code> with an according link to the image. Since iOS devices have different screen resolutions it is necessary
+      to add media queries to detect which image to load. Here is an example for a retina iPhone:</p>
+    <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"apple-touch-startup-image"</span> <span class="hljs-attr">media</span>=<span class="hljs-string">"(max-device-width: 480px) and (-webkit-min-device-pixel-ratio: 2)"</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"img/startup-retina.png"</span>&gt;</span>
+</code></pre>
+    <p>However, it is possible to detect which start-up image to use with JavaScript. The Mobile Boilerplate provides a useful function for this. Please see
+      <a href="https://github.com/h5bp/mobile-boilerplate/blob/v4.1.0/js/helper.js#L336-L383">helpers.js</a> for the implementation.</p>
+    <h3 id="chrome-mobile-web-apps">Chrome Mobile web apps</h3>
+    <p>Chrome Mobile has a specific meta tag for making apps <a href="https://developer.chrome.com/multidevice/android/installtohomescreen">installable to the
+homescreen</a> which tries to be a more generic replacement to Apple&#39;s proprietary meta tag:</p>
+    <pre><code class="lang-html">&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"mobile-web-app-capable"</span> content=<span class="hljs-string">"yes"</span>&gt;
+</code></pre>
+    <p>Same applies to the touch icons:</p>
+    <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"icon"</span> <span class="hljs-attr">sizes</span>=<span class="hljs-string">"192x192"</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"highres-icon.png"</span>&gt;</span>
+</code></pre>
+    <h3 id="theme-color">Theme Color</h3>
+    <p>You can add the <a href="https://github.com/whatwg/meta-theme-color"><code>theme-color</code> meta extension</a> in the <code>&lt;head&gt;</code> of your pages to suggest the color that browsers and OSes should use if they customize the display of
+      individual pages in their UIs with varying colors.</p>
+    <pre><code class="lang-html">&lt;meta <span class="hljs-built_in">name</span>=<span class="hljs-string">"theme-color"</span> content=<span class="hljs-string">"#ff69b4"</span>&gt;
+</code></pre>
+    <p>The <code>content</code> attribute extension can take any valid CSS color.</p>
+    <p>Currently, the <code>theme-color</code> meta extension is supported by <a href="http://updates.html5rocks.com/2014/11/Support-for-theme-color-in-Chrome-39-for-Android">Chrome 39+
+for Android Lollipop</a> and <a href="https://twitter.com/ahmednefzaoui/status/492344698493997057">Firefox OS 2.1+</a>.</p>
+
+  </section>
+</body>
+
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "read-metadata",
+  "version": "1.0.0",
+  "description": "Load a JSON or YAML metadata file as an object",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "author": "Anthony Short",
+  "license": "MIT",
+  "dependencies": {
+    "yaml-js": "0.0.8"
+  },
+  "devDependencies": {
+    "should": "~2.1.1",
+    "mocha": "~1.17.0"
+  }
+}

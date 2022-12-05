@@ -1,0 +1,105 @@
+//https://sass-lang.com/documentation/breaking-changes/slash-div
+//https://stackoverflow.com/questions/61330432/sasserror-there-is-no-module-with-the-namespace-math
+@use 'sass:math';
+
+
+.picker_wrapper.no_alpha  .picker_alpha {
+    display: none;
+}
+//Always keep the editor on-screen, for screen readers:
+.picker_wrapper.no_editor .picker_editor {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+}
+.picker_wrapper.no_cancel  .picker_cancel {
+    display: none;
+}
+
+
+.layout_default {
+
+    $width-gutter: 1em;
+    $width-slider: 2em;
+    
+    
+    &.picker_wrapper {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-between;
+        align-items: stretch;
+        
+        font-size: 10px;
+        width: 25em;
+        //Since we use "em"s for layout here, restore the correct font-size on elements with text:
+        input, button {
+            font-size: 1rem;
+        }
+        
+        padding: math.div($width-gutter, 2);
+        > * {
+            margin: math.div($width-gutter, 2);
+        }
+        
+        //https://stackoverflow.com/questions/29732575/line-break-in-multi-line-flexbox
+        //We use this to insert a line break after .picker_alpha,
+        //which lets us set .picker_sl to use all available space to the left of it (via flex-grow: 1),
+        //and we don't have to calculate the exact width for .picker_sl.
+        &::before {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 0;
+            order: 1;
+        }
+    }
+    
+    
+    .picker_slider, .picker_selector {
+        padding: math.div($width-slider, 2);
+    }
+    
+    
+    .picker_hue {
+        width: 100%;
+    }
+    
+    
+    .picker_sl {
+        //width: calc(100% - #{2*$width-gutter} - #{$width-slider});
+        flex: 1 1 auto;
+        
+        //With variable width, we need a pseudo-element to make it a square, whatever size:
+        &::before {
+            content: '';
+            display: block;
+            padding-bottom: 100%;
+        }
+    }
+    
+    
+    .picker_editor {
+        order: 1;
+        //width: 100%;
+        width: 6.5rem;
+
+        input {
+            width:  100%;
+            height: 100%;
+        }
+    }
+    
+    
+    .picker_sample {
+        order: 1;
+        //width: 170px;
+        //height: 30px;
+        flex: 1 1 auto;
+    }
+    
+    
+    .picker_done, .picker_cancel {
+        order: 1;
+    }
+
+}

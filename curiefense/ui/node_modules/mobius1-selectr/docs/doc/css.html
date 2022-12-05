@@ -1,0 +1,102 @@
+<p><a href="https://html5boilerplate.com">HTML5 Boilerplate homepage</a> | <a href="TOC.md">Documentation
+table of contents</a></p>
+<h1 id="the-css">The CSS</h1>
+<p>HTML5 Boilerplate&#39;s CSS includes:</p>
+<ul>
+  <li><a href="#normalizecss">Normalize.css</a></li>
+  <li><a href="#useful-defaults">Useful defaults</a></li>
+  <li><a href="#common-helpers">Common helpers</a></li>
+  <li><a href="#media-queries">Placeholder media queries</a></li>
+  <li><a href="#print-styles">Print styles</a></li>
+</ul>
+<p>This starting CSS does not rely on the presence of
+  <a href="https://www.paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/">conditional class names</a>,
+  <a href="https://css-tricks.com/how-to-create-an-ie-only-stylesheet/">conditional style sheets</a>, or <a href="http://modernizr.com/">Modernizr</a>, and it is ready to use no matter what your development preferences happen to be.</p>
+<h2 id="normalize-css">Normalize.css</h2>
+<p>In order to make browsers render all elements more consistently and in line with modern standards, we include
+  <a href="https://necolas.github.io/normalize.css/">Normalize.css</a> — a modern, HTML5-ready alternative to CSS resets.</p>
+<p>As opposed to CSS resets, Normalize.css:</p>
+<ul>
+  <li>targets only the styles that need normalizing</li>
+  <li>preserves useful browser defaults rather than erasing them</li>
+  <li>corrects bugs and common browser inconsistencies</li>
+  <li>improves usability with subtle improvements</li>
+  <li>doesn&#39;t clutter the debugging tools</li>
+  <li>has better documentation</li>
+</ul>
+<p>For more information about Normalize.css, please refer to its <a href="https://necolas.github.com/normalize.css/">project
+page</a>, as well as this
+  <a href="http://nicolasgallagher.com/about-normalize-css/">blog post</a>.</p>
+<h2 id="useful-defaults">Useful defaults</h2>
+<p>Several base styles are included that build upon <code>Normalize.css</code>. These styles:
+</p>
+<ul>
+  <li>provide basic typography settings that improve text readability</li>
+  <li>protect against unwanted <code>text-shadow</code> during text highlighting</li>
+  <li>tweak the default alignment of some elements (e.g.: <code>img</code>, <code>video</code>,
+    <code>fieldset</code>, <code>textarea</code>)</li>
+  <li>style the prompt that is displayed to users using an outdated browser</li>
+</ul>
+<p>You are free and even encouraged to modify or add to these base styles as your project requires.</p>
+<h2 id="common-helpers">Common helpers</h2>
+<p>Along with the base styles, we also provide some commonly used helper classes.</p>
+<h4 id="-hidden-"><code>.hidden</code></h4>
+<p>The <code>hidden</code> class can be added to any element that you want to hide visually and from screen readers. It could be an element that will be populated and displayed later, or an element you will hide with JavaScript.</p>
+<h4 id="-visuallyhidden-"><code>.visuallyhidden</code></h4>
+<p>The <code>visuallyhidden</code> class can be added to any element that you want to hide visually, while still have its content accessible to screen readers.</p>
+<p>See also:</p>
+<ul>
+  <li><a href="http://www.webaim.org/techniques/css/invisiblecontent/">CSS in Action: Invisible Content Just for Screen Reader
+Users</a></li>
+  <li><a href="http://snook.ca/archives/html_and_css/hiding-content-for-accessibility">Hiding content for
+accessibility</a></li>
+  <li><a href="https://github.com/h5bp/html5-boilerplate/issues/194/">HTML5 Boilerplate - Issue #194</a>.</li>
+</ul>
+<h4 id="-invisible-"><code>.invisible</code></h4>
+<p>The <code>invisible</code> class can be added to any element that you want to hide visually and from screen readers, but without affecting the layout.</p>
+<p>As opposed to the <code>hidden</code> class that effectively removes the element from the layout, the <code>invisible</code> class will simply make the element invisible while keeping it in the flow and not affecting the positioning of the surrounding
+  content.
+</p>
+<p><strong>N.B.</strong> Try to stay away from, and don&#39;t use the classes specified above for
+  <a href="https://en.wikipedia.org/wiki/Keyword_stuffing">keyword stuffing</a> as you will harm your site&#39;s ranking!</p>
+<h4 id="-clearfix-"><code>.clearfix</code></h4>
+<p>The <code>clearfix</code> class can be added to any element to ensure that it always fully contains its floated children.</p>
+<p>Over the years there have been many variants of the clearfix hack, but currently, we use the <a href="http://nicolasgallagher.com/micro-clearfix-hack/">micro clearfix</a>.</p>
+<h2 id="media-queries">Media Queries</h2>
+<p>HTML5 Boilerplate makes it easy for you to get started with a
+  <a href="http://www.lukew.com/presos/preso.asp?26"><em>mobile first</em></a> and <a href="http://www.alistapart.com/articles/responsive-web-design/"><em>responsive web
+design</em></a> approach to development. But it&#39;s worth remembering that there are <a href="http://blog.cloudfour.com/css-media-query-for-mobile-is-fools-gold/">no silver
+bullets</a>.</p>
+<p>We include placeholder media queries to help you build up your mobile styles for wider viewports and high-resolution displays. It&#39;s recommended that you adapt these media queries based on the content of your site rather than mirroring the fixed dimensions
+  of specific devices.</p>
+<p>If you do not want to take the <em>mobile first</em> approach, you can simply edit or remove these placeholder media queries. One possibility would be to work from wide viewports down, and use <code>max-width</code> media queries instead (e.g.:
+  <code>@media only screen and (max-width: 480px)</code>).</p>
+<p>For more features that can help you in your mobile web development, take a look into our <a href="https://github.com/h5bp/mobile-boilerplate">Mobile Boilerplate</a>.</p>
+<h2 id="print-styles">Print styles</h2>
+<p>Lastly, we provide some useful print styles that will optimize the printing process, as well as make the printed pages easier to read.</p>
+<p>At printing time, these styles will:</p>
+<ul>
+  <li>strip all background colors, change the font color to black, and remove the
+    <code>text-shadow</code> — done in order to <a href="http://www.sanbeiji.com/archives/953">help save printer ink and speed up the
+printing process</a></li>
+  <li>underline and expand links to include the URL — done in order to allow users to know where to refer to<br> (exceptions to this are: the links that are
+    <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-href">fragment identifiers</a>, or use the
+    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void#JavaScript_URIs"><code>javascript:</code> pseudo protocol</a>)</li>
+  <li>expand abbreviations to include the full description — done in order to allow users to know what the abbreviations stands for</li>
+  <li>
+    <p>provide instructions on how browsers should break the content into pages and on <a href="https://en.wikipedia.org/wiki/Widows_and_orphans">orphans/widows</a>, namely, we instruct
+      <a href="https://en.wikipedia.org/wiki/Comparison_of_layout_engines_%28Cascading_Style_Sheets%29#Grammar_and_rules">supporting browsers</a> that they should:</p>
+    <ul>
+      <li>ensure the table header (<code>&lt;thead&gt;</code>) is <a href="http://css-discuss.incutio.com/wiki/Printing_Tables">printed on each page spanned by the
+table</a></li>
+      <li>prevent block quotations, preformatted text, images and table rows from being split onto two different pages</li>
+      <li>ensure that headings never appear on a different page than the text they are associated with</li>
+      <li>ensure that
+        <a href="https://en.wikipedia.org/wiki/Widows_and_orphans">orphans and widows</a> do
+        <a href="https://css-tricks.com/almanac/properties/o/orphans/">not appear on printed pages</a></li>
+    </ul>
+  </li>
+</ul>
+<p>The print styles are included along with the other <code>css</code> to <a href="http://www.phpied.com/delay-loading-your-print-css/">avoid the
+additional HTTP request</a>. Also, they should always be included last, so that the other styles can be overwritten.
+</p>

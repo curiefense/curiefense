@@ -1,0 +1,8 @@
+language: node_js
+node_js:
+  - "6"
+before_install:
+  - npm update -g npm
+  - npm install -g grunt-cli
+
+sudo: false

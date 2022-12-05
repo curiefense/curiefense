@@ -1,0 +1,12 @@
+sudo: false
+language: node_js
+node_js:
+    - stable
+before_script:
+    - npm install -g grunt-cli
+addons:
+    sauce_connect:
+        username:
+            secure: "FZwE9Qyolbm9RCtRdYBZiVq4NXDKcNdBX/kolZJKTH5/vKpQ8uKMnpqvhiLEeMyVOUctV39lAwj87dzISDeRZmv/ug6P6g1j3Qidvw2BN8i0WlPsRCy831YjtXbcN+ztDk4/8nTWmJjhqivtAJC65dPFRH813ROrY0CgAIUVPWU="
+        access_key:
+            secure: "Iaf/FGuIsFUMfvrSgfxAZylGH9X6+7rShoRhAPCAEQX6kFQ6pivtA7Vy6XeOACOx/DvY1nAWFBK/b98tc0JacN8cn1YQpjQ1ZhIM2SaRlMP/DHpaDkjR7y92KffbL23SPBOgbWDINsrS0FnXS5XIVhnNXBtW1E+R1j99jPrj3tM="

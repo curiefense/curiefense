@@ -1,0 +1,8 @@
+{
+    "name": "mobius1-selectr",
+    "version": "2.4.13",
+    "ignore": [
+        ".gitattributes",
+        "README.md"
+    ]
+}

@@ -1,0 +1,63 @@
+{
+  "compilerOptions": {
+    "target": "<%- options.useTsWithBabel ? 'esnext' : 'es5' %>",
+    "module": "esnext",
+    "strict": true,
+    "jsx": "preserve",
+    <%_ if (!options.useTsWithBabel) { _%>
+    "importHelpers": true,
+    <%_ } _%>
+    "moduleResolution": "node",
+    <%_ if (options.classComponent) { _%>
+    "experimentalDecorators": true,
+    <%_ } _%>
+    <%_ if (options.allowJs) { _%>
+    "allowJs": true,
+    <%_ } _%>
+    <%_ if (skipLibCheck) { _%>
+    "skipLibCheck": true,
+    <%_ } _%>
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "types": [
+      "webpack-env"<% if (hasMocha || hasJest || hasWebDriverIO) { %>,<% } %>
+      <%_ if (hasWebDriverIO) { _%>
+      <% if (!hasMocha && !hasJest) { %>"mocha",<% } %>
+      "@wdio/mocha-framework",
+      "expect-webdriverio",
+      "webdriverio/sync"<% if (hasMocha || hasJest) { %>,<% } %>
+      <%_ } _%>
+      <%_ if (hasMocha) { _%>
+      "mocha",
+      "chai"
+      <%_ } else if (hasJest) { _%>
+      "jest"
+      <%_ } _%>
+    ],
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
