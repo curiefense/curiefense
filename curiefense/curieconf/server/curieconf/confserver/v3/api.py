@@ -958,6 +958,7 @@ class PublishResource(Resource):
         if type(request.json) is not list:
             abort(400, "body must be a list")
         history = current_app.backend.key_get('system', 'publishhistory')
+        print('history', history)
         buckets = request.json
         for bucket in buckets:
             logs = []
