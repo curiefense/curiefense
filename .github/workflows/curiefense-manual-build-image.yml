@@ -29,4 +29,3 @@ jobs:
             PUSH=1 ./build-docker-images.sh
             export DOCKER_TAG=dev
             PUSH=1 ./build-docker-images.sh
-Symbols
