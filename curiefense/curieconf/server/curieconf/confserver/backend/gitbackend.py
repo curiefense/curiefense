@@ -723,6 +723,7 @@ class GitBackend(CurieBackend):
         return {"ok": True}
 
     def entries_delete(self, config, document, entry, actor=CURIE_AUTHOR):
+        # temp comment
         with self.repo.lock:
             self.prepare_branch(config)
             doc = self.get_document(document)
