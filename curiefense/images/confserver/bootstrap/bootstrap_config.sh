@@ -19,6 +19,8 @@ if [ -n "$IF_NO_CONFIG_PULL_FROM" ]; then
 fi
 
 if [ -n "$IF_NO_CONFIG_INIT_FROM" ]; then
+	git config --global --add safe.directory $TARGETDIR
+      	git config --global --add safe.directory /cf-persistent-config/bootstrap-repo
 	mkdir -p "$TARGETDIR"
 	cd "$TARGETDIR"
 	git init --bare
