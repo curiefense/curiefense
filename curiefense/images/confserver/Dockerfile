@@ -3,7 +3,7 @@ FROM python:3.8.15-slim-buster
 COPY init/requirements.txt /root/requirements.txt
 
 RUN apt-get update && apt-get install --no-install-recommends --no-install-suggests -y \
-    gnupg1 ca-certificates libpcre3 git=1:2.20.1-2+deb10u4 curl libmagic1 dumb-init  \
+    gnupg1 ca-certificates libpcre3 git curl libmagic1 dumb-init  \
     build-essential gcc python-dev libpcre3-dev &&  \
     rm -rf /var/lib/apt/lists/* && \
     pip install --no-cache-dir -r /root/requirements.txt && \
