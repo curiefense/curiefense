@@ -53,14 +53,19 @@ pub fn with_config<R, F>(basepath: &str, logs: &mut Logs, f: F) -> Option<R>
 where
     F: FnOnce(&mut Logs, &Config) -> R,
 {
-    let (newconfig, newhsdb) = match CONFIG.read() {
-        Ok(cfg) => match cfg.reload(basepath) {
-            None => {
+    let (initial_config, initial_hsdb) = match CONFIG.read() {
+        Ok(cfg) => {
+            if cfg.last_mod != SystemTime::UNIX_EPOCH {
                 config_logs(logs, &cfg);
                 return Some(f(logs, &cfg));
             }
-            Some(cfginfo) => cfginfo,
-        },
+            // first time reading configuration
+            else {
+                let config_logs = Logs::default();
+                let last_mod = SystemTime::now();
+                Config::load(config_logs, basepath, last_mod)
+            }
+        }
         Err(rr) =>
         // read failed :(
         {
@@ -68,14 +73,14 @@ where
             return None;
         }
     };
-    config_logs(logs, &newconfig);
-    let r = f(logs, &newconfig);
+    config_logs(logs, &initial_config);
+    let r = f(logs, &initial_config);
     match CONFIG.write() {
-        Ok(mut w) => *w = newconfig,
+        Ok(mut w) => *w = initial_config,
         Err(rr) => logs.error(|| rr.to_string()),
     };
     match HSDB.write() {
-        Ok(mut dbw) => *dbw = newhsdb,
+        Ok(mut dbw) => *dbw = initial_hsdb,
         Err(rr) => logs.error(|| rr.to_string()),
     };
     Some(r)
@@ -86,6 +91,24 @@ where
     F: FnOnce(&mut Logs, &Config) -> R,
 {
     with_config("/cf-config/current/config", logs, f)
+}
+
+pub fn reload_config(basepath: &str, _filenames: Vec<String>) {
+    let mut logs = Logs::default();
+
+    let cfg_logs = Logs::default();
+    let last_mod = SystemTime::now();
+    let (config, hsdb) = Config::load(cfg_logs, basepath, last_mod);
+
+    config_logs(&mut logs, &config);
+    match CONFIG.write() {
+        Ok(mut w) => *w = config,
+        Err(rr) => logs.error(|| rr.to_string()),
+    };
+    match HSDB.write() {
+        Ok(mut dbw) => *dbw = hsdb,
+        Err(rr) => logs.error(|| rr.to_string()),
+    };
 }
 
 #[derive(Debug, Clone)]
@@ -404,21 +427,6 @@ impl Config {
         );
 
         (config, hsdb)
-    }
-
-    pub fn reload(&self, basepath: &str) -> Option<(Config, HashMap<String, ContentFilterRules>)> {
-        let mut logs = Logs::default();
-        let last_mod = std::fs::metadata(basepath)
-            .and_then(|x| x.modified())
-            .unwrap_or_else(|rr| {
-                logs.error(|| format!("Could not get last modified time for {}: {}", basepath, rr));
-                SystemTime::now()
-            });
-        if self.last_mod == last_mod {
-            return None;
-        }
-
-        Some(Config::load(logs, basepath, last_mod))
     }
 
     pub fn empty() -> Config {
