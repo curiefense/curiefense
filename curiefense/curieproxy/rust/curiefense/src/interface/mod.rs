@@ -485,9 +485,9 @@ impl SimpleActionT {
     pub fn rate_limit_priority(&self) -> u32 {
         use SimpleActionT::*;
         match self {
-            Custom { content: _ } => 8,
+            Custom { .. } => 8,
             Challenge => 6,
-            Monitor => 1,
+            Monitor { .. } => 1,
             // skip action should be ignored when using with rate limit
             Skip => 0,
         }
