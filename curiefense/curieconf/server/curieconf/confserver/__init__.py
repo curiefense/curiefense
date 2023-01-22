@@ -61,7 +61,6 @@ def drop_into_pdb(app, exception):
 
 def main(args=None):
     # only called when running manually, not through uwsgi
-    global mongo
     import argparse
 
     parser = argparse.ArgumentParser()
