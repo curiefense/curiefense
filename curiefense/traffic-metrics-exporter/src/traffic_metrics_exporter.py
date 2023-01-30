@@ -115,7 +115,7 @@ def _get_numbers_group(number):
     elif 6 <= int(number) <= 10:
         return "6-10"
     elif 11 <= int(number) <= 20:
-        return "6-20"
+        return "11-20"
     elif 21 <= int(number) <= 32:
         return "21-32"
     else:
