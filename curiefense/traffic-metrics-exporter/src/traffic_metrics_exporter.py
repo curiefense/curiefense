@@ -130,6 +130,15 @@ def collect_values(acc, key, value):
     if not acc.get(key):
         acc[key] = []
     acc[key].append(value)
+    
+    
+def take_earliest(agg_list):
+    """each element of aggregated data contains list of entries - for the current
+       and part of the next minute. Take entry only of the earliest minute.
+    """
+    aggs_by_time = {agg['timestamp']: agg for agg in agg_list}
+    earliest_timestamp = min(aggs_by_time.keys())
+    return aggs_by_time[earliest_timestamp]
 
 
 def flatten_object_properties(t2_dict: dict):
@@ -192,9 +201,8 @@ def update_t3_counters(t2_dict, acc_avg):
 def export_t2(t2: dict):
     client = get_mongodb()
     try:
-        for item in t2:
-            item["timestamp"] = isoparse(item["timestamp"])
-        client.insert_many(t2)
+        t2["timestamp"] = isoparse(t2["timestamp"])
+        client.insert(t2)
     except Exception as e:
         logger.exception(e)
 
@@ -204,11 +212,11 @@ def export_t3():
         acc_avg = {}
         five_sec_string = q.get()
         five_sec_json = json.loads(five_sec_string)
+        earlies_interval = take_earliest(five_sec_json)
         if ENABLE_EXPORT_T2:
-            export_t2(five_sec_json)
-        for agg_sec in five_sec_json:
-            start_time = time.time()
-            update_t3_counters(agg_sec, acc_avg)
+            export_t2(earlies_interval)
+        start_time = time.time()
+        update_t3_counters(earlies_interval, acc_avg)
 
 
 def get_t2():
