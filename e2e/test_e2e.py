@@ -92,7 +92,7 @@ class CliHelper:
         time.sleep(20)
 
     def set_configuration(self, luatests_path: str):
-        for (cmdname, path) in [
+        for cmdname, path in [
             ("actions", "actions.json"),
             ("aclprofiles", "acl-profiles.json"),
             ("contentfilterprofiles", "contentfilter-profiles.json"),
@@ -158,7 +158,7 @@ class RequestHelper:
 
         k: str
         v: str
-        for (k, v) in req["headers"].items():
+        for k, v in req["headers"].items():
             if k.startswith(":"):
                 if k == ":method":
                     method = v
@@ -240,7 +240,7 @@ def test_rate_limit(
     if flip_requests:
         pytest.skip("only run raw requests for bit flip tests")
     time.sleep(max_time_limit)
-    for (step, req) in enumerate(limit_request):
+    for step, req in enumerate(limit_request):
         res = requester.run(req)
         if req["pass"]:
             assert res.status_code == 200, "at step %d" % step
@@ -258,7 +258,7 @@ def test_flow_control(
     if flip_requests:
         pytest.skip("only run raw requests for bit flip tests")
     time.sleep(max_time_limit)
-    for (step, req) in enumerate(flow_request):
+    for step, req in enumerate(flow_request):
         res = requester.run(req)
         if req["pass"]:
             assert res.status_code == 200, "at step %d" % step

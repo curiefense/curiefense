@@ -70,7 +70,7 @@ def pytest_generate_tests(metafunc: pytest.Metafunc):
     assert isinstance(luatests_path, str)
     if "raw_request" in metafunc.fixturenames:
         params: List[Tuple[str, Any]] = []
-        for (fname, elements) in case_load(luatests_path, "raw_requests"):
+        for fname, elements in case_load(luatests_path, "raw_requests"):
             for element in elements:
                 params.append((fname, element))
         metafunc.parametrize(

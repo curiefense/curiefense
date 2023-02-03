@@ -41,7 +41,7 @@ for root, _, files in os.walk(target):
         for f in files:
             fullname = os.path.join(root, f)
             data = load(open(fullname, "r"), Loader)
-            for (pid, payload) in enumerate(data["payload"]):
+            for pid, payload in enumerate(data["payload"]):
                 for encoder in data["encoder"]:
                     if encoder == "Plain":
                         epayload = payload
