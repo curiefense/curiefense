@@ -200,7 +200,8 @@ def update_t3_counters(t2_dict, acc_avg):
 def export_t2(t2: dict):
     client = get_mongodb()
     try:
-        t2["timestamp"] = isoparse(t2["timestamp"])
+        for item in t2:
+            item["timestamp"] = isoparse(item["timestamp"])
         client.insert_many(t2)
     except Exception as e:
         logger.exception(e)
@@ -210,12 +211,12 @@ def export_t3():
     while True:
         acc_avg = {}
         five_sec_string = q.get()
-        five_sec_json = json.loads(five_sec_string)
-        earlies_interval = take_earliest(five_sec_json)
+        five_sec_json = take_earliest(json.loads(five_sec_string))
         if ENABLE_EXPORT_T2:
-            export_t2(earlies_interval)
-        start_time = time.time()
-        update_t3_counters(earlies_interval, acc_avg)
+            export_t2(five_sec_json)
+        for agg_sec in five_sec_json:
+            start_time = time.time()
+            update_t3_counters(agg_sec, acc_avg)
 
 
 def get_t2():
