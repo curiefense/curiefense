@@ -130,15 +130,14 @@ def collect_values(acc, key, value):
     if not acc.get(key):
         acc[key] = []
     acc[key].append(value)
-    
-    
+
+
 def take_earliest(agg_list):
     """each element of aggregated data contains list of entries - for the current
        and part of the next minute. Take entry only of the earliest minute.
     """
-    aggs_by_time = {agg['timestamp']: agg for agg in agg_list}
-    earliest_timestamp = min(aggs_by_time.keys())
-    return aggs_by_time[earliest_timestamp]
+    earliest_timestamp = min({agg['timestamp'] for agg in agg_list})
+    return filter(lambda agg: agg['timestamp'] == earliest_timestamp, agg_list)
 
 
 def flatten_object_properties(t2_dict: dict):
@@ -202,7 +201,7 @@ def export_t2(t2: dict):
     client = get_mongodb()
     try:
         t2["timestamp"] = isoparse(t2["timestamp"])
-        client.insert(t2)
+        client.insert_many(t2)
     except Exception as e:
         logger.exception(e)
 
