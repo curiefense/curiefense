@@ -28,7 +28,6 @@ def test_configs_list_versions(curieapi, conf):
 
 
 def test_configs_create(curieapi_empty):
-
     curieapi_empty.configs.create(
         body={"meta": {"id": "pytest", "description": "pytest"}}
     )
@@ -51,7 +50,6 @@ def test_configs_create(curieapi_empty):
 
 
 def test_configs_create_dup(curieapi_empty):
-
     curieapi_empty.configs.create(
         body={"meta": {"id": "pytest", "description": "pytest"}}
     )
