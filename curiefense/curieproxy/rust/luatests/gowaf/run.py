@@ -42,7 +42,7 @@ gen_reqs = (
 )
 
 code = 0
-for (method, path, body, allheaders) in gen_reqs:
+for method, path, body, allheaders in gen_reqs:
     try:
         method = method.lower()
         headers = {h: allheaders[h] for h in allheaders if h not in ignore_headers}
