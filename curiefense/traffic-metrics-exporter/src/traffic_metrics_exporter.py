@@ -136,8 +136,8 @@ def take_earliest(agg_list):
     """each element of aggregated data contains list of entries - for the current
        and part of the next minute. Take entry only of the earliest minute.
     """
-    earliest_timestamp = min({agg['timestamp'] for agg in agg_list})
-    return filter(lambda agg: agg['timestamp'] == earliest_timestamp, agg_list)
+    earliest_timestamp = min({agg["timestamp"] for agg in agg_list})
+    return filter(lambda agg: agg["timestamp"] == earliest_timestamp, agg_list)
 
 
 def flatten_object_properties(t2_dict: dict):
