@@ -21,7 +21,6 @@ use curiefense::inspect_generic_request_map_init;
 use curiefense::interface::aggregator::aggregated_values_block;
 use curiefense::logs::LogLevel;
 use curiefense::logs::Logs;
-use curiefense::requestfields::RequestField;
 use curiefense::utils::RequestMeta;
 use curiefense::utils::{InspectionResult, RawRequest};
 use mlua::prelude::*;
@@ -162,7 +161,8 @@ fn lua_inspect_request(lua: &Lua, args: LuaTable) -> LuaResult<LuaInspectionResu
                 Some(grasshopper),
                 lua_args.secpolid,
                 lua_args.plugins,
-            );
+            )
+            .map(|r| r.mask());
             Ok(LuaInspectionResult(res))
         }
         Err(rr) => Ok(LuaInspectionResult(Err(rr))),
@@ -238,7 +238,9 @@ fn lua_inspect_process(lua: &Lua, args: (LuaValue, LuaValue)) -> LuaResult<LuaIn
     let p3 = APhase3::from_phase2(*p2, limit_results);
     let grasshopper = &DynGrasshopper {};
     let res = analyze_finish(&mut logs, Some(grasshopper), CfRulesArg::Global, p3);
-    Ok(LuaInspectionResult(Ok(InspectionResult::from_analyze(logs, res))))
+    Ok(LuaInspectionResult(
+        Ok(InspectionResult::from_analyze(logs, res).mask()),
+    ))
 }
 
 fn lua_reload_conf(lua: &Lua, args: (LuaValue, LuaValue)) -> LuaResult<Option<String>> {
@@ -321,7 +323,8 @@ fn lua_test_inspect_request(lua: &Lua, args: LuaTable) -> LuaResult<LuaInspectio
                 Some(&gh),
                 lua_args.secpolid,
                 lua_args.plugins,
-            );
+            )
+            .map(|r| r.mask());
             Ok(LuaInspectionResult(res))
         }
         Err(rr) => Ok(LuaInspectionResult(Err(rr))),

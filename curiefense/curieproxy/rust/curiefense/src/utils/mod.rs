@@ -5,6 +5,7 @@ use maxminddb::geoip2::country;
 use serde_json::json;
 use sha2::{Digest, Sha224};
 use std::collections::HashMap;
+use std::marker::PhantomData;
 use std::net::IpAddr;
 use std::sync::Arc;
 
@@ -19,6 +20,7 @@ use crate::config::hostmap::SecurityPolicy;
 use crate::config::matchers::{RequestSelector, RequestSelectorCondition};
 use crate::config::raw::ContentType;
 use crate::config::virtualtags::VirtualTags;
+use crate::contentfilter::masking;
 use crate::geo::{
     get_ipinfo_asn, get_ipinfo_carrier, get_ipinfo_company, get_ipinfo_location, get_ipinfo_privacy, get_maxmind_asn,
     get_maxmind_city, get_maxmind_country, ipinfo_country_in_eu, ipinfo_resolve_continent, ipinfo_resolve_country_name,
@@ -364,7 +366,7 @@ pub struct RInfo {
 }
 
 #[derive(Debug, Clone)]
-pub struct RequestInfo {
+pub struct RequestInfoG<A> {
     pub timestamp: DateTime<Utc>,
     pub cookies: RequestField,
     pub headers: RequestField,
@@ -372,7 +374,16 @@ pub struct RequestInfo {
     pub session: String,
     pub session_ids: HashMap<String, String>,
     pub plugins: RequestField,
+    phantom: PhantomData<A>,
 }
+
+#[derive(Debug, Clone)]
+pub struct Masked;
+#[derive(Debug, Clone)]
+pub struct Raw;
+
+pub type RequestInfo = RequestInfoG<Raw>;
+pub type MaskedRequestInfo = RequestInfoG<Masked>;
 
 impl RequestInfo {
     pub fn into_json(self, tags: Tags) -> serde_json::Value {
@@ -411,17 +422,75 @@ impl RequestInfo {
     }
 }
 
+impl MaskedRequestInfo {
+    pub fn new(
+        timestamp: DateTime<Utc>,
+        cookies: RequestField,
+        headers: RequestField,
+        rinfo: RInfo,
+        session: String,
+        session_ids: HashMap<String, String>,
+        plugins: RequestField,
+    ) -> Self {
+        Self {
+            timestamp,
+            cookies,
+            headers,
+            rinfo,
+            session,
+            session_ids,
+            plugins,
+            phantom: PhantomData,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
-pub struct InspectionResult {
+pub struct InspectionResultG<A> {
     pub decision: Decision,
-    pub rinfo: Option<RequestInfo>,
+    pub rinfo: Option<RequestInfoG<A>>,
     pub tags: Option<Tags>,
     pub err: Option<String>,
     pub logs: Logs,
     pub stats: Stats,
 }
 
+pub type InspectionResult = InspectionResultG<Raw>;
+pub type MaskedInspectionResult = InspectionResultG<Masked>;
+
 impl InspectionResult {
+    pub fn from_analyze(logs: Logs, dec: AnalyzeResult) -> Self {
+        InspectionResult {
+            decision: dec.decision,
+            tags: Some(dec.tags),
+            logs,
+            err: None,
+            rinfo: Some(dec.rinfo),
+            stats: dec.stats,
+        }
+    }
+
+    pub fn mask(self) -> MaskedInspectionResult {
+        let (rinfo, decision) = match self.rinfo {
+            Some(rinfo) => {
+                let (a, b) = masking(rinfo, self.decision);
+                (Some(a), b)
+            }
+            None => (None, self.decision),
+        };
+
+        MaskedInspectionResult {
+            decision,
+            rinfo,
+            tags: self.tags,
+            err: self.err,
+            logs: self.logs,
+            stats: self.stats,
+        }
+    }
+}
+
+impl MaskedInspectionResult {
     pub async fn log_json(&self, proxy: HashMap<String, String>) -> Vec<u8> {
         let dtags = Tags::new(&VirtualTags::default());
         let tags: &Tags = match &self.tags {
@@ -442,17 +511,6 @@ impl InspectionResult {
     // blocking version of log_json
     pub fn log_json_block(&self, proxy: HashMap<String, String>) -> Vec<u8> {
         async_std::task::block_on(self.log_json(proxy))
-    }
-
-    pub fn from_analyze(logs: Logs, dec: AnalyzeResult) -> Self {
-        InspectionResult {
-            decision: dec.decision,
-            tags: Some(dec.tags),
-            logs,
-            err: None,
-            rinfo: Some(dec.rinfo),
-            stats: dec.stats,
-        }
     }
 }
 
@@ -733,6 +791,7 @@ pub fn map_request(
         session: String::new(),
         session_ids: HashMap::new(),
         plugins: plugins_field,
+        phantom: PhantomData,
     };
 
     let raw_session = (if secpolicy.session.is_empty() {
@@ -768,6 +827,7 @@ pub fn map_request(
         session,
         session_ids,
         plugins: dummy_reqinfo.plugins,
+        phantom: PhantomData,
     }
 }
 

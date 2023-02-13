@@ -5,15 +5,15 @@ use curiefense::flow::{FlowCheck, FlowResult, FlowResultType};
 use curiefense::interface::Tags;
 use curiefense::limit::{LimitCheck, LimitResult};
 use curiefense::logs::Logs;
-use curiefense::utils::InspectionResult;
+use curiefense::utils::{InspectionResult, MaskedInspectionResult};
 use mlua::prelude::*;
 
 /// Data type for the full Lua inspection procedure (including redis calls)
-pub struct LuaInspectionResult(pub Result<InspectionResult, String>);
+pub struct LuaInspectionResult(pub Result<MaskedInspectionResult, String>);
 impl LuaInspectionResult {
     pub fn get_with_o<F, A>(&self, f: F) -> LuaResult<Option<A>>
     where
-        F: FnOnce(&InspectionResult) -> Option<A>,
+        F: FnOnce(&MaskedInspectionResult) -> Option<A>,
     {
         Ok(match &self.0 {
             Ok(res) => f(res),
@@ -22,7 +22,7 @@ impl LuaInspectionResult {
     }
     pub fn get_with<F, A>(&self, f: F) -> LuaResult<Option<A>>
     where
-        F: FnOnce(&InspectionResult) -> A,
+        F: FnOnce(&MaskedInspectionResult) -> A,
     {
         self.get_with_o(|r| Some(f(r)))
     }
@@ -141,8 +141,8 @@ impl mlua::UserData for LInitResult<APhase1> {
     fn add_methods<'lua, M: mlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method("request_map", |lua, this, proxy: LuaValue| {
             let emr = match FromLua::from_lua(proxy, lua) {
-                Err(_) | Ok(None) => this.get_with(|r| r.log_json_block(HashMap::new())),
-                Ok(Some(proxy)) => this.get_with(|r| r.log_json_block(proxy)),
+                Err(_) | Ok(None) => this.get_with(|r| r.clone().mask().log_json_block(HashMap::new())),
+                Ok(Some(proxy)) => this.get_with(|r| r.clone().mask().log_json_block(proxy)),
             };
             match emr {
                 Err(rr) => Err(rr),
@@ -201,8 +201,8 @@ impl mlua::UserData for LInitResult<APhase2I> {
     fn add_methods<'lua, M: mlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method("request_map", |lua, this, proxy: LuaValue| {
             let emr = match FromLua::from_lua(proxy, lua) {
-                Err(_) | Ok(None) => this.get_with(|r| r.log_json_block(HashMap::new())),
-                Ok(Some(proxy)) => this.get_with(|r| r.log_json_block(proxy)),
+                Err(_) | Ok(None) => this.get_with(|r| r.clone().mask().log_json_block(HashMap::new())),
+                Ok(Some(proxy)) => this.get_with(|r| r.clone().mask().log_json_block(proxy)),
             };
             match emr {
                 Err(rr) => Err(rr),

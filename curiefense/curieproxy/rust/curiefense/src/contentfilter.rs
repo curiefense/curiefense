@@ -9,9 +9,9 @@ use crate::config::contentfilter::{
 };
 use crate::config::raw::RawActionType;
 use crate::interface::stats::{BStageAcl, BStageContentFilter, StatsCollect};
-use crate::interface::{BlockReason, Initiator, Location, Tags};
+use crate::interface::{BlockReason, Decision, Initiator, Location, Tags};
 use crate::requestfields::RequestField;
-use crate::utils::{masker, RequestInfo};
+use crate::utils::{masker, MaskedRequestInfo, RequestInfo};
 use crate::Logs;
 
 lazy_static! {
@@ -448,22 +448,24 @@ fn hyperscan(
     )
 }
 
+fn matched_name(section: &ContentFilterSection, name: &str) -> bool {
+    if let Some(e) = section.names.get(name) {
+        e.mask
+    } else {
+        section.regex.iter().any(|(re, e)| e.mask && re.is_match(name))
+    }
+}
+
 fn mask_section(masking_seed: &[u8], sec: &mut RequestField, section: &ContentFilterSection) -> HashSet<Location> {
     let to_mask: Vec<String> = sec
         .iter()
-        .filter(|&(name, _)| {
-            if let Some(e) = section.names.get(name) {
-                e.mask
-            } else {
-                section.regex.iter().any(|(re, e)| e.mask && re.is_match(name))
-            }
-        })
+        .filter(|&(name, _)| matched_name(section, name))
         .map(|(name, _)| name.to_string())
         .collect();
     to_mask.iter().flat_map(|n| sec.mask(masking_seed, n)).collect()
 }
 
-pub fn masking(req: RequestInfo) -> RequestInfo {
+pub fn masking(req: RequestInfo, decision: Decision) -> (MaskedRequestInfo, Decision) {
     let mut ri = req;
     let mut to_mask = HashSet::new();
     let masking_seed = &ri.rinfo.secpolicy.content_filter_profile.masking_seed;
@@ -513,7 +515,70 @@ pub fn masking(req: RequestInfo) -> RequestInfo {
         }
     }
 
-    ri
+    let mut decision = decision;
+    if profile.mask_decisions {
+        let mask_location = {
+            fn mask_value(
+                profile: &ContentFilterProfile,
+                masking_seed: &[u8],
+                sid: SectionIdx,
+                n: &str,
+                v: &mut String,
+            ) {
+                if matched_name(profile.sections.get(sid), n) {
+                    *v = masker(masking_seed, v);
+                }
+            }
+            |loc: &mut Location| match loc {
+                Location::UriArgument(_)
+                | Location::Body
+                | Location::BodyArgument(_)
+                | Location::Headers
+                | Location::Header(_)
+                | Location::Cookies
+                | Location::Cookie(_)
+                | Location::Plugins
+                | Location::Plugin(_)
+                | Location::Request
+                | Location::Attributes
+                | Location::Ip
+                | Location::Uri
+                | Location::Pathpart(_)
+                | Location::PathpartValue(_, _)
+                | Location::RefererPath
+                | Location::PluginValue(_, _)
+                | Location::RefererArgument(_)
+                | Location::RefererPathpart(_) => (),
+                Location::RefererPathpartValue(_, _) => (),
+                Location::UriArgumentValue(n, v) => mask_value(profile, masking_seed, SectionIdx::Args, n, v),
+                Location::RefererArgumentValue(n, v) => mask_value(profile, masking_seed, SectionIdx::Args, n, v),
+                Location::BodyArgumentValue(n, v) => mask_value(profile, masking_seed, SectionIdx::Args, n, v),
+                Location::HeaderValue(n, v) => mask_value(profile, masking_seed, SectionIdx::Headers, n, v),
+                Location::CookieValue(n, v) => mask_value(profile, masking_seed, SectionIdx::Cookies, n, v),
+            }
+        };
+
+        // now mask decisions
+        for reason in decision.reasons.iter_mut() {
+            mask_location(&mut reason.location);
+            for loc in reason.extra_locations.iter_mut() {
+                mask_location(loc);
+            }
+        }
+    }
+
+    (
+        MaskedRequestInfo::new(
+            ri.timestamp,
+            ri.cookies,
+            ri.headers,
+            ri.rinfo,
+            ri.session,
+            ri.session_ids,
+            ri.plugins,
+        ),
+        decision,
+    )
 }
 
 #[cfg(test)]
@@ -557,7 +622,7 @@ mod test {
     fn no_masking() {
         let profile = ContentFilterProfile::default_from_seed("test");
         let rinfo = test_request_info(profile);
-        let masked = masking(rinfo.clone());
+        let (masked, _) = masking(rinfo.clone(), Decision::pass(Vec::new()));
         assert_eq!(rinfo.headers, masked.headers);
         assert_eq!(rinfo.cookies, masked.cookies);
         assert_eq!(rinfo.rinfo.qinfo.args, masked.rinfo.qinfo.args);
@@ -588,7 +653,7 @@ mod test {
         let asection = profile.sections.at(SectionIdx::Args);
         asection.regex = vec![(regex::Regex::new(".").unwrap(), maskentry())];
         let rinfo = test_request_info(profile);
-        let masked = masking(rinfo.clone());
+        let (masked, _) = masking(rinfo.clone(), Decision::pass(Vec::new()));
         assert_eq!(rinfo.headers, masked.headers);
         assert_eq!(rinfo.cookies, masked.cookies);
         assert_eq!(
@@ -639,7 +704,7 @@ mod test {
         let asection = profile.sections.at(SectionIdx::Args);
         asection.regex = vec![(regex::Regex::new("1").unwrap(), maskentry())];
         let rinfo = test_request_info(profile);
-        let masked = masking(rinfo.clone());
+        let (masked, _) = masking(rinfo.clone(), Decision::pass(Vec::new()));
         assert_eq!(rinfo.headers, masked.headers);
         assert_eq!(rinfo.cookies, masked.cookies);
         assert_eq!(
@@ -669,7 +734,7 @@ mod test {
         let asection = profile.sections.at(SectionIdx::Args);
         asection.names = ["arg1"].iter().map(|k| (k.to_string(), maskentry())).collect();
         let rinfo = test_request_info(profile);
-        let masked = masking(rinfo.clone());
+        let (masked, _) = masking(rinfo.clone(), Decision::pass(Vec::new()));
         assert_eq!(rinfo.headers, masked.headers);
         assert_eq!(rinfo.cookies, masked.cookies);
         assert_eq!(
@@ -699,7 +764,7 @@ mod test {
         let asection = profile.sections.at(SectionIdx::Args);
         asection.names = ["arg1", "arg2"].iter().map(|k| (k.to_string(), maskentry())).collect();
         let rinfo = test_request_info(profile);
-        let masked = masking(rinfo.clone());
+        let (masked, _) = masking(rinfo.clone(), Decision::pass(Vec::new()));
         assert_eq!(rinfo.headers, masked.headers);
         assert_eq!(rinfo.cookies, masked.cookies);
         assert_eq!(
@@ -761,7 +826,7 @@ mod test {
         csection.regex = vec![(regex::Regex::new(".*").unwrap(), masksecret())];
         let rinfo = map_request(&mut logs, Arc::new(secpol), None, &raw_request, None, HashMap::new());
 
-        let masked = masking(rinfo);
+        let (masked, _) = masking(rinfo, Decision::pass(Vec::new()));
 
         let (logged, _) = async_std::task::block_on(jsonlog(
             &Decision::pass(Vec::new()),

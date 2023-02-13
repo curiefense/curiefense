@@ -8,7 +8,7 @@ use std::collections::{btree_map::Entry, BTreeMap, HashMap};
 use std::hash::Hash;
 
 use crate::config::raw::RawActionType;
-use crate::utils::RequestInfo;
+use crate::utils::MaskedRequestInfo;
 
 use super::{Decision, Location, Tags};
 
@@ -506,7 +506,7 @@ impl AggregatedCounters {
         &mut self,
         dec: &Decision,
         rcode: Option<u32>,
-        rinfo: &RequestInfo,
+        rinfo: &MaskedRequestInfo,
         tags: &Tags,
         bytes_sent: Option<usize>,
     ) {
@@ -941,7 +941,7 @@ pub fn aggregated_values_block() -> String {
 pub async fn aggregate(
     dec: &Decision,
     rcode: Option<u32>,
-    rinfo: &RequestInfo,
+    rinfo: &MaskedRequestInfo,
     tags: &Tags,
     bytes_sent: Option<usize>,
 ) {
