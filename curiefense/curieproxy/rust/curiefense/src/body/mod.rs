@@ -343,11 +343,11 @@ pub fn parse_body(
 pub fn body_too_deep(id: String, expected: usize, actual: usize) -> (Action, BlockReason) {
     (
         Action {
-            atype: ActionType::Block,
-            block_mode: true,
-            status: 403,
-            headers: None,
-            content: "Access denied".to_string(),
+            atype: ActionType::Block {
+                status: 403,
+                headers: None,
+                content: "Access denied".to_string(),
+            },
             extra_tags: None,
         },
         BlockReason::body_too_deep(id, actual, expected),
@@ -357,11 +357,11 @@ pub fn body_too_deep(id: String, expected: usize, actual: usize) -> (Action, Blo
 pub fn body_too_large(id: String, expected: usize, actual: usize) -> (Action, BlockReason) {
     (
         Action {
-            atype: ActionType::Block,
-            block_mode: true,
-            status: 403,
-            headers: None,
-            content: "Access denied".to_string(),
+            atype: ActionType::Block {
+                status: 403,
+                headers: None,
+                content: "Access denied".to_string(),
+            },
             extra_tags: None,
         },
         BlockReason::body_too_large(id, actual, expected),

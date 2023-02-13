@@ -156,11 +156,11 @@ pub fn add_headers(idata: IData, new_headers: HashMap<String, String>) -> Result
 pub fn add_header(idata: IData, key: String, value: String) -> Result<IData, (Logs, AnalyzeResult)> {
     let mut dt = idata;
     let cf_block = || Action {
-        atype: ActionType::Block,
-        block_mode: true,
-        status: 403,
-        headers: None,
-        content: "Access denied".to_string(),
+        atype: ActionType::Block {
+            status: 403,
+            headers: None,
+            content: "Access denied".to_string(),
+        },
         extra_tags: None,
     };
     let cfid = &dt.secpol.content_filter_profile.id;

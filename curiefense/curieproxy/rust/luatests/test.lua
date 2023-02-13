@@ -238,7 +238,32 @@ local function equals(o1, o2)
   local o1Type = type(o1)
   local o2Type = type(o2)
   if o1Type ~= o2Type then return false end
+
   if o1Type ~= 'table' then return false end
+
+  local is_array = o1[1] ~= nil -- uncorrect yet simple way to check if the table is an array
+
+  if is_array then
+    -- check if arrays are equal by first compairing their lengths, then by veryfing if each element
+    -- in o1 matches one element in o2.
+    if table.maxn(o1) ~= table.maxn(o2) then
+      return false
+    end
+    for _, value1 in ipairs(o1) do
+      local match = false
+      for _, value2 in ipairs(o2) do
+        if equals(value1, value2) == true then
+          match = true
+          break
+        end
+      end
+      if match == false then
+        return false
+      end
+    end
+    return true
+  end
+
   local keySet = {}
 
     for key1, value1 in pairs(o1) do

@@ -9,9 +9,7 @@
     },
     "name": "test multi matching",
     "response": {
-      "action": "custom_response",
-      "block_mode": false,
-      "status": 403,
+      "action": "pass",
       "content_filter_triggers": [
         {
           "risk_level": 5,
@@ -43,8 +41,6 @@
         "sqli",
         "cf-rule-category:sqli",
         "waf",
-        "status:403",
-        "status-class:4xx",
         "cf-rule-risk:5"
       ]
     }

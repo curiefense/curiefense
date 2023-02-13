@@ -4,7 +4,7 @@ use curiefense::config::Config;
 use curiefense::grasshopper::{DummyGrasshopper, Grasshopper};
 use curiefense::incremental::{add_body, add_header, finalize, inspect_init, IData, IPInfo};
 use curiefense::inspect_generic_request_map_async;
-use curiefense::interface::{jsonlog_block, AnalyzeResult};
+use curiefense::interface::{jsonlog_block, Action, ActionType, AnalyzeResult};
 use curiefense::logs::{LogLevel, Logs};
 use curiefense::simple_executor::{new_executor_and_spawner, Executor, Progress, TaskCB};
 use curiefense::utils::{RawRequest, RequestMeta};
@@ -105,7 +105,19 @@ pub unsafe extern "C" fn curiefense_cfr_block_status(ptr: *const CFResult) -> u3
     match ptr.as_ref() {
         None => 0,
         Some(CFResult::RR(_)) => 0,
-        Some(CFResult::OK(r)) => r.result.decision.maction.as_ref().map(|a| a.status).unwrap_or(0),
+        Some(CFResult::OK(r)) => r
+            .result
+            .decision
+            .maction
+            .as_ref()
+            .and_then(|a| {
+                if let ActionType::Block { status, .. } = &a.atype {
+                    Some(*status)
+                } else {
+                    None
+                }
+            })
+            .unwrap_or(0),
     }
 }
 
@@ -117,7 +129,19 @@ pub unsafe extern "C" fn curiefense_cfr_block_contentlength(ptr: *const CFResult
     match ptr.as_ref() {
         None => 0,
         Some(CFResult::RR(_)) => 0,
-        Some(CFResult::OK(r)) => r.result.decision.maction.as_ref().map(|d| d.content.len()).unwrap_or(0),
+        Some(CFResult::OK(r)) => r
+            .result
+            .decision
+            .maction
+            .as_ref()
+            .and_then(|a| {
+                if let ActionType::Block { content, .. } = &a.atype {
+                    Some(content.len())
+                } else {
+                    None
+                }
+            })
+            .unwrap_or(0),
     }
 }
 
@@ -130,10 +154,15 @@ pub unsafe extern "C" fn curiefense_cfr_block_content(ptr: *const CFResult, tgt:
     match ptr.as_ref() {
         None => (),
         Some(CFResult::RR(_)) => (),
-        Some(CFResult::OK(r)) => match &r.result.decision.maction {
-            Some(a) => std::ptr::copy_nonoverlapping(a.content.as_ptr(), tgt, a.content.len()),
-            None => (),
-        },
+        Some(CFResult::OK(r)) => {
+            if let Some(Action {
+                atype: ActionType::Block { content, .. },
+                ..
+            }) = &r.result.decision.maction
+            {
+                std::ptr::copy_nonoverlapping(content.as_ptr(), tgt, content.len())
+            }
+        }
     }
 }
 

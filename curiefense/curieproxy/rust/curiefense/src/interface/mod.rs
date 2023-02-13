@@ -69,11 +69,22 @@ pub fn merge_decisions(d1: Decision, d2: Decision) -> Decision {
     };
 
     // Merge headers if kept action is monitor
-    if let Some(action) = &mut kept.maction {
-        if action.atype == ActionType::Monitor {
-            if let Some(headers) = &mut action.headers {
-                let throw_headers = thrown.maction.and_then(|action| action.headers).unwrap_or_default();
-                headers.extend(throw_headers)
+    if let Some(Action {
+        atype: ActionType::Monitor { headers: kept_headers },
+        ..
+    }) = &mut kept.maction
+    {
+        if let Some(Action {
+            atype: ActionType::Monitor {
+                headers: Some(thrown_headers),
+            },
+            ..
+        }) = thrown.maction
+        {
+            if let Some(k) = kept_headers {
+                k.extend(thrown_headers)
+            } else {
+                *kept_headers = Some(thrown_headers)
             }
         }
     }
@@ -155,7 +166,13 @@ impl Decision {
         let (request_map, _) = jsonlog(
             self,
             Some(rinfo),
-            self.maction.as_ref().map(|a| a.status),
+            self.maction.as_ref().and_then(|a| {
+                if let ActionType::Block { status, .. } = a.atype {
+                    Some(status)
+                } else {
+                    None
+                }
+            }),
             tags,
             stats,
             logs,
@@ -199,7 +216,7 @@ pub async fn jsonlog(
 pub fn jsonlog_rinfo(
     dec: &Decision,
     rinfo: &RequestInfo,
-    mut rcode: Option<u32>,
+    rcode: Option<u32>,
     tags: &Tags,
     stats: &Stats,
     logs: &Logs,
@@ -266,17 +283,6 @@ pub fn jsonlog_rinfo(
                 code_vec.into_iter(),
             )
         }
-    }
-
-    // If we have a monitor action, remove the return code to prevent tag
-    // addition. This could be fixed with a better Action structure, but
-    // requires more changes.
-    if let Some(Action {
-        atype: ActionType::Monitor,
-        ..
-    }) = &dec.maction
-    {
-        rcode = None;
     }
 
     map_ser.serialize_entry(
@@ -446,19 +452,22 @@ pub fn jsonlog_block(
 // an action, as formatted for outside consumption
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Action {
+    #[serde(flatten)]
     pub atype: ActionType,
-    pub block_mode: bool,
-    pub status: u32,
-    pub headers: Option<HashMap<String, String>>,
-    pub content: String,
     pub extra_tags: Option<HashSet<String>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SimpleActionT {
     Skip,
-    Monitor,
-    Custom { content: String },
+    Monitor {
+        headers: Option<HashMap<String, RequestTemplate>>,
+    },
+    Custom {
+        status: u32,
+        headers: Option<HashMap<String, RequestTemplate>>,
+        content: String,
+    },
     Challenge,
 }
 
@@ -466,9 +475,9 @@ impl SimpleActionT {
     fn priority(&self) -> u32 {
         use SimpleActionT::*;
         match self {
-            Custom { content: _ } => 8,
+            Custom { .. } => 8,
             Challenge => 6,
-            Monitor => 1,
+            Monitor { .. } => 1,
             Skip => 9,
         }
     }
@@ -476,78 +485,73 @@ impl SimpleActionT {
     pub fn rate_limit_priority(&self) -> u32 {
         use SimpleActionT::*;
         match self {
-            Custom { content: _ } => 8,
+            Custom { .. } => 8,
             Challenge => 6,
-            Monitor => 1,
+            Monitor { .. } => 1,
             // skip action should be ignored when using with rate limit
             Skip => 0,
         }
     }
 
     fn is_blocking(&self) -> bool {
-        !matches!(self, SimpleActionT::Monitor)
+        !matches!(self, SimpleActionT::Monitor { .. })
     }
 
     pub fn to_bdecision(&self) -> BDecision {
         match self {
             SimpleActionT::Skip => BDecision::Skip,
-            SimpleActionT::Monitor => BDecision::Monitor,
-            SimpleActionT::Challenge | SimpleActionT::Custom { content: _ } => BDecision::Blocking,
+            SimpleActionT::Monitor { .. } => BDecision::Monitor,
+            SimpleActionT::Challenge | SimpleActionT::Custom { .. } => BDecision::Blocking,
         }
     }
 }
 
 // an action with its semantic meaning
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct SimpleAction {
     pub atype: SimpleActionT,
-    pub headers: Option<HashMap<String, RequestTemplate>>,
-    pub status: u32,
     pub extra_tags: Option<HashSet<String>>,
-}
-
-impl Default for SimpleAction {
-    fn default() -> Self {
-        SimpleAction {
-            atype: SimpleActionT::default(),
-            headers: None,
-            status: 503,
-            extra_tags: None,
-        }
-    }
 }
 
 impl Default for SimpleActionT {
     fn default() -> Self {
         SimpleActionT::Custom {
+            status: 503,
+            headers: None,
             content: "blocked".to_string(),
         }
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Copy, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case", untagged)]
 pub enum ActionType {
     Skip,
-    Monitor,
-    Block,
+    Monitor {
+        headers: Option<HashMap<String, String>>,
+    },
+    Block {
+        status: u32,
+        headers: Option<HashMap<String, String>>,
+        content: String,
+    },
 }
 
 impl ActionType {
     /// is the action blocking (not passed to the underlying server)
     pub fn is_blocking(&self) -> bool {
-        matches!(self, ActionType::Block)
+        matches!(self, ActionType::Block { .. })
     }
 
     /// is the action final (no further processing)
     pub fn is_final(&self) -> bool {
-        !matches!(self, ActionType::Monitor)
+        !matches!(self, ActionType::Monitor { .. })
     }
 
     pub fn priority(&self) -> u32 {
         match self {
-            ActionType::Block => 6,
-            ActionType::Monitor => 1,
+            ActionType::Block { .. } => 6,
+            ActionType::Monitor { .. } => 1,
             ActionType::Skip => 9,
         }
     }
@@ -556,11 +560,11 @@ impl ActionType {
 impl std::default::Default for Action {
     fn default() -> Self {
         Action {
-            atype: ActionType::Block,
-            block_mode: true,
-            status: 503,
-            headers: None,
-            content: "request denied".to_string(),
+            atype: ActionType::Block {
+                status: 503,
+                headers: None,
+                content: "request denied".to_string(),
+            },
             extra_tags: None,
         }
     }
@@ -582,61 +586,66 @@ impl SimpleAction {
 
     fn resolve(rawaction: &RawAction) -> anyhow::Result<(String, SimpleAction)> {
         let id = rawaction.id.clone();
-        let atype = match rawaction.type_ {
-            RawActionType::Skip => SimpleActionT::Skip,
-            RawActionType::Monitor => SimpleActionT::Monitor,
-            RawActionType::Custom => SimpleActionT::Custom {
-                content: rawaction.params.content.clone().unwrap_or_default(),
-            },
-            RawActionType::Challenge => SimpleActionT::Challenge,
-        };
+
         let status = rawaction.params.status.unwrap_or(503);
         let headers = rawaction.params.headers.as_ref().map(|hm| {
             hm.iter()
                 .map(|(k, v)| (k.to_string(), parse_request_template(v)))
                 .collect()
         });
+        let content = rawaction.params.content.clone().unwrap_or_default();
+
+        let atype = match rawaction.type_ {
+            RawActionType::Skip => SimpleActionT::Skip,
+            RawActionType::Monitor => SimpleActionT::Monitor { headers },
+            RawActionType::Custom => SimpleActionT::Custom {
+                status,
+                headers,
+                content,
+            },
+            RawActionType::Challenge => SimpleActionT::Challenge,
+        };
         let extra_tags = if rawaction.tags.is_empty() {
             None
         } else {
             Some(rawaction.tags.iter().cloned().collect())
         };
 
-        Ok((
-            id,
-            SimpleAction {
-                atype,
-                status,
-                headers,
-                extra_tags,
-            },
-        ))
+        Ok((id, SimpleAction { atype, extra_tags }))
     }
 
     /// returns None when it is a challenge, Some(action) otherwise
     fn to_action(&self, rinfo: &RequestInfo, tags: &Tags, is_human: bool) -> Option<Action> {
         let mut action = Action::default();
-        action.block_mode = action.atype.is_blocking();
-        action.status = self.status;
-        action.headers = self.headers.as_ref().map(|hm| {
+
+        let resolve_headers = |hm: &HashMap<String, RequestTemplate>| -> HashMap<String, String> {
             hm.iter()
                 .map(|(k, v)| (k.to_string(), render_template(rinfo, tags, v)))
                 .collect()
-        });
-        match &self.atype {
-            SimpleActionT::Skip => action.atype = ActionType::Skip,
-            SimpleActionT::Monitor => action.atype = ActionType::Monitor,
-            SimpleActionT::Custom { content } => {
-                action.atype = ActionType::Block;
-                action.content = content.clone();
-            }
+        };
+
+        action.atype = match &self.atype {
+            SimpleActionT::Skip => ActionType::Skip,
+            SimpleActionT::Monitor { headers } => ActionType::Monitor {
+                headers: headers.as_ref().map(resolve_headers),
+            },
+            SimpleActionT::Custom {
+                status,
+                headers,
+                content,
+            } => ActionType::Block {
+                status: *status,
+                headers: headers.as_ref().map(resolve_headers),
+                content: content.clone(),
+            },
             SimpleActionT::Challenge => {
                 if !is_human {
-                    return None;
+                    action.atype
+                } else {
+                    ActionType::Monitor { headers: None }
                 }
-                action.atype = ActionType::Monitor;
             }
-        }
+        };
         Some(action)
     }
 

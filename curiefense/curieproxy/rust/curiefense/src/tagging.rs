@@ -4,7 +4,7 @@ use crate::config::globalfilter::{
 use crate::config::raw::Relation;
 use crate::config::virtualtags::VirtualTags;
 use crate::interface::stats::{BStageMapped, BStageSecpol, StatsCollect};
-use crate::interface::{stronger_decision, BlockReason, Location, SimpleActionT, SimpleDecision, Tags};
+use crate::interface::{stronger_decision, BlockReason, Location, SimpleAction, SimpleActionT, SimpleDecision, Tags};
 use crate::requestfields::RequestField;
 use crate::utils::RequestInfo;
 use std::collections::{HashMap, HashSet};
@@ -283,8 +283,8 @@ pub fn tag_request(
             tags.extend(rtags);
             if let Some(a) = &psection.action {
                 // merge headers from Monitor decision
-                if a.atype == SimpleActionT::Monitor {
-                    monitor_headers.extend(a.headers.clone().unwrap_or_default());
+                if let SimpleActionT::Monitor { headers: Some(headers) } = &a.atype {
+                    monitor_headers.extend(headers.clone());
                 }
                 let curdec = SimpleDecision::Action(
                     a.clone(),
@@ -302,11 +302,24 @@ pub fn tag_request(
     }
 
     // if the final decision is a monitor, use cumulated monitor headers as headers
-    decision = if let SimpleDecision::Action(mut action, block_reasons) = decision {
-        if action.atype == SimpleActionT::Monitor {
-            action.headers = Some(monitor_headers);
-        }
-        SimpleDecision::Action(action, block_reasons)
+    decision = if let SimpleDecision::Action(
+        SimpleAction {
+            atype: SimpleActionT::Monitor { .. },
+            extra_tags,
+        },
+        block_reasons,
+    ) = decision
+    {
+        let monitor_action = SimpleActionT::Monitor {
+            headers: Some(monitor_headers),
+        };
+        SimpleDecision::Action(
+            SimpleAction {
+                atype: monitor_action,
+                extra_tags,
+            },
+            block_reasons,
+        )
     } else {
         decision
     };

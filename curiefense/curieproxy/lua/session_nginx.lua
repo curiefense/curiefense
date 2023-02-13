@@ -45,6 +45,16 @@ local function custom_response(handle, action_params)
 
 end
 
+local function pass(handle, action_params)
+    handle.log(handle.DEBUG, "altering: " .. cjson.encode(action_params))
+    if action_params ~= cjson.null and action_params["headers"] and action_params["headers"] ~= cjson.null then
+        for k, v in pairs(action_params.headers) do
+            handle.req.set_header(k, v)
+        end
+    end
+end
+
+
 local function make_safe_headers(rheaders)
     local headers = {}
 
@@ -91,7 +101,7 @@ function session_rust_nginx.inspect(handle, loglevel, secpolid, plugins)
     --   * method : the HTTP verb
     --   * authority : optionally, the HTTP2 authority field
     --   * scheme: http / https
-    local meta = { path=handle.var.request_uri, method=handle.req.get_method(), authority=nil, scheme=handle.var.scheme }
+    local meta = {path=handle.var.request_uri, method=handle.req.get_method(), authority=nil, scheme=handle.var.scheme}
     local params = {loglevel=loglevel, meta=meta, headers=headers, body=body_content,
             ip=handle.var.remote_addr, hops=HOPS, plugins=plugins}
 
@@ -234,13 +244,7 @@ function session_rust_nginx.inspect(handle, loglevel, secpolid, plugins)
             custom_response(handle, response_table["response"])
         end
         if response_table["action"] == "pass" then
-            local analyser_response = response_table["response"]
-            if analyser_response ~= cjson.null and analyser_response["headers"] and
-                analyser_response["headers"] ~= cjson.null then
-                for k, v in pairs(analyser_response.headers) do
-                    handle.req.set_header(k, v)
-                end
-            end
+            pass(handle, response_table["response"])
         end
     end
 end
