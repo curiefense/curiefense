@@ -17,7 +17,7 @@
         },
         "operand": {
             "type": "string",
-            "minLength": 0,
+            "minLength": 1,
             "title": "Operand",
             "description": "Matching domain(s) regex"
         },
