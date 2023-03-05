@@ -16,6 +16,7 @@ setup(
     package_data={
         "curieconf.confserver": [
             "v3/json/*.schema",
+            "v3/json/*.json",
         ]
     },
     scripts=["bin/curieconf_server"],
