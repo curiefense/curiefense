@@ -57,4 +57,15 @@ function nativeutils.map_fn (T, fn)
     return ret
 end
 
+
+-- based on https://www.lua.org/pil/5.1.html
+function _unpack (t, i)
+  local i = i or 1
+  if t[i] ~= nil then
+    return t[i], _unpack(t, i + 1)
+  end
+end
+
+nativeutils.unpack = _unpack
+
 return nativeutils

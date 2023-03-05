@@ -62,7 +62,7 @@ m_limit = api.model(
     },
 )
 
-# securitypolicy
+# security policy entry
 
 m_secprofilemap = api.model(
     "Security Profile Map",
@@ -93,6 +93,7 @@ m_securitypolicy = api.model(
         "match": fields.String(required=True),
         "session": AnyType(),
         "session_ids": AnyType(),
+        "plugins": AnyType(),
         "map": fields.List(fields.Nested(m_secprofilemap)),
     },
 )

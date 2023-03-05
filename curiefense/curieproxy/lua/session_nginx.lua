@@ -1,13 +1,18 @@
 local session_rust_nginx = {}
-local cjson       = require "cjson"
-local curiefense  = require "curiefense"
-local sfmt = string.format
-local redis = require "resty.redis"
 
---local HOPS = os.getenv("XFF_TRUSTED_HOPS") or 0
-local redishost = os.getenv("REDIS_HOST") or "redis"
-local redisport = os.getenv("REDIS_PORT") or 6379
-local HOPS = os.getenv("HOPS")
+-- local cjson       = require "cjson"
+-- see more at https://github.com/openresty/lua-cjson/blob/91c3363e7dc86263a379719e5508fc0979df84d3/manual.txt#module-instantiation
+
+local cjson         = require "cjson.safe"
+local curiefense    = require "curiefense"
+local utils         = require "lua.nativeutils"
+local redis         = require "resty.redis"
+
+local sfmt          = string.format
+
+local HOPS          = os.getenv("XFF_TRUSTED_HOPS") or 1
+local redishost     = os.getenv("REDIS_HOST") or "redis"
+local redisport     = os.getenv("REDIS_PORT") or 6379
 
 local function custom_response(handle, action_params)
     if not action_params then action_params = {} end
@@ -71,13 +76,21 @@ local function redis_connect(handle)
     return red
 end
 
-function session_rust_nginx.inspect(handle, loglevel, secpolid, plugins)
+function get_request_headers(handle)
+
     local rheaders, err = handle.req.get_headers()
     if err == "truncated" then
         handle.log(handle.ERR, "truncated headers: " .. err)
     end
 
-    local headers = make_safe_headers(rheaders)
+    return make_safe_headers(rheaders)
+end
+
+
+function session_rust_nginx.inspect(handle, loglevel, secpolid)
+    local ip_str = handle.var.remote_addr
+
+    local headers = get_request_headers(handle)
 
     handle.req.read_body()
     local body_content = handle.req.get_body_data()
@@ -252,5 +265,61 @@ function session_rust_nginx.log(handle, extra)
     handle.ctx.res = nil
     handle.var.request_map = res:request_map(extra)
 end
+
+--[[
+{ "plugins":
+  { "jwt":
+    { "headers": "auth-token-id"}
+  }
+}
+]]--
+-- implementation of extracting jwt header
+function _jwt_parse (handle, namespace_info)
+    local header_name = namespace_info["headers"]
+    local headers = get_request_headers(handle)
+
+    if headers then
+        local jwt_token = headers[header_name]
+
+        if jwt_token then
+            local parts = utils.split(jwt_token, ".")
+            if parts and type(parts) == "table" then
+                local header, payload, sig = utils.unpack(parts)
+                -- verify a valid structure of 3 elements
+                if header and payload and sig then
+                    local json_payload = ngx.decode_base64(payload)
+                    local data_table = cjson.decode(json_payload)
+                    return data_table
+                end
+            end
+        end
+    end
+end
+
+-- {"jwt": {"headers": "auth-token-id"} }
+local supported_plugins = {
+    [ "jwt" ] = _jwt_parse
+}
+
+function session_rust_nginx.load_plugins_data(handle, secpol_plugins)
+    local plugins_config = {}
+    for name, func in pairs(supported_plugins) do
+        local namespace_info = secpol_plugins[name]
+        if namespace_info then
+            local pi_data = func(handle, namespace_info)
+            if pi_data then
+                plugins_config [name] = pi_data
+            end
+        end
+    end
+
+    -- check if table is not empty
+    if next(plugins_config) ~= nil then
+        return plugins_config
+    else
+        return nil
+    end
+end
+
 
 return session_rust_nginx

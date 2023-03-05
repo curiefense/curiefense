@@ -59,6 +59,11 @@
             "type": "array",
             "items": { "type": "string" }
         },
+        "plugins": {
+            "type": "object",
+            "title": "Plugins",
+            "description": "List of active plugins active"
+        },
         "curiesession": { "$ref": "#/definitions/key-array" },
         "curiesession_ids": { "$ref": "#/definitions/key-array" },
         "map": {
