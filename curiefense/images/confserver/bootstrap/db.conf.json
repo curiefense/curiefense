@@ -12,12 +12,14 @@
     "branch_buckets": [
         {
             "name": "prod",
+            "deployment": true,
             "buckets": [
                 "prod"
             ]
         },
         {
             "name": "stage",
+            "deployment": true,
             "buckets": [
                 "stage"
             ]
