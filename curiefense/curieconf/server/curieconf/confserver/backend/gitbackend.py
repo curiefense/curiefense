@@ -12,6 +12,8 @@ import jmespath
 import fasteners
 from typing import Dict, List
 import jsonpath_ng
+import functools
+import itertools
 
 
 CURIE_AUTHOR = git.Actor("Curiefense API", "curiefense@reblaze.com")
@@ -79,6 +81,26 @@ class ThreadAndProcessLock(object):
     def __exit__(self, *args):
         self.flock.__exit__(*args)
         self.tlock.__exit__(*args)
+
+
+class Cache(object):
+    immutable_cache = {}
+    mutable_cache = {}
+    @classmethod
+    def cache(cls, version_pos=None, immutable=False):
+        def g(f):
+            @functools.wraps(f)
+            def deco(*args):
+                cache = cls.immutable_cache if immutable or not (version_pos is None or args[version_pos] is None) else cls.mutable_cache
+                key = (f.__name__, args)
+                if key not in cache:
+                    cache[key] = f(*args)
+                return cache[key]
+            return deco
+        return g
+    @classmethod
+    def invalidate_latest_versions(cls):
+        cls.mutable_cache = {}
 
 
 @Backends.register("git")
@@ -282,6 +304,7 @@ class GitBackend(CurieBackend):
 
     ### CONFIGS
 
+    @Cache.cache()
     def configs_list(self):
         with self.repo.lock:
             res = []
@@ -301,11 +324,13 @@ class GitBackend(CurieBackend):
                 )
         return res
 
+    @Cache.cache()
     def configs_list_versions(self, config):
         with self.repo.lock:
             branch = self.prepare_branch(config)
             return self.get_logs()
 
+    @Cache.cache(version_pos=2)
     def configs_get(self, config, version=None):
         with self.repo.lock:
             branch = self.prepare_branch(config)
@@ -341,45 +366,51 @@ class GitBackend(CurieBackend):
                 )
             if name in self.repo.heads:
                 abort(409, "config [%s] already exists" % name)
-            self.repo.create_head(name, self.repo.commit(BRANCH_BASE))
-            self.prepare_branch(name)
-            for docname, content in data.get("documents", {}).items():
-                self.add_document(docname, content)
-            for blobname, jblob in data.get("blobs", {}).items():
-                self.add_blob(blobname, jblob)
-            self.commit("Create config [%s]" % name, actor=actor)
+            try:
+                self.repo.create_head(name, self.repo.commit(BRANCH_BASE))
+                self.prepare_branch(name)
+                for docname, content in data.get("documents", {}).items():
+                    self.add_document(docname, content)
+                for blobname, jblob in data.get("blobs", {}).items():
+                    self.add_blob(blobname, jblob)
+                self.commit("Create config [%s]" % name, actor=actor)
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def configs_update(self, config, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            branch = self.prepare_branch(config)
-            new_id = data.get("meta", {}).get("id")
-            renamed = ""
-            if new_id and new_id != config:
-                branch.rename(new_id)
-                renamed = " renamed into [%s]" % new_id
-            delb = data.get("delete_blobs", {})
-            addb = data.get("blobs", {})
-            for blobname in utils.BLOBS_PATH:
-                if blobname in delb:
-                    if delb[blobname] is True:
-                        self.del_blob(blobname)
-                        continue
-                if blobname in addb:
-                    self.add_blob(blobname, addb[blobname])
+            try:
+                branch = self.prepare_branch(config)
+                new_id = data.get("meta", {}).get("id")
+                renamed = ""
+                if new_id and new_id != config:
+                    branch.rename(new_id)
+                    renamed = " renamed into [%s]" % new_id
+                delb = data.get("delete_blobs", {})
+                addb = data.get("blobs", {})
+                for blobname in utils.BLOBS_PATH:
+                    if blobname in delb:
+                        if delb[blobname] is True:
+                            self.del_blob(blobname)
+                            continue
+                    if blobname in addb:
+                        self.add_blob(blobname, addb[blobname])
 
-            deld = data.get("delete_documents", {})
-            addd = data.get("documents", {})
-            for docname in utils.DOCUMENTS_PATH:
-                if docname in addd or docname in deld:
-                    doc = self.get_document(docname)
-                    if docname in addd:
-                        doc = self.update_doc(doc, addd[docname])
-                    if docname in deld:
-                        deleid = {entry["id"] for entry in deld[docname]}
-                        doc = [entry for entry in doc if entry["id"] not in deleid]
-                    self.add_document(docname, doc)
-            self.commit("Update config [%s]%s" % (config, renamed), actor=actor)
+                deld = data.get("delete_documents", {})
+                addd = data.get("documents", {})
+                for docname in utils.DOCUMENTS_PATH:
+                    if docname in addd or docname in deld:
+                        doc = self.get_document(docname)
+                        if docname in addd:
+                            doc = self.update_doc(doc, addd[docname])
+                        if docname in deld:
+                            deleid = {entry["id"] for entry in deld[docname]}
+                            doc = [entry for entry in doc if entry["id"] not in deleid]
+                        self.add_document(docname, doc)
+                self.commit("Update config [%s]%s" % (config, renamed), actor=actor)
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def configs_delete(self, name):
@@ -391,7 +422,10 @@ class GitBackend(CurieBackend):
                 )
             if name not in self.repo.heads:
                 abort(404, "config [%s] does not exists" % name)
-            self.repo.delete_head(name, force=True)
+            try:
+                self.repo.delete_head(name, force=True)
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def configs_clone(self, config, data, new_name=None):
@@ -400,20 +434,27 @@ class GitBackend(CurieBackend):
         if new_name in self.repo.heads:
             abort(409, "configuration [%s] already exists" % new_name)
         with self.repo.lock:
-            self.prepare_branch(config)
-            self.repo.create_head(new_name)
+            try:
+                self.prepare_branch(config)
+                self.repo.create_head(new_name)
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def configs_revert(self, config, version, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_branch(config)
-            c = self.repo.commit(version)
-            idx = git.index.base.IndexFile.from_tree(self.repo, c.tree)
-            commit(idx, "Revert to version [%s]" % version, actor=actor)
+            try:
+                self.prepare_branch(config)
+                c = self.repo.commit(version)
+                idx = git.index.base.IndexFile.from_tree(self.repo, c.tree)
+                commit(idx, "Revert to version [%s]" % version, actor=actor)
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     ### BLOBS
 
+    @Cache.cache(version_pos=2)
     def blobs_list(self, config, version=None):
         if version != None:
             raise NotImplementedError
@@ -423,11 +464,13 @@ class GitBackend(CurieBackend):
                 {"name": blob} for blob in utils.BLOBS_PATH if self.blob_exists(blob)
             ]
 
+    @Cache.cache()
     def blobs_list_versions(self, config, blob):
         with self.repo.lock:
             self.prepare_branch(config)
             return self.get_logs(config, blob=blob)
 
+    @Cache.cache(version_pos=3)
     def blobs_get(self, config, blob, version=None):
         with self.repo.lock:
             self.prepare_branch(config)
@@ -435,39 +478,51 @@ class GitBackend(CurieBackend):
 
     def blobs_create(self, config, blob, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_branch(config)
-            if self.blob_exists(blob):
-                abort(409, "blob [%s] already exists" % blob)
-            self.add_blob(blob, data)
-            self.commit("Create blob [%s]" % blob, actor=actor)
+            try:
+                self.prepare_branch(config)
+                if self.blob_exists(blob):
+                    abort(409, "blob [%s] already exists" % blob)
+                self.add_blob(blob, data)
+                self.commit("Create blob [%s]" % blob, actor=actor)
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def blobs_update(self, config, blob, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_branch(config)
-            if not self.blob_exists(blob):
-                abort(404, "blob [%s] does not exist" % blob)
-            self.add_blob(blob, data)
-            self.commit("Update blob [%s]" % blob, actor=actor)
+            try:
+                self.prepare_branch(config)
+                if not self.blob_exists(blob):
+                    abort(404, "blob [%s] does not exist" % blob)
+                self.add_blob(blob, data)
+                self.commit("Update blob [%s]" % blob, actor=actor)
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def blobs_delete(self, config, blob, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_branch(config)
-            if not self.blob_exists(blob):
-                abort(404, "blob [%s] does not exist" % blob)
-            self.del_blob(blob)
-            self.commit("Delete blob [%s]" % blob, actor=actor)
+            try:
+                self.prepare_branch(config)
+                if not self.blob_exists(blob):
+                    abort(404, "blob [%s] does not exist" % blob)
+                self.del_blob(blob)
+                self.commit("Delete blob [%s]" % blob, actor=actor)
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def blobs_revert(self, config, blob, version, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_branch(config)
-            b = self.get_blob(blob, version)
-            self.add_blob(blob, b)
-            self.commit(
-                "Revert blob [%s] to version [%s]" % (blob, version), actor=actor
-            )
+            try:
+                self.prepare_branch(config)
+                b = self.get_blob(blob, version)
+                self.add_blob(blob, b)
+                self.commit(
+                    "Revert blob [%s] to version [%s]" % (blob, version), actor=actor
+                )
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     ### DOCUMENTS
@@ -516,6 +571,7 @@ class GitBackend(CurieBackend):
                     )
         return res
 
+    @Cache.cache(version_pos=2)
     def documents_list(self, config, version=None):
         if version is not None:
             raise NotImplementedError
@@ -532,11 +588,13 @@ class GitBackend(CurieBackend):
                 res.append({"name": doc, "entries": len(docdata)})
         return res
 
+    @Cache.cache()
     def documents_list_versions(self, config, document):
         with self.repo.lock:
             self.prepare_branch(config)
             return self.get_logs(config, doc=document)
 
+    @Cache.cache(version_pos=3)
     def documents_get(self, config, document, version=None):
         with self.repo.lock:
             self.prepare_branch(config)
@@ -544,71 +602,85 @@ class GitBackend(CurieBackend):
 
     def documents_create(self, config, document, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_branch(config)
-            if self.doc_exists(document):
-                if self.get_document(document) != []:
-                    abort(409, "document [%s] already exists" % document)
-            errors = self._documents_check_current_consistency(
-                config, added={document: data}
-            )
-            if errors:
-                return {"ok": False, "errors": errors}
-            self.add_document(document, data)
-            self.commit("New version of document [%s]" % document, actor=actor)
+            try:
+                self.prepare_branch(config)
+                if self.doc_exists(document):
+                    if self.get_document(document) != []:
+                        abort(409, "document [%s] already exists" % document)
+                errors = self._documents_check_current_consistency(
+                    config, added={document: data}
+                )
+                if errors:
+                    return {"ok": False, "errors": errors}
+                self.add_document(document, data)
+                self.commit("New version of document [%s]" % document, actor=actor)
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def documents_update(self, config, document, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_branch(config)
-            doc = self.get_document(document)
-            updated_doc = self.update_doc(doc, data)
-            errors = self._documents_check_current_consistency(
-                config, added={document: data}
-            )
-            if errors:
-                return {"ok": False, "errors": errors}
-            self.add_document(document, updated_doc)
-            self.commit("Update document [%s]" % document, actor=actor)
+            try:
+                self.prepare_branch(config)
+                doc = self.get_document(document)
+                updated_doc = self.update_doc(doc, data)
+                errors = self._documents_check_current_consistency(
+                    config, added={document: data}
+                )
+                if errors:
+                    return {"ok": False, "errors": errors}
+                self.add_document(document, updated_doc)
+                self.commit("Update document [%s]" % document, actor=actor)
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def documents_delete(self, config, document, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_branch(config)
-            if not self.doc_exists(document):
-                abort(404, "document [%s] does not exist" % document)
-            errors = self._documents_check_current_consistency(
-                config, removed=[document]
-            )
-            if errors:
-                return {"ok": False, "errors": errors}
-            self.add_document(document, [])
-            self.commit("Delete document [%s]" % document, actor=actor)
+            try:
+                self.prepare_branch(config)
+                if not self.doc_exists(document):
+                    abort(404, "document [%s] does not exist" % document)
+                errors = self._documents_check_current_consistency(
+                    config, removed=[document]
+                )
+                if errors:
+                    return {"ok": False, "errors": errors}
+                self.add_document(document, [])
+                self.commit("Delete document [%s]" % document, actor=actor)
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def documents_revert(self, config, document, version, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_branch(config)
-            d = self.get_document(document, version)
-            errors = self._documents_check_current_consistency(
-                config, added={document: d}
-            )
-            if errors:
-                return {"ok": False, "errors": errors}
-            self.add_document(document, d)
-            self.commit(
-                "Revert document [%s] to version [%s]" % (document, version),
-                actor=actor,
-            )
+            try:
+                self.prepare_branch(config)
+                d = self.get_document(document, version)
+                errors = self._documents_check_current_consistency(
+                    config, added={document: d}
+                )
+                if errors:
+                    return {"ok": False, "errors": errors}
+                self.add_document(document, d)
+                self.commit(
+                    "Revert document [%s] to version [%s]" % (document, version),
+                    actor=actor,
+                )
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     ### ENTRIES
 
+    @Cache.cache(version_pos=3)
     def entries_list(self, config, document, version=None):
         with self.repo.lock:
             self.prepare_branch(config)
             doc = self.get_document(document)
             return [e["id"] for e in doc]
 
+    @Cache.cache()
     def entries_list_versions(self, config, document, entry):
         with self.repo.lock:
             self.prepare_branch(config)
@@ -641,6 +713,7 @@ class GitBackend(CurieBackend):
             res.reverse()
             return res
 
+    @Cache.cache(version_pos=4)
     def entries_get(self, config, document, entry, version=None):
         with self.repo.lock:
             self.prepare_branch(config)
@@ -653,104 +726,119 @@ class GitBackend(CurieBackend):
 
     def entries_create(self, config, document, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_branch(config)
-            doc = self.get_document(document)
-            for e in doc:
-                if e["id"] == data["id"]:
-                    abort(409, "entry [%s] already exists" % data["id"])
-            else:
-                doc.append(data)
-            self.add_document(document, doc)
-            self.commit(
-                "Add entry [%s] to document [%s]" % (data["id"], document), actor=actor
-            )
+            try:
+                self.prepare_branch(config)
+                doc = self.get_document(document)
+                for e in doc:
+                    if e["id"] == data["id"]:
+                        abort(409, "entry [%s] already exists" % data["id"])
+                else:
+                    doc.append(data)
+                self.add_document(document, doc)
+                self.commit(
+                    "Add entry [%s] to document [%s]" % (data["id"], document), actor=actor
+                )
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def entries_update(self, config, document, entry, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_branch(config)
-            doc = self.get_document(document)
-            for i, e in enumerate(doc):
-                if e["id"] == entry:
-                    break
-            else:
-                abort(404, "entry [%s] does not exist" % entry)
+            try:
+                self.prepare_branch(config)
+                doc = self.get_document(document)
+                for i, e in enumerate(doc):
+                    if e["id"] == entry:
+                        break
+                else:
+                    abort(404, "entry [%s] does not exist" % entry)
 
-            doc[i] = data
+                doc[i] = data
 
-            self.add_document(document, doc)
-            if data["id"] == entry:
-                msg = "Update entry [%s] of document [%s]" % (entry, document)
-            else:
-                msg = "Update entry [%s] into entry [%s] in document [%s]" % (
-                    entry,
-                    data["id"],
-                    document,
-                )
-            self.commit(msg, actor=actor)
+                self.add_document(document, doc)
+                if data["id"] == entry:
+                    msg = "Update entry [%s] of document [%s]" % (entry, document)
+                else:
+                    msg = "Update entry [%s] into entry [%s] in document [%s]" % (
+                        entry,
+                        data["id"],
+                        document,
+                    )
+                self.commit(msg, actor=actor)
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def entries_edit(self, config, document, entry, data, actor=CURIE_AUTHOR):
         if len(data) == 0:
             return {"ok": False, "message": "empty edit request"}
         with self.repo.lock:
-            self.prepare_branch(config)
-            doc = self.get_document(document)
-            for i, e in enumerate(doc):
-                if e["id"] == entry:
-                    break
-            else:
-                abort(404, "entry [%s] does not exist" % entry)
+            try:
+                self.prepare_branch(config)
+                doc = self.get_document(document)
+                for i, e in enumerate(doc):
+                    if e["id"] == entry:
+                        break
+                else:
+                    abort(404, "entry [%s] does not exist" % entry)
 
-            for edit in data:
-                p = jsonpath_ng.parse(edit["path"])
-                res = p.find(e)
-                for r in res:
-                    r.path.update(r.context.value, edit["value"])
+                for edit in data:
+                    p = jsonpath_ng.parse(edit["path"])
+                    res = p.find(e)
+                    for r in res:
+                        r.path.update(r.context.value, edit["value"])
 
-            doc[i] = e
+                doc[i] = e
 
-            self.add_document(document, doc)
-            if doc[i]["id"] == entry:
-                msg = "Edit entry [%s] of document [%s]" % (entry, document)
-            else:
-                msg = "Edit entry [%s] into entry [%s] in document [%s]" % (
-                    entry,
-                    data["id"],
-                    document,
-                )
-            self.commit(msg, actor=actor)
+                self.add_document(document, doc)
+                if doc[i]["id"] == entry:
+                    msg = "Edit entry [%s] of document [%s]" % (entry, document)
+                else:
+                    msg = "Edit entry [%s] into entry [%s] in document [%s]" % (
+                        entry,
+                        data["id"],
+                        document,
+                    )
+                self.commit(msg, actor=actor)
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def entries_delete(self, config, document, entry, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_branch(config)
-            doc = self.get_document(document)
-            for i, e in enumerate(doc):
-                if e["id"] == entry:
-                    break
-            else:
-                abort(404, "entry [%s] does not exist" % entry)
-            del doc[i]
-            self.add_document(document, doc)
-            self.commit(
-                "Delete entry [%s] of document [%s]" % (entry, document), actor=actor
-            )
+            try:
+                self.prepare_branch(config)
+                doc = self.get_document(document)
+                for i, e in enumerate(doc):
+                    if e["id"] == entry:
+                        break
+                else:
+                    abort(404, "entry [%s] does not exist" % entry)
+                del doc[i]
+                self.add_document(document, doc)
+                self.commit(
+                    "Delete entry [%s] of document [%s]" % (entry, document), actor=actor
+                )
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     ### DATABASE NAMESPACES
 
+    @Cache.cache(version_pos=1)
     def ns_list(self, version=None):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
             t = self.get_tree(version)
             return [obj.name for obj in t.traverse() if obj.type == "blob"]
 
+    @Cache.cache()
     def ns_list_versions(self):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
             return self.get_logs()
 
+    @Cache.cache(version_pos=2)
     def ns_get(self, nsname, version=None):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
@@ -758,48 +846,61 @@ class GitBackend(CurieBackend):
 
     def ns_create(self, nsname, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_internal_branch(BRANCH_DB)
-            if self.exists(nsname):
-                raise Exception("[%s] already exists" % nsname)
-            self.add_json_file(nsname, data)
-            self.commit("Added namespace [%s]" % nsname, actor=actor)
+            try:
+                self.prepare_internal_branch(BRANCH_DB)
+                if self.exists(nsname):
+                    raise Exception("[%s] already exists" % nsname)
+                self.add_json_file(nsname, data)
+                self.commit("Added namespace [%s]" % nsname, actor=actor)
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def ns_update(self, nsname, data, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_internal_branch(BRANCH_DB)
             try:
-                nsobj = self.get_tree() / nsname
-            except KeyError:
-                ns = {}
-            else:
-                ns = json.load(nsobj.data_stream)
-            ns.update(data)
-            self.add_json_file(nsname, ns)
-            self.commit("Updated namespace [%s]" % nsname, actor=actor)
+                self.prepare_internal_branch(BRANCH_DB)
+                try:
+                    nsobj = self.get_tree() / nsname
+                except KeyError:
+                    ns = {}
+                else:
+                    ns = json.load(nsobj.data_stream)
+                ns.update(data)
+                self.add_json_file(nsname, ns)
+                self.commit("Updated namespace [%s]" % nsname, actor=actor)
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def ns_delete(self, nsname, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_internal_branch(BRANCH_DB)
-            if self.exists(nsname):
-                self.del_file(nsname)
-                self.commit("Deleted namespace [%s]" % nsname, actor=actor)
-            else:
-                raise KeyError("[%s] does not exist" % nsname)
+            try:
+                self.prepare_internal_branch(BRANCH_DB)
+                if self.exists(nsname):
+                    self.del_file(nsname)
+                    self.commit("Deleted namespace [%s]" % nsname, actor=actor)
+                else:
+                    raise KeyError("[%s] does not exist" % nsname)
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def ns_revert(self, nsname, version, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_internal_branch(BRANCH_DB)
-            nsobj = self.get_tree(version) / nsname
-            self.add_file(nsname, nsobj.data_stream.read())
-            self.commit(
-                "Reverting namespace [%s] to version [%s]" % (nsname, version),
-                actor=actor,
-            )
+            try:
+                self.prepare_internal_branch(BRANCH_DB)
+                nsobj = self.get_tree(version) / nsname
+                self.add_file(nsname, nsobj.data_stream.read())
+                self.commit(
+                    "Reverting namespace [%s] to version [%s]" % (nsname, version),
+                    actor=actor,
+                )
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
+    @Cache.cache()
     def ns_query(self, nsname, query):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
@@ -808,12 +909,14 @@ class GitBackend(CurieBackend):
 
     ### KEYS
 
+    @Cache.cache()
     def key_list(self, nsname):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
             ns = self.get_ns(nsname)
             return list(ns.keys())
 
+    @Cache.cache()
     def key_list_versions(self, nsname, key):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
@@ -847,6 +950,7 @@ class GitBackend(CurieBackend):
             res.reverse()
             return res
 
+    @Cache.cache(version_pos=3)
     def key_get(self, nsname, key, version=None):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
@@ -858,25 +962,31 @@ class GitBackend(CurieBackend):
 
     def key_set(self, nsname, key, value, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_internal_branch(BRANCH_DB)
-            ns = self.get_ns(nsname)
-            ns[key] = value
-            self.add_json_file(nsname, ns)
-            self.commit(
-                "Setting key [%s] in namespace [%s]" % (key, nsname), actor=actor
-            )
+            try:
+                self.prepare_internal_branch(BRANCH_DB)
+                ns = self.get_ns(nsname)
+                ns[key] = value
+                self.add_json_file(nsname, ns)
+                self.commit(
+                    "Setting key [%s] in namespace [%s]" % (key, nsname), actor=actor
+                )
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
 
     def key_delete(self, nsname, key, actor=CURIE_AUTHOR):
         with self.repo.lock:
-            self.prepare_internal_branch(BRANCH_DB)
-            ns = self.get_ns(nsname)
             try:
-                del ns[key]
-            except KeyError:
-                abort(404, "Key [%s] not found in namespace [%s]" % (key, nsname))
-            self.add_json_file(nsname, ns)
-            self.commit(
-                "Deleting key [%s] in  namespace [%s]" % (key, nsname), actor=actor
-            )
+                self.prepare_internal_branch(BRANCH_DB)
+                ns = self.get_ns(nsname)
+                try:
+                    del ns[key]
+                except KeyError:
+                    abort(404, "Key [%s] not found in namespace [%s]" % (key, nsname))
+                self.add_json_file(nsname, ns)
+                self.commit(
+                    "Deleting key [%s] in  namespace [%s]" % (key, nsname), actor=actor
+                )
+            finally:
+                Cache.invalidate_latest_versions()
         return {"ok": True}
