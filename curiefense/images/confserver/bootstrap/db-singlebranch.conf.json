@@ -8,6 +8,7 @@
     "branch_buckets": [
         {
             "name": "prod",
+            "deployment": true,
             "buckets": [
                 "prod"
             ]
