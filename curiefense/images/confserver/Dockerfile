@@ -1,4 +1,4 @@
-FROM python:3.11.1-slim-bullseye
+FROM python:3.11.2-slim-bullseye
 
 COPY init/requirements.txt /root/requirements.txt
 

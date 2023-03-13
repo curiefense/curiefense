@@ -17,9 +17,12 @@ app = FastAPI(docs_url=os.environ.get("SWAGGER_BASE_PATH", "/api/v3/"))
 app.include_router(api.router)
 
 
+instrumentator = Instrumentator().instrument(app)
+
+
 @app.on_event("startup")
-async def startup():
-    Instrumentator().instrument(app).expose(app)
+async def _startup():
+    instrumentator.expose(app)
 
 
 ## Import all versions
