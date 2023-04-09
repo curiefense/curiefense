@@ -1,6 +1,6 @@
 ARG RUSTBIN_TAG=latest
 FROM curiefense/curiefense-rustbuild-jammy:${RUSTBIN_TAG} AS rustbin
-FROM docker.io/istio/proxyv2:1.16.1
+FROM docker.io/istio/proxyv2:1.17.2
 
 RUN apt-get update && \
     apt-get -yq --no-install-recommends install jq luarocks libpcre2-dev \
