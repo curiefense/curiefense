@@ -35,7 +35,6 @@ jobs:
             minikube addons enable ingress
             export BASEDIR=$(git rev-parse --show-toplevel)
             export VERSION=$(git rev-parse --short=12 HEAD)
-            export JWT_WORKAROUND=1
 
             # Deploy all services: istio, curiefense, and echoserver (test app)
             deploy/deploy-ci.sh

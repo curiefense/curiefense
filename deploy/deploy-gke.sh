@@ -58,7 +58,6 @@ deploy_curiefense () {
 		kubectl apply -f https://raw.githubusercontent.com/istio/istio/1.13.2/samples/addons/jaeger.yaml
 		kubectl apply -f "$BASEDIR/../e2e/latency/jaeger-service.yml"
 	fi
-	export JWT_WORKAROUND=yes
 	pushd "$BASEDIR/../curiefense-helm/istio-helm/" || exit 1
 	./deploy.sh --set 'global.tracer.zipkin.address=zipkin.istio-system:9411' --set 'gateways.istio-ingressgateway.autoscaleMax=1' -f "$BASEDIR/curiefense-helm/use-minio-istio.yaml" --set 'global.proxy.curiefense_minio_insecure=true' --set 'gateways.istio-ingressgateway.resources.limits.cpu=4'
 	popd || exit 1

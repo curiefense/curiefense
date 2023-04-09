@@ -15,9 +15,6 @@ if [ -n "$NOPULL" ]; then
     PARAMS+=("--set" "global.imagePullPolicy=IfNotPresent")
 fi
 
-if [ -n "$JWT_WORKAROUND" ]; then
-    PARAMS+=("-f" "charts/first-party-jwt.yaml")
-fi
 # Install the Istio base chart which contains cluster-wide resources used by the Istio control plane
 helm upgrade istio-base charts/base -n istio-system --install \
     --wait --timeout 600s --create-namespace
@@ -32,7 +29,6 @@ helm upgrade istiod charts/istio-control/istio-discovery \
 if ! helm upgrade istio-ingress charts/gateways/istio-ingress \
     --install --namespace istio-system --reuse-values --debug \
     -f charts/enable-waf-ingress.yaml \
-    -f charts/first-party-jwt.yaml \
     "${PARAMS[@]}" \
     --wait --timeout 600s \
     --set "global.proxy.gw_image=curiefense/curieproxy-istio:$DOCKER_TAG" \
