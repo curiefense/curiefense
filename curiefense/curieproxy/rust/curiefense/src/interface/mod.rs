@@ -7,6 +7,7 @@ use crate::logs::Logs;
 use crate::utils::json::NameValue;
 use crate::utils::templating::{parse_request_template, RequestTemplate, TVar, TemplatePart};
 use crate::utils::{selector, GeoIp, RequestInfo, Selected};
+use chrono::{DateTime, Duration, DurationRound};
 use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Deserialize, Serialize, Serializer};
 use std::collections::{HashMap, HashSet};
@@ -235,6 +236,10 @@ pub fn jsonlog_rinfo(
     let mut map_ser = ser.serialize_map(None)?;
     map_ser.serialize_entry("timestamp", now)?;
     //     map_ser.serialize_entry("@timestamp", now)?;
+    map_ser.serialize_entry(
+        "timestamp_min",
+        &now.duration_trunc(chrono::Duration::minutes(1)).unwrap(),
+    )?;
     map_ser.serialize_entry("curiesession", &rinfo.session)?;
     //pulled up params from proxy map
     if let Some(val) = proxy.get("bytes_sent") {
@@ -447,6 +452,14 @@ pub fn jsonlog_rinfo(
             let rate_limit = stats_counter(InitiatorKind::RateLimit);
             let content_filters = stats_counter(InitiatorKind::ContentFilter);
             let restriction = stats_counter(InitiatorKind::Restriction);
+
+            let mut blocked = false;
+
+            if acl + global_filters + rate_limit + content_filters + restriction > 0 {
+                blocked = true;
+            }
+
+            map_ser.serialize_entry("blocked", &blocked)?;
 
             let mut mp = serializer.serialize_map(None)?;
             mp.serialize_entry("acl", &acl)?;
