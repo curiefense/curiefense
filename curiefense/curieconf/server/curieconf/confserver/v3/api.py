@@ -535,7 +535,7 @@ async def config_version_get(config: str, version: str, request: Request):
     return request.app.backend.configs_get(config, version)
 
 
-@router.get("/configs/{config}/v/{version}/revert/", tags=[Tags.congifs])
+@router.put("/configs/{config}/v/{version}/revert/", tags=[Tags.congifs])
 async def config_revert_put(config: str, version: str, request: Request):
     """Create a new version for a configuration from an old version"""
     return request.app.backend.configs_revert(config, version, get_gitactor(request))
