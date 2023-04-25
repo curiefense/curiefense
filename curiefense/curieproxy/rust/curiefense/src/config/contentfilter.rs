@@ -39,6 +39,7 @@ pub struct ContentFilterProfile {
     pub referer_as_uri: bool,
     pub action: SimpleAction,
     pub tags: HashSet<String>,
+    pub mask_decisions: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -110,6 +111,7 @@ impl ContentFilterProfile {
             referer_as_uri: false,
             action: SimpleAction::default(),
             tags: HashSet::new(),
+            mask_decisions: false,
         }
     }
 }
@@ -337,6 +339,7 @@ fn convert_entry(
             referer_as_uri: entry.referer_as_uri,
             action,
             tags: entry.tags.into_iter().collect(),
+            mask_decisions: entry.mask_decisions,
         },
     ))
 }

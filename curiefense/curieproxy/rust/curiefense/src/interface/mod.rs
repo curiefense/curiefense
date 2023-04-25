@@ -6,7 +6,7 @@ use crate::grasshopper::{challenge_phase01, GHMode, Grasshopper, PrecisionLevel}
 use crate::logs::Logs;
 use crate::utils::json::NameValue;
 use crate::utils::templating::{parse_request_template, RequestTemplate, TVar, TemplatePart};
-use crate::utils::{selector, GeoIp, RequestInfo, Selected};
+use crate::utils::{selector, GeoIp, MaskedRequestInfo, RequestInfo, RequestInfoG, Selected};
 use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Deserialize, Serialize, Serializer};
 use std::collections::{HashMap, HashSet};
@@ -101,11 +101,20 @@ pub fn stronger_decision(d1: SimpleDecision, d2: SimpleDecision) -> SimpleDecisi
 }
 
 #[derive(Debug)]
-pub struct AnalyzeResult {
+pub struct AnalyzeResultG<A> {
     pub decision: Decision,
     pub tags: Tags,
-    pub rinfo: RequestInfo,
+    pub rinfo: RequestInfoG<A>,
     pub stats: Stats,
+}
+
+pub type AnalyzeResult = AnalyzeResultG<crate::utils::Raw>;
+pub type MaskedAnalyzeResult = AnalyzeResultG<crate::utils::Masked>;
+
+impl AnalyzeResult {
+    pub fn mask(self) -> MaskedAnalyzeResult {
+        todo!()
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -165,7 +174,7 @@ impl Decision {
 
     pub async fn log_json(
         &self,
-        rinfo: &RequestInfo,
+        rinfo: &MaskedRequestInfo,
         tags: &Tags,
         stats: &Stats,
         logs: &Logs,
@@ -189,7 +198,7 @@ impl Decision {
 // this is the moment where we perform stats aggregation as we have the return code
 pub async fn jsonlog(
     dec: &Decision,
-    mrinfo: Option<&RequestInfo>,
+    mrinfo: Option<&MaskedRequestInfo>,
     rcode: Option<u32>,
     tags: &Tags,
     stats: &Stats,
@@ -214,7 +223,7 @@ pub async fn jsonlog(
 #[allow(clippy::too_many_arguments)]
 pub fn jsonlog_rinfo(
     dec: &Decision,
-    rinfo: &RequestInfo,
+    rinfo: &MaskedRequestInfo,
     mut rcode: Option<u32>,
     tags: &Tags,
     stats: &Stats,
@@ -455,7 +464,7 @@ pub fn jsonlog_rinfo(
 // blocking version
 pub fn jsonlog_block(
     dec: &Decision,
-    mrinfo: Option<&RequestInfo>,
+    mrinfo: Option<&MaskedRequestInfo>,
     rcode: Option<u32>,
     tags: &Tags,
     stats: &Stats,

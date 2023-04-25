@@ -4,6 +4,7 @@ use curiefense::config::contentfilter::{ContentFilterProfile, ContentFilterRules
 use curiefense::config::hostmap::{PolicyId, SecurityPolicy};
 use curiefense::config::raw::AclProfile;
 use curiefense::config::virtualtags::VirtualTags;
+use curiefense::contentfilter::masking;
 use curiefense::grasshopper::{DummyGrasshopper, PrecisionLevel};
 use curiefense::interface::{SecpolStats, SimpleDecision, StatsCollect};
 use curiefense::logs::{LogLevel, Logs};
@@ -67,6 +68,7 @@ fn logging_empty(c: &mut Criterion) {
         p0,
         CfRulesArg::Get(Some(&rules)),
     ));
+    let result = result.mask();
     c.bench_with_input(BenchmarkId::new("log_json", "empty_request"), &result, |b, r| {
         b.iter(|| async_std::task::block_on(r.decision.log_json(&r.rinfo, &r.tags, &r.stats, &logs, HashMap::new())))
     });

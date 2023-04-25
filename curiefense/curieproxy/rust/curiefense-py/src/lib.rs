@@ -52,7 +52,8 @@ fn py_inspect_request(
         err: None,
         rinfo: Some(dec.rinfo),
         stats: dec.stats,
-    };
+    }
+    .mask();
     let response = res.decision.response_json();
     let request_map = res.log_json_block(HashMap::new());
     let merr = res.err;

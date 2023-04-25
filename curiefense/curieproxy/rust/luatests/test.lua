@@ -19,6 +19,14 @@ local redisport = os.getenv("REDIS_PORT") or 6379
 
 local lfs = require 'lfs'
 
+local triggers = {
+  "acl_triggers",
+  "rl_triggers",
+  "gf_triggers",
+  "cf_triggers",
+  "cf_restrict_triggers"
+}
+
 -- check a table contains element
 local function contains(list, x)
   for _, v in pairs(list) do
@@ -400,13 +408,6 @@ local function test_raw_request(request_path, mode)
       end
     end
 
-    local triggers = {
-      "acl_triggers",
-      "rl_triggers",
-      "gf_triggers",
-      "cf_triggers",
-      "cf_restrict_triggers"
-    }
     for _, trigger_name in pairs(triggers) do
       good = test_trigger(expected, request_map, trigger_name) and good
     end
@@ -495,7 +496,8 @@ local function test_masking(request_path)
   for _, raw_request_map in pairs(raw_request_maps) do
     local secret = raw_request_map["secret"]
     local res = run_inspect_request(raw_request_map)
-    local request_map = cjson.decode(res:request_map(nil))
+    local jrequest_map = res:request_map(nil)
+    local request_map = cjson.decode(jrequest_map)
     for _, section in pairs({"arguments", "headers", "cookies"}) do
       for _, value in pairs(request_map[section]) do
         local p = string.find(value["name"], secret)
@@ -505,6 +507,16 @@ local function test_masking(request_path)
         p = string.find(value["value"], secret)
         if p ~= nil then
           error("Could find secret in " .. section .. "/" .. value["name"])
+        end
+      end
+    end
+    for _, trigger_name in pairs(triggers) do
+      if request_map[trigger_name] then
+        local jtrigger = cjson.encode(request_map[trigger_name])
+        local p = string.find(jtrigger, secret)
+        if p ~= nil then
+          print(jtrigger)
+          error("Could find secret in " .. trigger_name)
         end
       end
     end

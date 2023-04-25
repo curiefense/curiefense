@@ -149,12 +149,13 @@ pub unsafe extern "C" fn curiefense_cfr_log(ptr: *mut CFResult, ln: *mut usize) 
     let cfr = Box::from_raw(ptr);
     let out: Vec<u8> = match *cfr {
         CFResult::OK(dec) => {
+            let result = dec.result.mask();
             jsonlog_block(
-                &dec.result.decision,
-                Some(&dec.result.rinfo),
+                &result.decision,
+                Some(&result.rinfo),
                 None,
-                &dec.result.tags,
-                &dec.result.stats,
+                &result.tags,
+                &result.stats,
                 &dec.logs,
                 HashMap::new(),
             )
@@ -283,7 +284,7 @@ pub unsafe extern "C" fn curiefense_async_init(
     };
     // convert the strings and loglevel
     // TODO: properly reload the configuration
-    let configpath = CStr::from_ptr(raw_configpath).to_string_lossy().to_string();
+    let _configpath = CStr::from_ptr(raw_configpath).to_string_lossy().to_string();
     let ip = CStr::from_ptr(raw_ip).to_string_lossy().to_string();
 
     // convert the hashmaps and turn them into the required types
@@ -389,7 +390,7 @@ pub struct CFStreamConfig {
 #[no_mangle]
 pub unsafe extern "C" fn curiefense_stream_config_init(
     loglevel: u8,
-    raw_configpath: *const c_char,
+    _raw_configpath: *const c_char,
 ) -> *mut CFStreamConfig {
     let lloglevel = match loglevel {
         0 => LogLevel::Debug,

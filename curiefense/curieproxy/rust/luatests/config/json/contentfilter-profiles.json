@@ -948,7 +948,9 @@
   },
   {
     "action": "b403",
-    "active": [],
+    "active": [
+      "cf-rule-risk:5"
+    ],
     "args": {
       "max_count": 42,
       "max_length": 2048,
@@ -1689,7 +1691,6 @@
           "mask": true,
           "reg": "",
           "restrict": false
-
         }
       ],
       "regex": []

@@ -4,7 +4,7 @@ use crate::acl::check_acl;
 use crate::config::contentfilter::ContentFilterRules;
 use crate::config::flow::FlowMap;
 use crate::config::CONFIGS;
-use crate::contentfilter::{content_filter_check, masking};
+use crate::contentfilter::content_filter_check;
 use crate::flow::{flow_build_query, flow_info, flow_process, flow_resolve_query, FlowCheck, FlowResult};
 use crate::grasshopper::{
     challenge_phase01, challenge_phase02, check_app_sig, handle_bio_reports, GHMode, Grasshopper, PrecisionLevel,
@@ -123,7 +123,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
             return InitResult::Res(AnalyzeResult {
                 decision,
                 tags,
-                rinfo: masking(reqinfo),
+                rinfo: reqinfo,
                 stats: stats.mapped_stage_build(),
             });
         } else {
@@ -165,7 +165,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
             return InitResult::Res(AnalyzeResult {
                 decision,
                 tags,
-                rinfo: masking(reqinfo),
+                rinfo: reqinfo,
                 stats: stats.mapped_stage_build(),
             });
         }
@@ -183,7 +183,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
             return InitResult::Res(AnalyzeResult {
                 decision,
                 tags,
-                rinfo: masking(reqinfo),
+                rinfo: reqinfo,
                 stats: stats.mapped_stage_build(),
             });
         }
@@ -200,7 +200,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
             return InitResult::Res(AnalyzeResult {
                 decision,
                 tags,
-                rinfo: masking(reqinfo),
+                rinfo: reqinfo,
                 stats: stats.mapped_stage_build(),
             });
         }
@@ -218,7 +218,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
             return InitResult::Res(AnalyzeResult {
                 decision,
                 tags,
-                rinfo: masking(reqinfo),
+                rinfo: reqinfo,
                 stats: stats.mapped_stage_build(),
             });
         }
@@ -232,7 +232,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
             return InitResult::Res(AnalyzeResult {
                 decision,
                 tags,
-                rinfo: masking(reqinfo),
+                rinfo: reqinfo,
                 stats: stats.mapped_stage_build(),
             });
         }
@@ -400,7 +400,7 @@ pub fn analyze_finish<GH: Grasshopper>(
             return AnalyzeResult {
                 decision: cumulated_decision,
                 tags,
-                rinfo: masking(reqinfo),
+                rinfo: reqinfo,
                 stats: stats.limit_stage_build(),
             };
         }
@@ -446,7 +446,7 @@ pub fn analyze_finish<GH: Grasshopper>(
             return AnalyzeResult {
                 decision: cumulated_decision,
                 tags,
-                rinfo: masking(reqinfo),
+                rinfo: reqinfo,
                 stats: stats.acl_stage_build(),
             };
         }
@@ -472,7 +472,7 @@ pub fn analyze_finish<GH: Grasshopper>(
             return AnalyzeResult {
                 decision: cumulated_decision,
                 tags,
-                rinfo: masking(reqinfo),
+                rinfo: reqinfo,
                 stats: stats.acl_stage_build(),
             };
         }
@@ -483,7 +483,7 @@ pub fn analyze_finish<GH: Grasshopper>(
             return AnalyzeResult {
                 decision: cumulated_decision,
                 tags,
-                rinfo: masking(reqinfo),
+                rinfo: reqinfo,
                 stats: stats.acl_stage_build(),
             };
         }
@@ -552,7 +552,7 @@ pub fn analyze_finish<GH: Grasshopper>(
     AnalyzeResult {
         decision: cumulated_decision,
         tags,
-        rinfo: masking(reqinfo),
+        rinfo: reqinfo,
         stats: stats.cf_stage_build(),
     }
 }

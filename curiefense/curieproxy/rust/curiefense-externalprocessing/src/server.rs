@@ -3,7 +3,7 @@ use curiefense::{
     config::{flow::FlowMap, globalfilter::GlobalFilterSection, virtualtags::VirtualTags, with_config},
     grasshopper::DynGrasshopper,
     incremental::{add_body, add_headers, finalize, inspect_init, IData, IPInfo},
-    interface::{jsonlog, AnalyzeResult},
+    interface::{jsonlog, MaskedAnalyzeResult},
     logs::{LogLevel, Logs},
     utils::RequestMeta,
 };
@@ -48,7 +48,7 @@ type CfgRequest = (
 /// it is done so that configuration requests are serialized
 ///
 /// this potentially reduces paralellism, but also avoids the problem of queued configuration reloads
-async fn configloop(rx: Receiver<CfgRequest>, configpath: &str, loglevel: LogLevel, trustedhops: u32) {
+async fn configloop(rx: Receiver<CfgRequest>, _configpath: &str, loglevel: LogLevel, trustedhops: u32) {
     let mut mrx = rx;
     loop {
         let (meta, sender) = match mrx.recv().await {
@@ -198,6 +198,7 @@ impl MyEP {
         let mut idata = match add_headers(idata, mheaders) {
             Ok(i) => i,
             Err((logs, dec)) => {
+                let dec = dec.mask();
                 self.send_action(ProcessingStage::Headers, tx, &dec, &logs, None).await;
                 return Ok(());
             }
@@ -211,6 +212,7 @@ impl MyEP {
                         idata = match add_body(idata, &bdy.body) {
                             Ok(i) => i,
                             Err((logs, dec)) => {
+                                let dec = dec.mask();
                                 self.send_action(ProcessingStage::Body, tx, &dec, &logs, None).await;
                                 return Ok(());
                             }
@@ -225,6 +227,7 @@ impl MyEP {
         }
 
         let (dec, logs) = finalize(idata, Some(&DynGrasshopper {}), &globalfilters, &flows, None, vtags).await;
+        let dec = dec.mask();
 
         let stage = if headers_only {
             ProcessingStage::Headers
@@ -275,7 +278,7 @@ impl MyEP {
         &self,
         stage: ProcessingStage,
         tx: &mut Sender<Result<ProcessingResponse, Status>>,
-        result: &AnalyzeResult,
+        result: &MaskedAnalyzeResult,
         logs: &Logs,
         rcode: Option<u32>,
     ) -> bool {
@@ -484,7 +487,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let (ctx, crx) = mpsc::channel(4);
 
-    let _ = spawn(async move { configloop(crx, &opt.configpath, loglevel, opt.trustedhops).await });
+    let _ = spawn(async move { configloop(crx, &opt.configpath, loglevel, opt.trustedhops).await }).await;
 
     let mut logsender: Option<Sender<(Vec<u8>, DateTime<Utc>)>> = None;
 
@@ -493,7 +496,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let transport = Transport::single_node(&esurl)?;
         let client = Elasticsearch::new(transport);
         logsender = Some(logtx);
-        let _ = spawn(async move { logloop(logrx, client).await });
+        let _ = spawn(async move { logloop(logrx, client).await }).await;
     }
 
     let ep = MyEP::new(ctx, opt.handle_replies, logsender);
