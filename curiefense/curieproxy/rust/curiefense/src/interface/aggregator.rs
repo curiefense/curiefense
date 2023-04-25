@@ -849,12 +849,20 @@ fn serialize_entry(sample: i64, hdr: &AggregationKey, counters: &AggregatedCount
     let naive_dt =
         chrono::NaiveDateTime::from_timestamp_opt(sample * *SAMPLE_DURATION, 0).unwrap_or(chrono::NaiveDateTime::MIN);
     let timestamp: chrono::DateTime<chrono::Utc> = chrono::DateTime::from_utc(naive_dt, chrono::Utc);
+    // let timestamp_tr_minute: chrono::DateTime<chrono::Utc> = timestamp
+    //     .duration_trunc(chrono::Duration::minutes(1))
+    //     .unwrap_or_else(|_| Value::String("??".into()));
+
     let mut content = serde_json::Map::new();
 
     content.insert(
         "timestamp".into(),
         serde_json::to_value(timestamp).unwrap_or_else(|_| Value::String("??".into())),
     );
+    // content.insert(
+    //     "timestamp_tr_minute".into(),
+    //     serde_json::to_value(timestamp_tr_minute).unwrap_or_else(|_| Value::String("??".into())),
+    // );
     content.insert(
         "proxy".into(),
         hdr.proxy

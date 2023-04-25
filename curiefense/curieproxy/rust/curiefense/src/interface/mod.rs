@@ -7,6 +7,7 @@ use crate::logs::Logs;
 use crate::utils::json::NameValue;
 use crate::utils::templating::{parse_request_template, RequestTemplate, TVar, TemplatePart};
 use crate::utils::{selector, GeoIp, RequestInfo, Selected};
+use chrono::{DateTime, Duration, DurationRound};
 use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Deserialize, Serialize, Serializer};
 use std::collections::{HashMap, HashSet};
@@ -234,7 +235,16 @@ pub fn jsonlog_rinfo(
     let mut ser = serde_json::Serializer::new(&mut outbuffer);
     let mut map_ser = ser.serialize_map(None)?;
     map_ser.serialize_entry("timestamp", now)?;
-    //     map_ser.serialize_entry("@timestamp", now)?;
+    // let test: chrono::DateTime<chrono::Utc> = chrono::Utc::now().duration_trunc(chrono::Duration::minutes(1)).unwrap();
+    map_ser.serialize_entry(
+        "timestamp_min",
+        &now.duration_trunc(chrono::Duration::minutes(1)).unwrap(),
+    )?;
+    // let test: chrono::DateTime<chrono::Utc> = chrono::Utc::now()
+    //     .duration_trunc(chrono::Duration::minutes(1))
+    //     .unwrap();
+    // map_ser.serialize_entry("timestamp_min", now.duration_trunc(chrono::Duration::minutes(1)).unwrap())?;
+    // map_ser.serialize_entry("@timestamp", now)?;
     map_ser.serialize_entry("curiesession", &rinfo.session)?;
     map_ser.serialize_entry("curiesession_ids", &NameValue::new(&rinfo.session_ids))?;
     let request_id = proxy.get("request_id").or(rinfo.rinfo.meta.requestid.as_ref());
