@@ -114,7 +114,7 @@ class ContentFilterProfile(BaseModel):
     allsections: typing.Any
     decoding: typing.Any
     masking_seed: StrictStr
-    graphql_property: Optional[StrictStr]
+    graphql_path: Optional[StrictStr]
     content_type: Optional[List[StrictStr]]
     active: Optional[List[StrictStr]]
     report: Optional[List[StrictStr]]
