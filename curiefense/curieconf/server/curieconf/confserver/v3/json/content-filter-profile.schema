@@ -89,10 +89,10 @@
             "title": "Masking Seed",
             "description": "A seed which will be used in the masking process"
         },
-        "graphql_property": {
+        "graphql_path": {
             "type": "string",
-            "title": "GraphQL Property Name",
-            "description": "A field in a JSON that contains GraphQL query that need to be parsed"
+            "title": "GraphQL Property JSON path",
+            "description": "A field in a JSON that contains GraphQL query that need to be parsed. The value should be passed in JSONPath format. It supports regex for values as well."
         },
         "content_type": {
             "title": "Content Type",
