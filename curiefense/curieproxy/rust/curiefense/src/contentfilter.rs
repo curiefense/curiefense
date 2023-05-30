@@ -136,12 +136,13 @@ pub fn content_filter_check(
         )
     };
     if is_blocking(&iblock) {
+        let total_rules = LIBINJECTION_SQLI_TAGS.len() + LIBINJECTION_XSS_TAGS.len();
         return (
             Err(CfBlock {
                 blocking: true,
                 reasons: iblock,
             }),
-            stats.no_content_filter(),
+            stats.cf_matches(total_rules, iblock.len(), total_rules),
         );
     }
 
