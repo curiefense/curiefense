@@ -140,7 +140,7 @@ pub fn content_filter_check(
         return (
             Err(CfBlock {
                 blocking: true,
-                reasons: iblock,
+                reasons: iblock.clone(),
             }),
             stats.cf_matches(total_rules, iblock.len(), total_rules),
         );
