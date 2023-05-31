@@ -36,7 +36,6 @@ lazy_static! {
     pub static ref LIBINJECTION_RULES_LEN: usize = LIBINJECTION_SQLI_TAGS.len() + LIBINJECTION_XSS_TAGS.len();
 }
 
-
 #[derive(Default)]
 struct Omitted {
     entries: Section<HashSet<String>>,
@@ -433,8 +432,8 @@ fn hyperscan(
                 stats.cf_matches(
                     sigs.ids.len() + *LIBINJECTION_RULES_LEN,
                     matches,
-                    nactive + *LIBINJECTION_RULES_LEN
-                )
+                    nactive + *LIBINJECTION_RULES_LEN,
+                ),
             );
         }
     }
@@ -457,7 +456,7 @@ fn hyperscan(
         stats.cf_matches(
             sigs.ids.len() + *LIBINJECTION_RULES_LEN,
             matches,
-            nactive + *LIBINJECTION_RULES_LEN
+            nactive + *LIBINJECTION_RULES_LEN,
         ),
     )
 }
