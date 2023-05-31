@@ -1,0 +1,21 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Publish Audit Log",
+    "description": "Publish Audit Log",
+    "type": "object",
+    "properties": {
+        "id": {"type": "string"},
+        "branch": {"type": "string"},
+        "commit_id": {"type": "string"},
+        "user_email": {"type": "string"},
+        "bucket": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "url": {"type": "string"}
+            },
+            "required": ["name", "url"]
+        }
+    },
+    "required": ["id", "branch", "commit_id", "user_email", "bucket"]
+}

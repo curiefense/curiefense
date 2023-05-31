@@ -38,6 +38,7 @@ setup(
         "pydantic==1.10.2",
         "uvicorn==0.19.0",
         "bleach==6.0.0",
+        "jsonlines"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

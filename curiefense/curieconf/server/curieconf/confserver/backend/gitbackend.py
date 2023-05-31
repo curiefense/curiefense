@@ -1,6 +1,6 @@
 import logging
 import os
-from io import BytesIO
+from io import BytesIO, StringIO
 import git, gitdb
 from . import Backends, CurieBackend, CurieBackendException
 import urllib
@@ -13,9 +13,15 @@ import jmespath
 import fasteners
 from typing import Dict, List
 import jsonpath_ng
+from jsonpath_ng.ext import parse as jsonpath_parse
 import pathlib
 import os
 import shutil
+from datetime import datetime
+from dateutil.parser import isoparse
+from datetime import timezone
+import jsonlines
+from itertools import islice
 
 
 logger = logging.getLogger("confserver")
@@ -26,6 +32,7 @@ INTERNAL_PREFIX = "_internal_"
 
 BRANCH_BASE = INTERNAL_PREFIX + "base"
 BRANCH_DB = INTERNAL_PREFIX + "db"
+BRANCH_AUDIT = INTERNAL_PREFIX + "audit"
 
 
 class CurieGitBackendException(CurieBackendException):
@@ -70,6 +77,41 @@ def get_repo(pth):
         commit(repo.index, "Initial empty config", actor=CURIE_AUTHOR)
         repo.create_head(BRANCH_BASE)
     return repo
+
+
+def parse_datetime_with_utc(date_string):
+    try:
+        dt = isoparse(date_string)
+    except ValueError:
+        abort(404, '"start_time" and "end_time" accept only valid time ISO 8601 format')
+
+    if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    else:
+        dt = dt.astimezone(timezone.utc)
+
+    return dt
+
+
+def is_within_date_range(time_string, start_date=None, end_date=None):
+    if start_date and end_date:
+        start_datetime_utc = parse_datetime_with_utc(start_date)
+        end_datetime_utc = parse_datetime_with_utc(end_date)
+        if start_datetime_utc > end_datetime_utc:
+            abort(404, "End date cannot be before start date")
+        return (
+            start_datetime_utc
+            <= parse_datetime_with_utc(time_string)
+            <= end_datetime_utc
+        )
+    elif start_date:
+        return parse_datetime_with_utc(time_string) >= parse_datetime_with_utc(
+            start_date
+        )
+    elif end_date:
+        return parse_datetime_with_utc(time_string) <= parse_datetime_with_utc(end_date)
+    else:
+        return True
 
 
 class ThreadAndProcessLock(object):
@@ -920,3 +962,140 @@ class GitBackend(CurieBackend):
             f"ZIP archive '{zip_filename}.zip' created successfully. Execution time: {elapsed_time:.2f} seconds"
         )
         return f"{zip_filename}.zip"
+
+    ### AUDIT LOGS
+
+    def get_all_audit_log_files(self):
+        t = self.get_tree()
+        return [obj.name for obj in t.traverse() if obj.type == "blob"]
+
+    def get_sorted_log_files_by_date(self, start_time=None, end_time=None):
+        all_files = self.get_all_audit_log_files()
+
+        try:
+            filtered_files = filter(
+                lambda file_name: (
+                    (
+                        start_time is None
+                        or file_name >= isoparse(start_time).strftime("%Y%m")
+                    )
+                    and (
+                        end_time is None
+                        or file_name <= isoparse(end_time).strftime("%Y%m")
+                    )
+                ),
+                all_files,
+            )
+        except ValueError:
+            abort(
+                404,
+                '"start_time" and "end_time" accept only valid time ISO 8601 format',
+            )
+        return sorted(filtered_files, reverse=True)
+
+    def del_old_audit_log_file(self, actor, ret_months):
+        files = self.get_all_audit_log_files()
+
+        if files.__len__() > ret_months + 1:
+            oldfile = min(files, key=lambda x: datetime.strptime(x, "%Y%m"))
+            self.del_file(oldfile)
+            self.commit("Deleted audit log file [%s]" % oldfile, actor=actor)
+
+    def audit_log_create(self, data, actiontype, actor=CURIE_AUTHOR):
+        with self.repo.lock:
+            self.prepare_internal_branch(BRANCH_AUDIT)
+            currtime = datetime.utcnow()
+            data["action"] = actiontype
+            data["time"] = currtime.strftime("%Y-%m-%dT%H:%M:%SZ")
+            currlogname = currtime.strftime("%Y%m")
+
+            try:
+                logobj = self.get_tree() / currlogname
+            except KeyError:
+                existing_content = ""
+            else:
+                existing_content = logobj.data_stream.read().decode("utf-8")
+
+            json_line = json.dumps(data) + "\n"
+            updated_content = existing_content + json_line
+            self.add_file(currlogname, updated_content.encode("utf-8"))
+            self.commit("Added audit log to file [%s]" % currlogname, actor=actor)
+
+            self.del_old_audit_log_file(actor, 3)
+        return {"ok": True}
+
+    def audit_id_get(self, actiontype, id):
+        with self.repo.lock:
+            self.prepare_internal_branch(BRANCH_AUDIT)
+            files = self.get_all_audit_log_files()
+            for file in files:
+                try:
+                    logobj = self.get_tree() / file
+                except KeyError:
+                    continue
+                else:
+                    file_content = logobj.data_stream.read().decode("utf-8")
+                    with jsonlines.Reader(StringIO(file_content)) as reader:
+                        json_array = list(reader)
+                        expression = jsonpath_parse(
+                            "$[?(action='{}' & id='{}')]".format(actiontype, id)
+                        )
+                        matches = list(expression.find(json_array))
+                        if len(matches) == 1:
+                            return matches[0].value
+
+            abort(
+                404,
+                "Audit log for [%s] action with id [%s] does not exist"
+                % (actiontype, id),
+            )
+
+    def audit_query(
+        self,
+        actiontype: str,
+        start_date: str = None,
+        end_date: str = None,
+        branch: str = None,
+        user_email: str = None,
+        q: str = None,
+        limit: int = 100,
+        offset: int = 0,
+    ):
+        matched_lines = []
+        with self.repo.lock:
+            self.prepare_internal_branch(BRANCH_AUDIT)
+            files = self.get_sorted_log_files_by_date(start_date, end_date)
+            for file in files:
+                try:
+                    logobj = self.get_tree() / file
+                except KeyError:
+                    continue
+                else:
+                    file_content = logobj.data_stream.read().decode("utf-8")
+                    with jsonlines.Reader(StringIO(file_content)) as reader:
+                        json_array = list(reader)
+                        if q:
+                            expression = jsonpath_parse(q)
+                            matches = [
+                                match.value for match in expression.find(json_array)
+                            ]
+                        else:
+                            matches = json_array
+
+                        matching_lines = filter(
+                            lambda line: (
+                                (line["action"] == actiontype)
+                                and is_within_date_range(
+                                    line["time"], start_date, end_date
+                                )
+                                and (not branch or line["branch"] == branch)
+                                and (not user_email or line["user_email"] == user_email)
+                            ),
+                            matches,
+                        )
+
+                        matched_lines.extend(reversed(list(matching_lines)))
+                        if len(matched_lines) >= offset + limit:
+                            break
+
+        return list(islice(matched_lines, offset, offset + limit))
