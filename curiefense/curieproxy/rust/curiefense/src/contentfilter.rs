@@ -33,7 +33,9 @@ lazy_static! {
     .iter()
     .map(|s| s.to_string())
     .collect();
+    pub static ref LIBINJECTION_RULES_LEN: usize = LIBINJECTION_SQLI_TAGS.len() + LIBINJECTION_XSS_TAGS.len();
 }
+
 
 #[derive(Default)]
 struct Omitted {
@@ -136,13 +138,13 @@ pub fn content_filter_check(
         )
     };
     if is_blocking(&iblock) {
-        let total_rules = LIBINJECTION_SQLI_TAGS.len() + LIBINJECTION_XSS_TAGS.len();
         return (
             Err(CfBlock {
                 blocking: true,
                 reasons: iblock.clone(),
             }),
-            stats.cf_matches(total_rules, iblock.len(), total_rules),
+            // total and active should be the same as all libinjection rules are always being processed
+            stats.cf_matches(*LIBINJECTION_RULES_LEN, iblock.len(), *LIBINJECTION_RULES_LEN),
         );
     }
 
@@ -426,7 +428,14 @@ fn hyperscan(
             Matching::Continue
         });
         if let Err(rr) = scanr {
-            return (Err(rr), stats.cf_matches(sigs.ids.len(), matches, nactive));
+            return (
+                Err(rr),
+                stats.cf_matches(
+                    sigs.ids.len() + *LIBINJECTION_RULES_LEN,
+                    matches,
+                    nactive + *LIBINJECTION_RULES_LEN
+                )
+            );
         }
     }
     (
@@ -445,7 +454,11 @@ fn hyperscan(
                 extra: serde_json::Value::Null,
             })
             .collect()),
-        stats.cf_matches(sigs.ids.len(), matches, nactive),
+        stats.cf_matches(
+            sigs.ids.len() + *LIBINJECTION_RULES_LEN,
+            matches,
+            nactive + *LIBINJECTION_RULES_LEN
+        ),
     )
 }
 
