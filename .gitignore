@@ -25,6 +25,8 @@ sandbox/bootstrap/apiclient.py
 __pycache__/
 build/
 
+# Pytest
+pytest.xml
 
 *.egg-info
 ## VENV
