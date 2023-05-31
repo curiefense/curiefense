@@ -25,6 +25,7 @@ import requests
 import string
 import subprocess
 import time
+from urllib.parse import urljoin
 
 # --- Helpers ---
 TEST_CONFIG_NAME = "prod"
@@ -143,12 +144,13 @@ class RequestHelper:
         if ip:
             ip_lst = [ip] + ["10.0.0.%d" % step for step in range(self._hops - 1)]
             headers["x-forwarded-for"] = ",".join(ip_lst)
-        print(f"{method} {path} {headers} {ip} {body}")
+        url = urljoin(self._base_url, path)
+        print(f"{method} {url} {headers} {ip} {body}")
         return requests.request(
             method=method,
             headers=headers,
             data=body,
-            url=self._base_url + path,
+            url=url,
         )
 
     def run(self, req: Any) -> requests.Response:
@@ -192,26 +194,34 @@ def flip_requests(request: pytest.FixtureRequest):
 
 
 def test_logging(request: pytest.FixtureRequest, requester: RequestHelper):
+    """
+    Tests request logs got published to the Elasticsearch
+    """
     es_url = request.config.getoption("--elasticsearch-url")
     assert isinstance(es_url, str)
-    es_url = es_url.rstrip("/") + "/_search"
+    es_url = urljoin(es_url, "/_search")
     test_pattern = "/test" + "".join(
         [random.choice(string.ascii_lowercase) for _ in range(20)]
     )
     res = requester.request("GET", test_pattern, {}, None, None)
     assert res.status_code == 200
+    # NOTE: wait for Elastic to index data
     for _ in range(15):
         time.sleep(4)
         mdata = {"query": {"bool": {"must": {"match": {"path": test_pattern}}}}}
         res = requests.get(es_url, json=mdata)
-        print(res.json())
-        nbhits = res.json()["hits"]["total"]["value"]
-        if nbhits == 1:
-            return
-        else:
-            print("Pattern %r" % (test_pattern,))
-            print("Request result %r -> %s" % (res, res.text))
-    assert False
+        data = res.json()
+        num_hits = data["hits"]["total"]["value"]
+        if num_hits > 0:
+            break
+
+    hits = data["hits"]["hits"]
+    assert len(hits) == 1
+    entry = hits[0]["_source"]
+    assert entry["path"] == test_pattern
+    assert entry["method"] == "GET"
+    assert entry["blocked"] == False
+    assert entry["response_code"] == 200
 
 
 def test_raw_request(raw_request: Any, requester: RequestHelper):

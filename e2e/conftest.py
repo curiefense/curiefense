@@ -12,7 +12,7 @@ def pytest_addoption(parser):
         "--base-conf-url",
         help="Base url for confserver API",
         type=str,
-        default="http://localhost:30000/api/v1/",
+        default="http://localhost:30000/api/v3/",
     )
     parser.addoption(
         "--base-protected-url",
@@ -27,7 +27,7 @@ def pytest_addoption(parser):
     parser.addoption(
         "--elasticsearch-url",
         help="Elasticsearch URL (ex. http://localhost:9200)",
-        default="",
+        default="http://localhost:9200",
     )
     parser.addoption(
         "--luatests-path", required=True, help="Path to the luatests directory"

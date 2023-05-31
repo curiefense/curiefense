@@ -43,9 +43,13 @@ jobs:
             popd
 
             echo "-- Run e2e tests --"
-            pushd e2e
             IP=127.0.0.1
-            pytest --log-level INFO --base-protected-url http://$IP:30081 --base-conf-url http://$IP:30000/api/v3/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --junit-xml pytest.xml --luatests-path ../curiefense/curieproxy/rust/luatests .
+            NGINX_ENDPOINT="http://$IP:31081"
+            ENVOY_ENDPOINT="http://$IP:30081"
+
+            pushd e2e
+            echo "-- Running e2e tests for nginx proxy --"
+            pytest --log-level INFO --base-protected-url $NGINX_ENDPOINT --base-conf-url http://$IP:30000/api/v3/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --junit-xml pytest.xml --luatests-path ../curiefense/curieproxy/rust/luatests .
             popd
 
             echo "-- Run bitflip tests tests --"
@@ -59,8 +63,7 @@ jobs:
             pushd e2e
             echo "bit flip tests"
             ENVOY_PID_BEFORE=$(pgrep envoy)
-            IP=127.0.0.1
-            pytest --log-level INFO --base-protected-url http://$IP:30081 --base-conf-url http://$IP:30000/api/v3/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --flip-requests --luatests-path ../curiefense/curieproxy/rust/luatests . || true
+            pytest --log-level INFO --base-protected-url $ENVOY_ENDPOINT --base-conf-url http://$IP:30000/api/v3/ --base-ui-url http://$IP:30080 --elasticsearch-url http://$IP:9200/ --flip-requests --luatests-path ../curiefense/curieproxy/rust/luatests . || true
             ENVOY_PID_AFTER=$(pgrep envoy)
             if [ "$ENVOY_PID_BEFORE" != "$ENVOY_PID_AFTER" ]; then
               echo "Error: probable envoy crash during bitflip smoke testing"
