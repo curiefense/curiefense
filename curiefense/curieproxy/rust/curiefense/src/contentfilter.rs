@@ -142,7 +142,7 @@ pub fn content_filter_check(
                 blocking: true,
                 reasons: iblock.clone(),
             }),
-            stats.cf_matches(total_rules, iblock.len(), total_rules)
+            stats.cf_matches(total_rules, iblock.len(), total_rules),
         );
     }
 
