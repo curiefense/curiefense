@@ -9,8 +9,9 @@ from jsonschema import validate
 from pathlib import Path
 from enum import Enum
 from typing import Optional, List, Union
-from fastapi import Request, HTTPException, APIRouter, Header
+from fastapi import Request, HTTPException, APIRouter, Header, Query
 from pydantic import BaseModel, Field, StrictStr, StrictBool, StrictInt, Extra, HttpUrl
+import uuid
 
 from curieconf.utils import cloud
 
@@ -338,6 +339,26 @@ class GitUrl(BaseModel):
 class DB(BaseModel):
     pass
 
+### BasicAuditLog
+class BasicAuditLog(BaseModel):
+    id: StrictStr
+    branch: StrictStr
+    commit_id: StrictStr
+    user_email: StrictStr
+
+### PublishAuditLog
+class PublishAuditLog(BaseModel):
+    id: StrictStr
+    branch: StrictStr
+    commit_id: StrictStr
+    user_email: StrictStr
+    bucket: Bucket
+
+### mapping from action type to model
+
+auditactiontypesmodels = {
+    "publish": PublishAuditLog,
+}
 
 ### Document Schema validation
 
@@ -413,6 +434,9 @@ with open(virtualtag_file_path) as json_file:
 custom_file_path = (base_path / "./json/custom.schema").resolve()
 with open(custom_file_path) as json_file:
     custom_schema = json.load(json_file)
+publish_audit_log_file_path = (base_path / "./json/publish-audit-log.schema").resolve()
+with open(publish_audit_log_file_path) as json_file:
+    publish_audit_log_schema = json.load(json_file)
 schema_type_map = {
     "ratelimits": ratelimits_schema,
     "securitypolicies": securitypolicies_schema,
@@ -424,6 +448,7 @@ schema_type_map = {
     "actions": action_schema,
     "virtualtags": virtual_tags_schema,
     "custom": custom_schema,
+    "publish": publish_audit_log_schema,
 }
 
 
@@ -431,6 +456,7 @@ class Tags(Enum):
     congifs = "configs"
     db = "db"
     tools = "tools"
+    audit = "audit"
 
 
 ################
@@ -1059,6 +1085,8 @@ async def publish_resource_put(
 ):
     """Push configuration to s3 buckets"""
     conf = request.app.backend.configs_get(config, version)
+    if not version:
+        version = conf["meta"]["version"]
     ok = True
     status = []
     buckets = await request.json()
@@ -1067,6 +1095,7 @@ async def publish_resource_put(
 
     for bucket in buckets:
         logs = []
+        log_status = None
         try:
             cloud.export(conf, bucket["url"], prnt=lambda x: logs.append(x))
         except Exception as e:
@@ -1076,8 +1105,31 @@ async def publish_resource_put(
         else:
             s = True
             msg = "ok"
+            log_status = add_publish_audit_log(request, version, bucket, logs)
+        
         status.append({"name": bucket["name"], "ok": s, "logs": logs, "message": msg})
+
+        if log_status: 
+            status.append(log_status)
+
     return {"ok": ok, "status": status}
+
+def add_publish_audit_log(request, version, bucket, logs):
+    log_id = str(uuid.uuid4())
+    data_json = PublishAuditLog(
+                id = log_id,
+                branch = bucket["name"], 
+                commit_id = version,
+                user_email = get_gitactor(request).email,
+                bucket = bucket
+            )
+    try:
+        request.app.backend.audit_log_create(data_json.dict(), "publish")
+    except Exception as e:
+        log_status = {"name": bucket["name"], "ok": False, "logs": logs, "message": f"Failed to add audit log {log_id} for publish action: {repr(e)}"}
+    else:
+        log_status = {"name": bucket["name"], "ok": True, "message": f"Successfully added audit log {log_id} for publish action"}
+    return log_status
 
 
 @router.put("/tools/gitpush/", tags=[Tags.tools])
@@ -1112,3 +1164,54 @@ async def git_fetch_resource_put(giturl: GitUrl, request: Request):
     else:
         msg = "ok"
     return {"ok": ok, "status": msg}
+
+
+#############
+### Audit ###
+#############
+
+@router.post("/audit/{actiontype}/", tags=[Tags.audit], status_code=201)
+async def action_resource_post(actiontype: str, auditlog: BasicAuditLog, request: Request):
+    """Add an action audit log to a log file"""
+    data_json = await request.json()
+    if actiontype not in auditactiontypesmodels:
+        raise HTTPException(404, "action type does not exist")
+    isValid, err = validateJson(data_json, actiontype)
+    if isValid:
+        return request.app.backend.audit_log_create(data_json, actiontype)
+    else:
+        raise HTTPException(400, "schema mismatched: \n" + err)
+
+
+@router.get("/audit/{actiontype}/l/{id}/", tags=[Tags.audit])
+async def action_id_resource_get(actiontype: str, id: str, request: Request):
+    """Retrieve a given id's + actiontype's log from the log files"""
+    if actiontype not in auditactiontypesmodels:
+        raise HTTPException(404, "action type does not exist")
+    return request.app.backend.audit_id_get(actiontype, id)
+
+
+@router.get("/audit/{actiontype}/l/", tags=[Tags.audit])
+async def action_query_resource_get(
+    actiontype: str,    
+    request: Request,
+    start_date: str = Query(None),
+    end_date: str = Query(None),
+    branch: str = Query(None),
+    user_email: str = Query(None),
+    q: str = Query(None),
+    limit: int = Query(100),
+    offset: int = Query(0),
+):
+    """Run a query on the audit logs and return the results"""
+    if actiontype not in auditactiontypesmodels:
+        raise HTTPException(404, "action type does not exist")
+    return request.app.backend.audit_query(        
+        actiontype=actiontype,
+        start_date=start_date,
+        end_date=end_date,
+        branch=branch,
+        user_email=user_email,
+        q=q,
+        limit=limit,
+        offset=offset)
