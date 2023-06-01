@@ -8,7 +8,6 @@ on:
       - "e2e/**"
       - ".github/workflows/e2e-compose-tests.yml"
 
-
 jobs:
   e2e-docker-compose:
     runs-on: ubuntu-20.04
@@ -46,24 +45,22 @@ jobs:
             pip install -e .
           popd
 
-      - name: Run tests
+      - name: Run tests envoy
         run: |
-          echo "-- Run e2e tests --"
+          echo "-- Run e2e tests for envoy proxy --"
           source "${{ env.BASEDIR }}/venv/bin/activate"
           IP=127.0.0.1
-          NGINX_ENDPOINT="http://$IP:31081"
           ENVOY_ENDPOINT="http://$IP:30081"
           LUATESTS_PATH="${{ env.BASEDIR }}/curiefense/curieproxy/rust/luatests"
 
           pushd e2e
-          echo "-- Running e2e tests for nginx proxy --"
-          pytest --log-level INFO \
+          pytest --log-level INFO -k 'not logging' \
             --base-protected-url $ENVOY_ENDPOINT \
             --base-conf-url http://$IP:30000/api/v3/ \
             --base-ui-url http://$IP:30080 \
             --elasticsearch-url http://$IP:9200/ \
             --luatests-path $LUATESTS_PATH \
-            --junit-xml pytest.xml .
+            --junit-xml pytest.envoy.xml .
           popd
 
           echo "-- Run bitflip tests tests --"
@@ -91,6 +88,24 @@ jobs:
           fi
           popd
 
+      - name: Run tests nginx
+        run: |
+          echo "-- Run e2e tests for nginx proxy --"
+          source "${{ env.BASEDIR }}/venv/bin/activate"
+          IP=127.0.0.1
+          NGINX_ENDPOINT="http://$IP:31081"
+          LUATESTS_PATH="${{ env.BASEDIR }}/curiefense/curieproxy/rust/luatests"
+
+          pushd e2e
+          pytest --log-level INFO \
+            --base-protected-url $NGINX_ENDPOINT \
+            --base-conf-url http://$IP:30000/api/v3/ \
+            --base-ui-url http://$IP:30080 \
+            --elasticsearch-url http://$IP:9200/ \
+            --luatests-path $LUATESTS_PATH \
+            --junit-xml pytest.nginx.xml test_e2e.py::test_logging
+          popd
+
       - name: Dump compose logs
         if: ${{ failure() }}
         run: |
@@ -103,7 +118,9 @@ jobs:
         # TODO implement https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories
         uses: EnricoMi/publish-unit-test-result-action@ea8720de4a2e723f8204d44fc0178744cf401c1a
         with:
-          files: e2e/pytest.xml
+          files: |
+            e2e/pytest.envoy.xml
+            e2e/pytest.nginx.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
           check_name: E2E Test Results on docker-compose
           comment_title: E2E Test Statistics
@@ -121,4 +138,6 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Unit Test Results
-          path: e2e/pytest.xml
+          path: |
+            e2e/pytest.envoy.xml
+            e2e/pytest.nginx.xml
