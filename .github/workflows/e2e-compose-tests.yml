@@ -116,11 +116,10 @@ jobs:
 
       - name: Publish Unit Test Results
         # TODO implement https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories
-        uses: EnricoMi/publish-unit-test-result-action@ea8720de4a2e723f8204d44fc0178744cf401c1a
+        uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           files: |
-            e2e/pytest.envoy.xml
-            e2e/pytest.nginx.xml
+            e2e/pytest*.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
           check_name: E2E Test Results on docker-compose
           comment_title: E2E Test Statistics
