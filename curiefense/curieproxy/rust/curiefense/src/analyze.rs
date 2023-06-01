@@ -171,6 +171,13 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
         }
     }
 
+    //early extraction of the global filters block reasons, to be added to the special url requests' 'triggers' as well:
+    let gf_reasons = if let SimpleDecision::Action(_action, reason) = &globalfilter_dec {
+        reason.to_owned()
+    } else {
+        vec![]
+    };
+
     //if /7060 then call gh phase02
     if reqinfo
         .rinfo
@@ -179,7 +186,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
         .starts_with("/7060ac19f50208cbb6b45328ef94140a612ee92387e015594234077b4d1e64f1")
     {
         logs.debug("Call challenge phase02");
-        if let Some(decision) = mgh.and_then(|gh| challenge_phase02(gh, logs, &reqinfo)) {
+        if let Some(decision) = mgh.and_then(|gh| challenge_phase02(gh, logs, &reqinfo, gf_reasons.clone())) {
             return InitResult::Res(AnalyzeResult {
                 decision,
                 tags,
@@ -196,7 +203,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
         .uri
         .starts_with("/74d8-ffc3-0f63-4b3c-c5c9-5699-6d5b-3a1")
     {
-        if let Some(decision) = mgh.and_then(|gh| check_app_sig(gh, logs, &reqinfo)) {
+        if let Some(decision) = mgh.and_then(|gh| check_app_sig(gh, logs, &reqinfo, gf_reasons.clone())) {
             return InitResult::Res(AnalyzeResult {
                 decision,
                 tags,
@@ -207,14 +214,15 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
         logs.debug("check_app_sig ignored");
     }
 
-    //todo handle /8d47?
     if reqinfo
         .rinfo
         .qinfo
         .uri
         .starts_with("/8d47-ffc3-0f63-4b3c-c5c9-5699-6d5b-3a1f")
     {
-        if let Some(decision) = mgh.and_then(|gh| handle_bio_reports(gh, logs, &reqinfo, precision_level)) {
+        if let Some(decision) =
+            mgh.and_then(|gh| handle_bio_reports(gh, logs, &reqinfo, precision_level, gf_reasons.clone()))
+        {
             return InitResult::Res(AnalyzeResult {
                 decision,
                 tags,

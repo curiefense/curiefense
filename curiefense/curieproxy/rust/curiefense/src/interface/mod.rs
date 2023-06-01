@@ -7,6 +7,8 @@ use crate::logs::Logs;
 use crate::utils::json::NameValue;
 use crate::utils::templating::{parse_request_template, RequestTemplate, TVar, TemplatePart};
 use crate::utils::{selector, GeoIp, RequestInfo, Selected};
+use chrono::{DateTime, Duration, DurationRound};
+use md5;
 use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Deserialize, Serialize, Serializer};
 use std::collections::{HashMap, HashSet};
@@ -234,8 +236,82 @@ pub fn jsonlog_rinfo(
     let mut ser = serde_json::Serializer::new(&mut outbuffer);
     let mut map_ser = ser.serialize_map(None)?;
     map_ser.serialize_entry("timestamp", now)?;
-    //     map_ser.serialize_entry("@timestamp", now)?;
+    map_ser.serialize_entry(
+        "timestamp_min",
+        &now.duration_trunc(chrono::Duration::minutes(1)).unwrap(),
+    )?;
     map_ser.serialize_entry("curiesession", &rinfo.session)?;
+    //pulled up params from proxy map
+    if let Some(val) = proxy.get("bytes_sent") {
+        let bytes_sent = val.parse::<i32>().unwrap_or_default();
+        map_ser.serialize_entry("bytes_sent", &bytes_sent)?;
+    }
+    if let Some(val) = proxy.get("upstream_response_time") {
+        let upstream_response_time = val.parse::<f32>().unwrap_or_default();
+        map_ser.serialize_entry("upstream_response_time", &upstream_response_time)?;
+    }
+    if let Some(val) = proxy.get("upstream_status") {
+        let upstream_status = val.parse::<i32>().unwrap_or_default();
+        map_ser.serialize_entry("upstream_status", &upstream_status)?;
+    }
+    if let Some(val) = proxy.get("request_time") {
+        let request_time = val.parse::<f32>().unwrap_or_default();
+        map_ser.serialize_entry("request_time", &request_time)?;
+    }
+    if let Some(val) = proxy.get("request_length") {
+        let request_length = val.parse::<f32>().unwrap_or_default();
+        map_ser.serialize_entry("request_length", &request_length)?;
+    }
+
+    map_ser.serialize_entry("host", &rinfo.headers.get("host"))?;
+    map_ser.serialize_entry("user_agent", &rinfo.headers.get("user-agent"))?;
+    map_ser.serialize_entry("referer", &rinfo.headers.get("referer"))?;
+    map_ser.serialize_entry("hostname", &rinfo.rinfo.container_name)?;
+
+    if let Some(rbzid) = rinfo.cookies.get("rbzid") {
+        let digest = md5::compute(rbzid);
+        let md5_rbzid = format!("{:x}", digest);
+        map_ser.serialize_entry("rbzid", &md5_rbzid)?;
+    }
+
+    map_ser.serialize_entry("geo_region", &rinfo.rinfo.geoip.region)?;
+    map_ser.serialize_entry("geo_country", &rinfo.rinfo.geoip.country_name)?;
+    map_ser.serialize_entry("geo_org", &rinfo.rinfo.geoip.company)?;
+
+    //pulled up from tags
+    let mut has_monitor = false;
+    let mut has_challenge = false;
+    let mut has_ichallenge = false;
+    let mut has_human = false;
+    let mut has_bot = false;
+    for t in tags.inner().keys() {
+        if let Some(val) = t.strip_prefix("geo-asn:") {
+            map_ser.serialize_entry("geo_asn", &val)?;
+        }
+        match t.as_str() {
+            "action:monitor" => has_monitor = true,
+            "human" => has_human = true,
+            "bot" => has_bot = true,
+            _ => {}
+        }
+    }
+    if let Some(action) = &dec.maction {
+        if let Some(tags) = &action.extra_tags {
+            for t in tags {
+                match t.as_str() {
+                    "challenge" => has_challenge = true,
+                    "ichallenge" => has_ichallenge = true,
+                    _ => {}
+                }
+            }
+        }
+    }
+    map_ser.serialize_entry("monitor", &has_monitor)?;
+    map_ser.serialize_entry("challenge", &has_challenge)?;
+    map_ser.serialize_entry("ichallenge", &has_ichallenge)?;
+    map_ser.serialize_entry("human", &has_human)?;
+    map_ser.serialize_entry("bot", &has_bot)?;
+
     map_ser.serialize_entry("curiesession_ids", &NameValue::new(&rinfo.session_ids))?;
     let request_id = proxy.get("request_id").or(rinfo.rinfo.meta.requestid.as_ref());
     map_ser.serialize_entry("request_id", &request_id)?;
@@ -437,6 +513,18 @@ pub fn jsonlog_rinfo(
     }
     map_ser.serialize_entry("trigger_counters", &TriggerCounters(&greasons))?;
 
+    //blocked (only if doesn't have challenge, because it'll be counted differently)
+    if !(has_challenge || has_ichallenge) {
+        let mut blocked = false;
+        for r in &dec.reasons {
+            if !(matches!(r.action, RawActionType::Monitor) || matches!(r.action, RawActionType::Skip)) {
+                blocked = true;
+                break;
+            }
+        }
+        map_ser.serialize_entry("blocked", &blocked)?;
+    }
+
     struct EmptyMap;
     impl Serialize for EmptyMap {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -448,6 +536,9 @@ pub fn jsonlog_rinfo(
         }
     }
     map_ser.serialize_entry("profiling", &stats.timing)?;
+
+    map_ser.serialize_entry("rbz_latency", &stats.timing.max_value())?;
+
     SerializeMap::end(map_ser)?;
     Ok(outbuffer)
 }

@@ -51,6 +51,7 @@
         "aclid:--default--",
         "aclname:default-acl",
         "network:23-129-64-0-24",
+        "challenge",
         "challenge-phase01",
         "status:247",
         "status-class:2xx"

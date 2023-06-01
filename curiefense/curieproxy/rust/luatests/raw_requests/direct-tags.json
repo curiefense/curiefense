@@ -220,6 +220,7 @@
         "sante",
         "denybot",
         "allow",
+        "challenge",
         "challenge-phase01",
         "status:247",
         "status-class:2xx"
@@ -257,6 +258,7 @@
         "sante",
         "denybot",
         "allow",
+        "challenge",
         "challenge-phase01",
         "status:247",
         "status-class:2xx"
@@ -703,6 +705,7 @@
         "denybot",
         "deny",
         "allow",
+        "challenge",
         "challenge-phase01",
         "status:247",
         "status-class:2xx"
@@ -741,6 +744,7 @@
         "denybot",
         "deny",
         "allow",
+        "challenge",
         "challenge-phase01",
         "status:247",
         "status-class:2xx"
@@ -2657,6 +2661,7 @@
         "bot",
         "sante",
         "denybot",
+        "challenge",
         "challenge-phase01",
         "status:247",
         "status-class:2xx"
@@ -2693,6 +2698,7 @@
         "bot",
         "sante",
         "denybot",
+        "challenge",
         "challenge-phase01",
         "status:247",
         "status-class:2xx"

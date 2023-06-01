@@ -47,6 +47,31 @@ impl Serialize for TimingInfo {
     }
 }
 
+impl TimingInfo {
+    pub fn max_value(&self) -> u64 {
+        let mut max_value: u64 = 0;
+        if let Some(value) = self.secpol {
+            max_value = value.max(max_value);
+        }
+        if let Some(value) = self.mapping {
+            max_value = value.max(max_value);
+        }
+        if let Some(value) = self.flow {
+            max_value = value.max(max_value);
+        }
+        if let Some(value) = self.limit {
+            max_value = value.max(max_value);
+        }
+        if let Some(value) = self.acl {
+            max_value = value.max(max_value);
+        }
+        if let Some(value) = self.content_filter {
+            max_value = value.max(max_value);
+        }
+        max_value
+    }
+}
+
 pub struct BStageInit;
 pub struct BStageSecpol;
 #[derive(Clone)]

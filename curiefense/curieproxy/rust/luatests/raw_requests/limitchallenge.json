@@ -31,6 +31,7 @@
         "status:247",
         "status-class:2xx",
         "bot",
+        "challenge",
         "challenge-phase01"
       ]
     }
@@ -102,6 +103,7 @@
         "status:247",
         "status-class:2xx",
         "bot",
+        "ichallenge",
         "challenge-phase01"
       ]
     }
@@ -140,6 +142,7 @@
         "status-class:2xx",
         "human",
         "precision-l1",
+        "ichallenge",
         "challenge-phase01"
       ]
     }
