@@ -58,7 +58,7 @@ jobs:
           pushd e2e
           echo "-- Running e2e tests for nginx proxy --"
           pytest --log-level INFO \
-            --base-protected-url $NGINX_ENDPOINT \
+            --base-protected-url $ENVOY_ENDPOINT \
             --base-conf-url http://$IP:30000/api/v3/ \
             --base-ui-url http://$IP:30080 \
             --elasticsearch-url http://$IP:9200/ \
