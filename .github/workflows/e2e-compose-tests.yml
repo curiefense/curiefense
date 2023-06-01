@@ -47,6 +47,7 @@ jobs:
       - name: Run tests
         run: |
           echo "-- Run e2e tests --"
+          source "${{ env.BASEDIR }}/venv/bin/activate"
           IP=127.0.0.1
           NGINX_ENDPOINT="http://$IP:31081"
           ENVOY_ENDPOINT="http://$IP:30081"
