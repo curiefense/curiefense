@@ -339,12 +339,14 @@ class GitUrl(BaseModel):
 class DB(BaseModel):
     pass
 
+
 ### BasicAuditLog
 class BasicAuditLog(BaseModel):
     id: StrictStr
     branch: StrictStr
     commit_id: StrictStr
     user_email: StrictStr
+
 
 ### PublishAuditLog
 class PublishAuditLog(BaseModel):
@@ -353,6 +355,7 @@ class PublishAuditLog(BaseModel):
     commit_id: StrictStr
     user_email: StrictStr
     bucket: Bucket
+
 
 ### mapping from action type to model
 
@@ -1106,29 +1109,39 @@ async def publish_resource_put(
             s = True
             msg = "ok"
             log_status = add_publish_audit_log(request, version, bucket, logs)
-        
+
         status.append({"name": bucket["name"], "ok": s, "logs": logs, "message": msg})
 
-        if log_status: 
+        if log_status:
             status.append(log_status)
 
     return {"ok": ok, "status": status}
 
+
 def add_publish_audit_log(request, version, bucket, logs):
     log_id = str(uuid.uuid4())
     data_json = PublishAuditLog(
-                id = log_id,
-                branch = bucket["name"], 
-                commit_id = version,
-                user_email = get_gitactor(request).email,
-                bucket = bucket
-            )
+        id=log_id,
+        branch=bucket["name"],
+        commit_id=version,
+        user_email=get_gitactor(request).email,
+        bucket=bucket,
+    )
     try:
         request.app.backend.audit_log_create(data_json.dict(), "publish")
     except Exception as e:
-        log_status = {"name": bucket["name"], "ok": False, "logs": logs, "message": f"Failed to add audit log {log_id} for publish action: {repr(e)}"}
+        log_status = {
+            "name": bucket["name"],
+            "ok": False,
+            "logs": logs,
+            "message": f"Failed to add audit log {log_id} for publish action: {repr(e)}",
+        }
     else:
-        log_status = {"name": bucket["name"], "ok": True, "message": f"Successfully added audit log {log_id} for publish action"}
+        log_status = {
+            "name": bucket["name"],
+            "ok": True,
+            "message": f"Successfully added audit log {log_id} for publish action",
+        }
     return log_status
 
 
@@ -1170,8 +1183,11 @@ async def git_fetch_resource_put(giturl: GitUrl, request: Request):
 ### Audit ###
 #############
 
+
 @router.post("/audit/{actiontype}/", tags=[Tags.audit], status_code=201)
-async def action_resource_post(actiontype: str, auditlog: BasicAuditLog, request: Request):
+async def action_resource_post(
+    actiontype: str, auditlog: BasicAuditLog, request: Request
+):
     """Add an action audit log to a log file"""
     data_json = await request.json()
     if actiontype not in auditactiontypesmodels:
@@ -1193,7 +1209,7 @@ async def action_id_resource_get(actiontype: str, id: str, request: Request):
 
 @router.get("/audit/{actiontype}/l/", tags=[Tags.audit])
 async def action_query_resource_get(
-    actiontype: str,    
+    actiontype: str,
     request: Request,
     start_date: str = Query(None),
     end_date: str = Query(None),
@@ -1206,7 +1222,7 @@ async def action_query_resource_get(
     """Run a query on the audit logs and return the results"""
     if actiontype not in auditactiontypesmodels:
         raise HTTPException(404, "action type does not exist")
-    return request.app.backend.audit_query(        
+    return request.app.backend.audit_query(
         actiontype=actiontype,
         start_date=start_date,
         end_date=end_date,
@@ -1214,4 +1230,5 @@ async def action_query_resource_get(
         user_email=user_email,
         q=q,
         limit=limit,
-        offset=offset)
+        offset=offset,
+    )
