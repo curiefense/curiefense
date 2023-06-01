@@ -15,11 +15,10 @@ mkdir -p "$LOGS_DIR"
 # Let's run the script from the root directory
 pushd "$ROOT_DIR" || exit
 
-# pushd curiefense/images || exit
-# ./build-docker-images.sh
-# popd || exit
+pushd curiefense/images || exit
+./build-docker-images.sh
+popd || exit
 
-export DOCKER_TAG="473fec086c1d04e4bed0eb3c50c40aa8faef7c17"
 cat <<EOF > "$WORKDIR/ci-env"
 XFF_TRUSTED_HOPS=2
 ENVOY_UID=0
