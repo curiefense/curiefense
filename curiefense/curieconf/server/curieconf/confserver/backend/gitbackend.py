@@ -906,8 +906,8 @@ class GitBackend(CurieBackend):
 
         # Create a ZIP archive
         with self.repo.lock:
-            # try to use gitpython for create archive, but it created archive with size 0Kb.
-            # Use here default way for create archive in Python
+            # Tried to use gitpython to create an archive, but it created a 0Kb archive.
+            # Used here the default way to create an archive in Python
             shutil.make_archive(zip_filename, 'zip', self.repo_path)
 
         elapsed_time = time.time() - start_time
