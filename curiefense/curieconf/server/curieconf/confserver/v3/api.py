@@ -1153,7 +1153,7 @@ async def backup_create(
 
             logger.info(f"start sleep for 1 minute")
             import asyncio
-            asyncio.sleep(60_000)
+            await asyncio.sleep(60_000)
             logger.info(f"Finish sleep for 1 minute")
 
             os.remove(current_backup_filename)
