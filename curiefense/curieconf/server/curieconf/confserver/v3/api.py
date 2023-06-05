@@ -1151,17 +1151,10 @@ async def backup_create(
                 msg = "ok"
             status.append({"name": bucket["name"], "ok": s, "logs": logs, "message": msg})
 
-            print(f"start sleep for 1 minute")
-            status.append(f"start sleep for 1 minute")
-            import asyncio
-            await asyncio.sleep(60_000)
-            status.append(f"finish sleep for 1 minute")
-            print(f"Finish sleep for 1 minute")
-
             os.remove(current_backup_filename)
             status.append("Backup removed")
 
-    except PermissionError | FileNotFoundError | OSError as e:
+    except (PermissionError, FileNotFoundError, OSError) as e:
         logger.error(f"Can't remove local backup. {e}")
         raise HTTPException(500, f"Can't remove local backup. {e}")
 
