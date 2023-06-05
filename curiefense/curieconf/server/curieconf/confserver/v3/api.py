@@ -1151,10 +1151,10 @@ async def backup_create(
                 msg = "ok"
             status.append({"name": bucket["name"], "ok": s, "logs": logs, "message": msg})
 
-            logger.info(f"start sleep for 1 minute")
+            print(f"start sleep for 1 minute")
             import asyncio
             await asyncio.sleep(60_000)
-            logger.info(f"Finish sleep for 1 minute")
+            print(f"Finish sleep for 1 minute")
 
             os.remove(current_backup_filename)
             status.append("Backup removed")
