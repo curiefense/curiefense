@@ -78,7 +78,7 @@ def parse_datetime_with_utc(date_string):
     try:
         dt = isoparse(date_string)
     except ValueError:
-        abort(404, '"start_time" and "end_time" accept only valid time ISO 8601 format')
+        abort(400, '"start_time" and "end_time" accept only valid time ISO 8601 format')
 
     if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
         dt = dt.replace(tzinfo=timezone.utc)
@@ -93,7 +93,7 @@ def is_within_date_range(time_string, start_date=None, end_date=None):
         start_datetime_utc = parse_datetime_with_utc(start_date)
         end_datetime_utc = parse_datetime_with_utc(end_date)
         if start_datetime_utc > end_datetime_utc:
-            abort(404, "End date cannot be before start date")
+            abort(400, "End date cannot be before start date")
         return (
             start_datetime_utc
             <= parse_datetime_with_utc(time_string)
@@ -960,7 +960,7 @@ class GitBackend(CurieBackend):
                     filtered_files.append(file_name)
             except ValueError:
                 abort(
-                    404,
+                    400,
                     '"start_time" and "end_time" accept only valid time ISO 8601 format',
                 )
 
@@ -1048,7 +1048,10 @@ class GitBackend(CurieBackend):
                     with jsonlines.Reader(StringIO(file_content)) as reader:
                         json_array = list(reader)
                         if q:
-                            expression = jsonpath_parse(q)
+                            try:
+                                expression = jsonpath_parse(q)
+                            except jsonpath_ng.exceptions.JsonPathParserError:
+                                abort(400, "[%s] is an invalid json path" % q)
                             matches = [
                                 match.value for match in expression.find(json_array)
                             ]
