@@ -390,7 +390,7 @@ securitypolicies_file_path = (base_path / "./json/security-policies.schema").res
 with open(securitypolicies_file_path) as json_file:
     securitypolicies_schema = json.load(json_file)
 content_filter_profile_file_path = (
-        base_path / "./json/content-filter-profile.schema"
+    base_path / "./json/content-filter-profile.schema"
 ).resolve()
 with open(content_filter_profile_file_path) as json_file:
     content_filter_profile_schema = json.load(json_file)
@@ -401,7 +401,7 @@ flowcontrol_file_path = (base_path / "./json/flow-control.schema").resolve()
 with open(flowcontrol_file_path) as json_file:
     flowcontrol_schema = json.load(json_file)
 content_filter_rule_file_path = (
-        base_path / "./json/content-filter-rule.schema"
+    base_path / "./json/content-filter-rule.schema"
 ).resolve()
 with open(content_filter_rule_file_path) as json_file:
     content_filter_rule_schema = json.load(json_file)
@@ -494,7 +494,7 @@ async def config_clone_post(config: str, meta: Meta, request: Request):
 
 @router.post("/configs/{config}/clone/{new_name}/", tags=[Tags.congifs])
 async def config_clone_name_post(
-        config: str, new_name: str, meta: Meta, request: Request
+    config: str, new_name: str, meta: Meta, request: Request
 ):
     """Clone a configuration. New name is provided URL"""
     data = await request.json()
@@ -519,9 +519,9 @@ def filter_x_fields(res, x_fields):
     tags=[Tags.congifs],
 )
 async def config_list_version_get(
-        config: str,
-        request: Request,
-        x_fields: Optional[str] = Header(default=None, alias="X-Fields"),
+    config: str,
+    request: Request,
+    x_fields: Optional[str] = Header(default=None, alias="X-Fields"),
 ):
     """Get all versions of a given configuration"""
     res = request.app.backend.configs_list_versions(config)
@@ -567,7 +567,7 @@ async def blob_resource_get(config: str, blob: str, request: Request):
 
 @router.post("/configs/{config}/b/{blob}/", tags=[Tags.congifs])
 async def blob_resource_post(
-        config: str, blob: str, blob_entry: BlobEntry, request: Request
+    config: str, blob: str, blob_entry: BlobEntry, request: Request
 ):
     """Create a new blob"""
     b_entry = await request.json()
@@ -578,7 +578,7 @@ async def blob_resource_post(
 
 @router.put("/configs/{config}/b/{blob}/", tags=[Tags.congifs])
 async def blob_resource_put(
-        config: str, blob: str, blob_entry: BlobEntry, request: Request
+    config: str, blob: str, blob_entry: BlobEntry, request: Request
 ):
     """upaate an existing blob"""
     b_entry = await request.json()
@@ -596,10 +596,10 @@ async def blob_resource_delete(config: str, blob: str, request: Request):
 
 @router.get("/configs/{config}/b/{blob}/v/", tags=[Tags.congifs])
 async def blob_list_version_resource_get(
-        config: str,
-        blob: str,
-        request: Request,
-        x_fields: Optional[str] = Header(default=None, alias="X-Fields"),
+    config: str,
+    blob: str,
+    request: Request,
+    x_fields: Optional[str] = Header(default=None, alias="X-Fields"),
 ):
     """Retrieve the list of versions of a given blob"""
     res = request.app.backend.blobs_list_versions(config, blob)
@@ -614,11 +614,11 @@ async def blob_list_version_resource_get(
     response_model=BlobEntry,
 )
 async def blob_version_resource_get(
-        config: str,
-        blob: str,
-        version: str,
-        request: Request,
-        x_fields: Optional[str] = Header(default=None, alias="X-Fields"),
+    config: str,
+    blob: str,
+    version: str,
+    request: Request,
+    x_fields: Optional[str] = Header(default=None, alias="X-Fields"),
 ):
     """Retrieve the given version of a blob"""
 
@@ -630,7 +630,7 @@ async def blob_version_resource_get(
 
 @router.put("/configs/{config}/b/{blob}/v/{version}/revert/", tags=[Tags.congifs])
 async def blob_revert_resource_put(
-        config: str, blob: str, version: str, request: Request
+    config: str, blob: str, version: str, request: Request
 ):
     """Create a new version for a blob from an old version"""
     return request.app.backend.blobs_revert(
@@ -654,10 +654,10 @@ async def document_resource_get(config: str, request: Request):
 
 @router.get("/configs/{config}/d/{document}/", tags=[Tags.congifs])
 async def document_resource_get(
-        config: str,
-        document: str,
-        request: Request,
-        x_fields: Optional[str] = Header(default=None, alias="X-Fields"),
+    config: str,
+    document: str,
+    request: Request,
+    x_fields: Optional[str] = Header(default=None, alias="X-Fields"),
 ):
     """Get a complete document"""
     if document not in models:
@@ -675,7 +675,7 @@ async def _filter(data, keys):
 
 @router.post("/configs/{config}/d/{document}/", tags=[Tags.congifs])
 async def document_resource_post(
-        config: str, document: str, basic_entries: List[BasicEntry], request: Request
+    config: str, document: str, basic_entries: List[BasicEntry], request: Request
 ):
     """Create a new complete document"""
     if document not in models.keys():
@@ -704,7 +704,7 @@ async def document_resource_post(
 
 @router.put("/configs/{config}/d/{document}/", tags=[Tags.congifs])
 async def document_resource_put(
-        config: str, document: str, basic_entries: List[BasicEntry], request: Request
+    config: str, document: str, basic_entries: List[BasicEntry], request: Request
 ):
     """Update an existing document"""
     if document not in models:
@@ -743,7 +743,7 @@ async def document_resource_delete(config: str, document: str, request: Request)
     tags=[Tags.congifs],
 )
 async def document_list_version_resource_get(
-        config: str, document: str, request: Request
+    config: str, document: str, request: Request
 ):
     """Retrieve the existing versions of a given document"""
     if document not in models:
@@ -754,7 +754,7 @@ async def document_list_version_resource_get(
 
 @router.get("/configs/{config}/d/{document}/v/{version}/", tags=[Tags.congifs])
 async def document_version_resource_get(
-        config: str, document: str, version: str, request: Request
+    config: str, document: str, version: str, request: Request
 ):
     """Get a given version of a document"""
     if document not in models:
@@ -775,7 +775,7 @@ async def document_version_resource_get(
 
 @router.put("/configs/{config}/d/{document}/v/{version}/revert/", tags=[Tags.congifs])
 async def document_revert_resource_put(
-        config: str, document: str, version: str, request: Request
+    config: str, document: str, version: str, request: Request
 ):
     """Create a new version for a document from an old version"""
     return request.app.backend.documents_revert(
@@ -799,7 +799,7 @@ async def entries_resource_get(config: str, document: str, request: Request):
 
 @router.post("/configs/{config}/d/{document}/e/", tags=[Tags.congifs])
 async def entries_resource_post(
-        config: str, document: str, basic_entry: BasicEntry, request: Request
+    config: str, document: str, basic_entry: BasicEntry, request: Request
 ):
     """Create an entry in a document"""
 
@@ -841,7 +841,7 @@ async def entry_resource_get(config: str, document: str, entry: str, request: Re
 
 @router.put("/configs/{config}/d/{document}/e/{entry}/", tags=[Tags.congifs])
 async def entry_resource_put(
-        config: str, document: str, entry: str, basic_entry: BasicEntry, request: Request
+    config: str, document: str, entry: str, basic_entry: BasicEntry, request: Request
 ):
     """Update an entry in a document"""
     data_json = await request.json()
@@ -868,7 +868,7 @@ async def entry_resource_put(
 
 @router.delete("/configs/{config}/d/{document}/e/{entry}/", tags=[Tags.congifs])
 async def entry_resource_delete(
-        config: str, document: str, entry: str, request: Request
+    config: str, document: str, entry: str, request: Request
 ):
     """Delete an entry from a document"""
     if document not in models:
@@ -881,10 +881,10 @@ async def entry_resource_delete(
 
 @router.get("/configs/{config}/d/{document}/e/{entry}/v/", tags=[Tags.congifs])
 async def entry_list_version_resource_get(
-        config: str,
-        document: str,
-        entry: str,
-        request: Request,
+    config: str,
+    document: str,
+    entry: str,
+    request: Request,
 ):
     """Get the list of existing versions of a given entry in a document"""
     if document not in models:
@@ -897,7 +897,7 @@ async def entry_list_version_resource_get(
     "/configs/{config}/d/{document}/e/{entry}/v/{version}/", tags=[Tags.congifs]
 )
 async def entry_version_resource_get(
-        config: str, document: str, entry: str, version: str, request: Request
+    config: str, document: str, entry: str, version: str, request: Request
 ):
     """Get a given version of a document entry"""
     if document not in models:
@@ -1056,7 +1056,7 @@ async def fetch_resource_get(url: HttpUrl):
 @router.put("/tools/publish/{config}/", tags=[Tags.tools])
 @router.put("/tools/publish/{config}/v/{version}/", tags=[Tags.tools])
 async def publish_resource_put(
-        config: str, request: Request, buckets: List[Bucket], version: str = None
+    config: str, request: Request, buckets: List[Bucket], version: str = None
 ):
     """Push configuration to s3 buckets"""
     conf = request.app.backend.configs_get(config, version)
@@ -1118,7 +1118,7 @@ async def git_fetch_resource_put(giturl: GitUrl, request: Request):
 @router.put("/tools/backup/create", tags=[Tags.tools])
 @router.put("/tools/backup/create/{backup_file_name}", tags=[Tags.tools])
 async def backup_create(
-        request: Request, buckets: List[Bucket], backup_file_name: str = "backup"
+    request: Request, buckets: List[Bucket], backup_file_name: str = "backup"
 ):
     """Create backup for database"""
 
@@ -1129,7 +1129,9 @@ async def backup_create(
     status = []
     current_backup_filename = None
     try:
-        current_backup_filename = request.app.backend.create_zip_archive_for_folder(backup_file_name)
+        current_backup_filename = request.app.backend.create_zip_archive_for_folder(
+            backup_file_name
+        )
         status.append("Backup created")
 
         buckets = await request.json()
@@ -1139,7 +1141,11 @@ async def backup_create(
         for bucket in buckets:
             logs = []
             try:
-                cloud.upload_file(current_backup_filename, bucket["url"], prnt=lambda x: logs.append(x))
+                cloud.upload_file(
+                    current_backup_filename,
+                    bucket["url"],
+                    prnt=lambda x: logs.append(x),
+                )
 
             except Exception as e:
                 ok = False
@@ -1149,7 +1155,9 @@ async def backup_create(
             else:
                 s = True
                 msg = "ok"
-            status.append({"name": bucket["name"], "ok": s, "logs": logs, "message": msg})
+            status.append(
+                {"name": bucket["name"], "ok": s, "logs": logs, "message": msg}
+            )
 
             os.remove(current_backup_filename)
             status.append("Backup removed")
