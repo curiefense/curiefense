@@ -33,6 +33,7 @@ lazy_static! {
     .iter()
     .map(|s| s.to_string())
     .collect();
+    pub static ref LIBINJECTION_RULES_LEN: usize = LIBINJECTION_SQLI_TAGS.len() + LIBINJECTION_XSS_TAGS.len();
 }
 
 #[derive(Default)]
@@ -139,9 +140,10 @@ pub fn content_filter_check(
         return (
             Err(CfBlock {
                 blocking: true,
-                reasons: iblock,
+                reasons: iblock.clone(),
             }),
-            stats.no_content_filter(),
+            // total and active should be the same as all libinjection rules are always being processed
+            stats.cf_matches(*LIBINJECTION_RULES_LEN, iblock.len(), *LIBINJECTION_RULES_LEN),
         );
     }
 
@@ -425,7 +427,14 @@ fn hyperscan(
             Matching::Continue
         });
         if let Err(rr) = scanr {
-            return (Err(rr), stats.cf_matches(sigs.ids.len(), matches, nactive));
+            return (
+                Err(rr),
+                stats.cf_matches(
+                    sigs.ids.len() + *LIBINJECTION_RULES_LEN,
+                    matches,
+                    nactive + *LIBINJECTION_RULES_LEN,
+                ),
+            );
         }
     }
     (
@@ -444,7 +453,11 @@ fn hyperscan(
                 extra: serde_json::Value::Null,
             })
             .collect()),
-        stats.cf_matches(sigs.ids.len(), matches, nactive),
+        stats.cf_matches(
+            sigs.ids.len() + *LIBINJECTION_RULES_LEN,
+            matches,
+            nactive + *LIBINJECTION_RULES_LEN,
+        ),
     )
 }
 
