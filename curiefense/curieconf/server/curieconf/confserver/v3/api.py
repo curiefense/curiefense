@@ -1143,12 +1143,14 @@ async def backup_create(
                 ok = False
                 s = False
                 msg = repr(e)
+                print(f"Exception when upload backup to cloud. {e}")
             else:
                 s = True
                 msg = "ok"
             status.append({"name": bucket["name"], "ok": s, "logs": logs, "message": msg})
 
     except Exception as e:
+        os.remove(current_backup_filename)
         raise HTTPException(500, f"Something went wrong. ${e}")
 
     os.remove(current_backup_filename)
