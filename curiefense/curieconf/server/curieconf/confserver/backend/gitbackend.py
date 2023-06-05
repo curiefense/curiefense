@@ -16,6 +16,8 @@ import pathlib
 import os
 import shutil
 
+from .. import logger
+
 CURIE_AUTHOR = git.Actor("Curiefense API", "curiefense@reblaze.com")
 
 INTERNAL_PREFIX = "_internal_"
@@ -912,6 +914,6 @@ class GitBackend(CurieBackend):
 
         elapsed_time = time.time() - start_time
 
-        print(f"ZIP archive '{zip_filename}.zip' created successfully. Execution time: {elapsed_time:.2f} seconds")
+        logger.info(f"ZIP archive '{zip_filename}.zip' created successfully. Execution time: {elapsed_time:.2f} seconds")
         return f"{zip_filename}.zip"
 

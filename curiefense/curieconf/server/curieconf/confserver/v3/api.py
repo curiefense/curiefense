@@ -15,6 +15,8 @@ from urllib.parse import unquote
 
 from curieconf.utils import cloud
 
+from server.curieconf.confserver import logger
+
 # monkey patch to force RestPlus to use Draft3 validator to benefit from "any" json type
 jsonschema.Draft4Validator = jsonschema.Draft3Validator
 
@@ -1143,7 +1145,7 @@ async def backup_create(
                 ok = False
                 s = False
                 msg = repr(e)
-                print(f"Exception when upload backup to cloud. {e}")
+                logger.error(f"Exception when upload backup to cloud. {e}")
             else:
                 s = True
                 msg = "ok"
