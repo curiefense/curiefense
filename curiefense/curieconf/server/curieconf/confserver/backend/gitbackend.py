@@ -948,25 +948,22 @@ class GitBackend(CurieBackend):
     def get_sorted_log_files_by_date(self, start_time=None, end_time=None):
         all_files = self.get_all_audit_log_files()
 
-        try:
-            filtered_files = filter(
-                lambda file_name: (
-                    (
-                        start_time is None
-                        or file_name >= isoparse(start_time).strftime("%Y%m")
-                    )
-                    and (
-                        end_time is None
-                        or file_name <= isoparse(end_time).strftime("%Y%m")
-                    )
-                ),
-                all_files,
-            )
-        except ValueError:
-            abort(
-                404,
-                '"start_time" and "end_time" accept only valid time ISO 8601 format',
-            )
+        filtered_files = []
+        for file_name in all_files:
+            try:
+                if (
+                    start_time is None
+                    or file_name >= isoparse(start_time).strftime("%Y%m")
+                ) and (
+                    end_time is None or file_name <= isoparse(end_time).strftime("%Y%m")
+                ):
+                    filtered_files.append(file_name)
+            except ValueError:
+                abort(
+                    404,
+                    '"start_time" and "end_time" accept only valid time ISO 8601 format',
+                )
+
         return sorted(filtered_files, reverse=True)
 
     def del_old_audit_log_file(self, actor, ret_months):
