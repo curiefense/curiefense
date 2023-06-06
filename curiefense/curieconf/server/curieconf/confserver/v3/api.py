@@ -30,6 +30,7 @@ val = os.environ.get("CURIECONF_TRUSTED_EMAIL_HEADER", None)
 if val:
     options["trusted_email_header"] = val
 
+
 ##############
 ### MODELS ###
 ##############
