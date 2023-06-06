@@ -755,7 +755,6 @@ class GitBackend(CurieBackend):
         return {"ok": True}
 
     ### DATABASE NAMESPACES
-
     def ns_list(self, version=None):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
