@@ -9,7 +9,10 @@ import threading
 import json
 from flask import abort
 from curieconf import utils
-from curieconf.utils.config import AUDIT_LOGS_RETENTION_MONTHS, CURIECONF_GIT_SSH_KEY_PATH
+from curieconf.utils.config import (
+    AUDIT_LOGS_RETENTION_MONTHS,
+    CURIECONF_GIT_SSH_KEY_PATH,
+)
 import jmespath
 import fasteners
 from typing import Dict, List
@@ -81,10 +84,7 @@ def get_repo(pth):
 
 
 def parse_datetime_with_utc(date_string):
-    try:
-        dt = isoparse(date_string)
-    except ValueError:
-        abort(400, '"start_time" and "end_time" accept only valid time ISO 8601 format')
+    dt = isoparse(date_string)
 
     # If no timezone information or UTC offset are given, assume that the time is in UTC
     if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
@@ -970,19 +970,12 @@ class GitBackend(CurieBackend):
 
         filtered_files = []
         for file_name in all_files:
-            try:
-                if (
-                    start_time is None
-                    or file_name >= isoparse(start_time).strftime("%Y%m")
-                ) and (
-                    end_time is None or file_name <= isoparse(end_time).strftime("%Y%m")
-                ):
-                    filtered_files.append(file_name)
-            except ValueError:
-                abort(
-                    400,
-                    '"start_time" and "end_time" accept only valid time ISO 8601 format',
-                )
+            if (
+                start_time is None or file_name >= isoparse(start_time).strftime("%Y%m")
+            ) and (
+                end_time is None or file_name <= isoparse(end_time).strftime("%Y%m")
+            ):
+                filtered_files.append(file_name)
 
         return sorted(filtered_files, reverse=True)
 
@@ -1050,10 +1043,7 @@ class GitBackend(CurieBackend):
                 with jsonlines.Reader(StringIO(file_content)) as reader:
                     json_array = list(reader)
                     if q:
-                        try:
-                            expression = jsonpath_parse(q)
-                        except jsonpath_ng.exceptions.JsonPathParserError:
-                            abort(400, "[%s] is an invalid json path" % q)
+                        expression = jsonpath_parse(q)
                         matches = [match.value for match in expression.find(json_array)]
                     else:
                         matches = json_array

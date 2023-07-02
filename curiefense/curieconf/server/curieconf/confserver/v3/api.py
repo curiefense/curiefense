@@ -7,11 +7,22 @@ import json
 import jsonschema
 import bleach
 from jsonschema import validate
+from jsonpath_ng.ext import parse as jsonpath_parse
 from pathlib import Path
 from enum import Enum
 from typing import Optional, List, Union, Dict, Literal
-from fastapi import Request, HTTPException, APIRouter, Header, Query, EmailStr, Depends
-from pydantic import BaseModel, Field, StrictStr, StrictBool, StrictInt, Extra, HttpUrl
+from fastapi import Request, HTTPException, APIRouter, Header, Query, Depends
+from fastapi import Path as FastAPIPath
+from pydantic import (
+    BaseModel,
+    Field,
+    StrictStr,
+    StrictBool,
+    StrictInt,
+    Extra,
+    HttpUrl,
+    EmailStr,
+)
 from urllib.parse import unquote
 import uuid
 
@@ -1228,30 +1239,53 @@ async def backup_create(
 ### Audit ###
 #############
 
+def validate_action_type(actiontype: str = FastAPIPath(...)):
+    if actiontype not in auditactiontypesmodels:
+        raise HTTPException(404, f"Action type '{actiontype}' does not exist.")
+    return actiontype
+
+
+def validate_query(q: str = Query(None)):
+    if q:
+        try:
+            expression = jsonpath_parse(q)
+        except jsonpath_ng.exceptions.JsonPathParserError:
+            raise HTTPException(400, "[%s] is an invalid json path" % q)
+    return q
+
+
+def validate_date(date: str = Query(None)):
+    # Perform your custom validation logic here
+    if date:
+        try:
+            isoparse(date)
+        except ValueError:
+            raise HTTPException(
+                400,
+                '"start_date" and "end_date" accept only valid time ISO 8601 format',
+            )
+    return date
+
 
 @router.get("/audit/{actiontype}/l/{id}/", tags=[Tags.audit])
-async def action_id_resource_get(actiontype: str, id: str, request: Request):
+async def action_id_resource_get(actiontype: str = Depends(validate_action_type), id: str, request: Request):
     """Retrieve a given id's + actiontype's log from the log files"""
-    if actiontype not in auditactiontypesmodels:
-        raise HTTPException(404, "action type {actiontype} does not exist")
     return request.app.backend.audit_id_get(actiontype, id)
 
 
 @router.get("/audit/{actiontype}/l/", tags=[Tags.audit])
 async def action_query_resource_get(
-    actiontype: str,
+    actiontype: str = Depends(validate_action_type),
     request: Request,
-    start_date: str = Query(None),
-    end_date: str = Query(None),
+    start_date: str = Depends(validate_date),
+    end_date: str = Depends(validate_date),
     branch: str = Query(None),
     user_email: EmailStr = Query(None),
-    q: str = Query(None),
+    q: str = Depends(validate_query),
     limit: int = Query(100, ge=1, le=1000),
     offset: int = Query(0, ge=0),
 ):
     """Run a query on the audit logs and return the results"""
-    if actiontype not in auditactiontypesmodels:
-        raise HTTPException(404, "action type {actiontype} does not exist")
     return request.app.backend.audit_query(
         actiontype=actiontype,
         start_date=start_date,
