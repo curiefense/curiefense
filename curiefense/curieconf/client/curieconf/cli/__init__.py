@@ -24,6 +24,7 @@ import simple_rest_client.exceptions
 from curieconf import confclient
 from curieconf import utils
 from curieconf.utils import cloud
+from curieconf.utils.config import CURIECONF_BASE_URL
 from cloudstorage.exceptions import NotFoundError, CloudStorageError
 
 state = argparse.Namespace()
@@ -647,7 +648,7 @@ def main_options(
         "json", "--output", "-o", help="Output format: json, yaml"
     ),
     baseurl: str = typer.Option(
-        os.environ.get("CURIECONF_BASE_URL", "http://localhost:5000/api/v3/"),
+        CURIECONF_BASE_URL,
         "--base-url",
         "-u",
         help="Base url for API",
