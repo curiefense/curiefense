@@ -1,14 +1,16 @@
 from curieconf.confserver import app
 from curieconf.confserver.backend import Backends
-import os
-
+from curieconf.utils.config import (
+    CURIECONF_TRUSTED_USERNAME_HEADER,
+    CURIECONF_TRUSTED_EMAIL_HEADER,
+)
 
 app.backend = Backends.get_backend(app, "git:///cf-persistent-config/confdb")
 options = {}
-val = os.environ.get("CURIECONF_TRUSTED_USERNAME_HEADER", None)
+val = CURIECONF_TRUSTED_USERNAME_HEADER
 if val:
     options["trusted_username_header"] = val
-val = os.environ.get("CURIECONF_TRUSTED_EMAIL_HEADER", None)
+val = CURIECONF_TRUSTED_EMAIL_HEADER
 if val:
     options["trusted_email_header"] = val
 
