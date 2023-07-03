@@ -7,10 +7,11 @@ import json
 import jsonschema
 import bleach
 from jsonschema import validate
+import jsonpath_ng
 from jsonpath_ng.ext import parse as jsonpath_parse
 from pathlib import Path
 from enum import Enum
-from typing import Optional, List, Union, Dict, Literal
+from typing import Optional, List, Union, Dict
 from fastapi import Request, HTTPException, APIRouter, Header, Query, Depends
 from fastapi import Path as FastAPIPath
 from pydantic import (
@@ -25,6 +26,8 @@ from pydantic import (
 )
 from urllib.parse import unquote
 import uuid
+
+from dateutil.parser import isoparse
 
 from curieconf.utils import cloud
 from curieconf.utils.config import (
@@ -366,13 +369,19 @@ class BasicAuditLog(BaseModel):
     user_email: StrictStr
 
 
+### BucketKey
+class BucketKey(str, Enum):
+    url = "url"
+    name = "name"
+
+
 ### PublishAuditLog
 class PublishAuditLog(BaseModel):
     id: StrictStr
     branch: StrictStr
     commit_id: StrictStr
     user_email: StrictStr
-    bucket: Dict[Literal["url", "name"], StrictStr]
+    bucket: Dict[BucketKey, StrictStr]
 
 
 ### mapping from action type to model
@@ -1239,6 +1248,7 @@ async def backup_create(
 ### Audit ###
 #############
 
+
 def validate_action_type(actiontype: str = FastAPIPath(...)):
     if actiontype not in auditactiontypesmodels:
         raise HTTPException(404, f"Action type '{actiontype}' does not exist.")
@@ -1248,14 +1258,13 @@ def validate_action_type(actiontype: str = FastAPIPath(...)):
 def validate_query(q: str = Query(None)):
     if q:
         try:
-            expression = jsonpath_parse(q)
+            jsonpath_parse(q)
         except jsonpath_ng.exceptions.JsonPathParserError:
             raise HTTPException(400, "[%s] is an invalid json path" % q)
     return q
 
 
-def validate_date(date: str = Query(None)):
-    # Perform your custom validation logic here
+def validate_date(date):
     if date:
         try:
             isoparse(date)
@@ -1267,18 +1276,38 @@ def validate_date(date: str = Query(None)):
     return date
 
 
+def validate_start_date(start_date: str = Query(None)):
+    return validate_date(start_date)
+
+
+def validate_end_date(end_date: str = Query(None)):
+    return validate_date(end_date)
+
+
+def validate_date_order(request, start_date, end_date):
+    if request.app.backend.parse_datetime_with_utc(
+        start_date
+    ) > request.app.backend.parse_datetime_with_utc(end_date):
+        raise HTTPException(
+            400,
+            "End date cannot be before start date",
+        )
+
+
 @router.get("/audit/{actiontype}/l/{id}/", tags=[Tags.audit])
-async def action_id_resource_get(actiontype: str = Depends(validate_action_type), id: str, request: Request):
+async def action_id_resource_get(
+    request: Request, id: str, actiontype: str = Depends(validate_action_type)
+):
     """Retrieve a given id's + actiontype's log from the log files"""
     return request.app.backend.audit_id_get(actiontype, id)
 
 
 @router.get("/audit/{actiontype}/l/", tags=[Tags.audit])
 async def action_query_resource_get(
-    actiontype: str = Depends(validate_action_type),
     request: Request,
-    start_date: str = Depends(validate_date),
-    end_date: str = Depends(validate_date),
+    actiontype: str = Depends(validate_action_type),
+    start_date: str = Depends(validate_start_date),
+    end_date: str = Depends(validate_end_date),
     branch: str = Query(None),
     user_email: EmailStr = Query(None),
     q: str = Depends(validate_query),
@@ -1286,6 +1315,8 @@ async def action_query_resource_get(
     offset: int = Query(0, ge=0),
 ):
     """Run a query on the audit logs and return the results"""
+    if start_date and end_date:
+        validate_date_order(request, start_date, end_date)
     return request.app.backend.audit_query(
         actiontype=actiontype,
         start_date=start_date,

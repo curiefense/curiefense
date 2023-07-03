@@ -83,34 +83,6 @@ def get_repo(pth):
     return repo
 
 
-def parse_datetime_with_utc(date_string):
-    dt = isoparse(date_string)
-
-    # If no timezone information or UTC offset are given, assume that the time is in UTC
-    if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    else:
-        dt = dt.astimezone(timezone.utc)
-
-    return dt
-
-
-def is_within_date_range(time_string, start_date=None, end_date=None):
-    time_utc = parse_datetime_with_utc(time_string)
-    if start_date and end_date:
-        start_datetime_utc = parse_datetime_with_utc(start_date)
-        end_datetime_utc = parse_datetime_with_utc(end_date)
-        if start_datetime_utc > end_datetime_utc:
-            abort(400, "End date cannot be before start date")
-        return start_datetime_utc <= time_utc <= end_datetime_utc
-    elif start_date:
-        return time_utc >= parse_datetime_with_utc(start_date)
-    elif end_date:
-        return time_utc <= parse_datetime_with_utc(end_date)
-    else:
-        return True
-
-
 class ThreadAndProcessLock(object):
     def __init__(self, lockfile):
         self._lockfile = lockfile
@@ -141,6 +113,30 @@ class GitBackend(CurieBackend):
         self.repo.lock = ThreadAndProcessLock(lock_path)
 
     ### Helpers
+
+    def parse_datetime_with_utc(self, date_string):
+        dt = isoparse(date_string)
+
+        # If no timezone information or UTC offset are given, assume that the time is in UTC
+        if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        else:
+            dt = dt.astimezone(timezone.utc)
+
+        return dt
+
+    def is_within_date_range(self, time_string, start_date=None, end_date=None):
+        time_utc = self.parse_datetime_with_utc(time_string)
+        if start_date and end_date:
+            start_datetime_utc = self.parse_datetime_with_utc(start_date)
+            end_datetime_utc = self.parse_datetime_with_utc(end_date)
+            return start_datetime_utc <= time_utc <= end_datetime_utc
+        elif start_date:
+            return time_utc >= self.parse_datetime_with_utc(start_date)
+        elif end_date:
+            return time_utc <= self.parse_datetime_with_utc(end_date)
+        else:
+            return True
 
     def _do_prepare_branch(self, branchname):
         branch = self.repo.heads[branchname]
@@ -1012,7 +1008,7 @@ class GitBackend(CurieBackend):
         return {"ok": True}
 
     def audit_id_get(self, actiontype, id):
-        matches = self.audit_query(actiontype=actiontype, q=f"$[?(id='{id}')]")
+        matches = self.audit_query(actiontype=actiontype, q=f"$[?(id='{id}')]", limit=1)
         if len(matches) == 1:
             return matches[0]
 
@@ -1051,7 +1047,7 @@ class GitBackend(CurieBackend):
                     matching_lines = filter(
                         lambda line: (
                             (line["action"] == actiontype)
-                            and is_within_date_range(line["time"], start_date, end_date)
+                            and self.is_within_date_range(line["time"], start_date, end_date)  # fmt:skip
                             and (not branch or line["branch"] == branch)
                             and (not user_email or line["user_email"] == user_email)
                         ),
