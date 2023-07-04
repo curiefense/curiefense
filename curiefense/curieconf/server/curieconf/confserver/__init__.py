@@ -6,7 +6,13 @@ from .backend import Backends
 import uvicorn
 import logging
 from curieconf.confserver.v3 import api
-from curieconf.utils.config import SWAGGER_BASE_PATH, CURIECONF_HOST, CURIECONF_PORT, CURIECONF_TRUSTED_USERNAME_HEADER, CURIECONF_TRUSTED_EMAIL_HEADER
+from curieconf.utils.config import (
+    SWAGGER_BASE_PATH,
+    CURIECONF_HOST,
+    CURIECONF_PORT,
+    CURIECONF_TRUSTED_USERNAME_HEADER,
+    CURIECONF_TRUSTED_EMAIL_HEADER,
+)
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.exceptions import RequestValidationError
@@ -69,12 +75,8 @@ def main(args=None):
     parser.add_argument("--dbpath", "--db", help="API server db path", required=True)
     parser.add_argument("-d", "--debug", action="store_true", default=False)
     parser.add_argument("--pdb", action="store_true", default=False)
-    parser.add_argument(
-        "-H", "--host", default=CURIECONF_HOST
-    )
-    parser.add_argument(
-        "-p", "--port", type=int, default=int(CURIECONF_PORT)
-    )
+    parser.add_argument("-H", "--host", default=CURIECONF_HOST)
+    parser.add_argument("-p", "--port", type=int, default=int(CURIECONF_PORT))
     parser.add_argument(
         "--trusted-username-header",
         type=str,
