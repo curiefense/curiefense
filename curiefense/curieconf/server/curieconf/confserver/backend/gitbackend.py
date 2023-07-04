@@ -961,16 +961,17 @@ class GitBackend(CurieBackend):
 
     ### AUDIT LOGS
 
+    def is_file_relevant_by_date(self, start_time, end_time, file_name):
+        return (
+            start_time is None or file_name >= isoparse(start_time).strftime("%Y%m")
+        ) and (end_time is None or file_name <= isoparse(end_time).strftime("%Y%m"))
+
     def get_sorted_log_files_by_date(self, start_time=None, end_time=None):
         all_files = self.get_tree_obj_list()
 
         filtered_files = []
         for file_name in all_files:
-            if (
-                start_time is None or file_name >= isoparse(start_time).strftime("%Y%m")
-            ) and (
-                end_time is None or file_name <= isoparse(end_time).strftime("%Y%m")
-            ):
+            if self.is_file_relevant_by_date(start_time, end_time, file_name):
                 filtered_files.append(file_name)
 
         return sorted(filtered_files, reverse=True)
@@ -1004,7 +1005,7 @@ class GitBackend(CurieBackend):
             self.add_file(currlogname, updated_content.encode("utf-8"))
             self.commit("Added audit log to file [%s]" % currlogname, actor=actor)
 
-            self.del_old_audit_log_file(actor, int(AUDIT_LOGS_RETENTION_MONTHS))
+            self.del_old_audit_log_file(actor, AUDIT_LOGS_RETENTION_MONTHS)
         return {"ok": True}
 
     def audit_id_get(self, actiontype, id):
@@ -1038,24 +1039,24 @@ class GitBackend(CurieBackend):
                     continue
                 with jsonlines.Reader(StringIO(file_content)) as reader:
                     json_array = list(reader)
-                    if q:
-                        expression = jsonpath_parse(q)
-                        matches = [match.value for match in expression.find(json_array)]
-                    else:
-                        matches = json_array
+                if q:
+                    expression = jsonpath_parse(q)
+                    matches = [match.value for match in expression.find(json_array)]
+                else:
+                    matches = json_array
 
-                    matching_lines = filter(
-                        lambda line: (
-                            (line["action"] == actiontype)
-                            and self.is_within_date_range(line["time"], start_date, end_date)  # fmt:skip
-                            and (not branch or line["branch"] == branch)
-                            and (not user_email or line["user_email"] == user_email)
-                        ),
-                        matches,
-                    )
+                matching_lines = filter(
+                    lambda line: (
+                        (line["action"] == actiontype)
+                        and self.is_within_date_range(line["time"], start_date, end_date)  # fmt:skip
+                        and (not branch or line["branch"] == branch)
+                        and (not user_email or line["user_email"] == user_email)
+                    ),
+                    matches,
+                )
 
-                    matched_lines.extend(reversed(list(matching_lines)))
-                    if len(matched_lines) >= offset + limit:
-                        break
+                matched_lines.extend(reversed(list(matching_lines)))
+                if len(matched_lines) >= offset + limit:
+                    break
 
         return list(islice(matched_lines, offset, offset + limit))
