@@ -7,7 +7,7 @@ import json
 import jsonschema
 import bleach
 from jsonschema import validate
-import jsonpath_ng
+from jsonpath_ng.exceptions import JsonPathLexerError, JsonPathParserError
 from jsonpath_ng.ext import parse as jsonpath_parse
 from pathlib import Path
 from enum import Enum
@@ -1259,7 +1259,7 @@ def validate_query(q: str = Query(None)):
     if q:
         try:
             jsonpath_parse(q)
-        except jsonpath_ng.exceptions.JsonPathParserError:
+        except (JsonPathParserError, JsonPathLexerError):
             raise HTTPException(400, "[%s] is an invalid json path" % q)
     return q
 
