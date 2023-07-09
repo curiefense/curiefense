@@ -2,6 +2,18 @@ import os
 import hashlib
 import types
 from curieconf import utils
+from curieconf.utils.config import (
+    GOOGLE_APPLICATION_CREDENTIALS,
+    CURIE_S3_ACCESS_KEY,
+    CURIE_S3_SECRET_KEY,
+    CURIE_S3CFG_PATH,
+    CURIE_MINIO_HOST,
+    CURIE_MINIO_ACCESS_KEY,
+    CURIE_MINIO_SECRET_KEY,
+    CURIE_MINIOCFG_PATH,
+    CURIE_MINIO_SECURE,
+)
+
 import json
 import io
 
@@ -25,15 +37,13 @@ def get_bucket(url):
         if pth.startswith("/"):
             pth = pth[1:]
         if u.scheme == "gs":
-            credentials_path = os.environ.get(
-                "GOOGLE_APPLICATION_CREDENTIALS", "/var/run/secrets/gs/gs.json"
-            )
+            credentials_path = GOOGLE_APPLICATION_CREDENTIALS
             storage = get_driver(DriverName.GOOGLESTORAGE)(credentials_path)
         elif u.scheme == "s3":
-            akey = os.environ.get("CURIE_S3_ACCESS_KEY")
-            skey = os.environ.get("CURIE_S3_SECRET_KEY")
+            akey = CURIE_S3_ACCESS_KEY
+            skey = CURIE_S3_SECRET_KEY
             if not (akey and skey):
-                s3pth = os.environ.get("CURIE_S3CFG_PATH")
+                s3pth = CURIE_S3CFG_PATH
                 if not s3pth:
                     for s3pth in [
                         os.path.expanduser("~/.s3cfg"),
@@ -58,11 +68,11 @@ def get_bucket(url):
         elif u.scheme == "azblob":
             storage = get_driver(DriverName.AZURE)(os.path.dirname(u.path))
         elif u.scheme == "minio":
-            endpoint = os.environ.get("CURIE_MINIO_HOST", "minio")
-            akey = os.environ.get("CURIE_MINIO_ACCESS_KEY")
-            skey = os.environ.get("CURIE_MINIO_SECRET_KEY")
+            endpoint = CURIE_MINIO_HOST
+            akey = CURIE_MINIO_ACCESS_KEY
+            skey = CURIE_MINIO_SECRET_KEY
             if not (akey and skey):
-                miniopth = os.environ.get("CURIE_MINIOCFG_PATH")
+                miniopth = CURIE_MINIOCFG_PATH
                 if not miniopth:
                     for miniopth in [
                         os.path.expanduser("~/.miniocfg"),
@@ -81,7 +91,7 @@ def get_bucket(url):
                 c.read(miniopth)
                 akey = c.get("default", "access_key")
                 skey = c.get("default", "secret_key")
-            if os.environ.get("CURIE_MINIO_SECURE", "TRUE") == "FALSE":
+            if CURIE_MINIO_SECURE == "FALSE":
                 # testing environment only: no TLS
                 msec = False
             else:

@@ -6,6 +6,13 @@ from .backend import Backends
 import uvicorn
 import logging
 from curieconf.confserver.v3 import api
+from curieconf.utils.config import (
+    SWAGGER_BASE_PATH,
+    CURIECONF_HOST,
+    CURIECONF_PORT,
+    CURIECONF_TRUSTED_USERNAME_HEADER,
+    CURIECONF_TRUSTED_EMAIL_HEADER,
+)
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.exceptions import RequestValidationError
@@ -13,7 +20,7 @@ from fastapi.responses import PlainTextResponse
 from prometheus_fastapi_instrumentator import Instrumentator
 from werkzeug.exceptions import HTTPException as WerkzeugHTTPException
 
-app = FastAPI(docs_url=os.environ.get("SWAGGER_BASE_PATH", "/api/v3/"))
+app = FastAPI(docs_url=SWAGGER_BASE_PATH)
 app.include_router(api.router)
 
 
@@ -68,21 +75,17 @@ def main(args=None):
     parser.add_argument("--dbpath", "--db", help="API server db path", required=True)
     parser.add_argument("-d", "--debug", action="store_true", default=False)
     parser.add_argument("--pdb", action="store_true", default=False)
-    parser.add_argument(
-        "-H", "--host", default=os.environ.get("CURIECONF_HOST", "127.0.0.1")
-    )
-    parser.add_argument(
-        "-p", "--port", type=int, default=int(os.environ.get("CURIECONF_PORT", "5000"))
-    )
+    parser.add_argument("-H", "--host", default=CURIECONF_HOST)
+    parser.add_argument("-p", "--port", type=int, default=int(CURIECONF_PORT))
     parser.add_argument(
         "--trusted-username-header",
         type=str,
-        default=os.environ.get("CURIECONF_TRUSTED_USERNAME_HEADER", ""),
+        default=CURIECONF_TRUSTED_USERNAME_HEADER,
     )
     parser.add_argument(
         "--trusted-email-header",
         type=str,
-        default=os.environ.get("CURIECONF_TRUSTED_EMAIL_HEADER", ""),
+        default=CURIECONF_TRUSTED_EMAIL_HEADER,
     )
 
     options = parser.parse_args(args)

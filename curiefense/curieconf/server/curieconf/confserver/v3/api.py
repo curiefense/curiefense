@@ -7,15 +7,33 @@ import json
 import jsonschema
 import bleach
 from jsonschema import validate
+from jsonpath_ng.exceptions import JsonPathLexerError, JsonPathParserError
+from jsonpath_ng.ext import parse as jsonpath_parse
 from pathlib import Path
 from enum import Enum
-from typing import Optional, List, Union
-from fastapi import Request, HTTPException, APIRouter, Header
-from pydantic import BaseModel, Field, StrictStr, StrictBool, StrictInt, Extra, HttpUrl
+from typing import Optional, List, Union, Dict
+from fastapi import Request, HTTPException, APIRouter, Header, Query, Depends
+from fastapi import Path as FastAPIPath
+from pydantic import (
+    BaseModel,
+    Field,
+    StrictStr,
+    StrictBool,
+    StrictInt,
+    Extra,
+    HttpUrl,
+    EmailStr,
+)
 from urllib.parse import unquote
+import uuid
+
+from dateutil.parser import isoparse
 
 from curieconf.utils import cloud
-
+from curieconf.utils.config import (
+    CURIECONF_TRUSTED_USERNAME_HEADER,
+    CURIECONF_TRUSTED_EMAIL_HEADER,
+)
 
 logger = logging.getLogger("confserver")
 
@@ -25,10 +43,10 @@ jsonschema.Draft4Validator = jsonschema.Draft3Validator
 # TODO: TEMP DEFINITIONS
 router = APIRouter(prefix="/api/v3")
 options = {}
-val = os.environ.get("CURIECONF_TRUSTED_USERNAME_HEADER", None)
+val = CURIECONF_TRUSTED_USERNAME_HEADER
 if val:
     options["trusted_username_header"] = val
-val = os.environ.get("CURIECONF_TRUSTED_EMAIL_HEADER", None)
+val = CURIECONF_TRUSTED_EMAIL_HEADER
 if val:
     options["trusted_email_header"] = val
 
@@ -343,6 +361,35 @@ class DB(BaseModel):
     pass
 
 
+### BasicAuditLog
+class BasicAuditLog(BaseModel):
+    id: StrictStr
+    branch: StrictStr
+    commit_id: StrictStr
+    user_email: StrictStr
+
+
+### BucketKey
+class BucketKey(str, Enum):
+    url = "url"
+    name = "name"
+
+
+### PublishAuditLog
+class PublishAuditLog(BaseModel):
+    id: StrictStr
+    branch: StrictStr
+    commit_id: StrictStr
+    user_email: StrictStr
+    bucket: Dict[BucketKey, StrictStr]
+
+
+### mapping from action type to model
+
+auditactiontypesmodels = {
+    "publish": PublishAuditLog,
+}
+
 ### Document Schema validation
 
 
@@ -435,6 +482,7 @@ class Tags(Enum):
     congifs = "configs"
     db = "db"
     tools = "tools"
+    audit = "audit"
 
 
 ################
@@ -1063,6 +1111,8 @@ async def publish_resource_put(
 ):
     """Push configuration to s3 buckets"""
     conf = request.app.backend.configs_get(config, version)
+    if not version:
+        version = conf["meta"]["version"]
     ok = True
     status = []
     buckets = await request.json()
@@ -1080,8 +1130,25 @@ async def publish_resource_put(
         else:
             s = True
             msg = "ok"
+            logs.append(add_publish_audit_log(request, version, bucket))
         status.append({"name": bucket["name"], "ok": s, "logs": logs, "message": msg})
     return {"ok": ok, "status": status}
+
+
+def add_publish_audit_log(request, version, bucket):
+    log_id = str(uuid.uuid4())
+    data_json = PublishAuditLog(
+        id=log_id,
+        branch=bucket["name"],
+        commit_id=version,
+        user_email=get_gitactor(request).email,
+        bucket={"url": bucket["url"], "name": bucket["name"]},
+    )
+    try:
+        request.app.backend.audit_log_create(data_json.dict(), "publish")
+        return f"Successfully added audit log {log_id} for publish action"
+    except Exception as e:
+        return f"Failed to add audit log {log_id} for publish action: {repr(e)}"
 
 
 @router.put("/tools/gitpush/", tags=[Tags.tools])
@@ -1175,3 +1242,88 @@ async def backup_create(
         raise HTTPException(500, f"Something went wrong. ${e}")
 
     return {"ok": ok, "status": status}
+
+
+#############
+### Audit ###
+#############
+
+
+def validate_action_type(actiontype: str = FastAPIPath(...)):
+    if actiontype not in auditactiontypesmodels:
+        raise HTTPException(404, f"Action type '{actiontype}' does not exist.")
+    return actiontype
+
+
+def validate_query(q: str = Query(None)):
+    if q:
+        try:
+            jsonpath_parse(q)
+        except (JsonPathParserError, JsonPathLexerError):
+            raise HTTPException(400, "[%s] is an invalid json path" % q)
+    return q
+
+
+def validate_date(date):
+    if date:
+        try:
+            isoparse(date)
+        except ValueError:
+            raise HTTPException(
+                400,
+                '"start_date" and "end_date" accept only valid time ISO 8601 format',
+            )
+    return date
+
+
+def validate_start_date(start_date: str = Query(None)):
+    return validate_date(start_date)
+
+
+def validate_end_date(end_date: str = Query(None)):
+    return validate_date(end_date)
+
+
+def validate_date_order(request, start_date, end_date):
+    if request.app.backend.parse_datetime_with_utc(
+        start_date
+    ) > request.app.backend.parse_datetime_with_utc(end_date):
+        raise HTTPException(
+            400,
+            "End date cannot be before start date",
+        )
+
+
+@router.get("/audit/{actiontype}/l/{id}/", tags=[Tags.audit])
+async def action_id_resource_get(
+    request: Request, id: str, actiontype: str = Depends(validate_action_type)
+):
+    """Retrieve a given id's + actiontype's log from the log files"""
+    return request.app.backend.audit_id_get(actiontype, id)
+
+
+@router.get("/audit/{actiontype}/l/", tags=[Tags.audit])
+async def action_query_resource_get(
+    request: Request,
+    actiontype: str = Depends(validate_action_type),
+    start_date: str = Depends(validate_start_date),
+    end_date: str = Depends(validate_end_date),
+    branch: str = Query(None),
+    user_email: EmailStr = Query(None),
+    q: str = Depends(validate_query),
+    limit: int = Query(100, ge=1, le=1000),
+    offset: int = Query(0, ge=0),
+):
+    """Run a query on the audit logs and return the results"""
+    if start_date and end_date:
+        validate_date_order(request, start_date, end_date)
+    return request.app.backend.audit_query(
+        actiontype=actiontype,
+        start_date=start_date,
+        end_date=end_date,
+        branch=branch,
+        user_email=user_email,
+        q=q,
+        limit=limit,
+        offset=offset,
+    )

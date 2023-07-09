@@ -1,6 +1,6 @@
 import logging
 import os
-from io import BytesIO
+from io import BytesIO, StringIO
 import git, gitdb
 from . import Backends, CurieBackend, CurieBackendException
 import urllib
@@ -9,13 +9,23 @@ import threading
 import json
 from flask import abort
 from curieconf import utils
+from curieconf.utils.config import (
+    AUDIT_LOGS_RETENTION_MONTHS,
+    CURIECONF_GIT_SSH_KEY_PATH,
+)
 import jmespath
 import fasteners
 from typing import Dict, List
 import jsonpath_ng
+from jsonpath_ng.ext import parse as jsonpath_parse
 import pathlib
 import os
 import shutil
+from datetime import datetime
+from dateutil.parser import isoparse
+from datetime import timezone
+import jsonlines
+from itertools import islice
 
 
 logger = logging.getLogger("confserver")
@@ -26,6 +36,7 @@ INTERNAL_PREFIX = "_internal_"
 
 BRANCH_BASE = INTERNAL_PREFIX + "base"
 BRANCH_DB = INTERNAL_PREFIX + "db"
+BRANCH_AUDIT = INTERNAL_PREFIX + "audit"
 
 
 class CurieGitBackendException(CurieBackendException):
@@ -103,6 +114,30 @@ class GitBackend(CurieBackend):
 
     ### Helpers
 
+    def parse_datetime_with_utc(self, date_string):
+        dt = isoparse(date_string)
+
+        # If no timezone information or UTC offset are given, assume that the time is in UTC
+        if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        else:
+            dt = dt.astimezone(timezone.utc)
+
+        return dt
+
+    def is_within_date_range(self, time_string, start_date=None, end_date=None):
+        time_utc = self.parse_datetime_with_utc(time_string)
+        if start_date and end_date:
+            start_datetime_utc = self.parse_datetime_with_utc(start_date)
+            end_datetime_utc = self.parse_datetime_with_utc(end_date)
+            return start_datetime_utc <= time_utc <= end_datetime_utc
+        elif start_date:
+            return time_utc >= self.parse_datetime_with_utc(start_date)
+        elif end_date:
+            return time_utc <= self.parse_datetime_with_utc(end_date)
+        else:
+            return True
+
     def _do_prepare_branch(self, branchname):
         branch = self.repo.heads[branchname]
         self.repo.head.reference = branch
@@ -122,6 +157,10 @@ class GitBackend(CurieBackend):
     def get_tree(self, version=None):
         commit = self.repo.head.commit if version is None else self.repo.commit(version)
         return commit.tree
+
+    def get_tree_obj_list(self, version=None):
+        t = self.get_tree(version)
+        return [obj.name for obj in t.traverse() if obj.type == "blob"]
 
     def add_file(self, fname, content):
         add_file(self.repo, fname, content)
@@ -259,7 +298,7 @@ class GitBackend(CurieBackend):
                 git.Remote.remove(self.repo, r)
             # push to remote
             remote = git.Remote.create(self.repo, remotename, url)
-            ssh_key_path = pathlib.Path(os.environ.get("CURIECONF_GIT_SSH_KEY_PATH"))
+            ssh_key_path = pathlib.Path(CURIECONF_GIT_SSH_KEY_PATH)
             if ssh_key_path.is_file() and ssh_key_path.stat().st_size > 0:
                 ssh_cmd = "ssh -o StrictHostKeyChecking=no -i " + str(ssh_key_path)
                 with self.repo.git.custom_environment(GIT_SSH_COMMAND=ssh_cmd):
@@ -282,7 +321,7 @@ class GitBackend(CurieBackend):
                 git.Remote.remove(self.repo, r)
             # push to remote
             remote = git.Remote.create(self.repo, remotename, url)
-            ssh_key_path = pathlib.Path(os.environ.get("CURIECONF_GIT_SSH_KEY_PATH"))
+            ssh_key_path = pathlib.Path(CURIECONF_GIT_SSH_KEY_PATH)
             # no code injection here: git is called using execve()
             refspec = [f"{b.name}:{b.name}" for b in self.repo.branches]
             if ssh_key_path.is_file() and ssh_key_path.stat().st_size > 0:
@@ -764,8 +803,7 @@ class GitBackend(CurieBackend):
     def ns_list(self, version=None):
         with self.repo.lock:
             self.prepare_internal_branch(BRANCH_DB)
-            t = self.get_tree(version)
-            return [obj.name for obj in t.traverse() if obj.type == "blob"]
+            return self.get_tree_obj_list(version)
 
     def ns_list_versions(self):
         with self.repo.lock:
@@ -920,3 +958,105 @@ class GitBackend(CurieBackend):
             f"ZIP archive '{zip_filename}.zip' created successfully. Execution time: {elapsed_time:.2f} seconds"
         )
         return f"{zip_filename}.zip"
+
+    ### AUDIT LOGS
+
+    def is_file_relevant_by_date(self, start_time, end_time, file_name):
+        return (
+            start_time is None or file_name >= isoparse(start_time).strftime("%Y%m")
+        ) and (end_time is None or file_name <= isoparse(end_time).strftime("%Y%m"))
+
+    def get_sorted_log_files_by_date(self, start_time=None, end_time=None):
+        all_files = self.get_tree_obj_list()
+
+        filtered_files = []
+        for file_name in all_files:
+            if self.is_file_relevant_by_date(start_time, end_time, file_name):
+                filtered_files.append(file_name)
+
+        return sorted(filtered_files, reverse=True)
+
+    def del_old_audit_log_file(self, actor, ret_months):
+        files = self.get_tree_obj_list()
+
+        if files.__len__() > ret_months + 1:
+            oldfile = min(files, key=lambda x: datetime.strptime(x, "%Y%m"))
+            self.del_file(oldfile)
+            self.commit("Deleted audit log file [%s]" % oldfile, actor=actor)
+
+    def get_file_content(self, filename):
+        try:
+            logobj = self.get_tree() / filename
+            return logobj.data_stream.read().decode("utf-8")
+        except KeyError:
+            return ""
+
+    def audit_log_create(self, data, actiontype, actor=CURIE_AUTHOR):
+        with self.repo.lock:
+            self.prepare_internal_branch(BRANCH_AUDIT)
+            currtime = datetime.utcnow()
+            data["action"] = actiontype
+            data["time"] = currtime.strftime("%Y-%m-%dT%H:%M:%SZ")
+            currlogname = currtime.strftime("%Y%m")
+            existing_content = self.get_file_content(currlogname)
+            json_line = json.dumps(data) + "\n"
+            updated_content = existing_content + json_line
+
+            self.add_file(currlogname, updated_content.encode("utf-8"))
+            self.commit("Added audit log to file [%s]" % currlogname, actor=actor)
+
+            self.del_old_audit_log_file(actor, AUDIT_LOGS_RETENTION_MONTHS)
+        return {"ok": True}
+
+    def audit_id_get(self, actiontype, id):
+        matches = self.audit_query(actiontype=actiontype, q=f"$[?(id='{id}')]", limit=1)
+        if len(matches) == 1:
+            return matches[0]
+
+        abort(
+            404,
+            "Audit log for [%s] action with id [%s] does not exist" % (actiontype, id),
+        )
+
+    def audit_query(
+        self,
+        actiontype: str,
+        start_date: str = None,
+        end_date: str = None,
+        branch: str = None,
+        user_email: str = None,
+        q: str = None,
+        limit: int = 100,
+        offset: int = 0,
+    ):
+        matched_lines = []
+        with self.repo.lock:
+            self.prepare_internal_branch(BRANCH_AUDIT)
+            files = self.get_sorted_log_files_by_date(start_date, end_date)
+            for file in files:
+                file_content = self.get_file_content(file)
+                if not file_content:
+                    continue
+                with jsonlines.Reader(StringIO(file_content)) as reader:
+                    json_array = list(reader)
+                if q:
+                    expression = jsonpath_parse(q)
+                    matches = [match.value for match in expression.find(json_array)]
+                else:
+                    matches = json_array
+
+                matching_lines = filter(
+                    lambda line: (
+                        (line["action"] == actiontype)
+                        and self.is_within_date_range(line["time"], start_date, end_date)  # fmt:skip
+                        and (not branch or line["branch"] == branch)
+                        and (not user_email or line["user_email"] == user_email)
+                    ),
+                    matches,
+                )
+
+                matched_lines.extend(reversed(list(matching_lines)))
+                if len(matched_lines) >= offset + limit:
+                    break
+
+        return list(islice(matched_lines, offset, offset + limit))

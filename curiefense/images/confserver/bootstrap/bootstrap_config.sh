@@ -42,6 +42,8 @@ if [ -n "$IF_NO_CONFIG_INIT_FROM" ]; then
 	cp -R "$IF_NO_CONFIG_INIT_FROM/_internal_base/." .
 	git add .
 	git commit -m "Initial empty config"
+	git checkout -b _internal_audit
+	git reset --hard "HEAD~1"
 	git checkout -b prod
 	rm -rf config
 	cp -R "$IF_NO_CONFIG_INIT_FROM/prod/." .
