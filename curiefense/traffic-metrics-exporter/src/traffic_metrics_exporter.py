@@ -11,8 +11,9 @@ from copy import deepcopy
 from statistics import mean
 from jsonpath_ng import parse
 from dateutil.parser import isoparse
-from datetime import datetime, timedelta
-from prometheus_client import start_http_server, Counter, REGISTRY, Gauge
+from datetime import datetime, timedelta, timezone
+from prometheus_client import start_http_server, REGISTRY, Gauge, Metric
+from typing import Iterable
 
 from utils.prometheus_counters_dict import (
     REGULAR,
@@ -26,6 +27,40 @@ from utils.prometheus_counters_dict import (
     counters_format,
     name_changes,
 )
+
+
+class TimestampedGauge(Gauge):
+    def __init__(self, *args, timestamp=None, **kwargs):
+        self._timestamp = timestamp
+        super().__init__(*args, **kwargs)
+
+    def set_timestamp(self, timestamp: float):
+        self._timestamp = timestamp
+
+    def clear_timestamp(self):
+        self._timestamp = None
+
+    def collect(self) -> Iterable[Metric]:
+        metrics = {}
+        metrics = self._get_metric()
+        for suffix, labels, value, timestamp, exemplar in self._samples():
+            if self._timestamp is None:
+                metrics.add_sample(
+                    self._name + suffix, labels, value, timestamp, exemplar
+                )
+            else:
+                metrics.add_sample(
+                    self._name + suffix, labels, value, self._timestamp, exemplar
+                )
+                metrics.add_sample(
+                    self._name + suffix,
+                    labels,
+                    float("NaN"),
+                    self._timestamp + 59.999,
+                    exemplar,
+                )
+        return [metrics]
+
 
 ENABLE_EXPORT_T2 = os.getenv("ENABLE_EXPORT_T2", "True").lower() in ("true", "1", "on")
 T2_JSON_PATH = os.getenv("T2_JSON_PATH", "$.[*]")
@@ -54,22 +89,20 @@ base_labels = ["secpolid", "proxy", "secpolentryid", "branch", "namespace"]
 # Object fields that will be flattened process_time: {"avg": 0} -> process_time_avg
 flat_properties = ["processing_time", "bytes_sent"]
 
-
-t3_counters = dict()
 os.environ["PROMETHEUS_DISABLE_CREATED_SERIES"] = "true"
 for coll in list(REGISTRY._collector_to_names.keys()):
     REGISTRY.unregister(coll)
 start_http_server(SERVER_PORT)
 
+t3_counters = dict()
 for name, counter_label in counters_format.items():
     counter_name = name
     type = counter_label["type"]
     label = counter_label.get("label")
     more_labels = [label] if label else []
-    if type in [REGULAR, COUNTER_BY_KEY, COUNTER_OBJECT_BY_KEY]:
-        t3_counters[counter_name] = Counter(counter_name, "", base_labels + more_labels)
-    elif type in [AVERAGE, MAX, MIN, MAX_PER_REQUEST, AVG_PER_REQUEST]:
-        t3_counters[counter_name] = Gauge(counter_name, "", base_labels + more_labels)
+    t3_counters[counter_name] = TimestampedGauge(
+        counter_name, "", base_labels + more_labels
+    )
 
 q = Queue()
 
@@ -199,11 +232,17 @@ def update_t3_counters(t2_dict, acc_avg):
         counter_name = name_changes.get(counter_name, counter_name)
         valid_name = switch_hyphens(counter_name)
         counter_type = _get_counter_type(valid_name)
+        epochtst = float(
+            datetime.timestamp(
+                isoparse(t2_dict.get("timestamp", "")).replace(tzinfo=timezone.utc)
+            )
+        )
         if not counter_type:
             continue
         counter = t3_counters[valid_name]
+        counter.set_timestamp(epochtst)
         if counter_type == REGULAR:
-            counter.labels(*labels).inc(counter_value)
+            counter.labels(*labels).set(counter_value)
         elif counter_type in [AVERAGE, MAX, MIN]:
             # Find average for collected values. The last one will be the right number for the whole period.
             key = f"{proxy}-{app}-{profile}-{branch}-{valid_name}"
@@ -220,10 +259,10 @@ def update_t3_counters(t2_dict, acc_avg):
                 )
         elif counter_type == COUNTER_BY_KEY:
             for value in counter_value:
-                counter.labels(*labels, value["key"]).inc(value["value"])
+                counter.labels(*labels, value["key"]).set(value["value"])
         elif counter_type == COUNTER_OBJECT_BY_KEY:
             for key, value in counter_value.items():
-                counter.labels(*labels, key).inc(value)
+                counter.labels(*labels, key).set(value)
 
 
 def export_t2(t2: dict):
@@ -250,8 +289,11 @@ def export_t3():
 
                 # Clear all gauges so they do not drag previous values into new intervals
                 for key in t3_counters:
-                    if isinstance(t3_counters[key], Gauge):
+                    if isinstance(t3_counters[key], Gauge) or isinstance(
+                        t3_counters[key], TimestampedGauge
+                    ):
                         t3_counters[key].clear()
+                        t3_counters[key].clear_timestamp()
 
                 for agg_sec in five_sec_json:
                     start_time = time.time()
