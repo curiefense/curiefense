@@ -148,7 +148,7 @@ global:
   hub: docker.io/istio
 
   # Default tag for Istio images.
-  tag: 1.16.1
+  tag: 1.17.2
 
   # Specify image pull policy if default behavior isn't desired.
   # Default behavior: latest images will be Always else IfNotPresent.
