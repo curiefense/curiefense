@@ -1,6 +1,6 @@
 ARG RUSTBIN_TAG=latest
 FROM curiefense/curiefense-rustbuild-focal:${RUSTBIN_TAG} AS rustbin
-FROM envoyproxy/envoy:v1.24.1
+FROM envoyproxy/envoy:v1.25.4
 
 RUN apt-get update && \
     apt-get -qq -y --no-install-recommends install jq luarocks libpcre2-dev libgeoip-dev \
