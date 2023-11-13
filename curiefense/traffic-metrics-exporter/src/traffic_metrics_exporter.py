@@ -54,22 +54,18 @@ base_labels = ["secpolid", "proxy", "secpolentryid", "branch", "namespace"]
 # Object fields that will be flattened process_time: {"avg": 0} -> process_time_avg
 flat_properties = ["processing_time", "bytes_sent"]
 
-
-t3_counters = dict()
 os.environ["PROMETHEUS_DISABLE_CREATED_SERIES"] = "true"
 for coll in list(REGISTRY._collector_to_names.keys()):
     REGISTRY.unregister(coll)
 start_http_server(SERVER_PORT)
 
+t3_counters = dict()
 for name, counter_label in counters_format.items():
     counter_name = name
     type = counter_label["type"]
     label = counter_label.get("label")
     more_labels = [label] if label else []
-    if type in [REGULAR, COUNTER_BY_KEY, COUNTER_OBJECT_BY_KEY]:
-        t3_counters[counter_name] = Counter(counter_name, "", base_labels + more_labels)
-    elif type in [AVERAGE, MAX, MIN, MAX_PER_REQUEST, AVG_PER_REQUEST]:
-        t3_counters[counter_name] = Gauge(counter_name, "", base_labels + more_labels)
+    t3_counters[counter_name] = Gauge(counter_name, "", base_labels + more_labels)
 
 q = Queue()
 
@@ -186,6 +182,7 @@ def choose_func(counter_type):
     }.get(counter_type)
 
 
+
 def update_t3_counters(t2_dict, acc_avg):
     proxy = t2_dict.get("proxy", "")
     app = t2_dict.get("secpolid", "")
@@ -203,7 +200,7 @@ def update_t3_counters(t2_dict, acc_avg):
             continue
         counter = t3_counters[valid_name]
         if counter_type == REGULAR:
-            counter.labels(*labels).inc(counter_value)
+            counter.labels(*labels).set(counter_value)
         elif counter_type in [AVERAGE, MAX, MIN]:
             # Find average for collected values. The last one will be the right number for the whole period.
             key = f"{proxy}-{app}-{profile}-{branch}-{valid_name}"
@@ -220,10 +217,10 @@ def update_t3_counters(t2_dict, acc_avg):
                 )
         elif counter_type == COUNTER_BY_KEY:
             for value in counter_value:
-                counter.labels(*labels, value["key"]).inc(value["value"])
+                counter.labels(*labels, value["key"]).set(value["value"])
         elif counter_type == COUNTER_OBJECT_BY_KEY:
             for key, value in counter_value.items():
-                counter.labels(*labels, key).inc(value)
+                counter.labels(*labels, key).set(value)
 
 
 def export_t2(t2: dict):
