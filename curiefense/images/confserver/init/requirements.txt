@@ -54,7 +54,7 @@ smmap==5.0.0
 typing_extensions==4.2.0
 urllib3==1.26.9
 uWSGI==2.0.20
-Werkzeug==0.16.1
+Werkzeug==2.2.3
 xattr==0.9.9
 zipp==3.8.0
 fastapi==0.87.0
