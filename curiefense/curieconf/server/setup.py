@@ -27,7 +27,7 @@ setup(
         "flask-restx==0.5.1",
         "markupsafe==2.0.1",
         "werkzeug==2.1.2",
-        "gitpython==3.1.27",
+        "gitpython==3.1.30",
         "colorama",
         "jmespath",
         "fasteners",
