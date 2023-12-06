@@ -17,9 +17,12 @@ app = FastAPI(docs_url=os.environ.get("SWAGGER_BASE_PATH", "/api/v3/"))
 app.include_router(api.router)
 
 
+instrumentator = Instrumentator().instrument(app)
+
+
 @app.on_event("startup")
-async def startup():
-    Instrumentator().instrument(app).expose(app)
+async def _startup():
+    instrumentator.expose(app)
 
 
 ## Import all versions
@@ -61,7 +64,6 @@ def drop_into_pdb(app, exception):
 
 def main(args=None):
     # only called when running manually, not through uwsgi
-    global mongo
     import argparse
 
     parser = argparse.ArgumentParser()
