@@ -1,4 +1,4 @@
-FROM python:3.8.15-slim-buster
+FROM python:3.9-slim-buster
 
 COPY init/requirements.txt /root/requirements.txt
 
