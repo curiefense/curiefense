@@ -77,7 +77,8 @@ jobs:
             pushd deploy/compose
             docker-compose logs
 
-      - name: Publish Unit Test Results
+      - name: Publish
+        id: publish
         # TODO implement https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories
         uses: EnricoMi/publish-unit-test-result-action@ea8720de4a2e723f8204d44fc0178744cf401c1a
         with:
@@ -93,7 +94,28 @@ jobs:
           always() &&
           github.event.sender.login != 'dependabot[bot]' &&
           ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
+        
+      - name: Cool off if Publish fails
+        if: steps.Publish.outcome != 'success'
+        run: |
+            sleep 2m
+            
+      - name: Rerun Publish Unit Test Results if failed
+        if: steps.Publish.outcome != 'success'
+        id: publish2
+        # TODO implement https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories
+        uses: EnricoMi/publish-unit-test-result-action@ea8720de4a2e723f8204d44fc0178744cf401c1a
+        with:
+          files: e2e/pytest.xml
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          check_name: E2E Test Results on docker-compose
+          comment_title: E2E Test Statistics
+          hide_comments: all but latest
+          comment_on_pr: true
+          report_individual_runs: true
+          deduplicate_classes_by_file_name: false
 
+      
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v2
