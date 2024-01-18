@@ -36,7 +36,7 @@ MarkupSafe==2.0.1
 minio==6.0.2
 mypy-boto3-s3==1.22.0.post1
 ply==3.11
-protobuf==3.20.1
+protobuf==3.20.2
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.21
