@@ -360,7 +360,8 @@ def validateJson(json_data, schema_type):
 
 def validateDbJson(json_data, schema):
     try:
-        validate(instance=json_data, schema=schema)
+        for _, value in json_data.items():
+            validate(instance=value, schema=schema)
     except jsonschema.exceptions.ValidationError as err:
         print(str(err))
         return False
